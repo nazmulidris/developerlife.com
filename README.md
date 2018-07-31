@@ -6,6 +6,8 @@ After you clone the repo, go the `jekyll_test` folder, and
 
 ## Locating minima theme
 - Run `open $(bundle show minima)` in Finder
+    - Note that if you edit these minima files by accident (you will need sudo access to edit them),
+      you can simply regenerate them by running `bundle install --force`.
 - [Learn more about `minima` theme customization](https://github.com/jekyll/minima)
 
 ## Installing Ruby and a new Jekyll project

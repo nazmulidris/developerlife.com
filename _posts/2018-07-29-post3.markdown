@@ -18,3 +18,43 @@ It has survived not only five centuries, but also the leap into electronic types
 remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset 
 sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like 
 Aldus PageMaker including versions of Lorem Ipsum.
+
+{% highlight kotlin %}
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.net.URLEncoder
+
+val arg = when {
+    args.size > 0 -> args[0]
+    else -> "https://en.wikipedia.org/wiki/Cache_replacement_policies#Last_in_first_out_(LIFO)"
+}
+{% endhighlight %}
+
+```kotlin
+val encodedData = URLEncoder.encode(arg, "UTF-8")
+val url = "https://tinyurl.com/api-create.php?url=$encodedData"
+
+print(doGet(url))
+
+fun doGet(url: String): String {
+    val request = Request.Builder().url(url).build()
+    val response = OkHttpClient().newCall(request).execute()
+    return response.body()!!.string()
+}
+```
+
+```java
+String a = String.valueOf(2); 
+int i = Integer.parseInt(a);  
+BufferedWriter out = null;
+try {
+    out = new BufferedWriter(new FileWriter(”filename”, true));
+    out.write(”aString”);
+} catch (IOException e) {
+    // error processing code
+} finally {
+    if (out != null) {
+        out.close();
+    }
+}
+```

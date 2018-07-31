@@ -1,0 +1,41 @@
+<!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related">
+
+    <h2>Related Posts</h2>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    {% assign postsString = "" %}
+    {% assign sortedCategories = page.categories | sort %}
+    {% for category in sortedCategories %}
+        {% for related in site.categories[category] %}
+            {% assign postsString = postsString | append: related.title | join:"|" | append:"|" %}
+        {% endfor %}
+    {% endfor %}
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    {% assign postArray = postsString | split: '|' | uniq %}
+
+    <ul>
+        {% for postTitle in postArray %}
+            {% unless postTitle == page.title %}
+                {% assign pageObject = site.posts | where:"title", postTitle | first %}
+                <li>
+                    <a class="post-link" href="{{ pageObject.url | relative_url }}">
+                        {{ pageObject.title | escape }}
+                    </a>
+                </li>
+            {% endunless %}
+        {% endfor %}
+    </ul>
+
+</div>

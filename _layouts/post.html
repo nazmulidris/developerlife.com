@@ -20,23 +20,13 @@ layout: default
 
     <div class="post-content e-content" itemprop="articleBody">
         {{ content }}
+        {% include category-chips.html %}
+        {% include related-posts.html %}
+        <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
     </div>
 
     {%- if site.disqus.shortname -%}
     {%- include disqus_comments.html -%}
     {%- endif -%}
-
-    <a class="u-url" href="{{ page.url | relative_url }}" hidden></a>
-
-    <!-- Display all the categories for this post -->
-    <div class="categories">
-        {% assign sortedCategories = page.categories | sort %}
-        {% for category in sortedCategories %}
-        <span class="category">
-            <a href="{{ '/category/' | append: category | relative_url }}">
-                #{{ category }}</a>
-        </span>
-        {% endfor %}
-    </div>
 
 </article>

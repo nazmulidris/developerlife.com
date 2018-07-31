@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Post 1"
+title:  Post 1
 date:   2018-07-27 13:35:54 -0700
 categories: cat1 cat2
 ---

@@ -1,7 +1,7 @@
 ---
-layout: post
-title:  "Post 3"
-date:   2018-07-29 13:35:54 -0700
+layout:     post
+title:      Post 3
+date:       2018-07-29 13:35:54 -0700
 categories: cat1 cat2 cat3
 ---
 # ~~Heading 1~~

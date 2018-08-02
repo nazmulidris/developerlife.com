@@ -15,8 +15,8 @@ To use Rails on macOS, you’ll need Ruby (an interpreter for the Ruby programmi
 1. `xcode-select --install`
 1. `brew install ruby`
 1. Go to the folder in which you've cloned this repo
-  1. run `bundle install`
-  1. and run `jekyll serve`
+    1. run `bundle install`
+    1. and run `jekyll serve`
 
 ### To create a new project using Jekyll
 1. In order to create a new project using Jekyll

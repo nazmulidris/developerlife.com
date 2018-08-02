@@ -47,7 +47,7 @@ There are more sophisticated use cases involving audio focus and MediaSession wh
 
 ## Source code on Github
 
-You can get the source code for the example app use in this article [at github.com/r3bl-alliance/android-simple-mediaplayer/](https://github.com/r3bl-alliance/android-simple-mediaplayer).
+You can get the source code for the example app use in this article [at github](https://github.com/r3bl-alliance/android-simple-mediaplayer).
 
 ## Using MediaPlayer
 

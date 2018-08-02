@@ -174,4 +174,4 @@ many varied topics. The goal of the content is in service of the creation of
 technology that adapts to the needs of humans.
 
 You can see how this site has evolved since the beginning in the [Internet 
-Archive Wayback Machine](https://web-beta.archive.org/web/*/developerlife.com).
+Archive Wayback Machine](https://web.archive.org/web/*/developerlife.com).

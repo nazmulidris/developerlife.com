@@ -7,6 +7,7 @@ excerpt: |
   Google Fonts) using the latest support library. 🖋
 layout: post
 title: Android Downloadable Fonts
+hero-image: assets/downloadable-fonts-hero.png
 categories:
 - Android
 - Material Design

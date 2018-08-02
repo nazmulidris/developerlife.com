@@ -7,6 +7,7 @@ excerpt: |
   are a thing of the past. Architecture Components puts the magic back into Android
   development! 🎩✨
 layout: post
+hero-image: assets/arch-comp-hero.png
 title: Introduction to Android Architecture Components
 categories:
 - Android

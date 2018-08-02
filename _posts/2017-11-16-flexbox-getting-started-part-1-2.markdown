@@ -5,7 +5,8 @@ date: 2017-11-16 04:53:44+00:00
 layout: post
 excerpt: |
   The goal of this series of articles is to help you to learn Flexbox in a
-  fun interactive way and then help you to build simple real life examples using Flexbox.
+  fun interactive way and then help you to build simple real life examples
+  using Flexbox. 📦
 layout: post
 title: 'Flexbox: Getting started (Part 1/2)'
 hero-image: assets/flexbox-hero-image.jpg

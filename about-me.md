@@ -8,7 +8,7 @@ title: Me
 
 <table>
     <tr>
-        <td>
+        <td width="100px">
             <img src="{{ '/assets/nazmul.png' | relative_url }}"/>
         </td>
         <td>

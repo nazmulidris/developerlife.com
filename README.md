@@ -1,4 +1,4 @@
-## Running the site
+## Running the site (if you already have ruby installed)
 After you clone the repo, go the `jekyll_test` folder, and
 1. Run `bundler` → Takes the `Gemfile` imports and installs them
 1. Run `jekyll serve` → Builds the static site and serves it on port 4000

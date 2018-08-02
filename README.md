@@ -10,15 +10,14 @@ After you clone the repo, go the `jekyll_test` folder, and
       you can simply regenerate them by running `bundle install --force`.
 - [Learn more about `minima` theme customization](https://github.com/jekyll/minima)
 
-## Installing Ruby and a new Jekyll project
+## Installing Ruby and running this project
 To use Rails on macOS, you’ll need Ruby (an interpreter for the Ruby programming language) plus gems (software libraries) containing the Rails web application development framework. Run the following commands in your terminal app.
 1. `xcode-select --install`
 1. `brew install ruby`
-1. `sudo gem install ruby`
-1. `sudo gem install bundler`
-1. Create a new folder `temp` in your `~/Downloads` and go to that folder
-    1. Run `bundle install`
-1. Now it's time to create a new project using Jekyll
+1. Go to the folder in which you've cloned this repo, and run `jekyll serve`
+
+### To create a new project using Jekyll
+1. In order to create a new project using Jekyll
     1. Go to a folder that you want to create your new website under, eg `~/github/`
     1. Run `jekyll new jekyll_test`
         1. Your new site will be created in `~/github/jekyll_test` 

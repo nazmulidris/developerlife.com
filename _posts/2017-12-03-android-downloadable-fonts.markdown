@@ -4,7 +4,7 @@ date: 2017-12-03 01:49:38+00:00
 excerpt: |
   As of Android API level 27, there are too many ways to load custom fonts
   in Android apps. This article will show you how to use downloadable fonts (from
-  Google Fonts) using the latest support library.
+  Google Fonts) using the latest support library. 🖋
 layout: post
 title: Android Downloadable Fonts
 categories:
@@ -31,7 +31,7 @@ categories:
 
 ## Using Google Fonts (programmatically, in XML)
 
-As of Android API level 27, there are too many ways to load custom fonts in Android apps. This article will show you how to use downloadable fonts (from Google Fonts) using the latest support library, which is very similar to the way one would use fonts in HTML and CSS..
+As of Android API level 27, there are too many ways to load custom fonts in Android apps. This article will show you how to use downloadable fonts (from Google Fonts) using the latest support library, which is very similar to the way one would use fonts in HTML and CSS.
 
 Android Oreo introduced the use of [defining custom fonts in XML](https://developer.android.com/guide/topics/ui/look-and-feel/fonts-in-xml.html) that can be seamlessly used in your XML layout files. While this is a great feature, in order to use it you have to set your `minSdkVersion` to Oreo. 😠
 

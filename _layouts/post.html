@@ -11,10 +11,21 @@ layout: default
                 {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
                 {{ page.date | date: date_format }}
             </time>
-            {%- if page.author -%}
-            • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
-                class="p-author h-card" itemprop="name">{{ page.author }}</span></span>
+
+            <!--Has both author and authorlink set-->
+            {%- if page.author and page.authorlink -%}
+                • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                    class="p-author h-card" itemprop="name">
+                <a href="{{ page.authorlink }}">{{ page.author }}</a>
+                </span></span>
+            <!--Only has author set-->
+            {%- elsif page.author -%}
+                • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
+                    class="p-author h-card" itemprop="name">
+                {{ page.author }}
+                </span></span>
             {%- endif -%}
+
         </p>
     </header>
 

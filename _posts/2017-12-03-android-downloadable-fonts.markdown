@@ -6,7 +6,7 @@ excerpt: |
   in Android apps. This article will show you how to use downloadable fonts (from
   Google Fonts) using the latest support library. 🖋
 layout: post
-title: Android Downloadable Fonts
+title: 'Android Downloadable Fonts'
 hero-image: assets/downloadable-fonts-hero.png
 categories:
 - Android

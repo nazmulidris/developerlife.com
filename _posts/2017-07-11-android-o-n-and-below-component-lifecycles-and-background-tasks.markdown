@@ -6,7 +6,7 @@ excerpt: |
   services, bound services, and bound and started services. With source code examples
   and a sample app.
 layout: post
-title: 'Android O, N and below component lifecycles and background tasks'
+title: 'Deep dive into Android Services'
 hero-image: assets/android-service-hero.png
 categories:
 - Android

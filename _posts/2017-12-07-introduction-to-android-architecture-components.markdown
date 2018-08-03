@@ -8,7 +8,7 @@ excerpt: |
   development! 🎩✨
 layout: post
 hero-image: assets/arch-comp-hero.png
-title: Introduction to Android Architecture Components
+title: 'Introduction to Android Architecture Components'
 categories:
 - Android
 ---

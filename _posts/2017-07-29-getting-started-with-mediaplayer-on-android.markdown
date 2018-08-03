@@ -5,7 +5,7 @@ excerpt: |
   This article is an introduction on how to use Android MediaPlayer in your
   apps to playback audio. 🎵
 layout: post
-title: Getting started with MediaPlayer on Android
+title: 'Getting started with MediaPlayer on Android'
 hero-image: assets/android-mediaplayer-hero.png
 categories:
 - Android

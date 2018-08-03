@@ -1,6 +1,6 @@
 ---
 author: Maret Idris
-authorlink: https://maretidris.com
+author-link: https://maretidris.com
 date: 2017-07-23 03:01:09+00:00
 excerpt: |
   When I decided start on my journey to becoming a designer who can code, I

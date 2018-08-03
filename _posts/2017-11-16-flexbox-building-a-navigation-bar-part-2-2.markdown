@@ -11,8 +11,8 @@ layout: post
 hero-image: assets/flexbox-hero-image.jpg
 title: 'Flexbox: Building a navigation bar (Part 2/2)'
 categories:
-- UX Engineering
-- Web Design
+- UXE
+- Web
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

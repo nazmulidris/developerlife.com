@@ -11,8 +11,8 @@ layout: post
 title: 'Flexbox: Getting started (Part 1/2)'
 hero-image: assets/flexbox-hero-image.jpg
 categories:
-- UX Engineering
-- Web Design
+- UXE
+- Web
 ---
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

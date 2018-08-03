@@ -10,8 +10,7 @@ title: Android Downloadable Fonts
 hero-image: assets/downloadable-fonts-hero.png
 categories:
 - Android
-- Material Design
-- UX Engineering
+- UXE
 ---
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

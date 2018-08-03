@@ -13,6 +13,7 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Introduction](#introduction)
 - [How to add copyright to Android Studio](#how-to-add-copyright-to-android-studio)
   - [Step 1 - Create a copyright profile](#step-1---create-a-copyright-profile)

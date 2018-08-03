@@ -7,7 +7,7 @@ excerpt: |
   if you haven’t but this concept sounds interesting, keep reading.
 layout: post
 hero-image: assets/why-i-am-learning-to-code2.png
-title: 'Why I'm learning to code'
+title: "Why I'm learning to code"
 categories:
 - Web
 - UXE

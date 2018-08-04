@@ -512,12 +512,9 @@ The Redux state has 4 high level objects in it: `app`, `nav_tab`, `nav_stack`, a
 
 ## React Native resources
 
-  * Stay tuned for more React Native content on [developerlife.com](https://developerlife.com/category/react-native).
   * This is a [good resource](http://reactnative.cc/) that you can follow for keeping up to date with changes in React Native.
   * This a [great facebook community](https://www.facebook.com/groups/react.native.community/?hc_ref=NEWSFEED) on React Native.
 
 ## React, Redux, and native Android resources
 
-  * I have tutorials on [Flexbox here](https://developerlife.com/category/flexbox/).
-  * I have tutorials on [React and Redux here](https://developerlife.com/category/react/).
   * How to integrate Redux into native Android development. I have tutorials [on native Android and Redux here](https://developerlife.com/2017/01/27/native-android-redux-and-firebase/).

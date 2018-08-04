@@ -1,7 +1,11 @@
 ---
 author: Nazmul Idris
 date: 2000-09-20 18:32:56+00:00
-excerpt: Advanced threading topics.
+excerpt: |
+   This tutorial is devoted to showing you advanced techniques of using threads to
+   perform event driven tasks, without using polling, and usually with the use of
+   queues. Techniques of managing life cycles of server objects (that are multithreaded) 
+   and runtime activation and deactivation of these objects.
 layout: post
 title: "Advanced Threads"
 categories:

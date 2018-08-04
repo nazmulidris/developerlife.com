@@ -236,8 +236,7 @@ Here are the steps that have to happen going from the picture of a row in the wi
 
   * There's a container View that is styled with the `home_screen_list.row` style. This basically creates a horizontal container which will hold all the other components inside of it. There are 3 React components that are nested inside of this container:
 
-    * `View` that holds the 2 `Text` components that display the time and place info, that are stacked vertically. The `home_screen_list_row_cell_timeplace` sets this container up. `flex:1` is set on this container, and it takes up all the horizontal space that's available, so that the icon and temperature `Text` components can be slammed to the right of the row. This creates the space that you see in the UI. ![](
-    {{'assets/flexbox-layout-4.png' | relative_url}})
+    * `View` that holds the 2 `Text` components that display the time and place info, that are stacked vertically. The `home_screen_list_row_cell_timeplace` sets this container up. `flex:1` is set on this container, and it takes up all the horizontal space that's available, so that the icon and temperature `Text` components can be slammed to the right of the row. This creates the space that you see in the UI. ![]({{'assets/flexbox-layout-4.png' | relative_url}})
 
     * `Icon` that displays the font icon. No `flex` value is set for this component, so it takes up its preferred height and width.
 

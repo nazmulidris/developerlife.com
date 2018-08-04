@@ -13,7 +13,7 @@ title: Me
         </td>
         <td>
             Hi, I'm <a href="http://www.google.com/search?hl=en&q=nazmul+idris">Nazmul</a>.
-            I am a Google software engineer, entrepreneur, leader, coder, designer, dancer, 
+            I am a Google software engineer, entrepreneur, leader, designer, dancer, 
             TaiChi’er, Yogi, racer, healer, storyteller. I ❤️ leadership, authenticity, 
             empowerment, and lifelong learning.
         </td>

@@ -88,7 +88,7 @@ The way FlatList works is that it takes some data, and it takes a row renderer w
 
 If you look at the diagram below, it visually depicts how we break the Home screen into a FlatList, then apply styling to the FlatList and then map that into React components that we add to our JSX.
 
-![]({{'assets/flexbox-layout-2.png' | relative_url'}})
+![]({{'assets/flexbox-layout-2.png' | relative_url}})
 
 This is the code for the JSX you see on the right of the image:
 

@@ -13,8 +13,9 @@ title: Me
         </td>
         <td>
             Hi, I'm <a href="http://www.google.com/search?hl=en&q=nazmul+idris">Nazmul</a>
-            I am a Googler, entrepreneur, leader, coder, designer, dancer, TaiChi’er, Yogi, 
-            racer, healer, storyteller. I’m about leadership, authenticity, and empowerment.
+            I am a Google software engineer, entrepreneur, leader, coder, designer, dancer, 
+            TaiChi’er, Yogi, racer, healer, storyteller. I’m about leadership, authenticity, 
+            empowerment, and lifelong learning.
         </td>
     </tr>
 </table>

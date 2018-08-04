@@ -17,12 +17,13 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Introduction](#introduction)
 - [Some pseudo code to explain this](#some-pseudo-code-to-explain-this)
 - [What if something goes wrong?](#what-if-something-goes-wrong)
 - [Sample code](#sample-code)
   - [Simple example](#simple-example)
-  - [Here’s the client side code that calls this:](#heres-the-client-side-code-that-calls-this)
+  - [Here’s the client side code that calls this](#heres-the-client-side-code-that-calls-this)
   - [Complex example](#complex-example)
 - [To async or not to async](#to-async-or-not-to-async)
 
@@ -145,7 +146,7 @@ Notes on the code:
 
   5. The `AsyncContext` listener does not really do anything useful in this example, just prints out “`onComplete called`” to the app server log when requests come in.
 
-### Here’s the client side code that calls this:
+### Here’s the client side code that calls this
 
 ```java
 public class LoadTester {

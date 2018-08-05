@@ -161,7 +161,8 @@ patent).
 I started developerlife.com in Nov 1998 when I couldn’t find a decent tutorial 
 on XML and Java to build web based apps, so I decided to write one myself, and 
 this site was born. It served up its [first tutorial on on 31 Dec 
-1998](http://xml.coverpages.org/idris199901.html). 
+1998](http://xml.coverpages.org/idris199901.html) with the following announcement
+to the `xlxp-dev@fsc.fujitsu.com` mailing list. 
 
 ```text
 XML and Java2 Tutorial

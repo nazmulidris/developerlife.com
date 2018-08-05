@@ -1,7 +1,11 @@
 ---
 author: Nazmul Idris
 date: 2006-06-09 19:02:16+00:00
-excerpt: Introduction to the Java5 Concurrency API
+excerpt: | 
+  Introduction to the Java5 Concurrency API. Java 50 introduces the 
+  java.util.concurrency API, which leverages hardware level constructs 
+  to allow Java programs to use lock-free, and wait-free thread-safety 
+  mechanisms, without having to use native code.
 layout: post
 title: "Introduction to Java 5 java.util.concurrent API"
 categories:

@@ -12,7 +12,7 @@ title: Me
             <img src="{{ '/assets/nazmul.png' | relative_url }}"/>
         </td>
         <td>
-            Hi, I'm <a href="http://www.google.com/search?hl=en&q=nazmul+idris">Nazmul</a>.
+            Hi, I'm <a href="http://www.google.com/search?hl=en&q=nazmul+idris">Nazmul</a>😃.
             I am a Google software engineer, entrepreneur, leader, designer, dancer, 
             TaiChi’er, Yogi, racer, healer, storyteller. I ❤️ leadership, authenticity, 
             empowerment, and lifelong learning.

@@ -441,7 +441,7 @@ const nav_stack = StackNavigator(
 
 Finally, here's an example of a DrawerNavigator that accepts a custom component that paints the DrawerItems in a custom way (by using a ScrollView and setting a custom background color).
 
-```jsx
+```javascript
 //
 // drawer ... more info https://goo.gl/2Dnmtl
 //

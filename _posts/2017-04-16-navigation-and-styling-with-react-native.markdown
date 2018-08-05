@@ -8,6 +8,7 @@ excerpt: |
   GitHub.
 layout: post
 title: "Navigation and Styling with React Native"
+hero-image: assets/rn-styling-hero.png
 categories:
 - Android
 - UXE

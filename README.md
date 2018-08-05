@@ -1,3 +1,8 @@
+## More info on Jekyll and Liquid
+- [Printing debug variables](https://stackoverflow.com/questions/34048313/jekyll-debug-or-print-all-variables)
+- [True and false in](https://help.shopify.com/en/themes/liquid/basics/true-and-false)
+- [Control flow](https://help.shopify.com/en/themes/liquid/tags/control-flow-tags)
+
 ## Running the site (if you already have ruby installed)
 After you clone the repo, go the `jekyll_test` folder, and
 1. Run `bundler` → Takes the `Gemfile` imports and installs them

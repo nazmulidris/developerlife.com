@@ -1,0 +1,35 @@
+<!--
+    Post tile displays a card w/ the following information about each post
+    - Title
+    - Author
+    - Date
+    - other meta data
+
+    Note this is a list item
+-->
+<li>
+    {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+    <!-- Post Title, date, author-->
+    <h3>
+        <a class="post-link" href="{{ post.url | relative_url }}">
+            {{ post.title | escape }}
+        </a>
+        <p class="post-meta">
+            {{ post.date | date: date_format }}
+            •
+            <span itemprop="author"
+                  itemscope itemtype="http://schema.org/Person">
+            <span class="p-author h-card"
+                  itemprop="name">
+            {{ post.author }}
+            </span></span>
+        </p>
+
+    </h3>
+    <!-- Post excerpt -->
+    {%- if site.show_excerpts -%}
+        {{ post.excerpt }}
+    {%- endif -%}
+    <!-- Post category chips -->
+    {% include category-chips-post.html %}
+</li>

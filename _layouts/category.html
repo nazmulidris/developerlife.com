@@ -1,22 +1,43 @@
 ---
-layout: page
+layout: default
 ---
 
-<ul class="post-list">
-    {% for post in site.categories[page.category] %}
-    <li>
+<div class="home">
 
-        {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
-        <span class="post-meta">{{ post.date | date: date_format }}</span>
+    {%- if page.title -%}
+        <h1 class="page-heading">{{ page.title }}</h1>
 
-        <a class="post-link" href="{{ post.url | absolute_url }}">
-            {{ post.title | escape }}
-        </a>
+    <!-- Debug to show page.title and page.category -->
+    <!--<pre>page.title = {{ page.title | inspect }}</pre>-->
+    <!--<pre>page.category = {{ page.category | inspect }}</pre>-->
+    <!--<pre>page.title (json) = {{ page.title | json }}</pre>-->
+    <!--<pre>page.category (json) = {{ page.category | json }}</pre>-->
 
-        {%- if site.show_excerpts -%}
-        {{ post.excerpt }}
+    {%- endif -%}
+
+    {{ content }}
+
+    {%- if site.posts.size > 0 -%}
+
+        <!--Shows recent articles-->
+        <!--<h2 class="post-list-heading">-->
+            <!--{{ page.list_title | default: "Recent Articles" }}-->
+        <!--</h2>-->
+
+        <ul class="post-list">
+
+            {%- for post in site.categories[page.category] -%}
+                {% include post_list_item.html %}
+            {%- endfor -%}
+
+        </ul>
+
+        {%- if site.show_rss_feed -%}
+            <p class="rss-subscribe">subscribe <a
+                    href="{{ '/feed.xml' | relative_url }}">via RSS</a>
+            </p>
         {%- endif -%}
 
-    </li>
-    {% endfor %}
-</ul>
+    {%- endif -%}
+
+</div>

@@ -8,7 +8,7 @@ excerpt: |
   web and mobile clients. I also used Firebase auth and Material Design to craft a
   real-world app. The code for this tutorial is in GitHub.
 layout: post
-title: "Native Android, Redux, Firebase Auth & Database, and Material Design"
+title: "Android, Redux, Firebase Auth & Database, and Material Design"
 hero-image: assets/and-redux-hero.png
 categories:
 - Android

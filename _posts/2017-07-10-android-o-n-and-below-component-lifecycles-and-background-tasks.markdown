@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2017-07-11 04:25:15+00:00
+date: 2017-07-10 04:25:15+00:00
 excerpt: | 
   This article is a deep dive into Android Services. Learn all about started
   services, bound services, and bound and started services. With source code examples

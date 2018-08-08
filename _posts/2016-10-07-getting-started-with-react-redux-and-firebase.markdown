@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2016-10-08 02:45:24+00:00
+date: 2016-10-07 02:45:24+00:00
 excerpt: |
   The purpose of this tutorial is to serve as a starting point for a real world
   React, Redux, and Firebase example. The starter project is on GitHub.

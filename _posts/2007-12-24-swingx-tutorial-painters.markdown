@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2007-12-25 00:38:50+00:00
+date: 2007-12-24 21:51:14+00:00
 excerpt: |
   This tutorial will introduce you to the SwingX API and the concept of Painters.
   It will give you an idea of the kinds of effects you can create with them as well,

@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2008-07-16 01:07:57+00:00
+date: 2008-07-15 01:07:57+00:00
 excerpt: |
   This tutorial will show you how to create a sub-Activity from a calling-Activity,
   and process the results produced by the sub-Activity, if you want to do so. Also,

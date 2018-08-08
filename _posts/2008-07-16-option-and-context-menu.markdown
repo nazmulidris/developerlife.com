@@ -15,7 +15,6 @@ categories:
 
 
 - [Introduction](#introduction)
-- [Android 101](#android-101)
 - [Menu item creation code](#menu-item-creation-code)
 - [Option Menu - MENU button](#option-menu---menu-button)
 - [Context Menu - Press and hold](#context-menu---press-and-hold)

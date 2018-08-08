@@ -20,7 +20,6 @@ categories:
 
 
 - [Introduction](#introduction)
-- [Android 101](#android-101)
 - [What is a ListView?](#what-is-a-listview)
 - [Be careful of the following](#be-careful-of-the-following)
 - [Example with source code](#example-with-source-code)

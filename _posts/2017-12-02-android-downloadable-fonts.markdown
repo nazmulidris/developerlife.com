@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2017-12-03 01:49:38+00:00
+date: 2017-12-02 12:00:00+00:00
 excerpt: |
   As of Android API level 27, there are too many ways to load custom fonts
   in Android apps. This article will show you how to use downloadable fonts (from

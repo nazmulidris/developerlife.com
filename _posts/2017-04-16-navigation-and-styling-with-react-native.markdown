@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2017-04-16 03:39:49+00:00
+date: 2017-04-15 03:39:49+00:00
 excerpt: |
   This tutorial is a deep dive of React Navigation, which is the way to do
   in app navigation. It also goes into the best practices for styling your app and

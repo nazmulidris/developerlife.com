@@ -11,7 +11,6 @@ layout: post
 title: "Android - How to build a service-enabled Android App - Part 2/3 Networking"
 categories:
 - Android
-
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

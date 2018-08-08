@@ -10,7 +10,6 @@ layout: post
 title: "Android - How to build a service-enabled Android app - Part 1/3 UI"
 categories:
 - Android
-
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

@@ -9,7 +9,8 @@ excerpt: |
   queries. 📦
 layout: post
 hero-image: assets/flexbox-hero-image.jpg
-title: 'Flexbox: Building a navigation bar (Part 2/2)'
+title: "Flexbox: Building a navigation bar (Part 2/2)"
+permalink: /2017/11/15/flexbox-building-a-navigation-bar-part-2-2/
 categories:
 - UXE
 - Web

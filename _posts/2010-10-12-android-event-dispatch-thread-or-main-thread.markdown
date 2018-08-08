@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2010-10-13 01:38:29+00:00
+date: 2010-10-12 12:38:29-08:00
 excerpt: | 
   Android applications run in a native Linux process, in the underlying Linux
   OS. This process houses activities (screens), widgets, and services (non visual

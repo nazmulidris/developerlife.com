@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2008-04-07 03:13:26+00:00
+date: 2008-04-06 12:00:00-08:00
 excerpt: |
   Introducing the Task API. Easy to use background task API for Swing. Android
   and JavaME implementation coming soon. Easily create tasks and monitor their progress

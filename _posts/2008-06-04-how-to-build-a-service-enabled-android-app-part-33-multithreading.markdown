@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2008-06-05 02:59:59+00:00
+date: 2008-06-04 12:00:00-08:00
 excerpt: |
   I've written 3 tutorials to show you how to create a service enabled Android
   application that performs all of it's network I/O in a background thread (not the

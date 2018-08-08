@@ -16,14 +16,12 @@ categories:
 
 
 - [Introduction](#introduction)
-  - [About developerlife.com](#about-developerlifecom)
 - [JXPanel](#jxpanel)
 - [Painters](#painters)
 - [The Painters API](#the-painters-api)
 - [Source code example 1](#source-code-example-1)
 - [Source code example 2](#source-code-example-2)
 - [Download the code](#download-the-code)
-- [Next steps](#next-steps)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

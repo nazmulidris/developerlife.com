@@ -19,7 +19,6 @@ categories:
 - [What is a task pane?](#what-is-a-task-pane)
 - [Source code example](#source-code-example)
 - [Download project](#download-project)
-- [Comments and Feedback](#comments-and-feedback)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

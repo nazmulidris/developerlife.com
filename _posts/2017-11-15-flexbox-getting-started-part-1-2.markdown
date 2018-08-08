@@ -1,7 +1,7 @@
 ---
 author: Maret Idris
 author-link: https://maretidris.com
-date: 2017-11-15 00:00:00-08:00
+date: 2017-11-15 12:00:00-08:00
 layout: post
 excerpt: |
   The goal of this series of articles is to help you to learn Flexbox in a

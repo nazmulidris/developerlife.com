@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2008-04-21 21:51:14+00:00
+date: 2008-04-21 12:00:00+00:00
 excerpt: |
   Given an IP address, this tutorial will show you how to get a Google Static
   Map from it.

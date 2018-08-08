@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2016-10-02
+date: 2016-10-02 21:51:14+00:00
 excerpt: |
   The purpose of this tutorial is to serve as a starting point for a real world
   React and Firebase example. The starter project is on GitHub.

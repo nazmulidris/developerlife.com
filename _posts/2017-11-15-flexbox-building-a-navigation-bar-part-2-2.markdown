@@ -1,7 +1,7 @@
 ---
 author: Maret Idris
 author-link: https://maretidris.com
-date: 2017-11-16 05:19:43+00:00
+date: 2017-11-15 05:19:43+00:00
 layout: post
 excerpt: |
   This is a second article on 2 part series. In this article you will learn
@@ -10,7 +10,6 @@ excerpt: |
 layout: post
 hero-image: assets/flexbox-hero-image.jpg
 title: "Flexbox: Building a navigation bar (Part 2/2)"
-permalink: /2017/11/15/flexbox-building-a-navigation-bar-part-2-2/
 categories:
 - UXE
 - Web

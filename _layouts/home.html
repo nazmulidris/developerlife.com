@@ -6,28 +6,30 @@ layout: default
 
     <h1 class="page-heading">{{ page.title | default: "All" }}</h1>
 
+    {%- include search.html -%}
+
     {{ content }}
 
     {%- if site.posts.size > 0 -%}
 
-        <!--Shows recent articles-->
-        <!--<h2 class="post-list-hea¡ding">-->
-            <!--{{ page.list_title | default: "Recent Articles" }}-->
-        <!--</h2>-->
+    <!--Shows recent articles-->
+    <!--<h2 class="post-list-hea¡ding">-->
+    <!--{{ page.list_title | default: "Recent Articles" }}-->
+    <!--</h2>-->
 
-        <ul class="post-list">
+    <ul class="post-list">
 
-            {%- for post in site.posts -%}
-                {% include post_list_item.html %}
-            {%- endfor -%}
+        {%- for post in site.posts -%}
+        {% include post_list_item.html %}
+        {%- endfor -%}
 
-        </ul>
+    </ul>
 
-        {%- if site.show_rss_feed -%}
-            <p class="rss-subscribe">subscribe <a
-                    href="{{ '/feed.xml' | relative_url }}">via RSS</a>
-            </p>
-        {%- endif -%}
+    {%- if site.show_rss_feed -%}
+    <p class="rss-subscribe">subscribe <a
+            href="{{ '/feed.xml' | relative_url }}">via RSS</a>
+    </p>
+    {%- endif -%}
 
     {%- endif -%}
 

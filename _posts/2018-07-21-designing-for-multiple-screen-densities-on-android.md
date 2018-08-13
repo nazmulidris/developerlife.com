@@ -12,7 +12,7 @@ hero-image: assets/density-hero.png
 title: 'Designing for multiple screen densities on Android'
 categories:
 - Android
-- Design
+- UXE
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

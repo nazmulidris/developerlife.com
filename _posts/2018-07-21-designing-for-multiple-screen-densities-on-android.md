@@ -1,5 +1,6 @@
 ---
 author: Maret Idris
+author-link: https://maretidris.com
 date: 2018-07-21 18:41:26+00:00
 excerpt: |
   In this article, I am going to do a deep dive into Android screen density and 

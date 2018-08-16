@@ -6,7 +6,7 @@ excerpt: |
   to Vue, and getting started with it without using Webpack or Babel.
 layout: post
 hero-image: assets/vue-hero.svg
-title: 'Getting started with Vue.js'
+title: "Getting started with Vue.js"
 categories:
 - Web
 ---
@@ -16,7 +16,7 @@ categories:
 
 
 - [Introduction](#introduction)
-- [Getting started quickly (just in HTML)](#getting-started-quickly-just-in-html)
+- [Getting started quickly (single HTML file)](#getting-started-quickly-single-html-file)
   - [Basic usage](#basic-usage)
   - [v-for directive](#v-for-directive)
   - [v-on directive](#v-on-directive)
@@ -29,7 +29,7 @@ categories:
     - [Import the ES6 module](#import-the-es6-module)
     - [Create the ES6 module](#create-the-es6-module)
     - [Notes on the code](#notes-on-the-code)
-- [Get the code](#get-the-code)
+- [Get the code from github](#get-the-code-from-github)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -383,7 +383,7 @@ iterates thru each object and passes it to the `todo_item` as a `prop`.
 then to apply the `strike` CSS class (which simply strikes thru the item, marking
 it done).
 
-## Get the code
+## Get the code from github
 
 You can get the code used in this tutorial in the 
 [vue_intro](https://github.com/nazmulidris/vue_intro) GiHub repo.

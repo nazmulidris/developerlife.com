@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
 
 - [runnerty-quick-start](#runnerty-quick-start)
   - [To Use](#to-use)
@@ -8,6 +8,51 @@
   - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# Notes
+
+## plan.json and filewatcher
+
+The following snippet causes a filewatcher to run on `../_posts` (value of 
+`WATCH_FOLDER`) and when anything in that folder `change`s it triggers the
+process to execute.
+```json
+"triggers": [{
+    "id": "filewatcher_default",
+    "file_name": "@GV(WATCH_FOLDER)",
+    "condition": "change"
+}],
+```
+
+This was causing a big infinite loop problem. Everytime a markdown file would
+change, it would trigger the process to run (`run-doctoc.sh`) which would
+run `doctoc` on the files that have recently changed. And `doctoc` touches
+a file, so that triggers another file system change, which then triggers the
+process to run, etc. Inifinte loop! 🤯
+
+So, in order to fix this, I replaced the filewatcher trigger with a scheduled
+trigger that runs every 2 minutes and looks for files that have changed in the
+last minute in order to run doctoc on them. Here's an excerpt from plan.json
+for this.
+
+```json
+"triggers": [{
+    "id": "schedule_default",
+    "schedule_interval": "*/2 * * * *"
+}],
+```
+
+However, this doesn't cause new files to be processed immediately, when they're
+added to the `_posts` folder. In order to handle this, I added another rule, which
+triggers when new files are added. Here's a snippet.
+
+```json
+"triggers": [{
+    "id": "filewatcher_default",
+    "file_name": "@GV(WATCH_FOLDER)",
+    "condition": "add"
+}],
+```
 
 # runnerty-quick-start
 
@@ -32,27 +77,3 @@ npm i -g runnerty
 # You can check the correct instalation with the command  
 runnerty --version
 ```
-
-Note: It's possible that you have to use super user permissions. More: [fix npm permisions](https://docs.npmjs.com/getting-started/fixing-npm-permissions)
-
-```bash
-# Clone this repository
-git clone https://github.com/runnerty/runnerty-quick-start
-
-# Go into the repository
-cd runnerty-quick-start
-
-# Install dependencies
-npm install
-
-# Run the example
-runnerty
-```
-
-## Resources for Learning Runnerty
-
-- [docs.runnerty.io](http://docs.runnerty.io) - all of Runnerty's documentation
-
-## License
-
-[MIT License](LICENSE)

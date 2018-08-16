@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2018-08-15 14:36:10+00:00
+date: 2018-08-15 5:00:00+00:00
 excerpt: |
   Vue is a competitor to React. This tutorial serves as a brief introduction
   to Vue, and getting started with it without using Webpack or Babel.

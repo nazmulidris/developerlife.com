@@ -1,0 +1,38 @@
+{
+    "chains": [{
+        "id": "CHAIN_ONE",
+        "name": "Watch for changes in the posts folder",
+        "custom_values": {
+            "WATCH_FOLDER": "../_posts",
+            "LOG_FILE": "/Users/nazmul/Downloads/developerlife.log"
+        },
+        "triggers": [{
+            "id": "filewatcher_default",
+            "file_name": "@GV(WATCH_FOLDER)",
+            "condition": "change"
+        }],
+        "processes": [{
+            "id": "PROCESS_ONE",
+            "name": "doctoc posts",
+            "exec": {
+                "id": "shell_default",
+                "command": "doctoc @GV(WATCH_FOLDER)/*"
+            },
+            "chain_action_on_fail": {
+                "action": "end"
+            },
+            "output": [{
+                "file_name": "@GV(LOG_FILE)",
+                "write": ["EXECUTION @GETVALUE(PROCESS_ID) - AT @GETDATE('YYYY-MM-DD HH:mm:ss')\n @GETVALUE(PROCESS_EXEC_MSG_OUTPUT)"],
+                "concat": true,
+                "maxsize": "1mb"
+            }],
+            "notifications": {
+                "on_start": [],
+                "on_fail": [],
+                "on_retry": [],
+                "on_end": []
+            }
+        }]
+    }]
+}

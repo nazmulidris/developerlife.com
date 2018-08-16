@@ -29,7 +29,7 @@ categories:
     - [Import the ES6 module](#import-the-es6-module)
     - [Create the ES6 module](#create-the-es6-module)
     - [Notes on the code](#notes-on-the-code)
-- [Get the code from github](#get-the-code-from-github)
+- [Get the code](#get-the-code)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -383,7 +383,7 @@ iterates thru each object and passes it to the `todo_item` as a `prop`.
 then to apply the `strike` CSS class (which simply strikes thru the item, marking
 it done).
 
-## Get the code from github
+## Get the code
 
 You can get the code used in this tutorial in the 
 [vue_intro](https://github.com/nazmulidris/vue_intro) GiHub repo.

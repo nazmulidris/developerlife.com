@@ -1,0 +1,37 @@
+<header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    {% if page.author == "Nazmul Idris" %}
+        {% assign author_link = "/about-me" %}
+        {% assign linkedin_username = "nazmulidris" %}
+        {% assign medium_username = "nazmul" %}
+        {% assign youtube_username = "nazmulidris" %}
+        {% assign googleplus_username = "+NazmulIdris" %}
+        {% assign github_username = "nazmulidris" %}
+        {% assign email = "nazmul@developerlife.com" %}
+    {% else %}
+        {% assign author_link = "https://maretidris.com" %}
+        {% assign linkedin_username = "maretidris" %}
+        {% assign medium_username = "maret.idris" %}
+        {% assign github_username = "maretidris" %}
+        {% assign dribbble_username = "maretidris" %}
+        {% assign email = "maret@developerlife.com" %}
+    {% endif %}
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->
+            {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
+            {{ page.date | date: date_format }}
+
+            <!--Author-->
+            ∙ <a href="{{ author_link }}">{{ page.author }}</a>
+
+            <!-- One line social blurb -->
+            {%- include bio.html -%}
+        </p>
+    </div>
+
+    {%- include post_title_social.html -%}
+</header>

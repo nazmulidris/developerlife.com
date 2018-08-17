@@ -3,30 +3,7 @@ layout: default
 ---
 <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
-    <header class="post-header">
-        <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
-        <p class="post-meta">
-            <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}"
-                  itemprop="datePublished">
-                {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
-                {{ page.date | date: date_format }}
-            </time>
-
-            <!--Has both author and author-link set-->
-            {%- if page.author and page.author-link -%}
-            • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
-                class="p-author h-card" itemprop="name">
-                <a href="{{ page.author-link }}">{{ page.author }}</a>
-                </span></span>
-            <!--Only has author set-->
-            {%- elsif page.author -%}
-            • <span itemprop="author" itemscope itemtype="http://schema.org/Person"><span
-                class="p-author h-card" itemprop="name">
-                {{ page.author }}
-                </span></span>
-            {%- endif -%}
-        </p>
-    </header>
+    {%- include post_title.html -%}
 
     <div class="post-content e-content" itemprop="articleBody">
 

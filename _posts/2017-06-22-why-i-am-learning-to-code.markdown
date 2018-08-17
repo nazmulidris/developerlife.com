@@ -1,6 +1,5 @@
 ---
 author: Maret Idris
-author-link: https://maretidris.com
 date: 2017-06-22 17:12:28+00:00
 excerpt: |
   If you are a designer who has been thinking about learning to code or even

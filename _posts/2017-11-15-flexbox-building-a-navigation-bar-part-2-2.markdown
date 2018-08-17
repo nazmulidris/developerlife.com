@@ -1,6 +1,5 @@
 ---
 author: Maret Idris
-author-link: https://maretidris.com
 date: 2017-11-15 05:19:43+00:00
 layout: post
 excerpt: |

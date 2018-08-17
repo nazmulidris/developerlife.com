@@ -1,0 +1,32 @@
+<!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+-->
+{%- for path in page_paths -%}
+{%- assign page_cursor = site.pages | where: "path", path | first -%}
+{%- if page_cursor.title -%}
+    {%- if page.category != nil and page.category == page_cursor.title -%}
+        <!-- Category (page.category) is currently selected -->
+         <a class="page-link category-selected"
+            href="{{ page_cursor.url | relative_url }}">
+            {{ page_cursor.title | escape }}
+         </a>
+    {%- elsif page.category == nil and page.title == page_cursor.title -%}
+         <!-- Page (page.title) is currently selected -->
+         <a class="page-link category-selected"
+            href="{{ page_cursor.url | relative_url }}">
+            {{ page_cursor.title | escape }}
+         </a>
+    {%- else -%}
+        <!-- This item is not selected -->
+        <!-- Don't list excluded pages -->
+        {%- unless page_cursor.exclude -%}
+        <a class="page-link"
+           href="{{ page_cursor.url | relative_url }}">
+            {{ page_cursor.title | escape }}
+        </a>
+        {%- endunless -%}
+    {%- endif -%}
+{%- endif -%}
+{%- endfor -%}

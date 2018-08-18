@@ -55,7 +55,9 @@ Flexbox is not the solution to everything by itself. It’s like a team player i
 
 ## Terminology
 
-I have learnt most of what I know about front-end development from [Lynda.com](https://www.lynda.com/CSS-tutorials/CSS-Flexbox-First-Look/116352-2.html), including Flexbox. Because Flexbox is quite simple to understand, I don’t think it is necessary to take an online course. You will be able to capture it faster by reading and understanding the basics. Then jump straight into the code and learn by practicing.
+[Lynda.com](https://www.lynda.com/CSS-tutorials/CSS-Flexbox-First-Look/116352-2.html) is a
+good resource for learning front-end development, including Flexbox. Because Flexbox is quite 
+simple to understand, I don’t think it is necessary to take an online course. You will be able to capture it faster by reading and understanding the basics. Then jump straight into the code and learn by practicing.
 
 ![]({{ 'assets/flexbox-2.png' | relative_url }})
 

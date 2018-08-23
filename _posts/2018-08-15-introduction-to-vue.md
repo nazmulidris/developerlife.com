@@ -386,4 +386,5 @@ it done).
 ## Get the code
 
 You can get the code used in this tutorial in the 
-[vue_intro](https://github.com/nazmulidris/vue_intro) GiHub repo.
+[<i class="fab fa-github"></i> vue_intro](
+https://github.com/nazmulidris/vue_intro) GiHub repo.

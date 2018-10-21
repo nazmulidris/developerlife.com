@@ -87,6 +87,7 @@ Here are some examples of components you will get from this library:
 
 Here's an example of how to use the a Button that's supplied from this library:
 
+{% raw %}
 ```text
 <Button
   onPress={() => navigate('DetailsRoute', {param1: msg2})}
@@ -102,6 +103,7 @@ Here's an example of how to use the a Button that's supplied from this library:
   borderRadius={css.values.border_radius}
 />
 ```
+{% endraw %}
 
 Here's an example of using an Icon that loads a font icon from FontAwesome.
 
@@ -442,6 +444,7 @@ const nav_stack = StackNavigator(
 
 Finally, here's an example of a DrawerNavigator that accepts a custom component that paints the DrawerItems in a custom way (by using a ScrollView and setting a custom background color).
 
+{% raw %}
 ```javascript
 //
 // drawer ... more info https://goo.gl/2Dnmtl
@@ -484,6 +487,7 @@ const nav_drawer = DrawerNavigator(
   }
 );
 ```
+{% endraw %}
 
 Note that a lot of the params that are needed are stored in a `css` object. This object is imported from [Styles.js](https://github.com/r3bl-alliance/react-native-weather/blob/f877f53f8038295401d4934fa8e2d7db79a4625c/app/Styles.js), and it's an attempt at encapsulating the look and feel away from the functionality of the components.
 

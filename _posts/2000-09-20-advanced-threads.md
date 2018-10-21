@@ -9,7 +9,7 @@ excerpt: |
 layout: post
 title: "Advanced Threads"
 categories:
-- Threading
+- MT
 - Server
 ---
 

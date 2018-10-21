@@ -8,7 +8,7 @@ layout: post
 title: "SwingWorker details - canceling background tasks in flight"
 categories:
 - UXE
-- Threading
+- MT
 ---
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

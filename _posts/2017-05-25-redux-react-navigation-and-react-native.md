@@ -9,10 +9,10 @@ layout: post
 title: "Redux, React Navigation, and React Native"
 hero-image: assets/redux-hero.png
 categories:
-- Firebase
+- DB
 - UXE
 - RN
-- Redux
+- State
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

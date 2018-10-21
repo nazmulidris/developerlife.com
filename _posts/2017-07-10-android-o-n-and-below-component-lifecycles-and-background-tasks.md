@@ -10,7 +10,7 @@ title: 'Deep dive into Android Services'
 hero-image: assets/android-service-hero.png
 categories:
 - Android
-- Threading
+- MT
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

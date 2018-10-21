@@ -12,7 +12,7 @@ categories:
 - Android
 - UXE
 - RN
-- Redux
+- State
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -94,19 +94,33 @@ RN uses CSS Flexbox to do layouts. If you're familiar with Android layout manage
 
   * [https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Using_CSS_flexible_boxes](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Using_CSS_flexible_boxes)
 
-The key thing to remember when doing Flexbox layouts is that everything happens on the main axis or the cross axis. The code in github takes you thru many examples of Flexbox layouts that are relevant to designing apps (things like hero images, headers, text styling, horizontal and vertical layout, and spacing).
+The key thing to remember when doing Flexbox layouts is that everything happens on the main axis or
+the cross axis. The code in github takes you thru many examples of Flexbox layouts that are relevant
+to designing apps (things like hero images, headers, text styling, horizontal and vertical layout,
+and spacing).
 
 ![flex_terms]({{'assets/rn-1.png' | relative_url}})
 
-When you think about laying out screens, it's best to start with looking at all the elements in the screen as being laid out on the main or cross axis and then thinking about nesting these elements. Here's an example of a screen:
+When you think about laying out screens, it's best to start with looking at all the elements in the
+screen as being laid out on the main or cross axis and then thinking about nesting these elements.
+Here's an example of a screen:
 
 ![]({{'assets/rn-2.png' | relative_url}})
 
-There's a main container, which has `flex:1`, and it has `flexDirection:'column'`. What this does is that it adds the text fields and button bar and image in a vertical list (from top to bottom). It also has a directive to `justifyContent:'center'` and `alignItems:'center'`. justifyContent controls the way in which items are laid out in the main axis (in this case it centers all the items in a vertical, top to bottom direction main axis). And alignItems controls how items are laid out in the cross axis (in this case it centers all the items horizontally across the main axis which is vertical).
+There's a main container, which has `flex:1`, and it has `flexDirection:'column'`. What this does is
+that it adds the text fields and button bar and image in a vertical list (from top to bottom). It
+also has a directive to `justifyContent:'center'` and `alignItems:'center'`. justifyContent controls
+the way in which items are laid out in the main axis (in this case it centers all the items in a
+vertical, top to bottom direction main axis). And alignItems controls how items are laid out in the
+cross axis (in this case it centers all the items horizontally across the main axis which is
+vertical).
 
-Take a look at the `mainview_style.v_container` style below to get an idea of this. There are helpful comments as well, to make sense of what these Flexbox directives mean.
+Take a look at the `mainview_style.v_container` style below to get an idea of this. There are
+helpful comments as well, to make sense of what these Flexbox directives mean.
 
-Another interesting bit of code is the Flexbox styles that are used to layout the icons (Android and Google Play) in the center of the screen (centered horizontally). If you look at the `mainview_style.h_container` you will see the code that does this.
+Another interesting bit of code is the Flexbox styles that are used to layout the icons (Android and
+Google Play) in the center of the screen (centered horizontally). If you look at the
+`mainview_style.h_container` you will see the code that does this.
 
 ```javascript
 const mainview_style = StyleSheet.create(
@@ -391,9 +405,11 @@ In this github project, I've used classes that are cross platform between iOS an
 
 Here is [an excellent article](https://medium.com/@danielskripnik/how-to-add-and-remove-custom-fonts-in-react-native-b2830084b0e4) that covers how custom fonts can be loaded into your RN project. In this github project I've loaded a custom font called [Rubik-Regular](https://fonts.google.com/specimen/Rubik). In order to use this font, here's the JSX code that you can write:
 
+{% raw %}
 ```javascript
 <Text style={{fontFamily: 'Rubik-Regular'}}>Hello</Text>
 ```
+{% endraw %}
 
 Finally, keep in mind that fonts that come out of the box in RN on iOS and Android are totally different. Here's [an article](https://github.com/react-native-training/react-native-fonts) that goes into what fonts are available and where. This is why I choose to include my own custom font, so that it would be available on both the iOS and Android apps that are generated.
 

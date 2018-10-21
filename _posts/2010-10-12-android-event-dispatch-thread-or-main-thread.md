@@ -14,7 +14,7 @@ title: "Android Event Dispatch Thread or Main Thread"
 categories:
 - Android
 - UXE
-- Threading
+- MT
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

@@ -12,9 +12,9 @@ title: "Android, Redux, Firebase Auth & Database, and Material Design"
 hero-image: assets/and-redux-hero.png
 categories:
 - Android
-- Firebase
+- DB
 - UXE
-- Redux
+- State
 
 ---
 

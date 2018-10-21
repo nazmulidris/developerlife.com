@@ -8,9 +8,9 @@ layout: post
 title: "Building a real world app using React, Redux, Firebase, and Typescript"
 hero-image: assets/react-redux-firebase-hero.png
 categories:
-- Firebase
+- DB
 - Web
-- Redux
+- State
 - UXE
 ---
 

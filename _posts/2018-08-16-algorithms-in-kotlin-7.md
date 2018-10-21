@@ -12,6 +12,7 @@ hero-image: assets/algo-hero.svg
 title: "Algorithms in Kotlin, Caches, Part 7/7"
 categories:
 - CS
+- KT
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

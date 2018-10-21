@@ -8,7 +8,7 @@ layout: post
 title: "Using Firebase for user presence tracking"
 hero-image: assets/firebase-presence-hero.png
 categories:
-- Firebase
+- DB
 - Web
 ---
 

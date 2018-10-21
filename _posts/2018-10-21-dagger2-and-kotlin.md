@@ -2,10 +2,11 @@
 author: Nazmul Idris
 date: 2018-10-21 5:00:00+00:00
 excerpt: |
-  This tutorial is an in-depth exploration of Dagger 2 using Kotlin and Android.
+  This tutorial is an advanced exploration of Dagger 2 using Subcomponents and custom scopes. 
+  Android and Kotlin are used to demonstrate the use of these advanced Dagger 2 capabilities.
 layout: post
 hero-image: assets/di-kotlin-hero.svg
-title: "Dagger 2 and Android w/ Kotlin"
+title: "Advanced Dagger 2 w/ Android and Kotlin"
 categories:
 - DI
 - KT
@@ -36,8 +37,8 @@ categories:
 In order to use Dagger 2 w/ Kotlin it's necessary to use `kapt` instead of `annotationProcessor`
 (which is what works in Java).
 
-1. [How to setup Kotlin w/ Android and Dagger 2](https://kotlinlang.org/docs/tutorials/android-frameworks.html). 
-1. [Dagger 2 setup for Android using **Java**](https://github.com/google/dagger#android-gradle).
+1. [How to setup Kotlin w/ Android and Dagger 2](https://kotlinlang.org/docs/tutorials/android-frameworks.html).
+1. [Dagger 2 setup for Android using **Java**, not Kotlin](https://github.com/google/dagger#android-gradle).
 
 So, in `build.gradle`:
 1. `kapt` has to be added as a plugin

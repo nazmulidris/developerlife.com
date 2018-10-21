@@ -24,6 +24,7 @@ categories:
 - [Simplest Java Example](#simplest-java-example)
   - [Object that does not require @Module](#object-that-does-not-require-module)
   - [Object that requires @Module](#object-that-requires-module)
+  - [@Bind shortcut](#bind-shortcut)
   - [Summary](#summary)
 - [References](#references)
 
@@ -272,6 +273,28 @@ class Main {
 
 }
 ```
+
+### @Bind shortcut
+
+Instead of this:
+
+```java
+@Provides @Singleton 
+Log providesLogger(ConsoleLogger logger) { return logger; }
+```
+
+We could write:
+
+```java
+@Binds @Singleton 
+abstract Log providesLogger(ConsoleLogger logger);
+```
+
+It is possible to have arguments in the constructor that are annotated w/ `@Inject` as long as the
+parameters in the constructor are objects that Dagger 2 knows how to create. In order to use this:
+
+1. Simply make the `Module` class abstract 
+1. Make the non-`@Binds` methods, ie the `@Provides` methods static.
 
 ### Summary
 

@@ -22,6 +22,7 @@ categories:
 - [Defining some unit tests](#defining-some-unit-tests)
   - [Example 1](#example-1)
   - [Example 2](#example-2)
+- [References](#references)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -121,7 +122,7 @@ In order to get JUnit5 into the project, you can use the
 [android-junit5](https://github.com/mannodermaus/android-junit5) gradle plugin. Sadly, there's no
 easier way to automatically add support for JUnit5 (as of this Oct 2018). 
 
-In order to use Roboelectric, you will also need JUnit4 via JUnit5 Vintage support. And you will
+In order to use Roboelectric 3.8, you will also need JUnit4 via JUnit5 Vintage support. And you will
 have to ensure that you app doesn't target API level 28.
 
 These are the entries in the `build.gradle.kts` file for the app module that are required to import
@@ -358,3 +359,11 @@ class AutocompletePredictionDataTest {
 > You can see all the tests for this project on
 [github](https://github.com/nazmulidris/places-api-poc/tree/master/app/src/test/kotlin).
 
+## References
+
+- [AssertJ](http://joel-costigliola.github.io/assertj/assertj-core-quick-start.html)
+- [MockK](https://github.com/mockk/mockk)
+- [Roboelectric](http://robolectric.org/getting-started/)
+- [android-junit5 gradle plugin](https://github.com/mannodermaus/android-junit5)
+- [Migrating from JUnit4 to JUnit5](https://www.baeldung.com/junit-5-migration)
+- [Tutorial on using JUnit5 for Android w/ Kotlin](https://blog.stylingandroid.com/junit-5-kotlin/)

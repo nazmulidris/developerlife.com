@@ -67,7 +67,7 @@ and run this project on the command line.
 
 - This project was created using Jetbrains Idea as a Gradle and Kotlin project
 ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)).
-    - When you import this project into Idea as a Gradle project, 
+    - When you import this project into Idea as a Gradle project,
     make sure not to check "Offline work" (which if checked, won't
     allow the gradle dependencies to be downloaded).
     - As of Jun 24 2018, [Java 10 doesn't work w/ this gradle distribution](
@@ -83,8 +83,8 @@ data class Node<T>(val value: T,
                    var leftNode: Node<T>?,
                    var rightNode: Node<T>?,
                    var depth: Int = 0) {
-    fun link(left: Node<T>?, right: Node<T>?) = this.apply { 
-        linkLeft(left).linkRight(right) 
+    fun link(left: Node<T>?, right: Node<T>?) = this.apply {
+        linkLeft(left).linkRight(right)
     }
 
     fun linkLeft(left: Node<T>?) = this.apply { leftNode = left }
@@ -194,23 +194,23 @@ fun <T> breadthFirstTraversal(root: Node<T>): MutableList<Node<T>> {
     val queue = LinkedList<Node<T>>()
     val traversalList = mutableListOf<Node<T>>()
 
-    // Add first node
+    // Add first node.
     queue.add(root)
 
-    // Use stack to create breadth first traversal
+    // Use queue to create breadth first traversal.
     while (queue.isNotEmpty()) {
         val currentNode = queue.poll()
         val depth = currentNode.depth
 
-        // Add left node first
+        // Add left node first.
         if (currentNode.leftNode != null)
             queue.add(currentNode.leftNode!!.depth(depth + 1))
 
-        // Add right node next
+        // Add right node next.
         if (currentNode.rightNode != null)
             queue.add(currentNode.rightNode!!.depth(depth + 1))
 
-        // Add the node to the traversal list
+        // Add the node to the traversal list.
         traversalList.add(currentNode)
     }
 
@@ -226,7 +226,7 @@ of the tree from left node to right node, which results in a breadth first trave
 to this `Node`.
 - The `Deque` interface supports both Stack and Queue ADTs (abstract data types).
 
-## BFS (pretty print) 
+## BFS (pretty print)
 ```kotlin
 /**
  * Traverses the binary tree nodes in a sorted order.
@@ -234,24 +234,24 @@ to this `Node`.
 fun <T> printBFSTraversal(root: Node<T>): String {
 
     val queue = LinkedList<Node<T>>()
-    // Add first node
+    // Add first node.
     queue.add(root)
 
     val mapVisitedDepth = mutableMapOf<Int, MutableList<T>>()
-    // Use stack to create breadth first traversal
+    // Use queue to create breadth first traversal.
     while (queue.isNotEmpty()) {
         val currentNode = queue.poll()
         val depth = currentNode.depth
 
-        // Add left node first
+        // Add left node first.
         if (currentNode.leftNode != null)
             queue.add(currentNode.leftNode!!.depth(depth + 1))
 
-        // Add right node next
+        // Add right node next.
         if (currentNode.rightNode != null)
             queue.add(currentNode.rightNode!!.depth(depth + 1))
 
-        // Decide whether to print crlf or not
+        // Decide whether to print crlf or not.
         if (!mapVisitedDepth.containsKey(depth)) {
             mapVisitedDepth[depth] = mutableListOf()
         }
@@ -281,27 +281,27 @@ fun <T> depthFirstTraversal(root: Node<T>): MutableList<Node<T>> {
     val stack = LinkedList<Node<T>>()
     val traversalList = mutableListOf<Node<T>>()
 
-    // Add first node
+    // Add first node.
     stack.push(root)
 
-    // Use stack to create breadth first traversal
+    // Use stack to create breadth first traversal.
     while (stack.isNotEmpty()) {
         val currentNode = stack.pop()
         val depth = currentNode.depth
 
-        // If the currentNode key can't be found in the map, then insert it
+        // If the currentNode key can't be found in the map, then insert it.
         visitedMap[currentNode] = visitedMap[currentNode] ?: false
 
         if (!visitedMap[currentNode]!!) {
-            // Push right child to stack FIRST (so this will be processed LAST)
+            // Push right child to stack FIRST (so this will be processed LAST).
             if (currentNode.rightNode != null)
                 stack.push(currentNode.rightNode!!.depth(depth + 1))
 
-            // Push left child to stack LAST (so this will be processed FIRST)
+            // Push left child to stack LAST (so this will be processed FIRST).
             if (currentNode.leftNode != null)
                 stack.push(currentNode.leftNode!!.depth(depth + 1))
 
-            // Mark the current node visited and add to traversal list
+            // Mark the current node visited and add to traversal list.
             visitedMap[currentNode] = true
             traversalList.add(currentNode)
         }

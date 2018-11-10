@@ -61,7 +61,7 @@ and run this project on the command line.
 
 - This project was created using Jetbrains Idea as a Gradle and Kotlin project
 ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)).
-    - When you import this project into Idea as a Gradle project, 
+    - When you import this project into Idea as a Gradle project,
     make sure not to check "Offline work" (which if checked, won't
     allow the gradle dependencies to be downloaded).
     - As of Jun 24 2018, [Java 10 doesn't work w/ this gradle distribution](
@@ -70,11 +70,11 @@ and run this project on the command line.
 
 ## Undirected graphs
 
-Here's code in Kotlin that describes undirected graphs with and adjacency list to represent the
-edges. For more info, checkout this
-[website](https://www.geeksforgeeks.org/graph-and-its-representations/). The adjacency list is
-stored in a `MutableMap`, which holds a `LinkedList` of nodes. A node / vertex in this graph can
-be of any class (`T`).
+Here's code in Kotlin that describes undirected graphs with an adjacency list
+to represent the edges. For more info, checkout this
+[website](https://www.geeksforgeeks.org/graph-and-its-representations/). The
+adjacency list is stored in a `MutableMap`, which holds a `LinkedList` of nodes.
+A node / vertex in this graph can be of any class (`T`).
 
 Here's an image of an undirected graph.
 
@@ -112,8 +112,8 @@ traversing the graph.
 /**
  * Breadth first traversal leverages a [Queue] (FIFO).
  */
-fun <T> breadthFirstTraversal(graph: Graph<T>, 
-                              startNode: T, 
+fun <T> breadthFirstTraversal(graph: Graph<T>,
+                              startNode: T,
                               maxDepth: Int): String {
     // Mark all the vertices / nodes as not visited
     val visitedMap = mutableMapOf<T, Boolean>().apply {
@@ -179,7 +179,7 @@ To do a depth first traversal of the graph, here's some code that uses a Stack (
 /**
  * Depth first traversal leverages a [Stack] (LIFO).
  *
- * It's possible to use recursion instead of using this iterative 
+ * It's possible to use recursion instead of using this iterative
  * implementation using a [Stack]. Also, this algorithm is almost
  * the same above, except for [Stack] is LIFO and [Queue] is FIFO.
  *
@@ -236,8 +236,8 @@ the [Binary-Trees]({{'/2018/08/16/algorithms-in-kotlin-6/' | relative_url}}) tut
 
 ![]({{'assets/algo-3.svg' | relative_url}})
 
-To learn more about stacks and queues, please refer to the 
-[Queues]({{'/2018/08/16/algorithms-in-kotlin-3/' | relative_url}}) 
+To learn more about stacks and queues, please refer to the
+[Queues]({{'/2018/08/16/algorithms-in-kotlin-3/' | relative_url}})
 tutorial.
 
 ## Resources

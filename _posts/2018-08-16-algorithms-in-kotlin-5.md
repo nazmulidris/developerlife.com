@@ -87,11 +87,13 @@ Here's an image of an undirected graph.
 class Graph<T> {
     val adjacencyMap: MutableMap<T, MutableSet<T>> = mutableMapOf()
 
-    fun addEdge(src: T, dest: T) {
-        adjacencyMap[src] = adjacencyMap[src] ?: mutableSetOf()
-        adjacencyMap[src]?.add(dest)
-        adjacencyMap[dest] = adjacencyMap[dest] ?: mutableSetOf()
-        adjacencyMap[dest]?.add(src)
+    fun addEdge(sourceVertex: T, destinationVertex: T) {
+        // Add edge to source vertex.
+        adjacencyMap.computeIfAbsent(sourceVertex) { mutableSetOf() }
+            .add(destinationVertex)
+        // Add edge to destination vertex.
+        adjacencyMap.computeIfAbsent(destinationVertex) { mutableSetOf() }
+            .add(sourceVertex)
     }
 
     override fun toString(): String = StringBuffer().apply {

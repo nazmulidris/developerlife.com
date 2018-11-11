@@ -252,10 +252,8 @@ fun <T> printBFSTraversal(root: Node<T>): String {
             queue.add(currentNode.rightNode!!.depth(depth + 1))
 
         // Decide whether to print crlf or not.
-        if (!mapVisitedDepth.containsKey(depth)) {
-            mapVisitedDepth[depth] = mutableListOf()
-        }
-        mapVisitedDepth[depth]!!.add(currentNode.value)
+        mapVisitedDepth.computeIfAbsent(depth){ mutableListOf()}
+            .add(currentNode.value)
     }
 
     val outputString = StringBuilder()

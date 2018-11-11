@@ -108,21 +108,24 @@ class Graph<T> {
 ### BFS
 
 To do a breadth first traversal of the graph, here's some code that uses a Queue (FIFO). The
-following implementation doesn't use recursion, and also keeps track of the depth as it's
-traversing the graph. We also have to keep track of which nodes are visited and unvisited, so
-that we don't backtrack and revisit node that have already been visited.
+following implementation doesn't use recursion, and also keeps track of the depth as it's traversing
+the graph. We also have to keep track of which nodes are visited and unvisited, so that we don't
+backtrack and revisit node that have already been visited. The `depthMap` is optional as it is used
+to track the depth of the nodes, and used to stop traversal beyond a given `maxDepth`.
 
 ```kotlin
 /**
  * Breadth first traversal leverages a [Queue] (FIFO).
  */
-fun <T> breadthFirstTraversal(graph: Graph<T>, startNode: T, maxDepth: Int): String {
+fun <T> breadthFirstTraversal(graph: Graph<T>,
+                              startNode: T,
+                              maxDepth: Int = Int.MAX_VALUE): String {
     //
     // Setup.
     //
 
-    // Mark all the vertices / nodes as not visited. And keep track of sequence 
-    // in which nodes are visited, for return value.
+    // Mark all the vertices / nodes as not visited. And keep track of sequence  in which nodes are
+    // visited, for return value.
     class VisitedMap {
         val traversalList = mutableListOf<T>()
 
@@ -140,8 +143,7 @@ fun <T> breadthFirstTraversal(graph: Graph<T>, startNode: T, maxDepth: Int): Str
 
     val visitedMap = VisitedMap()
 
-    // Keep track of the depth of each node, so that more than maxDepth nodes
-    // aren't visited.
+    // Keep track of the depth of each node, so that more than maxDepth nodes aren't visited.
     val depthMap = mutableMapOf<T, Int>().apply {
         for (node in graph.adjacencyMap.keys) this[node] = Int.MAX_VALUE
     }

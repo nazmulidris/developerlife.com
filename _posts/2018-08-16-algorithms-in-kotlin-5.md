@@ -258,6 +258,7 @@ fun <T> depthFirstTraversal(graph: Graph<T>, startNode: T): String {
 ## BFS and DFS traversal for binary trees
 To see a similar implementation of BFS and DFS traversal for binary trees, please refer to
 the [Binary-Trees]({{'/2018/08/16/algorithms-in-kotlin-6/' | relative_url}}) tutorial.
+Note that the binary tree traversal algorithm doesn't need to have a map to mark visited nodes.
 
 ## Stacks and Queues
 

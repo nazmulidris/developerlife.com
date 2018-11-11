@@ -225,6 +225,8 @@ of the tree from left node to right node, which results in a breadth first trave
 - A `depth` field in the `Node` class is what keeps track of the number of branches from the root
 to this `Node`.
 - The `Deque` interface supports both Stack and Queue ADTs (abstract data types).
+- There is no need to track if a node is unvisited, or visited, as you would
+expected when traversing a graph, due to the nature of the binary tree.
 
 ## BFS (pretty print)
 ```kotlin

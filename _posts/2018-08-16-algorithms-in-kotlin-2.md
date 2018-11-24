@@ -87,7 +87,7 @@ about the string (already) for every `n-1` attempts that it makes to match the s
  */
 fun substring(str: CharArray, substr: CharArray): Any {
     // substr can't be longer than str.
-    if (substr.size > str.size) return "not found"
+    if (substr.size > str.size) return 0
 
     // Iterate str using cursor1 and for each index look ahead to see if matches exist 
     // for substr.
@@ -101,14 +101,7 @@ fun substring(str: CharArray, substr: CharArray): Any {
         if (matchCount == substr.size) occurrences++
     }
 
-    return object {
-        val numberOfMatches = occurrences
-        val matchFound = occurrences > 0
-        override fun toString(): String = StringBuilder().apply {
-            append("{match found = $matchFound")
-            append(", # matches = $numberOfMatches}")
-        }.toString().brightBlue()
-    }
+    return occurrences
 }
 ```
 

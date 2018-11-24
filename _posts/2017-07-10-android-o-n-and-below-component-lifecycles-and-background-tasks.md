@@ -1,7 +1,7 @@
 ---
 author: Nazmul Idris
 date: 2017-07-10 04:25:15+00:00
-excerpt: | 
+excerpt: |
   This article is a deep dive into Android Services. Learn all about started
   services, bound services, and bound and started services. With source code examples
   and a sample app.
@@ -47,8 +47,8 @@ In these cases, Android Services are the right Android component to use to match
 
 A Service is an Android application component without a UI that runs on the main (UI) thread. It also has to be declared in the AndroidManifest.xml. If you want the service code to run in a Background Thread, then you must manage that yourself. The terms `background` and `foreground` are overloaded, and can apply to:
 
-  1. Lifecycle of Android components. 
-  2. Threads. 
+  1. Lifecycle of Android components.
+  2. Threads.
 
 In this article, we are going to use the terms background and foreground to refer to the lifecycle of Android components. And when referring to Threads, we will use `Background Thread`, and `Foreground Thread` explicitly.
 
@@ -62,13 +62,13 @@ Let's take a step back and look at a larger picture of what Services are meant t
 
 The following are high level points to note in this diagram. The details for all of these points (and clarifications to them) are going to be provided in the rest of the article.
 
-  * The Service's `onCreate()` method is called when it is created (by starting it or binding to it). 
+  * The Service's `onCreate()` method is called when it is created (by starting it or binding to it).
 
-    * It then spawns a Thread or an Executor some time after it has been created. 
+    * It then spawns a Thread or an Executor some time after it has been created.
 
     * When this Thread finishes, it lets the Service know that by calling `stopSelf()`. This is a very common pattern in Service implementations.
 
-  * The code that you write in your Thread or Executor task will have to tell the service whether the Background Thread has started or stopped. 
+  * The code that you write in your Thread or Executor task will have to tell the service whether the Background Thread has started or stopped.
 
     * When the Thread starts up it has to set the started state of the service (by calling `startService()`).
 
@@ -95,21 +95,21 @@ public class MyIntentBuilder{
     public static MyIntentBuilder getInstance(Context context) {
         return new MyIntentBuilder(context);
     }
- 
+
     public MyIntentBuilder(Context context) {
         this.mContext = context;
     }
- 
+
     public MyIntentBuilder setMessage(String message) {
         this.mMessage = message;
         return this;
     }
- 
+
     public MyIntentBuilder setCommand(@Command int command) {
         this.mCommandId = command;
         return this;
     }
- 
+
     public Intent build() {
         Assert.assertNotNull("Context can not be null!", mContext);
         Intent intent = new Intent(mContext, MyTileService.class);
@@ -121,7 +121,7 @@ public class MyIntentBuilder{
         }
         return intent;
     }
- 
+
 }
 ```
 
@@ -139,20 +139,20 @@ A Started Service is launched with an Intent. And the component that launches th
 public class MyActivity extends Activity{
     @TargetApi(Build.VERSION_CODES.O)
     private void moveToStartedState() {
- 
+
         Intent intent = new MyIntentBuilder(this)
             .setCommand(Command.START).build();
         if (isPreAndroidO()) {
-            Log.d(TAG, 
+            Log.d(TAG,
                 "moveToStartedState: N or lower - startService(intent)");
             startService(intent);
         } else {
-            Log.d(TAG, 
+            Log.d(TAG,
                 "moveToStartedState: O - startFgService(intent)");
             startForegroundService(intent);
         }
     }
- 
+
 }
 ```
 
@@ -167,24 +167,22 @@ Sample use cases are:
   1. Apps that need to record or play media (audio/video) in the background.
   2. Apps that need to capture fine grained location in the background.
 
-When a Started Service moves into the foreground, it must display a persistent notification, explicitly notifying the user that the service is running. This is important because a Started Service in the foreground is detached from the lifecycle of UI components (with the exception of the persistent notification). And there's no way to let the user know that something is running on their phone without displaying any UI. And potentially consuming
-
-lots of resources on their phone.
+When a Started Service moves into the foreground, it must display a persistent notification, explicitly notifying the user that the service is running. This is important because a Started Service in the foreground is detached from the lifecycle of UI components (with the exception of the persistent notification). And there's no way to let the user know that something is running on their phone without displaying any UI. And potentially consuming lots of resources on their phone.
 
 Here's an example of running an already Started Service in the foreground.
 
 ```java
 public class MyActivity extends Activity{
     private void commandStart() {
- 
+
         if (!mServiceIsStarted) {
             moveToStartedState();
             return;
         }
- 
+
         if (mExecutor == null) {
             // Start Executor task in Background Thread.
-        } 
+        }
     }
 }
 ```
@@ -230,7 +228,7 @@ Here's the code to display the persistent notifications on Android O (using Noti
 @TargetApi(26)
 public static class O {
 
-    public static final String CHANNEL_ID = 
+    public static final String CHANNEL_ID =
         String.valueOf(getRandomNumber());
 
     public static void createNotification(Service context) {
@@ -239,7 +237,7 @@ public static class O {
         context.startForeground(ONGOING_NOTIFICATION_ID, notification);
     }
 
-    private static Notification buildNotification(Service context, 
+    private static Notification buildNotification(Service context,
                                                   String channelId) {
         // Create Pending Intents.
         PendingIntent piLaunchMainActivity = getLaunchActivityPI(context);
@@ -267,14 +265,14 @@ public static class O {
     @NonNull
     private static String createChannel(Service context) {
         // Create a channel.
-        NotificationManager notificationManager = 
+        NotificationManager notificationManager =
                 (NotificationManager) context
                         .getSystemService(Context.NOTIFICATION_SERVICE);
         CharSequence channelName = "Playback channel";
         int importance = NotificationManager.IMPORTANCE_DEFAULT;
         NotificationChannel notificationChannel =
-                new NotificationChannel(CHANNEL_ID, 
-                                        channelName, 
+                new NotificationChannel(CHANNEL_ID,
+                                        channelName,
                                         importance);
         notificationManager
             .createNotificationChannel(notificationChannel);
@@ -299,7 +297,7 @@ public class HandleNotifications{
         }
         return piStopService;
     }
- 
+
 }
 ```
 
@@ -313,32 +311,32 @@ public class MyService extends Service{
         d(
             TAG,
             String.format(
-                "onStartCommand: Service in [%s] state. " 
+                "onStartCommand: Service in [%s] state. "
                 + "commandId: [%d]. startId: [%d]",
                 mServiceIsStarted ? "STARTED" : "NOT STARTED",
-                containsCommand ? 
+                containsCommand ?
                     MyIntentBuilder.getCommand(intent) : "N/A",
                 startId));
         mServiceIsStarted = true;
         routeIntentToCommand(intent);
         return START_NOT_STICKY;
     }
- 
+
     private void routeIntentToCommand(Intent intent) {
         if (intent != null) {
- 
+
             // process command
             if (containsCommand(intent)) {
                 processCommand(MyIntentBuilder.getCommand(intent));
             }
- 
+
             // process message
             if (MyIntentBuilder.containsMessage(intent)) {
                 processMessage(MyIntentBuilder.getMessage(intent));
             }
         }
     }
- 
+
 }
 ```
 
@@ -348,7 +346,7 @@ To stop a service, you can do any of the following:
 
   1. As shown above, pass an Intent with an extra to `startService()` that will be processed by `onStartCommand()`, which will actually call `stopSelf()` on the service. If there are no clients bound to it, then it will result in `onDestroy()` being called, and the service shutting down.
 
-  2. You can also create an explicit Intent (pointing to the Service class) and pass it to `stopService()`, which will cause `stopSelf()` to be called, and then `onDestroy()` in case there are no bound clients. 
+  2. You can also create an explicit Intent (pointing to the Service class) and pass it to `stopService()`, which will cause `stopSelf()` to be called, and then `onDestroy()` in case there are no bound clients.
 
 Here's some code samples for stopping a Started Service from an Activity.
 
@@ -414,13 +412,13 @@ Here's an example of a ServiceConnection implementation.
 
 ```java
 public class MyActivity extends Activity{
-    private ServiceConnection mServiceConnection = 
+    private ServiceConnection mServiceConnection =
         new ServiceConnection(){
-            public void onServiceConnected(ComponentName cName, 
+            public void onServiceConnected(ComponentName cName,
                                            IBinder service){
                 My.MyBinder binder = (MyService.MyBinder) service;
                 // Get a reference to the Bound Service object.
-                mService = binder.getService(); 
+                mService = binder.getService();
                 mServiceBound = true;
             }
             public void onServiceDisconnected(ComponentName cName){
@@ -460,7 +458,7 @@ public class MyService extends Service{
     public class MyBinder extends javax.xml.bind.Binder {
         MyService getService(){
             // Simply return a reference to this instance of the Service.
-            return MyService.this; 
+            return MyService.this;
         }
     }
 }
@@ -513,23 +511,23 @@ Since a client binding to a Service will not move it to the Started State, for B
 
 ```java
 public class MyService extends Service{
- 
+
     private void commandStart() {
- 
+
         if (!mServiceIsStarted) {
             moveToStartedState();
             return;
         }
- 
+
         if (mExecutor == null) {
             mTimeRunning_sec = 0;
- 
+
             if (isPreAndroidO()) {
                 HandleNotifications.PreO.createNotification(this);
             } else {
                 HandleNotifications.O.createNotification(this);
             }
- 
+
             mExecutor = Executors.newSingleThreadScheduledExecutor();
             Runnable runnable =
                     new Runnable() {
@@ -545,40 +543,40 @@ public class MyService extends Service{
             d(TAG, "commandStart: do nothing");
         }
     }
- 
+
     @TargetApi(Build.VERSION_CODES.O)
     private void moveToStartedState() {
- 
+
         Intent intent = new MyIntentBuilder(this)
             .setCommand(Command.START).build();
         if (isPreAndroidO()) {
-            Log.d(TAG, 
+            Log.d(TAG,
                 "moveToStartedState: N / lower - startService(intent)");
             startService(intent);
         } else {
-            Log.d(TAG, 
+            Log.d(TAG,
                 "moveToStartedState: O - startFg(intent)");
             startForegroundService(intent);
         }
     }
- 
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         boolean containsCommand = MyIntentBuilder.containsCommand(intent);
         d(
             TAG,
             String.format(
-                "onStartCommand: Service in [%s] state. " 
+                "onStartCommand: Service in [%s] state. "
                 + "commandId: [%d]. startId: [%d]",
                 mServiceIsStarted ? "STARTED" : "NOT STARTED",
-                containsCommand ? 
+                containsCommand ?
                     MyIntentBuilder.getCommand(intent) : "N/A",
                 startId));
         mServiceIsStarted = true;
         routeIntentToCommand(intent);
         return START_NOT_STICKY;
     }
- 
+
 }
 ```
 
@@ -586,7 +584,7 @@ In the example above:
 
   1. `commandStart()` can be called by a client that binds to the Service.
 
-  2. Or it can be called via an Intent that is passed to `startService()` or `startServiceInForeground()` (for Android O). 
+  2. Or it can be called via an Intent that is passed to `startService()` or `startServiceInForeground()` (for Android O).
 
 Regardless, what the example shows is the Service putting itself in the Started State first, before actually creating the Executor.
 
@@ -594,9 +592,9 @@ Let's say that `commandStart()` is called, after a client component binds to the
 
 Let's walk thru this code.
 
-  1. If the Service is Bound to a client, then it is not started (and mServiceStarted is false).   
+  1. If the Service is Bound to a client, then it is not started (and mServiceStarted is false).
 
-  2. In this case the call to `moveToStarted()`) state simply creates an explicit Intent with an Extra (`Command.START`), and calls `startService()` or `startForegroundService()`. 
+  2. In this case the call to `moveToStarted()`) state simply creates an explicit Intent with an Extra (`Command.START`), and calls `startService()` or `startForegroundService()`.
 
   3. This ends up calling `onStartCommand()` which routes to `commandStart()` again!
 

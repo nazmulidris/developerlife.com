@@ -115,7 +115,7 @@ algorithm to match these patterns inside our string. The idea here is not to for
 already seen about the string as we iterate over each character in it. 
 
 This is a streaming algorithm where we pass one character at a time (as we iterate thru the 
-entire string) to a state maachine which matches the pattern in the substring. 
+entire string) to a state machine which matches the pattern in the substring. 
 For every iteration:
 - Each character is compared with the character at a cursor (which represents the state)
 in the substring.

@@ -87,7 +87,7 @@ about the string (already) for every `n-1` attempts that it makes to match the s
  */
 fun substring(str: CharArray, substr: CharArray): Any {
     // substr can't be longer than str
-    if (substr.size > str.size) return false
+    if (substr.size > str.size) return "not found"
 
     // Iterate str using cursor1 and for each index look ahead
     // to see if matches exist for substr
@@ -95,12 +95,13 @@ fun substring(str: CharArray, substr: CharArray): Any {
     for (cursor1 in 0 until str.size) {
         var matchCount = 0
         for (cursor2 in 0 until substr.size) {
-            val index = cursor1 + cursor2
-            // If index exceeds the size of str that means substr wasn't found
-            if (index > str.size - 1) break
-            // If there's a match at index between the str and substr
-            // then remember it
-            if (str[index] == substr[cursor2]) matchCount++
+        for (cursor2 in 0 until substr.size) {
+            stats.operations++
+            // If there's a match at index between the str and substr then 
+            // remember it.
+            if (str[cursor1 + cursor2] == substr[cursor2]) matchCount++
+            stats.comparisons++
+        }
         }
         // Found a match
         if (matchCount == substr.size) occurrences++

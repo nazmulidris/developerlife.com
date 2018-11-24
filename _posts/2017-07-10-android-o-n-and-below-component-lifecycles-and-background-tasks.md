@@ -406,7 +406,7 @@ public class MyActivity extends Activity{
 
 `BIND_AUTO_CREATE` is a very common flag to pass to the `bindService()` method. There are other flags that you can pass. What auto create does is that it calls `onCreate()` on the Bound Service if that hasn't happened yet, at the time `bindService()` is called. This essentially automatically creates the Bound Service upon the first client connecting to it.
 
-Once `bindService()` is called, the service needs a way to react out to the client, and give it the IBinder object which it can then use to call methods on the Bound Service. This happens in the code above via the `mServiceConnection` reference. This is a ServiceConnection callback which the Bound Service will use to notify the client about the completion of the binding process. It will let the client know as well if the Bound Service has disconnected.
+Once `bindService()` is called, the service needs a way to reach out to the client, and give it the IBinder object which it can then use to call methods on the Bound Service. This happens in the code above via the `mServiceConnection` reference. This is a ServiceConnection callback which the Bound Service will use to notify the client about the completion of the binding process. It will let the client know as well if the Bound Service has disconnected.
 
 Here's an example of a ServiceConnection implementation.
 

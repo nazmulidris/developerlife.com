@@ -449,13 +449,13 @@ public class MyService extends Service{
 
 The Bound Service creates a `mBinder` object of type IBinder. So what is this IBinder?
 
-Binder is an Android base class that allows a remotable object to be created. It implements a lightweight RPC mechanism for high performance in-process and cross-process calls (between clients and Bound Services).
+`Binder` is an Android base class that allows a remote-able object to be created. It implements a lightweight RPC mechanism for high performance in-process and cross-process calls (between clients and Bound Services).
 
 Here's an example.
 
 ```java
 public class MyService extends Service{
-    public class MyBinder extends javax.xml.bind.Binder {
+    public class MyBinder extends android.os.Binder {
         MyService getService(){
             // Simply return a reference to this instance of the Service.
             return MyService.this;

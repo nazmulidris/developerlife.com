@@ -83,15 +83,14 @@ about the string (already) for every `n-1` attempts that it makes to match the s
 /**
  * O(m * n), where m = str.size, and n = substr.size.
  *
- * This is an inefficient brute force algorithm which has quadratic 
- * complexity O(n^2).
+ * This is an inefficient brute force algorithm which has quadratic complexity O(n^2).
  */
 fun substring(str: CharArray, substr: CharArray, stats: RuntimeStats): Any {
     // substr can't be longer than str
     if (substr.size > str.size) return "not found"
 
-    // Iterate str using cursor1 and for each index look ahead to see 
-    // if matches exist for substr.
+    // Iterate str using cursor1 and for each index look ahead to see if matches exist 
+    // for substr.
     var occurrences = 0
     for (cursor1 in 0 until str.size) {
         var matchCount = 0

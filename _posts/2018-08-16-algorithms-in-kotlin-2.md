@@ -93,15 +93,12 @@ fun substring(str: CharArray, substr: CharArray): Any {
     // to see if matches exist for substr
     var occurrences = 0
     for (cursor1 in 0 until str.size) {
-        var matchCount = 0
-        for (cursor2 in 0 until substr.size) {
-        for (cursor2 in 0 until substr.size) {
-            stats.operations++
-            // If there's a match at index between the str and substr then 
-            // remember it.
-            if (str[cursor1 + cursor2] == substr[cursor2]) matchCount++
-            stats.comparisons++
-        }
+            var matchCount = 0
+            for (cursor2 in 0 until substr.size) {
+                // If there's a match at index between the str and substr then 
+                // remember it.
+                if (str[cursor1 + cursor2] == substr[cursor2]) matchCount++
+            }
         }
         // Found a match
         if (matchCount == substr.size) occurrences++

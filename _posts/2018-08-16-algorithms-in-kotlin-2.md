@@ -85,7 +85,7 @@ about the string (already) for every `n-1` attempts that it makes to match the s
  *
  * This is an inefficient brute force algorithm which has quadratic complexity O(n^2).
  */
-fun substring(str: CharArray, substr: CharArray): Any {
+fun substring(str: CharArray, substr: CharArray): Int {
     // substr can't be longer than str.
     if (substr.size > str.size) return 0
 
@@ -135,7 +135,7 @@ This approach is based on the idea of
  * which entails the use of a state machine to keep track of progress
  * in a game.
  */
-fun substring_optimized(str: CharArray, substr: CharArray): Any {
+fun substring_optimized(str: CharArray, substr: CharArray): Int {
 
     class StateMachine(val pattern: CharArray) {
         var cursor = 0
@@ -143,11 +143,8 @@ fun substring_optimized(str: CharArray, substr: CharArray): Any {
             if (pattern[cursor] == character) cursor++
             else cursor = 0
         }
-
         fun isMatch() = cursor == pattern.size
-        fun reset() {
-            cursor = 0
-        }
+        fun reset() {cursor = 0}
     }
 
     val stateMachine = StateMachine(substr)
@@ -161,14 +158,7 @@ fun substring_optimized(str: CharArray, substr: CharArray): Any {
         }
     }
 
-    return object {
-        val occurrences = numberOfOccurrences
-        val matchFound = numberOfOccurrences > 0
-        override fun toString(): String = StringBuilder().apply {
-            append("{occurrences = $occurrences")
-            append(", matchFound = $matchFound}")
-        }.toString().brightBlue()
-    }
+    return numberOfOccurrences
 
 }
 ```

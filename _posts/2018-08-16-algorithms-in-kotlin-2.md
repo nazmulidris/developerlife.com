@@ -81,26 +81,26 @@ about the string (already) for every `n-1` attempts that it makes to match the s
 
 ```kotlin
 /**
- * O(m * n), where m = str.size, and n = substr.size
+ * O(m * n), where m = str.size, and n = substr.size.
  *
- * This is an inefficient brute force algorithm which has quadratic complexity.
+ * This is an inefficient brute force algorithm which has quadratic 
+ * complexity O(n^2).
  */
-fun substring(str: CharArray, substr: CharArray): Any {
+fun substring(str: CharArray, substr: CharArray, stats: RuntimeStats): Any {
     // substr can't be longer than str
     if (substr.size > str.size) return "not found"
 
-    // Iterate str using cursor1 and for each index look ahead
-    // to see if matches exist for substr
+    // Iterate str using cursor1 and for each index look ahead to see 
+    // if matches exist for substr.
     var occurrences = 0
     for (cursor1 in 0 until str.size) {
-            var matchCount = 0
-            for (cursor2 in 0 until substr.size) {
-                // If there's a match at index between the str and substr then 
-                // remember it.
-                if (str[cursor1 + cursor2] == substr[cursor2]) matchCount++
-            }
+        var matchCount = 0
+        for (cursor2 in 0 until substr.size) {
+            // If there's a match at index between the str and substr 
+            // then remember it.
+            if (str[cursor1 + cursor2] == substr[cursor2]) matchCount++
         }
-        // Found a match
+        // Found a match.
         if (matchCount == substr.size) occurrences++
     }
 

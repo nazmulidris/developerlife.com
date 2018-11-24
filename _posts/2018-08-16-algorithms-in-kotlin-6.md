@@ -60,7 +60,7 @@ project in this repo in action.
 
 ![]({{'assets/algo-app-anim.gif' | relative_url}})
 
-Once you've cloned the repo, type `gradle run` in order to build
+Once you've cloned the repo, type `./gradlew run` in order to build
 and run this project on the command line.
 
 #### Importing this project into Jetbrains IntelliJ IDEA

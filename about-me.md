@@ -100,8 +100,8 @@ over 34 meetups, and over 4k developer & designer attendees –
 
 - Full stack developer with experience in cloud, mobile, and web technologies
 
-- Well versed in Kotlin, Java, Android, Test driven development, Dagger2, JavaScript, React Native,
-React, Redux, Firebase, NoSQL databases
+- Well versed in Kotlin, Java, Android, Test driven development, UI Engineering, Dagger2,
+JavaScript, React Native, React, Redux, Firebase, NoSQL databases
 
 - Experienced in building CMS systems, payments & licensing & subscriptions systems, enterprise
 backend systems (app servers, mobile middleware infrastructure, etc)

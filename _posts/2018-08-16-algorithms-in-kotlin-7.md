@@ -79,17 +79,18 @@ class Cache<T>(val type: Type, val size: Int) {
 
         when {
             map.containsKey(value) -> {
-                // Increase rank of existing value
+                // Increase rank of existing value.
                 map[value] = rank++
             }
             map.size == size -> {
-                // Remove the lowest rank item in the map
+                // Remove the lowest or highest rank item in the map
+                // depending on Type.
                 evictedKey = findKeyToEvict()
                 map.remove(evictedKey)
                 map.put(value, rank++)
             }
             else -> {
-                // Add the new item
+                // Add the new item.
                 map.put(value, rank++)
             }
         }

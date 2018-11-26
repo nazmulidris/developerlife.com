@@ -60,30 +60,39 @@ show on YouTube both for Google. I also run and create content for a very promin
 tutorial site called [developerlife.com](http://developerlife.com) (which was established in 1998).
 
 ## Leadership and Resourcefulness
-* Was founder and CEO of TRNQL Inc, a startup to build SDKs for iOS and Android in 2014
-* Raised $1.5M of VC funding
-* Recruited and managed team of 6 people
-* Created and shipped SDKs that collects valuable signals from Android and iOS devices that fed
-ML to better understand human behavior
-* Founded R3BL startup that is an incubator for apps and services that address human needs
+
+- Was founder and CEO of TRNQL Inc, a startup to build SDKs for iOS and Android in 2014
+
+- Raised $1.5M of VC funding
+
+- Recruited and managed team of 6 people
+
+- Created and shipped SDKs that collects valuable signals from Android and iOS devices that fed ML
+to better understand human behavior
+
+- Founded R3BL startup that is an incubator for apps and services that address human needs
 
 ## Communication
-* Created developerlife.com tutorials on Android, React, Redux, and React
-Native, that has been around since ‘98 and has over 10M pageviews
-* Created & ran UX Design experiential workshops for developers at Google
-IO13 and IO14 hosting over 2k attendees –
-[bit.ly/2o3oAni](http://bit.ly/2o3oAni)
-* Founded and grew Design for Humans meetup group to 2k members for UX
-design. I’ve presented at over 34 meetups, and over 4k developer & designer
-attendees – [bit.ly/uxdmeetup](http://bit.ly/uxdmeetup)
+
+- Created developerlife.com tutorials on Android, React, Redux, and React Native, that has been
+around since ‘98 and has over 10M pageviews
+
+- Created & ran UX Design experiential workshops for developers at Google IO13 and IO14 hosting over
+2k attendees – [bit.ly/2o3oAni](http://bit.ly/2o3oAni)
+
+- Founded and grew Design for Humans meetup group to 2k members for UX design. I’ve presented at
+over 34 meetups, and over 4k developer & designer attendees –
+[bit.ly/uxdmeetup](http://bit.ly/uxdmeetup)
 
 ## Product Design
-* UX Design for Developers YouTube show for Google Android with over 200k
-views [bit.ly/uxdplaylist](http://bit.ly/uxdplaylist)
-* Udacity class on UX Design for Mobile reaching over 200k people online
+
+- UX Design for Developers YouTube show for Google Android with over 200k views
+[bit.ly/uxdplaylist](http://bit.ly/uxdplaylist)
+
+- Udacity class on UX Design for Mobile reaching over 200k people online
 [bit.ly/uxdclass](http://bit.ly/uxdclass)
-* G+ UX design community 8k designers & developers
-[bit.ly/uxdcommunity](http://bit.ly/uxdcommunity)
+
+- G+ UX design community 8k designers & developers [bit.ly/uxdcommunity](http://bit.ly/uxdcommunity)
 
 ## Software Engineering
 
@@ -95,17 +104,18 @@ views [bit.ly/uxdplaylist](http://bit.ly/uxdplaylist)
 React, Redux, Firebase, NoSQL databases
 
 - Experienced in building CMS systems, payments & licensing & subscriptions systems, enterprise
-backend systems (app servers, mobile middleware infrastructure, etc).
+backend systems (app servers, mobile middleware infrastructure, etc)
 
 ### Mobile app development toolkits & infrastructure
 
-- Created Android app development container and SDK (built on top of Android
-framework to expose contextual awareness to any app for TRNQL)
-- Created BlackBerry app development container (with custom UI toolkits,
-animation libraries, networking, and app lifecycle management)
-- Created Java desktop app development containers (with custom UI toolkits,
-animation libraries, networking, and app lifecycle management) for Rich
-Internet Applications
+- Created Android app development container and SDK (built on top of Android framework to expose
+contextual awareness to any app for TRNQL)
+
+- Created BlackBerry app development container (with custom UI toolkits, animation libraries,
+networking, and app lifecycle management)
+
+- Created Java desktop app development containers (with custom UI toolkits, animation libraries,
+networking, and app lifecycle management) for Rich Internet Applications
 
 ### Cloud Infrastructure
 
@@ -127,6 +137,7 @@ BlackBerry, and even JavaScript for web
 multitude of mobile clients (Android, BlackBerry, iOS) from 2009 to 2011
 
 ### Android apps
+
 Apps I've published to the Play Store:
     - ExtraTKT in 2009
     - TRNQL interplay in 2015
@@ -146,15 +157,17 @@ app in the world (Wicked blogging app, and RainOrShine weather app)
       while) and was featured in the App World
 
 ### Middleware infrastructure for mobile
-* Created underlying technology to enable servers to integrate with multiple
-client platforms using low level sockets communications, custom binary data
-transmission protocols, complete custom app servers, and even custom mobile app
-UI markup languages from 1999 to 2004
-* Created high performance application data network infrastructure to deliver
-push updates from server to client, and a whole host of other innovations (see
-patent)
+
+- Created underlying technology to enable servers to integrate with multiple client platforms using
+low level sockets communications, custom binary data transmission protocols, complete custom app
+servers, and even custom mobile app UI markup languages from 1999 to 2004
+
+- Created high performance application data network infrastructure to deliver push updates from
+server to client, and a whole host of other innovations (see patent)
 
 ## Patents and books
-* Patent on mobile computing
+
+- Patent on mobile computing
 [google.com/patents/US6891860](http://google.com/patents/US6891860)
-* Book on Java and XML [a.co/friJT12](http://a.co/friJT12)
+
+- Book on Java and XML [a.co/friJT12](http://a.co/friJT12)

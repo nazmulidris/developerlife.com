@@ -21,7 +21,7 @@ categories:
 
 - [Introduction](#introduction)
   - [How to run this project](#how-to-run-this-project)
-    - [Importing this project into Jetbrains IntelliJ IDEA](#importing-this-project-into-jetbrains-intellij-idea)
+    - [Importing this project into JetBrains IntelliJ IDEA](#importing-this-project-into-jetbrains-intellij-idea)
 - [Induction](#induction)
 - [Brute force approach](#brute-force-approach)
 - [Recursion and breaking down the problem](#recursion-and-breaking-down-the-problem)
@@ -58,9 +58,9 @@ project in this repo in action.
 Once you've cloned the repo, type `./gradlew run` in order to build
 and run this project from the command line.
 
-#### Importing this project into Jetbrains IntelliJ IDEA
+#### Importing this project into JetBrains IntelliJ IDEA
 
-- This project was created using Jetbrains Idea as a Gradle and Kotlin project
+- This project was created using JetBrains Idea as a Gradle and Kotlin project
 ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)).
     - When you import this project into Idea as a Gradle project, 
     make sure not to check "Offline work" (which if checked, won't
@@ -313,7 +313,7 @@ fun binarySearch(item: String, list: List<String>): Boolean {
 - [Big O cheat sheet for data structures and algorithms](http://bigocheatsheet.com/)
 
 ### Kotlin
-- [Using Jetbrains Idea to create Kotlin and gradle projects, such as this one](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)
+- [Using JetBrains Idea to create Kotlin and gradle projects, such as this one](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)
 - [How to run Kotlin class in Gradle task](https://stackoverflow.com/questions/39576170/proper-way-to-run-kotlin-application-from-gradle-task)
 - [Kotlin `until` vs `..`](https://kotlinlang.org/docs/reference/ranges.html)
 - [CharArray and String](https://stackoverflow.com/questions/44772937/how-can-i-convert-chararray-arraychar-to-a-string)

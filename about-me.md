@@ -43,43 +43,39 @@ exclude: true
 
 
 ## My story
-I've brought products to life from a glimmer of a vision to a team building it,
-to having customers, and eventually seeing the product come to an end. I've
-worked as part of large and small teams and led them to make impossible things
-possible.
 
-I have over 20 years of leadership, software engineering, design, and product
-management experience. As a multifaceted engineer, designer, and communicator,
-I’ve focused on creating, designing, building, and collaborating with people to
-bring amazing user experiences to life across multiple platforms.
+I've brought products to life from a glimmer of a vision to a team building it, to having customers,
+and eventually seeing the product come to an end. I've worked as part of large and small teams and
+led them to make impossible things possible.
 
-I've led the creation of developer narratives and scaled them out at Google,
-eg: I created the first design workshops for developers at IO13 & IO14. I've
-founded and presented at the Design for Humans (in real life) meetup. I've
-created the UX Design for Mobile class on Udacity, and my own UX Design show on
-YouTube both for Google. I also run and create content for a very prominent
-developer tutorial site called developerlife.com (which was established in
-1998).
+I have over 20 years of leadership, software engineering, design, and product management experience.
+As a multifaceted engineer, designer, and communicator, I’ve focused on creating, designing,
+building, and collaborating with people to bring amazing user experiences to life across multiple
+platforms.
+
+I've led the creation of developer narratives and scaled them out at Google, eg: I created the first
+design workshops for developers at IO13 & IO14. I've founded and presented at the Design for Humans
+(in real life) meetup. I've created the UX Design for Mobile class on Udacity, and my own UX Design
+show on YouTube both for Google. I also run and create content for a very prominent developer
+tutorial site called [developerlife.com](http://developerlife.com) (which was established in 1998).
 
 ## Leadership and Resourcefulness
-* Was founder and CEO of TRNQL Inc, a startup to build SDKs for iOS and
-Android in 2014
+* Was founder and CEO of TRNQL Inc, a startup to build SDKs for iOS and Android in 2014
 * Raised $1.5M of VC funding
 * Recruited and managed team of 6 people
-* Created and shipped SDKs that collects valuable signals from Android and
-iOS devices that fed ML to better understand human behavior
-* Founded R3BL startup that is an incubator for apps and services that
-address human needs.
+* Created and shipped SDKs that collects valuable signals from Android and iOS devices that fed
+ML to better understand human behavior
+* Founded R3BL startup that is an incubator for apps and services that address human needs
 
 ## Communication
 * Created developerlife.com tutorials on Android, React, Redux, and React
-Native, that has been around since ‘98 and has over 10M pageviews.
+Native, that has been around since ‘98 and has over 10M pageviews
 * Created & ran UX Design experiential workshops for developers at Google
 IO13 and IO14 hosting over 2k attendees –
-[bit.ly/2o3oAni](http://bit.ly/2o3oAni).
+[bit.ly/2o3oAni](http://bit.ly/2o3oAni)
 * Founded and grew Design for Humans meetup group to 2k members for UX
 design. I’ve presented at over 34 meetups, and over 4k developer & designer
-attendees – [bit.ly/uxdmeetup](http://bit.ly/uxdmeetup).
+attendees – [bit.ly/uxdmeetup](http://bit.ly/uxdmeetup)
 
 ## Product Design
 * UX Design for Developers YouTube show for Google Android with over 200k
@@ -93,64 +89,70 @@ views [bit.ly/uxdplaylist](http://bit.ly/uxdplaylist)
 
 ### Technologies
 
-* Full stack developer with experience in cloud, mobile, and web
-technologies, such as Java, Kotlin, Android, JavaScript, React Native, React,
-Redux, Firebase, NoSQL databases, CMS systems, payments & licensing &
-subscriptions systems, enterprise backend systems (ETL, Data transformations,
-app servers, etc).
+- Full stack developer with experience in cloud, mobile, and web technologies
+
+- Well versed in Kotlin, Java, Android, Test driven development, Dagger2, JavaScript, React Native,
+React, Redux, Firebase, NoSQL databases
+
+- Experienced in building CMS systems, payments & licensing & subscriptions systems, enterprise
+backend systems (app servers, mobile middleware infrastructure, etc).
 
 ### Mobile app development toolkits & infrastructure
 
-* Created Android app development container and SDK (built on top of Android
+- Created Android app development container and SDK (built on top of Android
 framework to expose contextual awareness to any app for TRNQL)
-* Created BlackBerry app development container (with custom UI toolkits,
-animation libraries, networking, and app lifecycle management).
-* Created Java desktop app development containers (with custom UI toolkits,
+- Created BlackBerry app development container (with custom UI toolkits,
+animation libraries, networking, and app lifecycle management)
+- Created Java desktop app development containers (with custom UI toolkits,
 animation libraries, networking, and app lifecycle management) for Rich
-Internet Applications.
+Internet Applications
 
 ### Cloud Infrastructure
-* I created a cross platform PaaS service in Java, built on top of Tomcat,
-similar to Google App Engine that powered all the BlackBerry apps (from 2006 to
-2011) and then became the server backend for TRNQL SDK offering (from
-2015-2016).
-* Created DSLs to declaratively generate persistence, networking, data
-models, and data binding. Created source code generators to take DSLs and
-generate code in Java for server, Android, and BlackBerry, and even JavaScript
-for web.
-* This server supported web, iOS, Android, BlackBerry clients.
-* It also supported payments integration and issuing app licenses and
-managing app subscriptions.
+
+- Created a cross platform PaaS service in Java, built on top of Tomcat, similar to Google App
+Engine that powered ScreamingToaster BlackBerry apps (from 2006 to 2011) and then became the server
+backend for TRNQL SDK offering (from 2015-2016)
+
+- Created DSLs to declaratively generate persistence, networking, data models, and data binding.
+Created source code generators to take DSLs and generate code in Java for server, Android, and
+BlackBerry, and even JavaScript for web
+
+- This server supported web, iOS, Android, BlackBerry clients
+
+- It also supported payments integration and issuing app licenses and managing app subscriptions
 
 ### Cross platform development toolkits & infrastructure
-* Created Web app development containers to integrate seamlessly with cloud
-infrastructure and a multitude of mobile clients (Android, BlackBerry, iOS)
-from 2009 to 2011.
+
+- Created Web app development containers to integrate seamlessly with cloud infrastructure and a
+multitude of mobile clients (Android, BlackBerry, iOS) from 2009 to 2011
 
 ### Android apps
-* I published 2 Android apps to the Play Store.
-* ExtraTKT in 2009.
-* TRNQL interplay in 2015.
+Apps I've published to the Play Store:
+    - ExtraTKT in 2009
+    - TRNQL interplay in 2015
+    - StayAwake in 2017
 
 ### BlackBerry Apps
-* I was a finalist twice in the Global BlackBerry DevCon 2009 and 2010 for
-best app in the world (Wicked blogging app, and RainOrShine weather app).
-* I published 4 apps that were used by 100's of thousands of users globally
-from 2006 to 2011
-* Wicked blogging app for BlackBerry
-* MyListy list app for BlackBerry and Web
-* DulyNoted note taking app for BlackBerry and Web
-* RainOrShine weather app for BlackBerry (was top 5 weather apps in
-BlackBerry App World for a while) and was featured in the App World.
+
+- I was a finalist **twice** in the Global BlackBerry Developer Conference in 2009 and 2010 for best
+app in the world (Wicked blogging app, and RainOrShine weather app)
+
+- I published 4 apps that were used by 100's of thousands of users globally from 2006 to 2011
+
+    - Wicked blogging app for BlackBerry
+    - MyListy list app for BlackBerry and Web
+    - DulyNoted note taking app for BlackBerry and Web
+    - RainOrShine weather app for BlackBerry (was top 5 weather apps in BlackBerry App World for a
+      while) and was featured in the App World
 
 ### Middleware infrastructure for mobile
 * Created underlying technology to enable servers to integrate with multiple
 client platforms using low level sockets communications, custom binary data
 transmission protocols, complete custom app servers, and even custom mobile app
-UI markup languages from 1999 to 2004.
+UI markup languages from 1999 to 2004
 * Created high performance application data network infrastructure to deliver
 push updates from server to client, and a whole host of other innovations (see
-patent).
+patent)
 
 ## Patents and books
 * Patent on mobile computing

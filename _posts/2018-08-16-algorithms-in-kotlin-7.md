@@ -68,6 +68,8 @@ and run this project from the command line.
 
 ## LRU and MRU
 ```kotlin
+enum class Type { LRU, MRU }
+
 class Cache<T>(val type: Type, val size: Int) {
     val map = mutableMapOf<T, Int>()
     var rank = 0

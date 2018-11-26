@@ -108,7 +108,7 @@ class Cache<T>(val type: Type, val size: Int) {
 
         when (type) {
             Type.MRU -> {
-                // Find the highest rank item
+                // Find the highest rank item.
                 for (entry in map) {
                     if (entry.value > rankToEvict) {
                         rankToEvict = entry.value
@@ -117,7 +117,7 @@ class Cache<T>(val type: Type, val size: Int) {
                 }
             }
             Type.LRU -> {
-                // Find the lowest rank item
+                // Find the lowest rank item.
                 for (entry in map) {
                     if (entry.value < rankToEvict) {
                         rankToEvict = entry.value

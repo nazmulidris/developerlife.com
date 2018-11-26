@@ -160,9 +160,11 @@ number of objects to be sorted, n.
 Counting sort is a stable sort with a space complexity of O(k+n).
 
 ## O(n^2)
-O(n^2) represents an algorithm whose performance is directly proportional to the square of the
-size of the input data set. This is common with algorithms that involve nested iterations over
-the data set such as the example below.
+
+O(n^2) (or quadratic) represents an algorithm whose performance is directly proportional to the
+square of the size of the input data set. This is common with algorithms that involve nested
+iterations over the data set such as the example below.
+
 ### Detect duplicates
 ```kotlin
 fun containsDuplicates(list: List<String>) : Boolean {

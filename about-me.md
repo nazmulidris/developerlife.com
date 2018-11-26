@@ -139,6 +139,7 @@ multitude of mobile clients (Android, BlackBerry, iOS) from 2009 to 2011
 ### Android apps
 
 Apps I've published to the Play Store:
+
     - ExtraTKT in 2009
     - TRNQL interplay in 2015
     - StayAwake in 2017

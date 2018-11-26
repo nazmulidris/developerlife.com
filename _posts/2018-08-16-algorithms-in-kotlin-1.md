@@ -214,15 +214,22 @@ fun <T> MutableList<T>.swap(index1: Int, index2: Int) {
 ```
 
 ## O(2^n)
-O(2^n) denotes an algorithm whose growth doubles with each addition to the input data set.
-The growth curve of an O(2^n) function is exponential - starting off very shallow, then
-rising meteorically. Here's an example of an O(2^n) function is the recursive calculation of
-[Fibonacci numbers](https://en.wikipedia.org/wiki/Fibonacci_number).
+
+O(2^n) denotes an algorithm whose growth doubles with each addition to the input data set. The
+growth curve of an O(2^n) function is exponential - starting off very shallow, then rising
+meteorically. Here's an example of an O(2^n) function is the recursive calculation of [Fibonacci
+numbers](https://en.wikipedia.org/wiki/Fibonacci_number).
+
 ```kotlin
 fun fib(number: Int): Int =
     if (number <= 1) number
     else fib(number - 1) + fib(number - 2)
 ```
+
+Here's a visual representation of the call stack, showing how the program just recomputes the values
+for the same things repeatedly.
+
+![]({{ 'assets/fibonacci-recursion.jpg' | relative_url }})
 
 ## O(log n)
 

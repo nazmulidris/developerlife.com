@@ -102,31 +102,12 @@ class Cache<T>(val type: Type, val size: Int) {
      * LRU means evict the item in the map w/ the lowest rank.
      * MRU means evict the item in the map w/ the highest rank.
      */
-    fun findKeyToEvict(): T {
-        var rankToEvict = map.values.first()
-        var keyToEvict = map.keys.first()
-
-        when (type) {
-            Type.MRU -> {
-                // Find the highest rank item.
-                for (entry in map) {
-                    if (entry.value > rankToEvict) {
-                        rankToEvict = entry.value
-                        keyToEvict = entry.key
-                    }
-                }
-            }
-            Type.LRU -> {
-                // Find the lowest rank item.
-                for (entry in map) {
-                    if (entry.value < rankToEvict) {
-                        rankToEvict = entry.value
-                        keyToEvict = entry.key
-                    }
-                }
-            }
+    fun findKeyToEvict(): T? {
+        val rankToEvict = when (type) {
+            Type.MRU -> Collections.max(map.values)
+            Type.LRU -> Collections.min(map.values)
         }
-
+        val keyToEvict = map.entries.find { it.value == rankToEvict }?.key
         return keyToEvict
     }
     

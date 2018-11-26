@@ -187,9 +187,10 @@ fun numCoins(total: Int,
     }
 
     // Breakdown the problem into smaller chunk using recursion.
-    return coinsUsed + numCoins(total = total - coinsUsed * coinDenomination,
-                                denominations = denominations.subList(1, denominations.size),
-                                coinsUsedMap = coinsUsedMap)
+    return coinsUsed + 
+        numCoins(total = total - coinsUsed * coinDenomination,
+                 denominations = denominations.subList(1, denominations.size),
+                 coinsUsedMap = coinsUsedMap)
 }
 ```
 

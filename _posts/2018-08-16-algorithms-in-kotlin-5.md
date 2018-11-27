@@ -23,8 +23,8 @@ categories:
   - [How to run this project](#how-to-run-this-project)
     - [Importing this project into JetBrains IntelliJ IDEA](#importing-this-project-into-jetbrains-intellij-idea)
 - [Undirected graphs](#undirected-graphs)
-  - [BFS](#bfs)
   - [DFS](#dfs)
+  - [BFS](#bfs)
 - [BFS and DFS traversal for binary trees](#bfs-and-dfs-traversal-for-binary-trees)
 - [Stacks and Queues](#stacks-and-queues)
 - [Resources](#resources)
@@ -112,6 +112,62 @@ class Graph<T> {
             append(adjacencyMap[key]?.joinToString(", ", "[", "]\n"))
         }
     }.toString()
+}
+```
+
+### DFS
+
+To do a depth first traversal of the graph, here's some code that uses a Stack (LIFO).
+
+```kotlin
+/**
+ * Depth first traversal leverages a [Stack] (LIFO).
+ *
+ * It's possible to use recursion instead of using this iterative
+ * implementation using a [Stack].
+ * Also, this algorithm is almost the same above, except for [Stack] 
+ * is LIFO and [Queue] is FIFO.
+ *
+ * [More info](https://stackoverflow.com/a/35031174/2085356).
+ */
+fun <T> depthFirstTraversal(graph: Graph<T>, startNode: T): String {
+    // Mark all the vertices / nodes as not visited.
+    val visitedMap = mutableMapOf<T, Boolean>().apply {
+        graph.adjacencyMap.keys.forEach { node -> put(node, false) }
+    }
+
+    // Create a stack for DFS. Both ArrayDeque and LinkedList implement Deque.
+    val stack: Deque<T> = ArrayDeque()
+
+    // Initial step -> add the startNode to the stack.
+    stack.push(startNode)
+
+    // Store the sequence in which nodes are visited, for return value.
+    val traversalList = mutableListOf<T>()
+
+    // Traverse the graph
+    while (stack.isNotEmpty()) {
+        // Pop the node off the top of the stack.
+        val currentNode = stack.pop()
+
+        if (!visitedMap[currentNode]!!) {
+
+            // Store this for the result.
+            traversalList.add(currentNode)
+
+            // Mark the current node visited and add to the traversal list.
+            visitedMap[currentNode] = true
+
+            // Add nodes in the adjacency map.
+            graph.adjacencyMap[currentNode]?.forEach { node ->
+                stack.push(node)
+            }
+
+        }
+
+    }
+
+    return traversalList.joinToString()
 }
 ```
 
@@ -206,62 +262,6 @@ fun <T> breadthFirstTraversal(graph: Graph<T>,
     }
 
     return visitedMap.traversalList.toString()
-}
-```
-
-### DFS
-
-To do a depth first traversal of the graph, here's some code that uses a Stack (LIFO).
-
-```kotlin
-/**
- * Depth first traversal leverages a [Stack] (LIFO).
- *
- * It's possible to use recursion instead of using this iterative
- * implementation using a [Stack].
- * Also, this algorithm is almost the same above, except for [Stack] 
- * is LIFO and [Queue] is FIFO.
- *
- * [More info](https://stackoverflow.com/a/35031174/2085356).
- */
-fun <T> depthFirstTraversal(graph: Graph<T>, startNode: T): String {
-    // Mark all the vertices / nodes as not visited.
-    val visitedMap = mutableMapOf<T, Boolean>().apply {
-        graph.adjacencyMap.keys.forEach { node -> put(node, false) }
-    }
-
-    // Create a stack for DFS.
-    val stack: Deque<T> = ArrayDeque()
-
-    // Initial step -> add the startNode to the stack.
-    stack.push(startNode)
-
-    // Store the sequence in which nodes are visited, for return value.
-    val traversalList = mutableListOf<T>()
-
-    // Traverse the graph
-    while (stack.isNotEmpty()) {
-        // Pop the node off the top of the stack.
-        val currentNode = stack.pop()
-
-        if (!visitedMap[currentNode]!!) {
-
-            // Store this for the result.
-            traversalList.add(currentNode)
-
-            // Mark the current node visited and add to the traversal list.
-            visitedMap[currentNode] = true
-
-            // Add nodes in the adjacency map.
-            graph.adjacencyMap[currentNode]?.forEach { node ->
-                stack.push(node)
-            }
-
-        }
-
-    }
-
-    return traversalList.joinToString()
 }
 ```
 

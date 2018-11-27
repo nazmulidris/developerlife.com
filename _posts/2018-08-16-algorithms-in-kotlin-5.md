@@ -70,13 +70,15 @@ and run this project from the command line.
 
 ## Undirected graphs
 
-Here's code in Kotlin that describes undirected graphs with an adjacency list
-to represent the edges. For more info, checkout this
-[website](https://www.geeksforgeeks.org/graph-and-its-representations/). The
-adjacency list is stored in a `MutableMap`, which holds a `HashSet` of nodes.
-We use a `HashSet` instead of `LinkedHashSet` because the order of insertion
-doesn't really matter. This is also why we don't use `TreeSet`, since the edges
-don't need to be sorted. A node / vertex in this graph can be of any class (`T`).
+Here's code in Kotlin that describes undirected graphs with an adjacency list to represent the
+edges. For more info, checkout this
+[website](https://www.geeksforgeeks.org/graph-and-its-representations/). The adjacency list is
+stored in a `MutableMap`, which holds a `HashSet` of nodes. We use a
+[`HashSet`](https://www.geeksforgeeks.org/hashset-in-java/) instead of
+[`LinkedHashSet`](https://www.geeksforgeeks.org/linkedhashset-in-java-with-examples/) because the
+order of insertion doesn't really matter. This is also why we don't use
+[`TreeSet`](https://www.geeksforgeeks.org/treeset-in-java-with-examples/), since the edges don't
+need to be sorted. A node / vertex in this graph can be of any class (`T`).
 
 Here's an image of an undirected graph.
 

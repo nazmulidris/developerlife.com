@@ -319,6 +319,7 @@ to this `Node`.
 ## Resources
 
 ### CS Fundamentals
+- [DFS and BFS for Binary Tree Arrays](http://mishadoff.com/blog/dfs-on-binary-tree-array/)
 - [Brilliant.org CS Foundations](https://brilliant.org/courses/#computer-science-foundational)
 - [Radix sort](https://brilliant.org/wiki/radix-sort/)
 - [Hash tables](https://brilliant.org/wiki/hash-tables/)

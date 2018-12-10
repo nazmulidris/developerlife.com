@@ -125,8 +125,8 @@ To do a depth first traversal of the graph, here's some code that uses a Stack (
  *
  * It's possible to use recursion instead of using this iterative
  * implementation using a [Stack].
- * Also, this algorithm is almost the same above, except for [Stack] 
- * is LIFO and [Queue] is FIFO.
+ * Also, this algorithm is almost the for [breadthFirstTraversal], 
+ * except that [Stack] (LIFO) is replaced w/ a [Queue] (FIFO).
  *
  * [More info](https://stackoverflow.com/a/35031174/2085356).
  */

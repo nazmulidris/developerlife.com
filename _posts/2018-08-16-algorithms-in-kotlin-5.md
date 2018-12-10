@@ -145,7 +145,7 @@ fun <T> depthFirstTraversal(graph: Graph<T>, startNode: T): String {
     // Store the sequence in which nodes are visited, for return value.
     val traversalList = mutableListOf<T>()
 
-    // Traverse the graph
+    // Traverse the graph.
     while (stack.isNotEmpty()) {
         // Pop the node off the top of the stack.
         val currentNode = stack.pop()

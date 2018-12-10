@@ -277,7 +277,6 @@ fun <T> printBFSTraversal(root: Node<T>): String {
 ## DFS (depth first search) using a Stack
 ```kotlin
 fun <T> depthFirstTraversal(root: Node<T>): MutableList<Node<T>> {
-    val visitedMap = mutableMapOf<Node<T>, Boolean>()
     val stack = LinkedList<Node<T>>()
     val traversalList = mutableListOf<Node<T>>()
 
@@ -289,22 +288,16 @@ fun <T> depthFirstTraversal(root: Node<T>): MutableList<Node<T>> {
         val currentNode = stack.pop()
         val depth = currentNode.depth
 
-        // If the currentNode key can't be found in the map, then insert it.
-        visitedMap[currentNode] = visitedMap[currentNode] ?: false
+        // Push right child to stack FIRST (so this will be processed LAST).
+        if (currentNode.rightNode != null)
+            stack.push(currentNode.rightNode!!.depth(depth + 1))
 
-        if (!visitedMap[currentNode]!!) {
-            // Push right child to stack FIRST (so this will be processed LAST).
-            if (currentNode.rightNode != null)
-                stack.push(currentNode.rightNode!!.depth(depth + 1))
+        // Push left child to stack LAST (so this will be processed FIRST).
+        if (currentNode.leftNode != null)
+            stack.push(currentNode.leftNode!!.depth(depth + 1))
 
-            // Push left child to stack LAST (so this will be processed FIRST).
-            if (currentNode.leftNode != null)
-                stack.push(currentNode.leftNode!!.depth(depth + 1))
-
-            // Mark the current node visited and add to traversal list.
-            visitedMap[currentNode] = true
-            traversalList.add(currentNode)
-        }
+        // Add to traversal list.
+        traversalList.add(currentNode)
     }
 
     return traversalList
@@ -319,8 +312,6 @@ sooner (that what was pushed first). And this is what results in a depth first s
 - A `depth` field in the `Node` class is what keeps track of the number of branches from the root
 to this `Node`.
 - The `Deque` interface supports both Stack and Queue ADTs (abstract data types).
-- A map is needed to keep track of nodes that have already been visited. This is different
-than what is required for the BFS algorithm.
 
 ## Console output from running the code
 ![]({{'assets/algo-6.png' | relative_url}})

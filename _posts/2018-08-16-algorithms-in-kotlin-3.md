@@ -9,7 +9,7 @@ excerpt: |
   engineering roles.
 layout: post
 hero-image: assets/algo-hero.svg
-title: "Algorithms in Kotlin, Queues, Part 3/7"
+title: "Algorithms in Kotlin, Stacks and Queues, Part 3/7"
 categories:
 - CS
 - KT
@@ -23,8 +23,11 @@ categories:
   - [How to run this project](#how-to-run-this-project)
     - [Importing this project into JetBrains IntelliJ IDEA](#importing-this-project-into-jetbrains-intellij-idea)
 - [Queues and stacks](#queues-and-stacks)
-- [Ring Buffer](#ring-buffer)
+- [Depth first traversal / search](#depth-first-traversal--search)
   - [Implementation notes](#implementation-notes)
+- [Breadth first traversal / search](#breadth-first-traversal--search)
+- [Ring Buffer](#ring-buffer)
+  - [Implementation notes](#implementation-notes-1)
   - [Resources](#resources)
 - [Resources](#resources-1)
   - [CS Fundamentals](#cs-fundamentals)
@@ -69,6 +72,188 @@ and run this project from the command line.
 
 ## Queues and stacks
 ![]({{'assets/algo-3.svg' | relative_url}})
+
+## Depth first traversal / search
+
+File systems on computers have a hierarchical file system. Searching for a folder by name is a 
+very common thing to do on computers. On Unix machines, we can use the `find -name "somefile"`
+command. How would you implement this command? This is where DFS come into play!
+
+Here's a simple representation of folders in a hierarchical file system.
+
+```kotlin
+class Folder {
+    val name: String
+
+    private var _subFolders: MutableList<Folder> = mutableListOf()
+    val subFolders: MutableList<Folder>
+        get() = Collections.unmodifiableList(_subFolders)
+
+    fun toDetailedString(): String {
+        return "{name: $name, subFolders: ${subFolders.size}}"
+    }
+
+    override fun toString(): String {
+        return name
+    }
+
+    fun isNamed(nameArg: String): Boolean {
+        return name == nameArg
+    }
+
+    constructor(name: String) {
+        this.name = name
+    }
+
+    constructor(name: String, root: Folder) {
+        this.name = name
+        root.addSubfolder(this)
+    }
+
+    fun addSubfolders(vararg folders: Folder) {
+        folders.forEach { addSubfolder(it) }
+    }
+
+    fun addSubfolder(f: Folder) {
+        if (!_subFolders.contains(f)) {
+            _subFolders.add(f)
+        }
+    }
+
+    fun hasSubfolders(): Boolean {
+        return !_subFolders.isEmpty()
+    }
+
+}
+
+/*
+Create a tree of folders that need to be searched.
+
+    root
+      + opt
+        + chrome
+      + apps
+        + idea
+        + androidstudio
+      + dev
+        + java
+          + jdk8
+          + jdk11
+
+*/
+fun makeSampleFolders(): Folder {
+    val root = Folder("root")
+
+    val opt = Folder("opt", root)
+    val apps = Folder("apps", root)
+    val dev = Folder("dev", root)
+
+    val apps_idea = Folder("idea", apps)
+    val apps_as = Folder("androidstudio", apps)
+
+    val opt_chrome = Folder("chrome", opt)
+
+    val dev_java = Folder("java", dev)
+    val dev_java_jdk8 = Folder("jdk8", dev_java)
+    val dev_java_jdk11 = Folder("jdk11", dev_java)
+
+    return root
+}
+```
+
+And here's an implementation of DFS for this example.
+
+```kotlin
+fun dfs(name: String, root: Folder): Boolean {
+    val stack = ArrayDeque<Folder>()
+    stack.push(root)
+    var found = false
+    while (stack.isNotEmpty()) {
+        println("\n...while loop start... ".brightWhite() + "stack=$stack".brightCyan())
+        val currentFolder = stack.pop()
+        println("👆️️popped: " + currentFolder.toDetailedString().red())
+        if (currentFolder.isNamed(name)) {
+            found = true
+            println("\tfound a matching folder")
+        }
+        for (f in currentFolder.subFolders) {
+            stack.push(f)
+            println("👇️push: " + f.toDetailedString().green())
+        }
+    }
+    return found
+
+}
+```
+
+### Implementation notes
+
+- When sub folders are added to the stack, they are pulled out in reverse order. So if the insertion
+order is `opt -> apps -> dev`, then they will be retrieved in reverse order `dev -> apps -> opt`.
+- The nature of the stack (the last folder added will be the first one retrieved in the while loop)
+makes the algorithm favor going "deeper" (or depth first, instead of breadth first). The last folder
+that's added will be the first one that's checked at the next iteration of the while loop. And its
+sub folders will be added to the stack. Repeat this and you have a depth first bias in folder
+traversal.
+- Once a depth first path is exhausted (by reaching as far as it will go) then the algorithm back
+tracks, due to the nature of the stack. When `dev` path has been exhausted, then the next folder to
+embark upon (for the while loop) is the `apps` folder. When `apps` is exhausted, then back tracking
+via the stack, takes us to `opt`.
+
+Here's output from the code itself that highlights this in action.
+
+```text
+Stacks & Queues
+
+...while loop start... stack=[root]
+👆️️popped: {name: root, subFolders: 3}
+👇️push: {name: opt, subFolders: 1}
+👇️push: {name: apps, subFolders: 2}
+👇️push: {name: dev, subFolders: 1}
+
+...while loop start... stack=[dev, apps, opt]
+👆️️popped: {name: dev, subFolders: 1}
+👇️push: {name: java, subFolders: 2}
+
+...while loop start... stack=[java, apps, opt]
+👆️️popped: {name: java, subFolders: 2}
+👇️push: {name: jdk8, subFolders: 0}
+👇️push: {name: jdk11, subFolders: 0}
+
+...while loop start... stack=[jdk11, jdk8, apps, opt]
+👆️️popped: {name: jdk11, subFolders: 0}
+	found a matching folder
+
+...while loop start... stack=[jdk8, apps, opt]
+👆️️popped: {name: jdk8, subFolders: 0}
+
+...while loop start... stack=[apps, opt]
+👆️️popped: {name: apps, subFolders: 2}
+👇️push: {name: idea, subFolders: 0}
+👇️push: {name: androidstudio, subFolders: 0}
+
+...while loop start... stack=[androidstudio, idea, opt]
+👆️️popped: {name: androidstudio, subFolders: 0}
+
+...while loop start... stack=[idea, opt]
+👆️️popped: {name: idea, subFolders: 0}
+
+...while loop start... stack=[opt]
+👆️️popped: {name: opt, subFolders: 1}
+👇️push: {name: chrome, subFolders: 0}
+
+...while loop start... stack=[chrome]
+👆️️popped: {name: chrome, subFolders: 0}
+
+jdk11 found: true
+```
+## Breadth first traversal / search
+
+By replacing the stack in the example above w/ a queue, we end up w/ depth first search. Unlike
+the stack, which favors folder traversal to happen depth first (since the last item added to the
+stack is the first one that's processed, and when a path is exhausted it backtracks to the 
+previously added folder), a queue favors the first folder added to be processed. This results in a
+totally different behavior from the stack when we traverse our folder tree.
 
 ## Ring Buffer
 The ring buffer is a queue abstract data type that's implemented using a fixed size array. This

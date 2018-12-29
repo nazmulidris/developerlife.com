@@ -125,7 +125,11 @@ class Folder {
     }
 
 }
+```
 
+Here's a function that creates a set of nested folders that we can search.
+
+```kotlin
 /*
 Create a tree of folders that need to be searched.
 

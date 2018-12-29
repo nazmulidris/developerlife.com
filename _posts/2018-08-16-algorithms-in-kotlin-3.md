@@ -200,7 +200,8 @@ tracks, due to the nature of the stack. When `dev` path has been exhausted, then
 embark upon (for the while loop) is the `apps` folder. When `apps` is exhausted, then back tracking
 via the stack, takes us to `opt`.
 
-Here's output from the code itself that highlights this in action.
+Here's output from the code itself that highlights this in action for `bfs("jdk11", 
+makeSampleFolders())`.
 
 ```text
 Stacks & Queues

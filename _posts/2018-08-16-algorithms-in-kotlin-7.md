@@ -24,6 +24,7 @@ categories:
     - [Importing this project into JetBrains IntelliJ IDEA](#importing-this-project-into-jetbrains-intellij-idea)
 - [LRU and MRU](#lru-and-mru)
   - [Notes on implementation](#notes-on-implementation)
+- [LRU cache w/ O(1) cost of cache eviction](#lru-cache-w-o1-cost-of-cache-eviction)
 - [References](#references)
 - [Resources](#resources)
   - [CS Fundamentals](#cs-fundamentals)
@@ -127,6 +128,54 @@ class Cache<T>(val type: Type, val size: Int) {
 - According to the MRU Algorithm, the highest rank item will be removed when a new one is inserted
   and there's no space left in the cache. Also, every time an item is inserted into the cache
   it's rank is set to the highest rank.
+
+## LRU cache w/ O(1) cost of cache eviction
+
+In the above implementations of LRU and MRU caches, there's a cost to finding
+the key that needs to be evicted when the capacity has been reached. The 
+following implementation provides a way to do this w/out incurring such a cost.
+
+```kotlin
+/**
+ * This is a LRU cache that has no performance impact for cache insertions
+ * once the capacity of the cache has been reached. For cache hit,
+ * performance is O(1) and for cache eviction, it is O(1).
+ */
+class LowCostLRUCache<K, V>(private val capacity: Int = 5) {
+    private val cache = HashMap<K, V>()
+    private val insertionOrder = LinkedList<K>()
+
+    /**
+     * [HashMap] put and remove is O(1).
+     * More info: https://stackoverflow.com/a/4578039/2085356
+     */
+    fun put(key: K, value: V): K? {
+        var evictedKey: K? = null
+        if (cache.size >= capacity) {
+            evictedKey = getKeyToEvict()
+            cache.remove(evictedKey)
+        }
+        cache[key] = value
+        insertionOrder.addLast(key)
+        return evictedKey
+    }
+
+    /**
+     * [HashMap] get is O(1).
+     * More info: https://stackoverflow.com/a/4578039/2085356
+     */
+    fun get(key: K): V? = cache[key]
+
+    /**
+     * The head of the [insertionOrder] is removed, which is O(1), since this
+     * is a linked list, and it's inexpensive to remove an item from head.
+     * More info: https://stackoverflow.com/a/42849573/2085356
+     */
+    private fun getKeyToEvict(): K? = insertionOrder.removeFirst()
+
+    override fun toString() = cache.toString()
+}
+```
 
 ## References
 You can get more information on Cache replacement policies on

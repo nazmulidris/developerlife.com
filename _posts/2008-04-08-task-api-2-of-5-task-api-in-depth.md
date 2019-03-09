@@ -9,7 +9,7 @@ excerpt: |
 layout: post
 title: "Task API (2 of 3) - Task API in-depth"
 categories:
-- MT
+- CC
 ---
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

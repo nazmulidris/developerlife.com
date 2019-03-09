@@ -11,7 +11,7 @@ layout: post
 title: "Android - How to build a service-enabled Android app - Part 3/3 Multithreading"
 categories:
 - Android
-- MT
+- CC
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

@@ -4,7 +4,7 @@ author: Nazmul Idris
 date: 2016-10-02 17:17:23+00:00
 excerpt: About Nazmul Idris
 title: Nazmul Idris
-exclude: true
+exclude: false
 ---
 
 <table>

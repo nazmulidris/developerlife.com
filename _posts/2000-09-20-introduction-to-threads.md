@@ -5,7 +5,7 @@ excerpt: Introduction to multithreading in Java.
 layout: post
 title: "Introduction to Threads"
 categories:
-- MT
+- CC
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

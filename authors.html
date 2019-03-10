@@ -1,0 +1,24 @@
+---
+layout: default
+title: Authors
+---
+<!--More info: https://jekyllrb.com/docs/step-by-step/09-collections/-->
+<h1>Content by authors</h1>
+
+<!--{% assign sortedAuthors = site.authors | sort | reverse %}-->
+{% assign sortedAuthors = site.authors %}
+{% for author in sortedAuthors %}
+    <h2>
+        <!-- Uncomment following if you want to use _layouts/author.html -->
+        <!-- <a href="{{ author.url }}">{{ author.name }}</a> -->
+        <a href="{{ author.link | relative_url }}">{{ author.name }}</a>
+    </h2>
+    <!-- <h3>{{ author.position }}</h3>-->
+    <!-- <p>{{ author.content | markdownify }}</p>-->
+    <ul>
+        {% assign posts = site.posts | where: 'author', author.name %}
+        {% for post in posts %}
+        <li><a href="{{ post.url }}">{{ post.title }}</a></li>
+        {% endfor %}
+    </ul>
+{% endfor %}

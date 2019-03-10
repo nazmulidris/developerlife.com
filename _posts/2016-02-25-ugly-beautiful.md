@@ -26,9 +26,9 @@ life up to this moment.
     frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
     allowfullscreen></iframe>
 
-These are some big truths (for me) that I've uncovered over many years of
-running painful trial and error. This may or may not be relevant to anyone else,
-it totally depends on your context.
+The following are some big truths (for me) that I've uncovered over many years
+of running painful trial and error. This may or may not be relevant to anyone
+else, it totally depends on your context.
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

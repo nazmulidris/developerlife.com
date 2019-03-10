@@ -21,6 +21,8 @@ exclude: false
 
 <div style="padding-bottom:16pt;"></div>
 
+<img class="post-hero-image" src="{{ 'assets/naz-coffee-hero.png' | relative_url }}"/>
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 

@@ -7,19 +7,17 @@ title: Nazmul Idris
 exclude: false
 ---
 
-<table>
-    <tr>
-        <td width="100px">
-            <img src="{{ '/assets/nazmul.png' | relative_url }}"/>
-        </td>
-        <td>
-            Hi, I'm <a href="http://www.google.com/search?hl=en&q=nazmul+idris">Nazmul</a>😃.
-            I am a Google software engineer, entrepreneur, leader, designer, dancer,
-            TaiChi’er, Yogi, racer, healer, storyteller. I ❤️ leadership, authenticity,
-            empowerment, and lifelong learning.
-        </td>
-    </tr>
-</table>
+<div class="avatar-container">
+    <div class="avatar-icon">
+        <img src="{{ '/assets/nazmul.png' | relative_url }}"/>        
+    </div>
+    <div class="avatar-text">
+        Hi, I'm <a href="http://www.google.com/search?hl=en&q=nazmul+idris">
+        Nazmul</a> 😃. I am a Google software engineer, entrepreneur, leader, 
+        designer, dancer, TaiChi’er, Yogi, racer, healer, storyteller. I ❤️ 
+        leadership, authenticity, empowerment, and lifelong learning.        
+    </div>
+</div>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

@@ -2,7 +2,7 @@
 author: Nazmul Idris
 date: 2016-01-19 18:41:26+00:00
 excerpt: |
-  The importance of getting this right from the start
+  The importance of getting this right from the start.
 layout: post
 hero-image: assets/culture-in-startups-hero.png
 title: 'Culture in startups'

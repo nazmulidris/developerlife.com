@@ -9,22 +9,25 @@ title: 'Ugly Beautiful'
 categories:
 - Stories
 ---
+
 I used to think that I had to win to get love. I had to do something for others,
-in order to have value in my “self”. That is bullshit. That’s living a life to
+in order to have value in my "self". That is bullshit. That’s living a life to
 meet other people’s expectations, and it’s all about the pursuit of perfection.
 Once I let that go, I could just be … and be fearless knowing that I will never
-be perfect. Now I do the things I love to do — because it’s what I love … it’s
-what I was born to be. I win for me, not for anyone else. 
+be perfect. Now I do the things I love to do — because it’s what I love ... it’s
+what I was born to be. I win for me, not for anyone else.
 
 If you watch the first 1.35 sec of this video clip, that pretty much sums up my
 life up to this moment.
 
-<iframe 
-    style="padding-bottom:16px;"
-    width="560" height="315" 
-    src="https://www.youtube-nocookie.com/embed/IzkrKfk4kYE" 
-    frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
-    allowfullscreen></iframe>
+<div class="videoWrapper">
+    <iframe 
+        style="padding-bottom:16pt;"
+        width="560" height="315" 
+        src="https://www.youtube-nocookie.com/embed/IzkrKfk4kYE" frameborder="0" 
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+    </iframe>
+</div>
 
 The following are some big truths (for me) that I've uncovered over many years
 of running painful trial and error. This may or may not be relevant to anyone
@@ -61,11 +64,11 @@ the results of whatever path I’m on, are unknown.
 ## Doing vs being 
 
 This took me a long time to understand, because I simply didn’t have a healthy
-boundary around myself of “self”. I used to think that this boundary would keep
+boundary around myself of "self". I used to think that this boundary would keep
 others out. Little did I know that it actually just keeps me in, and without it,
 who I am, and who the other person is, simply blurs. This is where it becomes
-difficult to be aware of and voice “my” needs, since I’ve removed the structure
-of “me”. Definitely not a good thing, and I don’t do this anymore. By creating
+difficult to be aware of and voice "my" needs, since I’ve removed the structure
+of "me". Definitely not a good thing, and I don’t do this anymore. By creating
 this boundary of self, it’s not that I’m any more selfless or selfish. It means
 that I’m now aware of who I am in the equation of me + other person(s). Without
 this self boundary, I can’t really see how I can be in any healthy
@@ -120,13 +123,14 @@ have
 nothing to lose except the full experience of this life itself. This releases me
 to start things without being great. Because to be great, one must first start.
 
-Great TED talk by Brene Brown on being Wholehearted:
-<iframe 
-    style="padding-bottom:16px;"
-    width="560" height="315" 
-    src="https://www.youtube-nocookie.com/embed/iCvmsMzlF7o" frameborder="0" 
-    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
-</iframe>
+<div class="videoWrapper">
+    <iframe 
+        width="560" height="315" 
+        src="https://www.youtube-nocookie.com/embed/iCvmsMzlF7o" frameborder="0" 
+        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+    </iframe>
+</div>
+<p class="caption">Great TED talk by Brene Brown on being Wholehearted</p>
 
 ## Ugly Beautiful
 
@@ -134,7 +138,8 @@ Life is messy. Death is messy. Love is messy. Startups are messy. Racing is
 messy. Winning is messy. Losing is messy. Pain is messy. Healing is messy.
 Everything is imperfect. And many things are ugly. And many things are
 beautiful. We are all where we are on our journey, and we are the only ones who
-are responsible for our evolution and setting our “north stars”.
+are responsible for our evolution and setting our "north stars".
 
-> “I live in the line between speed and chaos. I use my fear and don’t hide from
-it. I use the power of both the dark and the light. And I win for me.”
+<p class="big-quote"> "I live in the line between speed and chaos. I use my fear
+and don’t hide from it. I use the power of both the dark and the light. And I
+win for me."</p>

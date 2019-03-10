@@ -47,17 +47,17 @@ Have a Happy New Year!!!
 Nazmul Idris
 ```
 
-Like [Alan Kay](http://en.wikipedia.org/wiki/Alan_Kay) said:
->The best way to predict the future is to invent it.
+Like [Alan Kay](http://en.wikipedia.org/wiki/Alan_Kay) said: **"The best way to
+predict the future is to invent it."**
 
-It grew to become a trusted resource to professional programmers, college 
-students, universities, research institutions, [standards 
-bodies](http://xml.coverpages.org/xmlFAQ15.html#JAVA-GEN), online magazines, 
-and even enterprise software vendors.
+It grew to become a trusted resource to professional programmers, college
+students, universities, research institutions, [standards
+bodies](http://xml.coverpages.org/xmlFAQ15.html#JAVA-GEN), online magazines, and
+even enterprise software vendors.
 
-Since then technologies have come and gone, and I have created tutorials on 
-many varied topics. The goal of the content is in service of the creation of 
+Since then technologies have come and gone, and I have created tutorials on many
+varied topics. The goal of the content is in service of the creation of
 technology that adapts to the needs of humans.
 
-You can see how this site has evolved since the beginning in the [Internet 
+You can see how this site has evolved since the beginning in the [Internet
 Archive Wayback Machine](https://web.archive.org/web/*/developerlife.com).

@@ -333,5 +333,4 @@ to you, and you to it.
 I will write more posts on this topic. And document the journey I’m going thru
 at trnql as a young CEO.
 
-Don’t stop believing. And hold on to that feeling.
-
+<p class="big-quote">Don’t stop believing. And hold on to that feeling.</p>

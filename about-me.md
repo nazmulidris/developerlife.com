@@ -7,7 +7,7 @@ title: Nazmul Idris
 exclude: false
 ---
 
-<div class="avatar-container">
+<div class="avatar-container category">
     <div class="avatar-icon">
         <img src="{{ '/assets/nazmul.png' | relative_url }}"/>        
     </div>
@@ -18,6 +18,8 @@ exclude: false
         leadership, authenticity, empowerment, and lifelong learning.        
     </div>
 </div>
+
+<div style="padding-bottom:16pt;"></div>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

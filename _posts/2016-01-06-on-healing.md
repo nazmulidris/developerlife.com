@@ -2,7 +2,7 @@
 author: Nazmul Idris
 date: 2016-01-06 18:41:26+00:00
 excerpt: |
-  Letting go of pain.
+  Letting go of suffering.
 layout: post
 hero-image: assets/on-healing-hero.png
 title: 'On Healing'
@@ -29,18 +29,24 @@ Empathy gone wrong, without
 to care for deeply sensitive, intelligent, and empathic kids. In other words, I
 wasn't really in the habit of taking care of all of myself (only certain parts).
 
-This [math](https://www.heartmath.org/) doesn’t work because if I give one unit
-of energy to another when I have none, then I end up with none and they end up
-with one. If I give it to me, then I can cultivate five, and then I can keep one
-and give them four. So giving to self is a great way to actually give more
-overall. Sadly this usually doesn’t take hold, because most of us do not give to
-ourselves and we end up with scarcity in our circles. Sometimes we can give
-something ourselves and we can get 10x return, and sometimes we only get 2x and
-other times we only get 1x. It all depends on knowing what we truly need and
-then that determines the rate of return on that investment (to self).
+Let's say I give one unit of energy to another when I have just one. Then I end
+up with none and they end up with one. This math doesn't work in my favor.
+Instead, if I gave it to me, then I could have cultivated five, and then I can
+keep one and give them four. 
 
-But I couldn’t do this math, since I was so busy feeling my own pain. And when I
-started letting go of this pain, my eyes and ears were opened to the world:
+<p class="big-quote">So giving to self is a great way to actually give more
+overall.</p>
+
+Sadly this (giving to self and then cultivating more to give to others) usually
+doesn't happen, because most of us do not give to ourselves and we end up with
+scarcity in our circles. Sometimes we can give something ourselves and we can
+get 10x return, and sometimes we only get 2x and other times we only get 1x. It
+all depends on knowing what we truly need and then that determines the rate of
+return on that investment (to self).
+
+But I couldn’t work this math in my favor, since I was so busy feeling my own
+pain. And when I started letting go of this pain, my eyes and ears were opened
+to the world:
 
 - I could finally feel my emotions without reacting to them, and be able to
 simply observe them.

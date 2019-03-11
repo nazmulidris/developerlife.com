@@ -14,7 +14,7 @@ For the longest time I used to think that I was the sum total of my
 accomplishments. I thought that life was about accomplishments. It was only
 about reaching the outcome. It was about getting the prize. The journey to get
 there was largely ignored by me. What I didn’t realize is how empty life had
-become while I was focused only on achieving outcomes. 
+become while I was focused only on achieving outcomes.
 
 This is the story of how I came to understand what it means to just be, or be in
 the moment, in all situations. This

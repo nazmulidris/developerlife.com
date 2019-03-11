@@ -22,12 +22,13 @@ life up to this moment.
 
 <div class="videoWrapper">
     <iframe 
-        style="padding-bottom:16pt;"
         width="560" height="315" 
         src="https://www.youtube-nocookie.com/embed/IzkrKfk4kYE" frameborder="0" 
         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
     </iframe>
 </div>
+
+<p style="padding-top:8pt;"></p> 
 
 The following are some big truths (for me) that I've uncovered over many years
 of running painful trial and error. This may or may not be relevant to anyone

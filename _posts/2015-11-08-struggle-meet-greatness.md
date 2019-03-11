@@ -2,7 +2,7 @@
 author: Nazmul Idris
 date: 2015-11-08 18:41:26+00:00
 excerpt: |
-  When you know something will end, what do you do?
+  You are what you fight for.
 layout: post
 hero-image: assets/struggle-meet-greatness.gif
 title: 'Struggle, meet Greatness'

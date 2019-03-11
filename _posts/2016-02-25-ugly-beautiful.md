@@ -142,4 +142,4 @@ are responsible for our evolution and setting our "north stars".
 
 <p class="big-quote"> "I live in the line between speed and chaos. I use my fear
 and don’t hide from it. I use the power of both the dark and the light. And I
-win for me." - Nazmul Idris</p>
+win for me." - me</p>

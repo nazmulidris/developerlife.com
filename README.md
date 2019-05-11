@@ -49,6 +49,10 @@ After you clone the repo, go the `jekyll_test` folder, and
 
 # References
 
+## Running github pages locally
+
+- [Setting GitHub Pages site locally with Jekyll](http://tinyurl.com/yytw8hus)
+
 ## More info on Jekyll and Liquid
 
 - [Printing debug variables](http://tinyurl.com/y763y5lx)

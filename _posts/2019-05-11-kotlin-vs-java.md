@@ -46,10 +46,11 @@ simple endless scrolling Giphy viewer.
 
 ## Video of the app in action
 
-<div style="display:flex; justify-content:center; flex-direction:row;">
+<!-- Image resize and flexbox: https://stackoverflow.com/a/37799733/2085356 -->
+<div style="display:flex; justify-content:center; flex-flow:row nowrap; align-items:flex-start;">
 <img
 src="https://raw.githubusercontent.com/nazmulidris/giphy-viewer-kotlin/master/files/giphy.gif"
-style="height:500px; padding-bottom:24px; padding-right: 16px">
+style="max-width:40%; padding-bottom:24px; padding-right: 16px">
 <div>
   The app allows a user to see trending GIFs from the Giphy API. It
   allows the user to search for GIFs. Whether the user is browsing
@@ -58,7 +59,7 @@ style="height:500px; padding-bottom:24px; padding-right: 16px">
   Thumbnails of the images are loaded in the RecyclerView, and when the
   user clicks on an item, a high res version of the image is opened in a
   new activity and the URL is shortened and copied to the clipboard.
-  
+
   <br><br>
   <a href="https://github.com/r3bl-org/giphy-viewer-kotlin">
       GitHub repo for the Kotlin app</a>
@@ -574,10 +575,10 @@ I am still getting used to the ability to do things like `Toast.() -> Unit` 😁
 
 ### Constructors
 
-Another thing I noticed is that I was able to leverage the terse constructor 
-syntax of Kotlin to make it much simpler to pass arguments, and also defined 
-variables that operated on those variables in the constructor argument list 
-itself, instead of polluting the main function body w/ this code. 
+Another thing I noticed is that I was able to leverage the terse constructor
+syntax of Kotlin to make it much simpler to pass arguments, and also defined
+variables that operated on those variables in the constructor argument list
+itself, instead of polluting the main function body w/ this code.
 
 Here's an example where I pull out an `imageView` from a `cellView` which is
 passed to this function:
@@ -587,13 +588,13 @@ private inner class RowViewHolder(
   cellView: View,
   val imageView: SimpleDraweeView = cellView.find(R.id.image_grid_cell)
 ) : RecyclerView.ViewHolder(cellView) {
-fun bindDataToView(data: Media, block: BlockWithSingleArgLambda<Media>) 
+fun bindDataToView(data: Media, block: BlockWithSingleArgLambda<Media>)
   {/*Snip. */}}
 ```
 
 Another thing that I started using is `init` blocks and `apply` blocks in Kotlin
-code, to put code to initialize a variable where I declare the variable 
-itself. 
+code, to put code to initialize a variable where I declare the variable
+itself.
 
 Here's an example of using `apply`:
 

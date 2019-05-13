@@ -16,7 +16,6 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Introduction](#introduction)
 - [Video of the app in action](#video-of-the-app-in-action)
 - [Architecture of the Giphy viewer app](#architecture-of-the-giphy-viewer-app)
@@ -60,12 +59,13 @@ style="max-width:40%; padding-bottom:24px; padding-right: 16px">
   user clicks on an item, a high res version of the image is opened in a
   new activity and the URL is shortened and copied to the clipboard.
 
-  <br><br>
-  <a href="https://github.com/r3bl-org/giphy-viewer-kotlin">
-      GitHub repo for the Kotlin app</a>
-  <br><br>
-  <a href="https://github.com/nazmulidris/giphy_viewer">
-      GitHub repo for the Java app</a>
+<br><br>
+<a href="https://github.com/r3bl-org/giphy-viewer-kotlin">
+GitHub repo for the Kotlin app</a>
+<br><br>
+<a href="https://github.com/nazmulidris/giphy_viewer">
+GitHub repo for the Java app</a>
+
 </div>
 </div>
 
@@ -619,3 +619,9 @@ init {
   recyclerView.adapter = dataAdapter
 }
 ```
+
+## Relatetd articles
+
+After I wrote this tutorial, I found the following article by the team
+that created OkHttp talking about their journey in migrating their
+library from Java to Kotlin. Here's a [link](https://publicobject.com/2019/05/13/metrics-for-okhttps-kotlin-upgrade/).

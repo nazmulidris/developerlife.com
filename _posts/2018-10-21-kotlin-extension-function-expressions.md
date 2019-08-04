@@ -54,16 +54,33 @@ run {
 
 ## Extension Functions and Lambdas
 
-- Watch [this video](https://www.youtube.com/watch?v=JzTeAM8N1-o&t=1535s) by
-  Venkat Subramaniam on creating internal DSLs in Kotlin.
-  - One of the key concepts
-    is passing a context object to bind `this` to (in the lambda), very much
-    like
-    JavaScript's [`call(thisObject, lambda)`](https://developer.mozilla.org
-    /en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call)
-    method.
-- Watch [this video](https://youtu.be/A2LukgT2mKc?t=1020) by Jake Wharton explaining what this is.
-- Great [stackoverflow discussion](https://stackoverflow.com/q/47329716/2085356) on this as well.
+Here's an example:
+
+```kotlin
+// You can choose what object to bind `this` to in the `call` function.
+call { println("${this} ${it}") }
+
+// String.        : context
+// (String)->Unit : lambda
+fun call (functor: String.(String)->Unit) {
+  functor("Context", "Jane")
+  "Context".functor("Jane")
+}
+```
+
+One of the key concepts is passing a context object to bind `this` to (in the
+lambda), very much like JavaScript's [`call(thisObject,
+lambda)`](https://developer.mozilla.org
+/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call) method. Watch
+[this video](https://www.youtube.com/watch?v=JzTeAM8N1-o&t=1535s) by Venkat
+Subramaniam on creating internal DSLs in Kotlin.
+
+Also,
+
+- Watch [this video](https://youtu.be/A2LukgT2mKc?t=1020) by Jake Wharton
+  explaining what this is.
+- Great [stackoverflow discussion](https://stackoverflow.com/q/47329716/2085356)
+  on this as well.
 
 Extension Function Expressions combine:
 

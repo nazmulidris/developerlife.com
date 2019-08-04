@@ -14,6 +14,7 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Lambdas and higher order functions](#lambdas-and-higher-order-functions)
 - [Extension Functions and Lambdas](#extension-functions-and-lambdas)
   - [Example 1](#example-1)
@@ -91,6 +92,7 @@ fun main() {
     ex1()
     ex2()
     ex3()
+    ex4()
 }
 
 fun ex1(){
@@ -141,6 +143,30 @@ fun ex3(){
     // Simple internal DSL syntax.
     "planning" meeting {
         start at 3..15
+    }
+}
+
+fun ex4(){
+    class Robot{
+        val left="left"
+        val right="right"
+        val fast="fast"
+
+        infix fun turns(direction:String) { println("turns $direction") }
+        infix fun runs(speed: String) { println("runs $speed") }
+    }
+
+    fun operate(block: Robot.(Robot)->Unit){
+        val robot = Robot()
+        block(robot, robot)
+        robot.block(robot)
+    }
+
+    // Simple internal DSL syntax.
+    operate{
+     	it turns left
+        it turns right
+        it runs fast
     }
 }
 ```

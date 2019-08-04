@@ -54,7 +54,7 @@ run {
 
 ## Extension Functions and Lambdas
 
-Here's an example:
+Here's an example of passing a context object to a lambda:
 
 ```kotlin
 // You can choose what object to bind `this` to in the `call` function.
@@ -81,6 +81,69 @@ Also,
   explaining what this is.
 - Great [stackoverflow discussion](https://stackoverflow.com/q/47329716/2085356)
   on this as well.
+
+Here are more examples of this:
+
+```kotlin
+import java.time.*
+
+fun main() {
+    ex1()
+    ex2()
+    ex3()
+}
+
+fun ex1(){
+    // String.        : context
+    // (String)->Unit : lambda
+    fun call (functor: String.(String)->Unit) {
+        functor("Context", "Jane")
+        "Context".functor("Jane")
+    }
+
+    // Similar to JS function.call(context, args), where context is this:
+    // MDN docs for call: https://tinyurl.com/o8eh6te
+    call { println("${this} ${it}") }
+}
+
+fun ex2(){
+    val ago = "ago"
+    val from_now = "from_now"
+    infix fun Int.days(tense:String){
+        val now = LocalDateTime.now();
+        val delta = this.toLong();
+        when(tense){
+            ago -> println(now.minusDays(delta))
+            from_now -> println(now.plusDays(delta))
+            else -> println("?")
+        }
+    }
+
+    // Simple internal DSL syntax.
+    2 days ago
+    2 days from_now
+}
+
+fun ex3(){
+    class Meeting(val name: String){
+      val start = this
+      infix fun at(time:IntRange) {
+          println("$name meeting starts at $time")
+      }
+    }
+
+    infix fun String.meeting(block: Meeting.()->Unit){
+        val meeting = Meeting(this)
+        block(meeting)
+        meeting.block()
+    }
+
+    // Simple internal DSL syntax.
+    "planning" meeting {
+        start at 3..15
+    }
+}
+```
 
 Extension Function Expressions combine:
 

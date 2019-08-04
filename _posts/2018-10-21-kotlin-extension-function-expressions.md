@@ -8,12 +8,11 @@ layout: post
 hero-image: assets/kotlin-awesomeness-hero.svg
 title: "Kotlin Extension Function Expressions"
 categories:
-- KT
+  - KT
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Lambdas and higher order functions](#lambdas-and-higher-order-functions)
 - [Extension Functions and Lambdas](#extension-functions-and-lambdas)
@@ -55,13 +54,22 @@ run {
 
 ## Extension Functions and Lambdas
 
+- Watch [this video](https://www.youtube.com/watch?v=JzTeAM8N1-o&t=1535s) by
+  Venkat Subramaniam on creating internal DSLs in Kotlin.
+  - One of the key concepts
+    is passing a context object to bind `this` to (in the lambda), very much
+    like
+    JavaScript's [`call(thisObject, lambda)`](https://developer.mozilla.org
+    /en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call)
+    method.
 - Watch [this video](https://youtu.be/A2LukgT2mKc?t=1020) by Jake Wharton explaining what this is.
 - Great [stackoverflow discussion](https://stackoverflow.com/q/47329716/2085356) on this as well.
 
 Extension Function Expressions combine:
+
 1. **Extension functions** - Functions added to a type w/out modifying the original
 1. **Function expressions** - Undeclared function bodies used as an expression (data)
-1. **High order functions** - A function that takes a function or returns a function 
+1. **High order functions** - A function that takes a function or returns a function
 
 Here's an unsophisticated example of using the 3 things above. This is a simple extension function
 that allows a List of Strings to be filtered [Run the code in the Kotlin
@@ -106,15 +114,15 @@ fun <T> List<T>.filter(allow: T.() -> Boolean): List<T>{
 Notes:
 
 1. `allow: T.() -> Boolean` is used instead of `allow: (T) -> Boolean` (from the unsophisticated
-example). The `T.` means that the function expression is an extension function of `T` itself!
+   example). The `T.` means that the function expression is an extension function of `T` itself!
 
-1. This means that `allow()` is an extension function of `T`! 
+1. This means that `allow()` is an extension function of `T`!
 
 1. Since `allow()` is an extension function of `T`, `this` is passed to it, which in this case is a
-`String`.
+   `String`.
 
 1. Given the change above, the `if (item.allow()) { newList.add(item) }` statement is used instead
-of `if (allow(item)) { newList.add(item) }` (from the unsophisticated example).
+   of `if (allow(item)) { newList.add(item) }` (from the unsophisticated example).
 
 ### Example 2
 
@@ -192,12 +200,12 @@ public inline fun <T : AutoCloseable?, R> T.use(block: (T) -> R): R {
 }
 ```
 
-Example of using this is shown below. 
+Example of using this is shown below.
 
 ```kotlin
 fun readFirstLineFromFile(path: String): String {
-    BufferedReader(FileReader(path)).use { br -> 
-        return br.readLine()            
+    BufferedReader(FileReader(path)).use { br ->
+        return br.readLine()
     }
 }
 ```
@@ -205,14 +213,14 @@ fun readFirstLineFromFile(path: String): String {
 Notes:
 
 - When the return executes in the lambda, it returns from the function in which the lambda was
-called from (not just the lambda block itself).
+  called from (not just the lambda block itself).
 
 - The return from the outer function is possible only if the function that takes the lambda as an
-argument is inlined.
+  argument is inlined.
 
 - More information on when to inline extension functions in [Kotlin in Action, Ch
-8](https://livebook.manning.com/#!/book/kotlin-in-action/chapter-8/132). Basically its best to
-include a function extension that accepts lambdas (IntelliJ IDEA has hints that help with this).
+  8](https://livebook.manning.com/#!/book/kotlin-in-action/chapter-8/132). Basically its best to
+  include a function extension that accepts lambdas (IntelliJ IDEA has hints that help with this).
 
 You can write a local return from a lambda expression as well. A local return in a lambda is similar
 to a break expression in a for loop. It stops the execution of the lambda and continues execution of
@@ -230,4 +238,3 @@ fun lookForAlice(people: List<Person>) {
     println("Alice might be somewhere")
 }
 ```
-

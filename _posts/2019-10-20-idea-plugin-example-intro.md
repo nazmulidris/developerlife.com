@@ -808,3 +808,4 @@ revisions).
 - [Article on ApplicationConfigurable and ProjectConfigurable](http://corochann.com/intellij-plugin-development-introduction-applicationconfigurable-projectconfigurable-873.html).
 - [All 3rd party plugins, the source can be used as examples](https://plugins.jetbrains.com/).
 - [Browse Code examples for open source plugins (from their github repos)](https://www.programcreek.com/java-api-examples/?Query=intellij+plugin&action=search_project&submit=Search).
+- [Comparison of plugin development on IDEA, VSCode, etc](https://medium.com/cacher-app/building-code-editor-plugins-a-comparison-83b5c21657fe)

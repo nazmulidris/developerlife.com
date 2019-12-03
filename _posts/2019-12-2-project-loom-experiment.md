@@ -4,7 +4,7 @@ date: 2019-12-2 17:59:00+00:00
 excerpt: |
   This tutorial is an early exploration into Java Project Loom (preview technology)
 layout: post
-hero-image: assets/project-loom-hero-image.svg
+hero-image: assets/project-loom-hero-image.png
 title: "Experimenting w/ Fibers in Project Loom preview"
 categories:
   - CC
@@ -193,7 +193,7 @@ The following is a great image that depicts the choice that developers have to
 make today, between simple blocking / synchronous code (using threads) and
 complex but scalable (asynchronous) code.
 
-![](../assets/why-fibers.png)
+![]({{'assets/why-fibers.png' | relative_url}})
 
 ### Structured concurrency
 

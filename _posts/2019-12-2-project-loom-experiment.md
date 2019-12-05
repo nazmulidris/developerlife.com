@@ -15,11 +15,12 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Introduction](#introduction)
+- [Overview of the code in this project](#overview-of-the-code-in-this-project)
 - [Runtime performance stats](#runtime-performance-stats)
   - [Normal JVM version](#normal-jvm-version)
   - [Project Loom JVM version](#project-loom-jvm-version)
-- [Overview of the code in this project](#overview-of-the-code-in-this-project)
 - [Building Project Loom JVM](#building-project-loom-jvm)
 - [Running the server on Project Loom JVM using Fibers](#running-the-server-on-project-loom-jvm-using-fibers)
   - [Structured concurrency](#structured-concurrency)
@@ -51,44 +52,6 @@ Project Loom would have helped w/ this throughput issue! However, it didn't
 exist back then. Project Loom proposes the creation of new lightweight threads
 inside the JVM that are not peers to OS threads. They are sometimes referred to
 as green threads (from the old JDK days).
-
-## Runtime performance stats
-
-The [github repo](https://github.com/nazmulidris/loomexample) for this project
-has instructions on how to get this going on your machine.
-
-### Normal JVM version
-
-Here are some performance numbers for this simple project on hardware (w/out
-using Loom JVM and using BIO (Java blocking IO). With a new Apple 16" MacBook
-Pro laptop w/ 64GB RAM and 8 core 5GHz Intel CPU:
-
-1. With about 10_000 client threads, the entire program can run in about 17 sec,
-   and the server may wait a few ms at most to accept a connection.
-2. 100_000 client threads connecting to a simple socket server, the JVM
-   experiences some serious performance issues, w/ threads causing the socket
-   server to wait around for a very long time to be able to accept a new socket
-   connection, max of about 22 sec 😱, and not a few ms! The average time to
-   accept a socket connection increased to about 3 ms. And the entire program
-   takes about 5 minutes to run 😨. The server process only consumed about 4.9 %
-   of CPU. BTW,
-   ["Grep Console"](https://plugins.jetbrains.com/plugin/7125-grep-console) is a
-   great plugin to monitor output from the client and server println statements.
-
-### Project Loom JVM version
-
-With a similar machine above, the Project Loom JVM version of the Server using
-Fibers get the following stats.
-
-1. With 100_000 clients, the total time it took for the program to complete is
-   3.9 min (22% less than the BIO JVM version). On the server, the average time
-   to accept a socket dropped to 2.3 ms (23% less). The max time wait time to
-   accept a socket increased to 19 sec (15% less). The server process only
-   consumed about 2.5 % of CPU.
-
-This is clearly very badly needed! NodeJS is so popular for server applications
-for this reason, despite being single threaded, since it supports non-blocking
-IO!
 
 ## Overview of the code in this project
 
@@ -148,6 +111,44 @@ much RAM and CPU! Here's an excerpt from a stackexchange discussion on this:
 > at most one thread per pipeline/core/CPU. However, you have to write
 > asynchronous or synchronous/non-blocking I/O code, and the relatively small
 > performance improvement won't always justify the extra complexity.
+
+## Runtime performance stats
+
+The [github repo](https://github.com/nazmulidris/loomexample) for this project
+has instructions on how to get this going on your machine.
+
+### Normal JVM version
+
+Here are some performance numbers for this simple project on hardware (w/out
+using Loom JVM and using BIO (Java blocking IO). With a new Apple 16" MacBook
+Pro laptop w/ 64GB RAM and 8 core 5GHz Intel CPU:
+
+1. With about 10_000 client threads, the entire program can run in about 17 sec,
+   and the server may wait a few ms at most to accept a connection.
+2. 100_000 client threads connecting to a simple socket server, the JVM
+   experiences some serious performance issues, w/ threads causing the socket
+   server to wait around for a very long time to be able to accept a new socket
+   connection, max of about 22 sec 😱, and not a few ms! The average time to
+   accept a socket connection increased to about 3 ms. And the entire program
+   takes about 5 minutes to run 😨. The server process only consumed about 4.9 %
+   of CPU. BTW,
+   ["Grep Console"](https://plugins.jetbrains.com/plugin/7125-grep-console) is a
+   great plugin to monitor output from the client and server println statements.
+
+### Project Loom JVM version
+
+With a similar machine above, the Project Loom JVM version of the Server using
+Fibers get the following stats.
+
+1. With 100_000 clients, the total time it took for the program to complete is
+   3.9 min (22% less than the BIO JVM version). On the server, the average time
+   to accept a socket dropped to 2.3 ms (23% less). The max time wait time to
+   accept a socket increased to 19 sec (15% less). The server process only
+   consumed about 2.5 % of CPU.
+
+This is clearly very badly needed! NodeJS is so popular for server applications
+for this reason, despite being single threaded, since it supports non-blocking
+IO!
 
 ## Building Project Loom JVM
 
@@ -275,9 +276,9 @@ to be non blocking and fiber friendly. Here's
 The only part of our current server that will change is the thread scheduling
 part; the logic inside the thread remains the same.
 
-Here's the old school Java code using BIO + threads.
+Here's the old school code using BIO + threads (written in Kotlin).
 
-```java
+```kotlin
 fun main() {
   val server = ServerSocket(PORT)
   while (true) {
@@ -306,10 +307,10 @@ public static void main(String[] args) {
 }
 ```
 
-For completeness, here's the client side code which remains unchanged for both
-the old school example, and the one w/ Fibers.
+For completeness, here's the client side code (in Kotlin) which remains
+unchanged for both the old school example, and the one w/ Fibers.
 
-```java
+```kotlin
 const val THREAD_COUNT = 100_000
 fun main() {
   val elapsedTimeSec = measureTimeSec {

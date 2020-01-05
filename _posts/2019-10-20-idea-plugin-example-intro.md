@@ -322,14 +322,16 @@ IDEA services are themselves implemented via this extension mechanism (more on
 that in the section below). There is a very consistent convention / idiom
 exposed by extension points and extensions.
 
-1.  The extension point defines and interface that an extension must implement.
+1.  The extension point defines an interface that an extension must implement.
     The _name_ attribute of the extension point becomes the XML _element/tag
     name_ of the extension itself.
-1.  Any attributes that are passed in the attributes to this extension are
-    declared by the extension point as things it requires to be instantiated.
-    Examples of this for services are `serviceInterface`, and
-    `serviceImplementation`. By default these can be `implementation` attribute,
-    when an `interface` attribute is declared in the extension point.
+1.  Any attributes that are passed in to the extension are declared by the
+    extension point as things it requires to be instantiated. For any extension
+    point that you create, there are 2 attributes to consider: `interface`
+    attribute is declared in the extension point, and the `implementation`
+    attribute, which is used by each of the extensions that may be declared.
+    Examples of these attributes for services (eg: `applicationService`
+    extension point) are `serviceInterface`, and `serviceImplementation`.
 
 Here's an example of this convention for a plugin providing its own extension
 point.
@@ -346,7 +348,7 @@ point.
 ```
 
 Here's an example of this convention for a plugin providing an extension to IDEA
-extension points.
+extension points: `appStarter` and `applicationConfigurable`.
 
 ```xml
 <extensions defaultExtensionNs="com.intellij">

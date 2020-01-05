@@ -687,6 +687,8 @@ Here's an example (from the sample plugin created for this tutorial) that
 demonstrates this.
 
 ```kotlin
+@file:JvmName("TestUtils")
+
 class TestUtils {
 
   companion object {
@@ -719,12 +721,17 @@ Files needed to be loaded from the plugin project's `testdata` directory. By
 default, IntelliJ Platform `BasePlatformTestCase` provides a location that is
 _invalid_ for use by 3rd party plugins (provided by
 `BasePlatformTestCase.myFixture#basePath`) 😳. This assumes that the files are
-in the classpath of the IntelliJ IDEA codebase itself. The `computeBasePath`
-function uses the classpath of this class in order to locate where on disk, this
-class is loaded from. And then walks up the path to locate the `testdata`
-folder. Also, note that this class uses an annotation (`@file:JvmName()`) in
-order to explicitly set its own classname and not use the computed
-`TestUtilsKt.class` (which would be the default w/out using this annotation).
+in the classpath of the IntelliJ IDEA codebase itself.
+
+In contrast, the
+[`TestUtils.kt`](https://github.com/nazmulidris/idea-plugin-example/blob/master/src/test/kotlin/TestUtils.kt)
+that provides the `computeBasePath` function uses the classpath of its own self
+(class) in order to locate where on disk, this class is loaded from. And then
+walks up the path (tree) to locate the `testdata` folder (which is a leaf off of
+one of these parent nodes). Also, note that this class uses an annotation
+(`@file:JvmName()`) in order to explicitly set its own classname and not use the
+computed `TestUtilsKt.class` (which would be the default w/out using this
+annotation).
 
 #### Mocking actions
 

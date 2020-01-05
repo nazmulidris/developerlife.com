@@ -844,13 +844,15 @@ fun testSelectedTextIsSearchedOnStackOverflow() {
 ## References
 
 There aren't many publicly available resources outside of JetBrains official
-docs (which are sparse) and open source plugins (which can be used as examples
-to learn from). Here are a few that I've found. Sources (where and if you can
-find them) serve as a good source of learning for how the Platform SDK APIs
-work, how they can be used, and even how to write tests for them. Using the
+docs (which are sparse, and tend to focus on the "how?" and never the "why?")
+and open source plugins (which can be used as examples to learn from).
+
+Here are a few that I've found. Sources (where and if you can find them) serve
+as a good source of learning for how the Platform SDK APIs work, how they can be
+used, and even how to write tests for them. Using the
 [debugger](https://www.youtube.com/watch?v=rjlhSDhFwzM) to set breakpoints and
 analyzing the stack traces are also a valid approach to understanding what this
-platform code does (since it is 15+ years old and has gone thru many many
+platform code does (since it is 15+ years old and has gone through many many
 revisions).
 
 - [JetBrains IntelliJ Platform SDK official docs](http://www.jetbrains.org/intellij/sdk/docs/welcome.html).

@@ -366,7 +366,7 @@ in use:
 ```
 
 1.  `com.intellij` means that you want to extend IDEA extension points itself.
-1.  `MyPluginID` (which is really any string that you use for your plugins)
+1.  `MyPluginID` (which is really any string that you use for your plugin id)
     means that this extension implements the extension point that your plugin
     itself is exposing (and not IDEA directly).
 

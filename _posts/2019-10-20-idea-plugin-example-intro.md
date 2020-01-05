@@ -113,11 +113,17 @@ provides to IDEA in this file.
 
 Here's an example of a `plugin.xml` file.
 
-- It provides provides an `extensionPoint` which is actually supported by a
-  `component`. This extension point is called `configuratorRunnable`.
+- It provides an `extensionPoint` which is actually supported by a `component`
+  implemented by `extensionPoints.ConfiguratorComponent.kt`. This extension
+  point is called `configuratorRunnable`. This component finds all its
+  `extensions` (declared below) when it initializes itself and does "something"
+  with each of them.
 - It provides 2 `extensions` each of which implement the `configuratorRunnable`
-  extension point (which is simply `Runnable`).
-- A `PersistentStateComponent` is also declared which is a `applicationService`.
+  extension point declared above (which is simply `Runnable`).
+- A `PersistentStateComponent` called `services.LogService` is also declared
+  which is a `applicationService`. Services are the preferred way of creating
+  plugin functionality since they don't all have to be created until actually
+  needed.
 - It exposes a bunch of actions and specifies where these actions should appear.
 - It creates a menu group and adds some actions to it.
 

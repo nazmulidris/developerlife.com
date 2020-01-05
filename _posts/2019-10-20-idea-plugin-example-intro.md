@@ -330,8 +330,9 @@ exposed by extension points and extensions.
     point that you create, there are 2 attributes to consider: `interface`
     attribute is declared in the extension point, and the `implementation`
     attribute, which is used by each of the extensions that may be declared.
-    Examples of these attributes for services (eg: `applicationService`
-    extension point) are `serviceInterface`, and `serviceImplementation`.
+    Examples of these attributes for services (eg: `applicationService`,
+    `projectService`, or `moduleService` extension points) are
+    `serviceInterface`, and `serviceImplementation`.
 
 Here's an example of this convention for a plugin providing its own extension
 point.

@@ -380,6 +380,40 @@ It searches the plugins directory for plugins, parses their `plugin.xml` files,
 and then uses reflection to instantiate the extensions listed there. And
 PicoContainer takes care of injecting the platform dependencies.
 
+Here's an example of this in the extension point implementation that is provided
+in the git repo of this tutorial
+([`extensionPoints/ConfiguratorComponent.kt`](https://github.com/nazmulidris/idea-plugin-example/blob/master/src/main/kotlin/extensionPoints/ConfiguratorComponent.kt)).
+
+```kotlin
+package extensionPoints
+
+/**
+ * Create an ExtensionPointName given the namespace of the plugin and the
+ * name of the extension point itself. Note that the namespace is "com
+ * .intellij" if IntelliJ Platform core functionality is extended, otherwise,
+ * it is the namespace of the plugin itself.
+ */
+object EP_NAME {
+  private const val nameSpace =
+      "com.developerlife.example.idea-plugin-example"
+  private const val name = "configuratorRunnable"
+  private const val fullyQualifiedName = "$nameSpace.$name"
+  operator fun invoke(): ExtensionPointName<Runnable> =
+      ExtensionPointName.create<Runnable>(fullyQualifiedName)
+}
+
+/**
+ * An ApplicationComponent that loads all the extensions that are registered to
+ * the extension point. Note that this class does not have to implement any
+ * IntelliJ platform interfaces.
+ */
+class ConfiguratorComponent(val application: Application) {
+  init {
+    EP_NAME().extensionList.forEach { it.run() }
+  }
+}
+```
+
 Here are some examples of real plugins that use extensions and extension points.
 You can use these links to browse the source code for these plugins.
 

@@ -752,7 +752,7 @@ testing) then I can verify some state information from that lambda to ensure
 that my action is doing what its supposed to.
 
 Here's the action code
-[`StackOverflowActions`](https://github.com/nazmulidris/idea-plugin-example/blob/master/src/main/kotlin/actions/StackOverflowActions.kt).
+[`StackOverflowActions.kt`](https://github.com/nazmulidris/idea-plugin-example/blob/master/src/main/kotlin/actions/StackOverflowActions.kt).
 
 ```kotlin
 /**
@@ -804,7 +804,7 @@ class SearchOnStackOverflowAction(
 ```
 
 Here's the
-[test code](https://github.com/nazmulidris/idea-plugin-example/blob/master/src/test/kotlin/actions/SearchOnStackOverflowActionTest.kt).
+[test code `SearchOnStackOverflowActionTest.kt`](https://github.com/nazmulidris/idea-plugin-example/blob/master/src/test/kotlin/actions/SearchOnStackOverflowActionTest.kt).
 
 ```kotlin
 class SearchOnStackOverflowActionTest : BasePlatformTestCase() {

@@ -13,6 +13,7 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Kotlin internal DSLs](#kotlin-internal-dsls)
 - [Fluency](#fluency)
 - [Context, and rebinding this](#context-and-rebinding-this)
@@ -106,7 +107,7 @@ Now, let's take a look at the code at the call site of this `call` function.
 
 The lambda that is passed to `call` has the following things.
 
-1. `it` is of type `String` and is bound to the argument that is passed to it in the `call` function (`"Jane"`).
+1. `it` is of type `String` and is bound to the argument that is passed to it in the `call` function (`"Nora"`).
 2. `this` is of type `MutableList<String>` and is bound to the context that is passed to it in the `call` function
    (`mutableListOf("Hello")`).
 

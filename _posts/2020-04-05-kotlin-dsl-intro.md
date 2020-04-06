@@ -13,7 +13,6 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Kotlin internal DSLs](#kotlin-internal-dsls)
 - [Fluency](#fluency)
 - [Context, and rebinding this](#context-and-rebinding-this)
@@ -84,7 +83,7 @@ Here's a Kotlin equivalent of this code in action.
 ```kotlin
 fun call(block: MutableList<String>.(String) -> Unit) {
   val context = mutableListOf("Hello")
-  val argument = "Jane"
+  val argument = "Nora"
   block(/* context aka `this`= */ context, /* argument aka `it`= */ argument)
 }
 

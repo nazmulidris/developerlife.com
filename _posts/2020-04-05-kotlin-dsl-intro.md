@@ -13,6 +13,7 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Kotlin internal DSLs](#kotlin-internal-dsls)
 - [Fluency](#fluency)
 - [Context, and rebinding this](#context-and-rebinding-this)
@@ -119,7 +120,7 @@ This takes a little getting used to, but once you get the hang of it, you know t
 ```text
 fun call(block: MutableList<String>.(String) -> Unit) {}
                 ^                   ^
-                the context         the lambda function signature
+                1. the context      2. the lambda function signature (and possible argument)
 ```
 
 And on the flip side, when you're writing the lambda passed to this `call` function, you can expect:

@@ -140,16 +140,20 @@ So here's some code I came up with that I would like to generate console log out
 
 ```kotlin
 fun main() {
-  console {//this: ConsoleLogContext
+  colorConsole {//this: ColorConsoleContext
     printLine {//this: MutableList<String>
-      span(Purple, "msg1")
-      span(Red, "msg2")
-      span(Blue, "msg3")
+      span(Colors.Purple, "word1")
+      span("word2")
+      span(Colors.Blue, "word3")
+    }
+    printLine {//this: MutableList<String>
+      span(Colors.Green, "word1")
+      span(Colors.Purple, "word2")
     }
     println(
-        line {//this: MutableList<String>, it: ConsoleLogContext
-          add(it.Green("msg1"))
-          add(Blue("msg2"))
+        line {//this: MutableList<String>, it: ColorConsoleContext
+          add(Colors.Green("word1"))
+          add(Colors.Blue("word2"))
         })
   }
 }
@@ -163,13 +167,11 @@ available.
 Here's the code that makes this DSL possible.
 
 ```kotlin
-class ConsoleLogContext {
+class ColorConsoleContext {
   companion object {
-    fun console(block: ConsoleLogContext.() -> Unit) {
-      ConsoleLogContext().apply(block)
+    fun colorConsole(block: ColorConsoleContext.() -> Unit) {
+      ColorConsoleContext().apply(block)
     }
-
-    const val ANSI_RESET = "\u001B[0m";
   }
 
   fun printLine(block: MutableList<String>.() -> Unit) {
@@ -178,37 +180,47 @@ class ConsoleLogContext {
     })
   }
 
-  fun line(block: MutableList<String>.(ConsoleLogContext) -> Unit): String {
-    val sb = mutableListOf<String>()
-    block(sb, this)
+  fun line(block: MutableList<String>.(ColorConsoleContext) -> Unit): String {
+    val messageFragments = mutableListOf<String>()
+    block(messageFragments, this)
     val timestamp = SimpleDateFormat("hh:mm:sa").format(Date())
-    return sb.joinToString(separator = ", ", prefix = "$timestamp: ")
+    return messageFragments.joinToString(separator = ", ", prefix = "$timestamp: ")
   }
 
   /**
    * Appends all arguments to the given [MutableList].
    */
-  fun MutableList<String>.span(color: Color, text: String): MutableList<String> {
-    add(buildString {
-      append(color)
-      append(text)
-      append(ANSI_RESET)
-    })
+  fun MutableList<String>.span(color: Colors, text: String): MutableList<String> {
+    add(color.ansiCode + text + Colors.ANSI_RESET.ansiCode)
     return this
   }
 
-  val Black = Color("\u001B[30")
-  val Red = Color("\u001B[31")
-  val Green = Color("\u001B[32")
-  val Yellow = Color("\u001B[33")
-  val Blue = Color("\u001B[34")
-  val Purple = Color("\u001B[35")
-  val Cyan = Color("\u001B[36")
-  val White = Color("\u001B[37")
+  /**
+   * Appends all arguments to the given [MutableList].
+   */
+  fun MutableList<String>.span(text: String): MutableList<String> {
+    add(text + Colors.ANSI_RESET.ansiCode)
+    return this
+  }
+}
 
-  data class Color(val ansiColorCode: String) {
-    override fun toString(): String = ansiColorCode
-    operator fun invoke(msg: String): String = "$ansiColorCode$msg$ANSI_RESET"
+enum class Colors(val ansiCode: String) {
+  ANSI_RESET("\u001B[0m"),
+  Black("\u001B[30m"),
+  Red("\u001B[31m"),
+  Green("\u001B[32m"),
+  Yellow("\u001B[33m"),
+  Blue("\u001B[34m"),
+  Purple("\u001B[35m"),
+  Cyan("\u001B[36m"),
+  White("\u001B[37m");
+
+  operator fun invoke(content: String): String {
+    return "${ansiCode}$content${ANSI_RESET.ansiCode}"
+  }
+
+  operator fun invoke(content: StringBuilder): StringBuilder {
+    return StringBuilder("${ansiCode}$content${ANSI_RESET.ansiCode}")
   }
 }
 ```

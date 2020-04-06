@@ -110,8 +110,11 @@ The lambda that is passed to `call` has the following things.
 2. `this` is of type `MutableList<String>` and is bound to the context argument that is passed in the `call` function
    implementation (`mutableListOf("Hello")`).
 
-This takes a little getting used to, but once you get the hang of it, you know that the thing on the left side of the
-`.` in the method signature is the context, and the thing on the right side is the lambda's function signature.
+This takes a little getting used to, but once you get the hang of it, you know that:
+
+1. The thing on the left side of the `.` in the method signature is the context.
+2. The thing on the right side is the lambda's function signature. And that you can potentially pass an argument to this
+   lambda.
 
 ```text
 fun call(block: MutableList<String>.(String) -> Unit) {}

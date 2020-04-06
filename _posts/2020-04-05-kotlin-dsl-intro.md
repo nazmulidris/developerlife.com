@@ -157,7 +157,8 @@ fun main() {
 
 For this DSL, the main enclosing function is `console`, to which we pass a lambda. Inside the lambda, we can use
 `printLine` function or `line` function to express what to log exactly. We can pass lambdas to each of these functions,
-and note that when using `line`, `it` is available for use in the lambda.
+and note that when using `line`, `it` is available for use in the lambda, and when using `printLine` `it` isn't
+available.
 
 Here's the code that makes this DSL possible.
 

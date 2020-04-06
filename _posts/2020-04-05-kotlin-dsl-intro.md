@@ -13,9 +13,10 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Kotlin internal DSLs](#kotlin-internal-dsls)
 - [Fluency](#fluency)
-- [Context, and rebinding `this`](#context-and-rebinding-this)
+- [Context, and rebinding this](#context-and-rebinding-this)
 - [Example of a DSL that allows console output to be colored](#example-of-a-dsl-that-allows-console-output-to-be-colored)
 - [Further reading](#further-reading)
 
@@ -60,7 +61,7 @@ class Car {
 }
 ```
 
-## Context, and rebinding `this`
+## Context, and rebinding this
 
 If you have JavaScript experience, then you know that you can bind `this` to any object that you would like when you are
 calling a function using the

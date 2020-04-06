@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2018-04-05 5:00:00+00:00
+date: 2020-04-05 5:00:00+00:00
 excerpt: |
   This tutorial is an introduction to Kotlin internal DSLs using examples.
 layout: post
@@ -12,6 +12,7 @@ categories:
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
 
 - [Kotlin internal DSLs](#kotlin-internal-dsls)
 - [Fluency](#fluency)

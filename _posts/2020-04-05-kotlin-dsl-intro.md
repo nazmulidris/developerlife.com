@@ -121,7 +121,8 @@ This takes a little getting used to, but once you get the hang of it, you know t
 ```text
 fun call(block: MutableList<String>.(String) -> Unit) {}
                 ^                   ^
-                1. the context      2. the lambda function signature (and possible argument)
+                1. the context      2. the lambda function signature
+                                       (and possible argument)
 ```
 
 And on the flip side, when you're writing the lambda passed to this `call` function, you can expect:

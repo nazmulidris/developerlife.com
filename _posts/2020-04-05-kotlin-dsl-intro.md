@@ -215,10 +215,12 @@ class ConsoleLogContext {
 ## Further reading
 
 I've got a GitHub repo [here](https://github.com/nazmulidris/kt-scratch/tree/master/src/main/kotlin/dsl), where you can
-find many more examples (including the `console` example shown above). Please clone the repo, and take a look at the
-sources, and run the code to try it out for yourself. The best way to get good with DSLs is to spend a lot of time
-tinkering with this stuff and making your own. As Venkat Subramaniam says in his
-[video](https://www.youtube.com/watch?v=JzTeAM8N1-o), you will need 2 things:
+find many more examples (including the `console` example shown above).
+
+Please clone the repo, and take a look at the sources, and run the code to try it out for yourself. The best way to get
+good with DSLs is to spend a lot of time tinkering with this stuff and making your own.
+
+As Venkat Subramaniam says in his [video](https://www.youtube.com/watch?v=JzTeAM8N1-o), you will need 2 things:
 
 1. Patience,
 2. Coffee. 🤣

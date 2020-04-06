@@ -13,7 +13,6 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Kotlin internal DSLs](#kotlin-internal-dsls)
 - [Fluency](#fluency)
 - [Context, and rebinding `this`](#context-and-rebinding-this)
@@ -32,7 +31,7 @@ Kotlin internal DSLs are a way to work within the boundaries of the Kotlin langu
 itself to generate DSLs using Kotlin itself. Kotlin does not use VM byte code injection, and instead the DSL syntax is
 syntactic sugar that gets compiled down to bytecode by the Kotlin compiler itself.
 
-Please watch this great video
+Please watch this great video -
 [KotlinConf 2018 - Creating Internal DSLs in Kotlin by Venkat Subramaniam](https://www.youtube.com/watch?v=JzTeAM8N1-o)
 to learn more about Kotlin DSLs before getting started with this tutorial. It's a very easy to follow video and sets up
 really important background information for understanding DSLs.

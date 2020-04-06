@@ -97,9 +97,10 @@ call {
 If you look at the `call` function, the `block` parameter has this signature: `MutableList<String>.(String) -> Unit`.
 Let's break this down.
 
-1. `(String) -> Unit` - this simply says that the lambda will accept a single argument of type `String`.
-2. `Mutable<String>.` - this is more interesting, this says that the lambda above will have `this` bound to an object of
-   type `MutableList<String>`. In other words, the context passed to the lambda will be of type `MutableList<String>`.
+1. Right side `(String) -> Unit` - this simply says that the lambda will accept a single argument of type `String`.
+2. Left side `Mutable<String>.` - this is more interesting, this says that the lambda above will have `this` bound to an
+   object of type `MutableList<String>`. In other words, the context passed to the lambda will be of type
+   `MutableList<String>`.
 
 Now, let's take a look at the code at the call site of this `call` function.
 

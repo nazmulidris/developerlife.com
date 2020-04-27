@@ -225,6 +225,92 @@ enum class Colors(val ansiCode: String) {
 }
 ```
 
+## Example of a DSL that executes a list of lambdas while a condition is met
+
+Let's say that you have a list of lambdas. And that you want to execute them in sequence, as long
+as a condition is met (is true). Here's an example of what DSL for this use case may look like.
+
+```kotlin
+import actions.createConditionalRunnerScope
+import org.assertj.core.api.Assertions
+import org.junit.Test
+
+class ConditionalRunnerDslTest {
+  @Test
+  fun testCreateConditionalRunnerScope() {
+    var count = 1
+    var executionCount = 1
+    createConditionalRunnerScope {
+      condition { count < 4 }
+      addLambda { count++; executionCount++ }
+      addLambda { count++; executionCount++ }
+      addLambda { count++; executionCount++ }
+      addLambda { count++; executionCount++ }
+      addLambda { count++; executionCount++ }
+      addLambda { count++; executionCount++ }
+      runEachLambdaUntilConditionNotMet()
+    }
+    Assertions.assertThat(count).isEqualTo(4)
+    Assertions.assertThat(executionCount).isEqualTo(4)
+  }
+}
+```
+
+To implement this DSL, here's the code.
+
+```kotlin
+package actions
+
+/**
+ * DSL to run a sequence of lambdas as long as the condition is met. As soon as the condition is not met, execution
+ * stops.
+ */
+fun createConditionalRunnerScope(block: FunctionCollector.() -> Unit) {
+  val myFunctionCollector = FunctionCollector()
+  block(myFunctionCollector)
+}
+
+class FunctionCollector() {
+  lateinit var conditionBlock: () -> Boolean
+  val lambdaList: MutableList<() -> Unit> = mutableListOf()
+
+  fun condition(block: () -> Boolean) {
+    conditionBlock = block
+  }
+
+  fun addLambda(block: () -> Unit) {
+    lambdaList.add(block)
+  }
+
+  fun runEachLambdaUntilConditionNotMet() {
+    for (function in lambdaList) {
+      colorConsole {
+        printLine {
+          if (conditionBlock()) span(Colors.Green, "Condition == true")
+          else span(Colors.Red, "Condition == false")
+        }
+      }
+      if (conditionBlock()) {
+        colorConsole {
+          printLine {
+            span(Colors.Green, "invoking function")
+          }
+        }
+        function()
+      }
+      else {
+        colorConsole {
+          printLine {
+            span(Colors.Red, "breaking out of runEachUntilConditionNotMet()")
+          }
+        }
+        return
+      }
+    }
+  }
+}
+```
+
 ## Further reading
 
 I've got a GitHub repo [here](https://github.com/nazmulidris/kt-scratch/tree/master/src/main/kotlin/dsl), where you can

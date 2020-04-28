@@ -13,10 +13,13 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [Kotlin internal DSLs](#kotlin-internal-dsls)
 - [Fluency](#fluency)
 - [Context, and rebinding this](#context-and-rebinding-this)
+  - [Summary](#summary)
 - [Example of a DSL that allows console output to be colored](#example-of-a-dsl-that-allows-console-output-to-be-colored)
+- [Example of a DSL that executes a list of lambdas while a condition is met](#example-of-a-dsl-that-executes-a-list-of-lambdas-while-a-condition-is-met)
 - [Further reading](#further-reading)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->

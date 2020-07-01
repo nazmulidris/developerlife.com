@@ -141,8 +141,8 @@ established in 1998).
 Apps I've published to the Play Store:
 
 - ExtraTKT in 2009
-- TRNQL interplay in 2015
-- StayAwake in 2017
+- [TRNQL interplay in 2015](https://apkpure.com/trnql-interplay/com.trnql.sample_interplay)
+- [StayAwake in 2017](https://play.google.com/store/apps/details?id=com.r3bl.stayawake&hl=en_US)
 
 ### BlackBerry Apps
 

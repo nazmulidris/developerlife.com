@@ -48,15 +48,13 @@ I've brought products to life from a glimmer of a vision to a team building it, 
 seeing the product come to an end. I've worked as part of large and small teams and led them to make impossible things
 possible.
 
-I have over 20 years of leadership, 12 years of software engineering, 8 years of design and product management
-experience. As a multifaceted engineer, designer, and communicator, I’ve focused on creating, designing, building, and
-collaborating with people to bring amazing user experiences to life across multiple platforms.
+I have over 20 years of leadership:
 
-I've led the creation of developer narratives and scaled them out at Google, eg: I created the first design workshops
-for developers at IO13 & IO14. I've founded and presented at the Design for Humans (in real life) meetup. I've created
-the UX Design for Mobile class on Udacity, and my own UX Design show on YouTube both for Google. I also run and create
-content for a very prominent developer tutorial site called [developerlife.com](http://developerlife.com) (which was
-established in 1998).
+- 12 years in software engineering.
+- 8 years in design and product management experience.
+
+As a multifaceted engineer, designer, and communicator, I’ve focused on creating, designing, building, and collaborating
+with people to bring amazing user experiences to life across multiple platforms.
 
 ## Leadership and Resourcefulness
 
@@ -70,29 +68,6 @@ established in 1998).
   human behavior
 
 - Founded R3BL startup that is an incubator for apps and services that address human needs
-
-## Communication
-
-- Created developerlife.com tutorials on Android, Kotlin, React, Redux, and React Native, that has been around since ‘98
-  and has over 10M pageviews
-
-- Created & ran UX Design experiential workshops for developers at Google IO13 and IO14 hosting over 2k attendees –
-  [bit.ly/2o3oAni](http://bit.ly/2o3oAni)
-
-- Founded and grew Design for Humans meetup group to 2k members for UX design. I’ve presented at over 34 meetups, and
-  over 4k developer & designer attendees – [bit.ly/uxdmeetup](http://bit.ly/uxdmeetup)
-
-## Product Design
-
-- UX Design for Developers YouTube show for Google Android with over 200k views
-  [bit.ly/uxdplaylist](http://bit.ly/uxdplaylist)
-
-- Udacity class on UX Design for Mobile reaching over 200k people online [bit.ly/uxdclass](http://bit.ly/uxdclass)
-
-- G+ UX design community 8k designers & developers [bit.ly/uxdcommunity](http://bit.ly/uxdcommunity)
-
-- UX design with contextual information
-  [podcast](https://www.stitcher.com/podcast/vinay-raghu/incrementalux-podcast/e/40822211)
 
 ## Software Engineering
 
@@ -120,9 +95,8 @@ established in 1998).
 ### Cloud Infrastructure
 
 - Created a cross platform PaaS service in Java, built on top of Tomcat, similar to Google App Engine that powered
-  ScreamingToaster BlackBerry apps (from 2006 to
-
-2011. and then became the server backend for TRNQL SDK offering (from 2015-2016)
+  ScreamingToaster BlackBerry apps (from 2006 to 2011. and then became the server backend for TRNQL SDK offering (from
+  2015-2016)
 
 - Created DSLs to declaratively generate persistence, networking, data models, and data binding. Created source code
   generators to take DSLs and generate code in Java for server, Android, and BlackBerry, and even JavaScript for web
@@ -151,11 +125,11 @@ Apps I've published to the Play Store:
 
 - I published 4 apps that were used by 100's of thousands of users globally from 2006 to 2011
 
-      - Wicked blogging app for BlackBerry
-      - MyListy list app for BlackBerry and Web
-      - DulyNoted note taking app for BlackBerry and Web
-      - RainOrShine weather app for BlackBerry (was top 5 weather apps in
-      BlackBerry App World for a while) and was featured in the App World
+  - Wicked blogging app for BlackBerry
+  - MyListy list app for BlackBerry and Web
+  - DulyNoted note taking app for BlackBerry and Web
+  - RainOrShine weather app for BlackBerry (was top 5 weather apps in BlackBerry App World for a while) and was featured
+    in the App World
 
 ### Middleware infrastructure for mobile
 
@@ -165,6 +139,35 @@ Apps I've published to the Play Store:
 
 - Created high performance application data network infrastructure to deliver push updates from server to client, and a
   whole host of other innovations (see patent)
+
+## Product Design
+
+- UX Design for Developers YouTube show for Google Android with over 200k views
+  [bit.ly/uxdplaylist](http://bit.ly/uxdplaylist)
+
+- Udacity class on UX Design for Mobile reaching over 200k people online [bit.ly/uxdclass](http://bit.ly/uxdclass)
+
+- G+ UX design community 8k designers & developers [bit.ly/uxdcommunity](http://bit.ly/uxdcommunity)
+
+- UX design with contextual information
+  [podcast](https://www.stitcher.com/podcast/vinay-raghu/incrementalux-podcast/e/40822211)
+
+## Communication
+
+I've led the creation of developer narratives and scaled them out at Google, eg: I created the first design workshops
+for developers at IO13 & IO14. I've founded and presented at the Design for Humans (in real life) meetup. I've created
+the UX Design for Mobile class on Udacity, and my own UX Design show on YouTube both for Google. I also run and create
+content for a very prominent developer tutorial site called [developerlife.com](http://developerlife.com) (which was
+established in 1998).
+
+- Created developerlife.com tutorials on Android, Kotlin, React, Redux, and React Native, that has been around since ‘98
+  and has over 10M pageviews
+
+- Created & ran UX Design experiential workshops for developers at Google IO13 and IO14 hosting over 2k attendees –
+  [bit.ly/2o3oAni](http://bit.ly/2o3oAni)
+
+- Founded and grew Design for Humans meetup group to 2k members for UX design. I’ve presented at over 34 meetups, and
+  over 4k developer & designer attendees – [bit.ly/uxdmeetup](http://bit.ly/uxdmeetup)
 
 ## Patents and books
 

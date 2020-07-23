@@ -56,6 +56,15 @@ I have over 20 years of leadership:
 As a multifaceted engineer, designer, and communicator, I’ve focused on creating, designing, building, and collaborating
 with people to bring amazing user experiences to life across multiple platforms.
 
+Highlights:
+
+- Currently working on developer tools (Android Studio IDE) coding in Kotlin & Java.
+- Was principal SWE, founder, and CEO of a startup (TRNQL) in 2015.
+  - Raised 1.5M in venture funding.
+  - Successfully built and launched developer-facing SDKs for Android & iOS.
+  - Created & led teams that served many users & developers on Android & iOS.
+- Currently create content for prominent developer tutorial site developerlife.com (est 1998).
+
 ## Leadership and Resourcefulness
 
 - Was founder and CEO of TRNQL Inc, a startup to build SDKs for iOS and Android in 2014

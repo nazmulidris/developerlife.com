@@ -57,7 +57,7 @@ engineering roles.
 
 You can get the code for this and all the other tutorials in
 this collection from [this github repo](
-https://github.com/nazmulidris/algo). Here's a screen capture of
+https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of
 project in this repo in action.
 
 ![]({{'assets/algo-app-anim.gif' | relative_url}})

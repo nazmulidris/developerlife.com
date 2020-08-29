@@ -16,10 +16,8 @@
 
 ## Installing Ruby, Jekyll, and running this project
 
-To use Rails on macOS, you’ll need Ruby (an interpreter for the Ruby
-programming language) plus gems (software libraries) containing the Rails
-web application development framework. Run the following commands in your
-terminal app.
+To use Rails on macOS, you’ll need Ruby (an interpreter for the Ruby programming language) plus gems (software
+libraries) containing the Rails web application development framework. Run the following commands in your terminal app.
 
 1.  `xcode-select --install`
 1.  `brew install ruby`
@@ -30,8 +28,7 @@ terminal app.
 ## Creating a new project using Jekyll
 
 1.  In order to create a new project using Jekyll
-    1.  Go to a folder that you want to create your new website under,
-        eg `~/github/`
+    1.  Go to a folder that you want to create your new website under, eg `~/github/`
     1.  Run `jekyll new jekyll_test`
         1.  Your new site will be created in `~/github/jekyll_test`
         1.  Run `jekyll serve` to run it
@@ -62,8 +59,28 @@ After you clone the repo, go the `jekyll_test` folder, and
 ## Locating minima theme
 
 - Run `open $(bundle show minima)` in Finder
-  - Note that if you edit these minima files by accident (you will need
-    sudo access to edit them), you can simply regenerate them by
-    running `bundle install --force`.
-- Learn more about `minima` theme customization
-  [here](https://github.com/jekyll/minima)
+  - Note that if you edit these minima files by accident (you will need sudo access to edit them), you can simply
+    regenerate them by running `bundle install --force`.
+- Learn more about `minima` theme customization [here](https://github.com/jekyll/minima)
+
+# Change master to main
+
+The
+[Internet Engineering Task Force (IETF) points out](https://tools.ietf.org/id/draft-knodel-terminology-00.html#rfc.section.1.1.1)
+that "Master-slave is an oppressive metaphor that will and should never become fully detached from history" as well as
+"In addition to being inappropriate and arcane, the
+[master-slave metaphor](https://github.com/bitkeeper-scm/bitkeeper/blob/master/doc/HOWTO.ask?WT.mc_id=-blog-scottha#L231-L232)
+is both technically and historically inaccurate." There's lots of more accurate options depending on context and it
+costs me nothing to change my vocabulary, especially if it is one less little speed bump to getting a new person excited
+about tech.
+
+You might say, "I'm all for not using master in master-slave technical relationships, but this is clearly an instance of
+master-copy, not master-slave"
+[but that may not be the case](https://mail.gnome.org/archives/desktop-devel-list/2019-May/msg00066.html). Turns out the
+original usage of master in Git very likely came from another version control system (BitKeeper) that explicitly had a
+notion of slave branches.
+
+- https://dev.to/lukeocodes/change-git-s-default-branch-from-master-19le
+- https://www.hanselman.com/blog/EasilyRenameYourGitDefaultBranchFromMasterToMain.aspx
+
+[#blacklivesmatter](https://blacklivesmatter.com/)

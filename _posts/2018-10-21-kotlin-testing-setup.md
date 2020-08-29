@@ -28,36 +28,33 @@ categories:
 
 ## Test driven development and Kotlin
 
-As of October 2018, test driven development on Android is primarily focused on using JUnit4, and
-Mockito for unit testing. These don't work very well w/ Kotlin. By default Kotlin classes are
-final, and so Mockito has a hard time mocking them. Additionally, JUnit4 doesn't play well w/
-lambdas. For these reasons, JUnit5 and MockK are better when writing unit tests in Kotlin.
+As of October 2018, test driven development on Android is primarily focused on using JUnit4, and Mockito for unit
+testing. These don't work very well w/ Kotlin. By default Kotlin classes are final, and so Mockito has a hard time
+mocking them. Additionally, JUnit4 doesn't play well w/ lambdas. For these reasons, JUnit5 and MockK are better when
+writing unit tests in Kotlin.
 
 Please use the following resources to dive into more details on the following related topics.
 
 1. [Test driven development on Android](https://developer.android.com/training/testing/fundamentals)
-1. [Best practices for unit testing in Kotlin blog
-post](https://blog.philipphauer.de/best-practices-unit-testing-kotlin/)
+1. [Best practices for unit testing in Kotlin blog post](https://blog.philipphauer.de/best-practices-unit-testing-kotlin/)
 1. [Best practices for unit testing in Kotlin video](https://www.youtube.com/watch?v=RX_g65J14H0)
 
-This tutorial is purely focused on unit testing (not end to end, integration, or instrumented
-testing). There are quite a few dependencies that need to be accommodated before the first unit
-test can be written, and for that I will use the Kotlin DSL for gradle script (and not Groovy)
-in this tutorial and it's related project on [github](https://github.com/nazmulidris/places-api-poc/).
+This tutorial is purely focused on unit testing (not end to end, integration, or instrumented testing). There are quite
+a few dependencies that need to be accommodated before the first unit test can be written, and for that I will use the
+Kotlin DSL for gradle script (and not Groovy) in this tutorial and it's related project on
+[github](https://github.com/nazmulidris/places-api-poc/).
 
 ## Using Kotlin DSL for gradle
 
-In order to use Kotlin DSL for gradle, rather than Groovy, the first thing to do is use 
-[`buildSrc`](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html#sec:build_sources)
-where will create a Kotlin file that holds all our dependencies. 
+In order to use Kotlin DSL for gradle, rather than Groovy, the first thing to do is use
+[`buildSrc`](https://docs.gradle.org/current/userguide/organizing_gradle_projects.html#sec:build_sources) where will
+create a Kotlin file that holds all our dependencies.
 
-There's a [Gradle Migration
-Guide](https://guides.gradle.org/migrating-build-logic-from-groovy-to-kotlin/) that will provide
-you with more details on how to get this done. 
+There's a [Gradle Migration Guide](https://guides.gradle.org/migrating-build-logic-from-groovy-to-kotlin/) that will
+provide you with more details on how to get this done.
 
-> In order to be able to load a project into Android Studio, there must be a `build.gradle` file in
-the root folder of the project, which can be empty. The main logic will be in the `build.gradle.kts`
-file instead.
+> In order to be able to load a project into Android Studio, there must be a `build.gradle` file in the root folder of
+> the project, which can be empty. The main logic will be in the `build.gradle.kts` file instead.
 
 ```kotlin
 object TestingDeps {
@@ -84,10 +81,10 @@ object TestingDeps {
 ```
 
 > You can see the `buildSrc` folder of the project used in this tutorial
-[here](https://github.com/nazmulidris/places-api-poc/tree/master/buildSrc).
+> [here](https://github.com/nazmulidris/places-api-poc/tree/main/buildSrc).
 
-Since I'm using Kotlin for test code, and my source code, the source sets needed to be updated
-as well. This is done in the app module's `build.gradle.kts` file (in the `android` section)
+Since I'm using Kotlin for test code, and my source code, the source sets needed to be updated as well. This is done in
+the app module's `build.gradle.kts` file (in the `android` section)
 
 ```kotlin
 android {
@@ -103,30 +100,25 @@ android {
 
 Here are some links with gradle build scripts used in this project.
 
-1. [buildSrc
-build.gradle.kts](https://github.com/nazmulidris/places-api-poc/blob/master/buildSrc/build.gradle.kts).
-This loads the Kotlin DSL for gradle, so that Kotlin can be used to declare all the dependencies, in
-the
-[Dependencies.kt](https://github.com/nazmulidris/places-api-poc/blob/master/buildSrc/src/main/kotlin/Dependencies.kt)
-file.
-1. [Top level
-build.gradle.kts](https://github.com/nazmulidris/places-api-poc/blob/master/build.gradle.kts)
-1. [Top level
-settings.gradle](https://github.com/nazmulidris/places-api-poc/blob/master/settings.gradle)
-1. [App module
-build.gradle.kts](https://github.com/nazmulidris/places-api-poc/blob/master/app/build.gradle.kts)
+1. [buildSrc build.gradle.kts](https://github.com/nazmulidris/places-api-poc/blob/main/buildSrc/build.gradle.kts). This
+   loads the Kotlin DSL for gradle, so that Kotlin can be used to declare all the dependencies, in the
+   [Dependencies.kt](https://github.com/nazmulidris/places-api-poc/blob/main/buildSrc/src/main/kotlin/Dependencies.kt)
+   file.
+1. [Top level build.gradle.kts](https://github.com/nazmulidris/places-api-poc/blob/main/build.gradle.kts)
+1. [Top level settings.gradle](https://github.com/nazmulidris/places-api-poc/blob/main/settings.gradle)
+1. [App module build.gradle.kts](https://github.com/nazmulidris/places-api-poc/blob/main/app/build.gradle.kts)
 
 ## Loading JUnit5, MockK, AssertJ, and Roboelectric
 
 In order to get JUnit5 into the project, you can use the
-[android-junit5](https://github.com/mannodermaus/android-junit5) gradle plugin. Sadly, there's no
-easier way to automatically add support for JUnit5 (as of this Oct 2018). 
+[android-junit5](https://github.com/mannodermaus/android-junit5) gradle plugin. Sadly, there's no easier way to
+automatically add support for JUnit5 (as of this Oct 2018).
 
-In order to use Roboelectric 3.8, you will also need JUnit4 via JUnit5 Vintage support. And you will
-have to ensure that you app doesn't target API level 28.
+In order to use Roboelectric 3.8, you will also need JUnit4 via JUnit5 Vintage support. And you will have to ensure that
+you app doesn't target API level 28.
 
-These are the entries in the `build.gradle.kts` file for the app module that are required to import
-all the dependencies.
+These are the entries in the `build.gradle.kts` file for the app module that are required to import all the
+dependencies.
 
 ```kotlin
 plugins {
@@ -195,23 +187,22 @@ run {
 
 With the dependencies sorted, and sourceSets created, it is now possible to create unit tests!
 
-- You can use AssertJ, MockK, and JUnit5. 
+- You can use AssertJ, MockK, and JUnit5.
 - Or you can use JUnit5 Vintage (JUnit4 support) for tests that require Roboelectric.
 
 ### Example 1
 
-Here's an example of a unit test that requires Roboelectric to function. Note how you can have
-spaces in Kotlin function names as long as you escape them with backticks. This makes test names
-easier to read!
+Here's an example of a unit test that requires Roboelectric to function. Note how you can have spaces in Kotlin function
+names as long as you escape them with backticks. This makes test names easier to read!
 
 ```kotlin
 /**
- * This class uses Roboelectric to mock [android.net.Uri] and it uses the 
- * [org.junit.Test] annotation from JUnit4 (and not JUnit5). Also, 
+ * This class uses Roboelectric to mock [android.net.Uri] and it uses the
+ * [org.junit.Test] annotation from JUnit4 (and not JUnit5). Also,
  * @[org.junit.runner.RunWith] is JUnit4 (and not JUnit5).
  *
- * Currently (as of Oct 19 2018) Roboelectric doesn't work w/ JUnit5, 
- * and also doesn't work w/ API level 28, which is why these changes 
+ * Currently (as of Oct 19 2018) Roboelectric doesn't work w/ JUnit5,
+ * and also doesn't work w/ API level 28, which is why these changes
  * have to be made.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -302,12 +293,12 @@ Here's another example of a unit test that requires Roboelectric.
 
 ```kotlin
 /**
- * This class uses Roboelectric to mock [android.util.Log.i] and it uses the 
- * [org.junit.Test] annotation from JUnit4 (and not JUnit5). Also, 
+ * This class uses Roboelectric to mock [android.util.Log.i] and it uses the
+ * [org.junit.Test] annotation from JUnit4 (and not JUnit5). Also,
  * @[org.junit.runner.RunWith] is JUnit4 (and not JUnit5).
  *
- * Currently (as of Oct 19 2018) Roboelectric doesn't work w/ JUnit5, and 
- * also doesn't work w/ API level 28, which is why these changes have 
+ * Currently (as of Oct 19 2018) Roboelectric doesn't work w/ JUnit5, and
+ * also doesn't work w/ API level 28, which is why these changes have
  * to be made.
  */
 @RunWith(RobolectricTestRunner::class)
@@ -357,7 +348,7 @@ class AutocompletePredictionDataTest {
 ```
 
 > You can see all the tests for this project on
-[github](https://github.com/nazmulidris/places-api-poc/tree/master/app/src/test/kotlin).
+> [github](https://github.com/nazmulidris/places-api-poc/tree/main/app/src/test/kotlin).
 
 ## References
 

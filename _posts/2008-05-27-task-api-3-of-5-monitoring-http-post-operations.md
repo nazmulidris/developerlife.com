@@ -70,32 +70,32 @@ Here's the code in the TaskExecutor functor that does the HTTP POST:
 
 ```java
 TaskExecutorIF<ByteBuffer> functor = new TaskExecutorAdapter<ByteBuffer>() {
-  public ByteBuffer doInBackground(Future<ByteBuffer> swingWorker, 
+  public ByteBuffer doInBackground(Future<ByteBuffer> swingWorker,
                                    SwingUIHookAdapter hook) throws Exception {
- 
+
     try {
- 
+
       _initHook(hook);
- 
+
       PostMethod post = HttpUtils.sendMonitoredPOSTRequest(
           ttfURI.getText(),
           hook,
           new ByteBuffer(ttaInput.getText().getBytes()),
           "text/xml"
       );
- 
+
       ByteBuffer data = HttpUtils.getMonitoredResponse(hook, post);
- 
+
       return data;
- 
+
     }
     catch (Exception e){
       e.printStackTrace();
       throw e;
     }
- 
+
   }
- 
+
   @Override public String getName() {
     return _task.getName();
   }
@@ -104,34 +104,39 @@ TaskExecutorIF<ByteBuffer> functor = new TaskExecutorAdapter<ByteBuffer>() {
 
 Here are some notes on the code:
 
-  1. The HttpUtils class makes it a breeze to hook up the POST operation for monitoring. For more information on HTTP POST using the Apache HTTP Client API, [click here](http://hc.apache.org/httpclient-3.x/methods/post.html). Both the request and response can be monitored. To enable monitoring of the request, set "Enable Send". To enable monitoring of the response, set "Enable Receive".
+1. The HttpUtils class makes it a breeze to hook up the POST operation for monitoring. For more information on HTTP POST
+   using the Apache HTTP Client API, [click here](http://hc.apache.org/httpclient-3.x/methods/post.html). Both the
+   request and response can be monitored. To enable monitoring of the request, set "Enable Send". To enable monitoring
+   of the response, set "Enable Receive".
 
-  2. The data for the request just has to be a ByteBuffer. As the data from this ByteBuffer gets sent over the network, the UIHook gets updated with status updates.
+2. The data for the request just has to be a ByteBuffer. As the data from this ByteBuffer gets sent over the network,
+   the UIHook gets updated with status updates.
 
-  3. The data from the response is retrieved by using HttpUtils.getMonitoredResponse(...). As the data is received from the POST operation, the UIHook gets updated.
+3. The data from the response is retrieved by using HttpUtils.getMonitoredResponse(...). As the data is received from
+   the POST operation, the UIHook gets updated.
 
-The _initHook(hook) operation does the following:
+The \_initHook(hook) operation does the following:
 
 ```java
 private SwingUIHookAdapter _initHook(SwingUIHookAdapter hook) {
   hook.enableRecieveStatusNotification(checkboxRecvStatus.isSelected());
   hook.enableSendStatusNotification(checkboxSendStatus.isSelected());
- 
+
   hook.setProgressMessage(ttfProgressMsg.getText());
- 
+
   PropertyChangeListener listener = new PropertyChangeListener() {
     public void propertyChange(PropertyChangeEvent evt) {
       SwingUIHookAdapter.PropertyList type = ProgressMonitorUtils.parseTypeFrom(evt);
       int progress = ProgressMonitorUtils.parsePercentFrom(evt);
       String msg = ProgressMonitorUtils.parseMessageFrom(evt);
- 
+
       progressBar.setValue(progress);
       progressBar.setString(type.toString());
- 
+
       sout(msg);
     }
   };
- 
+
   hook.addRecieveStatusListener(listener);
   hook.addSendStatusListener(listener);
   hook.addUnderlyingIOStreamInterruptedOrClosed(new PropertyChangeListener() {
@@ -139,14 +144,18 @@ private SwingUIHookAdapter _initHook(SwingUIHookAdapter hook) {
       sout(evt.getPropertyName() + " fired!!!");
     }
   });
- 
+
   return hook;
 }
 ```
 
-## Download - I want the code now!
+## Download - I want the code now!
 
-You can download the source code distribution [here]({{'assets/taskapi.zip' | relative_url}}). 
-Included are sources, libraries that are needed, and javadocs. The sample applications are included in the source as well. Please read the javadocs - I have copious amounts of documentation about the lifecycle stages of Tasks in there, along with all the other classes in the Task API. The best place to see what's going on is in the javadocs. I took the time to write them for your benefit, as well as mine, so please use them :) .
+You can download the source code distribution [here]({{'assets/taskapi.zip' | relative_url}}). Included are sources,
+libraries that are needed, and javadocs. The sample applications are included in the source as well. Please read the
+javadocs - I have copious amounts of documentation about the lifecycle stages of Tasks in there, along with all the
+other classes in the Task API. The best place to see what's going on is in the javadocs. I took the time to write them
+for your benefit, as well as mine, so please use them :) .
 
-After you download the zip file, you will find all the compiled JARs that you will need in the /taskapi/dist/ folder. All the source code is in the /taskapi/src/ folder. The javadocs are in the /taskapi/javadoc/ folder.
+After you download the zip file, you will find all the compiled JARs that you will need in the /taskapi/dist/ folder.
+All the source code is in the /taskapi/src/ folder. The javadocs are in the /taskapi/javadoc/ folder.

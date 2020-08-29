@@ -28,17 +28,17 @@ categories:
 
 ## Introduction
 
-I've written 3 tutorials to show you how to create a service enabled Android application that 
-performs all of it's [network I/O](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/) in
- a background thread 
- ([not the UI thread](https://developerlife.com/2010/10/12/android-event-dispatch-thread-or-main-thread/)). Please note that by service I 
- mean web-service, not Android Service. These tutorials are split into three parts:
+I've written 3 tutorials to show you how to create a service enabled Android application that performs all of it's
+[network I/O](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/) in a background thread
+([not the UI thread](https://developerlife.com/2010/10/12/android-event-dispatch-thread-or-main-thread/)). Please note
+that by service I mean web-service, not Android Service. These tutorials are split into three parts:
 
-  1. [How to build a simple UI without using XML, by writing Java code to layout the UI.](https://developerlife.com/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/)
+1. [How to build a simple UI without using XML, by writing Java code to layout the UI.](https://developerlife.com/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/)
 
-  2. How to use Apache HTTP Client to connect to services over HTTP or HTTPS and exchange serialized Java objects with services.
+2. How to use Apache HTTP Client to connect to services over HTTP or HTTPS and exchange serialized Java objects with
+   services.
 
-  3. [How to use background threads to perform long running network IO operations, so that the main UI thread is not locked up.](https://developerlife.com/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/)
+3. [How to use background threads to perform long running network IO operations, so that the main UI thread is not locked up.](https://developerlife.com/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/)
 
 ## Connecting to services
 
@@ -80,61 +80,64 @@ performs all of it's [network I/O](http://hc.apache.org/httpcomponents-core-ga/t
 
 ### Using HTTP client
 
-The Apache HTTP Client 4 is included in the Android distribution, so there's no need for you to download it and add it to your Android projects. Here is a [tutorial on how to use this HTTP Client 4 library](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/). Here's the code that runs in the Android app (that sends the data to the servlet and processes it's response):
+The Apache HTTP Client 4 is included in the Android distribution, so there's no need for you to download it and add it
+to your Android projects. Here is a
+[tutorial on how to use this HTTP Client 4 library](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/). Here's
+the code that runs in the Android app (that sends the data to the servlet and processes it's response):
 
 ```java
 /** this method is called in a non-"edt" thread */
 private void _doInBackgroundPost() {
   Log.i(getClass().getSimpleName(), "background task - start");
- 
+
   Hashtable<String, String> map = new Hashtable();
   map.put("uid", uid);
   map.put("pwd", pwd);
- 
+
   try {
     HttpParams params = new BasicHttpParams();
- 
+
     // set params for connection...
     HttpConnectionParams.setStaleCheckingEnabled(params, false);
     HttpConnectionParams.setConnectionTimeout(params, NetworkConnectionTimeout_ms);
     HttpConnectionParams.setSoTimeout(params, NetworkConnectionTimeout_ms);
     DefaultHttpClient httpClient = new DefaultHttpClient(params);
- 
+
     // create post method
     HttpPost postMethod = new HttpPost(LoginServiceUri);
- 
+
     // create request entity
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(baos);
     oos.writeObject(map);
     ByteArrayEntity req_entity = new ByteArrayEntity(baos.toByteArray());
     req_entity.setContentType(MIMETypeConstantsIF.BINARY_TYPE);
- 
+
     // associating entity with method
     postMethod.setEntity(req_entity);
- 
+
     // RESPONSE
     httpClient.execute(postMethod, new ResponseHandler<Void>() {
-      public Void handleResponse(HttpResponse response) 
+      public Void handleResponse(HttpResponse response)
       throws ClientProtocolException, IOException {
         HttpEntity resp_entity = response.getEntity();
         if (resp_entity != null) {
- 
+
           try {
             byte[] data = EntityUtils.toByteArray(resp_entity);
-            ObjectInputStream ois = 
+            ObjectInputStream ois =
                 new ObjectInputStream(new ByteArrayInputStream(data));
             dataFromServlet = (Hashtable<DataKeys, Serializable>) ois.readObject();
-            Log.i(getClass().getSimpleName(), 
+            Log.i(getClass().getSimpleName(),
                 "data size from servlet=" + data.toString());
-            Log.i(getClass().getSimpleName(), 
+            Log.i(getClass().getSimpleName(),
                 "data hashtable from servlet=" + dataFromServlet.toString());
           }
           catch (Exception e) {
-            Log.e(getClass().getSimpleName(), 
+            Log.e(getClass().getSimpleName(),
                 "problem processing post response", e);
           }
- 
+
         }
         else {
           throw new IOException(
@@ -145,7 +148,7 @@ private void _doInBackgroundPost() {
         return null;
       }
     });
- 
+
   }
   catch (Exception e) {
     ex = e;
@@ -155,65 +158,67 @@ private void _doInBackgroundPost() {
     e.printStackTrace(pw);
     Log.e(getClass().getSimpleName(), sw.getBuffer().toString(), e);
   }
- 
+
   Log.i(getClass().getSimpleName(), "background task - end");
 }
 ```
 
-The code is structured in the way that you see it due to threading requirements to not labor the UI thread. 
-More on this in the next tutorial. Here's the gist of what the code is doing:
+The code is structured in the way that you see it due to threading requirements to not labor the UI thread. More on this
+in the next tutorial. Here's the gist of what the code is doing:
 
-  1. It gets the userid and password strings and stuffs them in a Hashtable.
+1. It gets the userid and password strings and stuffs them in a Hashtable.
 
-  2. This Hashtable is serialized to a bunch of bytes using a ByteArrayOutputStream and ObjectOutputStream.
+2. This Hashtable is serialized to a bunch of bytes using a ByteArrayOutputStream and ObjectOutputStream.
 
-  3. These bytes are sent to the servlet via HTTP POST using the [Apache HTTP Core 4 libs](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/).
+3. These bytes are sent to the servlet via HTTP POST using the
+   [Apache HTTP Core 4 libs](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/).
 
-  4. The response from the servlet is read into a ObjectInputStream and then deserialized into a Hashtable, which is then displayed to the second screen.
+4. The response from the servlet is read into a ObjectInputStream and then deserialized into a Hashtable, which is then
+   displayed to the second screen.
 
 ### Describe the servlet - DataPingServlet
 
 Here's the code on the servlet that's communicating with this app:
 
 ```java
-@Override protected void doPost(HttpServletRequest request, 
+@Override protected void doPost(HttpServletRequest request,
                                 HttpServletResponse res)
     throws ServletException, IOException
 {
- 
+
   ByteBuffer inputBB = new ByteBuffer(request.getInputStream());
   ByteBuffer outputBB = null;
- 
+
   try {
- 
+
     // extract the hashmap
     System.out.println("trying to extract hashtable from request");
- 
+
     ObjectInputStream ois = new ObjectInputStream(
             inputBB.getInputStream());
-    Hashtable<String, String> input = 
+    Hashtable<String, String> input =
             (Hashtable<String, String>) ois.readObject();
     System.out.println("got the uid/pwd from the client:" + input);
- 
+
     Object retval = _processInput(input);
     System.out.println("created response hashtable, sending it back");
- 
+
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ObjectOutputStream oos = new ObjectOutputStream(baos);
     oos.writeObject(retval);
- 
+
     outputBB = new ByteBuffer(baos.toByteArray());
- 
+
     System.out.println("sent response back...");
- 
+
   }
   catch (Exception e) {
     System.out.println(e);
     e.printStackTrace();
   }
- 
+
   ServletOutputStream sos = res.getOutputStream();
- 
+
   if (outputBB != null) {
     res.setContentType("application/octet-stream");
     res.setContentLength(outputBB.getSize());
@@ -224,24 +229,24 @@ Here's the code on the servlet that's communicating with this app:
     res.setContentLength(inputBB.getSize());
     sos.write(inputBB.getBytes());
   }
- 
+
   sos.flush();
   sos.close();
- 
+
 }
- 
+
 /** actually load PNG image and send it back */
 private Hashtable<DataKeys, Serializable> _processInput(
         Hashtable<String, String> input) {
- 
-  Hashtable<DataKeys, Serializable> retval = 
+
+  Hashtable<DataKeys, Serializable> retval =
         new Hashtable<DataKeys, Serializable>();
- 
+
   retval.put(DataKeys.str1, input.get("uid"));
   retval.put(DataKeys.str2, input.get("pwd"));
- 
+
   try {
-    InputStream is = 
+    InputStream is =
         getClass().getClassLoader().getResourceAsStream("information.png");
     if (is == null) System.out.println("is is null!");
     ByteBuffer bb = new ByteBuffer(is);
@@ -251,37 +256,39 @@ private Hashtable<DataKeys, Serializable> _processInput(
     System.out.println(e);
     e.printStackTrace();
   }
- 
+
   return retval;
- 
+
 }
 ```
 
 Here's the gist of what this code does:
 
-  1. Gets a Hashtable from the Android app
+1. Gets a Hashtable from the Android app
 
-  2. Copies the 2 strings from this Hashtable to a new one of type Hashtable.
+2. Copies the 2 strings from this Hashtable to a new one of type Hashtable.
 
-  3. Loads a PNG file from the appimages.jar file and turns it into a byte[] using the servlet's [classloader](http://saloon.javaranch.com/cgi-bin/ubb/ultimatebb.cgi?ubb=get_topic&f=1&t=003605).
+3. Loads a PNG file from the appimages.jar file and turns it into a byte[] using the servlet's
+   [classloader](http://saloon.javaranch.com/cgi-bin/ubb/ultimatebb.cgi?ubb=get_topic&f=1&t=003605).
 
-  4. Puts these bytes into the Hashtable and sends it back to the Android app. Note that the Hashtable itself is of course serializable.
+4. Puts these bytes into the Hashtable and sends it back to the Android app. Note that the Hashtable itself is of course
+   serializable.
 
 ## Object serialization
 
-As you can see from the code, little to no effort has to be put into writing serialization/deserialization code if you use Java serialization. There are limitations to what can be serialized though. I ran into issues with certain classes that work just fine for desktop Java but throw various exceptions in Android (like method doesn't exist, etc). So be sure to test your object exchange, before assuming that it should work because it does on desktop Java. Having said this, it's impressive to see a mobile platform be able to exchange Java objects with desktop and server Java VMs.
+As you can see from the code, little to no effort has to be put into writing serialization/deserialization code if you
+use Java serialization. There are limitations to what can be serialized though. I ran into issues with certain classes
+that work just fine for desktop Java but throw various exceptions in Android (like method doesn't exist, etc). So be
+sure to test your object exchange, before assuming that it should work because it does on desktop Java. Having said
+this, it's impressive to see a mobile platform be able to exchange Java objects with desktop and server Java VMs.
 
 ## Download source code
 
-To download the source code for this tutorial, 
-[click here]({{'assets/android.zip' | relative_url}}). 
-There are 3 folders in this zip file:
+To download the source code for this tutorial, [click here]({{'assets/android.zip' | relative_url}}). There are 3
+folders in this zip file:
 
-  1. AndroidTest –  This contains the Android UI and web service client code
+1. AndroidTest – This contains the Android UI and web service client code
 
-  2. ServiceTest – This contains the web service, or servlet code
+2. ServiceTest – This contains the web service, or servlet code
 
-  3. SharedTest – This contains the code that is shared between the Android code and web service code.
-
-
-
+3. SharedTest – This contains the code that is shared between the Android code and web service code.

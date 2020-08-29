@@ -126,22 +126,28 @@ Once you start the application (and you're connected to the Internet), you get t
 
 #### Learning the API... play with this app
 
-Pretty cool app, eh? 😃 . I suggest that you play with the application to learn the API. You can 
-download it [here]({{'assets/taskapi.zip' | relative_url}}). Try doing the following:
+Pretty cool app, eh? 😃 . I suggest that you play with the application to learn the API. You can download it
+[here]({{'assets/taskapi.zip' | relative_url}}). Try doing the following:
 
-  1. Click on Start Task, then Cancel, and see what it does.
+1. Click on Start Task, then Cancel, and see what it does.
 
-  2. Try and start multiple tasks.
+2. Try and start multiple tasks.
 
-  3. Try to click on Cancel Task and see how it's different from clicking on Cancel UIHook.
+3. Try to click on Cancel Task and see how it's different from clicking on Cancel UIHook.
 
-  4. Click on Shutdown Task while a task is running and see what happens. Try starting a task once it's been shutdown to see what happens.
+4. Click on Shutdown Task while a task is running and see what happens. Try starting a task once it's been shutdown to
+   see what happens.
 
-  5. Change the various check boxes (Enable Send/Enable Receive, and start the task again.
+5. Change the various check boxes (Enable Send/Enable Receive, and start the task again.
 
-  6. Change the task progress message "Getting an image from the web...", and start a task to see what happens.
+6. Change the task progress message "Getting an image from the web...", and start a task to see what happens.
 
-As you're learning how to use the SimpleTask class be sure to play with this sample app, as it will show you what the API does graphically... Mouse over any part of the interface and tooltips are provided to give you more details about what each UI element actually does. Try typing in a different URI and see what happens, etc. Playing with this SampleApp will allow you to learn lots of nuances of the Task API. There are a lot of support classes provided to enable the rich graphical interface that you see - I will not cover them in this tutorial, but keep your eyes peeled for more tutorials on developerlife.com on this subject.
+As you're learning how to use the SimpleTask class be sure to play with this sample app, as it will show you what the
+API does graphically... Mouse over any part of the interface and tooltips are provided to give you more details about
+what each UI element actually does. Try typing in a different URI and see what happens, etc. Playing with this SampleApp
+will allow you to learn lots of nuances of the Task API. There are a lot of support classes provided to enable the rich
+graphical interface that you see - I will not cover them in this tutorial, but keep your eyes peeled for more tutorials
+on developerlife.com on this subject.
 
 Let's step through the Task API related classes that make this demo tick.
 
@@ -161,46 +167,51 @@ _task = new SimpleTask(
 
 Here's what's going on in this code:
 
-  1. In order to create the SimpleTask, you need provide a functor (TaskExecutor) object that runs your code in the background.
+1. In order to create the SimpleTask, you need provide a functor (TaskExecutor) object that runs your code in the
+   background.
 
-  2. You will need a reference to a TaskManager, so just create one for now.
+2. You will need a reference to a TaskManager, so just create one for now.
 
-  3. You need to give the task a name - this is good to do, so that when you see status and/or debug messages, they make more sense. Also, for management/monitoring purposes, this name will be reported by the TaskManager.
+3. You need to give the task a name - this is good to do, so that when you see status and/or debug messages, they make
+   more sense. Also, for management/monitoring purposes, this name will be reported by the TaskManager.
 
-  4. You need to give the task a description.
+4. You need to give the task a description.
 
-  5. The last parameter is one more more AutoShutdownSignals enumeration. This is where you tell the Task API what "signal" you want the task to respond to, for selective shutdown (as opposed to shutting down ALL the tasks that are running). You are free to extend this enumeration and add your own signals. More on this in future tutorials.
+5. The last parameter is one more more AutoShutdownSignals enumeration. This is where you tell the Task API what
+   "signal" you want the task to respond to, for selective shutdown (as opposed to shutting down ALL the tasks that are
+   running). You are free to extend this enumeration and add your own signals. More on this in future tutorials.
 
 #### The functor (TaskExecutor)
 
-When you click the "Start Task" button, it simply runs execute() on a SimpleTask that's been created in this application. Here's the functor that does the 'actual work'.
+When you click the "Start Task" button, it simply runs execute() on a SimpleTask that's been created in this
+application. Here's the functor that does the 'actual work'.
 
 ```java
 TaskExecutorIF<ByteBuffer> functor = new TaskExecutorAdapter<ByteBuffer>() {
   public ByteBuffer doInBackground(Future<ByteBuffer> swingWorker,
                                    SwingUIHookAdapter hook) throws Exception
   {
- 
+
     _initHook(hook);
- 
+
     GetMethod get = new GetMethod(ttfURI.getText());
     new HttpClient().executeMethod(get);
- 
+
     ByteBuffer data = HttpUtils.getMonitoredResponse(hook, get);
- 
+
     try {
       _img = ImageUtils.toCompatibleImage(ImageIO.read(data.getInputStream()));
       sout("converted downloaded data to image...");
     }
     catch (Exception e) {
       _img = null;
-      sout("The URI is not an image. Data is downloaded, " + 
+      sout("The URI is not an image. Data is downloaded, " +
            "can't display it as an image.");
     }
- 
+
     return data;
   }
- 
+
   @Override public String getName() {
     return _task.getName();
   }
@@ -209,11 +220,16 @@ TaskExecutorIF<ByteBuffer> functor = new TaskExecutorAdapter<ByteBuffer>() {
 
 Here's what's going on in the code:
 
-  1. The actual work is performed by the GetMethod and HttpClient classes of Apache HttpClient library. For more information on how HttpClient works, check this out. The HttpUtils class that's part of the Task API takes care of 'wiring up' the HttpClient API to provide progress updates. More details on how this works are provided in a different tutorial.
+1. The actual work is performed by the GetMethod and HttpClient classes of Apache HttpClient library. For more
+   information on how HttpClient works, check this out. The HttpUtils class that's part of the Task API takes care of
+   'wiring up' the HttpClient API to provide progress updates. More details on how this works are provided in a
+   different tutorial.
 
-  2. There are 2 parameters passed to the doInBackground(...) method, and the SwingUIHookAdapter is what you can use to cancel underlying IO operations performed by tasks.
+2. There are 2 parameters passed to the doInBackground(...) method, and the SwingUIHookAdapter is what you can use to
+   cancel underlying IO operations performed by tasks.
 
-That's pretty much it. This is how simple it is to perform a non-trivial network IO operation in the background using the Task API.
+That's pretty much it. This is how simple it is to perform a non-trivial network IO operation in the background using
+the Task API.
 
 #### The handler (TaskHandler)
 
@@ -228,9 +244,9 @@ _task.setTaskHandler(new
       @Override public void started(AbstractTask task) {
         sout(":: taskHandler - started ");
       }
-      /** 
-      * {@link SampleApp#_initHook} adds the task status listener, 
-      * which is removed here 
+      /**
+      * {@link SampleApp#_initHook} adds the task status listener,
+      * which is removed here
       */
       @Override public void stopped(long time, AbstractTask task) {
         sout(":: taskHandler [" + task.getName() + "]- stopped");
@@ -238,21 +254,21 @@ _task.setTaskHandler(new
         task.getUIHook().clearAllStatusListeners();
       }
       @Override public void interrupted(Throwable e, AbstractTask task) {
-        sout(":: taskHandler [" + 
-             task.getName() + 
-             "]- interrupted - " + 
+        sout(":: taskHandler [" +
+             task.getName() +
+             "]- interrupted - " +
              e.toString());
       }
       @Override public void ok(ByteBuffer value, long time, AbstractTask task) {
-        sout(":: taskHandler [" + 
-             task.getName() + 
+        sout(":: taskHandler [" +
+             task.getName() +
              "]- ok - size=" + (value == null
                                 ? "null"
                                 : value.toString()));
         if (_img != null) {
           _displayImgInFrame();
         }
- 
+
       }
       @Override public void error(Throwable e, long time, AbstractTask task) {
         sout(":: taskHandler [" + task.getName() + "]- error - " + e.toString());
@@ -266,23 +282,32 @@ _task.setTaskHandler(new
 
 The most important methods in the code are:
 
-  1. **ok()** is called when the task completes execution, without throwing any exceptions, and has a result, in this case a ByteBuffer. The time the task took to execute is reported, along with a reference to the task object itself, in case you need to call some methods on it (provided as a convenience), eg: if you want to display the task's name in a debug message.
+1. **ok()** is called when the task completes execution, without throwing any exceptions, and has a result, in this case
+   a ByteBuffer. The time the task took to execute is reported, along with a reference to the task object itself, in
+   case you need to call some methods on it (provided as a convenience), eg: if you want to display the task's name in a
+   debug message.
 
-  2. **error()** is called when the task completes execution by throwing an exception. Again, the time it takes for the task to exception out is provided, along with a reference to the task object, that you can use to get information from for your debug messages.
+2. **error()** is called when the task completes execution by throwing an exception. Again, the time it takes for the
+   task to exception out is provided, along with a reference to the task object, that you can use to get information
+   from for your debug messages.
 
-  3. **cancelled()** is called when the user cancels the task. Again, the time it takes for the task to be canceled is provided, along with a reference to the task object itself.
+3. **cancelled()** is called when the user cancels the task. Again, the time it takes for the task to be canceled is
+   provided, along with a reference to the task object itself.
 
 Here's what's going on in the rest of the code:
 
-  1. **beforeStart()** is called before the task is actually executed. This gives you a chance to perform any prep that you need to do in our code.
+1. **beforeStart()** is called before the task is actually executed. This gives you a chance to perform any prep that
+   you need to do in our code.
 
-  2. **started()** is called just after the background thread is executed, before your TaskExecutor is run.
+2. **started()** is called just after the background thread is executed, before your TaskExecutor is run.
 
-  3. **stopped()** is called just after the background thread finishes execution (either with a result or error or cancellation).
+3. **stopped()** is called just after the background thread finishes execution (either with a result or error or
+   cancellation).
 
-  4. **interrupted()** is called if the background thread is interrupted.
+4. **interrupted()** is called if the background thread is interrupted.
 
-You can choose to implement as many or as few of the methods in the TaskHandler that you choose. So you can make your TaskHandler as simple or as complex as you need it to be!
+You can choose to implement as many or as few of the methods in the TaskHandler that you choose. So you can make your
+TaskHandler as simple or as complex as you need it to be!
 
 #### Reporting Task Status
 
@@ -291,7 +316,7 @@ Tasks can report their status messages to property change listeners. Here's the 
 ```java
 _task.addStatusListener(new PropertyChangeListener() {
   public void propertyChange(PropertyChangeEvent evt) {
-    sout(":: task status change - " + 
+    sout(":: task status change - " +
             ProgressMonitorUtils.parseStatusMessageFrom(evt));
     lblProgressStatus.setText(
             ProgressMonitorUtils.parseStatusMessageFrom(evt));
@@ -301,29 +326,33 @@ _task.addStatusListener(new PropertyChangeListener() {
 
 #### Reporting Progress Status (via UIHook)
 
-It's possible to get progress status updates from Tasks as well. In order to do this, you have to get a UIHook object from the Task. A reference to this object is automatically passed by the API to your functor (TaskExecutor) code. However, you can explicitly request one from the task as well, at any time. The following code "wires up" the Task to provide progress status updates in the functor (TaskExecutor) itself, by calling the _initHook() method. Here's the code:
+It's possible to get progress status updates from Tasks as well. In order to do this, you have to get a UIHook object
+from the Task. A reference to this object is automatically passed by the API to your functor (TaskExecutor) code.
+However, you can explicitly request one from the task as well, at any time. The following code "wires up" the Task to
+provide progress status updates in the functor (TaskExecutor) itself, by calling the `_initHook()` method. Here's the
+code:
 
 ```java
 private SwingUIHookAdapter _initHook(SwingUIHookAdapter hook) {
   hook.enableRecieveStatusNotification(checkboxRecvStatus.isSelected());
   hook.enableSendStatusNotification(checkboxSendStatus.isSelected());
- 
+
   hook.setProgressMessage(ttfProgressMsg.getText());
- 
+
   PropertyChangeListener listener = new PropertyChangeListener() {
     public void propertyChange(PropertyChangeEvent evt) {
-      SwingUIHookAdapter.PropertyList type = 
+      SwingUIHookAdapter.PropertyList type =
             ProgressMonitorUtils.parseTypeFrom(evt);
       int progress = ProgressMonitorUtils.parsePercentFrom(evt);
       String msg = ProgressMonitorUtils.parseMessageFrom(evt);
- 
+
       progressBar.setValue(progress);
       progressBar.setString(type.toString());
- 
+
       sout(msg);
     }
   };
- 
+
   hook.addRecieveStatusListener(listener);
   hook.addSendStatusListener(listener);
   hook.addUnderlyingIOStreamInterruptedOrClosed(new PropertyChangeListener() {
@@ -331,20 +360,25 @@ private SwingUIHookAdapter _initHook(SwingUIHookAdapter hook) {
       sout(evt.getPropertyName() + " fired!!!");
     }
   });
- 
+
   return hook;
 }
 ```
 
 Here's what's happening in this code:
 
-  1. The SwingUIHookAdapter object is initialized by telling it to report Send and Recieve updates. You can select whether to enable these in the SampleApp UI.
+1. The SwingUIHookAdapter object is initialized by telling it to report Send and Recieve updates. You can select whether
+   to enable these in the SampleApp UI.
 
-  2. This UIHook is then initialized with a "progress message" - this can be set the SampleApp UI as well.
+2. This UIHook is then initialized with a "progress message" - this can be set the SampleApp UI as well.
 
-  3. A property change listener is then registered with the UIHook, to get RecieveStatus and SendStatus updates, along with UnderlyingIOStreamInterruptedOrClosed updates. The latter is to let you know when the user has interrupted any underlying background IO operation. You can choose to ignore this if you want and just the issue in your handler (TaskHandler). If you use the UIHook to cancel the task, then this will get fired.
+3. A property change listener is then registered with the UIHook, to get RecieveStatus and SendStatus updates, along
+   with UnderlyingIOStreamInterruptedOrClosed updates. The latter is to let you know when the user has interrupted any
+   underlying background IO operation. You can choose to ignore this if you want and just the issue in your handler
+   (TaskHandler). If you use the UIHook to cancel the task, then this will get fired.
 
-There is another thing to note. In the handler (TaskHandler) used in this SampleApp, all listeners to the task's progress messages are removed in the stopped() method of the handler. Here's the code to do so:
+There is another thing to note. In the handler (TaskHandler) used in this SampleApp, all listeners to the task's
+progress messages are removed in the stopped() method of the handler. Here's the code to do so:
 
 ```java
 /** {@link SampleApp#_initHook} adds the task status listener, which is removed here */
@@ -355,11 +389,17 @@ There is another thing to note. In the handler (TaskHandler) used in this Sample
 }
 ```
 
-Don't forget to do this in your code, it's just good practice. It's really up to you when you clean up resources. In this example, the UIHook is initialized in the functor, but you don't have to do it this way. You can add listeners at anytime, and remove them at anytime.
+Don't forget to do this in your code, it's just good practice. It's really up to you when you clean up resources. In
+this example, the UIHook is initialized in the functor, but you don't have to do it this way. You can add listeners at
+anytime, and remove them at anytime.
 
 #### Cancel Task (via UIHook)
 
-The SwingUIHookAdapter used to get progress status updates can also be used to cancel any underlying IO operations. Here again, the Task API gives you more than one way to do something. If you simply call cancel() on the task, it will do the same thing. However, if you want to explicitly interrupt IO that a task is executing, then you can use the UIHook to stop this IO. If you call this method then the UnderlyingIOStreamInterruptedOrClosed property is fired. Why would you want to use this over just canceling the task? I will explain in depth in the next tutorial.
+The SwingUIHookAdapter used to get progress status updates can also be used to cancel any underlying IO operations. Here
+again, the Task API gives you more than one way to do something. If you simply call cancel() on the task, it will do the
+same thing. However, if you want to explicitly interrupt IO that a task is executing, then you can use the UIHook to
+stop this IO. If you call this method then the UnderlyingIOStreamInterruptedOrClosed property is fired. Why would you
+want to use this over just canceling the task? I will explain in depth in the next tutorial.
 
 ```java
 private void canceUIHookAction() {
@@ -369,17 +409,28 @@ private void canceUIHookAction() {
 
 ## More details
 
-This quick start guide shows you some highlights of the API, to get a much more detailed analysis
- of the API and what's going on in the SampleApp, read the next tutorial - [Task API (2 of 3) - Task API in-depth](https://developerlifecom.wordpress.com/2008/04/08/task-api-2-of-5-task-api-in-depth/).
+This quick start guide shows you some highlights of the API, to get a much more detailed analysis of the API and what's
+going on in the SampleApp, read the next tutorial -
+[Task API (2 of 3) - Task API in-depth](https://developerlifecom.wordpress.com/2008/04/08/task-api-2-of-5-task-api-in-depth/).
 
 ## Misc notes
 
-The Task API is written in Java 6, and it uses the SwingWorker implementation from Java6. If you aren't using Java6, then you will get exceptions.
+The Task API is written in Java 6, and it uses the SwingWorker implementation from Java6. If you aren't using Java6,
+then you will get exceptions.
 
-Additionally, the Apache HttpClient library doesn't make it easy to monitor the progress of the GET request itself (when key/value pairs are sent to the servlet, in the first part of the HTTP GET protocol). It is possible to monitor the response, but not the request. It's possible on the other hand to monitor both the request and response of a POST operation. So if you need the request to be monitored, use POST (if this is possible). More details on doing this are going to be provided in another tutorial.
+Additionally, the Apache HttpClient library doesn't make it easy to monitor the progress of the GET request itself (when
+key/value pairs are sent to the servlet, in the first part of the HTTP GET protocol). It is possible to monitor the
+response, but not the request. It's possible on the other hand to monitor both the request and response of a POST
+operation. So if you need the request to be monitored, use POST (if this is possible). More details on doing this are
+going to be provided in another tutorial.
 
 ## Download - I want the code now!
 
-You can download the source code distribution [here]({{'assets/taskapi.zip' | relative_url}}). Included are sources, libraries that are needed, and javadocs. The sample applications are included in the source as well. Please read the javadocs - I have copious amounts of documentation about the lifecycle stages of Tasks in there, along with all the other classes in the Task API. The best place to see what's going on is in the javadocs. I took the time to write them for your benefit, as well as mine, so please use them 😃 .
+You can download the source code distribution [here]({{'assets/taskapi.zip' | relative_url}}). Included are sources,
+libraries that are needed, and javadocs. The sample applications are included in the source as well. Please read the
+javadocs - I have copious amounts of documentation about the lifecycle stages of Tasks in there, along with all the
+other classes in the Task API. The best place to see what's going on is in the javadocs. I took the time to write them
+for your benefit, as well as mine, so please use them 😃 .
 
-After you download the zip file, you will find all the compiled JARs that you will need in the /taskapi/dist/ folder. All the source code is in the /taskapi/src/ folder. The javadocs are in the /taskapi/javadoc/ folder.
+After you download the zip file, you will find all the compiled JARs that you will need in the /taskapi/dist/ folder.
+All the source code is in the /taskapi/src/ folder. The javadocs are in the /taskapi/javadoc/ folder.

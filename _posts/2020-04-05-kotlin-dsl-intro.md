@@ -230,8 +230,8 @@ enum class Colors(val ansiCode: String) {
 
 ## Example of a DSL that executes a list of lambdas while a condition is met
 
-Let's say that you have a list of lambdas. And that you want to execute them in sequence, as long
-as a condition is met (is true). Here's an example of what DSL for this use case may look like.
+Let's say that you have a list of lambdas. And that you want to execute them in sequence, as long as a condition is met
+(is true). Here's an example of what DSL for this use case may look like.
 
 ```kotlin
 import actions.createConditionalRunnerScope
@@ -316,7 +316,7 @@ class FunctionCollector() {
 
 ## Further reading
 
-I've got a GitHub repo [here](https://github.com/nazmulidris/kt-scratch/tree/master/src/main/kotlin/dsl), where you can
+I've got a GitHub repo [here](https://github.com/nazmulidris/kt-scratch/tree/main/src/main/kotlin/dsl), where you can
 find many more examples (including the `console` example shown above).
 
 Please clone the repo, and take a look at the sources, and run the code to try it out for yourself. The best way to get

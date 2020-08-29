@@ -26,10 +26,9 @@ exclude: false
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [My story](#my-story)
 - [Leadership and Resourcefulness](#leadership-and-resourcefulness)
-- [Communication](#communication)
-- [Product Design](#product-design)
 - [Software Engineering](#software-engineering)
   - [Technologies](#technologies)
   - [Mobile app development toolkits & infrastructure](#mobile-app-development-toolkits--infrastructure)
@@ -38,6 +37,8 @@ exclude: false
   - [Android apps](#android-apps)
   - [BlackBerry Apps](#blackberry-apps)
   - [Middleware infrastructure for mobile](#middleware-infrastructure-for-mobile)
+- [Product Design](#product-design)
+- [Communication](#communication)
 - [Patents and books](#patents-and-books)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -45,7 +46,7 @@ exclude: false
 ## My story
 
 I've brought products to life from a glimmer of a vision to a team building it, to having customers, and eventually
-seeing the product come to an end. I've worked as part of large and small teams and led them to make impossible things
+seeing the product come to an end. I've worked as part of large and small teams and led them to make impossible things
 possible.
 
 I have over 20 years of leadership:
@@ -163,7 +164,7 @@ Apps I've published to the Play Store:
 
 ## Communication
 
-I've led the creation of developer narratives and scaled them out at Google, eg: I created the first design workshops
+I've led the creation of developer narratives and scaled them out at Google, eg: I created the first design workshops
 for developers at IO13 & IO14. I've founded and presented at the Design for Humans (in real life) meetup. I've created
 the UX Design for Mobile class on Udacity, and my own UX Design show on YouTube both for Google. I also run and create
 content for a very prominent developer tutorial site called [developerlife.com](http://developerlife.com) (which was

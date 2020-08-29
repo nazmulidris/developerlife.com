@@ -79,7 +79,15 @@ taskpanecontainer.add(taskpane);
 
 There are a couple of things to note here:
 
-  1. There is an enumeration called Images, which is used to load some images that come with this example. I've added 3 PNG images to the icons.zip file that are included as part of the [project download](http://developerlife.com/tutorials/wp-content/uploads/2008/01/taskpane.zip) (it's in the lib folder of the zip file). The enumeration has code in it which allows me to quickly load the images from PNG format, and then resize them to the width/height that is needed for this example. I use the [GraphicsUtilities](http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/) class that's provided with SwingX, that has lots of useful features that you can use to resize images, etc. I also use the [ImageIO](http://java.sun.com/j2se/1.4.2/docs/api/javax/imageio/ImageIO.html) class to actually read in the PNG file and convert it to a BufferedImage.
+1. There is an enumeration called Images, which is used to load some images that come with this example. I've added 3
+   PNG images to the icons.zip file that are included as part of the
+   [project download](http://developerlife.com/tutorials/wp-content/uploads/2008/01/taskpane.zip) (it's in the lib
+   folder of the zip file). The enumeration has code in it which allows me to quickly load the images from PNG format,
+   and then resize them to the width/height that is needed for this example. I use the
+   [GraphicsUtilities](http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/) class that's provided with
+   SwingX, that has lots of useful features that you can use to resize images, etc. I also use the
+   [ImageIO](http://java.sun.com/j2se/1.4.2/docs/api/javax/imageio/ImageIO.html) class to actually read in the PNG file
+   and convert it to a BufferedImage.
 
 ```java
 public enum Images {
@@ -116,7 +124,8 @@ Icon getIcon(int width, int height) {
 }//end enum Images
 ```
 
-  2. There is a call to getPainter() which sets the background painter for the JXLabel. To learn more about Painters, and the Colors enumeration, [click here](http://developerlife.com/tutorials/?p=140). Here's the code for getPainter():
+2. There is a call to getPainter() which sets the background painter for the JXLabel. To learn more about Painters, and
+   the Colors enumeration, [click here](http://developerlife.com/tutorials/?p=140). Here's the code for getPainter():
 
 ```java
 /** this painter draws a gradient fill */
@@ -134,16 +143,20 @@ public Painter getPainter() {
 }
 ```
 
-  3. There is a call to changeUIDefaults() which will be explained below.
+3. There is a call to changeUIDefaults() which will be explained below.
 
-  4. You can add any component to the JXTaskPane. You can also add Actions. When using Actions, just make sure that the NAME key has a value. If you have a SHORT_DESCRIPTION value, then it will show up as a tooltip. If you have a SMALL_ICON or LARGE_ICON value, then it will show up as an icon in the JXTaskPane entry.
+4. You can add any component to the JXTaskPane. You can also add Actions. When using Actions, just make sure that the
+   NAME key has a value. If you have a SHORT_DESCRIPTION value, then it will show up as a tooltip. If you have a
+   SMALL_ICON or LARGE_ICON value, then it will show up as an icon in the JXTaskPane entry.
 
-If you want to change the look of the JXTaskPane and JXTaskPane container, then you have to change some UI Defaults that they use to figure out how they should render themselves. There are quite a lot of options that you can set. Here's the implementation of changeUIDefaults():
+If you want to change the look of the JXTaskPane and JXTaskPane container, then you have to change some UI Defaults that
+they use to figure out how they should render themselves. There are quite a lot of options that you can set. Here's the
+implementation of changeUIDefaults():
 
 ```java
 private void changeUIdefaults() {
  // JXTaskPaneContainer settings (developer defaults)
- /* These are all the properties that can be set 
+ /* These are all the properties that can be set
   * (may change with new version of SwingX)
   * "TaskPaneContainer.useGradient",
   * "TaskPaneContainer.background",
@@ -152,30 +165,32 @@ private void changeUIdefaults() {
   * etc.
   */
  // setting taskpanecontainer defaults
- UIManager.put("TaskPaneContainer.useGradient", 
+ UIManager.put("TaskPaneContainer.useGradient",
                Boolean.FALSE);
- UIManager.put("TaskPaneContainer.background", 
+ UIManager.put("TaskPaneContainer.background",
                Colors.LightGray.color(0.5f));
  // setting taskpane defaults
- UIManager.put("TaskPane.font", 
+ UIManager.put("TaskPane.font",
                new FontUIResource(
                        new Font("Verdana", Font.BOLD, 16)));
- UIManager.put("TaskPane.titleBackgroundGradientStart", 
+ UIManager.put("TaskPane.titleBackgroundGradientStart",
                Colors.White.color());
- UIManager.put("TaskPane.titleBackgroundGradientEnd", 
+ UIManager.put("TaskPane.titleBackgroundGradientEnd",
                Colors.LightBlue.color());
 }
 ```
 
-As you can see from this code, you can set 2 gradient colors for the JXTaskPane/JXTaskPaneContainer to paint the background. You have to set the "useGradient" value to "Boolean.TRUE". and you have to specify the "backgroundGradientStart" and "backgroundGradientEnd" values, which are both colors. Alternatively, you can set "useGradient" to false, and just use a "background" color. The code example shows you both combinations:
+As you can see from this code, you can set 2 gradient colors for the JXTaskPane/JXTaskPaneContainer to paint the
+background. You have to set the "useGradient" value to "Boolean.TRUE". and you have to specify the
+"backgroundGradientStart" and "backgroundGradientEnd" values, which are both colors. Alternatively, you can set
+"useGradient" to false, and just use a "background" color. The code example shows you both combinations:
 
-  1. The JXTaskPaneContainer doesn't use a gradient fill, it uses a single background color (LightGray 50% transparent).
+1. The JXTaskPaneContainer doesn't use a gradient fill, it uses a single background color (LightGray 50% transparent).
 
-  2. The JXTaskPane uses a gradient fill (vertical fill), and it's 2 stops are: White to LightBlue.
+2. The JXTaskPane uses a gradient fill (vertical fill), and it's 2 stops are: White to LightBlue.
 
 Here's the complete listing for the TaskPanelExample1.java:
 
- 
 ```java
 import org.jdesktop.swingx.*;
 import org.jdesktop.swingx.painter.*;
@@ -199,7 +214,7 @@ public static void main(String[] args) {
     }
   });
 }
-/** creates a JFrame and calls {@link #doInit} to 
+/** creates a JFrame and calls {@link #doInit} to
 * create a JXPanel and adds the panel to this frame. */
 public TaskPaneExample1() {
   JFrame frame = new JFrame("TaskPane Example 1");
@@ -224,11 +239,11 @@ private Component doInit() {
           Images.NetworkDisconnected.getIcon(32, 32));
   label.setHorizontalAlignment(JXLabel.LEFT);
   label.setBackgroundPainter(getPainter());
-  // tweak with the UI defaults for the taskpane and 
+  // tweak with the UI defaults for the taskpane and
   // taskpanecontainer
   changeUIdefaults();
   // create a taskpanecontainer
-  JXTaskPaneContainer taskpanecontainer = 
+  JXTaskPaneContainer taskpanecontainer =
         new JXTaskPaneContainer();
   // create a taskpane, and set it's title and icon
   JXTaskPane taskpane = new JXTaskPane();
@@ -238,11 +253,11 @@ private Component doInit() {
   taskpane.add(label);
   taskpane.add(new AbstractAction() {
     {
-      putValue(Action.NAME, 
+      putValue(Action.NAME,
             "task pane item 2 : an action");
-      putValue(Action.SHORT_DESCRIPTION, 
+      putValue(Action.SHORT_DESCRIPTION,
             "perform an action");
-      putValue(Action.SMALL_ICON, 
+      putValue(Action.SMALL_ICON,
             Images.NetworkConnected.getIcon(32, 32));
     }
     public void actionPerformed(ActionEvent e) {
@@ -251,7 +266,7 @@ private Component doInit() {
   });
   // add the task pane to the taskpanecontainer
   taskpanecontainer.add(taskpane);
-  // set the transparency of the JXPanel to 
+  // set the transparency of the JXPanel to
   // 50% transparent
   panel.setAlpha(0.7f);
   panel.add(taskpanecontainer, BorderLayout.CENTER);
@@ -260,7 +275,7 @@ private Component doInit() {
 }
 private void changeUIdefaults() {
   // JXTaskPaneContainer settings (developer defaults)
-  /* These are all the properties that can be set 
+  /* These are all the properties that can be set
    * (may change with new version of SwingX)
    * "TaskPaneContainer.useGradient",
    * "TaskPaneContainer.background",
@@ -269,16 +284,16 @@ private void changeUIdefaults() {
    * etc.
    */
   // setting taskpanecontainer defaults
-  UIManager.put("TaskPaneContainer.useGradient", 
+  UIManager.put("TaskPaneContainer.useGradient",
         Boolean.FALSE);
-  UIManager.put("TaskPaneContainer.background", 
+  UIManager.put("TaskPaneContainer.background",
         Colors.LightGray.color(0.5f));
   // setting taskpane defaults
-  UIManager.put("TaskPane.font", 
+  UIManager.put("TaskPane.font",
         new FontUIResource(new Font("Verdana", Font.BOLD, 16)));
-  UIManager.put("TaskPane.titleBackgroundGradientStart", 
+  UIManager.put("TaskPane.titleBackgroundGradientStart",
         Colors.White.color());
-  UIManager.put("TaskPane.titleBackgroundGradientEnd", 
+  UIManager.put("TaskPane.titleBackgroundGradientEnd",
         Colors.LightBlue.color());
 }
 /** this painter draws a gradient fill */
@@ -297,9 +312,10 @@ public Painter getPainter() {
 }//end class TaskPaneExample1
 ```
 
-Please note that I've assembled the JXTaskPaneContainer in a JXPanel and I set it's opacity to 70%, making it 30% transparent. This is another cool feature of using SwingX JXPanel, and it's transparency.
+Please note that I've assembled the JXTaskPaneContainer in a JXPanel and I set it's opacity to 70%, making it 30%
+transparent. This is another cool feature of using SwingX JXPanel, and it's transparency.
 
 ## Download project
 
-To download the IDEA projects for this tutorial's source code example, 
-[click here]({{'assets/taskpane.zip' | relative_url}}).
+To download the IDEA projects for this tutorial's source code example, [click
+here]({{'assets/taskpane.zip' | relative_url}}).

@@ -32,25 +32,25 @@ Learn how to write fish shell scripts by example.
 
 Here's a simple example of assigning a value to a variable.
 
-```shell script
+```bash
 set MY_VAR "some value"
 ```
 
 Here's an example of appending values to a variable. By default fish variables are lists.
 
-```shell script
+```bash
 set MY_VAR $MY_VAR "another value"
 ```
 
 This is how you can create lists.
 
-```shell script
+```bash
 set MY_LIST "value1" "value2" "value3"
 ```
 
 Here's an example of storing value returned from the execution of a command to a variable.
 
-```shell script
+```bash
 set OUR_VAR (math 1+2)
 set OUR_VAR (date +%s)
 set OUR_VAR (math $OUR_VAR / 60)
@@ -59,7 +59,7 @@ set OUR_VAR (math $OUR_VAR / 60)
 Since all fish variables are lists, you can access individual elements using `[n]` operator, where `n=1` for the first
 element (not 0 index). Here's an example. And negative numbers access elements from the end.
 
-```shell script
+```bash
 set LIST one two three
 echo $LIST[1]  # one
 echo $LIST[2]  # two
@@ -69,7 +69,7 @@ echo $LIST[-1] # This is the same element as above
 
 You can also use ranges from the variable / list, continuing the example above.
 
-```shell script
+```bash
 set LIST one two three
 echo $LIST[1..2]  # one two
 echo $LIST[2..3]  # two three
@@ -82,7 +82,7 @@ echo $LIST[-1..2] # three two
 
 Since variables contain lists by default, it is very easy to iterate thru them. Here's an example.
 
-```shell script
+```bash
 set FOLDERS bin
 set FOLDERS $FOLDERS .atom
 set FOLDERS $FOLDERS github
@@ -98,7 +98,7 @@ string comparisons or even testing the existence of files and folders. Here are 
 
 String comparison in variable.
 
-```shell script
+```bash
 if test $hostname = "mymachine"
   echo "hostname is mymachine"
 end
@@ -106,7 +106,7 @@ end
 
 Checking for file existence.
 
-```shell script
+```bash
 if test -e "somefile"
   echo "somefile exists"
 end
@@ -120,7 +120,7 @@ In order to create switch statements for strings, the `test` command is used her
 [if statements](#how-to-write-if-statements)). The `case` statements need to match substrings, which can be expressed
 using a combination of wildcard chars and the substring you want to match. Here's an example.
 
-```shell script
+```bash
 switch $hostname
 case "*substring1*"
   echo "Matches $hostname containing substring1"
@@ -131,7 +131,7 @@ end
 
 You can combine this w/ if statements as well, and end up w/ something like this.
 
-```shell script
+```bash
 if test (uname) = "Darwin"
   echo "Machine is running macOS"
   switch $hostname
@@ -149,7 +149,7 @@ end
 
 The safest way to execute strings that are generated in the script is to use the following pattern.
 
-```shell script
+```bash
 echo "ls \
   -la" | sh
 ```
@@ -163,7 +163,7 @@ list (since all variables in fish are lists).
 
 Here's an example.
 
-```shell script
+```bash
 function say_hi
   echo "Hi $argv"
 end
@@ -184,13 +184,13 @@ of `find`.
 
 Here's an example that removes `./` from the start of each file that's found.
 
-```shell script
+```bash
 echo "./.Android" | sed 's/.\///g'
 ```
 
 Here's a more complex example of using `sed`, `find`, and `xargs` together.
 
-```shell script
+```bash
 set folder .Android*
 find ~ -maxdepth 1 -name $folder | sed 's/.\///g' | \
   xargs -I % echo "cleaned up name: %"
@@ -207,13 +207,13 @@ Here's a simple example: `ls | xargs echo "folders: "`.
 
 Here's a slightly different example using `-I %` which allows arguments to be placed anywhere (not just at the end).
 
-```shell script
+```bash
 ls | xargs -I % echo "folder: %"
 ```
 
 Which produces this output:
 
-```shell script
+```bash
 folder: idea-http-proxy-settings
 folder: images
 folder: tmp
@@ -226,7 +226,7 @@ Note how the arguments are each in a separate line.
 Let's say you have a string `"token1:token2"` and you want to split the string and only keep the first part of it. This
 can be done using the following cut command.
 
-```shell script
+```bash
 echo "token1:token2" | cut -d ':' -f 1
 ```
 
@@ -236,7 +236,7 @@ echo "token1:token2" | cut -d ':' -f 1
 Here's a real example of finding all the HTML files in `~/github/developerlife.com` with the string `"fonts.googleapis"`
 in it and then opening them up in `subl`.
 
-```shell script
+```bash
 cd ~/github/developerlife.com
 echo \
 "find . -name '*html' | \
@@ -250,7 +250,7 @@ echo \
 
 ## How to calculate how long the script took to run
 
-```shell script
+```bash
 set START_TS (date +%s)
 
 # This is where your code would go.

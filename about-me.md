@@ -26,7 +26,6 @@ exclude: false
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [My story](#my-story)
 - [Leadership and Resourcefulness](#leadership-and-resourcefulness)
 - [Software Engineering](#software-engineering)
@@ -77,19 +76,14 @@ Highlights:
 - Created and shipped SDKs that collects valuable signals from Android and iOS devices that fed ML to better understand
   human behavior
 
-- Founded R3BL startup that is an incubator for apps and services that address human needs
-
 ## Software Engineering
 
 ### Technologies
 
-- Full stack developer with experience in cloud, mobile, and web technologies
+- Experienced in building mobile apps and SDKs, web apps and APIs, IDEs, and web services
 
-- Well versed in Kotlin, Java, Android, Test driven development, Dagger2, JavaScript, Jasmine, Karma, Python, React
-  Native, React, Redux, Firebase, SQL databases
-
-- Experienced in building CMS systems, payments & licensing & subscriptions systems, enterprise backend systems (app
-  servers, mobile middleware infrastructure, etc), developer tools and platforms, APIs and SDKs
+- Well versed in Kotlin, Java, Android, Test driven development, Dagger2, TypeScript, JavaScript, Jasmine, Karma,
+  Python, React Native, React, Redux, Firebase, databases (SQL & object oriented)
 
 ### Mobile app development toolkits & infrastructure
 

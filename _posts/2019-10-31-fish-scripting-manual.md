@@ -16,9 +16,11 @@ categories:
 - [How to set variables](#how-to-set-variables)
 - [How to write for loops](#how-to-write-for-loops)
 - [How to write if statements](#how-to-write-if-statements)
+- [How to perform string comparisons](#how-to-perform-string-comparisons)
 - [How to write switch statements for strings](#how-to-write-switch-statements-for-strings)
 - [How to execute strings](#how-to-execute-strings)
 - [How to write functions](#how-to-write-functions)
+- [How to pass parameters to functions](#how-to-pass-parameters-to-functions)
 - [How to use sed](#how-to-use-sed)
 - [How to use xargs](#how-to-use-xargs)
 - [How to use cut to split strings](#how-to-use-cut-to-split-strings)
@@ -114,6 +116,24 @@ end
 
 - [Here are the docs on the `test` command](https://fishshell.com/docs/current/commands.html#test)
 
+## How to perform string comparisons
+
+In order to test substring matches in strings you can use the `string match` command. Here is more information on the
+command:
+
+1. [Official docs on string match](https://fishshell.com/docs/current/cmds/string-match.html).
+2. [Stackoverflow answer on how to use it](https://unix.stackexchange.com/a/504931/302646).
+
+Here's an example of this in action.
+
+```bash
+if string match -q "*myname*" $hostname
+  echo "$hostname contains myname"
+else
+  echo "$hostname does not contain myname"
+end
+```
+
 ## How to write switch statements for strings
 
 In order to create switch statements for strings, the `test` command is used here as well (just like it was for
@@ -176,6 +196,22 @@ Once you have written a function you can see what it is by using `type`, eg: `ty
 that you just created above.
 
 - [Here's the doc for functions](https://fishshell.com/docs/current/tutorial.html#tut_functions)
+
+## How to pass parameters to functions
+
+Instead of using `$argv` to figure out what parameters were passed to a function, you can provide a list of named
+parameters that a function expects. Here is more information on this
+[from the official docs](https://fishshell.com/docs/current/cmds/function.html).
+
+Here's an example.
+
+```bash
+function testFunction -a param1 param2
+  echo "arg1 = $param1"
+  echo "arg2 = $param2"
+end
+testFunction A B
+```
 
 ## How to use sed
 

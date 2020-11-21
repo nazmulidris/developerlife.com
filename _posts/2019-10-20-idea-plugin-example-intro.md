@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2019-08-25 05:19:43+00:00
+date: 2020-11-21 05:19:43+00:00
 layout: post
 excerpt: |
   This article is a introduction to creating plugins using JetBrains PLugin SDK.
@@ -15,7 +15,6 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-
 - [Introduction](#introduction)
 - [Plugin architecture](#plugin-architecture)
   - [PicoContainer](#picocontainer)
@@ -27,6 +26,11 @@ categories:
 - [Persisting state between IDE restarts](#persisting-state-between-ide-restarts)
   - [PersistentStateComponent and Services](#persistentstatecomponent-and-services)
 - [Actions](#actions)
+- [IntelliJ platform version, Gradle version, Kotlin version, gradle-intellij-plugin, intellij-plugin-verifier](#intellij-platform-version-gradle-version-kotlin-version-gradle-intellij-plugin-intellij-plugin-verifier)
+  - [intellij-plugin-verifier](#intellij-plugin-verifier)
+    - [Notes on the build or version codes](#notes-on-the-build-or-version-codes)
+  - [Using the latest version of Gradle and gradle-intellij-plugin](#using-the-latest-version-of-gradle-and-gradle-intellij-plugin)
+  - [In build.gradle.kts which intellij version should we use?](#in-buildgradlekts-which-intellij-version-should-we-use)
 - [Testing](#testing)
   - [AssertJ](#assertj)
   - [Example tests](#example-tests)
@@ -39,10 +43,10 @@ categories:
 
 ## Introduction
 
-This article covers the basics of creating a plugin for IntelliJ IDEA using the Plugin SDK. It covers the basics, like
-what components and services are, what extension points and extensions are, along with persistent state components, and
-unit testing. Topics like disposables, PSI, VFS, read/write locks, are not covered in this tutorial. I will write more
-tutorials in the future to cover these advanced topics as well.
+This article (originally published on 2019-08-25) covers the basics of creating a plugin for IntelliJ IDEA using the
+Plugin SDK. It covers the basics, like what components and services are, what extension points and extensions are, along
+with persistent state components, and unit testing. Topics like disposables, PSI, VFS, read/write locks, are not covered
+in this tutorial. I will write more tutorials in the future to cover these advanced topics as well.
 
 To get the code for this tutorial, please clone the
 [`nazmulidris/idea-plugin-example`](https://github.com/nazmulidris/idea-plugin-example) repo from github. Please
@@ -591,6 +595,142 @@ tutorial.
 
 - [`plugin.xml`](https://github.com/nazmulidris/idea-plugin-example/blob/main/src/main/resources/META-INF/plugin.xml).
 - [`Actions implemented in Kotlin`](https://github.com/nazmulidris/idea-plugin-example/tree/main/src/main/kotlin/actions).
+
+## IntelliJ platform version, Gradle version, Kotlin version, gradle-intellij-plugin, intellij-plugin-verifier
+
+When creating your plugin, you have to make a decision about which IntelliJ products your plugin will support (the
+products inside of which your plugin will run once they're installed). Keep in mind that these products are rapidly
+evolving and platform updates (for the IntelliJ platform that all the IDE products are based on) are released quite
+often, about 3 releases a year. Oftentimes breaking changes are released and this requires big architectural or
+structural changes in your plugin codebase.
+
+### intellij-plugin-verifier
+
+JetBrains have a plugin verifier [intellij-plugin-verifier](https://github.com/JetBrains/intellij-plugin-verifier) that
+makes it easy for you to know if your plugin is compatible w/ your chosen IntelliJ platform version or build codes.
+Instead of running this manually against your plugin, the
+[gradle-intellij-plugin](https://github.com/JetBrains/gradle-intellij-plugin#plugin-verifier-dsl) makes it easy to run
+this as a gradle task. Note that you are using this gradle plugin to build your plugin. Here's a snippet in your
+`build.gradle.kts` that you can add to configure this verification task.
+
+```kotlin
+// See https://github.com/JetBrains/gradle-intellij-plugin#plugin-verifier-dsl
+// See https://data.services.jetbrains.com/products?fields=code,name,releases.version,releases.build,releases.type&code=IIC,IIU
+tasks {
+  runPluginVerifier {
+    ideVersions(listOf<String>("2020.1.4", "2020.2.3", "2020.3"))
+  }
+}
+```
+
+You can run this task from IDEA, or from the command line using `.gradlew runPluginVerifier` to ensure that this the
+intellij-plugin-verifier runs. It points out any deprecations or any other mistakes that need to be corrected before
+publishing this plugin. Also, make sure to choose which IDEA versions you would like the plugin to be verified against
+in the `ideVersions` function. More on this [below](#notes-on-the-build-or-version-codes).
+
+You can learn more about this DSL [here](https://github.com/JetBrains/gradle-intellij-plugin#plugin-verifier-dsl).
+There's a detailed report that is generated in `${project.buildDir}/reports/pluginVerifier` for each `ideVersion` that
+this plugin is tested against. Here's an example of the output this task produces on the command line.
+
+```text
+Starting the IntelliJ Plugin Verifier 1.253
+2020-11-21T13:25:17 [main] INFO  c.j.p.options.OptionsParser - Delete the verification directory /home/nazmul/github/idea-plugin-example/build/reports/pluginVerifier because it isn't empty
+Verification reports directory: /home/nazmul/github/idea-plugin-example/build/reports/pluginVerifier
+2020-11-21T13:25:17 [main] INFO  verification - Reading IDE /home/nazmul/.pluginVerifier/ides/IC-2020.1.4
+2020-11-21T13:25:19 [main] INFO  verification - Reading IDE /home/nazmul/.pluginVerifier/ides/IC-2020.2.3
+2020-11-21T13:25:21 [main] INFO  verification - Reading IDE /home/nazmul/.pluginVerifier/ides/IC-2020.3
+2020-11-21T13:25:22 [main] INFO  verification - Reading plugin to check from /home/nazmul/github/idea-plugin-example/build/distributions/idea-plugin-example-1.0.zip
+2020-11-21T13:25:33 [main] INFO  verification - Task check-plugin parameters:
+Scheduled verifications (3):
+com.developerlife.example.idea-plugin-example:1.0 against IC-201.8743.12, com.developerlife.example.idea-plugin-example:1.0 against IC-202.7660.26, com.developerlife.example.idea-plugin-example:1.0 against IC-203.5981.41
+
+2020-11-21T13:25:34 [main] INFO  verification - Finished 1 of 3 verifications (in 0.6 s): IC-201.8743.12 against com.developerlife.example.idea-plugin-example:1.0: Compatible
+2020-11-21T13:25:34 [main] INFO  verification - Finished 2 of 3 verifications (in 0.6 s): IC-202.7660.26 against com.developerlife.example.idea-plugin-example:1.0: Compatible. 3 usages of internal API
+2020-11-21T13:25:34 [main] INFO  verification - Finished 3 of 3 verifications (in 0.6 s): IC-203.5981.41 against com.developerlife.example.idea-plugin-example:1.0: Compatible. 3 usages of deprecated API. 3 usages of internal API
+Plugin com.developerlife.example.idea-plugin-example:1.0 against IC-201.8743.12: Compatible
+    Plugin can be loaded/unloaded without IDE restart
+
+Plugin com.developerlife.example.idea-plugin-example:1.0 against IC-202.7660.26: Compatible. 3 usages of internal API
+Internal API usages (3):
+    #Internal method com.intellij.ide.plugins.PluginManager.getLogger() invocation
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.logWithHistory(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.log(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.logWithoutHistory(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+    Plugin can be loaded/unloaded without IDE restart
+
+Plugin com.developerlife.example.idea-plugin-example:1.0 against IC-203.5981.41: Compatible. 3 usages of deprecated API. 3 usages of internal API
+Deprecated API usages (3):
+    #Deprecated method com.intellij.openapi.util.IconLoader.getIcon(String) invocation
+        Deprecated method com.intellij.openapi.util.IconLoader.getIcon(java.lang.String path) : javax.swing.Icon is invoked in actions.PluginIcons.DefaultImpls.getHELLO_ACTION(PluginIcons) : Icon
+        Deprecated method com.intellij.openapi.util.IconLoader.getIcon(java.lang.String path) : javax.swing.Icon is invoked in actions.PluginIcons.DefaultImpls.getSTACKOVERFLOW_ACTION(PluginIcons) : Icon
+    #Deprecated constructor com.intellij.notification.NotificationGroup.<init>(String, NotificationDisplayType, boolean, String, Icon, int, DefaultConstructorMarker) invocation
+        Deprecated constructor com.intellij.notification.NotificationGroup.<init>(java.lang.String arg0, com.intellij.notification.NotificationDisplayType arg1, boolean arg2, java.lang.String arg3, javax.swing.Icon arg4, int arg5, kotlin.jvm.internal.DefaultConstructorMarker arg6) is invoked in ui.ShowNotificationSampleAction.anotherNotification(AnActionEvent) : void
+Internal API usages (3):
+    #Internal method com.intellij.ide.plugins.PluginManager.getLogger() invocation
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.logWithHistory(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.log(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.logWithoutHistory(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+    Plugin can be loaded/unloaded without IDE restart
+
+2020-11-21T13:25:34 [main] INFO  verification - Total time spent downloading plugins and their dependencies: 0 ms
+2020-11-21T13:25:34 [main] INFO  verification - Total amount of plugins and dependencies downloaded: 0 B
+2020-11-21T13:25:34 [main] INFO  verification - Total amount of space used for plugins and dependencies: 0 B
+```
+
+#### Notes on the build or version codes
+
+The gradle task shown above requires a `ideVersions` array to be passed in. This array contains the build or version
+codes for IDEA releases or EAPs that we want our plugin to be tested against. Where do we find these codes that are
+required? The following link has a list of build and version codes for `IIC - IntelliJ IDEA Community Edition`, and
+`IIU - IntelliJ IDEA Ultimate Edition`. You can modify the URL to get other product codes that you need to include. To
+view this link in Chrome, please use an extension like [JSON Formatter](https://github.com/callumlocke/json-formatter)
+since there the JSON blob returned by this URL is quite big.
+
+- [IIC, IIU release version, build, download](https://data.services.jetbrains.com/products?fields=code,name,releases.downloads,releases.version,releases.build,releases.type&code=IIC,IIU)
+
+Once you have decided which versions of IDEA that you want this plugin to be verified against, make sure that you have
+declared this plugin to be compatible w/ these IDE build ranges in the following two places:
+
+1. `build.gradle` - `intellij { version { `<version-or-build-code>` } }`
+2. `plugin.xml` - `<idea-version since-build="<version-or-build-code>" until-build="<version-or-build-code" />`
+   - Note that you can use wildcards here, eg: `2020.*` for the `<version-or-build-code>`
+
+### Using the latest version of Gradle and gradle-intellij-plugin
+
+On a somewhat related note, you might have to upgrade your existing plugin to use the latest Gradle and
+gradle-intellij-plugin. You might also have to upgrade the version of Kotlin you support. Most of these changes can be
+made in the `build.gradle.kts` file. However, upgrading Gradle itself has to be done from the command line.
+
+Here's more information on staying up to date w/ the latest version of
+[gradle-intellij-plugin](https://github.com/JetBrains/gradle-intellij-plugin). This requires changes to be made to the
+`plugin` section of `build.gradle` w/ `id "org.jetbrains.intellij" version "<latest-version-here>"`
+
+Here's more information on staying up to date w/ the latest version of the
+[Gradle wrapper](https://docs.gradle.org/current/userguide/userguide.html) that is required. You can run the following
+command upgrade the Gradle wrapper `./gradlew wrapper --gradle-version <latest-version-here>`, where
+`<latest-version-here>` is the latest version of Gradle, eg: `6.7`.
+
+To update to the latest version of Kotlin, in `build.gradle.kts`, you have to update
+`plugins { kotlin("jvm") version "<new-version>" }` where `<new-version>` is the latest version of Kotlin, eg: `1.4.10`.
+
+### In build.gradle.kts which intellij version should we use?
+
+Using `version 'LATEST-EAP-SNAPSHOT` can be very unstable, and cause gradle tasks to fail in strange ways, and cause
+other issues w/ the gradle plugins (IntelliJ, Kotlin, etc). Instead it is best to pick a specific stable version from
+[here](https://www.jetbrains.com/intellij-repository/releases/).
+
+You can get a list of EAP snapshots from [here](https://www.jetbrains.com/intellij-repository/snapshots/) but these are
+also most likely unstable. For our plugin, it is a little bit more complex, since it has a dependency on "java" and
+"markdown" plugins. The workflow to update to the latest version of IDEA and Markdown plugin goes something like this:
+
+1. Find the latest Markdown plugin release from [here](https://plugins.jetbrains.com/plugin/7793-markdown/versions), and
+   insert it below (replacing whatever version is there now). The webpage will also tell you which version of IDEA this
+   is compatible w/.
+2. Find the IDEA snapshot that is compatible w/ the Markdown plugin above (which probably won't be the latest EAP
+   snapshot). Replace the `intellij.version` in `build.gradle.kts` w/ this supported snapshot.
+
+You can read more about this on the
+[JB official docs plugin dependencies](https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html).
 
 ## Testing
 

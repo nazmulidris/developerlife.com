@@ -31,6 +31,7 @@ categories:
     - [Notes on the build or version codes](#notes-on-the-build-or-version-codes)
   - [Using the latest version of Gradle and gradle-intellij-plugin](#using-the-latest-version-of-gradle-and-gradle-intellij-plugin)
   - [In build.gradle.kts which intellij version should we use?](#in-buildgradlekts-which-intellij-version-should-we-use)
+- [Declaring dependencies on other plugins](#declaring-dependencies-on-other-plugins)
 - [Testing](#testing)
   - [AssertJ](#assertj)
   - [Example tests](#example-tests)
@@ -731,6 +732,34 @@ also most likely unstable. For our plugin, it is a little bit more complex, sinc
 
 You can read more about this on the
 [JB official docs plugin dependencies](https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html).
+
+## Declaring dependencies on other plugins
+
+It is common for some plugins to have dependencies on portions of the IntelliJ Platform that are themselves built and
+distributed as plugins, some of which can be bundled w/ the IDE itself. In the example used in for this tutorial there
+are dependencies declared on a few of these plugins: `java`, `markdown`, and `platform`.
+
+Since the example does PSI manipulation, the `markdown` and `java` plugins are needed. And the `platform` modules is
+needed for the following: Messaging, UI Themes, UI Components, Files, Documents, Actions, Components, Services,
+Extensions, Editors. You can read more about this in the
+[IntelliJ Platform SDK DevGuide](https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html).
+
+The confusing thing about these dependencies is that they have to be declared in 2 places. Let's take a look at the
+`markdown` plugin dependency. Here are the places where you have to declare this.
+
+1. In `build.gradle.kts` - You have to specify the dependency in `intellij { setPlugin("markdown", ...) }`.
+2. In `plugin.xml` - You have to specify the dependency in `<depends>org.intellij.plugins.markdown</depends>`.
+
+Similarly for the `java` dependency, you have to declare this in 2 places.
+
+1. In `build.gradle.kts` - You have to specify the dependency in `intellij { setPlugin("java", ...) }`.
+2. In `plugin.xml` - You have to specify the dependency in `<depends>com.intellij.modules.java</depends>`.
+
+And finally, for the `platform` you only have to specify this in `plugin.xml`. Hoever, you don't have to specify this in
+`build.gradle.kts`, since the code for these plugins are already included in the version of the platform that you choose
+in `intellij { version = "<idea-build-code-or-version-here> }`.
+
+1. In `plugin.xml` - You have to specify the dependency in `<depends>com.intellij.modules.platform</depends>`.
 
 ## Testing
 

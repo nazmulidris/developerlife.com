@@ -16,6 +16,9 @@ categories:
 - [How to set variables](#how-to-set-variables)
 - [How to write for loops](#how-to-write-for-loops)
 - [How to write if statements](#how-to-write-if-statements)
+  - [Commonly used conditions](#commonly-used-conditions)
+  - [Multiple conditions with operators: and, or](#multiple-conditions-with-operators-and-or)
+  - [References](#references)
 - [How to perform string comparisons](#how-to-perform-string-comparisons)
 - [How to write switch statements for strings](#how-to-write-switch-statements-for-strings)
 - [How to execute strings](#how-to-execute-strings)
@@ -87,16 +90,34 @@ Since variables contain lists by default, it is very easy to iterate thru them. 
 ```bash
 set FOLDERS bin
 set FOLDERS $FOLDERS .atom
-set FOLDERS $FOLDERS github
+set FOLDERS $FOLDERS my \foldername
 for FOLDER in $FOLDERS
   echo "item: $FOLDER"
 end
+```
+
+You can also simplify the code above by putting all the `set` commands in a single line like this.
+
+```bash
+set FOLDERS bin .atom "my foldername"
+for FOLDER in $FOLDERS
+  echo "item: $FOLDER"
+end
+```
+
+You can also put the entire for statement in a single line like this.
+
+```bash
+set FOLDERS bin .atom "my foldername"
+for FOLDER in $FOLDERS ; echo "item: $FOLDER" ; end
 ```
 
 ## How to write if statements
 
 The key to writing if statements is using the `test` command to evaluate some expression to a boolean. This can be
 string comparisons or even testing the existence of files and folders. Here are some examples.
+
+### Commonly used conditions
 
 String comparison in variable.
 
@@ -114,7 +135,65 @@ if test -e "somefile"
 end
 ```
 
-- [Here are the docs on the `test` command](https://fishshell.com/docs/current/commands.html#test)
+Checking for folder existence.
+
+```bash
+if test -d "somefolder"
+  echo "somefolder exists"
+end
+```
+
+Here's an example of how to use the `not` operator in the previous example.
+
+```bash
+if not test -d "somefolder"
+  echo "somefolder does not exist"
+end
+```
+
+### Multiple conditions with operators: and, or
+
+If you want to combine multiple conditions into a single statement, then you can use `or` and `and` operators. Also if
+you want to check the inverse of a condition, you can use `!`. Here's an example of a function that checks for 2
+arguments to be passed via the command line. Here's the logic we will describe.
+
+1. If both the arguments are missing, then usage information should be displayed to the CLI, and perform an early
+   return.
+2. If either one of the arguments is missing, then display a prompt stating that one of the arguments is missing, and
+   perform an early return.
+
+```bash
+function requires-two-arguments
+  # No arguments are passed.
+  if set -q $argv
+    echo "Usage: requires-two-arguments arg1 arg2"
+    return 1
+  end
+  # Only 1 argument is passed.
+  if set -q $argv[1]; or set -q $argv[2]
+    echo "arg1 or arg2 can not be empty"
+    return 1
+  end
+  echo "Thank you, got 1) $argv[1] and 2) $argv[2]"
+end
+```
+
+Here are some notes on the code.
+
+1. What does the `set -q $variable` function do? It returns true if `$variable` is empty.
+2. Instead of `set -q`, if you wanted to use `test` function in order to test if a variable is empty, you can use
+   `if test ! -n "$variable"`, which is more verbose.
+3. If you wanted to replace the `or` check above w/ `test`, this is what it would look like
+   `if test ! -n "$argv[1]"; or test ! -n "$argv[2]"`.
+4. Note that when you use `or`, `and` operators that you have to terminate the condition expression w/ a `;`.
+
+### References
+
+1. [test command](https://fishshell.com/docs/current/cmds/test.html)
+2. [set command](https://fishshell.com/docs/current/cmds/set.html)
+3. [if command](https://fishshell.com/docs/current/cmds/if.html)
+4. [stackoverflow answer: how to check if fish variable is empty](https://stackoverflow.com/questions/47743015/fish-shell-how-to-check-if-a-variable-is-set-empty)
+5. [stackoverflow answer: how to put multiple conditions in fish if statement](https://stackoverflow.com/questions/17900078/in-fish-shell-how-can-i-put-two-conditions-in-an-if-statement)
 
 ## How to perform string comparisons
 

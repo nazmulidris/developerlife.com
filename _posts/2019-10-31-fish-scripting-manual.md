@@ -24,6 +24,7 @@ categories:
 - [How to execute strings](#how-to-execute-strings)
 - [How to write functions](#how-to-write-functions)
 - [How to pass parameters to functions](#how-to-pass-parameters-to-functions)
+- [How to handle file and folder paths](#how-to-handle-file-and-folder-paths)
 - [How to use sed](#how-to-use-sed)
 - [How to use xargs](#how-to-use-xargs)
 - [How to use cut to split strings](#how-to-use-cut-to-split-strings)
@@ -35,11 +36,31 @@ Learn how to write fish shell scripts by example.
 
 ## How to set variables
 
-Here's a simple example of assigning a value to a variable.
+Keep in mind that all types of values that can be assigned to variables in fish are strings. There is no such thing as
+boolean or integer or float, etc. Here's a simple example of assigning a value to a variable. Here is
+[more information on stackoverflow](https://stackoverflow.com/a/47762934/2085356) on this.
 
 ```bash
 set MY_VAR "some value"
 ```
+
+One of the most useful things that you can do is save the output of a command that you run in the shell in a variable.
+This is useful when you are testing to see if some program or command returned some values that mean that you should
+perform some other command (using string comparisons, if statements, and switch statements). Here's are examples of
+doing this.
+
+```bash
+set CONFIG_FILE_DIFF_OUTPUT (diff ~/Downloads/config.fish ~/.config/fish/config.fish)
+set GIT_STATUS_OUTPUT (git status --porcelain)
+```
+
+There are times when you have to export variables to child processes and also times when you have to export variables to
+global scope.
+
+- Export variable using `set -x`. An example of this is setting the `DISPLAY` environment variable for X11 session in a
+  fish function that is running in a `crontab` headless environment.
+- Export variable globally using `set -gx`. An example of this is setting the `JAVA_HOME` environment variable for all
+  programs running on the machine.
 
 Here's an example of appending values to a variable. By default fish variables are lists.
 
@@ -118,6 +139,17 @@ The key to writing if statements is using the `test` command to evaluate some ex
 string comparisons or even testing the existence of files and folders. Here are some examples.
 
 ### Commonly used conditions
+
+Checking the size of an array. `$argv` contains the list of arguments passed to a script from the command line.
+
+```bash
+if test (count $argv) -lt 2
+  echo "Usage: my-script <arg1> <arg2>"
+  echo "Eg: <arg1> can be 'foo', <arg2> can be 'bar'"
+else
+  echo "👋 Do something with $arg1 $arg2"
+end
+```
 
 String comparison in variable.
 
@@ -213,6 +245,24 @@ else
 end
 ```
 
+Here's an example of checking for an exact string match.
+
+```bash
+if test $hostname = "machine-name"
+  echo "Exact match"
+else
+  echo "Not exact match"
+end
+```
+
+Here's an example of testing whether a string is empty or not.
+
+```bash
+if set -q $my_variable
+  echo "my_variable is empty"
+end
+```
+
 ## How to write switch statements for strings
 
 In order to create switch statements for strings, the `test` command is used here as well (just like it was for
@@ -278,9 +328,10 @@ that you just created above.
 
 ## How to pass parameters to functions
 
-Instead of using `$argv` to figure out what parameters were passed to a function, you can provide a list of named
+In addition to using `$argv` to figure out what parameters were passed to a function, you can provide a list of named
 parameters that a function expects. Here is more information on this
-[from the official docs](https://fishshell.com/docs/current/cmds/function.html).
+[from the official docs](https://fishshell.com/docs/current/cmds/function.html). Please note that parameter names can
+not have `-` characters in them, so use `_` instead.
 
 Here's an example.
 
@@ -291,6 +342,48 @@ function testFunction -a param1 param2
 end
 testFunction A B
 ```
+
+Here's another example that tests for the existence of a certain number of arguments that are passed to a function.
+
+```bash
+# Note parameter names can't have dashes in them, only underscores.
+function my-function -a extension search_term
+  if test (count $argv) -lt 2
+    echo "Usage: my-function <extension> <search_term>"
+    echo "Eg: <extension> can be 'fish', <search_term> can be 'test'"
+  else
+    echo "✋ Do something with $extension $search_term"
+  end
+end
+
+```
+
+## How to handle file and folder paths
+
+As your scripts become more complex, you might need to handle loading multiple scripts. In this case you can just pull
+other scripts in from your current script by using `source my-script.fish`. However fish looks for this `my-script.fish`
+file in the current directory, from which you started executing the script. And this current directory might not match
+where you need to load this dependency from. This can happen if your main script is on the `$PATH` but the dependencies
+are not. In this case, you can do something like the following in your main script.
+
+```bash
+set MY_FOLDER_PATH (dirname (status --current-filename))
+source $MY_FOLDER_PATH/my-script.fish
+```
+
+So what this snippet actually does is get the folder in which the main script is running, and stores it in
+`MY_FOLDER_PATH` and then it become possible for any dependencies to be loaded using the `source` command. There is one
+limitation to this approach, which is that the path stored in `MY_FOLDER_PATH` is relative to the directory from which
+the main script is actually executed. This is a subtle detail that you may not care about, unless you need to have
+absolute path names. In this case you can do the following.
+
+```bash
+set MY_FOLDER_PATH (realpath (dirname (status --current-filename)))
+source $MY_FOLDER_PATH/my-script.fish
+```
+
+Using [`realpath`](https://man7.org/linux/man-pages/man1/realpath.1.html) gives you the fully qualified path name for
+your folder for the uses cases where you need this capability.
 
 ## How to use sed
 

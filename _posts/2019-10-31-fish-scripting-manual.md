@@ -18,6 +18,7 @@ categories:
 - [How to write if statements](#how-to-write-if-statements)
   - [Commonly used conditions](#commonly-used-conditions)
   - [Multiple conditions with operators: and, or](#multiple-conditions-with-operators-and-or)
+  - [Another common operator: not](#another-common-operator-not)
   - [References](#references)
 - [How to perform string comparisons](#how-to-perform-string-comparisons)
 - [How to write switch statements for strings](#how-to-write-switch-statements-for-strings)
@@ -136,7 +137,8 @@ for FOLDER in $FOLDERS ; echo "item: $FOLDER" ; end
 ## How to write if statements
 
 The key to writing if statements is using the `test` command to evaluate some expression to a boolean. This can be
-string comparisons or even testing the existence of files and folders. Here are some examples.
+string comparisons or even testing the existence of files and folders. Here are some examples. You can also use the
+`not` operator to prefix the test to check for the inverse condition.
 
 ### Commonly used conditions
 
@@ -218,6 +220,18 @@ Here are some notes on the code.
 3. If you wanted to replace the `or` check above w/ `test`, this is what it would look like
    `if test ! -n "$argv[1]"; or test ! -n "$argv[2]"`.
 4. Note that when you use `or`, `and` operators that you have to terminate the condition expression w/ a `;`.
+
+### Another common operator: not
+
+Here's an example of using the `not` operator to test whether a string contains a string fragment or not.
+
+```bash
+if not string match -q "*md" $argv[1]
+  echo "The argument passed does not end in md"
+else
+  echo "The argument passed ends in md"
+end
+```
 
 ### References
 

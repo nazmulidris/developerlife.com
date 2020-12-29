@@ -6,9 +6,14 @@
   - [Creating a new project using Jekyll](#creating-a-new-project-using-jekyll)
 - [I have Jekyll and Ruby installed, and want to run this project](#i-have-jekyll-and-ruby-installed-and-want-to-run-this-project)
   - [Running the site (if you already have ruby installed)](#running-the-site-if-you-already-have-ruby-installed)
+- [Customize minima theme](#customize-minima-theme)
+  - [Overriding files in the base theme](#overriding-files-in-the-base-theme)
+  - [How to customize syntax highlighting](#how-to-customize-syntax-highlighting)
+  - [Documentation and references on Jekyll styling, minima customization, and SASS](#documentation-and-references-on-jekyll-styling-minima-customization-and-sass)
 - [References](#references)
+  - [Running github pages locally](#running-github-pages-locally)
   - [More info on Jekyll and Liquid](#more-info-on-jekyll-and-liquid)
-  - [Locating minima theme](#locating-minima-theme)
+- [Change master to main](#change-master-to-main)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -44,6 +49,117 @@ After you clone the repo, go the `jekyll_test` folder, and
 1.  Run `jekyll serve` → Builds the static site and serves it on port 4000
 1.  Open `http://localhost:4000` in your browser
 
+# Customize minima theme
+
+Jekyll is configured to use minima theme. This means that there are some files that are pulled from this dependency by
+Jekyll when it builds the static site. This dependency is located on your computer in
+`echo (bundle info --path minima)`. Save the path to an environment variable called `$MINIMA_HOME` using
+`set MINIMA_HOME (bundle info --path minima)`.
+
+Here is an example of the files in the `$MINIMA_HOME` folder.
+
+```text
+/home/nazmul/.ruby/gems/minima-2.5.1
+├── assets
+│   ├── main.scss
+│   └── minima-social-icons.svg
+├── _includes
+│   ├── disqus_comments.html
+│   └── ...
+├── _layouts
+│   ├── default.html
+│   └── ...
+└── _sass
+    ├── minima
+    │   ├── _base.scss
+    │   ├── _layout.scss
+    │   └── _syntax-highlighting.scss
+    └── minima.scss
+```
+
+As you can imagine, in order to customize this theme you can simply provide a file that is your repo that is located on
+a similar path to the path that is in `$MINIMIA_HOME`,
+[more info here](https://ouyi.github.io/post/2017/12/23/jekyll-customization.html)
+
+> If you edit these minima files by accident (you will need `sudo` access to edit them), you can simply regenerate them
+> by running `bundle install --force`.
+
+## Overriding files in the base theme
+
+The interesting files are `./assets/main.scss`, and `./_sass/minima.scss`. If we provide our own copy of these files in
+a similar path in this repo, then they will simply be considered overrides by Jekyll when it builds the static site.
+Think of this as operator overloading but for files. So if this file `./_sass/minima.scss` is found in this repo, then
+it overrides the equivalent one in the "base" theme located in `$MINIMA_HOME`.
+
+I've created a file `./_sass/minima.scss` which overrides the corresponding file in the base theme. This is where I do a
+lot of big customizations, like creating variables, and using `@import` to bring in other `.scss` files. Here are some
+examples of this.
+
+```scss
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/assets/jetbrainsmono/JetBrainsMono-Regular.woff2") format("woff2");
+}
+
+...
+
+$brand-color: #2f9ece !default;
+$text-color: #e6e6e6 !default;
+
+...
+
+// Import other SCSS files.
+// "minima/base" - override the minima theme files.
+// "minima/layout" - override the minima theme files.
+// "syntax" - Custom syntax highlighting (not using minima defaults).
+// "styles" - Custom styles (not using minima defaults).
+@import "minima/base", "minima/layout", "syntax", "styles";
+```
+
+These `@import` statements bring in lots of other `scss` files. One of them handles syntax highlighting,
+[more on this below](#how-to-customize-syntax-highlighting).
+
+Here's a `./_site/assets/main.css.map` file that is generated as part of the build process (which are driven by some
+key-value pairs in the `_config.yml` file) which has a list of all the `scss` files that are actually imported to give a
+clear picture of what files are actually used to generate the single `./_site/assets/main.css` file everytime Jekyll
+generates the static site.
+
+```css
+{
+    "version": 3,
+    "file": "main.css",
+    "sources": [
+        "main.scss",
+        "_sass/minima.scss",
+        "_sass/minima/_base.scss",
+        "_sass/minima/_layout.scss",
+        "_sass/syntax.scss",
+        "_sass/styles.scss"
+    ],
+    "sourcesContent": [
+        "@import \"minima\";\n",
+        "@charset \"utf-8\";\n\n@font-face {\n  font-family: \"JetBrains Mono\";\n ..."
+    ],
+    "names": [],
+    "mappings": "ACEA,UAAU,..."
+}
+```
+
+## How to customize syntax highlighting
+
+The file `./_sass/syntax.scss` actually contains all the syntax highlighting SCSS. This overrides whatever comes w/
+minima (it does come w/ some defaults in `$MINIMA_HOME/_sass/minima/_syntax-hihglihting.scss`). There's a repo called
+[`pygments-css`](https://github.com/richleland/pygments-css) which I simply copy from. In this repo, find the styling
+that you like, and just copy/paste the contents of that file into the `syntax.scss` file as described in the comments in
+this file, and it will be applied when Jekyll builds the static site.
+
+## Documentation and references on Jekyll styling, minima customization, and SASS
+
+- [Jekyll docs on styling](https://jekyllrb.com/docs/step-by-step/07-assets/)
+- [Minima docs](https://github.com/jekyll/minima)
+- [Tutorial on customization](https://ouyi.github.io/post/2017/12/23/jekyll-customization.html)
+- [SASS basics](https://sass-lang.com/guide)
+
 # References
 
 ## Running github pages locally
@@ -55,13 +171,6 @@ After you clone the repo, go the `jekyll_test` folder, and
 - [Printing debug variables](http://tinyurl.com/y763y5lx)
 - [True and false in](http://tinyurl.com/ya793347)
 - [Control flow](http://tinyurl.com/yd9ls9ut)
-
-## Locating minima theme
-
-- Run `open $(bundle show minima)` in Finder
-  - Note that if you edit these minima files by accident (you will need sudo access to edit them), you can simply
-    regenerate them by running `bundle install --force`.
-- Learn more about `minima` theme customization [here](https://github.com/jekyll/minima)
 
 # Change master to main
 

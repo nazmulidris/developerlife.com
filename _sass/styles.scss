@@ -5,8 +5,12 @@
 
 pre,
 code {
+  @include relative-font-size(0.85);
   font-family: $code-font-family;
   font-weight: $code-font-weight;
+  background-color: $syntax-highlight-background-color;
+  border: 1px solid $color-gray-dark;
+  border-radius: 3px;
 }
 
 h1,
@@ -18,8 +22,15 @@ h6 {
   font-family: $heading-font-family;
 }
 
-$color-light-gray: #f3f3f3;
-$color-dark-gray: #dadada;
+.site-header {
+  border-top: none;
+  border-bottom: none;
+}
+
+$modified-background-color-for-headers: lighten($background-color, 5%);
+$modified-background-color-for-border: lighten($background-color, 10%);
+$modified-background-color-for-search: darken($text-color, 20%);
+
 $vertical_space: 14pt;
 $border-outline: 1.125pt;
 
@@ -34,7 +45,7 @@ $category-chip-rounded-border-radius: 6pt;
 $category-chip-margin-right: 6pt;
 
 .category {
-  border: $border-outline solid $color-dark-gray;
+  border: $border-outline solid $modified-background-color-for-border;
   //background-color: $color-light-gray;
   border-radius: $category-chip-rounded-border-radius;
   padding: $category-chip-padding-top-bottom $category-chip-padding-left-right;
@@ -44,8 +55,8 @@ $category-chip-margin-right: 6pt;
 $related-post-border: 4pt;
 
 .related-post-block {
-  border: $border-outline dashed $color-dark-gray;
-  background-color: $color-light-gray;
+  border: $border-outline dashed $modified-background-color-for-border;
+  background-color: $modified-background-color-for-headers;
   padding-left: $related-post-border * 2;
   padding-right: $related-post-border * 2;
   padding-top: $related-post-border;
@@ -82,12 +93,7 @@ $related-post-border: 4pt;
 
 .site-header {
   border-top: none;
-  background-color: $color-light-gray;
-}
-
-pre,
-code {
-  background-color: $syntax-highlight-background-color;
+  background-color: $modified-background-color-for-headers;
 }
 
 .footer-col-half {
@@ -107,16 +113,11 @@ code {
   border-bottom: 3px solid $brand-color;
 }
 
-pre,
-code {
-  @include relative-font-size(0.85);
-}
-
 $search-post-border: 4pt;
 
 .search-block {
-  border: $border-outline dashed $color-dark-gray;
-  background-color: $color-light-gray;
+  border: $border-outline dashed $modified-background-color-for-border;
+  background-color: $modified-background-color-for-headers;
   padding-left: $search-post-border * 2;
   padding-right: $search-post-border * 2;
   padding-top: $search-post-border;
@@ -131,6 +132,12 @@ $search-post-border: 4pt;
   box-sizing: border-box;
   font-family: $base-font-family;
   font-size: $base-font-size;
+  background: $modified-background-color-for-search;
+  border: none;
+}
+
+::placeholder {
+  color: $background-color;
 }
 
 .result-block {

@@ -6,6 +6,7 @@ if test (uname) = "Linux"
 end
 
 bundle install
+bundle update
 bundle exec jekyll serve
 
 # Old stuff.

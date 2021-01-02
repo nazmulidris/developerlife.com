@@ -13,6 +13,7 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+
 - [How to set variables](#how-to-set-variables)
 - [How to write for loops](#how-to-write-for-loops)
 - [How to write if statements](#how-to-write-if-statements)
@@ -20,11 +21,13 @@ categories:
   - [Multiple conditions with operators: and, or](#multiple-conditions-with-operators-and-or)
   - [Another common operator: not](#another-common-operator-not)
   - [References](#references)
+- [How to split strings by a delimiter](#how-to-split-strings-by-a-delimiter)
 - [How to perform string comparisons](#how-to-perform-string-comparisons)
 - [How to write switch statements for strings](#how-to-write-switch-statements-for-strings)
 - [How to execute strings](#how-to-execute-strings)
 - [How to write functions](#how-to-write-functions)
-- [How to pass parameters to functions](#how-to-pass-parameters-to-functions)
+  - [Pass arguments to a function](#pass-arguments-to-a-function)
+  - [Return values from a function](#return-values-from-a-function)
 - [How to handle file and folder paths](#how-to-handle-file-and-folder-paths)
 - [How to use sed](#how-to-use-sed)
 - [How to use xargs](#how-to-use-xargs)
@@ -112,7 +115,7 @@ Since variables contain lists by default, it is very easy to iterate thru them. 
 ```bash
 set FOLDERS bin
 set FOLDERS $FOLDERS .atom
-set FOLDERS $FOLDERS my \foldername
+set FOLDERS $FOLDERS "my foldername"
 for FOLDER in $FOLDERS
   echo "item: $FOLDER"
 end
@@ -241,6 +244,21 @@ end
 4. [stackoverflow answer: how to check if fish variable is empty](https://stackoverflow.com/questions/47743015/fish-shell-how-to-check-if-a-variable-is-set-empty)
 5. [stackoverflow answer: how to put multiple conditions in fish if statement](https://stackoverflow.com/questions/17900078/in-fish-shell-how-can-i-put-two-conditions-in-an-if-statement)
 
+## How to split strings by a delimiter
+
+There are situations when you want to take the output of a command, which is a string, and then split it by some
+delimiter, to use just a portion of the output string. An example of getting the SHA checksum of a given file. The
+command `shasum <filename>` produces something like `df7d26a4a1e4a2ca9bebbfe1494e3ec27addc3d8 <filename>`. Let's say
+that we just wanted the first portion of this string (the SHA), knowing that the delimiter is two space characters, we
+can do the following to get just the checksum portion and store it in `$CHECKSUM`. Here's more info on the
+[`string split` command](https://fishshell.com/docs/current/cmds/string-split.html).
+
+```bash
+set CHECKSUM_ARRAY_STRING (shasum $FILENAME)
+set CHECKSUM_ARRAY (string split "  " $SOURCE_CHECKSUM_ARRAY)
+set CHECKSUM $CHECKSUM_ARRAY[1]
+```
+
 ## How to perform string comparisons
 
 In order to test substring matches in strings you can use the `string match` command. Here is more information on the
@@ -340,12 +358,16 @@ that you just created above.
 
 - [Here's the doc for functions](https://fishshell.com/docs/current/tutorial.html#tut_functions)
 
-## How to pass parameters to functions
+### Pass arguments to a function
 
 In addition to using `$argv` to figure out what parameters were passed to a function, you can provide a list of named
 parameters that a function expects. Here is more information on this
-[from the official docs](https://fishshell.com/docs/current/cmds/function.html). Please note that parameter names can
-not have `-` characters in them, so use `_` instead.
+[from the official docs](https://fishshell.com/docs/current/cmds/function.html).
+
+Some key things to keep in mind:
+
+1. Parameter names can not have `-` characters in them, so use `_` instead.
+2. Do not use the `(` and `)` to pass arguments to a function, simply pass the arguments in a single line w/ spaces.
 
 Here's an example.
 
@@ -369,7 +391,38 @@ function my-function -a extension search_term
     echo "✋ Do something with $extension $search_term"
   end
 end
+```
 
+### Return values from a function
+
+You might want to return a value from a function (typically just a string). You can also return many strings delimited
+by new lines. Regardless, the mechanism for doing this is the same. You simply have to use `echo` to dump the return
+value(s) to stdout.
+
+Here's an example.
+
+```bash
+function getSHAForFilePath -a filepath
+  set NULL_VALUE ""
+  # No $filepath provided, or $filepath does not exist -> early return w/ $NULL_VALUE.
+  if set -q $filepath; or not test -e $filepath
+    echo $NULL_VALUE
+    return 0
+  else
+    set SHASUM_ARRAY_STRING (shasum $filepath)
+    set SHASUM_ARRAY (string split "  " $SHASUM_ARRAY_STRING)
+    echo $SHASUM_ARRAY[1]
+  end
+end
+
+function testTheFunction
+  echo (getSHAForFilePath ~/local-backup-restore/does-not-exist.fish)
+  echo (getSHAForFilePath)
+  set mySha (getSHAForFilePath ~/local-backup-restore/test.fish)
+  echo $mySha
+end
+
+testTheFunction
 ```
 
 ## How to handle file and folder paths

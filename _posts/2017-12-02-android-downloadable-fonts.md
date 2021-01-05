@@ -6,15 +6,15 @@ excerpt: |
   in Android apps. This article will show you how to use downloadable fonts (from
   Google Fonts) using the latest support library. 🖋
 layout: post
-title: 'Android Downloadable Fonts'
+title: "Android Downloadable Fonts"
 hero-image: assets/downloadable-fonts-hero.png
 categories:
-- Android
-- UXE
+  - Android
+  - UXE
 ---
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Using Google Fonts (programmatically, in XML)](#using-google-fonts-programmatically-in-xml)
 - [Getting started](#getting-started)
@@ -53,7 +53,7 @@ Here’s are some interesting links that you might want to reference before divi
   and cached for you by the system. You can use them declaratively in your XML layouts.
 - Sample app that allows you to find a font and use it in and Android app on
   [GitHub](https://github.com/googlesamples/android-DownloadableFonts). Find out what fonts you can actually use in your
-  app by running this sample. Note — just because a font is on Google Fonts doesn’t mean that it’s available via Google
+  app by running this sample. Note — just because a font is on Google Fonts doesn’t mean that it’s available via Google
   Play Services.
 - Get an idea of the fonts you can download from [Google Fonts](https://fonts.google.com/).
 - Read this great article about Android Typography on

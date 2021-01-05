@@ -1,7 +1,6 @@
 ---
 author: Maret Idris
 date: 2017-11-15 05:19:43+00:00
-layout: post
 excerpt: |
   This is a second article on 2 part series. In this article you will learn
   how to build a simple example responsive navigation design using Flexbox and media
@@ -10,13 +9,12 @@ layout: post
 hero-image: assets/flexbox-hero-image.jpg
 title: "Flexbox: Building a navigation bar (Part 2/2)"
 categories:
-- UXE
-- Web
+  - UXE
+  - Web
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [Sample project](#sample-project)
@@ -80,7 +78,7 @@ This is what the code looks like.
 ```html
 <header class="header-container">
   <div class="logo">
-    <a href="index.html" title="Henne home page"> <img src="images/logo.png" width="180"/></a>
+    <a href="index.html" title="Henne home page"> <img src="images/logo.png" width="180" /></a>
   </div>
   <nav>
     <ul>

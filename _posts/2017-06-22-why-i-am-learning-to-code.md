@@ -3,19 +3,18 @@ author: Maret Idris
 date: 2017-06-22 17:12:28+00:00
 excerpt: |
   If you are a designer who has been thinking about learning to code or even
-  if you haven’t but this concept sounds interesting, keep reading.
+  if you haven’t but this concept sounds interesting, this might be an interesting read
 layout: post
 hero-image: assets/why-i-am-learning-to-code2.png
 title: "Why I'm learning to code"
 categories:
-- Web
-- UXE
-- Stories
+  - Web
+  - UXE
+  - Stories
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [Reason #1 - Build prototypes](#reason-1---build-prototypes)

@@ -2,17 +2,18 @@
 author: Nazmul Idris
 date: 2019-10-31 17:43:35+00:00
 excerpt: |
-  Short manual on how to program using fish shell's scripting language.
+  Short manual on how to program using fish shell's scripting language using lots of useful examples ranging from simple
+  to complex
 layout: post
 hero-image: assets/fish-shell.svg
 title: "fish shell scripting manual"
 categories:
+  - Linux
   - Misc
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [How to set variables](#how-to-set-variables)
 - [How to write for loops](#how-to-write-for-loops)

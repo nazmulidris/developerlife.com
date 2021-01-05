@@ -8,14 +8,13 @@ excerpt: |
   development! 🎩✨
 layout: post
 hero-image: assets/arch-comp-hero.png
-title: 'Introduction to Android Architecture Components'
+title: "Introduction to Android Architecture Components"
 categories:
-- Android
+  - Android
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Put the magic back into Android development](#put-the-magic-back-into-android-development)
 - [What is it?](#what-is-it)
@@ -108,8 +107,8 @@ articles.
 I’ve created a simple app that showcases how you might use a `ViewModel` and `LiveData` in your apps. You can get this
 sample on [GitHub](https://github.com/nazmulidris/android_arch_comp).
 
-The sample just has 1 `Java`
-file — [`MainActivity.java`](https://github.com/nazmulidris/android_arch_comp/blob/main/app/src/main/java/arch_comp/android/example/com/architecturecomponents/MainActivity.java).
+The sample just has 1 `Java` file —
+[`MainActivity.java`](https://github.com/nazmulidris/android_arch_comp/blob/main/app/src/main/java/arch_comp/android/example/com/architecturecomponents/MainActivity.java).
 This `Activity` loads its state from a `StateViewModel`, which contains two pieces of data. Here’s the entire
 `Activity`.
 
@@ -509,7 +508,7 @@ fun increment() {
 
 ### LiveData - Data
 
-The `Data` subclass of `LiveData` exposes one property — `clicked`. This property is set when the user interacts with
+The `Data` subclass of `LiveData` exposes one property — `clicked`. This property is set when the user interacts with
 the alert / dialog shown above.
 
 ```kotlin
@@ -536,6 +535,6 @@ data class Data(val id: String, val time: Date) :
   [medium](https://medium.com/@margaretmz/exploring-the-android-architecture-components-117515acfa8)
 - “Deep dive into Data Loading with Architecture Components” on
   [medium](https://medium.com/google-developers/lifecycle-aware-data-loading-with-android-architecture-components-f95484159de4)
-- Tutorial on Architecture
-  Components — [part 1](https://riggaroo.co.za/android-architecture-components-looking-room-livedata-part-1/),
+- Tutorial on Architecture Components —
+  [part 1](https://riggaroo.co.za/android-architecture-components-looking-room-livedata-part-1/),
   [part 2](https://riggaroo.co.za/android-architecture-components-looking-viewmodels-part-2/)

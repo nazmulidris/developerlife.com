@@ -2,7 +2,8 @@
 author: Nazmul Idris
 date: 2020-07-15 5:00:00+00:00
 excerpt: |
-  This tutorial covers the potential pitfalls of using non-capturing lambdas
+  This tutorial covers the potential pitfalls of using non-capturing lambdas and using use anonymous classes to 
+  implement SAM / functional interfaces instead
 layout: post
 hero-image: assets/non-capturing-lambda.svg
 title: "Potential problems of using non-capturing lambdas"
@@ -12,7 +13,6 @@ categories:
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [Non-capturing lambdas and their (implementation) instances](#non-capturing-lambdas-and-their-implementation-instances)

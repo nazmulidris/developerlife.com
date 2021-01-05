@@ -3,18 +3,17 @@ author: Nazmul Idris
 date: 2018-10-21 5:00:00+00:00
 excerpt: |
   This tutorial is an exploration of Kotlin sealed classes and how they can be used to represent
-  state elegantly and robustly.
+  state elegantly and robustly
 layout: post
 hero-image: assets/kotlin-awesomeness-hero.svg
 title: "Kotlin Sealed Classes and State"
 categories:
-- State
-- KT
+  - State
+  - KT
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Sealed classes and state](#sealed-classes-and-state)
 - [Example 1 - Android permissions](#example-1---android-permissions)

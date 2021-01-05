@@ -2,7 +2,7 @@
 author: Nazmul Idris
 date: 2020-04-05 5:00:00+00:00
 excerpt: |
-  This tutorial is an introduction to Kotlin internal DSLs using examples.
+  This tutorial is an introduction to Kotlin internal DSLs using examples
 layout: post
 hero-image: assets/kotlin-awesomeness-hero.svg
 title: "Kotlin DSL Introduction"
@@ -12,7 +12,6 @@ categories:
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Kotlin internal DSLs](#kotlin-internal-dsls)
 - [Fluency](#fluency)
@@ -227,6 +226,9 @@ enum class Colors(val ansiCode: String) {
   }
 }
 ```
+
+> I've open sourced this as a gradle dependency named `color-console`. You can get it on
+> [GitHub](https://github.com/nazmulidris/color-console).
 
 ## Example of a DSL that executes a list of lambdas while a condition is met
 

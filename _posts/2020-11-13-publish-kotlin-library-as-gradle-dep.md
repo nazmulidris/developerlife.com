@@ -2,7 +2,7 @@
 author: Nazmul Idris
 date: 2020-11-13 5:00:00+00:00
 excerpt: |
-  This tutorial shows how to publish a Kotlin library as a gradle dependency
+  Learn how to publish a Kotlin library as a gradle dependency using github and JFrog bintray
 layout: post
 hero-image: assets/gradle-dep.svg
 title: "Publishing a Kotlin library as a Gradle dependency"

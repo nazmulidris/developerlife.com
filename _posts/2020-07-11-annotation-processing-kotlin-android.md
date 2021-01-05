@@ -2,7 +2,8 @@
 author: Nazmul Idris
 date: 2020-07-11 5:00:00+00:00
 excerpt: |
-  This tutorial is an introduction to Kotlin Annotation Processing on Android.
+  Introduction to Kotlin Annotation Processing on Android and how to create a static index of generated classes and
+  interfaces (without using reflection or classgraphs)
 layout: post
 hero-image: assets/annotation-processing-hero.svg
 title: "Annotation Processing in Kotlin and Android"
@@ -13,7 +14,6 @@ categories:
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Get the source code](#get-the-source-code)
 - [End goals of this project](#end-goals-of-this-project)

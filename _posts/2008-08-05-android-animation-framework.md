@@ -12,12 +12,11 @@ excerpt: |
 layout: post
 title: "Android Animation Framework Tutorial"
 categories:
-- Android
+  - Android
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-    
 
 - [Introduction](#introduction)
 - [Tweening and frame-by-frame](#tweening-and-frame-by-frame)
@@ -98,7 +97,7 @@ powerful. In the m5 sdk demos there are some examples of composite animation con
 [XML](http://code.google.com/android/samples/ApiDemos/res/anim/).
 
 For all animations, if the animation effects extend beyond the screen region then they are clipped outside those
-boundaries… this applies to animations that rotate a screen or scale it for example.
+boundaries... this applies to animations that rotate a screen or scale it for example.
 
 ### Defining in XML, and Loading from XML
 

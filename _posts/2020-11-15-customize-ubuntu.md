@@ -2,11 +2,12 @@
 author: Nazmul Idris
 date: 2020-11-15 5:00:00+00:00
 excerpt: |
-  This tutorial shows how you can customize your Ubuntu UI
+  Learn how to customize your Ubuntu UI by using fontconfig, Nerd Fonts, Gestures, and Terminal customization
 layout: post
 hero-image: assets/ubuntu.svg
 title: "Customizing Ubuntu UI"
 categories:
+  - Linux
   - Misc
 ---
 

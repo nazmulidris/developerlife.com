@@ -1,19 +1,21 @@
 ---
 author: Nazmul Idris
 date: 2020-11-21 05:19:43+00:00
-layout: post
 excerpt: |
-  This article is a introduction to creating plugins using JetBrains PLugin SDK.
+  Introduction to creating plugins using JetBrains Plugin SDK covering these topics: PicoContainer,
+  Services, plugin.xml, actions, extension points, extensions, testing, and the intellij-plugin-verifier
 layout: post
 hero-image: assets/jetbrains-plugin.svg
 title: "Introduction to creating IntelliJ IDEA plugins"
 categories:
-- KT
-- TDD
+  - IJ
+  - KT
+  - TDD
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
 
 - [Introduction](#introduction)
 - [Plugin architecture](#plugin-architecture)

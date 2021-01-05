@@ -10,12 +10,11 @@ excerpt: |
 layout: post
 title: "Android Activity and sub-Activity Tutorial"
 categories:
-- Android
+  - Android
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [What’s an activity?](#whats-an-activity)
@@ -25,7 +24,7 @@ categories:
   - [1. Fire and forget](#1-fire-and-forget)
   - [2. Async callback, and correlationId](#2-async-callback-and-correlationid)
 - [Intent and sub-Activity details](#intent-and-sub-activity-details)
-    - [Processing the result from the sub-Activity in the calling-Activity (cancel or ok)](#processing-the-result-from-the-sub-activity-in-the-calling-activity-cancel-or-ok)
+  - [Processing the result from the sub-Activity in the calling-Activity (cancel or ok)](#processing-the-result-from-the-sub-activity-in-the-calling-activity-cancel-or-ok)
 - [Summary - Return to sender... err... caller?](#summary---return-to-sender-err-caller)
 - [Is there a better way? Yes, there is!](#is-there-a-better-way-yes-there-is)
 - [Source code download](#source-code-download)
@@ -34,27 +33,37 @@ categories:
 
 ## Introduction
 
-This tutorial will show you how to create a sub-Activity from a calling-Activity, and process the results produced by the sub-Activity, if you want to do so. Also, the various ways of launching a sub-Activity are covered, along with the Android Activity history stack. A subclass of Activity is also provided that makes it trivial to launch sub-Activities and respond to results from them.
+This tutorial will show you how to create a sub-Activity from a calling-Activity, and process the results produced by
+the sub-Activity, if you want to do so. Also, the various ways of launching a sub-Activity are covered, along with the
+Android Activity history stack. A subclass of Activity is also provided that makes it trivial to launch sub-Activities
+and respond to results from them.
 
 ## What’s an activity?
 
-An activity is the equivalent of a Frame/Window in GUI toolkits. It takes up the entire drawable area of the screen (minus the status and title bars on top). An activity is what gets bound to the AndroidManifest.xml as the main entry point into an application. For long running tasks, it’s best to use a service that talks to this activity.
+An activity is the equivalent of a Frame/Window in GUI toolkits. It takes up the entire drawable area of the screen
+(minus the status and title bars on top). An activity is what gets bound to the AndroidManifest.xml as the main entry
+point into an application. For long running tasks, it’s best to use a service that talks to this activity.
 
 ### Service
 
-Activities are meant to display the UI and get input from the user. However, long running tasks are not meant to be spawned in a activity, since they can be frozen when the focus is switched away from them (by the user or incoming phone call or system event). Services on the other hand keep running for the duration of the user’s ‘session’ on the device.
+Activities are meant to display the UI and get input from the user. However, long running tasks are not meant to be
+spawned in a activity, since they can be frozen when the focus is switched away from them (by the user or incoming phone
+call or system event). Services on the other hand keep running for the duration of the user’s ‘session’ on the device.
 
 ## sub-Activity
 
 An Activity (calling-Activity) can spawn another Activity (sub-Activity) in 2 ways:
 
-  1. Fire and forget – create an event (Intent) and fire it
+1. Fire and forget – create an event (Intent) and fire it
 
-  2. Async callback – create an event (Intent), fire it, and wait for it’s response in a callback method (of the calling-Activity).
+2. Async callback – create an event (Intent), fire it, and wait for it’s response in a callback method (of the
+   calling-Activity).
 
-[Here](http://code.google.com/android/kb/commontasks.html#opennewscreen) are more details on spawning new “screens” or Activities from the Android SDK documentation.
+[Here](http://code.google.com/android/kb/commontasks.html#opennewscreen) are more details on spawning new “screens” or
+Activities from the Android SDK documentation.
 
-Here's some sample code of an Intent being created and a sub-Activity (called WidgetActivity) being launched in response to a button being pressed (a detailed analysis of this is provided in the sections below) in the MainActivity class:
+Here's some sample code of an Intent being created and a sub-Activity (called WidgetActivity) being launched in response
+to a button being pressed (a detailed analysis of this is provided in the sections below) in the MainActivity class:
 
 ```java
     b4.setOnClickListener(new View.OnClickListener() {
@@ -107,7 +116,7 @@ it’s complete, it has to report it’s results to the caller by doing the foll
    Activity that launches the sub-Activity... so this is how Android knows how to pass the results to the
    calling-Activity with the correct correlationID. Whew! :)
 
-2. finish() – equivalent of calling return… it sends control back to the caller. Note that the calling-Activity never
+2. finish() – equivalent of calling return... it sends control back to the caller. Note that the calling-Activity never
    blocked, this is not "modal" behavior. finish() just reclaims the resources allocated for the sub-Activity, and
    removes it from the Activity history stack (for this application process).
 

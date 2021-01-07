@@ -203,12 +203,12 @@ arguments to be passed via the command line. Here's the logic we will describe.
 ```bash
 function requires-two-arguments
   # No arguments are passed.
-  if set -q $argv
+  if set -q "$argv"
     echo "Usage: requires-two-arguments arg1 arg2"
     return 1
   end
   # Only 1 argument is passed.
-  if set -q $argv[1]; or set -q $argv[2]
+  if test -z "$argv[1]"; or test -z "$argv[2]"
     echo "arg1 or arg2 can not be empty"
     return 1
   end
@@ -218,12 +218,29 @@ end
 
 Here are some notes on the code.
 
-1. What does the `set -q $variable` function do? It returns true if `$variable` is empty.
-2. Instead of `set -q`, if you wanted to use `test` function in order to test if a variable is empty, you can use
-   `if test ! -n "$variable"`, which is more verbose.
+1. What does the [`set -q $variable`](https://fishshell.com/docs/current/cmds/set.html) function do? It returns true if
+   `$variable` is empty.
+2. Instead of `set -q`, if you wanted to use [`test`](https://fishshell.com/docs/current/cmds/test.html) function in
+   order to determine if a variable is empty, you can use:
+   - `if test -z "$variable"`.
+   - `if test ! -n "$variable"` or `if not test -n "$variable"`.
 3. If you wanted to replace the `or` check above w/ `test`, this is what it would look like
-   `if test ! -n "$argv[1]"; or test ! -n "$argv[2]"`.
-4. Note that when you use `or`, `and` operators that you have to terminate the condition expression w/ a `;`.
+   `if test -z "$argv[1]"; or test -z "$argv[2]"`.
+4. When you use `or`, `and` operators that you have to terminate the condition expression w/ a `;`.
+5. Make sure to wrap the variable in empty quotes. If an empty string is contained inside the variable, then without
+   these quotes, the statements will cause errors.
+
+Here's another example of this to test if `$variable` is empty or not.
+
+```bash
+if test -z "$variable" ; echo "empty" ; else ; echo "non-empty" ; end
+```
+
+Here's another example of this to test if `$variable` contains a string or not.
+
+```bash
+if test -n "$variable" ; echo "non-empty" ; else ; echo "empty" ; end
+```
 
 ### Another common operator: not
 
@@ -293,6 +310,47 @@ Here's an example of testing whether a string is empty or not.
 ```bash
 if set -q $my_variable
   echo "my_variable is empty"
+end
+```
+
+Here's a sophisticated example that tests to see if the packages `ruby-dev` and `ruby-bundler` are installed. If they
+are then `jekyll` gets run, and if not, then these packages are installed.
+
+```bash
+# Return "true" if $packageName is installed, and "false" otherwise.
+# Use it in an if statement like this:
+#
+# if string match -q "false" (isPackageInstalled my-package-name)
+#   echo "my-package-name is not installed"
+# else
+#   echo "my-package-name is installed"
+# end
+function isPackageInstalled -a packageName
+  set packageIsInstalled (dpkg -l "$packageName")
+  if test -z "$packageIsInstalled"
+    set packageIsInstalled false
+  else
+    set packageIsInstalled true
+  end
+  echo $packageIsInstalled
+end
+
+# More info to find if a package is installed: https://askubuntu.com/a/823630/872482
+if test (uname) = "Linux"
+
+  echo "🐒isPackageInstalled does-not-exist:" (isPackageInstalled does-not-exist)
+
+  if string match -q "false" (isPackageInstalled ruby-dev) ;
+    or string match -q "false" (isPackageInstalled ruby-bundler)
+    # Install ruby
+    echo "ruby-bundler or ruby-dev are not installed; installing now..."
+    echo sudo apt install -y ruby-bundler ruby-dev
+  else
+    bundle install
+    bundle update
+    bundle exec jekyll serve
+  end
+
 end
 ```
 

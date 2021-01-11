@@ -189,6 +189,17 @@ if not test -d "somefolder"
 end
 ```
 
+Here's an example of how to test whether a command executed without errors.
+
+```bash
+if sudo umount /media/user/mountpoint
+  echo "Successfully unmounted /media/user/mountpoint"
+end
+```
+
+You can also check the value of the `$status` variable. Fish stores the return value in this variable, just after a
+command is executed. Here's [more info](https://fishshell.com/docs/2.3/faq.html) on this.
+
 ### Multiple conditions with operators: and, or
 
 If you want to combine multiple conditions into a single statement, then you can use `or` and `and` operators. Also if
@@ -285,7 +296,8 @@ command:
 1. [Official docs on string match](https://fishshell.com/docs/current/cmds/string-match.html).
 2. [Stackoverflow answer on how to use it](https://unix.stackexchange.com/a/504931/302646).
 
-Here's an example of this in action.
+Here's an example of this in action. Note the use of `-q` or `--quiet` which does not echo the output of the string if
+the match condition was met (succeeded).
 
 ```bash
 if string match -q "*myname*" $hostname

@@ -21,15 +21,14 @@ end
 # More info to find if a package is installed: https://askubuntu.com/a/823630/872482
 if test (uname) = "Linux"
 
-  echo "🐒isPackageInstalled does-not-exist:" (isPackageInstalled does-not-exist)
-
   if string match -q "false" (isPackageInstalled ruby-dev) ;
     or string match -q "false" (isPackageInstalled ruby-bundler)
-    # Install ruby
+    echo "Install ruby"
     echo "ruby-bundler or ruby-dev are not installed; installing now..."
     echo sudo apt install -y ruby-bundler ruby-dev
   end
 
+  echo "Run the server"
   bundle install
   bundle update
   bundle exec jekyll serve

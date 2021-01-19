@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2019-10-31 17:43:35+00:00
+date: 2021-01-19 17:43:35+00:00
 excerpt: |
   Short manual on how to program using fish shell's scripting language using lots of useful examples ranging from simple
   to complex
@@ -19,6 +19,7 @@ categories:
 - [How to write for loops](#how-to-write-for-loops)
 - [How to write if statements](#how-to-write-if-statements)
   - [Commonly used conditions](#commonly-used-conditions)
+  - [Difference between set -q and test -z](#difference-between-set--q-and-test--z)
   - [Multiple conditions with operators: and, or](#multiple-conditions-with-operators-and-or)
   - [Another common operator: not](#another-common-operator-not)
   - [References](#references)
@@ -29,7 +30,7 @@ categories:
 - [How to write functions](#how-to-write-functions)
   - [Pass arguments to a function](#pass-arguments-to-a-function)
   - [Return values from a function](#return-values-from-a-function)
-- [How to handle file and folder paths](#how-to-handle-file-and-folder-paths)
+- [How to handle file and folder paths for dependencies](#how-to-handle-file-and-folder-paths-for-dependencies)
 - [How to use sed](#how-to-use-sed)
 - [How to use xargs](#how-to-use-xargs)
 - [How to use cut to split strings](#how-to-use-cut-to-split-strings)
@@ -199,6 +200,23 @@ end
 
 You can also check the value of the `$status` variable. Fish stores the return value in this variable, just after a
 command is executed. Here's [more info](https://fishshell.com/docs/2.3/faq.html) on this.
+
+### Difference between set -q and test -z
+
+There is a subtle difference between using `set -q` and `test -z` in if statements when checking to see if a variable is
+empty.
+
+1. In the case of `test -z` make sure to wrap the variable in quotes, since it might just break in some edge cases if it
+   isn't wrapped in quotes.
+2. However, you can use `set -q` to test if a variable has been set without wrapping it in quotes.
+
+Here's an example.
+
+```bash
+set GIT_STATUS (git status --porcelain)
+if set -q $GIT_STATUS ; echo "No changes in repo" ; end
+if test -z "$GIT_STATUS" ; echo "No changes in repo" ; end
+```
 
 ### Multiple conditions with operators: and, or
 
@@ -496,7 +514,7 @@ end
 testTheFunction
 ```
 
-## How to handle file and folder paths
+## How to handle file and folder paths for dependencies
 
 As your scripts become more complex, you might need to handle loading multiple scripts. In this case you can just pull
 other scripts in from your current script by using `source my-script.fish`. However fish looks for this `my-script.fish`

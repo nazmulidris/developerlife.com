@@ -295,9 +295,9 @@ end
 
 There are situations when you want to take the output of a command, which is a string, and then split it by some
 delimiter, to use just a portion of the output string. An example of getting the SHA checksum of a given file. The
-command `shasum <filename>` produces something like `df7d26a4a1e4a2ca9bebbfe1494e3ec27addc3d8 <filename>`. Let's say
-that we just wanted the first portion of this string (the SHA), knowing that the delimiter is two space characters, we
-can do the following to get just the checksum portion and store it in `$CHECKSUM`. Here's more info on the
+command `shasum <filename>` produces something like `df..d8 <filename>`. Let's say that we just wanted the first portion
+of this string (the SHA), knowing that the delimiter is two space characters, we can do the following to get just the
+checksum portion and store it in `$CHECKSUM`. Here's more info on the
 [`string split` command](https://fishshell.com/docs/current/cmds/string-split.html).
 
 ```bash

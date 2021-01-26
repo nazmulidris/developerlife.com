@@ -86,10 +86,14 @@ a similar path to the path that is in `$MINIMIA_HOME`,
 
 ## Overriding files in the base theme
 
-The interesting files are `./assets/main.scss`, and `./_sass/minima.scss`. If we provide our own copy of these files in
-a similar path in this repo, then they will simply be considered overrides by Jekyll when it builds the static site.
-Think of this as operator overloading but for files. So if this file `./_sass/minima.scss` is found in this repo, then
-it overrides the equivalent one in the "base" theme located in `$MINIMA_HOME`.
+The interesting files are `./_sass/minima.scss` and `./_sass/styles.scss` (which is imported by the former).
+
+- If we provide our own copy of these files in a similar path in this repo, then they will simply be considered
+  overrides by Jekyll when it builds the static site.
+- Think of this as operator overloading but for files. So if this file `./_sass/minima.scss` is found in this repo, then
+  it overrides the equivalent one in the "base" theme located in `$MINIMA_HOME`.
+- Look at the bottom of the `./_sass/minima.scss` file and you will see imports that pull in `styles.scss` and
+  `syntax.scss`. The latter is used for syntax highlighting.
 
 I've created a file `./_sass/minima.scss` which overrides the corresponding file in the base theme. This is where I do a
 lot of big customizations, like creating variables, and using `@import` to bring in other `.scss` files. Here are some

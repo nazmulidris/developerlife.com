@@ -25,7 +25,7 @@ if test (uname) = "Linux"
     or string match -q "false" (isPackageInstalled ruby-bundler)
     echo "Install ruby"
     echo "ruby-bundler or ruby-dev are not installed; installing now..."
-    echo sudo apt install -y ruby-bundler ruby-dev
+    sudo apt install -y ruby-bundler ruby-dev
   end
 
   echo "Run the server"

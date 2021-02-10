@@ -16,9 +16,14 @@ categories:
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [How to set variables](#how-to-set-variables)
+  - [Variable scopes: local, global, global-export](#variable-scopes-local-global-global-export)
+  - [Lists](#lists)
+  - [Storing return values from running a command](#storing-return-values-from-running-a-command)
+  - [Ranges](#ranges)
 - [How to write for loops](#how-to-write-for-loops)
 - [How to write if statements](#how-to-write-if-statements)
   - [Commonly used conditions](#commonly-used-conditions)
+  - [Program, script, or function exit code](#program-script-or-function-exit-code)
   - [Difference between set -q and test -z](#difference-between-set--q-and-test--z)
   - [Multiple conditions with operators: and, or](#multiple-conditions-with-operators-and-or)
   - [Another common operator: not](#another-common-operator-not)
@@ -31,6 +36,7 @@ categories:
   - [Pass arguments to a function](#pass-arguments-to-a-function)
   - [Return values from a function](#return-values-from-a-function)
 - [How to handle file and folder paths for dependencies](#how-to-handle-file-and-folder-paths-for-dependencies)
+- [How to write multi line strings to files](#how-to-write-multi-line-strings-to-files)
 - [How to use sed](#how-to-use-sed)
 - [How to use xargs](#how-to-use-xargs)
 - [How to use cut to split strings](#how-to-use-cut-to-split-strings)
@@ -60,13 +66,24 @@ set CONFIG_FILE_DIFF_OUTPUT (diff ~/Downloads/config.fish ~/.config/fish/config.
 set GIT_STATUS_OUTPUT (git status --porcelain)
 ```
 
-There are times when you have to export variables to child processes and also times when you have to export variables to
-global scope.
+### Variable scopes: local, global, global-export
 
-- Export variable using `set -x`. An example of this is setting the `DISPLAY` environment variable for X11 session in a
-  fish function that is running in a `crontab` headless environment.
-- Export variable globally using `set -gx`. An example of this is setting the `JAVA_HOME` environment variable for all
-  programs running on the machine.
+There are times when you have to export variables to child processes and also times when you have to export variables to
+global scope. There are also times when you want this variable to be limited to local scope of the function you are
+writing. The fish documentation on the [`set`](https://fishshell.com/docs/current/cmds/set.html) function has more
+information on this.
+
+- To limit variables to local scope of the function (even if there is a global variable of the same name) use `set -l`.
+  This type of variable is not available to the entire fish shell. An example of this is a local variable that is used
+  to hold some value just for the scope of a function, such as `set -l fname (realpath .)`
+- Export variable using `set -x` (this is only available inside the current fish shell). An example of this is setting
+  the `DISPLAY` environment variable for X11 session in a fish function that is running in a `crontab` headless
+  environment.
+- Export variable globally using `set -gx` (this is available to any programs in your OS, not just the currently running
+  fish shell process). An example of this is setting the `JAVA_HOME` environment variable for all programs running on
+  the machine.
+
+### Lists
 
 Here's an example of appending values to a variable. By default fish variables are lists.
 
@@ -79,6 +96,8 @@ This is how you can create lists.
 ```bash
 set MY_LIST "value1" "value2" "value3"
 ```
+
+### Storing return values from running a command
 
 Here's an example of storing value returned from the execution of a command to a variable.
 
@@ -98,6 +117,8 @@ echo $LIST[2]  # two
 echo $LIST[3]  # three
 echo $LIST[-1] # This is the same element as above
 ```
+
+### Ranges
 
 You can also use ranges from the variable / list, continuing the example above.
 
@@ -190,6 +211,23 @@ if not test -d "somefolder"
 end
 ```
 
+### Program, script, or function exit code
+
+The idea with exit codes is that your function or entire fish script could be used by some other program that
+understands exit codes. In other words there could be an if statement that is going to use the exit code to determine
+some condition. This is a very common pattern that is used with other command line programs. Exit codes are different
+than [return values](#return-values-from-a-function) from a function.
+
+Here's an example of using the exit code of some `git` command:
+
+```bash
+if (git pull -f --rebase)
+  echo "git pull with rebase worked without any issues"
+else
+  echo "Something went wrong that requires manual intervention, like a merge conflict"
+end
+```
+
 Here's an example of how to test whether a command executed without errors.
 
 ```bash
@@ -200,6 +238,14 @@ end
 
 You can also check the value of the `$status` variable. Fish stores the return value in this variable, just after a
 command is executed. Here's [more info](https://fishshell.com/docs/2.3/faq.html) on this.
+
+When you are writing functions you can use the following keyword to exit functions or loops: `return`. This may be
+followed by a number. So here's what it means.
+
+1. `return` or `return 0` - This means that the function exited normally.
+2. `return 1` or some other number > 0 - This means that the function had some problem.
+
+You can exit the fish shell itself using `exit`. And the integer exit codes have the same meaning as above.
 
 ### Difference between set -q and test -z
 
@@ -541,6 +587,42 @@ source $MY_FOLDER_PATH/my-script.fish
 Using [`realpath`](https://man7.org/linux/man-pages/man1/realpath.1.html) gives you the fully qualified path name for
 your folder for the uses cases where you need this capability.
 
+## How to write multi line strings to files
+
+There are many situations where you need to write strings and multi line strings to new or existing files in your
+scripts.
+
+Here's an example of writing single strings to a file.
+
+```bash
+# echo "echo 'ClientAliveInterval 60' >> recurring-tasks.log" | xargs -I% sudo sh -c %
+set linesToAdd "TCPKeepAlive yes" "ClientAliveInterval 60" "ClientAliveCountMax 120"
+for line in $linesToAdd
+  set command "echo '$line' >> /etc/ssh/sshd_config"
+  executeString "$command | xargs -I% sudo sh -c %"
+end
+```
+
+Here's an example of writing multi line strings to a file.
+
+```bash
+# More info on writing multiline strings: https://stackoverflow.com/a/35628657/2085356
+function _workflowWriteEmptyMarkdownContentToFile --argument datestr filename
+  echo > $filename "\
+---
+Title: About $filename
+Date: $datestr
+---
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+# Your heading
+"
+end
+```
+
 ## How to use sed
 
 This is useful for removing fragments of files that are not needed, especially when `xargs` is used to pipe the result
@@ -615,13 +697,17 @@ echo \
 ## How to calculate how long the script took to run
 
 ```bash
-set START_TS (date +%s)
+function timed -d Pass the program or function that you want to execute as an argument
+  set START_TS (date +%s)
 
-# This is where your code would go.
-sleep 5
+  # This is where your code would go.
+  $argv
 
-set END_TS (date +%s)
-set RUNTIME (math $END_TS - $START_TS)
-set RUNTIME (math $RUNTIME / 60)
-echo "⏲ Total runtime: $RUNTIME min ⏲"
+  sleep 5
+
+  set END_TS (date +%s)
+  set RUNTIME (math $END_TS - $START_TS)
+  set RUNTIME (math $RUNTIME / 60)
+  echo "⏲ Total runtime: $RUNTIME min ⏲"
+end
 ```

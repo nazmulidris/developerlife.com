@@ -8,12 +8,11 @@ excerpt: |
 layout: post
 title: "SwingX Tutorial - Task Pane (JXTaskPane, Container)"
 categories:
-- UXE
+  - FE
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [What is a task pane?](#what-is-a-task-pane)
@@ -24,26 +23,42 @@ categories:
 
 ## Introduction
 
-SwingX introduces a lot of new components to Swing, and this tutorial will cover the task pane. You have seen task panes before if you've used Windows, they are used extensively in explorer and control panel. Here's are examples:
+SwingX introduces a lot of new components to Swing, and this tutorial will cover the task pane. You have seen task panes
+before if you've used Windows, they are used extensively in explorer and control panel. Here's are examples:
 
-![]({{'assets/swingx-1.png' | relative_url}})
-![]({{'assets/swingx-2.png' | relative_url}})
+![]({{'assets/swingx-1.png' | relative_url}}) ![]({{'assets/swingx-2.png' | relative_url}})
 
 ## What is a task pane?
 
-The SwingX implementation of the task pane is more like Windows XP rather than Windows Vista, but the idea is the same. In a [task pane](http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/org/jdesktop/swingx/JXTaskPane.html), you can add various actions and components that are displayed in a list, which can be collapsed. You are free to add more than 1 task pane to a [task pane container](http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/org/jdesktop/swingx/JXTaskPaneContainer.html). You can also set an icon and title for your task pane. You can also set formatting options to change the colors used by the task pane and the task pane container.
+The SwingX implementation of the task pane is more like Windows XP rather than Windows Vista, but the idea is the same.
+In a
+[task pane](http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/org/jdesktop/swingx/JXTaskPane.html),
+you can add various actions and components that are displayed in a list, which can be collapsed. You are free to add
+more than 1 task pane to a
+[task pane container](http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/org/jdesktop/swingx/JXTaskPaneContainer.html).
+You can also set an icon and title for your task pane. You can also set formatting options to change the colors used by
+the task pane and the task pane container.
 
-You don't have to use a task pane container to hold a task pane, you can add the task pane to any swing container. However, if you place the task pane in the task pane container, it will render better (SwingX changes the default colors of the task pane and container to match the OS it's running on). You can override these default color schemes by adding key-value pairs in the UI Defaults yourself. This tutorial will cover all of this functionality.
+You don't have to use a task pane container to hold a task pane, you can add the task pane to any swing container.
+However, if you place the task pane in the task pane container, it will render better (SwingX changes the default colors
+of the task pane and container to match the OS it's running on). You can override these default color schemes by adding
+key-value pairs in the UI Defaults yourself. This tutorial will cover all of this functionality.
 
 ## Source code example
 
-In the following example, I'm going to create a JXTaskPane, with some components, that I will then place in a JXTaskPaneContainer. Here is what it looks like:
+In the following example, I'm going to create a JXTaskPane, with some components, that I will then place in a
+JXTaskPaneContainer. Here is what it looks like:
 
 ![]({{'assets/swingx-3.png' | relative_url}})
 
-The JXTaskPane called "My Tasks" has an icon and a title. It also contains a JXLabel with a background painter, and an Action object (which has a name, icon, and tooltip). When you click on the action, it simply changes the JXLabel's text. Note that you can collapse the entire JXTaskPane by clicking anywhere on the title, or by pressing "Space" with your keyboard, when it's in focus. You can change keyboard focus between the action and the JXTaskPane title by pressing the "Tab" key on your keyboard.
+The JXTaskPane called "My Tasks" has an icon and a title. It also contains a JXLabel with a background painter, and an
+Action object (which has a name, icon, and tooltip). When you click on the action, it simply changes the JXLabel's text.
+Note that you can collapse the entire JXTaskPane by clicking anywhere on the title, or by pressing "Space" with your
+keyboard, when it's in focus. You can change keyboard focus between the action and the JXTaskPane title by pressing the
+"Tab" key on your keyboard.
 
-The first step in coding up this example is creating the JXTaskPane and JXTaskPaneContainers. The JXTaskPane also needs to be populated with an Action and JXLabel. Here's the code to do this:
+The first step in coding up this example is creating the JXTaskPane and JXTaskPaneContainers. The JXTaskPane also needs
+to be populated with an Action and JXLabel. Here's the code to do this:
 
 ```java
 // create a label

@@ -8,7 +8,7 @@ layout: post
 hero-image: assets/main_article_image.png
 title: "A pragmatic guide to designing and building responsive web applications"
 categories:
-  - UXE
+  - FE
   - Web
 ---
 

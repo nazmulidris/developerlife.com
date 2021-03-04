@@ -9,7 +9,8 @@ layout: post
 hero-image: assets/flexbox-hero-image.jpg
 title: "Flexbox: Building a navigation bar (Part 2/2)"
 categories:
-  - UXE
+  - FE
+  - React
   - Web
 ---
 

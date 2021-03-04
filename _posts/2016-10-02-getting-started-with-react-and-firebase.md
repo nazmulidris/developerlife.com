@@ -8,14 +8,14 @@ layout: post
 title: "Building a real world app using React, Firebase, and Typescript"
 hero-image: assets/react-firebase-typescript-hero.png
 categories:
-- DB
-- UXE
-- Web
+  - DB
+  - FE
+  - React
+  - Web
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
   - [What does this project actually do?](#what-does-this-project-actually-do)
@@ -232,11 +232,12 @@ You can see an actual example of this in the `componentWillMount()` method in `a
 that is emitted (these constants are in the `constants.js` file).
 
 ```javascript
-this.le_showSnackbarListener = applicationContext.addListener(GLOBAL_CONSTANTS.LE_SHOW_SNACKBAR, function callback(
-  param
-) {
-  this.showSnackBar(param);
-});
+this.le_showSnackbarListener = applicationContext.addListener(
+  GLOBAL_CONSTANTS.LE_SHOW_SNACKBAR,
+  function callback(param) {
+    this.showSnackBar(param);
+  }
+);
 ```
 
 To emit / fire an event that reaches this listener you would have to do this:

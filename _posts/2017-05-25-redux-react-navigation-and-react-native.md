@@ -10,7 +10,7 @@ title: "Redux, React Navigation, and React Native"
 hero-image: assets/redux-hero.png
 categories:
   - DB
-  - UXE
+  - FE
   - RN
   - State
 ---

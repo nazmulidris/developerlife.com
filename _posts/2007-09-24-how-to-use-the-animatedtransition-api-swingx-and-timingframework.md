@@ -18,7 +18,7 @@ excerpt: |
 layout: post
 title: "How to use the AnimatedTransition API (SwingX and Timingframework)"
 categories:
-  - UXE
+  - FE
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

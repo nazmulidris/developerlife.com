@@ -9,15 +9,14 @@ layout: post
 hero-image: assets/rn-hero.png
 title: "Getting started with React Native"
 categories:
-- Android
-- UXE
-- RN
-- State
+  - Android
+  - FE
+  - RN
+  - State
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [What you will learn in this tutorial](#what-you-will-learn-in-this-tutorial)
@@ -153,7 +152,7 @@ const mainview_style = StyleSheet.create({
     flexDirection: "column", // main axis
     justifyContent: "center", // main axis
     alignItems: "center", // cross axis
-    backgroundColor: "#c1e1c5"
+    backgroundColor: "#c1e1c5",
   },
   welcome: {
     flex: -1, // shrink to min height and width if needed
@@ -161,14 +160,14 @@ const mainview_style = StyleSheet.create({
     color: "#006b7699", // #RGBA supported
     fontFamily: "Rubik-Regular", // list of families https://goo.gl/fsrJsK
     fontWeight: "500", // weights are between 100 and 900
-    margin: 8
+    margin: 8,
   },
   instructions: {
     flex: -1,
     margin: 8,
     fontFamily: "Rubik-Regular",
     fontSize: 12,
-    color: "rgba(33, 150, 243, 0.6)" // different ways to provide color
+    color: "rgba(33, 150, 243, 0.6)", // different ways to provide color
   },
   h_container: {
     flex: -1,
@@ -176,21 +175,21 @@ const mainview_style = StyleSheet.create({
     justifyContent: "space-around",
     alignSelf: "stretch", // overrides container alignItems
     backgroundColor: "#fef3bd",
-    padding: 16
+    padding: 16,
   },
   image: {
     flex: -1,
     margin: 8,
     height: 100,
     width: 75,
-    resizeMode: "contain" //'cover' | 'contain'
+    resizeMode: "contain", //'cover' | 'contain'
   },
   image2: {
     flex: -1,
     height: 100,
     width: 150,
-    resizeMode: "contain" //'cover' | 'contain'
-  }
+    resizeMode: "contain", //'cover' | 'contain'
+  },
 });
 ```
 
@@ -269,16 +268,16 @@ The `Router.js` class defines the following pre-defined routes in the `routes` o
 const routes = [
   {
     name: "main view",
-    index: 0
+    index: 0,
   },
   {
     name: "flexbox view 1",
-    index: 1
+    index: 1,
   },
   {
     name: "flexbox view 2",
-    index: 2
-  }
+    index: 2,
+  },
 ];
 ```
 

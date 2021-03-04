@@ -9,10 +9,10 @@ layout: post
 hero-image: assets/flexbox-layout-hero.png
 title: "Flexbox layouts and lists with React Native"
 categories:
-- Android
-- UXE
-- RN
-- Web
+  - Android
+  - FE
+  - RN
+  - Web
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
@@ -140,8 +140,8 @@ export const home_screen = StyleSheet.create({
     flexDirection: "column", // main axis
     justifyContent: "center", // main axis
     alignItems: "center", // cross axis
-    backgroundColor: colors.background_dark
-  }
+    backgroundColor: colors.background_dark,
+  },
 });
 ```
 
@@ -187,7 +187,7 @@ Here's the styling code that goes along with this code.
 export const home_screen_list = StyleSheet.create({
   container: {
     marginTop: 14,
-    alignSelf: "stretch"
+    alignSelf: "stretch",
   },
   row: {
     elevation: 1,
@@ -204,18 +204,18 @@ export const home_screen_list = StyleSheet.create({
     marginLeft: 14,
     marginRight: 14,
     marginTop: 0,
-    marginBottom: 6
+    marginBottom: 6,
   },
   row_cell_timeplace: {
     flex: 1,
-    flexDirection: "column"
+    flexDirection: "column",
   },
   row_cell_temp: {
     color: colors.weather_text_color,
     paddingLeft: 16,
     flex: 0,
     fontSize: values.font_temp_size,
-    fontFamily: values.font_body
+    fontFamily: values.font_body,
   },
   row_time: {
     color: colors.weather_text_color,
@@ -223,7 +223,7 @@ export const home_screen_list = StyleSheet.create({
     includeFontPadding: false,
     flex: 0,
     fontSize: values.font_time_size,
-    fontFamily: values.font_body
+    fontFamily: values.font_body,
   },
   row_place: {
     color: colors.weather_text_color,
@@ -231,8 +231,8 @@ export const home_screen_list = StyleSheet.create({
     includeFontPadding: false,
     flex: 0,
     fontSize: values.font_place_size,
-    fontFamily: values.font_body
-  }
+    fontFamily: values.font_body,
+  },
 });
 ```
 

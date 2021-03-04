@@ -10,12 +10,11 @@ layout: post
 title: "Painting with code - review of Airbnb's React Sketch.app plugin"
 hero-image: assets/airbnb-hero.png
 categories:
-- UXE
+  - FE
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [What is this thing?](#what-is-this-thing)
@@ -162,7 +161,7 @@ export const colors = {
   Peach: "#EFADA0",
   "Peach a11y": "#E37059",
   Pear: "#93DAAB",
-  "Pear a11y": "#2E854B"
+  "Pear a11y": "#2E854B",
 };
 ```
 

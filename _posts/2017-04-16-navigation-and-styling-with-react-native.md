@@ -10,13 +10,13 @@ layout: post
 title: "Navigation and Styling with React Native"
 hero-image: assets/rn-styling-hero.png
 categories:
-- Android
-- UXE
-- RN
+  - Android
+  - FE
+  - RN
 ---
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [What you will learn in this tutorial](#what-you-will-learn-in-this-tutorial)
@@ -207,7 +207,7 @@ A large part of this project on GitHub is dedicated to styling. Most React Nativ
 const router_style = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#c1e1c5"
+    backgroundColor: "#c1e1c5",
   },
   text1: {
     flex: -1,
@@ -216,8 +216,8 @@ const router_style = StyleSheet.create({
     fontSize: 18,
     fontWeight: "200",
     fontFamily: "Rubik-Regular",
-    padding: 16
-  }
+    padding: 16,
+  },
 });
 ```
 
@@ -249,7 +249,7 @@ export const colors = {
   button_fg: "#d9e3f0",
   text_light: "#d9d9d9",
   text_medium: "#455a64",
-  text_dark: "#263238"
+  text_dark: "#263238",
 };
 ```
 
@@ -262,7 +262,7 @@ export const values = {
   font_body: "NotoSans-Regular",
   font_body_size: 14,
   font_title_size: 20,
-  border_radius: 2
+  border_radius: 2,
 };
 ```
 
@@ -277,7 +277,7 @@ export const global = StyleSheet.create({
     flexDirection: "column", // main axis
     justifyContent: "center", // main axis
     alignItems: "center", // cross axis
-    backgroundColor: colors.text_light
+    backgroundColor: colors.text_light,
   },
   title: {
     flex: -1, // shrink to min height & width if needed
@@ -287,7 +287,7 @@ export const global = StyleSheet.create({
     marginBottom: 4,
     fontSize: values.font_title_size,
     color: colors.text_dark,
-    fontFamily: values.font_title // more info https://goo.gl/7wYazn
+    fontFamily: values.font_title, // more info https://goo.gl/7wYazn
   },
   body1: {
     flex: -1,
@@ -297,7 +297,7 @@ export const global = StyleSheet.create({
     marginBottom: 8,
     fontFamily: values.font_body, // more info https://goo.gl/7wYazn
     fontSize: values.font_body_size,
-    color: colors.text_medium
+    color: colors.text_medium,
   },
   h_container: {
     flex: -1,
@@ -305,15 +305,15 @@ export const global = StyleSheet.create({
     justifyContent: "space-around",
     alignSelf: "stretch", // overrides container alignItems
     backgroundColor: colors.background_medium,
-    padding: 16
+    padding: 16,
   },
   icon: {
     flex: -1,
     margin: 8,
     height: 100,
     width: 75,
-    resizeMode: "contain" //'cover' | 'contain'
-  }
+    resizeMode: "contain", //'cover' | 'contain'
+  },
 });
 ```
 
@@ -324,7 +324,7 @@ components.
 export const header = {
   // background
   headerStyle: {
-    backgroundColor: colors.background_dark
+    backgroundColor: colors.background_dark,
   },
   // arrows
   headerTintColor: colors.text_light,
@@ -334,15 +334,15 @@ export const header = {
     flexDirection: "row",
     justifyContent: "flex-start",
     alignItems: "center",
-    paddingLeft: 8
+    paddingLeft: 8,
   },
   // my own styles for titleAndIcon
   text: {
     paddingLeft: 8,
     color: colors.text_light,
     fontFamily: values.font_body,
-    fontSize: values.font_title_size
-  }
+    fontSize: values.font_title_size,
+  },
 };
 ```
 
@@ -497,14 +497,14 @@ const nav_tab = TabNavigator(
   // route config
   {
     DetailsRoute1: { screen: DetailsScreen1 },
-    DetailsRoute2: { screen: DetailsScreen2 }
+    DetailsRoute2: { screen: DetailsScreen2 },
   },
   // navigator config
   {
     lazyLoad: true, // render the tabs lazily
     tabBarPosition: "bottom", // where are the tabs shown
     backBehavior: "none", // back button doesn't take you to the initial tab
-    tabBarOptions: css.tabs
+    tabBarOptions: css.tabs,
   }
 );
 ```
@@ -533,7 +533,7 @@ const nav_stack = StackNavigator(
   // route config
   {
     HomeRoute: { screen: HomeScreen }, // this is displayed first
-    DetailsRoute: { screen: nav_tab }
+    DetailsRoute: { screen: nav_tab },
   },
   // navigator config
   {
@@ -542,8 +542,8 @@ const nav_stack = StackNavigator(
       // label text
       headerTitle: titleAndIcon,
       // other styling
-      ...css.header
-    }
+      ...css.header,
+    },
   }
 );
 ```

@@ -9,7 +9,7 @@ excerpt: |
 title: "Flexbox: Getting started (Part 1/2)"
 hero-image: assets/flexbox-hero-image.jpg
 categories:
-  - UXE
+  - FE
   - Web
 ---
 

@@ -10,7 +10,7 @@ title: "Android Downloadable Fonts"
 hero-image: assets/downloadable-fonts-hero.png
 categories:
   - Android
-  - UXE
+  - FE
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->

@@ -11,16 +11,14 @@ layout: post
 title: "Android, Redux, Firebase Auth & Database, and Material Design"
 hero-image: assets/and-redux-hero.png
 categories:
-- Android
-- DB
-- UXE
-- State
-
+  - Android
+  - DB
+  - FE
+  - State
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [Material Design and Material Components for Android](#material-design-and-material-components-for-android)

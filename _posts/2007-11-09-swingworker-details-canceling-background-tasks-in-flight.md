@@ -7,7 +7,7 @@ excerpt: |
 layout: post
 title: "SwingWorker details - canceling background tasks in flight"
 categories:
-  - UXE
+  - FE
   - CC
 ---
 

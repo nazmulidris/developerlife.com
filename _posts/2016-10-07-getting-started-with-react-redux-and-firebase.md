@@ -8,15 +8,15 @@ layout: post
 title: "Building a real world app using React, Redux, Firebase, and Typescript"
 hero-image: assets/react-redux-firebase-hero.png
 categories:
-- DB
-- Web
-- State
-- UXE
+  - DB
+  - Web
+  - State
+  - FE
+  - React
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [Setting up your environment](#setting-up-your-environment)
@@ -176,13 +176,13 @@ const TYPES = {
   SET_STATE_DATA: "SET_STATE_DATA",
   ADD_TODO: "ADD_TODO",
   TOGGLE_TODO: "TOGGLE_TODO",
-  REDUX_INIT: "REDUX_INIT"
+  REDUX_INIT: "REDUX_INIT",
 };
 
 function action_init(): ReduxActionIF {
   return {
     type: TYPES.REDUX_INIT,
-    payload: null
+    payload: null,
   };
 }
 ```
@@ -220,7 +220,7 @@ function toggle_todo(state: ReduxStateIF, action: ReduxActionIF) {
 
     const retval = {
       user: state.user,
-      data: data_copy
+      data: data_copy,
     };
     return retval;
   } catch (e) {

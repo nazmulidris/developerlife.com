@@ -5,13 +5,14 @@ excerpt: |
   This tutorial showcases the differences between using Java and Kotlin in
   Android development
 layout: post
-hero-image: assets/java-vs-kotlin.svg
 title: "Java vs Kotlin for Android development"
 categories:
   - Android
   - KT
   - TDD
 ---
+
+<img class="post-hero-image" src="{{ 'assets/java-vs-kotlin.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -27,7 +28,7 @@ categories:
   - [Coroutines vs AsyncTask](#coroutines-vs-asynctask)
   - [Extension function expressions](#extension-function-expressions)
   - [Constructors](#constructors)
-- [Relatetd articles](#relatetd-articles)
+- [Related articles](#related-articles)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

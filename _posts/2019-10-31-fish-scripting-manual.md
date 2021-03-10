@@ -5,12 +5,13 @@ excerpt: |
   Short manual on how to program using fish shell's scripting language using lots of useful examples ranging from simple
   to complex
 layout: post
-hero-image: assets/fish-shell.svg
 title: "fish shell scripting manual"
 categories:
   - Linux
   - Misc
 ---
+
+<img class="post-hero-image" src="{{ 'assets/fish-shell.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

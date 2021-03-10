@@ -5,7 +5,6 @@ excerpt: |
   Introduction to creating plugins using JetBrains Plugin SDK covering these topics: PicoContainer,
   Services, plugin.xml, actions, extension points, extensions, testing, and the intellij-plugin-verifier
 layout: post
-hero-image: assets/jetbrains-plugin.svg
 title: "Introduction to creating IntelliJ IDEA plugins"
 categories:
   - IJ
@@ -13,9 +12,10 @@ categories:
   - TDD
 ---
 
+<img class="post-hero-image" src="{{ 'assets/jetbrains-plugin.svg' | relative_url }}"/>
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [Plugin architecture](#plugin-architecture)

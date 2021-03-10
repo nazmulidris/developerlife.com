@@ -4,11 +4,12 @@ date: 2018-10-21 5:00:00+00:00
 excerpt: |
   This tutorial is an introduction to Dagger 2 with a simple example of using it in Java
 layout: post
-hero-image: assets/di-java-hero.svg
 title: "Introduction to Dagger 2"
 categories:
   - DI
 ---
+
+<img class="post-hero-image" src="{{ 'assets/di-java-hero.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

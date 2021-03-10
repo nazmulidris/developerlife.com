@@ -5,12 +5,13 @@ excerpt: |
   Introduction to Kotlin Annotation Processing on Android and how to create a static index of generated classes and
   interfaces (without using reflection or classgraphs)
 layout: post
-hero-image: assets/annotation-processing-hero.svg
 title: "Annotation Processing in Kotlin and Android"
 categories:
   - KT
   - Android
 ---
+
+<img class="post-hero-image" src="{{ 'assets/annotation-processing-hero.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

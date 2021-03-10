@@ -8,12 +8,13 @@ excerpt: |
   in Sketch that can be implemented on actual devices (phones, tablets, laptops, TVs, 
   wearables).
 layout: post
-hero-image: assets/density-hero.png
 title: "Designing for multiple screen densities on Android"
 categories:
   - Android
   - FE
 ---
+
+<img class="post-hero-image" src="{{ 'assets/density-hero.png' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

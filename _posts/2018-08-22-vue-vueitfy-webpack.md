@@ -5,11 +5,12 @@ excerpt: |
   This tutorial serves as a deeper dive into Vue, along with Vuetify (a Material
   Design library for Vue), Webpack, Electron, and vue-cli
 layout: post
-hero-image: assets/vue-hero.svg
 title: "Vue.js, Webpack, Vueitify, Electron, and vue-cli"
 categories:
   - Web
 ---
+
+<img class="post-hero-image" src="{{ 'assets/vue-hero.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

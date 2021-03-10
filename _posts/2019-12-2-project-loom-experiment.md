@@ -4,13 +4,14 @@ date: 2019-12-2 17:59:00+00:00
 excerpt: |
   This tutorial is an early exploration into Java Project Loom (preview technology)
 layout: post
-hero-image: assets/project-loom-hero-image.png
 title: "Experimenting w/ Fibers in Project Loom preview"
 categories:
   - CC
   - KT
   - Server
 ---
+
+<img class="post-hero-image" src="{{ 'assets/project-loom-hero-image.png' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

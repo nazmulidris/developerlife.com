@@ -6,12 +6,13 @@ excerpt: |
   w/ a stater project already setup to deploy to browsers using Webpack 4, and 
   w/ testing infrastructure configured (via Jasmine and Karma)
 layout: post
-hero-image: assets/typescript-template-project-hero.svg
 title: "TypeScript starter project w/ Webpack 4, Karma, Jasmine"
 categories:
   - Web
   - TDD
 ---
+
+<img class="post-hero-image" src="{{ 'assets/typescript-template-project-hero.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

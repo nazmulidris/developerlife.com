@@ -5,11 +5,12 @@ excerpt: |
   This tutorial is an exploration of extension functions and higher order functions in Kotlin by
   example
 layout: post
-hero-image: assets/kotlin-awesomeness-hero.svg
 title: "Kotlin Extension Function Expressions"
 categories:
   - KT
 ---
+
+<img class="post-hero-image" src="{{ 'assets/kotlin-awesomeness-hero.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

@@ -6,6 +6,7 @@
   - [Creating a new project using Jekyll](#creating-a-new-project-using-jekyll)
 - [I have Jekyll and Ruby installed, and want to run this project](#i-have-jekyll-and-ruby-installed-and-want-to-run-this-project)
   - [Running the site (if you already have ruby installed)](#running-the-site-if-you-already-have-ruby-installed)
+- [RSS Readers and hero-image handling](#rss-readers-and-hero-image-handling)
 - [Customize minima theme](#customize-minima-theme)
   - [Overriding files in the base theme](#overriding-files-in-the-base-theme)
   - [How to customize syntax highlighting](#how-to-customize-syntax-highlighting)
@@ -48,6 +49,20 @@ After you clone the repo, go the `jekyll_test` folder, and
 1.  Run `bundler` → Takes the `Gemfile` imports and installs them
 1.  Run `jekyll serve` → Builds the static site and serves it on port 4000
 1.  Open `http://localhost:4000` in your browser
+
+# RSS Readers and hero-image handling
+
+Using the `hero-image` property in the YAML header of each MD file in `_posts` folder doesn't work with RSS readers
+(feedly and Fluent RSS reader). Here is the new (preferred) way of adding hero images so they work w/ RSS readers.
+
+Instead of using this YAML "hero-image" property (key) it is better to remove it and just add the image directly using
+an img tag like so:
+
+```
+``<img class="post-hero-image" src="{{ 'assets/<HERO_IMAGE_HERE>' | relative_url }}"/>
+```
+
+I successfully tested this using Fluent RSS reader on `http://127.0.0.1:4000/feed.xml`.
 
 # Customize minima theme
 

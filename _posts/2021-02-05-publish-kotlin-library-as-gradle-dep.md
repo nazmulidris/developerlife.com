@@ -4,11 +4,12 @@ date: 2021-02-06 10:00:00+00:00
 excerpt: |
   Learn how to publish a Kotlin library as a gradle dependency to the GitHub Package Registry
 layout: post
-hero-image: assets/gradle-dep.svg
 title: "Publishing a Kotlin library as a Gradle dependency to GitHub Package Repository"
 categories:
   - KT
 ---
+
+<img class="post-hero-image" src="{{ 'assets/gradle-dep.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

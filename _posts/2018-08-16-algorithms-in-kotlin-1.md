@@ -8,12 +8,13 @@ excerpt: |
   in Kotlin or need a refresher to do interview prep for software
   engineering roles.
 layout: post
-hero-image: assets/algo-hero.svg
 title: "Algorithms in Kotlin, Big-O-Notation, Part 1/7"
 categories:
   - CS
   - KT
 ---
+
+<img class="post-hero-image" src="{{ 'assets/algo-hero.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

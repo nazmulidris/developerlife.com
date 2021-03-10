@@ -5,13 +5,14 @@ excerpt: |
   Learn how to customize your Ubuntu UI with fontconfig, Nerd Fonts, adding gestures, customizing Terminal, and using
   Gnome extensions for Theming and Window tiling. And IDEA theming.
 layout: post
-hero-image: assets/ubuntu.svg
 title: "Customizing Ubuntu UI"
 categories:
   - Linux
   - Misc
   - Productivity
 ---
+
+<img class="post-hero-image" src="{{ 'assets/ubuntu.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

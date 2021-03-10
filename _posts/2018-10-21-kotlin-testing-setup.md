@@ -5,16 +5,16 @@ excerpt: |
   This tutorial is an exploration of doing test driven development using Kotlin. This tutorial 
   focuses on JUnit, MockK, AssertJ, and Roboelectric for Android.
 layout: post
-hero-image: assets/kotlin-android-test-hero.svg
 title: "Kotlin and Test Driven Development"
 categories:
-- TDD
-- KT
+  - TDD
+  - KT
 ---
+
+<img class="post-hero-image" src="{{ 'assets/kotlin-android-test-hero.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Test driven development and Kotlin](#test-driven-development-and-kotlin)
 - [Using Kotlin DSL for gradle](#using-kotlin-dsl-for-gradle)

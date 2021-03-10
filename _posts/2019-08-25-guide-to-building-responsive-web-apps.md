@@ -5,12 +5,13 @@ excerpt: |
   This article is a pragmatic guide for developers and designers who want to learn how to build responsive web
   applications
 layout: post
-hero-image: assets/main_article_image.png
 title: "A pragmatic guide to designing and building responsive web applications"
 categories:
   - FE
   - Web
 ---
+
+<img class="post-hero-image" src="{{ 'assets/main_article_image.png' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

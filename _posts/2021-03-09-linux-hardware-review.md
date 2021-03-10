@@ -5,7 +5,6 @@ excerpt: |
   Linux laptop and desktop for software engineers hardware review - Dell Precision 3440 2020, Dell XPS 13 Developer
   Edition 2021, ThinkPad X1 Carbon Gen 8
 layout: post
-hero-image: assets/ubuntu-hw-review.svg
 title: "Linux (Ubuntu) desktop and laptop hardware review for software engineers (early 2021)"
 categories:
   - Linux
@@ -13,6 +12,8 @@ categories:
   - Productivity
   - Hardware
 ---
+
+<img class="post-hero-image" src="{{ 'assets/ubuntu-hw-review.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

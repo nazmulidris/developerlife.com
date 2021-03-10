@@ -7,11 +7,12 @@ excerpt: |
   and a sample app.
 layout: post
 title: "Deep dive into Android Services"
-hero-image: assets/android-service-hero.png
 categories:
   - Android
   - CC
 ---
+
+<img class="post-hero-image" src="{{ 'assets/android-service-hero.png' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

@@ -5,12 +5,13 @@ excerpt: |
   This tutorial is an exploration of Kotlin sealed classes and how they can be used to represent
   state elegantly and robustly
 layout: post
-hero-image: assets/kotlin-awesomeness-hero.svg
 title: "Kotlin Sealed Classes and State"
 categories:
   - State
   - KT
 ---
+
+<img class="post-hero-image" src="{{ 'assets/kotlin-awesomeness-hero.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

@@ -6,13 +6,14 @@ excerpt: |
   how to build a simple example responsive navigation design using Flexbox and media
   queries. 📦
 layout: post
-hero-image: assets/flexbox-hero-image.jpg
 title: "Flexbox: Building a navigation bar (Part 2/2)"
 categories:
   - FE
   - React
   - Web
 ---
+
+<img class="post-hero-image" src="{{ 'assets/flexbox-hero-image.jpg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

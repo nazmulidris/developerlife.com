@@ -5,11 +5,12 @@ excerpt: |
   This tutorial covers the potential pitfalls of using non-capturing lambdas and using use anonymous classes to 
   implement SAM / functional interfaces instead
 layout: post
-hero-image: assets/non-capturing-lambda.svg
 title: "Potential problems of using non-capturing lambdas"
 categories:
   - KT
 ---
+
+<img class="post-hero-image" src="{{ 'assets/non-capturing-lambda.svg' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

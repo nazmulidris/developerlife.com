@@ -382,7 +382,8 @@ Here's a screenshot of what this looks like.
 ![]({{'assets/ubuntu-ui-tiling-focused-window.png' | relative_url}})
 
 I have since remapped my "Alt+Tab" to "Super+J" since I use [UHK keyboard](https://ultimatehackingkeyboard.com/). I
-actually remapped "Mod+Tab" to invoke "Super+J" instead of "Alt+Tab".
+actually remapped "Mod+Tab" to invoke "Super+J" instead of "Alt+Tab". Here is a [my review of the UHK
+v1]({{ '/2021/03/09/mechanical-keyboard-review/' | relative_url}}).
 
 ### 2. Gnome User Themes
 
@@ -515,6 +516,7 @@ gesture pinch out 2 xdotool key 'Control_L+plus'
 
 If you look at the first `gesture` it does the following: Swipe left w/ 4 fingers results in "Super + Page Down" keys to
 be pressed by `xdotool`. You can configure these gestures to map to key presses that you have configured on your system
-to do whatever it is that you want. For me, I use [Ultimate Hacking Keyboards](http://uhk.io) and have my keyboard
+to do whatever it is that you want. For me, I use [Ultimate Hacking Keyboards v1](http://uhk.io) and have my keyboard
 mapped to do lots of workspace management things (like switch workspaces, switch windows between workspaces, etc) and I
-use my custom key mappings for these `xdotool` commands.
+use my custom key mappings for these `xdotool` commands. Here is a [my review of the UHK
+v1]({{ '/2021/03/09/mechanical-keyboard-review/' | relative_url}}).

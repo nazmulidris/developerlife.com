@@ -3,7 +3,8 @@ author: Nazmul Idris
 date: 2020-11-21 05:19:43+00:00
 excerpt: |
   Introduction to creating plugins using JetBrains Plugin SDK covering these topics: PicoContainer,
-  Services, plugin.xml, actions, extension points, extensions, testing, and the intellij-plugin-verifier
+  Services, plugin.xml, actions, extension points, extensions, testing, and the intellij-plugin-verifier.
+  This is a companion of the Advanced guide to creating IntelliJ IDEA plugins.
 layout: post
 title: "Introduction to creating IntelliJ IDEA plugins"
 categories:
@@ -18,6 +19,14 @@ categories:
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Introduction](#introduction)
+- [What are plugins?](#what-are-plugins)
+  - [plugin.xml - "entry point" into your plugin](#pluginxml---entry-point-into-your-plugin)
+  - [Declarative nature and dependency injection](#declarative-nature-and-dependency-injection)
+  - [Actions](#actions)
+  - [Dynamic plugins](#dynamic-plugins)
+  - [Main thread, performance, and UI freezes](#main-thread-performance-and-ui-freezes)
+  - [Extending your plugin or another plugin](#extending-your-plugin-or-another-plugin)
+  - [References](#references)
 - [Plugin architecture](#plugin-architecture)
   - [PicoContainer](#picocontainer)
   - [plugin.xml](#pluginxml)
@@ -27,26 +36,32 @@ categories:
   - [Services](#services)
 - [Persisting state between IDE restarts](#persisting-state-between-ide-restarts)
   - [PersistentStateComponent and Services](#persistentstatecomponent-and-services)
-- [Actions](#actions)
+- [Actions](#actions-1)
 - [IntelliJ platform version, Gradle version, Kotlin version, gradle-intellij-plugin, intellij-plugin-verifier](#intellij-platform-version-gradle-version-kotlin-version-gradle-intellij-plugin-intellij-plugin-verifier)
   - [intellij-plugin-verifier](#intellij-plugin-verifier)
     - [Notes on the build or version codes](#notes-on-the-build-or-version-codes)
   - [Using the latest version of Gradle and gradle-intellij-plugin](#using-the-latest-version-of-gradle-and-gradle-intellij-plugin)
   - [In build.gradle.kts which intellij version should we use?](#in-buildgradlekts-which-intellij-version-should-we-use)
 - [Declaring dependencies on other plugins](#declaring-dependencies-on-other-plugins)
+- [Misc](#misc)
+  - [Analyze startup performance](#analyze-startup-performance)
+  - [How to use project specific JDKs](#how-to-use-project-specific-jdks)
+  - [Using ResourceBundles for localization](#using-resourcebundles-for-localization)
+    - [Imperative approach](#imperative-approach)
+    - [Declarative approach](#declarative-approach)
 - [Testing](#testing)
   - [AssertJ](#assertj)
   - [Example tests](#example-tests)
     - [Fixtures](#fixtures)
     - [Test data](#test-data)
     - [Mocking actions](#mocking-actions)
-- [References](#references)
+- [References](#references-1)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Introduction
 
-This article (originally published on 2019-08-25) covers the basics of creating a plugin for IntelliJ IDEA using the
+This tutorial (originally published on 2019-08-25) covers the basics of creating a plugin for IntelliJ IDEA using the
 Plugin SDK. It covers the basics, like what components and services are, what extension points and extensions are, along
 with persistent state components, and unit testing. Topics like disposables, PSI, VFS, read/write locks, are not covered
 in this tutorial. I will write more tutorials in the future to cover these advanced topics as well.
@@ -62,6 +77,102 @@ JetBrains Platform SDK docs to create a plugin from scratch. In this tutorial we
 plugin (and not the old Plugin DevKit based approach).
 
 - [Getting started w/ Gradle based IntelliJ Platform Plugin](http://www.jetbrains.org/intellij/sdk/docs/tutorials/build_system/prerequisites.html).
+
+Once you are done with the basics, and want to get into more advanced topics, please read the [Advanced guide to
+creating IntelliJ IDEA plugins]({{ '2021/03/13/ij-idea-plugin-advanced/' | relative_url }}).
+
+## What are plugins?
+
+IntelliJ IDEA is a very powerful IDE platform. This platform is used to roll out a variety of IDEs (eg: IntelliJ
+Community Edition (FOSS), IntelliJ Ultimate, Android Studio, Webstorm, etc). You can find the source code for the
+Community Edition in this repo [`intellij-community`](https://github.com/JetBrains/intellij-community). The platform SDK
+is part of this repo.
+
+JetBrains allows you or anyone to extend their IDE in any way that they choose by writing their own
+[plugin](https://plugins.jetbrains.com/docs/intellij/types-of-plugins.html). IDEA itself is comprised of a very small
+core set of classes, with a ton of plugins that are supplied by JetBrains.
+
+So if you are thinking of writing a plugin to extend the functionality of IDEA, then you have come to the right place.
+Think of your plugin as an application that will live in the container of the IDEA window in a desktop environment.
+There are some rules that you have to comply with in order to be a good citizen of this container. This tutorial will
+guide you through some of what these constraints are.
+
+### plugin.xml - "entry point" into your plugin
+
+When creating a plugin, you must let the "IDEA container" know what your plugin actually does, so that IDEA can load it
+properly and allow users to interact with it (via keyboard shortcuts, menus, toolbars). Things like the name of your
+plugin, associate icons, internationalized string bundles, etc all have to be provided to IDEA so that it can render
+your plugin properly. All of this declarative information about your plugin is stored in a file called
+[`plugin.xml`](https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html) which is the most important
+"entry point" into the code for your plugin.
+
+### Declarative nature and dependency injection
+
+IDEA itself uses [PicoContainer](http://picocontainer.com/) to load all the classes required by your plugin via very
+simple dependency injection. This is why all of the things in `plugin.xml` tend to be declarative. You won't find any
+calls to constructors and such. IDEA uses something like [`classgraph`](https://github.com/classgraph/classgraph/wiki)
+in order to look thru its various classpaths and figure out which actual classes to load at runtime.
+[Here](https://github.com/nazmulidris/algorithms-in-kotlin) is an example of how you can use `classgraph` in your Kotlin
+/ Java code.
+
+### Actions
+
+One of the main ways in which IDEA users will interact with your plugin is via
+[actions](https://plugins.jetbrains.com/docs/intellij/action-system.html). Actions can be invoked by using Search
+Anywhere (`Shift + Shift`) and typing the name of the action. Or by pressing the keyboard shortcut to invoke that
+action. Or by clicking on a toolbar that has the action, or selecting a menu that is mapped to this action. All the
+actions that are exposed by your plugin are explicitly listed in this `plugin.xml` file.
+
+### Dynamic plugins
+
+All IDEA plugins need to be [dynamic](https://plugins.jetbrains.com/docs/intellij/dynamic-plugins.html). This means they
+can be unloaded and loaded on demand. So if the user uninstalls your plugin it should not require an IDE restart.
+Similarly if they install your plugin, or upgrade it, it should not require an IDE restart. For this reason you can
+think of your plugin as a set of actions, and a set of
+[services](https://plugins.jetbrains.com/docs/intellij/plugin-services.html) that can be provided on demand. You can
+learn more about services in [Services]({{ '2020/11/20/idea-plugin-example-intro/#services' | relative_url }}).
+
+There are tasks that your plugin might need to happen when a project is first opened that requires the use of this
+plugin. You can handle this by declaring the use of the
+[`backgroundPostStartupActivity`](https://plugins.jetbrains.com/intellij-platform-explorer/?extensions=com.intellij.backgroundPostStartupActivity)
+extension point. You may also have tasks that might need to happen when the IDE itself is started in which can you try
+using the [`AppLifecycleListener`](https://github.com/gilday/dark-mode-sync-plugin/pull/24#discussion_r486033893).
+
+### Main thread, performance, and UI freezes
+
+So following is another reason dynamic plugins and the declarative nature of `plugin.xml` go hand in hand - performance.
+In order for IDEA itself to load quickly, plugins that are not needed by any open projects should not be loaded at
+startup. If the user opens a project, then only the plugins required by that project should be loaded without making the
+IDE unresponsive, or at least be delayed after the UI is responsive. A lot of code in IDEA runs in the UI (main) thread.
+This is unfortunate and unavoidable for a lot of reasons (which will become clear when you learn about
+[PSI](https://plugins.jetbrains.com/docs/intellij/psi.html) and
+[VFS](https://plugins.jetbrains.com/docs/intellij/files.html); more about these in the [advanced
+tutorial]({{ '2021/03/13/ij-idea-plugin-advanced/' | relative_url }})). In order to be a "good citizen" in the IDE
+container itself, your plugin will need to do things that are unintuitive just so that it
+[does not freeze](https://plugins.jetbrains.com/docs/intellij/performance.html#avoiding-ui-freezes) the main thread, and
+make the IDE itself unresponsive to the user.
+
+### Extending your plugin or another plugin
+
+Even your plugin can be built in a way that it can be extended by other plugins! And your plugin can extend another
+plugin created by someone else. These are called `extension points` and `extensions` and you can learn about them in
+detail in [Extensions and extension
+points]({{ '2020/11/20/idea-plugin-example-intro/#extensions-and-extension-points' | relative_url }}).
+
+### References
+
+Docs:
+
+1. [Introduction to creating IntelliJ IDEA plugins]({{ '2020/11/20/idea-plugin-example-intro/' | relative_url }})
+2. [Official JetBrains IntelliJ Platform SDK docs](https://plugins.jetbrains.com/docs/intellij/welcome.html)
+3. [Official JetBrains IntelliJ Platform Explorer (extension point explorer)](https://plugins.jetbrains.com/intellij-platform-explorer/)
+
+Code examples (GitHub repos):
+
+1. [idea-plugin-example](https://github.com/nazmulidris/idea-plugin-example)
+2. [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2)
+3. [shorty-idea-plugin](https://github.com/r3bl-org/shorty-idea-plugin)
+4. [intellij-community](https://github.com/JetBrains/intellij-community)
 
 ## Plugin architecture
 
@@ -762,6 +873,72 @@ And finally, for the `platform` you only have to specify this in `plugin.xml`. H
 in `intellij { version = "<idea-build-code-or-version-here> }`.
 
 1. In `plugin.xml` - You have to specify the dependency in `<depends>com.intellij.modules.platform</depends>`.
+
+## Misc
+
+### Analyze startup performance
+
+IDEA has an action called "Analyze Plugin Startup Performance". It is hidden away in the main menu "Help -> Diagnostic
+Tools -> Analyze Plugin Startup Performance". This gem of an action will show you how much time your plugin is taking,
+and all the other plugins that you have loaded are taking, at startup. For those other plugins, it provides a useful
+feature to disable them from this dialog.
+
+IDEA has yet another hidden gem to analyze the startup performance of an IDE instance. Visit
+[ij-perf.jetbrains.com/#/report](https://ij-perf.jetbrains.com/#/report) and it will give you the ability to connect to
+an IDE instance running on your machine, or you can upload the logs to get the startup performance report.
+
+### How to use project specific JDKs
+
+If for some reason you use an embedded JDK in the plugin project that you are working on, then it can become cumbersome
+to have to manually change the JDK table settings in IDEA on every single machine that you have cloned this project on.
+
+There is a plugin called [EmbeddedProjectJdk plugin](https://plugins.jetbrains.com/plugin/10480-embeddedprojectjdk) that
+enables per project JDK settings (that are not loaded from your IDEA user settings).
+[This doc contains information of where IDEA stores its configuration files](https://www.jetbrains.com/help/idea/tuning-the-ide.html#default-dirs).
+
+This plugin allows you to put the `jdk.table.xml` file (stored in `$IDEA_SETTINGS/config/options/jdk.table.xml` in
+[IDEA settings directory](https://intellij-support.jetbrains.com/hc/en-us/articles/206544519-Directories-used-by-the-IDE-to-store-settings-caches-plugins-and-logs)),
+into the project folder and commit to your VCS. If the JDK defined in the per project `$PROJECT_DIR/.idea/jdk.table.xml`
+is not found or invalid, then the plugin will it automatically. You can also define OS-dependent
+`$PROJECT_DIR/.idea/jdk.table.*.xml` files like so:
+
+- Windows: `jdk.table.win.xml`
+- Linux: `jdk.table.lin.xml`
+- MacOS: `jdk.table.mac.xml`
+
+### Using ResourceBundles for localization
+
+In order to use localized strings for use in your plugin, you can use an imperative or declarative approach.
+
+#### Imperative approach
+
+For the imperative approach, create a `MyStringsBundle.properties` file in your `$PROJECT_DIR/resources/` folder. You
+can name this whatever you want. This file can contain something like this.
+
+```properties
+dialog.title=My awesome dialog
+```
+
+You can then use this code snippet to get the values of the properties that you have defined in that file.
+
+```kotlin
+fun getStringFromBundle(key: String): String {
+  val strings: ResourceBundle = ResourceBundle.getBundle("MyStringsBundle", Locale.getDefault())
+  return strings.getString(key)
+}
+```
+
+#### Declarative approach
+
+`plugin.xml`
+[supports getting values out of this properties file declaratively](https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_configuration_file.html)
+as long as the following is done.
+
+1. Add a `<resource-bundle>` element in the `plugin.xml` for the `MyStringsBundle` resource. For example, add
+   `<resource-bundle>MyStringsBundle</resource-bundle>` in the `<idea-plugin>` element.
+2. In `MyStringsBundle.properties` file, if you want to provide a `text` value for an action, use the following naming
+   pattern: `action.<YOUR_ACTION_ID>.text`. For `description` value, use the following pattern:
+   `action.<YOUR_ACTION_ID>.description`.
 
 ## Testing
 

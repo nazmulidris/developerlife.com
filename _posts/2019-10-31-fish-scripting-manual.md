@@ -38,6 +38,8 @@ categories:
   - [Return values from a function](#return-values-from-a-function)
 - [How to handle file and folder paths for dependencies](#how-to-handle-file-and-folder-paths-for-dependencies)
 - [How to write multi line strings to files](#how-to-write-multi-line-strings-to-files)
+- [How to create colorized echo output](#how-to-create-colorized-echo-output)
+- [How to get user input](#how-to-get-user-input)
 - [How to use sed](#how-to-use-sed)
 - [How to use xargs](#how-to-use-xargs)
 - [How to use cut to split strings](#how-to-use-cut-to-split-strings)
@@ -621,6 +623,76 @@ Date: $datestr
 
 # Your heading
 "
+end
+```
+
+## How to create colorized echo output
+
+The [`set_color`](https://fishshell.com/docs/current/cmds/set_color.html) function allows fish to colorize and format
+text content that is printed to `stdout` using `echo`. This is great when creating text output that needs to have
+different foreground, background colors, and bold, italic, or underlined output. There are many ways to use this
+command, and here are two examples of how to use it (inline of `echo` statements, and just by itself).
+
+```bash
+function myFunction
+  if test (count $argv) -lt 2
+    set -l currentFunctionName (status function)
+    echo "Usage: "(set_color -o -u)"$currentFunctionName"(set_color normal)\
+      (set_color blue)" <arg1> "\
+      (set_color yellow)"<arg2>"(set_color normal)
+    set_color blue
+    echo "- <arg1>: Something about arg1."
+    set_color yellow
+    echo "- <arg2>: Something about arg2"
+    set_color normal
+    return 1
+  end
+end
+```
+
+Notes:
+
+1. `set_color normal` has to be called to reset whatever formatting options were set in previous statements.
+2. `set_color -u` does underline, and `set_color -o` does bold.
+
+## How to get user input
+
+There are situations where you need to ask a user for confirmation before performing some potentially destructive
+operation or you might need user input for some argument to a function (that isn't passed via the command line). In
+these cases it is possible to get user input from the user by reading `stdin` using the
+[`read`](https://fishshell.com/docs/current/cmds/read.html) function.
+
+The following function simply returns a `0` for "Y"/"y", and `1` for "N"/"n".
+
+```bash
+# More info on prompting a user for confirmation using fish read function: https://stackoverflow.com/a/16673745/2085356
+# More info about fish `read` function: https://fishshell.com/docs/current/cmds/read.html
+function _promptUserForConfirmation -a message
+  if not test -z "$message"
+    echo (set_color brmagenta)"🤔 $message?"
+  end
+
+  while true
+    # read -l -P '🔴 Do you want to continue? [y/N] ' confirm
+    read -l -p "set_color brcyan; echo '🔴 Do you want to continue? [y/N] ' ; set_color normal; echo '> '" confirm
+    switch $confirm
+      case Y y
+        return 0
+      case '' N n
+        return 1
+    end
+  end
+end
+```
+
+And here is an example of using the `_promptUserForConfirmation` function.
+
+```bash
+if _promptUserForConfirmation "Delete branch $featureBranchName"
+  git branch -D $featureBranchName
+  echo "👍 Successfully deleted $featureBranchName"
+else
+  echo "⛔ Did not delete $featureBranchName"
 end
 ```
 

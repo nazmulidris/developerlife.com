@@ -18,8 +18,10 @@ categories:
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Overview](#overview)
-- [VFS](#vfs)
-- [PSI](#psi)
+- [IDEA threading model](#idea-threading-model)
+- [PSI access and mutation](#psi-access-and-mutation)
+- [Dynamic plugins](#dynamic-plugins)
+- [VFS and Document](#vfs-and-document)
 - [Swing UI](#swing-ui)
 - [Kotlin UI DSL](#kotlin-ui-dsl)
 
@@ -48,9 +50,13 @@ In order to be successful creating advanced plugins, this is what I suggest:
    that is similar to what you are looking to build, and then locate the source code for that feature in the repo and
    see how JetBrains has done it.
 
-## VFS
+## IDEA threading model
 
-## PSI
+## PSI access and mutation
+
+## Dynamic plugins
+
+## VFS and Document
 
 ## Swing UI
 

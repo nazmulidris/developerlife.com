@@ -75,12 +75,14 @@ devices that I use with these keyboards.
 ## Ergonomic mechanical keyboard - UHK v1
 
 Then I found out about the [Ultimate Hacking Keyboard](https://ultimatehackingkeyboard.com/). I thought that was quite a
-claim in the name when I first heard of it. So I ordered my first one with very high expectations. And I am happy to
-report that the name accurately matches the product and my expectations where blown away! I am a fan for life!
+claim in the name when I first heard of it. So I ordered my first one with very high expectations. I ordered it with the
+MX Brown switches and the fantastic wooden wrist wrests And I am happy to report that the name accurately matches the
+product and my expectations where blown away! I am a fan for life!
 
-Then I ordered another one 😀. And now I am waiting for the UHK v2 RGB keyboard to come out, along with the modules. As
-soon as that happens (expected to start shipping in March 2021) I will be sure to post a new review (of v2 and the new
-modules).
+Then I ordered another one, with the ISO keyboard layout instead of the US 😀.
+
+And now I am waiting for the UHK v2 RGB keyboard to come out, along with the modules. As soon as that happens (expected
+to start shipping in March 2021) I will be sure to post a new review (of v2 and the new modules).
 
 ### Pros
 
@@ -94,6 +96,18 @@ has a really easy to use and powerful UI. The electron based app also supports D
 use, and makes it a joy to reprogram the keyboard to whatever you desire. And you can do firmware updates with ease. And
 it works on any platform.
 
+Here's an example of how amazing Agent and the UHK are. The Support staff at UHK are awesome as well, and they helped me
+to figure this out! By default if you double tap the Fn or Mod keys, they lock. And you are in that layer until you
+unlock (by pressing the key that got you into that layer in the first place). This can be really annoying when
+accidentally double pressing these layer keys. Agent simply allows you to change this behavior in the following ways:
+
+1. You can simply tell Agent to disable the Mod key from sticking if you double press it.
+2. You can also tell Agent to toggle everytime you press.
+
+So you can make it to whatever you like! Here's a video to illustrate the awesomeness that is UHK and Agent!
+
+![]({{ 'assets/uhk-agent-mod-key-sticking.gif' | relative_url }})
+
 ### ~~Cons~~ Nits
 
 I only have nits against this keyboard. Not really cons. The first is that I really miss not having dedicated cursor
@@ -101,12 +115,6 @@ keys and a row of Page Up, Page Down, Home, and End keys. Yes, I know that you c
 layer like Fn or Mod, or just other individual keys (both of which I have done) but these keys are so frequently used in
 GNOME that it would make sense to have them as dedicated keys. UHK makes modules and they have a module that adds a few
 keys (that I have on order) which I hope will address this shortcoming.
-
-The second is that I have with this keyboard is that if you double tap the Fn or Mod keys, they lock. And you are in
-that layer until you unlock (by pressing the key that got you into that layer in the first place). This can be really
-annoying when accidentally double pressing these layer keys. Fortunately, the keyboard does have very prominent status
-indicator where you can see if a layer is currently active. This display area is great, since it also tells you when UHK
-Agent app is connected 👍.
 
 ## Remapping keys and configuring keyboards
 

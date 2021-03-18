@@ -6,10 +6,12 @@ excerpt: |
 layout: post
 title: "Mechanical keyboard review - UHK v1 and Drop Alt Captain"
 categories:
-  - Linux
-  - Misc
-  - Productivity
-  - Hardware
+
+- Linux
+- Misc
+- Productivity
+- Hardware
+
 ---
 
 <img class="post-hero-image" src="{{ 'assets/mechanical-keyb-review.svg' | relative_url }}"/>
@@ -25,11 +27,11 @@ categories:
   - [Hierarchy of needs](#hierarchy-of-needs)
   - [Don't shoot self in foot](#dont-shoot-self-in-foot)
   - [Examples for UHK keymap](#examples-for-uhk-keymap)
-    - [General](#general)
-    - [Clipboard history, emoji, albert/alfred](#clipboard-history-emoji-albertalfred)
-    - [Tab management](#tab-management)
     - [Cursor control](#cursor-control)
-    - [Examples for Workspace control](#examples-for-workspace-control)
+    - [GNOME workspace control (with window tiling extension)](#gnome-workspace-control-with-window-tiling-extension)
+    - [IDEA and Sublime Text 3](#idea-and-sublime-text-3)
+    - [Clipboard history, emoji, albert/alfred](#clipboard-history-emoji-albertalfred)
+    - [Browser tab management](#browser-tab-management)
     - [Function keys](#function-keys)
     - [Gnome lockups](#gnome-lockups)
     - [Figma, LucidSpark](#figma-lucidspark)
@@ -129,17 +131,17 @@ be clumped together. And this is what I came up with (the most important stuff i
 
 1. Coding
    - JetBrains IDEA based IDEs
-   - Sublime Text
+   - Sublime Text 3
 2. System level things
    - Terminal (Tilix)
    - Albert
    - CopyQ
-   - Workspace control
-   - Tiled window management
+   - GNOME workspace control
+   - GNOME tiling window extension control
    - Browsers (tab management)
 3. App specific
-   - Google Sheets
    - Figma
+   - Google Sheets
 
 ### Don't shoot self in foot
 
@@ -187,8 +189,43 @@ You can download these keymaps here.
 2. [IDEA keymap.jar file]({{ 'assets/keymap.jar' | relative_url }})
 3. [Sublime Text keybindings.json file]({{ 'assets/sublime-text-keymap.json' | relative_url }})
 
-#### General
+#### Cursor control
 
+- Cursor keys are on bottom right of keyboard: Fn, Alt, Super, Ctrl
+  - RightCtrl : Right
+  - RightSuper : Left
+  - RightFn : Up
+  - RightAlt: Down
+- Mod + J : left
+- Mod + K : down
+- Mod + L : right
+- Mod + I : up
+- Mod + H : home
+- Mod + ; : end
+- Mod + O : page up
+- Mod + P : page down
+- Mod + Del : backspace
+- Mod + H : Home
+- Mod + J : End
+- HiddenKeyLeft : Left
+- HiddenKeyRight : right
+
+#### GNOME workspace control (with window tiling extension)
+
+- Super + Up / Down : Move workspace prev and next
+  - Add Shift to move a window to the prev or next workspace
+- Mod + Tab : Super + J (works w/ GNOME window tiling extension)
+  - Add Shift and you can actually move the windows rather than switch focus!
+- Mod + 1 / Mod + -: Move workspace prev
+  - Simply types Super + Up
+  - Add Shift to a move a window to prev workspace
+- Mod + 2 / Mod + +: move workspace next
+  - Simply types Super + Down
+  - Add Shift to a move a window to next workspace
+
+#### IDEA and Sublime Text 3
+
+- RightShift : Super
 - Mod + Space : code complete (Ctrl+Space)
 - Mod + B : code navigation (go to declaration, jump to source)
   - Maps to Ctrl + Down, which works in both IDEA and Sublime.
@@ -213,48 +250,21 @@ You can download these keymaps here.
 #### Clipboard history, emoji, albert/alfred
 
 - Fn + Mod : Albert
-- Fn + Space : CopyQ
+- Mod + Fn : CopyQ
+- Fn + Space : emoji picker
 - Mod + C : copy
 - Mod + V : paste
 - Mod + X : delete line (cut)
 - Mod + Z : undo
 - Mod + Enter : Cmd + enter (Mac), Ctrl + enter (Linux)
-- Mod + Fn : emoji picker
 
-#### Tab management
+#### Browser tab management
 
 - Mod + HiddenKeyLeft, Mod + HiddenKeyRight : switch to next / prev tab
+  - These simply type `Ctrl + Tab` and `Ctrl + Shift + Tab` respectively
   - [gnome issue fix for terminal](https://askubuntu.com/a/875482/872482)
 - Fn + HiddenKeyLeft, Mod + HiddenKeyRight : move current tab to next / prev
-
-#### Cursor control
-
-- Mod + J : left
-- Mod + K : down
-- Mod + L : right
-- Mod + I : up
-- Mod + H : home
-- Mod + ; : end
-- Mod + O : page up
-- Mod + P : page down
-- Mod + Del : backspace
-- Mod + H : Home
-- Mod + J : End
-- HiddenKeyLeft : Left
-- HiddenKeyRight : right
-- Cursor keys are on bottom right of keyboard: Fn, Alt, Super, Ctrl
-
-#### Examples for Workspace control
-
-- Mod + ~ : Show activities
-- Mod + 1 : Move workspace prev
-  - Simply types Super + Page Up
-  - Add Shift to a move a window to prev workspace
-- Mod + 2 : move workspace next
-  - Simply types Super + Page Down
-  - Add Shift to a move a window to next workspace
-- Super + Left/Right/Up/Down : Tile windows using Gnome and Gnome extension WinTile
-- Mod + Tab : alt+tab
+  - These simply type `Ctrl + Shift + Page Up` and `Ctrl + Shift + Page Down`
 
 #### Function keys
 

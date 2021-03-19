@@ -3,7 +3,7 @@ author: Nazmul Idris
 date: 2021-03-09 14:00:00+00:00
 excerpt: |
   Linux laptop and desktop for software engineers hardware review - Dell Precision 3440 2020, Dell XPS 13 Developer
-  Edition 2021, ThinkPad X1 Carbon Gen 8
+  Edition 2021, ThinkPad P15, ThinkPad X1 Carbon Gen 8
 layout: post
 title: "Linux (Ubuntu) desktop and laptop hardware review for software engineers (early 2021)"
 categories:
@@ -24,6 +24,10 @@ categories:
   - [Pros](#pros)
   - [Cons](#cons)
 - [Dell XPS 13 Developer Edition (2021 w/ Tigerlake 11th gen CPU and Intel Xe integrated graphics)](#dell-xps-13-developer-edition-2021-w-tigerlake-11th-gen-cpu-and-intel-xe-integrated-graphics)
+- [ThinkPad P15 Gen 1](#thinkpad-p15-gen-1)
+  - [Pros](#pros-1)
+  - [Cons](#cons-1)
+  - [Some tweaks that I had to make for Ubuntu 20.04](#some-tweaks-that-i-had-to-make-for-ubuntu-2004)
 - [ThinkPad X1 Carbon Gen 8](#thinkpad-x1-carbon-gen-8)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -167,6 +171,85 @@ This machine is only 2.7 x slower than the Dell Precision above to compile IDEA.
 
 SSD speeds are great as well, and are as advertised, roughly 3.5GB/s read, and 3.1GB/s write. Average access times are
 in the order of 0.02 ms.
+
+## ThinkPad P15 Gen 1
+
+This machine is my favorite mobile workstation of all time. It is a very thick 15" laptop, that fits in bags that can
+hold a 16" MacBook Pro. It ships with Ubuntu 20.04 out of the box 🎉. It is a perfectly capable desktop replacement with
+incredible thermal management and just raw power. I have no idea what the battery life is like, but I imagine it can't
+be very good 😀. I just use it as a mobile workstation replacement docked to an external monitor, [UHK v1
+keyboard]({{ '2021/03/09/mechanical-keyboard-review/' | relative_url }}), trackpad, and mouse.
+
+Let's talk performance. This machine is fast. And it is quiet (my spec anyway). I ordered the P15 with a i7-10750H CPU
+(6 core, 12 threads), and the Nvidia Quadro P1000 GPU w/ 4GB RAM, with 32GB of RAM and 1TB SSD. Everything on the
+machine feels lightning quick. It feels very much like the Dell Precision desktop, but even snappier, thanks to Ubuntu
+20.04 vs 18.04. Also, ThinkPads don't use any proprietary PPAs for driver installation that is needed for hardware
+support (you can get it via `apt`). This makes it a breeze to install Ubuntu on this machine! Just pick a distro, but
+the ISO to a USB drive, boot from it, and install.
+
+Here are my performance benchmarks, to compile the
+[JetBrains IntelliJ Community Edition](https://github.com/JetBrains/intellij-community) IDE took about 8.5 minutes on
+this machine. I used Amazon `corretto-11` JDK, and applied the parallel compiler optimization settings in the README.
+This machine is only 30% slower than the Dell Precision desktop! That is crazy fast! This is not even close to the
+maximum spec of this machine. I can imagine if you got the Xeon CPUs w/ more RAM you will definitely get more
+performance than this. However, this is enough for my needs.
+
+I picked the slower CPU w/ fewer cores since my workloads aren't really optimized for massive parallelization. And this
+machine keeps this CPU running fast at high clock speed under load! I don't see it drop below 3.6-4GHz when I am really
+pushing this machine for long periods of time. The fan sound is super quiet under load as well. I love effective thermal
+management. The P15 pushes the CPU as hard as it can as quickly as it can, and just holds it at the highest clock speed
+that it can for the longest amount of time that it can. Big win for effective thermal management on this machine. You
+can also set the performance profiles in the BIOS (one for when external power is attached and another for when the
+machine is on battery power). You can even disable the internal battery in BIOS 😀.
+
+SSD speeds are great as well, and are as advertised, roughly 3.3GB/s read, and 3.1GB/s write. Average access times are
+in the order of 0.02 ms. I wish this machine had PCI Express 4.0 and a newer generation of SSD w/ 7GB/s read and 5GB/s
+write 😀. But it does have Thunderbolt 3, which is great if you have a Thunderbolt dock and Thunderbolt SSD enclosures.
+I like the Dell XPS 13 for its Thunderbolt 3 support as well.
+
+### Pros
+
+- The build quality is excellent - this thing is built like a tank with all its ThinkPad ruggedness. It feels like a
+  premium device.
+- It has plenty of ports - dedicated Ethernet port, 3 Thunderbolt ports, 2 USB-A ports, and more.
+- The keyboard and trackpad are great.
+- I got the 4k OLED panel, which is really vibrant and bright.
+- Amazing performance, incredibly effective thermal management, and fans are really quiet!
+
+### Cons
+
+- The keyboard has a dedicated numeric keypad - this might actually be a plus for some folks.
+- I wish the screen had smaller bezels like the Dell XPS 13/15/17. So much usable space is taken up by these large
+  bezels and it is just not space efficient. I like the aspect ratio of the Dell XPS 13/15/17 (16:10, which is a "more
+  tall and less wide" display) better than the widescreen aspect ratio of the P15 (16:9).
+- The OLED panel is actually touchscreen, which I find pointless. Also the quality of the screen isn't as good as the
+  Ultrasharp panels found in Dell XPS 13/15/17.
+- It is very heavy! It is about 6 lbs and that's without the charger (which is large, but slim, and heavy).
+
+### Some tweaks that I had to make for Ubuntu 20.04
+
+1. Out of the box, the recovery media sets a partition size of only 64GB for the main SSD. This is very strange. I had
+   to live boot into the recovery media (on a USB drive) and then increase the partition size to 1TB
+   [using GParted](https://www.howtogeek.com/114503/how-to-resize-your-ubuntu-partitions/). Also you can't use full disk
+   encryption using LVM without nuking the installation which is a shame.
+2. I had to change a few BIOS settings because the machine was not using my external monitor (connected via Thunderbolt)
+   when it was booting. When the machine boots, press Enter or F1, and it will take you to the BIOS settings. There you
+   can tell it use Discrete Graphics when it boots, and to activate the external display port of your choice
+   (Thunderbolt, HDMI, etc). When you enable Discrete Graphics, the P15 will use the Nvidia GPU and be able to use
+   externally connected displays right away, otherwise, the internal graphics do not support the use of these external
+   monitors, without first switching to discrete graphics.
+3. The last issue I had to work around was a bit weird. I use this machine with the lid closed, as a desktop
+   replacement. So when I power it up, the lid is closed. With the fix above, I was able to see the "Lenovo" boot
+   screen, which is great. Then as soon as I would login, the computer would immediately go to sleep! Since the lid was
+   closed, it thought that it should go to sleep as soon as login occurred! This apparently is the default behavior in
+   Ubuntu 20.04. And it is
+   [easy to change](https://itsubuntu.com/configure-lid-close-behavior-of-your-laptop-with-ubuntu-20-04-lts/) 😀. Here
+   are the changes I made to `/etc/systemd/logind.conf`.
+   ```properties
+   HandleLidSwitch=suspend
+   HandleLidSwitchExternalPower=ignore
+   HandleLidSwitchDocked=ignore
+   ```
 
 ## ThinkPad X1 Carbon Gen 8
 

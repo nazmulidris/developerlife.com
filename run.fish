@@ -18,6 +18,10 @@ function isPackageInstalled -a packageName
   echo $packageIsInstalled
 end
 
+if test -e Gemfile.lock
+  rm Gemfile.lock
+end
+
 # More info to find if a package is installed: https://askubuntu.com/a/823630/872482
 if test (uname) = "Linux"
 

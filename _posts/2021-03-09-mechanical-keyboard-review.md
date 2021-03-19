@@ -2,16 +2,15 @@
 author: Nazmul Idris
 date: 2021-03-09 14:00:00+00:00
 excerpt: |
-  Review of the Ultimate Hacking Keyboard v1 and Drop Alt Captain keyboards from a programmers perspective
+  Review of the Ultimate Hacking Keyboard v1, Drop Alt Captain, and Mistel BAROCCO MD770 keyboards from a 
+  programmer's perspective
 layout: post
-title: "Mechanical keyboard review - UHK v1 and Drop Alt Captain"
+title: "Mechanical keyboard review - UHK v1, Mistel BAROCCO MD770, Drop Alt Captain"
 categories:
-
-- Linux
-- Misc
-- Productivity
-- Hardware
-
+  - Linux
+  - Misc
+  - Productivity
+  - Hardware
 ---
 
 <img class="post-hero-image" src="{{ 'assets/mechanical-keyb-review.svg' | relative_url }}"/>
@@ -20,6 +19,7 @@ categories:
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [The search for the best programmer's keyboard](#the-search-for-the-best-programmers-keyboard)
+- [Keyboard companions - trackpad and mouse](#keyboard-companions---trackpad-and-mouse)
 - [Ergonomic mechanical keyboard - UHK v1](#ergonomic-mechanical-keyboard---uhk-v1)
   - [Pros](#pros)
   - [~~Cons~~ Nits](#cons-nits)
@@ -35,6 +35,7 @@ categories:
     - [Function keys](#function-keys)
     - [Gnome lockups](#gnome-lockups)
     - [Figma, LucidSpark](#figma-lucidspark)
+- [Ergonomic mechanical keyboard - Mistel BAROCCO MD770](#ergonomic-mechanical-keyboard---mistel-barocco-md770)
 - [Non-ergonomic mechanical keyboard - Drop Alt Captain](#non-ergonomic-mechanical-keyboard---drop-alt-captain)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -60,6 +61,8 @@ configure the keyboard either. I liked the ergonomics of the Kinesis Freestyle E
 ability to customize it much. And the build quality of the Freestyle Edge RGB was on par with the Ergodox EZ, nothing
 great, but not bad either.
 
+## Keyboard companions - trackpad and mouse
+
 Before getting into the keyboard reviews, I wanted to cover the other input devices I use with them. I have two input
 devices that I use with these keyboards.
 
@@ -78,17 +81,18 @@ devices that I use with these keyboards.
 
 Then I found out about the [Ultimate Hacking Keyboard](https://ultimatehackingkeyboard.com/). I thought that was quite a
 claim in the name when I first heard of it. So I ordered my first one with very high expectations. I ordered it with the
-MX Brown switches and the fantastic wooden wrist wrests And I am happy to report that the name accurately matches the
-product and my expectations where blown away! I am a fan for life!
+MX Brown switches and the fantastic wrist wrests (made out of solid wood). And I am happy to report that the name
+accurately matches the product and my expectations where blown away! I am a fan for life!
 
 Then I ordered another one, with the ISO keyboard layout instead of the US 😀.
 
-And now I am waiting for the UHK v2 RGB keyboard to come out, along with the modules. As soon as that happens (expected
-to start shipping in March 2021) I will be sure to post a new review (of v2 and the new modules).
+Then I pre-ordered the UHK v2 RGB keyboard, and am now impatiently waiting for the keyboard to come out, along with the
+modules. As soon as that happens (expected to start shipping in March 2021) I will be sure to post a new review (of v2
+and the new modules).
 
 ### Pros
 
-Where to begin about what is right with this keyboard. Just about everything. The build quality is outstanding! I
+Where to begin about all that is right with this keyboard. Just about everything. The build quality is outstanding! I
 ordered the wooden palm rests, which are not only solid and heavy, but look and feel great. Everything about this
 keyboard exudes craftsmanship and quality. There is no planned obsolescence to be found anywhere in this keyboard.
 
@@ -280,9 +284,30 @@ You can download these keymaps here.
 
 - Fn + Esc : Space (While Space is pressed, dragging the mouse allows panning to happen in many graphical apps)
 
-## Non-ergonomic mechanical keyboard - Drop Alt Captain
+## Ergonomic mechanical keyboard - Mistel BAROCCO MD770
 
 My review of this keyboard is very short compared to the UHK v1 😀. The
+[Mistel BAROCCO MD770](https://www.mistelkeyboard.com/products/d11cf7a73da49468e2a530b4cf18e76c) has some similarities
+to the UHK - it is a split ergonomic keyboard with mechanical switches. And it has major differences - it is a 75%
+layout keyboard when compared to the UHK's 60%, and it has RGB lighting, but is is not really very configurable.
+
+The build quality is excellent. I ordered one w/ the MX Brown keys, and they feel great to type on. I think for the
+money this is the highest quality keyboard at its price point. Even though the chassis is light, nothing rattles or is
+loose. It actually feels like a much heavier and solid construction keyboard.
+
+The connector is USB-C which is great. Just like the Drop Alt Captain, it has a convenient USB-C port on the keyboard
+itself which makes it great to add another peripheral to (Bluetooth mouse dongle) or a YubiKey.
+
+The customization ability of this keyboard is extremely limited and is similar to a Kinesis Freestyle. You can't change
+any key maps in the default layer, but you can press a sequence of keys on the keyboard to map one key to another in
+various layers. This nothing like UHK's Agent, or even the QMK software used by Drop Alt Captain.
+
+The backlight is very weak. It is just not very good. I almost wish it didn't come with this feature. The Drop Alt
+Captain wins hands down in a light show competition! However this keyboard is roughly half the price of the Captain.
+
+## Non-ergonomic mechanical keyboard - Drop Alt Captain
+
+This is also a very short review compared to the UHK v1. The
 [Drop Alt Captain](https://drop.com/buy/drop-signature-series-captain-keyboard) is a totally different category of
 product when compared to the UHK.
 

@@ -33,6 +33,9 @@ categories:
   - [3. Saving and restoring all gnome settings](#3-saving-and-restoring-all-gnome-settings)
 - [Customize Chrome and Firefox](#customize-chrome-and-firefox)
 - [IDEA theming](#idea-theming)
+- [Mouse customization](#mouse-customization)
+  - [Minimum customization - solaar](#minimum-customization---solaar)
+  - [Maximum customization - ratbag and piper](#maximum-customization---ratbag-and-piper)
 - [Gestures](#gestures)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -464,6 +467,46 @@ Settings in IDEA and going to "Color Scheme" to import it. Here's a screenshot o
 Here's a screenshot of what this theme modification does (notice the stuff highlighted in pink and blue).
 
 ![]({{'assets/idea-settings-nord-modified-by-nazmul.png' | relative_url}})
+
+## Mouse customization
+
+I use a Logitech MX3 Master mouse, and it works really well out of the box. One of the interesting features of this
+mouse is that the button on the bottom left actually presses `Alt + Tab`. So if you press and release quickly it will
+just type `Alt + Tab` and if you hold the button down then it will press and hold `Alt + Tab` 🎉. There are ways to
+customize this behavior in case you don't like it. And that is where `solaar` and `piper` / `ratbag` come into play.
+
+### Minimum customization - solaar
+
+[Solaar](https://www.omgubuntu.co.uk/2013/12/logitech-unifying-receiver-linux-solaar) allows you to configure your
+Logitec Unifying Receiver (in case you don't use Bluetooth, which I don't). You can't customize very much, but you can
+tweak the DPI settings and the scroll threshold. You can install [solaar](https://github.com/pwr-Solaar/Solaar) using
+`sudo apt install -y solaar`.
+
+### Maximum customization - ratbag and piper
+
+So if you want to
+[customize all the things](https://www.linuxuprising.com/2020/11/configure-logitech-steelseries-and.html) on your mouse,
+the `ratbag` is your friend, and `piper` is the GUI on top of it.
+
+The version of [`piper`](https://github.com/libratbag/piper/) in the universal `apt` repo is quite old, so it is best to
+get the latest version from the official PPA.
+
+```bash
+sudo add-apt-repository -y ppa:libratbag-piper/piper-libratbag-git
+sudo apt update
+sudo apt install -y piper
+```
+
+`piper` has a nice GUI that you can use to customize just about everything on your mouse.
+
+> Note - As of Mar 2021, `ratbag` does not support adding macros to Logitech MX3 Master mouse buttons; hopefully it will
+> be added in the future. This limitation prevents `piper` from assigning macros to buttons.
+
+In case you wanted to use `ratbag` without `piper` you can use the command line to control it. `ratbag` comes
+preinstalled with Ubuntu 20.04, so you won't need to install it. You can use
+[`ratbagctl`](https://manpages.debian.org/experimental/ratbagd/ratbagctl.1.en.html) in your terminal to control
+`ratbagd`. The documentation is sparse, and here's an
+[article w/ some information](https://www.linux.org/threads/ratbag-command-macro-examples.21942/) on how to add macros.
 
 ## Gestures
 

@@ -69,8 +69,9 @@ Before getting into the keyboard reviews, I wanted to cover the other input devi
 devices that I use with these keyboards.
 
 1. [Logitech MX3 Master](https://www.logitech.com/en-us/products/mice/mx-master-3.910-005620.html) - This is the best
-   mouse that I have ever used. Everything about it is amazing. Sadly on Linux customization options are limited, but
-   you can do a lot on Windows or macOS w/ customizing the mouse itself.
+   mouse that I have ever used. Everything about it is amazing. Sadly on Linux [customization options are
+   limited]({{ '2021/03/04/customize-ubuntu/#mouse-customization' | relative_url }}), but you can do a lot on Windows or
+   macOS w/ customizing the mouse itself.
 2. [Apple Magic Trackpad 2](https://www.apple.com/shop/product/MJ2R2LL/A/magic-trackpad-2-silver) - Since the UHK has a
    big gap in the middle, I usually have a trackpad there so that I don't have to reach for the mouse to for scrolling a
    page or some small movements to click on a UI element on screen. When using drawing apps, then I definitely use the

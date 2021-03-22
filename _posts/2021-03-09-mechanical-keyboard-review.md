@@ -55,6 +55,8 @@ All that came to an end when I embarked on the search for a more programmer frie
 friendly in the sense that I wanted to remap my keys to be whatever I choose, whether that means swapping keys for other
 keys, or creating macros, or even working with multiple keyboard layers.
 
+> You can find an awesome list of split keyboards [here](https://github.com/diimdeep/awesome-split-keyboards).
+
 The first one that I tried was the [Ergodox EZ](https://ergodox-ez.com/) keyboard, which I didn't like at all. The build
 quality was not that great and the keyboard layout didn't make much sense to me. And I didn't like the software to
 configure the keyboard either. I liked the ergonomics of the Kinesis Freestyle Edge much better, even without the

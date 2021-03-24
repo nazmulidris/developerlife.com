@@ -164,6 +164,10 @@ isn't easy to get this "right" and here are some caveats (make sure to test your
    know whether this is something that will make you more productive, or just get in your way.
 2. If you have extensive prior experience with touch typing on normal keyboards, it will be difficult to break old
    habits and form new ones.
+3. There are some use cases for which it is best to think about not having one half of the keyboard. For example if you
+   wanted to pan around in Figma you will need to press the space key and move the mouse. If you space key is on the
+   right half of the keyboard, and you use the mouse w/ your right hand, then this is problematic. So there are
+   situations where you can't assume that both hands will be on the keyboard halves.
 
 Don't worry, UHK Agent makes it really easy to switch to older versions of keymaps in case something goes horribly
 wrong. And you can export specific configurations as well from Agent as a JSON file.

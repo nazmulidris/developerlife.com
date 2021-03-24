@@ -151,7 +151,7 @@ down while pressing another key (switches to the `Mod` layer).
 | Mod   | Alt + Space        | Activate mod layer                    | Good example of adding a modifier |
 
 > Taking the example of a key mapped to "Space" you can only just have one function. If you touch the key once you
-> expect it to type "Space". If you hold it down, you expect it to type many spaces. So this key is a poor candidate for
+> expect it to add a space. If you hold it down, you expect it to type many spaces. So this key is a poor candidate for
 > having a modifier key assigned to it. If you assign a modifier key to it, then you will lose the ability to hold it
 > down and have it type a bunch of spaces; it will just wait for you to type another key. And if you don't type another
 > key and release the "Space" key, then it will type just one space.
@@ -165,7 +165,7 @@ isn't easy to get this "right" and here are some caveats (make sure to test your
 2. If you have extensive prior experience with touch typing on normal keyboards, it will be difficult to break old
    habits and form new ones.
 3. There are some use cases for which it is best to think about not having one half of the keyboard. For example if you
-   wanted to pan around in Figma you will need to press the space key and move the mouse. If you space key is on the
+   wanted to pan around in Figma you will need to press the space key and drag the mouse. If you space key is on the
    right half of the keyboard, and you use the mouse w/ your right hand, then this is problematic. So there are
    situations where you can't assume that both hands will be on the keyboard halves.
 

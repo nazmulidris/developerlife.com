@@ -24,6 +24,7 @@ categories:
   - [Pros](#pros)
   - [~~Cons~~ Nits](#cons-nits)
 - [Remapping keys and configuring keyboards](#remapping-keys-and-configuring-keyboards)
+  - [Understanding layers and secondary roles for keys](#understanding-layers-and-secondary-roles-for-keys)
   - [Hierarchy of needs](#hierarchy-of-needs)
   - [Don't shoot self in foot](#dont-shoot-self-in-foot)
   - [Examples for UHK keymap](#examples-for-uhk-keymap)
@@ -131,6 +132,42 @@ The UHK is so configurable that outside of being happy with the build quality, I
 going to customize the keyboard to suit my programming needs. I did ask for the ultimately configurable keyboard, and I
 did get just that 😀. Now it is on me to devise strategies to enhance my productivity using this keyboard.
 
+### Understanding layers and secondary roles for keys
+
+A new concept that comes with this keyboard is the ability to not only create your own layers, but also create create
+secondary roles for keys.
+
+Normally we think of a modifier key (like `Shift`) as something we press in addition to pressing another key. However,
+in the UHK, if you just press (touch once) the modifier key you can have it type any other key or combination of keys or
+a macro!
+
+The following table has two examples for the `Space` key and the `Mod` key. The `Space` key behaves like a normal key,
+while the `Mod` key is a modifier key that behaves differently if you just press it once (launches Alfred), vs hold it
+down while pressing another key (switches to the `Mod` layer).
+
+| Key   | Press (touch once) | Hold (long press / press another key) | Notes                             |
+| ----- | ------------------ | ------------------------------------- | --------------------------------- |
+| Space | Space              | Space                                 | Don't add a modifier              |
+| Mod   | Alt + Space        | Activate mod layer                    | Good example of adding a modifier |
+
+> Taking the example of a key mapped to "Space" you can only just have one function. If you touch the key once you
+> expect it to type "Space". If you hold it down, you expect it to type many spaces. So this key is a poor candidate for
+> having a modifier key assigned to it. If you assign a modifier key to it, then you will lose the ability to hold it
+> down and have it type a bunch of spaces; it will just wait for you to type another key. And if you don't type another
+> key and release the "Space" key, then it will type just one space.
+
+Not only can you create your own layers, you can also have some layer switching keys lock. Put all this together and you
+can make some incredibly powerful keyboard shortcuts that you simply can't do with a "normal" keyboard. However, it
+isn't easy to get this "right" and here are some caveats (make sure to test your changes):
+
+1. While you might come up with something really useful, without testing it with yourself, it isn't really possible to
+   know whether this is something that will make you more productive, or just get in your way.
+2. If you have extensive prior experience with touch typing on normal keyboards, it will be difficult to break old
+   habits and form new ones.
+
+Don't worry, UHK Agent makes it really easy to switch to older versions of keymaps in case something goes horribly
+wrong. And you can export specific configurations as well from Agent as a JSON file.
+
 ### Hierarchy of needs
 
 So I broke it down into a few major categories, which are either just individual apps that I use or just tasks that can
@@ -203,19 +240,19 @@ You can download these keymaps here.
   - RightSuper : Left
   - RightFn : Up
   - RightAlt: Down
-- Mod + J : left
-- Mod + K : down
-- Mod + L : right
-- Mod + I : up
-- Mod + H : home
-- Mod + ; : end
-- Mod + O : page up
-- Mod + P : page down
-- Mod + Del : backspace
+- Mod + J : Left
+- Mod + K : Down
+- Mod + L : Right
+- Mod + I : Up
+- Mod + H : Home
+- Mod + ; : End
+- Mod + O : Page up
+- Mod + P : Page down
+- Mod + Del : Backspace
 - Mod + H : Home
 - Mod + J : End
-- HiddenKeyLeft : Left
-- HiddenKeyRight : right
+- HiddenKeyLeft : Backspace
+- HiddenKeyRight : Delete
 
 #### GNOME workspace control (with window tiling extension)
 
@@ -229,11 +266,16 @@ You can download these keymaps here.
 - Mod + 2 / Mod + +: move workspace next
   - Simply types Super + Down
   - Add Shift to a move a window to next workspace
+- RightShift : Super
 
 #### IDEA and Sublime Text 3
 
-- RightShift : Super
-- Mod + Space : code complete (Ctrl+Space)
+- Space
+  - Mod + Space : code complete (Ctrl+Space)
+  - Fn + Space : Alt + /
+- Enter
+  - Mod + Enter : Alt + Enter
+  - Fn + Enter : Ctrl + Enter
 - Mod + B : code navigation (go to declaration, jump to source)
   - Maps to Ctrl + Down, which works in both IDEA and Sublime.
   - Shift+Mod + B : code navigation (go to implementation in IDEA)
@@ -256,14 +298,15 @@ You can download these keymaps here.
 
 #### Clipboard history, emoji, albert/alfred
 
-- Fn + Mod : Albert
-- Mod + Fn : CopyQ
-- Fn + Space : emoji picker
+- Mod (single touch) : Albert
+  - Mod (long press / secondary role) : Activate Mod layer
+- Fn (single touch) : CopyQ
+  - Fn (long press / secondary role) : Activate Fn layer
+- Mod + Fn : emoji picker
 - Mod + C : copy
 - Mod + V : paste
 - Mod + X : delete line (cut)
 - Mod + Z : undo
-- Mod + Enter : Cmd + enter (Mac), Ctrl + enter (Linux)
 
 #### Browser tab management
 

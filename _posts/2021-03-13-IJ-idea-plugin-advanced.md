@@ -25,21 +25,15 @@ categories:
   - [invokeLater() and ModalityState](#invokelater-and-modalitystate)
   - [How to use invokeLater to perform asynchronous and synchronous tasks](#how-to-use-invokelater-to-perform-asynchronous-and-synchronous-tasks)
     - [Synchronous execution of Runnable (from an already write-safe context using submitTransaction()/invokeLater())](#synchronous-execution-of-runnable-from-an-already-write-safe-context-using-submittransactioninvokelater)
-      - [Simple example](#simple-example)
     - [Asynchronous execution of Runnable (from a write-unsafe / write-safe context using submitTransaction())](#asynchronous-execution-of-runnable-from-a-write-unsafe--write-safe-context-using-submittransaction)
-      - [Example 1](#example-1)
-      - [Example 2 - A Condition object must be created](#example-2---a-condition-object-must-be-created)
   - [Side effect - invokeLater() vs submitTransaction() and impacts on test code](#side-effect---invokelater-vs-submittransaction-and-impacts-on-test-code)
 - [PSI access and mutation](#psi-access-and-mutation)
   - [How to create a PSIFile or get a reference to one](#how-to-create-a-psifile-or-get-a-reference-to-one)
   - [PSI Access](#psi-access)
     - [Visitor pattern for top down navigation (_without_ threading considerations)](#visitor-pattern-for-top-down-navigation-_without_-threading-considerations)
     - [Threading, locking, and progress cancellation check during PSI access](#threading-locking-and-progress-cancellation-check-during-psi-access)
-      - [Background tasks and multiple threads](#background-tasks-and-multiple-threads)
-        - [The incorrect way](#the-incorrect-way)
-        - [The correct way](#the-correct-way)
-      - [Checking for cancellation](#checking-for-cancellation)
-      - [Don't try to acquire read or write locks directly, use actions instead](#dont-try-to-acquire-read-or-write-locks-directly-use-actions-instead)
+    - [Background tasks and multiple threads - The incorrect way](#background-tasks-and-multiple-threads---the-incorrect-way)
+    - [Background tasks and multiple threads - The correct way](#background-tasks-and-multiple-threads---the-correct-way)
   - [PSI Mutation](#psi-mutation)
     - [PsiViewer plugin](#psiviewer-plugin)
     - [Generate PSI elements from text](#generate-psi-elements-from-text)
@@ -53,7 +47,6 @@ categories:
   - [Light services](#light-services)
   - [Migration strategies](#migration-strategies)
     - [1. Component -> Service](#1-component---service)
-      - [Disposing the service and choosing a parent disposable](#disposing-the-service-and-choosing-a-parent-disposable)
     - [2. Component -> postStartupActivity](#2-component---poststartupactivity)
     - [3. Component -> postStartupActivity + Service](#3-component---poststartupactivity--service)
     - [4. Component -> projectListener](#4-component---projectlistener)
@@ -105,8 +98,13 @@ one thing that you should not do is use `SwingUtilities.invokeLater()`.
    been deprecated.
 2. The new way is to use `ApplicationManager.getApplication().invokeLater()`.
 
-> You can find a detailed list of the major API deprecations and changes in various versions of IDEA
-> [here](https://plugins.jetbrains.com/docs/intellij/api-notable.html).
+> #### API deprecations
+>
+> - You can find a detailed list of the major API deprecations and changes in various versions of IDEA
+>   [here](https://plugins.jetbrains.com/docs/intellij/api-notable.html).
+>
+> - You can search the JB platform codebase for deprecations by looking for
+>   `@ApiStatus.ScheduledForRemoval(inVersion = <version>)`, where `<version>` can be `2020.1`, etc.
 
 However, before we can understand what all of this means exactly, there are some important concepts that we have to
 understand - "modality", and "write lock", and "write-safe context". So we will start with talking about
@@ -278,8 +276,6 @@ directly.
 > "In a definitely write-safe context, just replace this call with {@code transaction} contents. Otherwise, replace with
 > {@link Application#invokeLater} and take care that the default or explicitly passed modality state is write-safe."
 
-##### Simple example
-
 Let's say that you have a button which has a listener, in a dialog, or tool window. When the button is clicked, it
 should execute a `Runnable` in a [write-safe context](#what-is-a-write-safe-context). Here’s the code that registers the
 action listener to the button.
@@ -339,39 +335,39 @@ ApplicationManager.ApplicationManager.getApplication().invokeLater(
 2. If you have to create a `Condition` yourself, then you can just wrap your `Disposable` in a call to
    `Disposer.isDisposed(Disposable)`.
 
-##### Example 1
+Let's take a look at a simple example of replacing old code that uses `submitTransaction()`.
 
-Old code that uses `submitTransaction()`.
+1. OId code that uses `submitTransaction`.
 
-```java
-TransactionGuard.submitTransaction(myProject, ()->{ /* Runnable */ }
-```
+   ```java
+   TransactionGuard.submitTransaction(myProject, ()->{ /* Runnable */ }
+   ```
 
-New code that uses `invokeLater()`.
+2. New code that uses `invokeLater()`.
 
-```java
-ApplicationManager.getApplication().invokeLater(()->{ /* Runnable */ }, myProject.getDisposed());
-```
+   ```java
+   ApplicationManager.getApplication().invokeLater(()->{ /* Runnable */ }, myProject.getDisposed());
+   ```
 
-##### Example 2 - A Condition object must be created
+Here's a slightly more complex example where a `Condition` object must be created.
 
-OId code that uses `submitTransaction`.
+1. OId code that uses `submitTransaction`.
 
-```java
-TransactionGuard.submitTransaction(myComponent.getModel(), ()->{ /* Runnable */ })
-```
+   ```java
+   TransactionGuard.submitTransaction(myComponent.getModel(), ()->{ /* Runnable */ })
+   ```
 
-New code that uses `invokeLater`.
+2. New code that uses `invokeLater`.
 
-```java
-ApplicationManager.getApplication().invokeLater(
-    ()->{ /* Runnable */ },
-    ignore -> Disposer.isDisposed(myComponent.getModel())
-    );
-```
+   ```java
+   ApplicationManager.getApplication().invokeLater(
+       ()->{ /* Runnable */ },
+       ignore -> Disposer.isDisposed(myComponent.getModel())
+       );
+   ```
 
-You can also just check for the condition `Disposer.isDisposed(myComponent.getModel())` at the start of the `Runnable`.
-And not even pass the `Condition` in `invokeLater()` if you like.
+3. You can also just check for the condition `Disposer.isDisposed(myComponent.getModel())` at the start of the
+   `Runnable`. And not even pass the `Condition` in `invokeLater()` if you like.
 
 ### Side effect - invokeLater() vs submitTransaction() and impacts on test code
 
@@ -527,9 +523,7 @@ ApplicationManager.getApplication().executeOnPooledThread {
 }
 ```
 
-##### Background tasks and multiple threads
-
-###### The incorrect way
+#### Background tasks and multiple threads - The incorrect way
 
 The following is a bad example of using `Task.Backgroundable` object. It is cancellable, and it works, but it accesses
 some PSI structures inside of this task (in a background thread) which is actually a **bad thing** that leads to race
@@ -692,7 +686,7 @@ Notes on `navigateJavaTree()`:
 - This code throws the exception right away, which is why it is important to wrap all PSI read access inside of a read
   action.
 
-###### The correct way
+#### Background tasks and multiple threads - The correct way
 
 These are the steps we can take to fix the code above.
 
@@ -726,7 +720,8 @@ private fun doWorkInBackground(project: Project,
 }
 ```
 
-##### Checking for cancellation
+For any long running background task, we have to check for cancellation to ensure that unnecessary work does nto get
+done after the user has requested that our long running background task be cancelled.
 
 For tasks that require a lot of virtual files, or PSI elements to be looped over it becomes necessary to check for
 cancellation (in addition to acquiring a read lock). Here's an example from `MarkdownRecursiveElementVisitor` which can
@@ -741,11 +736,12 @@ open class MarkdownRecursiveElementVisitor : MarkdownElementVisitor(), PsiRecurs
 }
 ```
 
-Note the call to `ProgressManager.checkCanceled()`. A subclass would have to make sure to call `super.visitElement(...)`
-to ensure that this cancellation check is actually made.
+Note about the call to `ProgressManager.checkCanceled()` above - A subclass would have to make sure to call
+`super.visitElement(...)` to ensure that this cancellation check is actually made.
 
-> 💡 Dispatching UI events during `checkCanceled()`. There is a mechanism for updating the UI during write actions, but
-> it seems quite limited.
+> #### Dispatching UI events during `checkCanceled()`.
+>
+> There is a mechanism for updating the UI during write actions, but it seems quite limited.
 >
 > - A `ProgressIndicator` may choose to implement the `PingProgress` interface. If it does, then
 >   `PingProgress.interact()` will be called whenever `checkCanceled()` is called. For details see
@@ -758,20 +754,17 @@ to ensure that this cancellation check is actually made.
 >   comment, "Repaint just the dialog panel. We must not call custom paint methods during write action, because they
 >   might access the model, which might be inconsistent at that moment."
 
-##### Don't try to acquire read or write locks directly, use actions instead
-
-Instead of trying to acquire read or write locks directly, Use lambdas and read or write actions instead. For example:
-`runReadAction()`, `runWriteAction()`, `WriteCommandAction#runWriteCommandAction()`, etc.
-
-The APIs for acquiring the read or write lock are deprecated and marked for removal in `2020.3`. It is good they're
-being deprecated, because if you think about offering nonblocking read action semantics (from the platform perspective),
-if a "read" actions is done via a lock acquire / release, how can one interrupt and re-start it?
-
-1. [Application.java#acquireReadActionLock()](https://github.com/JetBrains/intellij-community/blob/2b40e2ffe3cdda51990979b81567764965d890ed/platform/core-api/src/com/intellij/openapi/application/Application.java#L430)
-2. [Application.java#acquireWriteActionLock()](https://github.com/JetBrains/intellij-community/blob/2b40e2ffe3cdda51990979b81567764965d890ed/platform/core-api/src/com/intellij/openapi/application/Application.java#L438)
-
-> 💡 You can search the JB platform codebase for deprecations by looking for
-> `@ApiStatus.ScheduledForRemoval(inVersion = <version>)`, where `<version>` can be `2020.1`, etc.
+> #### Don't try to acquire read or write locks directly, use actions instead
+>
+> Instead of trying to acquire read or write locks directly, Use lambdas and read or write actions instead. For example:
+> `runReadAction()`, `runWriteAction()`, `WriteCommandAction#runWriteCommandAction()`, etc.
+>
+> The APIs for acquiring the read or write lock are deprecated and marked for removal in `2020.3`. It is good they're
+> being deprecated, because if you think about offering nonblocking read action semantics (from the platform
+> perspective), if a "read" actions is done via a lock acquire / release, how can one interrupt and re-start it?
+>
+> 1. [Application.java#acquireReadActionLock()](https://github.com/JetBrains/intellij-community/blob/2b40e2ffe3cdda51990979b81567764965d890ed/platform/core-api/src/com/intellij/openapi/application/Application.java#L430)
+> 2. [Application.java#acquireWriteActionLock()](https://github.com/JetBrains/intellij-community/blob/2b40e2ffe3cdda51990979b81567764965d890ed/platform/core-api/src/com/intellij/openapi/application/Application.java#L438)
 
 ### PSI Mutation
 
@@ -1289,21 +1282,24 @@ class MyServiceClass : Disposable {
 > 💡️ If you don't need to perform any custom login in your service when the project is closed, then there is no need to
 > implement `Disposable` and you can just remove the `dispose()` method.
 
-##### Disposing the service and choosing a parent disposable
+> #### Disposing the service and choosing a parent disposable
+>
+> In order to clean up after the service, it can simply implement the `Disposable` interface and put the logic for clean
+> up in the `dispose()` method. This should suffice for most situations, since IDEA will
+> [automatically take care of cleaning up](https://jetbrains.org/intellij/sdk/docs/basics/disposers.html#automatically-disposed-objects)
+> the service instance.
+>
+> 1. Application-level services are automatically disposed by the platform when the IDE is closed, or the plugin
+>    providing the service is unloaded.
+> 2. Project-level services are automatically disposed when the project is closed or the plugin is unloaded.
+>
+> However, if you still want to exert finer control over when you want your service to be disposed, you can use
+> `Disposer.register()` by passing a `Project` or `Application` service instance as the parent argument.
 
-In order to clean up after the service, it can simply implement the `Disposable` interface and put the logic for clean
-up in the `dispose()` method. This should suffice for most situations, since IDEA will
-[automatically take care of cleaning up](https://jetbrains.org/intellij/sdk/docs/basics/disposers.html#automatically-disposed-objects)
-the service instance.
+> 💡️ Here's more information from
+> [JetBrains official docs on choosing a disposable parent](https://jetbrains.org/intellij/sdk/docs/basics/disposers.html#choosing-a-disposable-parent).
 
-1. Application-level services are automatically disposed by the platform when the IDE is closed, or the plugin providing
-   the service is unloaded.
-2. Project-level services are automatically disposed when the project is closed or the plugin is unloaded.
-
-However, if you still want to exert finer control over when you want your service to be disposed, you can use
-`Disposer.register()` by passing a `Project` or `Application` service instance as the parent argument.
-
-> Summary
+> #### Summary
 >
 > 1. For resources required for the entire lifetime of a plugin use an application-level or project-level service.
 > 2. For resources required while a dialog is displayed, use a `DialogWrapper.getDisposable()`.
@@ -1313,9 +1309,6 @@ However, if you still want to exert finer control over when you want your servic
 >    using `Disposable.dispose()`.
 > 5. Finally, when passing our own parent object be careful about
 >    [non-capturing-lambdas]({{ '2020/07/14/non-capturing-lambda-problems/' | relative_url }}).
->
-> Here's more information from
-> [JetBrains official docs on choosing a disposable parent](https://jetbrains.org/intellij/sdk/docs/basics/disposers.html#choosing-a-disposable-parent).
 
 #### 2. Component -> postStartupActivity
 

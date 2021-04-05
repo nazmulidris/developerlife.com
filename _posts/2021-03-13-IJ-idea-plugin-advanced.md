@@ -62,8 +62,20 @@ categories:
     - [Intercept when the currently open file gets saved](#intercept-when-the-currently-open-file-gets-saved)
   - [Document](#document)
     - [Example of an action that uses the Document API](#example-of-an-action-that-uses-the-document-api)
-- [Swing UI](#swing-ui)
-- [Kotlin UI DSL](#kotlin-ui-dsl)
+- [UI (JetBrains UI components, Swing and Kotlin UI DSL)](#ui-jetbrains-ui-components-swing-and-kotlin-ui-dsl)
+  - [Simple UI components - notifications, popups, dialogs](#simple-ui-components---notifications-popups-dialogs)
+    - [Notifications](#notifications)
+    - [Popups](#popups)
+    - [Dialogs](#dialogs)
+  - [Create complex UIs using Kotlin UI DSL (forms, dialogs, settings screens)](#create-complex-uis-using-kotlin-ui-dsl-forms-dialogs-settings-screens)
+    - [Understanding the structure of the DSL (layout, row, and cell)](#understanding-the-structure-of-the-dsl-layout-row-and-cell)
+    - [How to bind data to the form UI](#how-to-bind-data-to-the-form-ui)
+    - [What UI elements are available for use in the forms](#what-ui-elements-are-available-for-use-in-the-forms)
+    - [How to display a form in a dialog](#how-to-display-a-form-in-a-dialog)
+    - [How to persist the data created/selected by the user, between IDE restarts (PersistentStateComponent)](#how-to-persist-the-data-createdselected-by-the-user-between-ide-restarts-persistentstatecomponent)
+    - [Example of a form UI](#example-of-a-form-ui)
+    - [MigLayout, panel, and grow](#miglayout-panel-and-grow)
+  - [Create IDE Settings UI for plugin](#create-ide-settings-ui-for-plugin)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -1692,6 +1704,622 @@ class EditorReplaceTextAction : AnAction() {
 > Read more about Documents from the
 > [official docs](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/documents.html).
 
-## Swing UI
+## UI (JetBrains UI components, Swing and Kotlin UI DSL)
 
-## Kotlin UI DSL
+There are many ways for a plugin to interact w/ an end user - keyboard shortcuts that bind to actions, and UI components
+that the plugin provides, which can be totally custom, or integrated into the existing IDE's UI components. JetBrains
+also provides many UI controls that are applicable for different scenarios.
+
+There is a range of components that span from simple fire and forget notifications, to more sophisticated UI that allows
+intense interaction w/ the user. There is even a Kotlin DSL for UI components that makes it relatively easy to create
+forms in IDEA.
+
+There is even a way to create forms using Swing, which is being phased out in favor of the Kotlin UI DSL. In addition to
+all of this, you can even create custom themes for IDEA.
+
+One effective approach to writing UI code for plugins is to take a look at how some UI code is written in
+`intellij-community` repo itself, to see how JetBrains does it. Documentation is sparse to non existent, and the best
+way sometimes is to take a look at the source for IDEA itself to find out how certain UI is created.
+
+Here are good resources to take a look when considering writing UI code for plugins.
+
+- [Swing Layout Managers](https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html)
+- [Introduction to Swing](https://docs.oracle.com/javase/tutorial/uiswing/index.html)
+- [MigLayout, used in Kotlin UI DSL](https://github.com/mikaelgrev/miglayout)
+
+### Simple UI components - notifications, popups, dialogs
+
+This section covers some simple UI components, and the next sections get into more sophisticated interactions w/ users
+(via forms, dialogs, and the settings UI).
+
+#### Notifications
+
+Notifications are a really simple way to provide some information to the user. You can even attach actions to
+notifications in case you want the user to perform an action when they get notified.
+
+- Notifications show up in the "Event Log" tool window in the IDE.
+- You can choose to have any shown notifications to be logged as well.
+- Notifications can be project specific (and be shown in the IDE window containing a project), or be a general
+  notification for the entire IDE.
+- Here are the [official docs](https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/notifications.html)
+  on notifications.
+
+This is an example of a simple action that displays two notifications using slightly different ways. Here is the snippet
+for this action that goes into `plugin.xml`.
+
+```kotlin
+<actions>
+  <!-- Add notification action. -->
+  <action id="MyPlugin.actions.ShowNotificationSample" class="ui.ShowNotificationSampleAction"
+      description="Show sample notifications" text="Sample Notification" icon="/icons/ic_extension.svg" />
+</actions>
+```
+
+Here's the start of the class that implements this action, to set things up.
+
+```kotlin
+package ui
+
+class ShowNotificationSampleAction : AnAction() {
+  private val GROUP_DISPAY_ID = "UI Samples"
+  private val messageTitle = "Title of notification"
+  private val messageDetails = "Details of notification"
+
+  override fun actionPerformed(e: AnActionEvent) {
+    aNotification()
+    anotherNotification(e)
+  }
+
+  private fun anotherNotification(e: AnActionEvent) {...}
+  private fun aNotification() {...}
+```
+
+Approach 1 - The following is an example of using a static method on the
+[`Notifications.Bus`](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/notification/Notifications.java)
+to display a notification.
+
+```kotlin
+/**
+ * One way to show notifications.
+ * 1) This notification won't be logged to "Event Log" tool window.
+ * 2) And it is project specific.
+ */
+private fun aNotification() {
+  val notification = Notification(GROUP_DISPAY_ID,
+                                  "1 .$messageTitle",
+                                  "1 .$messageDetails",
+                                  NotificationType.INFORMATION)
+  Notifications.Bus.notify(notification)
+}
+```
+
+Approach 2 - Here's an another way to show notifications by creating a notification group.
+
+```kotlin
+/**
+ * Another way to show notifications.
+ * 1) This will be logged to "Event Log" and is not tied to a specific project.
+ */
+private fun anotherNotification(e: AnActionEvent) {
+  val project = e.getRequiredData(CommonDataKeys.PROJECT)
+  val notificationGroup = NotificationGroup(GROUP_DISPAY_ID, NotificationDisplayType.BALLOON, false)
+  val notification = notificationGroup
+      .createNotification("2. $messageTitle",
+                          "2. $messageDetails",
+                          NotificationType.INFORMATION,
+                          null)
+  notification.notify(project)
+}
+```
+
+#### Popups
+
+Popups are a way to get some input from the user w/out interrupting what they're doing. Popups are displayed w/out any
+chrome (UI to close them), and they disappear automatically when they lose keyboard focus. IDE uses them extensively in
+type ahead completion, auto complete, etc.
+
+- Popups allow the user to make a single choice from a list of options that are displayed. Once the user makes a choice
+  you can provide some code (`itemChosenCallback`) that will be run on this selection.
+- Popups can display a title.
+- They can be movable and resizable (and support remembering their size).
+- They can even be nested (show another popup when an item is selected).
+
+The following is an example of an action that shows two nested popups. Here's the snippet from `plugin.xml` for
+registering the action.
+
+```xml
+<!-- Add popup action. -->
+<action id="MyPlugin.actions.ShowPopupSample" class="ui.ShowPopupSampleAction" text="Sample Popup"
+    description="Shows sample popups" icon="/icons/ic_extension.svg" />
+```
+
+Here's the class that implements the action (which shows one popup, and when the user selects an option in the first
+popup, the second one is shown). It shows multiple ways in which a popup can be created to display a list of items. One
+approach is to use the `createPopupChooserBuilder()`, and the other is to use `createListPopup()`, both of which are
+methods on
+[`JBPopupFactory.getInstance()`](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/popup/JBPopupFactory.java)
+method.
+
+```kotlin
+package ui
+
+class ShowPopupSampleAction : AnAction() {
+  lateinit var editor: Editor
+
+  override fun actionPerformed(e: AnActionEvent) {
+    editor = e.getRequiredData(CommonDataKeys.EDITOR)
+
+    // One way to show a list.
+    JBPopupFactory
+        .getInstance()
+        .createListPopup(MyList {
+          // Another way to show a list, using the builder.
+          JBPopupFactory
+              .getInstance()
+              .createPopupChooserBuilder(mutableListOf("one", "two", "three"))
+              .setTitle("PopupChooserBuilder")
+              .setItemChosenCallback { println("PopupChooserBuilder.onChosen $it") }
+              .createPopup()
+              .showInBestPositionFor(editor)
+        })
+        .showInBestPositionFor(editor)
+  }
+}
+
+class MyList(val onChosenHandler: (String) -> Unit) : BaseListPopupStep<String>() {
+  init {
+    init("Popup title", mutableListOf("Choice 1", "Choice 2", "Choice 3"), null)
+  }
+
+  override fun getTextFor(value: String): String {
+    return "TEXT: $value"
+  }
+
+  override fun onChosen(selectedValue: String, finalChoice: Boolean): PopupStep<*>? {
+    println("MyList.onChosen $selectedValue")
+    onChosenHandler(selectedValue)
+    return PopupStep.FINAL_CHOICE
+  }
+}
+```
+
+#### Dialogs
+
+When user input is required by your plugin dialogs might be the right component to use. They are modal unlike
+notifications and popups. IDEA allows a simple boolean response to be returned from a dialog.
+
+In order to create sophisticated UIs that go inside the dialog, it is best to use the
+[Kotlin UI DSL](#create-complex-uis-using-kotlin-ui-dsl-forms-dialogs-settings-screens).
+
+Here's a really simple example of an action that shows a dialog displaying "Press OK or Cancel" and allowing the user
+and showing OK and Cancel buttons. Here's the snippet for `plugin.xml`.
+
+```xml
+<!-- Add dialog action. -->
+<action id="MyPlugin.actions.ShowDialogSample" class="ui.ShowDialogSampleAction" text="Sample Dialog"
+    description="Show sample dialog" icon="/icons/ic_extension.svg" />
+```
+
+Here's the action that uses the
+[`DialogWrapper`](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/DialogWrapper.java)
+class to actually show the dialog.
+
+```kotlin
+package ui
+
+class ShowDialogSampleAction : AnAction() {
+  override fun actionPerformed(e: AnActionEvent) {
+    val response = SampleDialogWrapper().showAndGet()
+    println("Response selected:${if (response) "Yes" else "No"}")
+  }
+}
+
+class SampleDialogWrapper : DialogWrapper(true) {
+  init {
+    init()
+    title = "Sample Dialog"
+  }
+
+  // More info on layout managers: https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html
+  override fun createCenterPanel(): JComponent {
+    val panel = JPanel(BorderLayout())
+    val label = JLabel("Press OK or Cancel")
+    label.preferredSize = Dimension(100, 100)
+    panel.add(label, BorderLayout.CENTER)
+    return panel
+  }
+}
+```
+
+Note that in this case, `showAndGet()` is used to both show the dialog, and get the response. You can also break this
+into two steps with `show()` and `isOK()`.
+
+> Please refer to the
+> [official docs](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/DialogWrapper.java)
+> for more information on dialogs.
+
+> For more information on Swing layout managers, please refer to this
+> [Java Tutorial article](https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html).
+
+### Create complex UIs using Kotlin UI DSL (forms, dialogs, settings screens)
+
+In the sections below, we will be using `DialogWrapper` to take the UI we create using the Kotlin UI DSL and show them.
+
+In order to create more complex UIs, you can use the Kotlin UI DSL. You can display these forms in the
+[IDEA Settings UI](#create-ide-settings-ui-for-plugin), or directly in a dialog box. You can also bind the forms to data
+objects, that you can persist across IDE restarts as well.
+
+#### Understanding the structure of the DSL (layout, row, and cell)
+
+The Kotlin UI DSL allows UIs to be expressed in a layout that contains rows and cells. Things are left to right aligned
+inside of each row, but you can specify if an item needs to be right aligned. Type ahead completion in the IDE also
+provides guidance on how to use this DSL.
+
+Here's an example of a simple UI using this DSL, which contains the following UI components.
+
+1. `textField`
+2. `spinner`
+3. `checkBox`
+4. `noteRow`
+
+```kotlin
+data class MyData(var myFlag: Boolean, var myString: String, var myInt: Int, var myStringChoice: String)
+val myDataObject = MyData()
+
+fun createDialogPanel(): DialogPanel = panel {
+  // Restore the selection state of the combo box.
+  val comboBoxChoices = listOf("choice1", "choice2", "choice3")
+  val savedSelection = myDataObject.myStringChoice // This is an empty string by default.
+  val selection = if (savedSelection.isEmpty()) comboBoxChoices.first() else savedSelection
+  val comboBoxModel = CollectionComboBoxModel(comboBoxChoices, selection)
+
+  noteRow("This is a row with a note")
+
+  row {
+    label("a string")
+    textField(myDataObject::myString)
+  }
+
+  row {
+    label("an int")
+    spinner(myDataObject::myInt, minValue = 0, maxValue = 50, step = 5)
+  }
+
+  row("ComboBox / Drop down list") {
+    comboBox(comboBoxModel, myDataObject::myStringChoice)
+  }
+
+  row {
+    cell {
+      checkBox("", myDataObject::myFlag)
+      label("Boolean state::myFlag")
+    }
+  }
+
+  noteRow("""Note with a link. <a href="http://github.com">Open source</a>""") {
+    BrowserUtil.browse(it)
+  }
+}
+```
+
+#### How to bind data to the form UI
+
+One really simple way of binding the UI to a data object that you create is by passing a reference to the `KProperty`
+for each property that should be rendered by a UI component. This ensures that:
+
+1. The data object populates the UI component to its correct initial state before it is shown.
+2. When the user manipulates the UI component and its state changes, this is reflected in the data object's property.
+
+In the example above, note that some UI components that hold state information require a Kotlin property (from a data
+object that you provide) to bind to. This is an easy way that the DSL handles data binding in the forms for you.
+
+It is possible to provide explicit setters and getters as well instead of just using the
+[`KProperty`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/). This makes it really simple to
+create forms, since the state is loaded and saved for you, automatically.
+
+#### What UI elements are available for use in the forms
+
+1. The `panel` function creates a
+   [`LayoutBuilder`](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-impl/src/com/intellij/ui/layout/LayoutBuilder.kt)
+   and inside of this you can add `row` (or `noteRow`, or `titledRow`, etc). Check out
+   [`RowBuilder`](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-impl/src/com/intellij/ui/layout/Row.kt)
+   to see all the row based components you can add here.
+2. To see what objects can be added inside each `row`, check out
+   [`Cell`](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-impl/src/com/intellij/ui/layout/Cell.kt).
+   You can add things like `browserLink`, `comboBox`, `checkBox`, etc.
+
+> Please make sure to read the
+> [official docs](http://www.jetbrains.org/intellij/sdk/docs/user_interface_components/kotlin_ui_dsl.html) on the DSL.
+
+#### How to display a form in a dialog
+
+The form that's created using this DSL can be displayed anywhere a `DisplayPanel` can be used (which is just a subclass
+of `JPanel`). This includes the Settings UI (shown in the [section below](#create-ide-settings-ui-for-plugin)) and in a
+dialog. Here's an sample action that takes the object returned by
+[`createDialogPanel()`](#understanding-the-structure-of-the-dsl-layout-row-and-cell) above, and displays it in a dialog,
+using a `DialogWrapper`.
+
+```kotlin
+class ShowKotlinUIDSLSampleInDialogAction : AnAction() {
+  override fun actionPerformed(e: AnActionEvent) {
+    MyDialogWrapper().show()
+  }
+}
+
+private class MyDialogWrapper : DialogWrapper(true) {
+  init {
+    init()
+    title = "Sample Dialog with Kotlin UI DSL"
+  }
+
+  override fun createCenterPanel(): JComponent = createDialogPanel()
+}
+```
+
+#### How to persist the data created/selected by the user, between IDE restarts (PersistentStateComponent)
+
+If you want the data that you've created in your form to be used in the rest of the IDE, it makes sense to persist this
+data and make it available to other pieces of your plugin. This is where
+[`PersistentStateComponent`](https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/components/PersistentStateComponent.java)
+comes in. It allows you serialize the state of your data object to disk, and deserialize it from disk. In order to have
+IDEA persist your data object, simply do two things:
+
+1. Make your data class extend `PersistentStateComponent`.
+2. Wrap this in a `Service` so that you can access it in any code in your plugin.
+
+Here's an example that shows this. The `KotlinDSLUISampleService` service contains a `State` object called `myState`
+that actually holds the data which is bound to the forms. `State` simply holds 4 properties (which can be bound to
+various UI components in a form): `myFlag: Boolean`, `myString: String`, `myInt: Int`, `myStringChoice: String`.
+
+```kotlin
+@Service
+@State(name = "KotlinDSLUISampleData", storages = [Storage("kotlinDSLUISampleData.xml")])
+class KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleService.State> {
+  companion object {
+    val instance: KotlinDSLUISampleService
+      get() = getService(KotlinDSLUISampleService::class.java)
+  }
+
+  var myState = State()
+
+  // PersistentStateComponent methods.
+  override fun getState(): State {
+    println("KotlinDSLUISampleData.getState, state: $myState")
+    return myState
+  }
+
+  override fun loadState(stateLoadedFromPersistence: State) {
+    println("KotlinDSLUISampleData.loadState, stateLoadedFromPersistence: $stateLoadedFromPersistence")
+    myState = stateLoadedFromPersistence
+  }
+
+  // Properties in this class are bound to the Kotlin DSL UI.
+  class State {
+    var myFlag: Boolean by object : LoggingProperty<State, Boolean>(false) {}
+    var myString: String by object : LoggingProperty<State, String>("") {}
+    var myInt: Int by object : LoggingProperty<State, Int>(0) {}
+    var myStringChoice: String by object : LoggingProperty<State, String>("") {}
+
+    override fun toString(): String =
+        "State{ myFlag: '$myFlag', myString: '$myString', myInt: '$myInt', myStringChoice: '$myStringChoice' }"
+
+    /** Factory class to generate synthetic properties, that log every access and mutation to each property. */
+    open class LoggingProperty<R, T>(initValue: T) : ReadWriteProperty<R, T> {
+      var backingField: T = initValue
+
+      override fun getValue(thisRef: R, property: KProperty<*>): T {
+        println("State::${property.name}.getValue(), value: '$backingField'")
+        return backingField
+      }
+
+      override fun setValue(thisRef: R, property: KProperty<*>, value: T) {
+        backingField = value
+        println("State::${property.name}.setValue(), value: '$backingField'")
+      }
+    }
+  }
+}
+```
+
+In the form UI example above, we just bound the data for the UI components to an object created from a simple data
+class. Here's an example.
+
+```kotlin
+row {
+  label("a string")
+  textField(myDataObject::myString)
+}
+```
+
+In order to replace that with the `PersistentStateComponent` instance, we would do something like this instead.
+
+```kotlin
+row {
+  label("a string")
+  textField(KotlinDSLUISampleService.instance.myState::myString)
+}
+```
+
+In other words, `myDataObject` is replaced with `KotlinDSLUISampleService.instance.myState`.
+
+There is one very important thing to note in the code above. The `getState()` and `loadState(...)` methods should not be
+called by your code. These are hooks for IDEA to call into the service in order to manage loading and saving the state
+to persistence. You should provide accessors to your data properties that do not involve the use of `getState()`. And
+make sure that these accessors can handle `loadState(...)` providing the "initial" state (if there is anything stored in
+persistence). And you must make sure that by default, your initial state has to be defined (if there is no customized
+data to load from persistence, then your state will contain default values). IDEA uses this default state to figure out
+if the user changed anything in the form UI (the diffs will deviate from the default state).
+
+Also, you can specify many options to IDEA on where to store the persistent data. In this example, we have told IDEA to
+store any user modified data to an XML file called `kotlinDSLUISampleData.xml` in the `config/options/` folder where
+IDEA settings are stored. You can also specify options for `storages` that determine whether this data should be roaming
+disabled or not, and even if you should only store the data on specific platforms.
+
+#### Example of a form UI
+
+Here's a form that uses Kotlin DSL and the `State` object (provided by the `PersistentStateComponent` service).
+
+```kotlin
+fun createDialogPanel(): DialogPanel {
+  val comboBoxChoices = listOf("choice1", "choice2", "choice3")
+
+  // Restore the selection state of the combo box.
+  val savedSelection = instance.myState.myStringChoice // This is an empty string by default.
+  val selection = if (savedSelection.isEmpty()) comboBoxChoices.first() else savedSelection
+  val comboBoxModel = CollectionComboBoxModel(comboBoxChoices, selection)
+
+  return panel {
+    noteRow("This is a row with a note")
+
+    row("[Boolean]") {
+      row {
+        cell {
+          checkBox("", instance.myState::myFlag)
+          label("Boolean state::myFlag")
+        }
+      }
+    }
+
+    row("[String]") {
+      row {
+        label("String state::myString")
+        textField(instance.myState::myString)
+      }
+    }
+
+    row("[Int]") {
+      row {
+        label("Int state::myInt")
+        spinner(instance.myState::myInt, minValue = 0, maxValue = 50, step = 5)
+      }
+    }
+
+    row("ComboBox / Drop down list") {
+      comboBox(comboBoxModel, instance.myState::myStringChoice)
+    }
+
+    noteRow("""Note with a link. <a href="http://github.com">Open source</a>""") {
+      println("link url: '$it' clicked")
+      BrowserUtil.browse(it)
+    }
+  }
+}
+```
+
+#### MigLayout, panel, and grow
+
+The `panel` function (in Kotlin UI DSL) actually creates a
+[`MigLayout`](https://github.com/jetbrains/intellij-community/blob/master/platform/platform-impl/src/com/intellij/ui/layout/migLayout/patched/MigLayout.kt#L43).
+`MigLayout` can produce flowing, grid based, absolute (with links), grouped and docking layouts. You can read the docs
+[here](MigLayout can produce flowing, grid based, absolute (with links), grouped and docking layouts).
+
+- `panel` accepts `row` functions, which in turn accepts `cell` functions.
+- You can pass `grow` and `fill` attributes to `panel` and `cell` functions.
+- You can also wrap `JComponents` using the `component` function, which can also take `grow` and `fill` attributes.
+- `panel` automatically sizes the dialog, however, you can override it using your own predefined width and height.
+
+Here's an example (`myJComponent` is just a `JComponent` that is created somewhere else).
+
+```kotlin
+override fun createCenterPanel(): JComponent {
+    return panel() {
+        row {
+            cell {
+                label("Type into this editor component")
+            }
+        }
+        row {
+            cell {
+                component(myJComponent).constraints(growX, growY, pushX, pushY)
+            }
+        }
+    }.apply {
+        preferredSize = JBUI.size(WIDTH, HEIGHT)
+    }
+}
+companion object {
+    const val WIDTH = 1000
+    const val HEIGHT = 400
+}
+```
+
+> Note that `JComponent` objects become callable within the `panel` function and they accept `CCFLags` that constrain
+> their growth.
+
+> Please note that it might be simpler at times to use the
+> [Swing layout managers](https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html) directly w/out using this
+> DSL.
+
+### Create IDE Settings UI for plugin
+
+Let's say that we wanted to display the form created above (by `createDialogPanel()`) and we want to display it in a
+Settings UI, in addition to it being available in a `Dialog`. Note that you can display the form in both places, and
+have it update the data in the same `PersistentStateComponent` service, which is really convenient.
+
+In order to tell IDEA that you want a form to be displayed in the Settings UI, you can use one of two extension points.
+In `plugin.xml` you can declare 2 types of "configurables" that allow you to customize the IDE settings UI, where a
+"configurable" is a base class provided by the JetBrains platform that allows you show your form UI.
+
+1. `projectConfigurable` - these are settings that are specific to a given project.
+2. `applicationConfigurable` - these are settings that apply to the entire IDE.
+
+References:
+
+- [Old JB docs](https://confluence.jetbrains.com/display/IDEADEV/Customizing+the+IDEA+Settings+Dialog).
+- [New JB docs](https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/kotlin_ui_dsl.html#configurables).
+- [MacOS dark mode sync plugin source](https://github.com/gilday/dark-mode-sync-plugin)
+
+When using the Kotlin UI DSL instead of implementing `Configurable` interface, simply extend `BoundConfigurable`. When
+doing this you can:
+
+1. Pass a `displayName` to the constructor of the `BoundConfigurable` that will actually show up in the Settings UI,
+   (and you can type-ahead search for).
+2. Pass any number of JB platform objects in the constructor, eg:
+   ```kotlin
+   class MyConfigurable(private val lafManager: LafManager) : BoundConfigurable("Display Name")
+   ```
+
+The following is an example of this (`plugin.xml` entry, and a class that extends `BoundConfigurable`).
+
+```xml
+<!-- Add Settings Dialog that is similar to what ShowKotlinUIDSLSampleAction does. -->
+<extensions defaultExtensionNs="com.intellij">
+  <applicationConfigurable instance="ui.KotlinDSLUISampleConfigurable" />
+</extensions>
+```
+
+The code from the previous section
+([Kotlin UI DSL](#create-complex-uis-using-kotlin-ui-dsl-forms-dialogs-settings-screens))) is used here to generate the
+form itself.
+
+```kotlin
+package ui
+
+/**
+ * This application level configurable shows up the in IDE Settings UI.
+ */
+class KotlinDSLUISampleConfigurable : BoundConfigurable("Kotlin UI DSL") {
+  override fun apply() {
+    println("KotlinDSLUISampleConfigurable apply() called")
+    super.apply()
+  }
+
+  override fun cancel() {
+    println("KotlinDSLUISampleConfigurable cancel() called")
+    super.cancel()
+  }
+
+  /** When the form is changed by the user, this returns `true` and enables the "Apply" button. */
+  override fun isModified(): Boolean {
+    println("KotlinDSLUISampleConfigurable isModified() called, return ${super.isModified()}")
+    return super.isModified()
+  }
+
+  override fun reset() {
+    println("KotlinDSLUISampleConfigurable reset() called")
+    super.reset()
+  }
+
+  override fun createPanel(): DialogPanel = createDialogPanel()
+}
+```

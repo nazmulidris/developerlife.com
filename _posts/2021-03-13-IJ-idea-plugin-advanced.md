@@ -76,6 +76,20 @@ categories:
     - [Example of a form UI](#example-of-a-form-ui)
     - [MigLayout, panel, and grow](#miglayout-panel-and-grow)
   - [Create IDE Settings UI for plugin](#create-ide-settings-ui-for-plugin)
+  - [Complex UI creation in dialogs](#complex-ui-creation-in-dialogs)
+  - [Adding your plugin UI in Tool windows](#adding-your-plugin-ui-in-tool-windows)
+    - [1. Declarative tool window](#1-declarative-tool-window)
+    - [2. Programmatic tool window](#2-programmatic-tool-window)
+    - [Indices and dumb aware](#indices-and-dumb-aware)
+    - [Creating a content for any kind of tool window](#creating-a-content-for-any-kind-of-tool-window)
+    - [Content closeability](#content-closeability)
+  - [Add Line marker provider in your plugin](#add-line-marker-provider-in-your-plugin)
+    - [Example of a provider for Markdown language](#example-of-a-provider-for-markdown-language)
+    - [1. Declare dependencies](#1-declare-dependencies)
+    - [2. Register the provider in XML](#2-register-the-provider-in-xml)
+    - [3. Provide an implementation of LineMarkerProvider](#3-provide-an-implementation-of-linemarkerprovider)
+    - [4. Provide a more complex implementation of LineMarkerProvider](#4-provide-a-more-complex-implementation-of-linemarkerprovider)
+    - [References](#references)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -2323,3 +2337,601 @@ class KotlinDSLUISampleConfigurable : BoundConfigurable("Kotlin UI DSL") {
   override fun createPanel(): DialogPanel = createDialogPanel()
 }
 ```
+
+### Complex UI creation in dialogs
+
+There are cases where complex UI components need to be created in a `DialogWrapper`. In this case, Kotlin UI DSL can be
+used or directly creating Swing components using Swing layout managers.
+
+> Please take a look at the [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2) repo that
+> contains a plugin that has some of the functionality shown below.
+
+The following is an example of doing the latter to create a dialog that allows the user to paste text from the clipboard
+into an `Editor` component. The paste operation is actually implemented as an undoable command. It automatically pastes
+any text that is in the clipboard into the editor when the dialog is shown.
+
+```kotlin
+class ComplexDialog(private val project: Project) : DialogWrapper(true) {
+    private lateinit var editor: Editor
+
+    init {
+        createEditorPanel()
+        init()
+        title = "Type a bunch of text into the editor in this dialog"
+    }
+
+    // More info on layout managers: https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html
+    override fun createCenterPanel(): JComponent {
+        val panel = JPanel()
+        panel.preferredSize = JBUI.size(WIDTH, HEIGHT)
+        panel.layout = GridLayout(0, 1)
+        panel.add(editor.component)
+        return panel
+    }
+
+    fun createEditorPanel() {
+        val editorFactory: EditorFactory = EditorFactory.getInstance()
+        val document: Document = editorFactory.createDocument("")
+        editor = editorFactory.createEditor(document, project)
+        val settings: EditorSettings = editor.settings
+        with(settings) {
+            isFoldingOutlineShown = false
+            isLineMarkerAreaShown = false
+            isIndentGuidesShown = false
+            isLineNumbersShown = false
+            isRightMarginShown = false
+        }
+        Disposer.register(myDisposable, Disposable {
+            EditorFactory.getInstance().releaseEditor(editor)
+        })
+        pasteTextFromClipboard()
+    }
+
+    fun pasteTextFromClipboard() {
+        getTextInClipboard()?.let(::setText)
+    }
+
+    fun setText(text: String) {
+        val runnable = Runnable {
+            ApplicationManager.getApplication().runWriteAction {
+                editor.document.let {
+                    it.replaceString(0, it.textLength, StringUtil.convertLineSeparators(text))
+                }
+            }
+        }
+        // Undoable command to set the text.
+        CommandProcessor.getInstance().executeCommand(project, runnable, "", this)
+    }
+
+    private fun getTextInClipboard(): String? {
+        return CopyPasteManager.getInstance().getContents(DataFlavor.stringFlavor)
+    }
+
+    companion object {
+        const val WIDTH = 1000
+        const val HEIGHT = 400
+    }
+}
+```
+
+### Adding your plugin UI in Tool windows
+
+Tool windows provide in IDEA access to useful development tasks such as viewing your project structure, running and
+debugging your code, Git integration, and so on. Your plugin can create UI that will fit in tool windows in IDEA,
+instead of for example displaying it in a dialog box.
+
+> Read more about Tool windows in the [official docs](https://www.jetbrains.com/help/idea/tool-windows.html).
+
+For both of these types of Tool windows, the following applies:
+
+1. Each tool window can have multiple tabs (aka "contents").
+2. Each side of the IDE can only show 2 tool windows at any given time, as the primary or the secondary. For eg: you can
+   move the "Project" tool window to "Left Top", and move the "Structure" tool window to "Left Bottom". This way you can
+   open both of them at the same time. Note that when you move these tool windows to "Left Top" or "Left Bottom" how
+   they actually move to the top or bottom of the side of the IDE.
+
+There are two main types of tool windows: 1) Declarative, and 2) Programmatic.
+
+> Please take a look at the [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2) repo that
+> contains a plugin that has some of the functionality shown below.
+
+#### 1. Declarative tool window
+
+Always visible and the user can interact with it at anytime (eg: Gradle plugin tool window).
+
+- This type of tool window must be registered in `plugin.xml` using the `com.intellij.toolWindow` extension point. You
+  can specify things to register this in XML:
+  - `id`: Text displayed in the tool window button.
+  - `anchor`: Side of the screen in which the tool window is displayed ("left", "right", or "bottom").
+  - `secondary`: Specify whether it is displayed in the primary or secondary group.
+  - `icon`: Icon displayed in the tool window button (`13px` x `13px`).
+  - `factoryClass`: A class implementing `ToolWindowFactory` interface, which is used to instantiate the tool window
+    when the user clicks on the tool window button (by calling `createToolWindowContent()`). Note that if a user does
+    not interact with the button, then a tool window doesn't get created.
+  - For versions 2020.1 and later, also implement the `isApplicable(Project)` method if there's no need to display a
+    tool window for all projects. Note this condition is only evaluated the first time a project is loaded.
+
+Here's an example.
+
+The factory class.
+
+```kotlin
+class DeclarativeToolWindowFactory : ToolWindowFactory, DumbAware {
+  override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
+    val contentManager = toolWindow.contentManager
+    val content = contentManager.factory.createContent(createDialogPanel(), null, false)
+    contentManager.addContent(content)
+  }
+}
+
+fun createDialogPanel(): DialogPanel = panel {
+  noteRow("""Note with a link. <a href="http://github.com">Open source</a>""") {
+    colorConsole {
+      printLine {
+        span(Colors.Purple, "link url: '$it' clicked")
+      }
+    }
+    BrowserUtil.browse(it)
+  }
+}
+```
+
+The `plugin.xml` snippet.
+
+```xml
+<extensions defaultExtensionNs="com.intellij">
+  <toolWindow
+      icon="/icons/ic_toolwindow.svg"
+      id="Declarative tool window"
+      anchor="left"
+      secondary="true"
+      factoryClass="ui.DeclarativeToolWindowFactory" />
+</extensions>
+```
+
+#### 2. Programmatic tool window
+
+Only visible when a plugin creates it to show the results of an operation (eg: Analyze Dependencies action). This type
+of tool window must be added programmatically by calling
+`ToolWindowManager.getInstance().registerToolWindow(RegisterToolWindowTask)`.
+
+A couple of things to remember.
+
+1. You have to register the tool window (w/ the tool window manager) before using it. This is a one time operation.
+   There's no need to register the tool window if it's already been registered. Registering simply shows the tool window
+   in the IDEA UI. Unregistering removes it from the UI.
+2. You can tell the tool window to auto hide itself when there are no contents inside of it.
+3. You can create as many "contents" as you want and add it to the tool window. Each content is basically a tab. You can
+   also specify that the content is closable.
+4. You can also attach a disposer to a content so that you can take some action when the content or tab is closed. For
+   eg you can just unregister the tool window when there are no contents left in the tool window.
+
+Here's an example of all of the things listed above.
+
+```kotlin
+internal class AnotherToolWindow : AnAction() {
+  override fun actionPerformed(e: AnActionEvent) {
+    val project: Project = e.getRequiredData(CommonDataKeys.PROJECT)
+    val toolWindowManager = ToolWindowManager.getInstance(project)
+    var toolWindow = toolWindowManager.getToolWindow(ID)
+
+    // One time registration of the tool window (does not add any content).
+    if (toolWindow == null) {
+      toolWindow = toolWindowManager.registerToolWindow(
+          RegisterToolWindowTask(
+              id = ID,
+              icon = IconLoader.getIcon("/icons/ic_extension.svg", javaClass),
+              component = null,
+              canCloseContent = true,
+          ))
+      toolWindow.setToHideOnEmptyContent(true)
+    }
+
+    val contentManager = toolWindow.contentManager
+    val contentFactory: ContentFactory = ContentFactory.SERVICE.getInstance()
+    val contentTab = contentFactory.createContent(
+        createComponent(project),
+        "${LocalDate.now()}",
+        false)
+    contentTab.setDisposer {
+      colorConsole {
+        printLine {
+          span(Colors.Purple, "contentTab is disposed, contentCount: ${contentManager.contentCount}")
+        }
+      }
+      if (contentManager.contents.isEmpty()) {
+        toolWindowManager.unregisterToolWindow(ID)
+      }
+    }
+    contentManager.addContent(contentTab)
+
+    toolWindow.show { contentManager.setSelectedContent(contentTab, true) }
+  }
+
+  private fun createComponent(project: Project): JComponent {
+    val panel = JPanel(BorderLayout())
+    panel.add(BorderLayout.CENTER, JLabel("TODO add component"))
+    return panel
+  }
+
+  companion object {
+    const val ID = "AnotherToolWindow"
+  }
+}
+```
+
+The `plugin.xml` snippet, to register the action.
+
+```xml
+<actions>
+  <action id="MyPlugin.AnotherToolWindow" class="actions.AnotherToolWindow" text="Open Tool Window"
+      description="Opens tool window programmatically" icon="/icons/ic_extension.svg">
+    <add-to-group group-id="EditorPopupMenu" anchor="first" />
+  </action>
+</actions>
+```
+
+#### Indices and dumb aware
+
+Displaying the contents of many tool windows requires access to the indices. Because of that, tool windows are normally
+disabled while building indices, unless true is passed as the value of `canWorkInDumbMode` to the `registerToolWindow()`
+function (for programmatic tool windows). You can also implement `DumbAware` in your factory class to let IDEA know that
+your tool window can be shown while indices are being built.
+
+#### Creating a content for any kind of tool window
+
+Regardless of the type of tool window (declarative or programmatic) here is the sequence of operations that you have to
+perform in order to add a content:
+
+1. Create the component / UI that you need for the content, ie, a Swing component (eg: `createDialogPanel()` above).
+2. Add the component / UI to the content to the `ToolWindowManager` (programmatic) or the tool window `ContentManager`
+   (declarative).
+
+#### Content closeability
+
+A plugin can control whether the user is allowed to close tabs either 1) globally or 2) on a per content basis.
+
+1. **Globally**: This is done by passing the `canCloseContents` parameter to the `registerToolWindow()` function, or by
+   specifying `canCloseContents="true"` in `plugin.xml`. The default value is `false`. Note that calling
+   `setClosable(true)` on `ContentManager` content will be ignored unless `canCloseContents` is explicitly set.
+2. **Per content basis**: This is done by calling `setCloseable(Boolean)` on each content object itself.
+
+If closing tabs is enabled in general, a plugin can disable closing of specific tabs by calling
+`Content.setCloseable(false)`.
+
+### Add Line marker provider in your plugin
+
+Line marker providers allow your plugin to display an icon in the gutter of an editor window. You can also provide
+actions that can be run when the user interacts with the gutter icon, along with a tooltip that can be generated when
+the user hovers over the gutter icon.
+
+> Please take a look at the [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2) repo that
+> contains a plugin that has some of the functionality shown below.
+
+In order to use line marker providers, you have to do two things:
+
+1. Create a class that implements `LineMarkerProvider` that generates the `LineMarkerInfo` for the correct `PsiElement`
+   that you want IDEA to highlight in the IDE.
+2. Register this provider in `plugin.xml` and associate it to be run for a specific language.
+
+When your plugin is loaded, IDEA will then run your line marker provider when a file of that language type is loaded in
+the editor. This happens in two passes for performance reasons.
+
+1. IDEA will first call your provider implementation with the `PsiElements` that are currently visible.
+2. IDEA will then call your provider implementation with the `PsiElements` that are currently hidden.
+
+It is very important that you only return a `LineMarkerInfo` for the more specific `PsiElement` that you wish IDEA to
+highlight, as if you scope it too broadly, there will be scenarios where your gutter icon will blink! Here's a detailed
+explanation as to why (a comment from the source for
+[`LineMarkerProvider.java source file`](https://github.com/JetBrains/intellij-community/blob/master/platform/lang-api/src/com/intellij/codeInsight/daemon/LineMarkerProvider.java)).
+
+> Please create line marker info for leaf elements only - i.e. the smallest possible elements. For example, instead of
+> returning method marker for `PsiMethod`, create the marker for the `PsiIdentifier` which is a name of this method.
+>
+> Highlighting (specifically, `LineMarkersPass`) queries all `LineMarkerProvider`s in two passes (for performance
+> reasons):
+>
+> 1. first pass for all elements in visible area
+> 2. second pass for all the rest elements If provider returned nothing for both areas, its line markers are cleared.
+>
+> So imagine a `LineMarkerProvider` which (incorrectly) written like this:
+>
+> ```java
+> class MyBadLineMarkerProvider implements LineMarkerProvider {
+>   public LineMarkerInfo getLineMarkerInfo(PsiElement element) {
+>     if (element instanceof PsiMethod) { // ACTUALLY DONT!
+>        return new LineMarkerInfo(element, element.getTextRange(), icon, null,null, alignment);
+>     }
+>     else {
+>       return null;
+>     }
+>   }
+>   ...
+> }
+> ```
+>
+> Note that it create `LineMarkerInfo` for the whole method body. Following will happen when this method is half-visible
+> (e.g. its name is visible but a part of its body isn't):
+>
+> 1. the first pass would remove line marker info because the whole `PsiMethod` isn't visible
+> 2. the second pass would try to add line marker info back because `LineMarkerProvider` was called for the `PsiMethod`
+>    at last
+>
+> As a result, line marker icon will blink annoyingly. Instead, write this:
+>
+> ```java
+> class MyGoodLineMarkerProvider implements LineMarkerProvider {
+>   public LineMarkerInfo getLineMarkerInfo(PsiElement element) {
+>     if (element instanceof PsiIdentifier &&
+>         (parent = element.getParent()) instanceof PsiMethod &&
+>         ((PsiMethod)parent).getMethodIdentifier() == element)) { // aha, we are at method name
+>          return new LineMarkerInfo(element, element.getTextRange(), icon, null,null, alignment);
+>     }
+>     else {
+>       return null;
+>     }
+>   }
+>   ...
+> }
+> ```
+
+#### Example of a provider for Markdown language
+
+Let's say that for Markdown files that are open in the IDE, we want to highlight any lines that have links in them. We
+want an icon to show up in the gutter area that the user can see and click on to take some actions. For example, they
+can open the link.
+
+#### 1. Declare dependencies
+
+Also, because we are relying on the Markdown plugin, in our plugin, we have to add the following dependencies.
+
+To `plugin.xml`, we must add.
+
+```xml
+<!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+<idea-version since-build="2020.1" until-build="2020.*" />
+<!--
+  Declare dependency on IntelliJ module `com.intellij.modules.platform` which provides the following:
+  Messaging, UI Themes, UI Components, Files, Documents, Actions, Components, Services, Extensions, Editors
+  More info: https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+-->
+<depends>com.intellij.modules.platform</depends>
+<!-- Markdown plugin. -->
+<depends>org.intellij.plugins.markdown</depends>
+```
+
+To `build.gradle.kts` we must add.
+
+```kotlin
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    // Information on IJ versions https://www.jetbrains.org/intellij/sdk/docs/reference_guide/intellij_artifacts.html
+    // You can use release build numbers or snapshot name for the version.
+    // 1) IJ Release Repository w/ build numbers https://www.jetbrains.com/intellij-repository/releases/
+    // 2) IJ Snapshots Repository w/ snapshot names https://www.jetbrains.com/intellij-repository/snapshots/
+    version = "2020.1" // You can also use LATEST-EAP-SNAPSHOT here.
+
+    // Declare a dependency on the markdown plugin to be able to access the
+    // MarkdownRecursiveElementVisitor.kt file. More info:
+    // https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html
+    // https://plugins.jetbrains.com/plugin/7793-markdown/versions
+    setPlugins("java", "org.intellij.plugins.markdown:201.6668.27")
+}
+```
+
+#### 2. Register the provider in XML
+
+The first thing we need to do is register our line marker provider in `plugin.xml`.
+
+```xml
+<extensions defaultExtensionNs="com.intellij">
+  <codeInsight.lineMarkerProvider language="Markdown" implementationClass="ui.MarkdownLineMarkerProvider" />
+</extensions>
+```
+
+#### 3. Provide an implementation of LineMarkerProvider
+
+Then we have to provide an implementation of `LineMarkerProvider` that returns a `LineMarkerInfo` for the most fine
+grained `PsiElement` that it successfully matches against. In other words, we can either match against the
+`LINK_DESTINATION` or the `LINK_TEXT` elements.
+
+Here's an example. For the string containing an inline Markdown link:
+
+```text
+[`LineMarkerProvider.java`](https://github.com/JetBrains/intellij-community/blob/master/platform/lang-api/src/com/intellij/codeInsight/daemon/LineMarkerProvider.java)
+```
+
+This is what its PSI looks like:
+
+```text
+ASTWrapperPsiElement(Markdown:Markdown:INLINE_LINK)(1644,1810)
+        ASTWrapperPsiElement(Markdown:Markdown:LINK_TEXT)(1644,1671)
+          PsiElement(Markdown:Markdown:[)('[')(1644,1645)
+          ASTWrapperPsiElement(Markdown:Markdown:CODE_SPAN)(1645,1670)
+            PsiElement(Markdown:Markdown:BACKTICK)('`')(1645,1646)
+            PsiElement(Markdown:Markdown:TEXT)('LineMarkerProvider.java')(1646,1669)
+            PsiElement(Markdown:Markdown:BACKTICK)('`')(1669,1670)
+          PsiElement(Markdown:Markdown:])(']')(1670,1671)
+        PsiElement(Markdown:Markdown:()('(')(1671,1672)
+        MarkdownLinkDestinationImpl(Markdown:Markdown:LINK_DESTINATION)(1672,1809)
+          PsiElement(Markdown:Markdown:GFM_AUTOLINK)('https://github.com/JetBrains/intellij-community/blob/master/platform/lang-api/src/com/intellij/codeInsight/daemon/LineMarkerProvider.java')(1672,1809)
+        PsiElement(Markdown:Markdown:))(')')(1809,1810)
+```
+
+Here's what the implementation of the line marker provider that matches `INLINE_LINK` might look like.
+
+```kotlin
+package ui
+
+import com.intellij.codeInsight.daemon.LineMarkerInfo
+import com.intellij.codeInsight.daemon.LineMarkerProvider
+import com.intellij.openapi.editor.markup.GutterIconRenderer
+import com.intellij.openapi.util.IconLoader
+import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.TokenSet
+import org.intellij.plugins.markdown.lang.MarkdownElementTypes
+
+internal class MarkdownLineMarkerProvider : LineMarkerProvider {
+  override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
+
+    val node = element.node
+    val tokenSet = TokenSet.create(MarkdownElementTypes.INLINE_LINK)
+    val icon = IconLoader.getIcon("/icons/ic_linemarkerprovider.svg")
+
+    if (tokenSet.contains(node.elementType))
+      return LineMarkerInfo(element,
+                            element.textRange,
+                            icon,
+                            null,
+                            null,
+                            GutterIconRenderer.Alignment.CENTER)
+
+    return null
+  }
+}
+```
+
+You can add the `ic_linemarkerprovider.svg` icon here (create this file in the `$PROJECT_DIR/src/main/resources/icons/`
+folder.
+
+```xml
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="13px" width="13px">
+  <path d="M0 0h24v24H0z" fill="none" />
+  <path
+      d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z" />
+</svg>
+```
+
+#### 4. Provide a more complex implementation of LineMarkerProvider
+
+The example we have so far, simply shows a gutter icon beside the lines in the editor window, that match our matching
+criteria. Let's say that we want to show some relevant actions that can be performed on the `PsiElement`(s) that matched
+and are associated with the gutter icon. In this case we have to delve a little deeper into the `LineMarkerInfo` class.
+
+If you look at
+[`LineMarkerInfo.java`](https://github.com/jetbrains/intellij-community/blob/master/platform/lang-api/src/com/intellij/codeInsight/daemon/LineMarkerInfo.java#L137),
+you will find a `createGutterRenderer()` method. We can actually override this method and create our own
+`GutterIconRenderer` objects that have an action group inside of them which will hold all our related actions.
+
+The following class
+[`RunLineMarkerProvider.java`](https://github.com/jetbrains/intellij-community/blob/master/platform/execution-impl/src/com/intellij/execution/lineMarker/RunLineMarkerProvider.java#L115)
+actually provides us some clue of how to use all of this. In IDEA, when there are targets that you can run, a gutter
+icon (play button) that allows you to execute the run target. This class actually provides an implementation of that
+functionality. Using it as inspiration, we can create the more complex version of our line marker provider.
+
+We are going to change our initial implementation of `MarkdownLineMarkerProvider` quite drastically. First we have to
+add a class that is our new `LineMarkerInfo` implementation called `RunLineMarkerInfo`. This class simply allows us to
+return an `ActionGroup` that we will now have to provide.
+
+```kotlin
+class RunLineMarkerInfo(element: PsiElement,
+                        icon: Icon,
+                        private val myActionGroup: DefaultActionGroup,
+                        tooltipProvider: Function<in PsiElement, String>?
+) : LineMarkerInfo<PsiElement>(element,
+                               element.textRange,
+                               icon,
+                               tooltipProvider,
+                               null,
+                               GutterIconRenderer.Alignment.CENTER) {
+  override fun createGutterRenderer(): GutterIconRenderer? {
+    return object : LineMarkerGutterIconRenderer<PsiElement>(this) {
+      override fun getClickAction(): AnAction? {
+        return null
+      }
+
+      override fun isNavigateAction(): Boolean {
+        return true
+      }
+
+      override fun getPopupMenuActions(): ActionGroup? {
+        return myActionGroup
+      }
+    }
+  }
+}
+```
+
+Next, is the new version of `MarkdownLineMarkerProvider` class itself.
+
+```kotlin
+class MarkdownLineMarkerProvider : LineMarkerProvider {
+
+  override fun getLineMarkerInfo(element: PsiElement): LineMarkerInfo<*>? {
+    val node = element.node
+    val tokenSet = TokenSet.create(MarkdownElementTypes.INLINE_LINK)
+    if (tokenSet.contains(node.elementType))
+      return RunLineMarkerInfo(element,
+                               IconLoader.getIcon("/icons/ic_linemarkerprovider.svg"),
+                               createActionGroup(element),
+                               createToolTipProvider(element))
+    else return null
+  }
+
+  private fun createToolTipProvider(inlineLinkElement: PsiElement): Function<in PsiElement, String> {
+    val tooltipProvider =
+        Function { element1: PsiElement ->
+          val current = LocalDateTime.now()
+          val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+          val formatted = current.format(formatter)
+          buildString {
+            append("Tooltip calculated at ")
+            append(formatted)
+          }
+        }
+    return tooltipProvider
+  }
+
+  fun createActionGroup(inlineLinkElement: PsiElement): DefaultActionGroup {
+    val linkDestinationElement =
+        findChildElement(inlineLinkElement, MarkdownTokenTypeSets.LINK_DESTINATION, null)
+    val linkDestination = linkDestinationElement?.text
+    val group = DefaultActionGroup()
+    group.add(OpenUrlAction(linkDestination))
+    return group
+  }
+
+}
+```
+
+The `createActionGroup(...)` method actually creates an `ActionGroup` and adds a bunch of actions that will be available
+when the user clicks on the gutter icon for this plugin. Note that you can also add actions that are registered in your
+`plugin.xml` using something like this.
+
+```kotlin
+group.add(ActionManager.getInstance().getAction("ID of your plugin action"))
+```
+
+Finally, here's the action to open a URL that is associated with the INLINE_LINK that is highlighted in the gutter.
+
+```kotlin
+class OpenUrlAction(val linkDestination: String?) :
+  AnAction("Open Link", "Open URL destination in browser", IconLoader.getIcon("/icons/ic_extension.svg")) {
+  override fun actionPerformed(e: AnActionEvent) {
+    linkDestination?.apply {
+      BrowserUtil.open(this)
+    }
+  }
+
+}
+```
+
+#### References
+
+Docs
+
+- [JB docs](https://tinyurl.com/yc8mmrdl)
+
+Code samples
+
+- [idea-plugin-example2 repo](https://github.com/nazmulidris/idea-plugin-example2)
+- [HaxeLineMarkerProvider.java](https://tinyurl.com/yayn2or6)
+- [SimpleLineMarkerProvider.java](https://tinyurl.com/ydgwt96k)
+- [Lots of examples of using `LineMarkerInfo`](https://tinyurl.com/y9m2ckm6)
+
+Discussions
+
+- [JB forums: LineMarker for PsiElement, no target](https://tinyurl.com/y7ohdv2v)
+- [JB forums: Adding "Actions" to Line Markers](https://tinyurl.com/y8gqlz3y)
+- [JB forums: Is it possible to add line markers (gutter icons) without a file change?](https://tinyurl.com/ydhmzew9)
+- [JB forums: Set a LineMarker on click, similar to bookmark](https://tinyurl.com/yd49fc44)

@@ -24,11 +24,16 @@ categories:
   - [Pros](#pros)
   - [~~Cons~~ Nits](#cons-nits)
 - [Remapping keys and configuring keyboards](#remapping-keys-and-configuring-keyboards)
-  - [Understanding layers and secondary roles for keys](#understanding-layers-and-secondary-roles-for-keys)
-  - [Hierarchy of needs](#hierarchy-of-needs)
+  - [Understanding layers, secondary roles for keys, mouse keys, and macros](#understanding-layers-secondary-roles-for-keys-mouse-keys-and-macros)
+    - [Secondary roles for keys](#secondary-roles-for-keys)
+    - [Layers, mouse keys, and macros](#layers-mouse-keys-and-macros)
+    - [Switching entire keymaps](#switching-entire-keymaps)
+    - [Summary](#summary)
+  - [Hierarchy of needs (know your hands)](#hierarchy-of-needs-know-your-hands)
   - [Don't shoot self in foot](#dont-shoot-self-in-foot)
   - [Examples for UHK keymap](#examples-for-uhk-keymap)
     - [Cursor control](#cursor-control)
+    - [Mouse control](#mouse-control)
     - [GNOME workspace control (with window tiling extension)](#gnome-workspace-control-with-window-tiling-extension)
     - [IDEA and Sublime Text 3](#idea-and-sublime-text-3)
     - [Clipboard history, emoji, albert/alfred](#clipboard-history-emoji-albertalfred)
@@ -132,10 +137,12 @@ The UHK is so configurable that outside of being happy with the build quality, I
 going to customize the keyboard to suit my programming needs. I did ask for the ultimately configurable keyboard, and I
 did get just that 😀. Now it is on me to devise strategies to enhance my productivity using this keyboard.
 
-### Understanding layers and secondary roles for keys
+### Understanding layers, secondary roles for keys, mouse keys, and macros
 
 A new concept that comes with this keyboard is the ability to not only create your own layers, but also create create
-secondary roles for keys.
+secondary roles for keys. You can also control your mouse pointer with the keyboard if you like.
+
+#### Secondary roles for keys
 
 Normally we think of a modifier key (like `Shift`) as something we press in addition to pressing another key. However,
 in the UHK, if you just press (touch once) the modifier key you can have it type any other key or combination of keys or
@@ -145,20 +152,56 @@ The following table has two examples for the `Space` key and the `Mod` key. The 
 while the `Mod` key is a modifier key that behaves differently if you just press it once (launches Alfred), vs hold it
 down while pressing another key (switches to the `Mod` layer).
 
-| Key   | Press (touch once) | Hold (long press / press another key) | Notes                             |
-| ----- | ------------------ | ------------------------------------- | --------------------------------- |
-| Space | Space              | Space                                 | Don't add a modifier              |
-| Mod   | Alt + Space        | Activate mod layer                    | Good example of adding a modifier |
+| Key   | Tap (press once) | Hold (long press / press with another key) | Notes                                   |
+| ----- | ---------------- | ------------------------------------------ | --------------------------------------- |
+| Space | Space            | Space                                      | Don't add a secondary role              |
+| Mod   | Alt + Space      | Activate Mod layer (secondary role)        | Good example of adding a secondary role |
 
 > Taking the example of a key mapped to "Space" you can only just have one function. If you touch the key once you
-> expect it to add a space. If you hold it down, you expect it to type many spaces. So this key is a poor candidate for
-> having a modifier key assigned to it. If you assign a modifier key to it, then you will lose the ability to hold it
-> down and have it type a bunch of spaces; it will just wait for you to type another key. And if you don't type another
-> key and release the "Space" key, then it will type just one space.
+> expect it to add a space. If you hold it down, you expect it to type many spaces. So this key is a poor candidate to
+> have any secondary role assigned to it for the following reasons.
+>
+> 1. If you assign a modifier key to its secondary role, then you will lose the ability to hold it down and have it type
+>    a bunch of spaces; it will just wait for you to type another key.
+> 2. And if you don't type another key and release the "Space" key, then it will type just one space.
 
-Not only can you create your own layers, you can also have some layer switching keys lock. Put all this together and you
-can make some incredibly powerful keyboard shortcuts that you simply can't do with a "normal" keyboard. However, it
-isn't easy to get this "right" and here are some caveats (make sure to test your changes):
+Here's another example of secondary roles using both the `Shift` keys on the keyboard. I press backtick and tilde quite
+a bit (when editing markdown or when using the terminal to switch folders). The backtick key is on the top left corner
+of the keyboard making it quite unergonomic to reach. So I devised the following keymap to make things ergonomic.
+
+| Key                       | Tap (press once) | Hold (long press / press with another key) |
+| ------------------------- | ---------------- | ------------------------------------------ |
+| Left Shift                | Left Shift       | 🚫                                         |
+| Right Shift               | Type Backtick    | Left Shift (secondary role)                |
+| Both Left and Right Shift | Type Tilde       | 🚫                                         |
+
+#### Layers, mouse keys, and macros
+
+Not only can you create your own layers, you can also have some layer switching keys lock. You can also activate the
+mouse pointer in its own mouse layer, or you can just assign these mouse control functions to any keys in any layer. One
+thing that I do is map `Fn+O` to scroll the mouse down, and `Fn+P` to scroll the mouse up. I also had to create a macro
+in order to move the mouse pointer to the center of whatever window that is currently focused. When activated, a macro
+simply generates a sequence of key events, with delays if you need them. So for me to move my mouse pointer to the
+center of whatever window has focus, I have to press `Alt+F7` (GNOME shortcut to move a window), and then press `Enter`.
+So I created a macro for this, and mapped it to the `Fn` layer for the `M` key.
+
+| Key  | Tap (press once)                                     |
+| ---- | ---------------------------------------------------- |
+| Fn+O | Mouse scroll up                                      |
+| Fn+P | Mouse scroll down                                    |
+| Fn+M | Move cursor to center of window with focus via macro |
+
+#### Switching entire keymaps
+
+UHK also supports the ability to have many keyboard layouts (each one has a base, `Mod`, `Fn`, and `Mouse` layer). This
+is good for situations where you want to have quite different keymaps for different operating systems. So you might have
+a Linux keymap, and a macOS one, and then switch back and forth between them, much like you do with layers.
+
+#### Summary
+
+Put all this together and you can make some incredibly powerful keyboard shortcuts that you simply can't do with a
+"normal" keyboard. However, it isn't easy to get this "right" and here are some caveats (make sure to test your
+changes):
 
 1. While you might come up with something really useful, without testing it with yourself, it isn't really possible to
    know whether this is something that will make you more productive, or just get in your way.
@@ -172,7 +215,28 @@ isn't easy to get this "right" and here are some caveats (make sure to test your
 Don't worry, UHK Agent makes it really easy to switch to older versions of keymaps in case something goes horribly
 wrong. And you can export specific configurations as well from Agent as a JSON file.
 
-### Hierarchy of needs
+### Hierarchy of needs (know your hands)
+
+The most important thing to keep in mind is understand your hands and how they move. Every time you have to move your
+hands to reach for the mouse, that slows you down, probably reduces your accuracy for a moment while you readjust your
+hand position, and it also will end up causing fatigue.
+
+So it is really important for you to know beforehand what are the most common keys and key combinations that you are
+typing in your daily workflow. This will really drive the keymaps that you end up with. For me, it was really important
+to move the Backspace and Tilde keys away from the top edges of the keyboard down to the very bottom closest to my
+thumbs. I also try to use 4 keys on the bottom center of the keyboard as much as possible for commonly used things like
+switching workspaces, switching focus between windows (Alt+Tab). But I have my cursor keys on a `Mod` layer, and I
+really had to practice this for many weeks before it started feeling natural.
+
+When you make big changes to the way you use your keyboard, try and make one big change at a time.
+
+- It is incredibly demoralizing to have a keyboard that you simply can't use. So make one big change, like moving all
+  the cursor keys to the `Mod` layer and practice to get that to be natural, before making some other massive change -
+  like moving the `Enter` key or `Backspace` key.
+- So your keymaps will evolve over time and its best not to have the expectation that you will be able to nail this on
+  your first try.
+- And you will end up changing keyboard shortcuts in your favorite apps ( if they allow this ) in addition to the
+  keyboard keymaps themselves.
 
 So I broke it down into a few major categories, which are either just individual apps that I use or just tasks that can
 be clumped together. And this is what I came up with (the most important stuff is on top):
@@ -190,6 +254,14 @@ be clumped together. And this is what I came up with (the most important stuff i
 3. App specific
    - Figma
    - Google Sheets
+
+You can actually put all the apps and keyboard shortcuts that you need in a spreadsheet to figure out how to see
+everything in one place. Here's an example of that.
+
+![]({{ '/assets/mechanical-keyboard-keymap-sheet.png' | relative_url }})
+
+> You can download this spreadsheet [here]({{ '/assets/mechanical-keyboard-keymaps.xlsx' | relative_url }}) as an XLSX
+> file.
 
 ### Don't shoot self in foot
 
@@ -237,13 +309,16 @@ You can download these keymaps here.
 2. [IDEA keymap.jar file]({{ 'assets/keymap.jar' | relative_url }})
 3. [Sublime Text keybindings.json file]({{ 'assets/sublime-text-keymap.json' | relative_url }})
 
+This is a visual representation of what these keymaps look like.
+
+![]({{ 'assets/uhk-base-layer.png' | relative_url }})
+
+![]({{ 'assets/uhk-mod-layer.png' | relative_url }})
+
+![]({{ 'assets/uhk-fn-layer.png' | relative_url }})
+
 #### Cursor control
 
-- Cursor keys are on bottom right of keyboard: Fn, Alt, Super, Ctrl
-  - RightCtrl : Right
-  - RightSuper : Left
-  - RightFn : Up
-  - RightAlt: Down
 - Mod + J : Left
 - Mod + K : Down
 - Mod + L : Right
@@ -255,22 +330,32 @@ You can download these keymaps here.
 - Mod + Del : Backspace
 - Mod + H : Home
 - Mod + J : End
-- HiddenKeyLeft : Backspace
-- HiddenKeyRight : Delete
+- RightFn : Backspace
+- Mod + RightFn : Delete
+
+#### Mouse control
+
+- Fn + O : Mouse scroll up
+- Fn + P : Mouse scroll down
+- Fn + M : Macro to center mouse on currently focused window
+- Fn + I : Mouse up
+- Fn + J : Mouse left
+- Fn + K : Mouse down
+- Fn + L : Mouse right
+- Fn + ; : Mouse click
 
 #### GNOME workspace control (with window tiling extension)
 
-- Super + Up / Down : Move workspace prev and next
-  - Add Shift to move a window to the prev or next workspace
+- HiddenKeyLeft : Super + J (like alt-tab)
+  - Secondary role : Ctrl
+  - _Bonus_ - Press with Shift to move windows around
+- HiddenKeyRight : Move workspace next
+  - Secondary role : Alt
+  - _Bonus_ - Press with shift to do all this on workspace previous
 - Mod + Tab : Super + J (works w/ GNOME window tiling extension)
   - Add Shift and you can actually move the windows rather than switch focus!
-- Mod + 1 / Mod + -: Move workspace prev
-  - Simply types Super + Up
-  - Add Shift to a move a window to prev workspace
-- Mod + 2 / Mod + +: move workspace next
-  - Simply types Super + Down
-  - Add Shift to a move a window to next workspace
-- RightShift : Super
+- Super + Up, Super + Shift + Up : Move workspace previous and next
+  - Add Alt to move a window to the prev or next workspace
 
 #### IDEA and Sublime Text 3
 

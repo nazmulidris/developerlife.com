@@ -737,7 +737,7 @@ tasks {
 }
 ```
 
-You can run this task from IDEA, or from the command line using `.gradlew runPluginVerifier` to ensure that this the
+You can run this task from IDEA, or from the command line using `./gradlew runPluginVerifier` to ensure that this the
 intellij-plugin-verifier runs. It points out any deprecations or any other mistakes that need to be corrected before
 publishing this plugin. Also, make sure to choose which IDEA versions you would like the plugin to be verified against
 in the `ideVersions` function. More on this [below](#notes-on-the-build-or-version-codes).
@@ -805,7 +805,7 @@ since there the JSON blob returned by this URL is quite big.
 Once you have decided which versions of IDEA that you want this plugin to be verified against, make sure that you have
 declared this plugin to be compatible w/ these IDE build ranges in the following two places:
 
-1. `build.gradle` - `intellij { version { `<version-or-build-code>` } }`
+1. `build.gradle` - `intellij { version { "<version-or-build-code>" } }`
 2. `plugin.xml` - `<idea-version since-build="<version-or-build-code>" until-build="<version-or-build-code" />`
    - Note that you can use wildcards here, eg: `2020.*` for the `<version-or-build-code>`
 

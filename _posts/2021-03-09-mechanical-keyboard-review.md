@@ -71,8 +71,9 @@ great, but not bad either.
 
 ## Keyboard companions - trackpad and mouse
 
-Before getting into the keyboard reviews, I wanted to cover the other input devices I use with them. I have two input
-devices that I use with these keyboards.
+Before getting into the keyboard review, I wanted to cover the other input devices I use with them. I have two input
+devices that I use with these keyboards. This keyboard does support mouse movement, but this is not so good for complex
+mouse movements (great for short movements).
 
 1. [Logitech MX3 Master](https://www.logitech.com/en-us/products/mice/mx-master-3.910-005620.html) - This is the best
    mouse that I have ever used. Everything about it is amazing. Sadly on Linux [customization options are
@@ -139,23 +140,24 @@ did get just that 😀. Now it is on me to devise strategies to enhance my produ
 
 ### Understanding layers, secondary roles for keys, mouse keys, and macros
 
-A new concept that comes with this keyboard is the ability to not only create your own layers, but also create create
-secondary roles for keys. You can also control your mouse pointer with the keyboard if you like.
+A new concept that comes with this keyboard (when compared to non programmable keyboards) is the ability to not only
+create your own layers, but also create create secondary roles for keys. You can also control your mouse pointer with
+the keyboard if you like.
 
 #### Secondary roles for keys
 
-Normally we think of a modifier key (like `Shift`) as something we press in addition to pressing another key. However,
-in the UHK, if you just press (touch once) the modifier key you can have it type any other key or combination of keys or
-a macro!
+Normally we think of a modifier key (like `Shift`) as something we press and hold down in addition to pressing another
+key. However, in the UHK, if you just tap (press once) the modifier key you can have it type any other key or
+combination of keys or a macro!
 
 The following table has two examples for the `Space` key and the `Mod` key. The `Space` key behaves like a normal key,
 while the `Mod` key is a modifier key that behaves differently if you just press it once (launches Alfred), vs hold it
 down while pressing another key (switches to the `Mod` layer).
 
-| Key   | Tap (press once) | Hold (long press / press with another key) | Notes                                   |
-| ----- | ---------------- | ------------------------------------------ | --------------------------------------- |
-| Space | Space            | Space                                      | Don't add a secondary role              |
-| Mod   | Alt + Space      | Activate Mod layer (secondary role)        | Good example of adding a secondary role |
+| Key   | Tap (press once)            | Hold (long press / press with another key) | Notes                                   |
+| ----- | --------------------------- | ------------------------------------------ | --------------------------------------- |
+| Space | Space                       | Space                                      | Don't add a secondary role              |
+| Mod   | Alt + Space (launch Albert) | Activate Mod layer (secondary role)        | Good example of adding a secondary role |
 
 > Taking the example of a key mapped to "Space" you can only just have one function. If you touch the key once you
 > expect it to add a space. If you hold it down, you expect it to type many spaces. So this key is a poor candidate to
@@ -177,11 +179,13 @@ of the keyboard making it quite unergonomic to reach. So I devised the following
 
 #### Layers, mouse keys, and macros
 
-Not only can you create your own layers, you can also have some layer switching keys lock. You can also activate the
-mouse pointer in its own mouse layer, or you can just assign these mouse control functions to any keys in any layer. One
-thing that I do is map `Fn+O` to scroll the mouse down, and `Fn+P` to scroll the mouse up. I also had to create a macro
-in order to move the mouse pointer to the center of whatever window that is currently focused. When activated, a macro
-simply generates a sequence of key events, with delays if you need them. So for me to move my mouse pointer to the
+Not only can you create your own layers, you can also have some layer switching keys lock (rather than just shift into a
+layer and back out again when all the keys are released). You can also activate the mouse pointer in its own mouse
+layer, or you can just assign these mouse control functions to any keys in any layer.
+
+One thing that I do is map `Fn+O` to scroll the mouse down, and `Fn+P` to scroll the mouse up. I also had to create a
+macro in order to move the mouse pointer to the center of whatever window that is currently focused. When activated, a
+macro simply generates a sequence of key events, with delays if you need them. So for me to move my mouse pointer to the
 center of whatever window has focus, I have to press `Alt+F7` (GNOME shortcut to move a window), and then press `Enter`.
 So I created a macro for this, and mapped it to the `Fn` layer for the `M` key.
 
@@ -235,8 +239,8 @@ When you make big changes to the way you use your keyboard, try and make one big
   like moving the `Enter` key or `Backspace` key.
 - So your keymaps will evolve over time and its best not to have the expectation that you will be able to nail this on
   your first try.
-- And you will end up changing keyboard shortcuts in your favorite apps ( if they allow this ) in addition to the
-  keyboard keymaps themselves.
+- And you will end up changing keyboard shortcuts in your favorite apps (if they allow this) in addition to the keyboard
+  keymaps themselves.
 
 So I broke it down into a few major categories, which are either just individual apps that I use or just tasks that can
 be clumped together. And this is what I came up with (the most important stuff is on top):
@@ -303,9 +307,9 @@ By following these steps first, there are 2 advantages:
 
 ### Examples for UHK keymap
 
-You can download these keymaps here.
+Here are a list of files you can download.
 
-1. [UHK settings exported json file]({{ 'assets/NAZ-UHK.json' | relative_url }})
+1. [UHK settings exported JSON file]({{ 'assets/NAZ-UHK.json' | relative_url }})
 2. [IDEA keymap.jar file]({{ 'assets/keymap.jar' | relative_url }})
 3. [Sublime Text keybindings.json file]({{ 'assets/sublime-text-keymap.json' | relative_url }})
 
@@ -327,7 +331,6 @@ This is a visual representation of what these keymaps look like.
 - Mod + ; : End
 - Mod + O : Page up
 - Mod + P : Page down
-- Mod + Del : Backspace
 - Mod + H : Home
 - Mod + J : End
 - RightFn : Backspace

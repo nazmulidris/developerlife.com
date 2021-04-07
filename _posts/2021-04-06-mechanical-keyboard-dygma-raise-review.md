@@ -144,7 +144,7 @@ is another fantastic ergonomic win for the Dygma Raise. One of the most difficul
 the learning curve to memorize your custom keymaps, and color coding these keymaps directly helps mitigate that
 difficulty!
 
-![]({{ '/assets/dygma-raise-typing.gif' | relative_url }})
+![](https://media.githubusercontent.com/media/nazmulidris/developerlife.com/main/assets/dygma-raise-typing.gif)
 
 The support and development teams are really responsive and helpful. See the Linux installation issue below to see how
 they turned a Con into a Pro. Bazecor makes it easy to update firmware on the keyboard. When you order the keyboard, it

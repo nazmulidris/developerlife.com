@@ -12,12 +12,12 @@ excerpt: |
 layout: post
 title: "Using JSON for mobile object exchange"
 categories:
-- Android
-- Server
+  - Android
+  - Server
 ---
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [What is JSON?](#what-is-json)
@@ -29,47 +29,55 @@ categories:
 
 ## Introduction
 
-I've been working with various object encoding schemes to get information transferred over the network between services
-and mobile apps running on Android and BlackBerry. On Android, I figured I would try using Java object serialization,
-and that works some of the time, and not for anything complex. I wish the object serialization and deserialization
-mechanism in GWT would be ported over to all these mobile environments, but I digress.
+I've been working with various object encoding schemes to get information transferred over the
+network between services and mobile apps running on Android and BlackBerry. On Android, I figured I
+would try using Java object serialization, and that works some of the time, and not for anything
+complex. I wish the object serialization and deserialization mechanism in GWT would be ported over
+to all these mobile environments, but I digress.
 
 So I evaluated the following strategies:
 
-1. I tried using binary formats, these are too complicated and the overhead of writing marshalling/unmarshalling code is
-   too high. Also this code has to be portable across a variety of platforms, and so it gets complicated. For me, it has
-   to work on BlackBerry and Android, and BlackBerry is clearly the lesser platform, only supporting JavaME, while
-   Android has pseudo Java5 support with generics.
+1. I tried using binary formats, these are too complicated and the overhead of writing
+   marshalling/unmarshalling code is too high. Also this code has to be portable across a variety of
+   platforms, and so it gets complicated. For me, it has to work on BlackBerry and Android, and
+   BlackBerry is clearly the lesser platform, only supporting JavaME, while Android has pseudo Java5
+   support with generics.
 
-2. I tried using Google Protocol Buffers. While this sounded like the perfect solution at first, it isn’t. It relies on
-   the use of generics and so that rules it out as an option for JavaME, although it’s a good option to have for Android
-   and even desktop environments, and other service to service interactions. But this is one more thing to learn, and it
-   won't even work for BlackBerry. So that ruled it out.
+2. I tried using Google Protocol Buffers. While this sounded like the perfect solution at first, it
+   isn’t. It relies on the use of generics and so that rules it out as an option for JavaME,
+   although it’s a good option to have for Android and even desktop environments, and other service
+   to service interactions. But this is one more thing to learn, and it won't even work for
+   BlackBerry. So that ruled it out.
 
-3. I looked at XML serialization. There is plenty of tooling around this option. They have XMLRPC servers and clients
-   (even for JavaME) so that makes it a little easier to deal with. But all transport mechanism aside, the marshalling
-   and unmarshalling code still has to be generated painfully. Although the use of Betwixt & Digester or XML Beans might
-   make it easier. Again, more APIs to use and learn and all that... so that ruled it out.
+3. I looked at XML serialization. There is plenty of tooling around this option. They have XMLRPC
+   servers and clients (even for JavaME) so that makes it a little easier to deal with. But all
+   transport mechanism aside, the marshalling and unmarshalling code still has to be generated
+   painfully. Although the use of Betwixt & Digester or XML Beans might make it easier. Again, more
+   APIs to use and learn and all that... so that ruled it out.
 
-So what did I end up choosing? None of the above 😃. I picked this one: [JSON](http://json.org/). Yes, good old
-JavaScript Object Serialization 😃. It’s simple. It’s lightweight. The marshalling and unmarshalling has to be done by
-hand, but it’s relatively simple (everything is a map, and you can have lists of values). Any binary data you want to
-transfer has to be encoded to Base64, so that’s cool. It’s really simple, nothing new to learn. And they have APIs
-available for everything (platform, language, whatever). The only thing to keep in mind is that your
-marshalling/unmarshalling code has to be available in the codebase of your services as well as mobile apps, and any
-other apps that you use this data in. Using HTTP makes it so that you don’t really have to include the transport
-mechanism code, since HTTP/S libs are available on just about every platform.
+So what did I end up choosing? None of the above 😃. I picked this one: [JSON](http://json.org/).
+Yes, good old JavaScript Object Serialization 😃. It’s simple. It’s lightweight. The marshalling and
+unmarshalling has to be done by hand, but it’s relatively simple (everything is a map, and you can
+have lists of values). Any binary data you want to transfer has to be encoded to Base64, so that’s
+cool. It’s really simple, nothing new to learn. And they have APIs available for everything
+(platform, language, whatever). The only thing to keep in mind is that your
+marshalling/unmarshalling code has to be available in the codebase of your services as well as
+mobile apps, and any other apps that you use this data in. Using HTTP makes it so that you don’t
+really have to include the transport mechanism code, since HTTP/S libs are available on just about
+every platform.
 
 ## What is JSON?
 
-Think of JSON as a hashtable. For a key there is a value. The value can be an object. JSON supports some Java objects
-right out of the box like Vector, String, Integer, Boolean, and Arrays of Objects. If you want to transfer objects, then
-you have to convert them to bytes, and then Base64 encode these bytes to strings. Then you have to reverse this process
-to get the Object when you deserialize. The main class for transferring a Hashtable is JSONObject.
+Think of JSON as a hashtable. For a key there is a value. The value can be an object. JSON supports
+some Java objects right out of the box like Vector, String, Integer, Boolean, and Arrays of Objects.
+If you want to transfer objects, then you have to convert them to bytes, and then Base64 encode
+these bytes to strings. Then you have to reverse this process to get the Object when you
+deserialize. The main class for transferring a Hashtable is JSONObject.
 
-You can also pass arrays, which can have objects of any type in them using JSONArray. This class is great when you don’t
-have keys for the objects you are trying to pass over the wire. Things like method params are really easy to encode
-using this scheme. You can also put JSONArray as a value for a key in a JSONObject object.
+You can also pass arrays, which can have objects of any type in them using JSONArray. This class is
+great when you don’t have keys for the objects you are trying to pass over the wire. Things like
+method params are really easy to encode using this scheme. You can also put JSONArray as a value for
+a key in a JSONObject object.
 
 Here are some diagrams that depict this:
 
@@ -79,23 +87,25 @@ Here are some diagrams that depict this:
 
 There are a couple of things to keep in mind:
 
-1. When passing null as a value, be sure to pass `JSONObject.NULL` instead. This just avoids `JSONExceptions` being
-   raised all over the place, and it makes it so that null values are actually passed in a `JSONObject` (which by
-   default will not include a key if the value is null). `JSONObject.NULL.equals(null)` is `true`, so you can test for
-   your value being null in this way.
+1. When passing null as a value, be sure to pass `JSONObject.NULL` instead. This just avoids
+   `JSONExceptions` being raised all over the place, and it makes it so that null values are
+   actually passed in a `JSONObject` (which by default will not include a key if the value is null).
+   `JSONObject.NULL.equals(null)` is `true`, so you can test for your value being null in this way.
 
-2. When passing objects, be sure that what’s contained in them can be serialized. Alternatively, provide serialization
-   routines to Base64 encoded string for bytes that are not provided by default.
+2. When passing objects, be sure that what’s contained in them can be serialized. Alternatively,
+   provide serialization routines to Base64 encoded string for bytes that are not provided by
+   default.
 
-3. When using JSON, you can use the underlying `Hashtable` has the foundation data structure of your object model, if it
-   fits. Otherwise, just design your object model in a way that is natural for it, and just write serialization method
-   to convert it to a `Hashtable`/`JSONObject`/`JSONArray`. My code generator is meant as a starting point to do this...
-   you can modify it's output by hand to meet your needs.
+3. When using JSON, you can use the underlying `Hashtable` has the foundation data structure of your
+   object model, if it fits. Otherwise, just design your object model in a way that is natural for
+   it, and just write serialization method to convert it to a `Hashtable`/`JSONObject`/`JSONArray`.
+   My code generator is meant as a starting point to do this... you can modify it's output by hand
+   to meet your needs.
 
 ## Source code example
 
-This example shows using `JSONArray`, `JSONObject`, and `Vectors`. There’s also a visualization of the state of the
-`JSONObject` at the end of the code.
+This example shows using `JSONArray`, `JSONObject`, and `Vectors`. There’s also a visualization of
+the state of the `JSONObject` at the end of the code.
 
 ```java
 public class JSONDemo {
@@ -132,11 +142,12 @@ public class JSONDemo {
 Here are some code examples to get you started:
 [http://code.google.com/p/json-simple/wiki/EncodingExamples](http://code.google.com/p/json-simple/wiki/EncodingExamples)
 
-To automate the process, I've actually created a class that generates JSON code for you 😃 . It's a very useful code
-generator that is a good starting point for you to use in your projects. If you improve on it, and are willing to share
-the improvements, please email them to me and I will provide it on developerlife.com. Just run this class and provide
-the field names you want it to generate code for as command line arguments. The code is output to the console and
-automatically copied to the clipboard so you can paste it into your IDE using Ctrl + V.
+To automate the process, I've actually created a class that generates JSON code for you 😃 . It's a
+very useful code generator that is a good starting point for you to use in your projects. If you
+improve on it, and are willing to share the improvements, please email them to me and I will provide
+it on developerlife.com. Just run this class and provide the field names you want it to generate
+code for as command line arguments. The code is output to the console and automatically copied to
+the clipboard so you can paste it into your IDE using Ctrl + V.
 
 ```java
 package rpc.json;
@@ -387,15 +398,16 @@ public class JSONCodegen {
 
 ## JSON API for JavaME and SE
 
-I've taken some open source libraries and combined them into one package that I use in all my ScreamingToaster software.
-I've packaged a Base64 codec, as well as a JSON parser and generator, along with some utility classes to make it really
-easy to use. Let me know if you have any issues with the library, and if you can see areas of improvement. You can
-[download it here]( {{'assets/json.zip' | relative_url}}).
+I've taken some open source libraries and combined them into one package that I use in all my
+ScreamingToaster software. I've packaged a Base64 codec, as well as a JSON parser and generator,
+along with some utility classes to make it really easy to use. Let me know if you have any issues
+with the library, and if you can see areas of improvement. You can [download it here](
+{{'assets/json.zip' | relative_url}}).
 
 Here are some important classes:
 
-1. `rpc.ByteBuffer.java` - this class allows you to perform base64 encoding/decoding pretty easily... check out the
-   static methods for the class, and it's use becomes apparent.
+1. `rpc.ByteBuffer.java` - this class allows you to perform base64 encoding/decoding pretty
+   easily... check out the static methods for the class, and it's use becomes apparent.
 
 2. `rpc.json.JSONCodegen.java` - this is the code generator that's listed above.
 

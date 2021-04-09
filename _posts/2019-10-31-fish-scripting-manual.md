@@ -51,18 +51,19 @@ Learn how to write fish shell scripts by example.
 
 ## How to set variables
 
-Keep in mind that all types of values that can be assigned to variables in fish are strings. There is no such thing as
-boolean or integer or float, etc. Here's a simple example of assigning a value to a variable. Here is
+Keep in mind that all types of values that can be assigned to variables in fish are strings. There
+is no such thing as boolean or integer or float, etc. Here's a simple example of assigning a value
+to a variable. Here is
 [more information on stackoverflow](https://stackoverflow.com/a/47762934/2085356) on this.
 
 ```bash
 set MY_VAR "some value"
 ```
 
-One of the most useful things that you can do is save the output of a command that you run in the shell in a variable.
-This is useful when you are testing to see if some program or command returned some values that mean that you should
-perform some other command (using string comparisons, if statements, and switch statements). Here's are examples of
-doing this.
+One of the most useful things that you can do is save the output of a command that you run in the
+shell in a variable. This is useful when you are testing to see if some program or command returned
+some values that mean that you should perform some other command (using string comparisons, if
+statements, and switch statements). Here's are examples of doing this.
 
 ```bash
 set CONFIG_FILE_DIFF_OUTPUT (diff ~/Downloads/config.fish ~/.config/fish/config.fish)
@@ -71,20 +72,21 @@ set GIT_STATUS_OUTPUT (git status --porcelain)
 
 ### Variable scopes: local, global, global-export
 
-There are times when you have to export variables to child processes and also times when you have to export variables to
-global scope. There are also times when you want this variable to be limited to local scope of the function you are
-writing. The fish documentation on the [`set`](https://fishshell.com/docs/current/cmds/set.html) function has more
-information on this.
+There are times when you have to export variables to child processes and also times when you have to
+export variables to global scope. There are also times when you want this variable to be limited to
+local scope of the function you are writing. The fish documentation on the
+[`set`](https://fishshell.com/docs/current/cmds/set.html) function has more information on this.
 
-- To limit variables to local scope of the function (even if there is a global variable of the same name) use `set -l`.
-  This type of variable is not available to the entire fish shell. An example of this is a local variable that is used
-  to hold some value just for the scope of a function, such as `set -l fname (realpath .)`
-- Export variable using `set -x` (this is only available inside the current fish shell). An example of this is setting
-  the `DISPLAY` environment variable for X11 session in a fish function that is running in a `crontab` headless
-  environment.
-- Export variable globally using `set -gx` (this is available to any programs in your OS, not just the currently running
-  fish shell process). An example of this is setting the `JAVA_HOME` environment variable for all programs running on
-  the machine.
+- To limit variables to local scope of the function (even if there is a global variable of the same
+  name) use `set -l`. This type of variable is not available to the entire fish shell. An example of
+  this is a local variable that is used to hold some value just for the scope of a function, such as
+  `set -l fname (realpath .)`
+- Export variable using `set -x` (this is only available inside the current fish shell). An example
+  of this is setting the `DISPLAY` environment variable for X11 session in a fish function that is
+  running in a `crontab` headless environment.
+- Export variable globally using `set -gx` (this is available to any programs in your OS, not just
+  the currently running fish shell process). An example of this is setting the `JAVA_HOME`
+  environment variable for all programs running on the machine.
 
 ### Lists
 
@@ -110,8 +112,9 @@ set OUR_VAR (date +%s)
 set OUR_VAR (math $OUR_VAR / 60)
 ```
 
-Since all fish variables are lists, you can access individual elements using `[n]` operator, where `n=1` for the first
-element (not 0 index). Here's an example. And negative numbers access elements from the end.
+Since all fish variables are lists, you can access individual elements using `[n]` operator, where
+`n=1` for the first element (not 0 index). Here's an example. And negative numbers access elements
+from the end.
 
 ```bash
 set LIST one two three
@@ -165,13 +168,15 @@ for FOLDER in $FOLDERS ; echo "item: $FOLDER" ; end
 
 ## How to write if statements
 
-The key to writing if statements is using the `test` command to evaluate some expression to a boolean. This can be
-string comparisons or even testing the existence of files and folders. Here are some examples. You can also use the
-`not` operator to prefix the test to check for the inverse condition.
+The key to writing if statements is using the `test` command to evaluate some expression to a
+boolean. This can be string comparisons or even testing the existence of files and folders. Here are
+some examples. You can also use the `not` operator to prefix the test to check for the inverse
+condition.
 
 ### Commonly used conditions
 
-Checking the size of an array. `$argv` contains the list of arguments passed to a script from the command line.
+Checking the size of an array. `$argv` contains the list of arguments passed to a script from the
+command line.
 
 ```bash
 if test (count $argv) -lt 2
@@ -216,10 +221,11 @@ end
 
 ### Program, script, or function exit code
 
-The idea with exit codes is that your function or entire fish script could be used by some other program that
-understands exit codes. In other words there could be an if statement that is going to use the exit code to determine
-some condition. This is a very common pattern that is used with other command line programs. Exit codes are different
-than [return values](#return-values-from-a-function) from a function.
+The idea with exit codes is that your function or entire fish script could be used by some other
+program that understands exit codes. In other words there could be an if statement that is going to
+use the exit code to determine some condition. This is a very common pattern that is used with other
+command line programs. Exit codes are different than [return values](#return-values-from-a-function)
+from a function.
 
 Here's an example of using the exit code of some `git` command:
 
@@ -239,24 +245,26 @@ if sudo umount /media/user/mountpoint
 end
 ```
 
-You can also check the value of the `$status` variable. Fish stores the return value in this variable, just after a
-command is executed. Here's [more info](https://fishshell.com/docs/2.3/faq.html) on this.
+You can also check the value of the `$status` variable. Fish stores the return value in this
+variable, just after a command is executed. Here's
+[more info](https://fishshell.com/docs/2.3/faq.html) on this.
 
-When you are writing functions you can use the following keyword to exit functions or loops: `return`. This may be
-followed by a number. So here's what it means.
+When you are writing functions you can use the following keyword to exit functions or loops:
+`return`. This may be followed by a number. So here's what it means.
 
 1. `return` or `return 0` - This means that the function exited normally.
 2. `return 1` or some other number > 0 - This means that the function had some problem.
 
-You can exit the fish shell itself using `exit`. And the integer exit codes have the same meaning as above.
+You can exit the fish shell itself using `exit`. And the integer exit codes have the same meaning as
+above.
 
 ### Difference between set -q and test -z
 
-There is a subtle difference between using `set -q` and `test -z` in if statements when checking to see if a variable is
-empty.
+There is a subtle difference between using `set -q` and `test -z` in if statements when checking to
+see if a variable is empty.
 
-1. In the case of `test -z` make sure to wrap the variable in quotes, since it might just break in some edge cases if it
-   isn't wrapped in quotes.
+1. In the case of `test -z` make sure to wrap the variable in quotes, since it might just break in
+   some edge cases if it isn't wrapped in quotes.
 2. However, you can use `set -q` to test if a variable has been set without wrapping it in quotes.
 
 Here's an example.
@@ -269,14 +277,15 @@ if test -z "$GIT_STATUS" ; echo "No changes in repo" ; end
 
 ### Multiple conditions with operators: and, or
 
-If you want to combine multiple conditions into a single statement, then you can use `or` and `and` operators. Also if
-you want to check the inverse of a condition, you can use `!`. Here's an example of a function that checks for 2
-arguments to be passed via the command line. Here's the logic we will describe.
+If you want to combine multiple conditions into a single statement, then you can use `or` and `and`
+operators. Also if you want to check the inverse of a condition, you can use `!`. Here's an example
+of a function that checks for 2 arguments to be passed via the command line. Here's the logic we
+will describe.
 
-1. If both the arguments are missing, then usage information should be displayed to the CLI, and perform an early
-   return.
-2. If either one of the arguments is missing, then display a prompt stating that one of the arguments is missing, and
+1. If both the arguments are missing, then usage information should be displayed to the CLI, and
    perform an early return.
+2. If either one of the arguments is missing, then display a prompt stating that one of the
+   arguments is missing, and perform an early return.
 
 ```bash
 function requires-two-arguments
@@ -296,17 +305,18 @@ end
 
 Here are some notes on the code.
 
-1. What does the [`set -q $variable`](https://fishshell.com/docs/current/cmds/set.html) function do? It returns true if
-   `$variable` is empty.
-2. Instead of `set -q`, if you wanted to use [`test`](https://fishshell.com/docs/current/cmds/test.html) function in
-   order to determine if a variable is empty, you can use:
+1. What does the [`set -q $variable`](https://fishshell.com/docs/current/cmds/set.html) function do?
+   It returns true if `$variable` is empty.
+2. Instead of `set -q`, if you wanted to use
+   [`test`](https://fishshell.com/docs/current/cmds/test.html) function in order to determine if a
+   variable is empty, you can use:
    - `if test -z "$variable"`.
    - `if test ! -n "$variable"` or `if not test -n "$variable"`.
 3. If you wanted to replace the `or` check above w/ `test`, this is what it would look like
    `if test -z "$argv[1]"; or test -z "$argv[2]"`.
 4. When you use `or`, `and` operators that you have to terminate the condition expression w/ a `;`.
-5. Make sure to wrap the variable in empty quotes. If an empty string is contained inside the variable, then without
-   these quotes, the statements will cause errors.
+5. Make sure to wrap the variable in empty quotes. If an empty string is contained inside the
+   variable, then without these quotes, the statements will cause errors.
 
 Here's another example of this to test if `$variable` is empty or not.
 
@@ -322,7 +332,8 @@ if test -n "$variable" ; echo "non-empty" ; else ; echo "empty" ; end
 
 ### Another common operator: not
 
-Here's an example of using the `not` operator to test whether a string contains a string fragment or not.
+Here's an example of using the `not` operator to test whether a string contains a string fragment or
+not.
 
 ```bash
 if not string match -q "*md" $argv[1]
@@ -342,11 +353,12 @@ end
 
 ## How to split strings by a delimiter
 
-There are situations when you want to take the output of a command, which is a string, and then split it by some
-delimiter, to use just a portion of the output string. An example of getting the SHA checksum of a given file. The
-command `shasum <filename>` produces something like `df..d8 <filename>`. Let's say that we just wanted the first portion
-of this string (the SHA), knowing that the delimiter is two space characters, we can do the following to get just the
-checksum portion and store it in `$CHECKSUM`. Here's more info on the
+There are situations when you want to take the output of a command, which is a string, and then
+split it by some delimiter, to use just a portion of the output string. An example of getting the
+SHA checksum of a given file. The command `shasum <filename>` produces something like
+`df..d8 <filename>`. Let's say that we just wanted the first portion of this string (the SHA),
+knowing that the delimiter is two space characters, we can do the following to get just the checksum
+portion and store it in `$CHECKSUM`. Here's more info on the
 [`string split` command](https://fishshell.com/docs/current/cmds/string-split.html).
 
 ```bash
@@ -357,14 +369,14 @@ set CHECKSUM $CHECKSUM_ARRAY[1]
 
 ## How to perform string comparisons
 
-In order to test substring matches in strings you can use the `string match` command. Here is more information on the
-command:
+In order to test substring matches in strings you can use the `string match` command. Here is more
+information on the command:
 
 1. [Official docs on string match](https://fishshell.com/docs/current/cmds/string-match.html).
 2. [Stackoverflow answer on how to use it](https://unix.stackexchange.com/a/504931/302646).
 
-Here's an example of this in action. Note the use of `-q` or `--quiet` which does not echo the output of the string if
-the match condition was met (succeeded).
+Here's an example of this in action. Note the use of `-q` or `--quiet` which does not echo the
+output of the string if the match condition was met (succeeded).
 
 ```bash
 if string match -q "*myname*" $hostname
@@ -392,8 +404,8 @@ if set -q $my_variable
 end
 ```
 
-Here's a sophisticated example that tests to see if the packages `ruby-dev` and `ruby-bundler` are installed. If they
-are then `jekyll` gets run, and if not, then these packages are installed.
+Here's a sophisticated example that tests to see if the packages `ruby-dev` and `ruby-bundler` are
+installed. If they are then `jekyll` gets run, and if not, then these packages are installed.
 
 ```bash
 # Return "true" if $packageName is installed, and "false" otherwise.
@@ -435,9 +447,10 @@ end
 
 ## How to write switch statements for strings
 
-In order to create switch statements for strings, the `test` command is used here as well (just like it was for
-[if statements](#how-to-write-if-statements)). The `case` statements need to match substrings, which can be expressed
-using a combination of wildcard chars and the substring you want to match. Here's an example.
+In order to create switch statements for strings, the `test` command is used here as well (just like
+it was for [if statements](#how-to-write-if-statements)). The `case` statements need to match
+substrings, which can be expressed using a combination of wildcard chars and the substring you want
+to match. Here's an example.
 
 ```bash
 switch $hostname
@@ -473,12 +486,13 @@ echo "ls \
   -la" | sh
 ```
 
-This not only makes it easier to debug, but also avoids strange errors when doing multi-line breaks using `\`.
+This not only makes it easier to debug, but also avoids strange errors when doing multi-line breaks
+using `\`.
 
 ## How to write functions
 
-A fish function is just a list of commands that may optionally take arguments. These arguments are just passed in as a
-list (since all variables in fish are lists).
+A fish function is just a list of commands that may optionally take arguments. These arguments are
+just passed in as a list (since all variables in fish are lists).
 
 Here's an example.
 
@@ -491,21 +505,22 @@ say_hi everbody!
 say_hi you and you and you
 ```
 
-Once you have written a function you can see what it is by using `type`, eg: `type say_hi` will show you the function
-that you just created above.
+Once you have written a function you can see what it is by using `type`, eg: `type say_hi` will show
+you the function that you just created above.
 
 - [Here's the doc for functions](https://fishshell.com/docs/current/tutorial.html#tut_functions)
 
 ### Pass arguments to a function
 
-In addition to using `$argv` to figure out what parameters were passed to a function, you can provide a list of named
-parameters that a function expects. Here is more information on this
+In addition to using `$argv` to figure out what parameters were passed to a function, you can
+provide a list of named parameters that a function expects. Here is more information on this
 [from the official docs](https://fishshell.com/docs/current/cmds/function.html).
 
 Some key things to keep in mind:
 
 1. Parameter names can not have `-` characters in them, so use `_` instead.
-2. Do not use the `(` and `)` to pass arguments to a function, simply pass the arguments in a single line w/ spaces.
+2. Do not use the `(` and `)` to pass arguments to a function, simply pass the arguments in a single
+   line w/ spaces.
 
 Here's an example.
 
@@ -517,7 +532,8 @@ end
 testFunction A B
 ```
 
-Here's another example that tests for the existence of a certain number of arguments that are passed to a function.
+Here's another example that tests for the existence of a certain number of arguments that are passed
+to a function.
 
 ```bash
 # Note parameter names can't have dashes in them, only underscores.
@@ -533,9 +549,9 @@ end
 
 ### Return values from a function
 
-You might want to return a value from a function (typically just a string). You can also return many strings delimited
-by new lines. Regardless, the mechanism for doing this is the same. You simply have to use `echo` to dump the return
-value(s) to stdout.
+You might want to return a value from a function (typically just a string). You can also return many
+strings delimited by new lines. Regardless, the mechanism for doing this is the same. You simply
+have to use `echo` to dump the return value(s) to stdout.
 
 Here's an example.
 
@@ -565,35 +581,37 @@ testTheFunction
 
 ## How to handle file and folder paths for dependencies
 
-As your scripts become more complex, you might need to handle loading multiple scripts. In this case you can just pull
-other scripts in from your current script by using `source my-script.fish`. However fish looks for this `my-script.fish`
-file in the current directory, from which you started executing the script. And this current directory might not match
-where you need to load this dependency from. This can happen if your main script is on the `$PATH` but the dependencies
-are not. In this case, you can do something like the following in your main script.
+As your scripts become more complex, you might need to handle loading multiple scripts. In this case
+you can just pull other scripts in from your current script by using `source my-script.fish`.
+However fish looks for this `my-script.fish` file in the current directory, from which you started
+executing the script. And this current directory might not match where you need to load this
+dependency from. This can happen if your main script is on the `$PATH` but the dependencies are not.
+In this case, you can do something like the following in your main script.
 
 ```bash
 set MY_FOLDER_PATH (dirname (status --current-filename))
 source $MY_FOLDER_PATH/my-script.fish
 ```
 
-So what this snippet actually does is get the folder in which the main script is running, and stores it in
-`MY_FOLDER_PATH` and then it become possible for any dependencies to be loaded using the `source` command. There is one
-limitation to this approach, which is that the path stored in `MY_FOLDER_PATH` is relative to the directory from which
-the main script is actually executed. This is a subtle detail that you may not care about, unless you need to have
-absolute path names. In this case you can do the following.
+So what this snippet actually does is get the folder in which the main script is running, and stores
+it in `MY_FOLDER_PATH` and then it become possible for any dependencies to be loaded using the
+`source` command. There is one limitation to this approach, which is that the path stored in
+`MY_FOLDER_PATH` is relative to the directory from which the main script is actually executed. This
+is a subtle detail that you may not care about, unless you need to have absolute path names. In this
+case you can do the following.
 
 ```bash
 set MY_FOLDER_PATH (realpath (dirname (status --current-filename)))
 source $MY_FOLDER_PATH/my-script.fish
 ```
 
-Using [`realpath`](https://man7.org/linux/man-pages/man1/realpath.1.html) gives you the fully qualified path name for
-your folder for the uses cases where you need this capability.
+Using [`realpath`](https://man7.org/linux/man-pages/man1/realpath.1.html) gives you the fully
+qualified path name for your folder for the uses cases where you need this capability.
 
 ## How to write multi line strings to files
 
-There are many situations where you need to write strings and multi line strings to new or existing files in your
-scripts.
+There are many situations where you need to write strings and multi line strings to new or existing
+files in your scripts.
 
 Here's an example of writing single strings to a file.
 
@@ -628,10 +646,11 @@ end
 
 ## How to create colorized echo output
 
-The [`set_color`](https://fishshell.com/docs/current/cmds/set_color.html) function allows fish to colorize and format
-text content that is printed to `stdout` using `echo`. This is great when creating text output that needs to have
-different foreground, background colors, and bold, italic, or underlined output. There are many ways to use this
-command, and here are two examples of how to use it (inline of `echo` statements, and just by itself).
+The [`set_color`](https://fishshell.com/docs/current/cmds/set_color.html) function allows fish to
+colorize and format text content that is printed to `stdout` using `echo`. This is great when
+creating text output that needs to have different foreground, background colors, and bold, italic,
+or underlined output. There are many ways to use this command, and here are two examples of how to
+use it (inline of `echo` statements, and just by itself).
 
 ```bash
 function myFunction
@@ -652,15 +671,16 @@ end
 
 Notes:
 
-1. `set_color normal` has to be called to reset whatever formatting options were set in previous statements.
+1. `set_color normal` has to be called to reset whatever formatting options were set in previous
+   statements.
 2. `set_color -u` does underline, and `set_color -o` does bold.
 
 ## How to get user input
 
-There are situations where you need to ask a user for confirmation before performing some potentially destructive
-operation or you might need user input for some argument to a function (that isn't passed via the command line). In
-these cases it is possible to get user input from the user by reading `stdin` using the
-[`read`](https://fishshell.com/docs/current/cmds/read.html) function.
+There are situations where you need to ask a user for confirmation before performing some
+potentially destructive operation or you might need user input for some argument to a function (that
+isn't passed via the command line). In these cases it is possible to get user input from the user by
+reading `stdin` using the [`read`](https://fishshell.com/docs/current/cmds/read.html) function.
 
 The following function simply returns a `0` for "Y"/"y", and `1` for "N"/"n".
 
@@ -698,8 +718,8 @@ end
 
 ## How to use sed
 
-This is useful for removing fragments of files that are not needed, especially when `xargs` is used to pipe the result
-of `find`.
+This is useful for removing fragments of files that are not needed, especially when `xargs` is used
+to pipe the result of `find`.
 
 Here's an example that removes `./` from the start of each file that's found.
 
@@ -724,7 +744,8 @@ Here's a simple example: `ls | xargs echo "folders: "`.
 - Which produces this: `folders: idea-http-proxy-settings images tmp`.
 - Note how the arguments are concatenated in the output.
 
-Here's a slightly different example using `-I %` which allows arguments to be placed anywhere (not just at the end).
+Here's a slightly different example using `-I %` which allows arguments to be placed anywhere (not
+just at the end).
 
 ```bash
 ls | xargs -I % echo "folder: %"
@@ -742,8 +763,8 @@ Note how the arguments are each in a separate line.
 
 ## How to use cut to split strings
 
-Let's say you have a string `"token1:token2"` and you want to split the string and only keep the first part of it. This
-can be done using the following cut command.
+Let's say you have a string `"token1:token2"` and you want to split the string and only keep the
+first part of it. This can be done using the following cut command.
 
 ```bash
 echo "token1:token2" | cut -d ':' -f 1
@@ -752,8 +773,8 @@ echo "token1:token2" | cut -d ':' -f 1
 - `-d ':'` - this splits the string by the `:` delimiter
 - `-f 1` - this keeps the first field in the tokenized string
 
-Here's a real example of finding all the HTML files in `~/github/developerlife.com` with the string `"fonts.googleapis"`
-in it and then opening them up in `subl`.
+Here's a real example of finding all the HTML files in `~/github/developerlife.com` with the string
+`"fonts.googleapis"` in it and then opening them up in `subl`.
 
 ```bash
 cd ~/github/developerlife.com

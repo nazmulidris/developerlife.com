@@ -24,30 +24,33 @@ categories:
 
 ## Sealed classes and state
 
-Kotlin sealed classes are like enums with super powers. They can be used to concisely and elegantly represent state
-information. They can be use in finite state machines as well (eg via Redux) but this tutorial will only explore how
-they can be used to represent state in some common problems you encounter in Android development.
+Kotlin sealed classes are like enums with super powers. They can be used to concisely and elegantly
+represent state information. They can be use in finite state machines as well (eg via Redux) but
+this tutorial will only explore how they can be used to represent state in some common problems you
+encounter in Android development.
 
-Please watch [this great video](https://www.youtube.com/watch?v=uGMm3StjqLI) on Kotlin sealed classes and state
-management by [Patrick Cousins](https://www.linkedin.com/in/patrick-cousins-530117127) which was recorded during
+Please watch [this great video](https://www.youtube.com/watch?v=uGMm3StjqLI) on Kotlin sealed
+classes and state management by
+[Patrick Cousins](https://www.linkedin.com/in/patrick-cousins-530117127) which was recorded during
 KotlinConf 2018.
 
 ## Example 1 - Android permissions
 
 If an Android app requires
 [dangerous permissions](https://developer.android.com/guide/topics/permissions/overview#dangerous-permission-prompt)
-then it becomes necessary to prompt the end user of the app to grant such permissions. This requires quite a bit of back
-and forth, and in most cases, an Activity has to be extended in order to provide an implementation of
-`onRequestPermissionsResult()`. Also, the Activity itself is needed to make the permission request.
+then it becomes necessary to prompt the end user of the app to grant such permissions. This requires
+quite a bit of back and forth, and in most cases, an Activity has to be extended in order to provide
+an implementation of `onRequestPermissionsResult()`. Also, the Activity itself is needed to make the
+permission request.
 
 So here's the overall flow of what has to happen.
 
-1.  The Activity's `requestPermissions(Activity, Array<String>< Int)` method has to be called in order to display the
-    permissions prompt to the end user.
+1.  The Activity's `requestPermissions(Activity, Array<String>< Int)` method has to be called in
+    order to display the permissions prompt to the end user.
 
-1.  The Activity's `onRequestPermissionsResult(Int, Array<String>, IntArray)` method has to be overridden in order to
-    determine if the user pressed pressed the "ALLOW" or "DENY" button when presented w/ the prompt to grant the
-    permission at runtime.
+1.  The Activity's `onRequestPermissionsResult(Int, Array<String>, IntArray)` method has to be
+    overridden in order to determine if the user pressed pressed the "ALLOW" or "DENY" button when
+    presented w/ the prompt to grant the permission at runtime.
 
         1. If the permission was granted, then the operation that required the permission can be
         performed.
@@ -55,10 +58,10 @@ So here's the overall flow of what has to happen.
         1. If the permission was denied, then let the user know that the app requires this permission
         in order to function (or whatever makes sense for your app).
 
-In order to determine whether the permission was granted or not, requires a lengthy if statement to interpret the
-meaning of the 3 parameters of the `onRequestPermissionsResult()`. And this is where sealed classes can make life much
-simpler by turning these 3 objects into a simple expression of what the state of the approval is. The following is an
-example of what this might look like.
+In order to determine whether the permission was granted or not, requires a lengthy if statement to
+interpret the meaning of the 3 parameters of the `onRequestPermissionsResult()`. And this is where
+sealed classes can make life much simpler by turning these 3 objects into a simple expression of
+what the state of the approval is. The following is an example of what this might look like.
 
 ```kotlin
 sealed class PermissionResult {
@@ -98,8 +101,8 @@ class DriverActivity : AppCompatActivity() {
 }
 ```
 
-Here's the implementation of the method that the Activity calls to figure out what happened w/ the permission grant from
-the user.
+Here's the implementation of the method that the Activity calls to figure out what happened w/ the
+permission grant from the user.
 
 ```kotlin
 fun onRequestPermissionsResult(requestCode: Int,
@@ -152,8 +155,8 @@ fun executeTaskOnPermissionGranted(context: AppCompatActivity,
 }
 ```
 
-And here's where the call to `executeTaskOnPermissionGranted()` occurs in a part of the app that requires a permission
-in order to continue.
+And here's where the call to `executeTaskOnPermissionGranted()` occurs in a part of the app that
+requires a permission in order to continue.
 
 ```kotlin
 executeTaskOnPermissionGranted(
@@ -180,7 +183,8 @@ executeTaskOnPermissionGranted(
     })
 ```
 
-For a complete listing of sources in a real world example that uses this please checkout the following links.
+For a complete listing of sources in a real world example that uses this please checkout the
+following links.
 
 1. [Permissions.kt](https://github.com/nazmulidris/places-api-poc/blob/main/app/src/main/kotlin/com/google/api/places/places_api_poc/misc/Permissions.kt)
 1. [DriverActivity.kt](https://github.com/nazmulidris/places-api-poc/blob/main/app/src/main/kotlin/com/google/api/places/places_api_poc/ui/DriverActivity.kt)
@@ -189,27 +193,30 @@ For a complete listing of sources in a real world example that uses this please 
 
 ## Example 2 - Android GMS Tasks API
 
-Google Play Services uses the [Tasks API](https://developers.google.com/android/guides/tasks) in order to provide an
-implementation of "promises" for asynchronous operations. It can be quite tedious to wade through the generics, and
-interfaces, and ceremony that this API requires. While understandable, why it has such complexity, the use of sealed
-classes and [extension function expressions]({{ '/2018/10/20/kotlin-extension-function-expressions/' | relative_url }})
-can make using this API a breeze.
+Google Play Services uses the [Tasks API](https://developers.google.com/android/guides/tasks) in
+order to provide an implementation of "promises" for asynchronous operations. It can be quite
+tedious to wade through the generics, and interfaces, and ceremony that this API requires. While
+understandable, why it has such complexity, the use of sealed classes and [extension function
+expressions]({{ '/2018/10/20/kotlin-extension-function-expressions/' | relative_url }}) can make
+using this API a breeze.
 
 Here's the flow that occurs when using the Task API.
 
-1. There's a service that can be accessed via some client object. This client object is created and some arguments are
-   passed to it, in order to get some results from it. This is the gist of the service request and response. However,
-   the service might take some arbitrary amount of time to provide the result, and instead of awaiting the results, this
-   is where Task API comes into play. The service client provides a Task object when the request is made. Also, keep in
-   mind that the result might be an error.
+1. There's a service that can be accessed via some client object. This client object is created and
+   some arguments are passed to it, in order to get some results from it. This is the gist of the
+   service request and response. However, the service might take some arbitrary amount of time to
+   provide the result, and instead of awaiting the results, this is where Task API comes into play.
+   The service client provides a Task object when the request is made. Also, keep in mind that the
+   result might be an error.
 
-1. In order to do something when the Task actually has results, a lambda / closure / higher order function has to be
-   provided to the Task (that was created above) so that when it completes with a success or error, then this result can
-   be used to do something that's useful for the app.
+1. In order to do something when the Task actually has results, a lambda / closure / higher order
+   function has to be provided to the Task (that was created above) so that when it completes with a
+   success or error, then this result can be used to do something that's useful for the app.
 
-From the perspective of the code that uses the Task, what would really be nice is an error or a result back from the
-response. Please note that the request is created by the client w/ the arguments passed to the client. Here's what this
-response might look like, using Kotlin sealed classes.
+From the perspective of the code that uses the Task, what would really be nice is an error or a
+result back from the response. Please note that the request is created by the client w/ the
+arguments passed to the client. Here's what this response might look like, using Kotlin sealed
+classes.
 
 ```kotlin
 sealed class ServiceResponse<T> {
@@ -273,5 +280,5 @@ currentPlaceClient.getCurrentPlace(null)
 
 > Here's a link to the
 > [repo](https://github.com/nazmulidris/places-api-poc/tree/main/app/src/main/kotlin/com/google/api/places/places_api_poc/service)
-> for this project where you can find all the classes in the `service` package that leverage this sealed class and this
-> extension function expression.
+> for this project where you can find all the classes in the `service` package that leverage this
+> sealed class and this extension function expression.

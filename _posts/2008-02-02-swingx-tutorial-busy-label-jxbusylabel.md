@@ -29,44 +29,51 @@ categories:
 
 ## Introduction
 
-SwingX introduces a lot of new components to Swing, and this tutorial will cover the busy label. The latest build of
-SwingX (after 0.9.1 milestone release) has some significant, and much needed, changes implemented by
+SwingX introduces a lot of new components to Swing, and this tutorial will cover the busy label. The
+latest build of SwingX (after 0.9.1 milestone release) has some significant, and much needed,
+changes implemented by
 [Jan Haderka](http://weblogs.java.net/blog/rah003/archive/2007/12/get_busy_again.html).
 
 ## What is a busy label?
 
-Here's an example of a busy icon that you will find in all kinds of apps: ![]({{'assets/busy-1.png' | relative_url}})
+Here's an example of a busy icon that you will find in all kinds of apps:
+![]({{'assets/busy-1.png' | relative_url}})
 
-The icon is meant to depict a task that is currently executing, that is of indeterminate length. The task may take 10
-minutes or 10 seconds, there's no way of knowing, and the user can't really have an expectation of how long to wait.
+The icon is meant to depict a task that is currently executing, that is of indeterminate length. The
+task may take 10 minutes or 10 seconds, there's no way of knowing, and the user can't really have an
+expectation of how long to wait.
 
 SwingX provides an implementation of this functionality in the form of
 [JXBusyLabel](http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/org/jdesktop/swingx/JXBusyLabel.html)
 and
 [BusyPainter](http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/org/jdesktop/swingx/painter/BusyPainter.html).
 You can use the busy label just like you would a normal
-[JXLabel](http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/org/jdesktop/swingx/JXLabel.html), except
-that you can add a Painter to it, which controls the painting and animation of the busy label itself.
+[JXLabel](http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/org/jdesktop/swingx/JXLabel.html),
+except that you can add a Painter to it, which controls the painting and animation of the busy label
+itself.
 
 ### SwingX milestone 0.9.1
 
-If you are using v0.9.1 milestone release, then you will still have JXBusyLabel, but a lot of the functionality
-described in this tutorial will not be available to you. For that you should download the latest build of the SwingX
-API. Not to worry, a build that works is included in the project files that you can [download at the end of this
+If you are using v0.9.1 milestone release, then you will still have JXBusyLabel, but a lot of the
+functionality described in this tutorial will not be available to you. For that you should download
+the latest build of the SwingX API. Not to worry, a build that works is included in the project
+files that you can [download at the end of this
 tutorial]({{'assets/busylabel.zip' | relative_url}}).
 
 ## Source code example
 
-In the following example, I'm going to create 2 JXBusyLabel components, that I will place in a JXPanel. One will work
-with older SwingX releases (the simple label) and the complex label will require newer SwingX release (after 0.9.1).
-Here's what it looks like: ![]({{'assets/busy-2.png' | relative_url}})
+In the following example, I'm going to create 2 JXBusyLabel components, that I will place in a
+JXPanel. One will work with older SwingX releases (the simple label) and the complex label will
+require newer SwingX release (after 0.9.1). Here's what it looks like:
+![]({{'assets/busy-2.png' | relative_url}})
 
-This example creates 2 busy labels, one simple, and the other complex. The simple busy label will work with older
-versions of SwingX (0.9.1), but the complex one requires later builds. Both the busy labels start out disabled, and as
-you can see from the screenshot, they blend into the background when they are disabled. When you click on the
-"start/stop" button, it enables the labels, and calls _setBusy(true)_ on them. This causes them to start spinning and
-getting animated. When you click on the button again, the _setBusy(false)_ method is called, stopping the animation;
-they are still enabled, just not animated.
+This example creates 2 busy labels, one simple, and the other complex. The simple busy label will
+work with older versions of SwingX (0.9.1), but the complex one requires later builds. Both the busy
+labels start out disabled, and as you can see from the screenshot, they blend into the background
+when they are disabled. When you click on the "start/stop" button, it enables the labels, and calls
+_setBusy(true)_ on them. This causes them to start spinning and getting animated. When you click on
+the button again, the _setBusy(false)_ method is called, stopping the animation; they are still
+enabled, just not animated.
 
 ### Simple busy label
 
@@ -80,10 +87,10 @@ public JXBusyLabel createSimpleBusyLabel(){
 }
 ```
 
-The code is very straightforward. It's just like creating a simple JLabel. Note that it's not possible to set the size
-of this JXBusyLabel using this constructor. In fact, this is one of the reasons you should use the latest build of
-SwingX, which adds a new constructor and lots more functionality to this component. Using this code results in a busy
-label that looks like this:
+The code is very straightforward. It's just like creating a simple JLabel. Note that it's not
+possible to set the size of this JXBusyLabel using this constructor. In fact, this is one of the
+reasons you should use the latest build of SwingX, which adds a new constructor and lots more
+functionality to this component. Using this code results in a busy label that looks like this:
 
 ![]({{'assets/busy-3.png' | relative_url}})
 
@@ -124,28 +131,32 @@ public JXBusyLabel createComplexBusyLabel() {
 
 There are a couple of things to note about this code:
 
-1. When you create the JXBusyLabel, you can pass a Dimension object to it, to specify the size of the busy label.
+1. When you create the JXBusyLabel, you can pass a Dimension object to it, to specify the size of
+   the busy label.
 
-2. In order to change the default look of the busy label, you have to leverage the BusyPainter class, which actually
-   controls what the busy label looks like (background and highlight colors, shape of the label innards, etc), and how
-   it animates (animation speed, etc). The good news is that you don't have to code this by hand! Jan Haderka has been
-   gracious enough to provide a program that allows you to configure all of this visually, and then it just spits out
-   the code you need to insert in your program! Here's a link to
+2. In order to change the default look of the busy label, you have to leverage the BusyPainter
+   class, which actually controls what the busy label looks like (background and highlight colors,
+   shape of the label innards, etc), and how it animates (animation speed, etc). The good news is
+   that you don't have to code this by hand! Jan Haderka has been gracious enough to provide a
+   program that allows you to configure all of this visually, and then it just spits out the code
+   you need to insert in your program! Here's a link to
    [his program (JNLP launcher)](https://jdnc-incubator.dev.java.net/demos/rah003/BusyPainter/BusyPainterDemo.jnlp).
    Read more about this utility on
-   [his blog post](http://weblogs.java.net/blog/rah003/archive/2007/12/get_busy_again.html). I recommend that you play
-   with Jan's program and try different things; you will be surprised the different kinds of busy labels you can come up
-   with... it's limited by your imagination.
+   [his blog post](http://weblogs.java.net/blog/rah003/archive/2007/12/get_busy_again.html). I
+   recommend that you play with Jan's program and try different things; you will be surprised the
+   different kinds of busy labels you can come up with... it's limited by your imagination.
 
-3. You can change the colors used by the busy painter using setBaseColor() and setHighlightColor(). The base color is
-   the "background" color of the busy label, and the highlight color is what gets painted over it periodically. So if
-   you use a base color of light blue, and highlight color of orange, you get something like this:
+3. You can change the colors used by the busy painter using setBaseColor() and setHighlightColor().
+   The base color is the "background" color of the busy label, and the highlight color is what gets
+   painted over it periodically. So if you use a base color of light blue, and highlight color of
+   orange, you get something like this:
 
 ![]({{'assets/busy-4.png' | relative_url}})
 
 ### Rest of the code
 
-In addition to the busy labels, there's another JXLabel used in this example that uses a painter and an icon:
+In addition to the busy labels, there's another JXLabel used in this example that uses a painter and
+an icon:
 
 ![]({{'assets/busy-5.png' | relative_url}})
 
@@ -324,10 +335,11 @@ public Painter getPainter() {
 
 There are a few things to note about this code:
 
-1. A JXPanel is used to contain all the components (labels, buttons, etc). and it's transparency is set to 70% opaque,
-   30% clear. That's why the sample program has a very muted/soft look to it.
+1. A JXPanel is used to contain all the components (labels, buttons, etc). and it's transparency is
+   set to 70% opaque, 30% clear. That's why the sample program has a very muted/soft look to it.
 
-1. Be sure to launch your program in the Swing EDT and not the thread that's running through your main() method.
+1. Be sure to launch your program in the Swing EDT and not the thread that's running through your
+   main() method.
 
 1. A call to JFrame's setLocationRelativeTo(null) centers the JFrame on your computer screen.
 

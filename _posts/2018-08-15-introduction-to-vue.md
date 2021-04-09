@@ -35,19 +35,19 @@ categories:
 
 ## Introduction
 
-Vue.js is a reactive progressive framework that allows the creation of Javascript apps. It is very similar to React,
-which I've written about on developerlife.com before. I wanted to try Vue out to see how it felt. And I really like it
-😃.
+Vue.js is a reactive progressive framework that allows the creation of Javascript apps. It is very
+similar to React, which I've written about on developerlife.com before. I wanted to try Vue out to
+see how it felt. And I really like it 😃.
 
-Unlike React, it doesn't require you to invest a lot of upfront effort in learning it's ways. And it can scale up or
-down depending on your needs, which makes it easy to get started with, but can also handle demanding use cases when you
-get there. Also it's published under the MIT license
+Unlike React, it doesn't require you to invest a lot of upfront effort in learning it's ways. And it
+can scale up or down depending on your needs, which makes it easy to get started with, but can also
+handle demanding use cases when you get there. Also it's published under the MIT license
 ([which is React is too now](https://medium.freecodecamp.org/facebook-just-changed-the-license-on-react-heres-a-2-minute-explanation-why-5878478913b2)).
 
 ## Getting started quickly (single HTML file)
 
-The simplest way to get started with Vue is to grab the development version script for it and add it to the `head` tag
-of your HTML file.
+The simplest way to get started with Vue is to grab the development version script for it and add it
+to the `head` tag of your HTML file.
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -77,17 +77,17 @@ And have the Vue code connect up with an existing element on your HTML page.
 
 {% endraw %}
 
-And that's all there is to it, in order to get going in your browser without messing with Webpack or Babel, or anything
-else!
+And that's all there is to it, in order to get going in your browser without messing with Webpack or
+Babel, or anything else!
 
 ### Basic usage
 
 Here's the full HTML file w/ this basic example of using Vue.
 
-- In order to swap out the `div` with id `#app_basic` with the Vue code, you have to tell the `Vue` object you create
-  what this element id is, eg: `el: '#app_basic'`.
-- When you change the `data.message` object, then Vue will update the DOM with its new value. This is what makes it
-  'reactive'.
+- In order to swap out the `div` with id `#app_basic` with the Vue code, you have to tell the `Vue`
+  object you create what this element id is, eg: `el: '#app_basic'`.
+- When you change the `data.message` object, then Vue will update the DOM with its new value. This
+  is what makes it 'reactive'.
 
 {% raw %}
 
@@ -146,7 +146,11 @@ Here are some more code snippets of basic Vue usage (the `v-for` directive).
   new Vue({
     el: "#app_loops",
     data: {
-      todos: [{ text: "Learn JavaScript" }, { text: "Learn Vue" }, { text: "Build something awesome" }],
+      todos: [
+        { text: "Learn JavaScript" },
+        { text: "Learn Vue" },
+        { text: "Build something awesome" },
+      ],
     },
   });
 </script>
@@ -186,8 +190,8 @@ Here are some more code snippets of basic Vue usage (the `v-on` directive).
 
 ### v-model directive
 
-Here are some more code snippets of basic Vue usage (the `v-model` directive). With data binding support, Vue keeps the
-the underlying data (`data.value`) in sync with the UI element (`input`).
+Here are some more code snippets of basic Vue usage (the `v-model` directive). With data binding
+support, Vue keeps the the underlying data (`data.value`) in sync with the UI element (`input`).
 
 {% raw %}
 
@@ -219,24 +223,24 @@ To learn more about Vue, check out their excellent documentation.
 
 ## Getting started without Webpack
 
-So far, all the work we have done has been self contained in a single HTML file. What if you wanted to modularize your
-code and create ES6 modules, etc? Well, we would normally have to use something like Webpack at this point, and use it
-to combine all the JS files, transpile, and minify them. However, for the purposes of getting started quickly, I wanted
-to do without Webpack for now.
+So far, all the work we have done has been self contained in a single HTML file. What if you wanted
+to modularize your code and create ES6 modules, etc? Well, we would normally have to use something
+like Webpack at this point, and use it to combine all the JS files, transpile, and minify them.
+However, for the purposes of getting started quickly, I wanted to do without Webpack for now.
 
-Vue has a [CLI npm module](https://cli.vuejs.org/) that makes it easy to generate project stubs w/ Webpack already
-configured and ready to go.
+Vue has a [CLI npm module](https://cli.vuejs.org/) that makes it easy to generate project stubs w/
+Webpack already configured and ready to go.
 
-However, we are going to be able to make do without Webpack for a slightly more sophisticated example that uses Vue
-components.
+However, we are going to be able to make do without Webpack for a slightly more sophisticated
+example that uses Vue components.
 
 ### Single origin policy
 
-To enhance security, ES6 modules are subject to [same-origin policy](http://tinyurl.com/jwag3hy) which means we have to
-run a local server in order to being able to run JavaScript applications using this technology. Unfortunately, that
-means we have to install a npm dependency `browsersync`. There's more
-[info on stackoverflow](https://stackoverflow.com/a/46992592/2085356) on this CORS (cross origin resource sharing)
-policy.
+To enhance security, ES6 modules are subject to [same-origin policy](http://tinyurl.com/jwag3hy)
+which means we have to run a local server in order to being able to run JavaScript applications
+using this technology. Unfortunately, that means we have to install a npm dependency `browsersync`.
+There's more [info on stackoverflow](https://stackoverflow.com/a/46992592/2085356) on this CORS
+(cross origin resource sharing) policy.
 
 ### Structure of the project
 
@@ -250,8 +254,8 @@ This is the folder and file structure of the project.
     +-- styles.css
 ```
 
-And here's the `package.json` script that's needed to launch the local web server that will serve up all the JS files
-from the same origin.
+And here's the `package.json` script that's needed to launch the local web server that will serve up
+all the JS files from the same origin.
 
 ```json
 {
@@ -270,9 +274,9 @@ Type the following commands:
 
 ### Vue components
 
-To recap, to add a Vue component, I've chosen not to dump everything in a single HTML file, but not use Webpack either.
-Instead, I'm useing something called `browsersync` to setup a simple web server that I can use to host and test my HTML,
-JS, and CSS files.
+To recap, to add a Vue component, I've chosen not to dump everything in a single HTML file, but not
+use Webpack either. Instead, I'm useing something called `browsersync` to setup a simple web server
+that I can use to host and test my HTML, JS, and CSS files.
 
 #### Import the ES6 module
 
@@ -350,17 +354,19 @@ new Vue({
 
 #### Notes on the code
 
-- There are 2 components that are created `todo_list` and `todo_item`. And these can be used as tag names in the HTML.
-- The `Vue` object that's created has a `data` property that contains an array of to do items (each of which has an
-  `id`, `text`, and `done` properties).
-- The `todo_list` item is passed the `todoList` as a `prop`. It then iterates thru each object and passes it to the
-  `todo_item` as a `prop`.
+- There are 2 components that are created `todo_list` and `todo_item`. And these can be used as tag
+  names in the HTML.
+- The `Vue` object that's created has a `data` property that contains an array of to do items (each
+  of which has an `id`, `text`, and `done` properties).
+- The `todo_list` item is passed the `todoList` as a `prop`. It then iterates thru each object and
+  passes it to the `todo_item` as a `prop`.
 - If you're familiar w/ Android, you can think of it this way
   - Adapter 👉 `Vue` object's `data`.
   - List View 👉 `todo_list`.
   - List Row Renderer 👉 `todo_item`.
-- In the `todo_list` template, you will find this directive `v-bind:class="{ strike: todo_item_prop.done }"`. It means
-  that if `done` is `true` then to apply the `strike` CSS class (which simply strikes thru the item, marking it done).
+- In the `todo_list` template, you will find this directive
+  `v-bind:class="{ strike: todo_item_prop.done }"`. It means that if `done` is `true` then to apply
+  the `strike` CSS class (which simply strikes thru the item, marking it done).
 
 ## Get the code
 

@@ -37,42 +37,45 @@ categories:
 
 ## Introduction
 
-This tutorial is part of a collection tutorials on basic data structures and algorithms that are created using Kotlin.
-This project is useful if you are trying to get more fluency in Kotlin or need a refresher to do interview prep for
-software engineering roles.
+This tutorial is part of a collection tutorials on basic data structures and algorithms that are
+created using Kotlin. This project is useful if you are trying to get more fluency in Kotlin or need
+a refresher to do interview prep for software engineering roles.
 
 ### How to run this project
 
 You can get the code for this and all the other tutorials in this collection from
-[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of project in this repo
-in action.
+[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of
+project in this repo in action.
 
 ![]({{'assets/algo-app-anim.gif' | relative_url}})
 
-Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the command line.
+Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the
+command line.
 
 #### Importing this project into JetBrains IntelliJ IDEA
 
 - This project was created using JetBrains Idea as a Gradle and Kotlin project
-  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you import this project
-  into Idea as a Gradle project, make sure not to check "Offline work" (which if checked, won't allow the gradle
-  dependencies to be downloaded). - As of Jun 24 2018,
-  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503) (v4.4.x), so you can
-  use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
+  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you
+  import this project into Idea as a Gradle project, make sure not to check "Offline work" (which if
+  checked, won't allow the gradle dependencies to be downloaded). - As of Jun 24 2018,
+  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503)
+  (v4.4.x), so you can use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
 
 ## Substring search
 
-It is a very common problem to search for the presence of a substring inside of a string. Let's say that:
+It is a very common problem to search for the presence of a substring inside of a string. Let's say
+that:
 
 - the string is called `str` (with length `n`)
 - the substring is `substr` (with length `m`).
 
 ### O(n \* m) - Brute force approach
 
-The brute force approach to string searches is done by simply sliding the pattern along the string until you find a
-match. Every time you slide down to the next character in `str`, this algorithm doesn't really remember what it already
-knows about the string (since it iterates thru the entire length of the string at every iteration). It essentially
-forgets about what it knows about the string (already) for every `n-1` attempts that it makes to match the substring.
+The brute force approach to string searches is done by simply sliding the pattern along the string
+until you find a match. Every time you slide down to the next character in `str`, this algorithm
+doesn't really remember what it already knows about the string (since it iterates thru the entire
+length of the string at every iteration). It essentially forgets about what it knows about the
+string (already) for every `n-1` attempts that it makes to match the substring.
 
 ```kotlin
 /**
@@ -106,16 +109,17 @@ Please note that if you want to turn a Kotlin `String` into a `CharArray` you ca
 
 ### O(n + m) - Using a state machine
 
-By using a state machine that is built from the substring pattern we can come up with a much better algorithm to match
-these patterns inside our string. The idea here is not to forget what we have already seen about the string as we
-iterate over each character in it.
+By using a state machine that is built from the substring pattern we can come up with a much better
+algorithm to match these patterns inside our string. The idea here is not to forget what we have
+already seen about the string as we iterate over each character in it.
 
-This is a streaming algorithm where we pass one character at a time (as we iterate thru the entire string) to a state
-machine which matches the pattern in the substring. For every iteration:
+This is a streaming algorithm where we pass one character at a time (as we iterate thru the entire
+string) to a state machine which matches the pattern in the substring. For every iteration:
 
-- Each character is compared with the character at a cursor (which represents the state) in the substring.
-- If there's a match, this cursor is incremented, and at the next iteration, the next character in the pattern will be
-  matched, and so on.
+- Each character is compared with the character at a cursor (which represents the state) in the
+  substring.
+- If there's a match, this cursor is incremented, and at the next iteration, the next character in
+  the pattern will be matched, and so on.
 - When there's a mismatch the cursor is reset to 0.
 - And we know a match has been found when the cursor equals the length of the substring.
 

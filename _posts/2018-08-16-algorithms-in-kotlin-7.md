@@ -38,28 +38,29 @@ categories:
 
 ## Introduction
 
-This tutorial is part of a collection tutorials on basic data structures and algorithms that are created using Kotlin.
-This project is useful if you are trying to get more fluency in Kotlin or need a refresher to do interview prep for
-software engineering roles.
+This tutorial is part of a collection tutorials on basic data structures and algorithms that are
+created using Kotlin. This project is useful if you are trying to get more fluency in Kotlin or need
+a refresher to do interview prep for software engineering roles.
 
 ### How to run this project
 
 You can get the code for this and all the other tutorials in this collection from
-[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of project in this repo
-in action.
+[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of
+project in this repo in action.
 
 ![]({{'assets/algo-app-anim.gif' | relative_url}})
 
-Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the command line.
+Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the
+command line.
 
 #### Importing this project into JetBrains IntelliJ IDEA
 
 - This project was created using JetBrains Idea as a Gradle and Kotlin project
-  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you import this project
-  into Idea as a Gradle project, make sure not to check "Offline work" (which if checked, won't allow the gradle
-  dependencies to be downloaded). - As of Jun 24 2018,
-  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503) (v4.4.x), so you can
-  use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
+  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you
+  import this project into Idea as a Gradle project, make sure not to check "Offline work" (which if
+  checked, won't allow the gradle dependencies to be downloaded). - As of Jun 24 2018,
+  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503)
+  (v4.4.x), so you can use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
 
 ## LRU and MRU
 
@@ -118,15 +119,18 @@ class Cache<T>(val type: Type, val size: Int) {
 
 ### Notes on implementation
 
-- According to the LRU Algorithm, the lowest rank item will be removed when a new one is inserted and there's no space
-  left in the cache. Also, every time an item is inserted into the cache it's rank is set to the highest rank.
-- According to the MRU Algorithm, the highest rank item will be removed when a new one is inserted and there's no space
-  left in the cache. Also, every time an item is inserted into the cache it's rank is set to the highest rank.
+- According to the LRU Algorithm, the lowest rank item will be removed when a new one is inserted
+  and there's no space left in the cache. Also, every time an item is inserted into the cache it's
+  rank is set to the highest rank.
+- According to the MRU Algorithm, the highest rank item will be removed when a new one is inserted
+  and there's no space left in the cache. Also, every time an item is inserted into the cache it's
+  rank is set to the highest rank.
 
 ## LRU cache w/ O(1) cost of cache eviction
 
-In the above implementations of LRU and MRU caches, there's a cost to finding the key that needs to be evicted when the
-capacity has been reached. The following implementation provides a way to do this w/out incurring such a cost.
+In the above implementations of LRU and MRU caches, there's a cost to finding the key that needs to
+be evicted when the capacity has been reached. The following implementation provides a way to do
+this w/out incurring such a cost.
 
 ```kotlin
 /**

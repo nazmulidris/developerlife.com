@@ -25,18 +25,19 @@ categories:
 
 ## Introduction
 
-I'm used to importing libraries that I need in gradle by simply adding them as a dependency for implementation or
-testing in `build.gradle` or `build.gradle.kts`.
+I'm used to importing libraries that I need in gradle by simply adding them as a dependency for
+implementation or testing in `build.gradle` or `build.gradle.kts`.
 
-However, I've always been curious about how to publish my own dependency that can easily be used by other projects. This
-tutorial shows how to take a Kotlin library and publish it to the
-[GitHub Package Registry](https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages) a
-dependency that can be used in gradle projects. I used to use JFrog Bintray but both
-[Bintray and JCenter are going to be shut down](https://www.infoq.com/news/2021/02/jfrog-jcenter-bintray-closure/) in
-May 2021.
+However, I've always been curious about how to publish my own dependency that can easily be used by
+other projects. This tutorial shows how to take a Kotlin library and publish it to the
+[GitHub Package Registry](https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages)
+a dependency that can be used in gradle projects. I used to use JFrog Bintray but both
+[Bintray and JCenter are going to be shut down](https://www.infoq.com/news/2021/02/jfrog-jcenter-bintray-closure/)
+in May 2021.
 
-In this tutorial I will create the `color-console` library that allows console messages to be colorized using ANSI color
-codes. Here is the end result snippet that we are looking to enable for our `color-console` library.
+In this tutorial I will create the `color-console` library that allows console messages to be
+colorized using ANSI color codes. Here is the end result snippet that we are looking to enable for
+our `color-console` library.
 
 Desired snippet for `build.gradle.kts` (using Kotlin DSL):
 
@@ -83,16 +84,19 @@ dependencies {
 The code that comprises the library, that will be built is in this
 [GitHub repo](http://github.com/nazmulidris/color-console) for `color-console`.
 
-Using IDEA create a Gradle + Java + Kotlin (JVM) project. Make sure it uses Kotlin and not Groovy for the Gradle build
-script (I only got this working w/ the Kotlin DSL and not Groovy). It's a very simple Kotlin and Gradle that has a
-single source file. Add the source code there and the following steps are where things get interesting.
+Using IDEA create a Gradle + Java + Kotlin (JVM) project. Make sure it uses Kotlin and not Groovy
+for the Gradle build script (I only got this working w/ the Kotlin DSL and not Groovy). It's a very
+simple Kotlin and Gradle that has a single source file. Add the source code there and the following
+steps are where things get interesting.
 
 ## Generate the personal access tokens that will be needed to publish and import
 
-The first step is to create some [GitHub personal access tokens](https://github.com/settings/tokens) that will do 2
-things. You might consider saving them to global environment variables using whatever shell you use.
+The first step is to create some [GitHub personal access tokens](https://github.com/settings/tokens)
+that will do 2 things. You might consider saving them to global environment variables using whatever
+shell you use.
 
-1. `GITHUB_PACKAGES_PUBLISH_TOKEN` - this token has `repo, write:packages` scope. Do **NOT** share this!
+1. `GITHUB_PACKAGES_PUBLISH_TOKEN` - this token has `repo, write:packages` scope. Do **NOT** share
+   this!
 2. `GITHUB_PACKAGES_IMPORT_TOKEN` - this token has `read:packages` scope. This is ok to share.
 
 You might also consider saving the following environment variable too.
@@ -102,15 +106,17 @@ You might also consider saving the following environment variable too.
 ## Add GitHub Package Registry support to the build script so that the package can be published
 
 Edit the `build.gradle.kts` file to allow this library to be published to
-[GitHub Packages](https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages). Here are
-the high level steps.
+[GitHub Packages](https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages).
+Here are the high level steps.
 
 1. Add some plugins so that we can publish this project to GitHub Packages.
-2. Configure the maven publishing plugin. [More info](https://docs.gradle.org/current/userguide/publishing_maven.html).
-3. To publish, you have to run the gradle task named `publish`. This will generate a release package for
-   `color-console`.
-4. Before publishing you might want to test that this works locally by using the `publishToMavenLocal` task which will
-   generate the artifacts locally and save them to the `$HOME/.m2/repository/com/developerlife/color-console/` folder.
+2. Configure the maven publishing plugin.
+   [More info](https://docs.gradle.org/current/userguide/publishing_maven.html).
+3. To publish, you have to run the gradle task named `publish`. This will generate a release package
+   for `color-console`.
+4. Before publishing you might want to test that this works locally by using the
+   `publishToMavenLocal` task which will generate the artifacts locally and save them to the
+   `$HOME/.m2/repository/com/developerlife/color-console/` folder.
 
 Here is what you need to add to your `build.gradle.kts`:
 
@@ -170,17 +176,19 @@ publishing {
 }
 ```
 
-Here is a [link to the entire source file](https://github.com/nazmulidris/color-console/blob/main/build.gradle.kts) so
-that you can see where these variables are defined and what the other functions are that generate the docs and the JAR
-files using the `pom` function.
+Here is a
+[link to the entire source file](https://github.com/nazmulidris/color-console/blob/main/build.gradle.kts)
+so that you can see where these variables are defined and what the other functions are that generate
+the docs and the JAR files using the `pom` function.
 
 ## Import this dependency into another gradle project
 
 In order to load the package for the library from GitHub Packages Registry, the
-[official docs](https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages) provide some
-detailed examples of the provider side of things. And you can extrapolate what the consumer side of things might look
-like. The biggest thing to keep in mind is that a `read:packages` scoped GitHub personal access token will be required
-by the consumer of the package (and has to be accessible their `build.gradle` or `build.gradle.kts` file).
+[official docs](https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages)
+provide some detailed examples of the provider side of things. And you can extrapolate what the
+consumer side of things might look like. The biggest thing to keep in mind is that a `read:packages`
+scoped GitHub personal access token will be required by the consumer of the package (and has to be
+accessible their `build.gradle` or `build.gradle.kts` file).
 
 Make sure to provide the following environment variables before you import this package.
 
@@ -191,8 +199,8 @@ Here is more information on
 [how to declare your own maven repositories](https://docs.gradle.org/current/userguide/declaring_repositories.html)
 using gradle.
 
-To import this library into your Gradle project, please add the following lines in your `build.gradle` file in order to
-use this library (in Groovy).
+To import this library into your Gradle project, please add the following lines in your
+`build.gradle` file in order to use this library (in Groovy).
 
 ```groovy
 repositories {

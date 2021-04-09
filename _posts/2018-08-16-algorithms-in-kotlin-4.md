@@ -40,41 +40,43 @@ categories:
 
 ## Introduction
 
-This tutorial is part of a collection tutorials on basic data structures and algorithms that are created using Kotlin.
-This project is useful if you are trying to get more fluency in Kotlin or need a refresher to do interview prep for
-software engineering roles.
+This tutorial is part of a collection tutorials on basic data structures and algorithms that are
+created using Kotlin. This project is useful if you are trying to get more fluency in Kotlin or need
+a refresher to do interview prep for software engineering roles.
 
 ### How to run this project
 
 You can get the code for this and all the other tutorials in this collection from
-[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of project in this repo
-in action.
+[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of
+project in this repo in action.
 
 ![]({{'assets/algo-app-anim.gif' | relative_url}})
 
-Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the command line.
+Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the
+command line.
 
 #### Importing this project into JetBrains IntelliJ IDEA
 
 - This project was created using JetBrains Idea as a Gradle and Kotlin project
-  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you import this project
-  into Idea as a Gradle project, make sure not to check "Offline work" (which if checked, won't allow the gradle
-  dependencies to be downloaded). - As of Jun 24 2018,
-  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503) (v4.4.x), so you can
-  use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
+  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you
+  import this project into Idea as a Gradle project, make sure not to check "Offline work" (which if
+  checked, won't allow the gradle dependencies to be downloaded). - As of Jun 24 2018,
+  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503)
+  (v4.4.x), so you can use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
 
 ## Induction
 
-Let's use an example to illustrate induction. Let's say that you have a bunch of coins of fixed denominations. And
-you're tasked with figuring out the fewest coins that you would need to put together in order to arrive at some total
-amount. Let's say you have denominations of 1, 5, 7, 11 and you're asked to see how few coins you can select in order to
-get a total of 49.
+Let's use an example to illustrate induction. Let's say that you have a bunch of coins of fixed
+denominations. And you're tasked with figuring out the fewest coins that you would need to put
+together in order to arrive at some total amount. Let's say you have denominations of 1, 5, 7, 11
+and you're asked to see how few coins you can select in order to get a total of 49.
 
 ## Brute force approach
 
-Using the brute force approach you could simply see how many 11 denomination coins would get you close to the total.
-There would be a remainder (4 x 11 denomination coins = 44). Then you could see how many 7 denomination coins fit. And
-so on with 5 and 1 denomination coins. You could write this up in the following code.
+Using the brute force approach you could simply see how many 11 denomination coins would get you
+close to the total. There would be a remainder (4 x 11 denomination coins = 44). Then you could see
+how many 7 denomination coins fit. And so on with 5 and 1 denomination coins. You could write this
+up in the following code.
 
 ```kotlin
 /**
@@ -138,16 +140,18 @@ data class Coins(var numberOf1s: Int = 0,
 
 ## Recursion and breaking down the problem
 
-The brute force approach produced a lot of code. And the denominations of the coins that we can use are hardcoded. This
-isn't a good solution. Instead if we use induction and implement it with recursion, then we can do the following.
+The brute force approach produced a lot of code. And the denominations of the coins that we can use
+are hardcoded. This isn't a good solution. Instead if we use induction and implement it with
+recursion, then we can do the following.
 
 1. Come up with the simplest case that we can solve for (that will not require recursion).
-2. Figure out a way to call the function that you're writing w/ arguments that represent a smaller subset of the problem
-   and use the return value from the function to assemble the final result (whatever that may be).
-   - This usually entails performing some logic and then generating new arguments for the same function, that break the
-     problem down into smaller problems.
-   - Calls need to be made to the function (recursively) and the result from these calls need to be combined into a
-     final result somehow.
+2. Figure out a way to call the function that you're writing w/ arguments that represent a smaller
+   subset of the problem and use the return value from the function to assemble the final result
+   (whatever that may be).
+   - This usually entails performing some logic and then generating new arguments for the same
+     function, that break the problem down into smaller problems.
+   - Calls need to be made to the function (recursively) and the result from these calls need to be
+     combined into a final result somehow.
 
 Using this approach this is what the code might look like for the minimum number of coins problem.
 
@@ -189,8 +193,8 @@ fun numCoins(total: Int,
 
 ### Quick Sort
 
-You can apply the steps above (simplest case, perform logic, split arguments into smaller subset of the problem) to many
-other examples, such as quick sort.
+You can apply the steps above (simplest case, perform logic, split arguments into smaller subset of
+the problem) to many other examples, such as quick sort.
 
 ```kotlin
 /** O(n * log(n)) */

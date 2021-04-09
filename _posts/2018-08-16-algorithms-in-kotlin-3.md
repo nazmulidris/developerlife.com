@@ -41,28 +41,29 @@ categories:
 
 ## Introduction
 
-This tutorial is part of a collection tutorials on basic data structures and algorithms that are created using Kotlin.
-This project is useful if you are trying to get more fluency in Kotlin or need a refresher to do interview prep for
-software engineering roles.
+This tutorial is part of a collection tutorials on basic data structures and algorithms that are
+created using Kotlin. This project is useful if you are trying to get more fluency in Kotlin or need
+a refresher to do interview prep for software engineering roles.
 
 ### How to run this project
 
 You can get the code for this and all the other tutorials in this collection from
-[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of project in this repo
-in action.
+[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of
+project in this repo in action.
 
 ![]({{'assets/algo-app-anim.gif' | relative_url}})
 
-Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the command line.
+Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the
+command line.
 
 #### Importing this project into JetBrains IntelliJ IDEA
 
 - This project was created using JetBrains Idea as a Gradle and Kotlin project
-  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you import this project
-  into Idea as a Gradle project, make sure not to check "Offline work" (which if checked, won't allow the gradle
-  dependencies to be downloaded). - As of Jun 24 2018,
-  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503) (v4.4.x), so you can
-  use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
+  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you
+  import this project into Idea as a Gradle project, make sure not to check "Offline work" (which if
+  checked, won't allow the gradle dependencies to be downloaded). - As of Jun 24 2018,
+  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503)
+  (v4.4.x), so you can use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
 
 ## Queues and stacks
 
@@ -70,9 +71,9 @@ Once you've cloned the repo, type `./gradlew run` in order to build and run this
 
 ## Depth first traversal / search
 
-File systems on computers have a hierarchical file system. Searching for a folder by name is a very common thing to do
-on computers. On Unix machines, we can use the `find -name "somefile"` command. How would you implement this command?
-This is where DFS come into play!
+File systems on computers have a hierarchical file system. Searching for a folder by name is a very
+common thing to do on computers. On Unix machines, we can use the `find -name "somefile"` command.
+How would you implement this command? This is where DFS come into play!
 
 Here's a simple representation of folders in a hierarchical file system.
 
@@ -187,17 +188,20 @@ fun dfs(name: String, root: Folder): Boolean {
 
 ### Implementation notes
 
-- When sub folders are added to the stack, they are pulled out in reverse order. So if the insertion order is
-  `opt -> apps -> dev`, then they will be retrieved in reverse order `dev -> apps -> opt`.
-- The nature of the stack (the last folder added will be the first one retrieved in the while loop) makes the algorithm
-  favor going "deeper" (or depth first, instead of breadth first). The last folder that's added will be the first one
-  that's checked at the next iteration of the while loop. And its sub folders will be added to the stack. Repeat this
-  and you have a depth first bias in folder traversal.
-- Once a depth first path is exhausted (by reaching as far as it will go) then the algorithm back tracks, due to the
-  nature of the stack. When `dev` path has been exhausted, then the next folder to embark upon (for the while loop) is
-  the `apps` folder. When `apps` is exhausted, then back tracking via the stack, takes us to `opt`.
+- When sub folders are added to the stack, they are pulled out in reverse order. So if the insertion
+  order is `opt -> apps -> dev`, then they will be retrieved in reverse order `dev -> apps -> opt`.
+- The nature of the stack (the last folder added will be the first one retrieved in the while loop)
+  makes the algorithm favor going "deeper" (or depth first, instead of breadth first). The last
+  folder that's added will be the first one that's checked at the next iteration of the while loop.
+  And its sub folders will be added to the stack. Repeat this and you have a depth first bias in
+  folder traversal.
+- Once a depth first path is exhausted (by reaching as far as it will go) then the algorithm back
+  tracks, due to the nature of the stack. When `dev` path has been exhausted, then the next folder
+  to embark upon (for the while loop) is the `apps` folder. When `apps` is exhausted, then back
+  tracking via the stack, takes us to `opt`.
 
-Here's output from the code itself that highlights this in action for `bfs("jdk11", makeSampleFolders())`.
+Here's output from the code itself that highlights this in action for
+`bfs("jdk11", makeSampleFolders())`.
 
 ```text
 Stacks & Queues
@@ -247,15 +251,16 @@ jdk11 found: true
 
 ## Breadth first traversal / search
 
-By replacing the stack in the example above w/ a queue, we end up w/ depth first search. Unlike the stack, which favors
-folder traversal to happen depth first (since the last item added to the stack is the first one that's processed, and
-when a path is exhausted it backtracks to the previously added folder), a queue favors the first folder added to be
-processed. This results in a totally different behavior from the stack when we traverse our folder tree.
+By replacing the stack in the example above w/ a queue, we end up w/ depth first search. Unlike the
+stack, which favors folder traversal to happen depth first (since the last item added to the stack
+is the first one that's processed, and when a path is exhausted it backtracks to the previously
+added folder), a queue favors the first folder added to be processed. This results in a totally
+different behavior from the stack when we traverse our folder tree.
 
 ## Ring Buffer
 
-The ring buffer is a queue abstract data type that's implemented using a fixed size array. This makes it performant with
-additions and deletions from a runtime and memory standpoint.
+The ring buffer is a queue abstract data type that's implemented using a fixed size array. This
+makes it performant with additions and deletions from a runtime and memory standpoint.
 
 The following is an implementation of it in Kotlin.
 
@@ -352,16 +357,17 @@ class UnderflowException(msg: String) : RuntimeException(msg)
 
 ### Implementation notes
 
-- Since the `array` is re-used for insertions and deletions, it becomes important to be able to track the usage or
-  `capacity` of the `array` (as items are added and removed). This `capacity` is used to determine whether the `array`
-  is full or empty, and is used to iterate thru the elements of the `array` if needed.
-- In order to cycle around the `array`, the `head` and `tail` indices are updated such that when they hit the "end" of
-  the `array`, they "flip" over. This means that when head reaches `maxSize + 1`, it just goes to `0`. This can be
-  achieved easily by using the `%` operator. `tail = (tail+1) % maxSize` is the equivalent of
-  `if (tail == maxSize) tail = 0`.
-- In order to get all the elements out of the `array` (as a list) the `capacity` and the `head` (or read index) is used
-  in order to get all the elements out as we would expect (which isn't necessarily how they are laid out in the
-  `array`).
+- Since the `array` is re-used for insertions and deletions, it becomes important to be able to
+  track the usage or `capacity` of the `array` (as items are added and removed). This `capacity` is
+  used to determine whether the `array` is full or empty, and is used to iterate thru the elements
+  of the `array` if needed.
+- In order to cycle around the `array`, the `head` and `tail` indices are updated such that when
+  they hit the "end" of the `array`, they "flip" over. This means that when head reaches
+  `maxSize + 1`, it just goes to `0`. This can be achieved easily by using the `%` operator.
+  `tail = (tail+1) % maxSize` is the equivalent of `if (tail == maxSize) tail = 0`.
+- In order to get all the elements out of the `array` (as a list) the `capacity` and the `head` (or
+  read index) is used in order to get all the elements out as we would expect (which isn't
+  necessarily how they are laid out in the `array`).
 
 ### Resources
 

@@ -39,17 +39,19 @@ categories:
 
 ## Introduction
 
-Vue.js is a reactive progressive framework that allows the creation of Javascript apps. It is very similar to React.
-This tutorial is a guide to using [`vue-cli`](https://cli.vuejs.org/) (which is similar to
-[`create-react-app`](https://github.com/facebook/create-react-app)) in order to create a project that supports Material
-Design (thru Vuetify), Electron, and Webpack. Here's
-[another tutorial](http://localhost:4000/2018/08/14/introduction-to-vue/) that serves as an introduction to Vue.
+Vue.js is a reactive progressive framework that allows the creation of Javascript apps. It is very
+similar to React. This tutorial is a guide to using [`vue-cli`](https://cli.vuejs.org/) (which is
+similar to [`create-react-app`](https://github.com/facebook/create-react-app)) in order to create a
+project that supports Material Design (thru Vuetify), Electron, and Webpack. Here's
+[another tutorial](http://localhost:4000/2018/08/14/introduction-to-vue/) that serves as an
+introduction to Vue.
 
 ## Starter project repo
 
-Here's a [<i class="fab fa-github"></i> GitHub repo](https://github.com/nazmulidris/vue_webpack) that I created as the
-end result of going thru this tutorial. This project can be used as a starter project that is built using `vue-cli-3`
-which allows for the use of Webpack, Vue, Vuetify (Material Design), and Electron (along w/ `lodash`, and `axios`).
+Here's a [<i class="fab fa-github"></i> GitHub repo](https://github.com/nazmulidris/vue_webpack)
+that I created as the end result of going thru this tutorial. This project can be used as a starter
+project that is built using `vue-cli-3` which allows for the use of Webpack, Vue, Vuetify (Material
+Design), and Electron (along w/ `lodash`, and `axios`).
 
 ### Run the project
 
@@ -62,8 +64,8 @@ which allows for the use of Webpack, Vue, Vuetify (Material Design), and Electro
 
 ### Step by step guide to buiding this starter project
 
-Instructions on getting started w/ Vue-cli3, electron, vuetify. The following steps will guide you thru creating this
-project from scratch if you choose, instead of getting the GitHub repo.
+Instructions on getting started w/ Vue-cli3, electron, vuetify. The following steps will guide you
+thru creating this project from scratch if you choose, instead of getting the GitHub repo.
 
 #### Install vue-cli-3
 
@@ -100,8 +102,9 @@ project from scratch if you choose, instead of getting the GitHub repo.
 
 ## Deep dive into the code
 
-Now that we have the mechanics of creating this project out of the way, let's look at how this project is organized and
-some of the interesting elements in it. Here are some files that we are going to cover in depth.
+Now that we have the mechanics of creating this project out of the way, let's look at how this
+project is organized and some of the interesting elements in it. Here are some files that we are
+going to cover in depth.
 
 ```text
 src/
@@ -115,8 +118,8 @@ src/
 
 ### main.js
 
-Webpack takes all the HTML, CSS, and JS files in the project, packages and minifies them. This `main.js` file ends up
-being the main entry point for the code in our project.
+Webpack takes all the HTML, CSS, and JS files in the project, packages and minifies them. This
+`main.js` file ends up being the main entry point for the code in our project.
 
 #### 1. Mounting to the DOM
 
@@ -124,13 +127,13 @@ being the main entry point for the code in our project.
 new Vue({ render: (h) => h(App) }).$mount("#app");
 ```
 
-There's an `index.html` file in the `public/` folder which has a `div` with `id` of `app`. The line of code above mounts
-the root Vue component `App` to this `div`.
+There's an `index.html` file in the `public/` folder which has a `div` with `id` of `app`. The line
+of code above mounts the root Vue component `App` to this `div`.
 
 #### 2. State or application object model
 
-The first thing that I do here is setup the data which serves as the application model or shared state between all the
-Vue components that are created.
+The first thing that I do here is setup the data which serves as the application model or shared
+state between all the Vue components that are created.
 
 ```javascript
 export const appData = {
@@ -142,8 +145,8 @@ export const appData = {
 };
 ```
 
-The `appData` object is the state of the application. And when this data changes, Vue components in this project will
-react and refresh themselves to stay up to date w/ the data in this object.
+The `appData` object is the state of the application. And when this data changes, Vue components in
+this project will react and refresh themselves to stay up to date w/ the data in this object.
 
 ```javascript
 setInterval(() => {
@@ -151,9 +154,9 @@ setInterval(() => {
 }, 1000);
 ```
 
-The code above updates the value of `appData.time` every second w/ the current date. When you run the code, you will see
-that the footer of the web app shows the current time updating every second. Let's take a look at the root Vue component
-`App` to see how this is accomplished.
+The code above updates the value of `appData.time` every second w/ the current date. When you run
+the code, you will see that the footer of the web app shows the current time updating every second.
+Let's take a look at the root Vue component `App` to see how this is accomplished.
 
 ### App.vue
 
@@ -163,14 +166,15 @@ In `main.js` you will find the following import statement.
 import App from "./App.vue";
 ```
 
-This loads the `App` Vue component to be mounted to the DOM. Let's take a closer look at this root Vue component. The
-`App.vue` file has 3 things in one place:
+This loads the `App` Vue component to be mounted to the DOM. Let's take a closer look at this root
+Vue component. The `App.vue` file has 3 things in one place:
 
 1. `<template>` that contains the template that will be used to stamp out this component in the DOM.
-1. `<script>` that contains the JS code that is associated w/ this component. There are some interesting things that you
-   should watch out for as you write functions in this block (especially with regards to how `this` is handled in
-   functions that you write within these `<script`> tags).
-1. `<style>` that contains CSS fragments that you can apply only to this component and not pollute the rest of your DOM.
+1. `<script>` that contains the JS code that is associated w/ this component. There are some
+   interesting things that you should watch out for as you write functions in this block (especially
+   with regards to how `this` is handled in functions that you write within these `<script`> tags).
+1. `<style>` that contains CSS fragments that you can apply only to this component and not pollute
+   the rest of your DOM.
 
 #### 1. Script
 
@@ -191,14 +195,15 @@ export default {
 };
 ```
 
-The main thing to note here is that an object is exported via `default`. This is the object which was imported in
-`main.js` and mounted to the DOM. This object represents options that are used by Vue to create the Vue component itself
-(`new Vue({render: h => h(App)}).$mount('#app');`) in `main.js`.
+The main thing to note here is that an object is exported via `default`. This is the object which
+was imported in `main.js` and mounted to the DOM. This object represents options that are used by
+Vue to create the Vue component itself (`new Vue({render: h => h(App)}).$mount('#app');`) in
+`main.js`.
 
-The `data` function provides access to all the state information that will be available to `App` component, and portions
-of this state will be passed around as props to other components that are needed. In this case, we have `HelloWorld`
-component that is needed by `App`. You can see that this `HelloWorld` component is loaded using an import statement
-above.
+The `data` function provides access to all the state information that will be available to `App`
+component, and portions of this state will be passed around as props to other components that are
+needed. In this case, we have `HelloWorld` component that is needed by `App`. You can see that this
+`HelloWorld` component is loaded using an import statement above.
 
 You can see the `HelloWorld` tag used in the `<template>` section below.
 
@@ -228,44 +233,48 @@ And here's the `<template>` section.
 
 {% endraw %}
 
-The `App` component is the root, which is why it provide `data`. You will see in the `HelloWord` component below, that
-it doesn't have any `data`. Instead it has to rely on the use of props in order to get information.
+The `App` component is the root, which is why it provide `data`. You will see in the `HelloWord`
+component below, that it doesn't have any `data`. Instead it has to rely on the use of props in
+order to get information.
 
 #### 3. Props
 
-The `HelloWorld` component is declared and passed a props `msg` via `v-bind:` attribute, and the `body_message` object
-is passed to it. This `body_message` object is loaded from the Vue component's data, that is just prodding access to the
-`appData` object which was declared in `main.js`.
+The `HelloWorld` component is declared and passed a props `msg` via `v-bind:` attribute, and the
+`body_message` object is passed to it. This `body_message` object is loaded from the Vue component's
+data, that is just prodding access to the `appData` object which was declared in `main.js`.
 
-Vue actually wraps the underlying `appData` object w/ a proxy, which is how the 'reactivity' is implemented in the Vue
-framework.
+Vue actually wraps the underlying `appData` object w/ a proxy, which is how the 'reactivity' is
+implemented in the Vue framework.
 
 {% raw %}
 
-There are some other places in the template where you see code appearing between `{{` and `}}`. These are all references
-to objects that are made available by the Vue component's `data` property (which just provides access to `appData`).
+There are some other places in the template where you see code appearing between `{{` and `}}`.
+These are all references to objects that are made available by the Vue component's `data` property
+(which just provides access to `appData`).
 
 {% endraw %}
 
 #### 4. Material Design and Theming
 
-And there are quite a few tags like `v-app` and `v-toolbar` etc. These are all part of the Vuetify Material Design
-library. Here's a quick rundown of what these do.
+And there are quite a few tags like `v-app` and `v-toolbar` etc. These are all part of the Vuetify
+Material Design library. Here's a quick rundown of what these do.
 
-- `v-app` This is the root tag for any Vuetify application. The `dark` attribute marks this to have the dark theme.
-  Vuetify doesn't really manage themes in the way that I thought it would. Eg: overriding the theme doesn't really
-  propagate the color choices, etc to existing components. More on this below.
-- `v-toolbar` This is the toolbar component, to which I've added some attributes for styling. Even though I provided a
-  custom theme to Vuetify which is loaded via `vuetify.js` in `main.js`, my color choices for `primary`, `secondary`,
-  etc didn't propagate to the existing components 😡. So I had to explicitly provide attributes to each tag to specify
-  my color choices. In this case I applied the background color to `primary` and then applied `dark` so that the icon
-  and text colors would be inverted, so that they would have good contrast. I shouldn't have to do this, and will be
+- `v-app` This is the root tag for any Vuetify application. The `dark` attribute marks this to have
+  the dark theme. Vuetify doesn't really manage themes in the way that I thought it would. Eg:
+  overriding the theme doesn't really propagate the color choices, etc to existing components. More
+  on this below.
+- `v-toolbar` This is the toolbar component, to which I've added some attributes for styling. Even
+  though I provided a custom theme to Vuetify which is loaded via `vuetify.js` in `main.js`, my
+  color choices for `primary`, `secondary`, etc didn't propagate to the existing components 😡. So I
+  had to explicitly provide attributes to each tag to specify my color choices. In this case I
+  applied the background color to `primary` and then applied `dark` so that the icon and text colors
+  would be inverted, so that they would have good contrast. I shouldn't have to do this, and will be
   exploring other Material Design libraries for Vue in the future (that are not Vuetify).
-- `v-content` This holds the main content of the app between the header and the footer. This is where the `HelloWorld`
-  component is rendered.
-- `v-footer` This holds the footer of the app, and has the time which gets updated. One interesting thing to note here,
-  related to themeing is that I created a color called `surface` in my custom them (`vuetify.js`). In order to apply
-  this color to the text, I do this:
+- `v-content` This holds the main content of the app between the header and the footer. This is
+  where the `HelloWorld` component is rendered.
+- `v-footer` This holds the footer of the app, and has the time which gets updated. One interesting
+  thing to note here, related to themeing is that I created a color called `surface` in my custom
+  them (`vuetify.js`). In order to apply this color to the text, I do this:
 
 ```html
 <span class="surface--text"></span>

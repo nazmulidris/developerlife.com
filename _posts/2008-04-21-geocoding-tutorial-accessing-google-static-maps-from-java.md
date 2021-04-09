@@ -26,48 +26,51 @@ categories:
 
 ## Introduction
 
-Google just released a new API that allows access to 'static' maps. Static maps are GIF images that are generated based
-on a longitude/latitude that's passed to the Google Static Map API. In this tutorial, you will see how to use this API
-from Java applications. I've created a Java adapter to the API that will allow you to quickly access all the Static Map
-API features. I've also provide a graphical application that you can use as a test harness to the see the API in action.
+Google just released a new API that allows access to 'static' maps. Static maps are GIF images that
+are generated based on a longitude/latitude that's passed to the Google Static Map API. In this
+tutorial, you will see how to use this API from Java applications. I've created a Java adapter to
+the API that will allow you to quickly access all the Static Map API features. I've also provide a
+graphical application that you can use as a test harness to the see the API in action.
 
-You need a latitude and longitude in order to start using the API. You can get this lat/lon pair from a GeoIP database,
-or a GPS receiver, or just type it in manually.
+You need a latitude and longitude in order to start using the API. You can get this lat/lon pair
+from a GeoIP database, or a GPS receiver, or just type it in manually.
 
-Also, the 'normal' Google Maps API is geared for use in JavaScript, and the Static API doesn't involve any JavaScript.
+Also, the 'normal' Google Maps API is geared for use in JavaScript, and the Static API doesn't
+involve any JavaScript.
 
 ## License key
 
 You will need to sign up for a license key in order to use this API. You can learn more about it
 [here](http://code.google.com/apis/maps/documentation/staticmaps/). You can sign up for a key
-[here](http://code.google.com/apis/maps/signup.html). A license key will allow 1000 accesses in a 24 hour period. I've
-designed the Java API to access the Static Maps API in a way that you can easily cache maps that the Static Maps API
-generates.
+[here](http://code.google.com/apis/maps/signup.html). A license key will allow 1000 accesses in a 24
+hour period. I've designed the Java API to access the Static Maps API in a way that you can easily
+cache maps that the Static Maps API generates.
 
 ## Background Information
 
-Locations on earth can be specified by a combination of longitude, latitude, and elevation. You can read all about it
-[here on wikipedia](http://en.wikipedia.org/wiki/Geographic_coordinates). The following code is enough to identify a
-geographic location:
+Locations on earth can be specified by a combination of longitude, latitude, and elevation. You can
+read all about it [here on wikipedia](http://en.wikipedia.org/wiki/Geographic_coordinates). The
+following code is enough to identify a geographic location:
 
 ```java
 double latitude;
 double longitude;
 ```
 
-This is the bare minimum information that you will need, but you will be able to get by and interface with many location
-based services just with this data. How do you get this long/lat data? If your app has access to a
-[GPS](http://en.wikipedia.org/wiki/Gps) device, then it can read the GPS coordinates from it
-([NMEA](http://en.wikipedia.org/wiki/NMEA) standard) - the GPS receiver sends lat/long information every few seconds via
-a serial port, USB, or Bluetooth connection to your laptop or mobile device, and you can then use that data.
-Alternatively, if you know the IP address where your desktop, mobile, or web based app is running, then you might be
-able to get geographic information out of it. There are issues with this and it’s not always reliable, and these
+This is the bare minimum information that you will need, but you will be able to get by and
+interface with many location based services just with this data. How do you get this long/lat data?
+If your app has access to a [GPS](http://en.wikipedia.org/wiki/Gps) device, then it can read the GPS
+coordinates from it ([NMEA](http://en.wikipedia.org/wiki/NMEA) standard) - the GPS receiver sends
+lat/long information every few seconds via a serial port, USB, or Bluetooth connection to your
+laptop or mobile device, and you can then use that data. Alternatively, if you know the IP address
+where your desktop, mobile, or web based app is running, then you might be able to get geographic
+information out of it. There are issues with this and it’s not always reliable, and these
 [issues are explained here](http://www.maxmind.com/app/ip-location-explained).
 
 ## Source code
 
-The following code is the main() method implementation of the MapLookup class, and you can run it to get a feel for how
-to use the API:
+The following code is the main() method implementation of the MapLookup class, and you can run it to
+get a feel for how to use the API:
 
 ```java
 public static void main(String[] args) {
@@ -102,10 +105,11 @@ public static void main(String[] args) {
 }
 ```
 
-There are many different ways to use the API as you can see from this code. The methods getMap(...) return a String URI
-that can be resolved to get the map image from Google. All the parameters that you give the MapLookup class are used to
-generate this URI that is compliant with what Google expects. The MapLookup class also performs range validation
-checking for input parameters. The following is a list of methods you can call:
+There are many different ways to use the API as you can see from this code. The methods getMap(...)
+return a String URI that can be resolved to get the map image from Google. All the parameters that
+you give the MapLookup class are used to generate this URI that is compliant with what Google
+expects. The MapLookup class also performs range validation checking for input parameters. The
+following is a list of methods you can call:
 
 ```java
 // set the license key
@@ -145,15 +149,16 @@ public static String getMap(double lat,
 }
 ```
 
-All the getMap(...) methods return a String URI that can be resolved to get a map image from Google. Most of the methods
-are pretty straightforward. The class validates your input params to make sure that they are in range. Here's a list of
-restrictions:
+All the getMap(...) methods return a String URI that can be resolved to get a map image from Google.
+Most of the methods are pretty straightforward. The class validates your input params to make sure
+that they are in range. Here's a list of restrictions:
 
 1. size width and height - max of 512 pixels
 
 2. zoom - zoom level between 0 and 19.
 
-Make sure to call setLicenseKey() to set the license key supplied to you by Google, when you sign up.
+Make sure to call setLicenseKey() to set the license key supplied to you by Google, when you sign
+up.
 
 To turn the URI into a GIF use the getDataFromURI(String) method:
 
@@ -176,31 +181,33 @@ public static ByteBuffer getDataFromURI(String uri) throws IOException {
 
 ## Graphical test harness
 
-A full blown graphical test harness is provided so that you can get familiar with the API. Here's a screenshot of this
-app in action:
+A full blown graphical test harness is provided so that you can get familiar with the API. Here's a
+screenshot of this app in action:
 
 ![]({{'assets/geocoding-1.png' | relative_url}})
 
 ![]({{'assets/geocoding-2.png' | relative_url}})
 
-To run the harness, run the SampleApp class in the Provider.GoogleMapsStatic.TestUI package. If you have IDEA, then a
-GeoIPLookup.ipr project file is provided with a run configuration for this graphical test harness. Make sure that you
-have a license key pasted into the License Key field, otherwise you will get an error.
+To run the harness, run the SampleApp class in the Provider.GoogleMapsStatic.TestUI package. If you
+have IDEA, then a GeoIPLookup.ipr project file is provided with a run configuration for this
+graphical test harness. Make sure that you have a license key pasted into the License Key field,
+otherwise you will get an error.
 
 ### Using the harness
 
-The graphical app can be used to access simple API functions. You have to provide a width and height for the map size
-that you're expecting. The max size is 512 pixels for each. Also you have to provide a latitude and longitude, these are
-just Java double values. When you click on "Get Map", the app generates a URI, which is then resolved into a GIF image
-that's displayed. The Task API is used to load this map in the background. For more information on the Task API,
+The graphical app can be used to access simple API functions. You have to provide a width and height
+for the map size that you're expecting. The max size is 512 pixels for each. Also you have to
+provide a latitude and longitude, these are just Java double values. When you click on "Get Map",
+the app generates a URI, which is then resolved into a GIF image that's displayed. The Task API is
+used to load this map in the background. For more information on the Task API,
 [start here](https://developerlife.com/2008/04/06/task-api-quick-start-guide/).
 
 ## Advanced API usage
 
-Simple usage of the API is covered by the test harness. Advanced usage constitutes using "markers". My API makes it
-really easy to work with markers! There's a getMap(...) variant that takes any number of MapMarker objects. These
-objects represent "pushpins" that you want to show up on the map itself. You can pass any number of these to the API.
-Here's the MapMarker class:
+Simple usage of the API is covered by the test harness. Advanced usage constitutes using "markers".
+My API makes it really easy to work with markers! There's a getMap(...) variant that takes any
+number of MapMarker objects. These objects represent "pushpins" that you want to show up on the map
+itself. You can pass any number of these to the API. Here's the MapMarker class:
 
 ```java
 /**
@@ -277,9 +284,9 @@ public String toString() {
 
 ```
 
-You can create a MapMarker just by providing a lat/lon pair. You can also provide a color and alphabet designation along
-with the lat/lon. The API takes care of translating this into URL parameters that the Google Static Maps API will
-understand. Here's are some examples:
+You can create a MapMarker just by providing a lat/lon pair. You can also provide a color and
+alphabet designation along with the lat/lon. The API takes care of translating this into URL
+parameters that the Google Static Maps API will understand. Here's are some examples:
 
 ```java
 String u3 = getMap(
@@ -301,9 +308,9 @@ In the code above (part of the main()), you can see how to create MapMarker obje
 
 ## Example of integrating this into an app
 
-When you put the Static Maps API together with the GeoIP APIs, then you can create some really useful and compelling
-functionality in your applications - be they mobile, web, or desktop based. In the ScreamingToaster Platform, I've
-created functionality that embeds geocode information into every aspect of the user experience. Here's an example of
-this in action:
+When you put the Static Maps API together with the GeoIP APIs, then you can create some really
+useful and compelling functionality in your applications - be they mobile, web, or desktop based. In
+the ScreamingToaster Platform, I've created functionality that embeds geocode information into every
+aspect of the user experience. Here's an example of this in action:
 
 ![]({{'assets/geocoding-3.png' | relative_url}})

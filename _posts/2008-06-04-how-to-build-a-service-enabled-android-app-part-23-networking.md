@@ -10,12 +10,11 @@ excerpt: |
 layout: post
 title: "Android - How to build a service-enabled Android App - Part 2/3 Networking"
 categories:
-- Android
+  - Android
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [Connecting to services](#connecting-to-services)
@@ -28,15 +27,17 @@ categories:
 
 ## Introduction
 
-I've written 3 tutorials to show you how to create a service enabled Android application that performs all of it's
-[network I/O](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/) in a background thread
-([not the UI thread](https://developerlife.com/2010/10/12/android-event-dispatch-thread-or-main-thread/)). Please note
-that by service I mean web-service, not Android Service. These tutorials are split into three parts:
+I've written 3 tutorials to show you how to create a service enabled Android application that
+performs all of it's [network I/O](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/) in a
+background thread
+([not the UI thread](https://developerlife.com/2010/10/12/android-event-dispatch-thread-or-main-thread/)).
+Please note that by service I mean web-service, not Android Service. These tutorials are split into
+three parts:
 
 1. [How to build a simple UI without using XML, by writing Java code to layout the UI.](https://developerlife.com/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/)
 
-2. How to use Apache HTTP Client to connect to services over HTTP or HTTPS and exchange serialized Java objects with
-   services.
+2. How to use Apache HTTP Client to connect to services over HTTP or HTTPS and exchange serialized
+   Java objects with services.
 
 3. [How to use background threads to perform long running network IO operations, so that the main UI thread is not locked up.](https://developerlife.com/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/)
 
@@ -80,10 +81,11 @@ that by service I mean web-service, not Android Service. These tutorials are spl
 
 ### Using HTTP client
 
-The Apache HTTP Client 4 is included in the Android distribution, so there's no need for you to download it and add it
-to your Android projects. Here is a
-[tutorial on how to use this HTTP Client 4 library](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/). Here's
-the code that runs in the Android app (that sends the data to the servlet and processes it's response):
+The Apache HTTP Client 4 is included in the Android distribution, so there's no need for you to
+download it and add it to your Android projects. Here is a
+[tutorial on how to use this HTTP Client 4 library](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/).
+Here's the code that runs in the Android app (that sends the data to the servlet and processes it's
+response):
 
 ```java
 /** this method is called in a non-"edt" thread */
@@ -163,18 +165,19 @@ private void _doInBackgroundPost() {
 }
 ```
 
-The code is structured in the way that you see it due to threading requirements to not labor the UI thread. More on this
-in the next tutorial. Here's the gist of what the code is doing:
+The code is structured in the way that you see it due to threading requirements to not labor the UI
+thread. More on this in the next tutorial. Here's the gist of what the code is doing:
 
 1. It gets the userid and password strings and stuffs them in a Hashtable.
 
-2. This Hashtable is serialized to a bunch of bytes using a ByteArrayOutputStream and ObjectOutputStream.
+2. This Hashtable is serialized to a bunch of bytes using a ByteArrayOutputStream and
+   ObjectOutputStream.
 
 3. These bytes are sent to the servlet via HTTP POST using the
    [Apache HTTP Core 4 libs](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/).
 
-4. The response from the servlet is read into a ObjectInputStream and then deserialized into a Hashtable, which is then
-   displayed to the second screen.
+4. The response from the servlet is read into a ObjectInputStream and then deserialized into a
+   Hashtable, which is then displayed to the second screen.
 
 ### Describe the servlet - DataPingServlet
 
@@ -271,21 +274,23 @@ Here's the gist of what this code does:
 3. Loads a PNG file from the appimages.jar file and turns it into a byte[] using the servlet's
    [classloader](http://saloon.javaranch.com/cgi-bin/ubb/ultimatebb.cgi?ubb=get_topic&f=1&t=003605).
 
-4. Puts these bytes into the Hashtable and sends it back to the Android app. Note that the Hashtable itself is of course
-   serializable.
+4. Puts these bytes into the Hashtable and sends it back to the Android app. Note that the Hashtable
+   itself is of course serializable.
 
 ## Object serialization
 
-As you can see from the code, little to no effort has to be put into writing serialization/deserialization code if you
-use Java serialization. There are limitations to what can be serialized though. I ran into issues with certain classes
-that work just fine for desktop Java but throw various exceptions in Android (like method doesn't exist, etc). So be
-sure to test your object exchange, before assuming that it should work because it does on desktop Java. Having said
-this, it's impressive to see a mobile platform be able to exchange Java objects with desktop and server Java VMs.
+As you can see from the code, little to no effort has to be put into writing
+serialization/deserialization code if you use Java serialization. There are limitations to what can
+be serialized though. I ran into issues with certain classes that work just fine for desktop Java
+but throw various exceptions in Android (like method doesn't exist, etc). So be sure to test your
+object exchange, before assuming that it should work because it does on desktop Java. Having said
+this, it's impressive to see a mobile platform be able to exchange Java objects with desktop and
+server Java VMs.
 
 ## Download source code
 
-To download the source code for this tutorial, [click here]({{'assets/android.zip' | relative_url}}). There are 3
-folders in this zip file:
+To download the source code for this tutorial, [click
+here]({{'assets/android.zip' | relative_url}}). There are 3 folders in this zip file:
 
 1. AndroidTest – This contains the Android UI and web service client code
 

@@ -41,37 +41,41 @@ categories:
 
 ## Introduction
 
-Redux is normally associated with web development. Redux is a beautiful design pattern that can help with any
-application, even native Android ones! This is the approach that I took to integrate the Redux pattern into native
-Android development, and leverage the stability and predictability of a finite state machine to native development.
+Redux is normally associated with web development. Redux is a beautiful design pattern that can help
+with any application, even native Android ones! This is the approach that I took to integrate the
+Redux pattern into native Android development, and leverage the stability and predictability of a
+finite state machine to native development.
 
-Further, I used Firebase in order to do cross platform data synchronization across web and mobile clients. Firebase has
-the benefit of providing offline mode for web and native mobile client apps, which is incredibly powerful.
+Further, I used Firebase in order to do cross platform data synchronization across web and mobile
+clients. Firebase has the benefit of providing offline mode for web and native mobile client apps,
+which is incredibly powerful.
 
-And I decided to use Firebase authentication for web, and mobile as well, which provides a consolidated way to do cross
-platform anonymous authentication and signed in authentication using a variety of social sign in providers (Google,
-Facebook, etc.)
+And I decided to use Firebase authentication for web, and mobile as well, which provides a
+consolidated way to do cross platform anonymous authentication and signed in authentication using a
+variety of social sign in providers (Google, Facebook, etc.)
 
 Here's a video of the app in action and here's a link to the code that produced this app on
 [GitHub](https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/tree/978224a82f31f34c84cdaeb91763fcd48a991d5f/mobile_android_native).
-It's a pretty sophisticated app, so please pay attention to the video and look thru the code on GitHub. You will find
-things like:
+It's a pretty sophisticated app, so please pay attention to the video and look thru the code on
+GitHub. You will find things like:
 
 - Fast boot time by persisting the redux state to local storage.
 
-- The ability to have anonymous auth (and save the state of the app), then switch to a signed in state and then retain
-  the data that was created in the anonymous auth state of the app.
+- The ability to have anonymous auth (and save the state of the app), then switch to a signed in
+  state and then retain the data that was created in the anonymous auth state of the app.
 
-- Proper handling of sign-in and anonymous authentication, and not burdening the user with Login, SignUp, and SignIn.
-  Just replace all that with a single button press that takes the app from anonymous-auth mode to signed-in mode.
+- Proper handling of sign-in and anonymous authentication, and not burdening the user with Login,
+  SignUp, and SignIn. Just replace all that with a single button press that takes the app from
+  anonymous-auth mode to signed-in mode.
 
-- Using Redux middleware (and not just reducers) to play nice with Firebase updates, and solve a lot of murky
-  synchronization issues that would otherwise present themselves.
+- Using Redux middleware (and not just reducers) to play nice with Firebase updates, and solve a lot
+  of murky synchronization issues that would otherwise present themselves.
 
-- The app also has a sophisticated debug mechanism that exposes the history of redux state transitions and even the
-  ability to diff between 2 states in the Android app itself. You can see the app going thru it's state changes from
-  startup until present moment. These are incredibly valuable insights that you have on the lifecycle of your
-  application that you leverage to build some really compelling apps.
+- The app also has a sophisticated debug mechanism that exposes the history of redux state
+  transitions and even the ability to diff between 2 states in the Android app itself. You can see
+  the app going thru it's state changes from startup until present moment. These are incredibly
+  valuable insights that you have on the lifecycle of your application that you leverage to build
+  some really compelling apps.
 
 [![Click to play video](https://img.youtube.com/vi/9yhxD2o51ZQ/0.jpg)](https://youtu.be/9yhxD2o51ZQ "Click to play video")
 
@@ -84,25 +88,25 @@ This is a screenshot of the web app in action:
 
 ![]({{ 'assets/and-redux-1.png' | relative_url}})
 
-This is also incredibly powerful because it showcases how the ideas that are used in the Android native app are very
-similar to those implemented in the web app, such as:
+This is also incredibly powerful because it showcases how the ideas that are used in the Android
+native app are very similar to those implemented in the web app, such as:
 
 - Reducers and middleware are very similar on both native Android and web.
 - Firebase auth is used in both cases, so that sign-in and anonymous auth work pretty much the same.
-- Firebase database is used in a similar way (in addition to the use of middleware) that makes user data synchronization
-  between the web and mobile apps seamless, and offline!
+- Firebase database is used in a similar way (in addition to the use of middleware) that makes user
+  data synchronization between the web and mobile apps seamless, and offline!
 
 ## Material Design and Material Components for Android
 
 This entire app is built using Material Components for Android. You can learn more about it
 [here](https://material.io/components/android/catalog/).
 
-- It uses both `com.android.support:appcompat-v7` and `com.android.support:design` libraries in the app's
-  `build.gradle`.
+- It uses both `com.android.support:appcompat-v7` and `com.android.support:design` libraries in the
+  app's `build.gradle`.
 - It uses AppCompatActivity from the material design support library
   ([MainActivity.java](https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/java/com/r3bl/todo_app/ui/MainActivity.java)).
-- It uses Toolbar, FloatingActionButton, CircleIndicators, ViewPager, BottomSheetDialogFragment, a whole host of other
-  Material Design components.
+- It uses Toolbar, FloatingActionButton, CircleIndicators, ViewPager, BottomSheetDialogFragment, a
+  whole host of other Material Design components.
 - It uses Material Design
   [themes](https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/res/values/styles.xml)
   as well.
@@ -116,8 +120,9 @@ on GitHub.
 
 ## Architecture
 
-For more information on how Redux is used with the native Android app and how it syncs with the web app, check out the
-wiki page on [GitHub](https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/wiki).
+For more information on how Redux is used with the native Android app and how it syncs with the web
+app, check out the wiki page on
+[GitHub](https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/wiki).
 
 ### Using Redux and Firebase
 
@@ -128,13 +133,14 @@ wiki page on [GitHub](https://github.com/r3bl-alliance/starterproject_todolist_r
 #### Redux → Store + Middleware + Reducer
 
 1. create a middleware for the store
-2. in this middleware, when redux actions come in for adding todo items or toggling todo items or deleting todo items,
-   then modify what needs to be modified and save it to firebase -> do NOT dispatch these actions!
+2. in this middleware, when redux actions come in for adding todo items or toggling todo items or
+   deleting todo items, then modify what needs to be modified and save it to firebase -> do NOT
+   dispatch these actions!
 
 #### Firebase Listener(s)
 
-1. create a firebase listener that simply takes the snapshot data and creates a redux action (like set_state_data) and
-   then applies it to the redux store
+1. create a firebase listener that simply takes the snapshot data and creates a redux action (like
+   set_state_data) and then applies it to the redux store
 
 #### Android Middleware
 
@@ -156,10 +162,11 @@ private void _initReduxStore() {
 }
 ```
 
-`next.dispatch(action)` is what allows the middleware to keep processing actions in the chain. If this call was removed,
-then the middleware would just stop processing that action (just like java servlet filtering). So it's best to make this
-call, and just ignore the actions that don't need to be processed in the reducer. So there are some actions that will be
-processed by the middleware and others that will be processed by the reducer.
+`next.dispatch(action)` is what allows the middleware to keep processing actions in the chain. If
+this call was removed, then the middleware would just stop processing that action (just like java
+servlet filtering). So it's best to make this call, and just ignore the actions that don't need to
+be processed in the reducer. So there are some actions that will be processed by the middleware and
+others that will be processed by the reducer.
 
 ![]({{'assets/and-redux-2.jpg' | relative_url}})
 
@@ -177,8 +184,9 @@ The Reducer handles the following actions:
 
 ## Redux Middleware and Firebase
 
-The Redux library I'm using for this project is the Bansa library on [GitHub](https://github.com/brianegan/bansa). You
-can add it to your build.gradle and get started very quickly.
+The Redux library I'm using for this project is the Bansa library on
+[GitHub](https://github.com/brianegan/bansa). You can add it to your build.gradle and get started
+very quickly.
 
 ```groovy
 // First, add JitPack to your repositories
@@ -191,16 +199,17 @@ maven { url "https://jitpack.io" }
 compile 'com.github.brianegan.bansa:bansa:1.0.0-beta'
 ```
 
-Here are some links that contain some important details about this Redux Middleware and Async Actions pattern (which is
-used in the native Android and web app):
+Here are some links that contain some important details about this Redux Middleware and Async
+Actions pattern (which is used in the native Android and web app):
 
 - [More info on Redux Middleware](https://medium.com/@meagle/understanding-87566abcfb7a#.8dlay3nwa)
 - [More info on async actions](http://redux.js.org/docs/advanced/AsyncActions.html)
 - [More info on JS middleware](https://reactjsnews.com/redux-middleware)
 
-The way to get Redux and Firebase to work together is to use Middleware that handles some actions, and have the Reducer
-functions handle some other actions (instead of doing it all in the reducers). Now, regardless of whether these actions
-are handled by the Middleware or Reducers, they are dispatched to the Redux Store.
+The way to get Redux and Firebase to work together is to use Middleware that handles some actions,
+and have the Reducer functions handle some other actions (instead of doing it all in the reducers).
+Now, regardless of whether these actions are handled by the Middleware or Reducers, they are
+dispatched to the Redux Store.
 
 The Redux store contains the state of the application, which stores:
 
@@ -209,14 +218,15 @@ The Redux store contains the state of the application, which stores:
 
 ## Firebase database and auth
 
-Both of these things are backed to Firebase. The following video shows what the Firebase database looks like:
+Both of these things are backed to Firebase. The following video shows what the Firebase database
+looks like:
 
 [![Click to play video](https://img.youtube.com/vi/Tdnedi6EVxQ/0.jpg)](https://youtu.be/Tdnedi6EVxQ "Click to play video")
 
 ## What happens in the reducer and what happens in the middleware and how that relates to Firebase
 
-The following diagrams shows how the various actions are processed by Middleware, or Reducers, and how that interaction
-works with Firebase:
+The following diagrams shows how the various actions are processed by Middleware, or Reducers, and
+how that interaction works with Firebase:
 
 ![]({{'assets/and-redux-2.jpg' | relative_url}})
 
@@ -315,23 +325,26 @@ public State reduce(State state, Action actionParam) {
 
 The magic that makes the interaction between Firebase and Redux work is the following:
 
-1. In the Redux Middleware, when redux actions come in for adding todo items or toggling todo items or deleting todo
-   items, then modify what needs to be modified and save it to firebase -> do NOT dispatch these actions.
+1. In the Redux Middleware, when redux actions come in for adding todo items or toggling todo items
+   or deleting todo items, then modify what needs to be modified and save it to firebase -> do NOT
+   dispatch these actions.
 
-2. For Firebase, create a firebase listener that simply takes the snapshot data and creates a redux action (like
-   set_state_data) and then applies it to the redux store.
+2. For Firebase, create a firebase listener that simply takes the snapshot data and creates a redux
+   action (like set_state_data) and then applies it to the redux store.
 
 ## App startup time
 
-The todo list app has to do a few things before it can be ready for use by the user (after the user has launched the
-app). It has to figure out whether its using anonymous auth or signed in auth, and then perform the auth, and then get
-the data from Firebase, then update the UI. This can take a few seconds over a slow cellular network. So what might
-happen is that the app is launched by the user and it doesn't do anything during this time. Rule of thumb is that if an
-app is unresponsive for 3 seconds, users think that it has died. So how can we improve on this?
+The todo list app has to do a few things before it can be ready for use by the user (after the user
+has launched the app). It has to figure out whether its using anonymous auth or signed in auth, and
+then perform the auth, and then get the data from Firebase, then update the UI. This can take a few
+seconds over a slow cellular network. So what might happen is that the app is launched by the user
+and it doesn't do anything during this time. Rule of thumb is that if an app is unresponsive for 3
+seconds, users think that it has died. So how can we improve on this?
 
-Redux is a finite state machine. And the entire app's state is represented in a single object. This makes it really
-straightforward to persist the entire state object as a JSON string into local storage. In fact, every time any data is
-saved to Firebase, it gets dumped into local storage. Here's the code for that (in
+Redux is a finite state machine. And the entire app's state is represented in a single object. This
+makes it really straightforward to persist the entire state object as a JSON string into local
+storage. In fact, every time any data is saved to Firebase, it gets dumped into local storage.
+Here's the code for that (in
 [MyDB.java](https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/java/com/r3bl/todo_app/container/firebase/MyDB.java)):
 
 ```java
@@ -350,9 +363,9 @@ public static void saveStateToSharedPrefs(App context, State state) {
 
 On the flip side, when the Application class
 ([App.java](https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/java/com/r3bl/todo_app/container/App.java))
-loads, it initializes the Redux store and then loads the Redux state (if there is any) and then applies it to the Redux
-store! And voila! The app has restored itself instantly to the previous state that it was left in, the last time it was
-run!
+loads, it initializes the Redux store and then loads the Redux state (if there is any) and then
+applies it to the Redux store! And voila! The app has restored itself instantly to the previous
+state that it was left in, the last time it was run!
 
 ```java
 @Override
@@ -401,37 +414,43 @@ public static State loadStateFromSharedPrefs(App context) {
 
 ## Offline mode
 
-The beauty of using Firebase is that offline mode is handled for you out of the box. You have to accommodate the
-behavior of Firebase in order for this to work. In Firebase, when you update a JSON object, then the listener is fired
-on the node that made this change. The reason for this is to ensure that the Firebase Database can operate in offline
-mode. So when you write to the database, it will notify you when this write operation has completed. So you request a
-write - you don't force it to happen right now. This is why you have to shift your thinking from the mindset that when
-you mutate a data structure in memory, then this change has occurred already (if there were no exceptions). In the
-realtime database world of Firebase, we request writes/deletes/changes, and when they happen, we get notified and that
-is when we re-act to the data model having been actually modified. This is reflected in this todo list app in the way
-async actions are used in the Middleware, and how some actions are handled in the Middleware and others in the Reducer.
+The beauty of using Firebase is that offline mode is handled for you out of the box. You have to
+accommodate the behavior of Firebase in order for this to work. In Firebase, when you update a JSON
+object, then the listener is fired on the node that made this change. The reason for this is to
+ensure that the Firebase Database can operate in offline mode. So when you write to the database, it
+will notify you when this write operation has completed. So you request a write - you don't force it
+to happen right now. This is why you have to shift your thinking from the mindset that when you
+mutate a data structure in memory, then this change has occurred already (if there were no
+exceptions). In the realtime database world of Firebase, we request writes/deletes/changes, and when
+they happen, we get notified and that is when we re-act to the data model having been actually
+modified. This is reflected in this todo list app in the way async actions are used in the
+Middleware, and how some actions are handled in the Middleware and others in the Reducer.
 
-So, if you can shift your thinking to this Firebase mindset and adopt Redux Reducers and Middleware, then yes, offline
-mode comes for "free".
+So, if you can shift your thinking to this Firebase mindset and adopt Redux Reducers and Middleware,
+then yes, offline mode comes for "free".
 
 ## Anonymous auth vs signed in experience
 
-A lot of people get authentication wrong. The notion of SignIn, Login, and SignUp being different things is a reflection
-of a lack of understanding of signin flow works. I've had the benefit of working on the Google+ team at Google and had a
-thorough exposure to the underpinnings of authentication and the UX of authentication. There are 2 critical times in
-most mobile apps - when a user is asked to signin and when a user is asked to checkout. These are times of huge
-abandonments and uninstalls of an app. So please keep this in mind when designing and building your next mobile app,
-whether it's in Android, or iOS, or React Native.
+A lot of people get authentication wrong. The notion of SignIn, Login, and SignUp being different
+things is a reflection of a lack of understanding of signin flow works. I've had the benefit of
+working on the Google+ team at Google and had a thorough exposure to the underpinnings of
+authentication and the UX of authentication. There are 2 critical times in most mobile apps - when a
+user is asked to signin and when a user is asked to checkout. These are times of huge abandonments
+and uninstalls of an app. So please keep this in mind when designing and building your next mobile
+app, whether it's in Android, or iOS, or React Native.
 
-In our todo list app, we have no signed-out state at all! You are either signed in anonymously, or you are signed in
-using Google. I'm using Firebase Auth, so you can just keep adding multiple providers (like Facebook, etc). I'm just
-sticking with Google to keep things really straightforward on Android.
+In our todo list app, we have no signed-out state at all! You are either signed in anonymously, or
+you are signed in using Google. I'm using Firebase Auth, so you can just keep adding multiple
+providers (like Facebook, etc). I'm just sticking with Google to keep things really straightforward
+on Android.
 
-The Application object (App.java) is where most of this magic is setup to happen. There is a class called
+The Application object (App.java) is where most of this magic is setup to happen. There is a class
+called
 [MyAuth.java](https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/java/com/r3bl/todo_app/container/firebase/MyAuth.java)
-which handles the logic for sign-in (Google and Anonmous) and sign-out. The way Firebase Auth works is that there is a
-single method `onAuthStateChanged()` that will determine everything. This keeps things simple. And it makes for a single
-point of integration with Firebase Auth. Here's the implementation of that method in MyAuth.java:
+which handles the logic for sign-in (Google and Anonmous) and sign-out. The way Firebase Auth works
+is that there is a single method `onAuthStateChanged()` that will determine everything. This keeps
+things simple. And it makes for a single point of integration with Firebase Auth. Here's the
+implementation of that method in MyAuth.java:
 
 ```java
 /**
@@ -453,14 +472,16 @@ public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
 }
 ```
 
-There is one tricky thing to handle. Since the user is allowed to signin and out at will, and they might be signed into
-multiple Google accounts on their phone, this can lead to some interesting situations. The way this todo list app is
-designed right now is that any data created in anonymous auth mode will actually be saved when the user signs in (for
-the first time). This way, the work isn't lost when they go from anonymous -> signed in. However, to keep things simple,
-I don't do a sophisticated merge. I simply detect if the user data exists in Firebase, and if it does NOT then I copy
-the anonymous data to the new user account. However, if there's pre-existing data for this user, then I delete the
-anonymous data. In the 'real world' you would want to come up with a better data migration policy than this, but this
-app is meant to be a teaching tool, and not a full blown production app.
+There is one tricky thing to handle. Since the user is allowed to signin and out at will, and they
+might be signed into multiple Google accounts on their phone, this can lead to some interesting
+situations. The way this todo list app is designed right now is that any data created in anonymous
+auth mode will actually be saved when the user signs in (for the first time). This way, the work
+isn't lost when they go from anonymous -> signed in. However, to keep things simple, I don't do a
+sophisticated merge. I simply detect if the user data exists in Firebase, and if it does NOT then I
+copy the anonymous data to the new user account. However, if there's pre-existing data for this
+user, then I delete the anonymous data. In the 'real world' you would want to come up with a better
+data migration policy than this, but this app is meant to be a teaching tool, and not a full blown
+production app.
 
 Here's the rest of the code in MyAuth.java:
 
@@ -540,6 +561,8 @@ You can use the Redux pattern in your native Android apps, and iOS apps as well.
 
 - It's a very powerful way to simplify complex app state changes, and can improve reliability.
 
-- Firebase provides offline mode, and Redux plays nice with it if you use reducers and middleware in the right way.
+- Firebase provides offline mode, and Redux plays nice with it if you use reducers and middleware in
+  the right way.
 
-- It also provides a natural way to interact with any web apps that you have to build on the same backend.
+- It also provides a natural way to interact with any web apps that you have to build on the same
+  backend.

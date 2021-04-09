@@ -95,8 +95,9 @@ categories:
 
 ## Overview
 
-This article is a reference covering a lot of advanced topics related to creating IDEA plugins using the JetBrains
-IntelliJ Platform SDK. However there are many advanced topics that are not covered here (such as
+This article is a reference covering a lot of advanced topics related to creating IDEA plugins using
+the JetBrains IntelliJ Platform SDK. However there are many advanced topics that are not covered
+here (such as
 [custom language support](https://plugins.jetbrains.com/docs/intellij/custom-language-support.html)).
 
 In order to be successful creating advanced plugins, this is what I suggest:
@@ -105,64 +106,72 @@ In order to be successful creating advanced plugins, this is what I suggest:
    plugins]({{ '2020/11/20/idea-plugin-example-intro/' | relative_url }}) in detail. Modify the
    [idea-plugin-example](https://github.com/nazmulidris/idea-plugin-example),
    [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2), or
-   [shorty-idea-plugin](https://github.com/r3bl-org/shorty-idea-plugin) to get some hands on experience working with the
-   plugin APIs.
-2. Use the [Official JetBrains IntelliJ Platform SDK docs](https://plugins.jetbrains.com/docs/intellij/welcome.html),
-   along with the source code examples (from the list of repos above) to get a better understanding of how to create
-   plugins.
-3. When you are looking for something not in tutorials here (on developerlife.com) and in the official docsd, then
-   search the [`intellij-community`](https://github.com/JetBrains/intellij-community) repo itself to find code examples
-   on how to use APIs that might not have any documentation. An effective approach is to find some functionality in IDEA
-   that is similar to what you are looking to build, and then locate the source code for that feature in the repo and
-   see how JetBrains has done it.
+   [shorty-idea-plugin](https://github.com/r3bl-org/shorty-idea-plugin) to get some hands on
+   experience working with the plugin APIs.
+2. Use the
+   [Official JetBrains IntelliJ Platform SDK docs](https://plugins.jetbrains.com/docs/intellij/welcome.html),
+   along with the source code examples (from the list of repos above) to get a better understanding
+   of how to create plugins.
+3. When you are looking for something not in tutorials here (on developerlife.com) and in the
+   official docsd, then search the
+   [`intellij-community`](https://github.com/JetBrains/intellij-community) repo itself to find code
+   examples on how to use APIs that might not have any documentation. An effective approach is to
+   find some functionality in IDEA that is similar to what you are looking to build, and then locate
+   the source code for that feature in the repo and see how JetBrains has done it.
 
 ## IDEA threading model
 
-For the most part, the code that you write in your plugins is executed on the main thread. Some operations such as
-changing anything in the IDE's "data model" (PSI, VFS, project root model) all have to done in the main thread in order
-to keep race conditions from occurring. Here's the
-[official docs](https://plugins.jetbrains.com/docs/intellij/general-threading-rules.html#modality-and-invokelater) on
-this.
+For the most part, the code that you write in your plugins is executed on the main thread. Some
+operations such as changing anything in the IDE's "data model" (PSI, VFS, project root model) all
+have to done in the main thread in order to keep race conditions from occurring. Here's the
+[official docs](https://plugins.jetbrains.com/docs/intellij/general-threading-rules.html#modality-and-invokelater)
+on this.
 
-There are many situations where some of your plugin code needs to run in a background thread so that the UI doesn't get
-frozen when long running operations occur. The plugin SDK has quite a few strategies to allow you to do this. However,
-one thing that you should not do is use `SwingUtilities.invokeLater()`.
+There are many situations where some of your plugin code needs to run in a background thread so that
+the UI doesn't get frozen when long running operations occur. The plugin SDK has quite a few
+strategies to allow you to do this. However, one thing that you should not do is use
+`SwingUtilities.invokeLater()`.
 
-1. One of the ways that you could run background tasks is by using `TransactionGuard.submitTransaction()` but that has
-   been deprecated.
+1. One of the ways that you could run background tasks is by using
+   `TransactionGuard.submitTransaction()` but that has been deprecated.
 2. The new way is to use `ApplicationManager.getApplication().invokeLater()`.
 
 > #### API deprecations
 >
-> - You can find a detailed list of the major API deprecations and changes in various versions of IDEA
->   [here](https://plugins.jetbrains.com/docs/intellij/api-notable.html).
+> - You can find a detailed list of the major API deprecations and changes in various versions of
+>   IDEA [here](https://plugins.jetbrains.com/docs/intellij/api-notable.html).
 >
 > - You can search the JB platform codebase for deprecations by looking for
 >   `@ApiStatus.ScheduledForRemoval(inVersion = <version>)`, where `<version>` can be `2020.1`, etc.
 
-However, before we can understand what all of this means exactly, there are some important concepts that we have to
-understand - "modality", and "write lock", and "write-safe context". So we will start with talking about
-`submitTransaction()` and get to each of these concepts along the way to using `invokeLater()`.
+However, before we can understand what all of this means exactly, there are some important concepts
+that we have to understand - "modality", and "write lock", and "write-safe context". So we will
+start with talking about `submitTransaction()` and get to each of these concepts along the way to
+using `invokeLater()`.
 
 ### What was submitTransaction() all about?
 
-The now deprecated `TransactionGuard.submitTransaction(Runnable)` basically runs the passed `Runnable` in:
+The now deprecated `TransactionGuard.submitTransaction(Runnable)` basically runs the passed
+`Runnable` in:
 
-1. a [write-safe context](#what-is-a-write-safe-context) (which simply ensures that no one will be able to perform an
-   unexpected IDE model data changes using `SwingUtilities#invokeLater()`, or equivalent APIs, while a dialog is shown).
+1. a [write-safe context](#what-is-a-write-safe-context) (which simply ensures that no one will be
+   able to perform an unexpected IDE model data changes using `SwingUtilities#invokeLater()`, or
+   equivalent APIs, while a dialog is shown).
 2. in a write thread (eg the EDT).
 
-However, `submitTransaction()` does not acquire a write lock or start a write action (this must be done explicitly by
-your code if you need to modify IDE model data).
+However, `submitTransaction()` does not acquire a write lock or start a write action (this must be
+done explicitly by your code if you need to modify IDE model data).
 
-> What does a write action have to do with a write-safe context? Nothing. However, it easy to conflate the two concepts
-> and think that a write-safe context has a write lock; it does not. These are two separate things -
+> What does a write action have to do with a write-safe context? Nothing. However, it easy to
+> conflate the two concepts and think that a write-safe context has a write lock; it does not. These
+> are two separate things -
 >
 > 1. _write-safe context_,
 > 2. _write lock_.
 >
-> You can be in a _write-safe context_, and you will still need to acquire a _write lock_ to mutate IDE model data. You
-> can also use the following methods to check if your execution context already holds the write lock:
+> You can be in a _write-safe context_, and you will still need to acquire a _write lock_ to mutate
+> IDE model data. You can also use the following methods to check if your execution context already
+> holds the write lock:
 >
 > 1. `ApplicationManager.getApplication().isWriteAccessAllowed()`.
 > 2. `ApplicationManager.getApplication().assertWriteAccessAllowed()`.
@@ -173,23 +182,25 @@ The
 [JavaDocs from](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/application/TransactionGuard.java#L25)
 `TransactionGuard.java` explain what a write-safe context is:
 
-- A mechanism to ensure that no one will be able to perform an unexpected IDE model data changes using
-  `SwingUtilities#invokeLater()` or analogs while a dialog is shown.
+- A mechanism to ensure that no one will be able to perform an unexpected IDE model data changes
+  using `SwingUtilities#invokeLater()` or analogs while a dialog is shown.
 
 Here are some examples of write-safe contexts:
 
-- `Application#invokeLater(Runnable, ModalityState)` calls with a modality state that's either non-modal or was started
-  inside a write-safe context. The use cases shown in the sections below are related to the non-modal scenario.
+- `Application#invokeLater(Runnable, ModalityState)` calls with a modality state that's either
+  non-modal or was started inside a write-safe context. The use cases shown in the sections below
+  are related to the non-modal scenario.
 - Direct user activity processing (key/mouse presses, actions) in non-modal state.
-- User activity processing in a modality state that was started (e.g. by showing a dialog or progress) in a write-safe
-  context.
+- User activity processing in a modality state that was started (e.g. by showing a dialog or
+  progress) in a write-safe context.
 
 Here is more information about how to handle code running on the EDT:
 
-- Code running in the EDT is _not necessarily_ in a write-safe context, which is why `submitTransaction()` provided the
-  mechanism to execute a given `Runnable` in a write-safe context (on the EDT itself).
-- There are some exceptions to this, for example code running in actions in a non-modal state, while running on the EDT
-  are also running in a write-safe context (described above).
+- Code running in the EDT is _not necessarily_ in a write-safe context, which is why
+  `submitTransaction()` provided the mechanism to execute a given `Runnable` in a write-safe context
+  (on the EDT itself).
+- There are some exceptions to this, for example code running in actions in a non-modal state, while
+  running on the EDT are also running in a write-safe context (described above).
 - The JavaDocs from
   [`@DirtyUI` annotation source](https://github.com/JetBrains/intellij-community/blob/master/platform/util/ui/src/com/intellij/ui/DirtyUI.java#L8)
   also provide some more information about UI code running in the EDT and write actions.
@@ -215,32 +226,34 @@ Here is more information about how to handle code running on the EDT:
 Here are some best practices for code that runs in the EDT:
 
 1. Any writes to the IDE data model must happen on the write thread, which is the EDT.
-2. Even though you can safely read IDE model data from the EDT (without acquiring a read lock), you will still need to
-   acquire a write lock in order to modify IDE model data.
-3. Code running in the EDT must explicitly acquire write locks explicitly (by wrapping that code in a write action) in
-   order to change any IDE model data. This can be done by wrapping the code in a write action with
-   `ApplicationManager.getApplication().runWriteAction()` or, `WriteAction` `run()`/`compute()`.
-4. If your code is running in a dialog, and you don't need to perform any write operations to IDE data models, then you
-   can simply use `SwingUtilities.invokeLater()` or analogs. You only need a
-   [write-safe context](#what-is-a-write-safe-context) to run in the right [modality](#invokelater-and-modalitystate) if
-   you plan to change the IDE data models.
+2. Even though you can safely read IDE model data from the EDT (without acquiring a read lock), you
+   will still need to acquire a write lock in order to modify IDE model data.
+3. Code running in the EDT must explicitly acquire write locks explicitly (by wrapping that code in
+   a write action) in order to change any IDE model data. This can be done by wrapping the code in a
+   write action with `ApplicationManager.getApplication().runWriteAction()` or, `WriteAction`
+   `run()`/`compute()`.
+4. If your code is running in a dialog, and you don't need to perform any write operations to IDE
+   data models, then you can simply use `SwingUtilities.invokeLater()` or analogs. You only need a
+   [write-safe context](#what-is-a-write-safe-context) to run in the right
+   [modality](#invokelater-and-modalitystate) if you plan to change the IDE data models.
 5. The IntelliJ Platform SDK docs have more details on IDEA threading
    [here](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/general_threading_rules.html).
 
 ### What is the replacement for submitTransaction()?
 
 The replacement for using `TransactionGuard.submitTransaction(Runnable, ...)` is
-`ApplicationManager.getApplication().invokeLater(Runnable, ...)`. `invokeLater()` makes sure that your code is running
-in a write-safe context, but you still need to acquire a write lock if you want to modify any IDE model data.
+`ApplicationManager.getApplication().invokeLater(Runnable, ...)`. `invokeLater()` makes sure that
+your code is running in a write-safe context, but you still need to acquire a write lock if you want
+to modify any IDE model data.
 
 ### invokeLater() and ModalityState
 
-`invokeLater()` can take a `ModalityState` parameter in addition to a `Runnable`. Basically you can choose when to
-actually execute your `Runnable`, either ASAP, during the period when a dialog box is displayed, or when all dialog
-boxes have been closed.
+`invokeLater()` can take a `ModalityState` parameter in addition to a `Runnable`. Basically you can
+choose when to actually execute your `Runnable`, either ASAP, during the period when a dialog box is
+displayed, or when all dialog boxes have been closed.
 
-> To see source code examples of how `ModailtyState` can be used in a dialog box used in a plugin (that is written using
-> the Kotlin UI DSL) check out this sample
+> To see source code examples of how `ModailtyState` can be used in a dialog box used in a plugin
+> (that is written using the Kotlin UI DSL) check out this sample
 > [ShowKotlinUIDSLSampleInDialogAction.kt](https://github.com/nazmulidris/idea-plugin-example/blob/main/src/main/kotlin/ui/ShowKotlinUIDSLSampleInDialogAction.kt)
 
 > To learn more about what the official docs say about this,
@@ -252,16 +265,19 @@ There’s a user flow that is described in the docs that goes something like thi
 1. Some action runs in a plugin, which enqueues `Runnable` A on the EDT for later invocation, using
    `SwingUtilities.invokeLater()`.
 2. Then, the action shows a dialog box, and waits for user input.
-3. While the user is thinking about what choice to make on the dialog box, that `Runnable` A has already started
-   execution, and it does something drastic to the IDE data models (like delete a project or something).
-4. The user finally makes up their mind and makes a choice. At this point the code that is running in the action is not
-   aware of the changes that have been made by `Runnable` A. And this can cause some big problems in the action.
-5. ModalityState allows you to exert control over when the `Runnable` A is actually executed at a later time.
+3. While the user is thinking about what choice to make on the dialog box, that `Runnable` A has
+   already started execution, and it does something drastic to the IDE data models (like delete a
+   project or something).
+4. The user finally makes up their mind and makes a choice. At this point the code that is running
+   in the action is not aware of the changes that have been made by `Runnable` A. And this can cause
+   some big problems in the action.
+5. ModalityState allows you to exert control over when the `Runnable` A is actually executed at a
+   later time.
 
-Here’s some more information about this scenario. If you set a breakpoint at the start of the action’s execution, before
-it enqueued `Runnable` A, you might see the following if you look at
-`ApplicationManager.getApplication().myTransactionGuard.myWriteSafeModalities` in the debugger. This is **BEFORE** the
-dialog box is shown.
+Here’s some more information about this scenario. If you set a breakpoint at the start of the
+action’s execution, before it enqueued `Runnable` A, you might see the following if you look at
+`ApplicationManager.getApplication().myTransactionGuard.myWriteSafeModalities` in the debugger. This
+is **BEFORE** the dialog box is shown.
 
 ```
 myWriteSafeModalities = {ConcurrentWeakHashMap@39160}  size = 3
@@ -270,8 +286,9 @@ myWriteSafeModalities = {ConcurrentWeakHashMap@39160}  size = 3
  {ModalityStateEx@40112} "ModalityState:{}" -> {Boolean@39735} true
 ```
 
-**AFTER** the dialog box is shown you might see something like the following for the same `myWriteSafeModalities` object
-in the debugger (if you set a breakpoint after the dialog box has returned the user selected value).
+**AFTER** the dialog box is shown you might see something like the following for the same
+`myWriteSafeModalities` object in the debugger (if you set a breakpoint after the dialog box has
+returned the user selected value).
 
 ```
 myWriteSafeModalities = {ConcurrentWeakHashMap@39160}  size = 4
@@ -281,38 +298,41 @@ myWriteSafeModalities = {ConcurrentWeakHashMap@39160}  size = 4
   {ModalityStateEx@40112} "ModalityState:{}" -> {Boolean@39735} true
 ```
 
-Notice that a new `ModalityState` has been added, which basically points to the dialog box being displayed.
+Notice that a new `ModalityState` has been added, which basically points to the dialog box being
+displayed.
 
 So this is how the modality state parameter to invokeLater() works.
 
-1. If you don’t want the `Runnable` that you pass to it to be executed immediately, then you can specify
-   `ModalityState.NON_MODAL`, and this will run it after the dialog box has closed (there are no more modal dialogs in
-   the stack of active modal dialogs).
+1. If you don’t want the `Runnable` that you pass to it to be executed immediately, then you can
+   specify `ModalityState.NON_MODAL`, and this will run it after the dialog box has closed (there
+   are no more modal dialogs in the stack of active modal dialogs).
 2. Instead if you wanted to run it immediately, then you can run it using `ModalityState.any()`.
-3. However, if you pass the `ModalityState` of the dialog box as a parameter, then this `Runnable` will only execute
-   while that dialog box is being displayed.
-4. Now, even when the dialog box is displayed, if you enqueued another `Runnable` to run with `ModalityState.NON_MODAL`,
-   then it will be run after the dialog box is closed.
+3. However, if you pass the `ModalityState` of the dialog box as a parameter, then this `Runnable`
+   will only execute while that dialog box is being displayed.
+4. Now, even when the dialog box is displayed, if you enqueued another `Runnable` to run with
+   `ModalityState.NON_MODAL`, then it will be run after the dialog box is closed.
 
 ### How to use invokeLater to perform asynchronous and synchronous tasks
 
-The following sub sections demonstrate how to get away from using `submitTransaction()` and switch to using
-`invokeLater()` for the given use cases, an even remove the use of them altogether when possible.
+The following sub sections demonstrate how to get away from using `submitTransaction()` and switch
+to using `invokeLater()` for the given use cases, an even remove the use of them altogether when
+possible.
 
 #### Synchronous execution of Runnable (from an already write-safe context using submitTransaction()/invokeLater())
 
-In the scenario where your code is already running in a [write-safe context](#what-is-a-write-safe-context), there is no
-need to use `submitTransaction()` or `invokeLater()` to queue your `Runnable`, and you can execute its contents
-directly.
+In the scenario where your code is already running in a
+[write-safe context](#what-is-a-write-safe-context), there is no need to use `submitTransaction()`
+or `invokeLater()` to queue your `Runnable`, and you can execute its contents directly.
 
 > From `TransactionGuard.java#submitTransaction()` JavaDoc on
 > [Line 76](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/openapi/application/TransactionGuard.java#L76):
-> "In a definitely write-safe context, just replace this call with {@code transaction} contents. Otherwise, replace with
-> {@link Application#invokeLater} and take care that the default or explicitly passed modality state is write-safe."
+> "In a definitely write-safe context, just replace this call with {@code transaction} contents.
+> Otherwise, replace with {@link Application#invokeLater} and take care that the default or
+> explicitly passed modality state is write-safe."
 
-Let's say that you have a button which has a listener, in a dialog, or tool window. When the button is clicked, it
-should execute a `Runnable` in a [write-safe context](#what-is-a-write-safe-context). Here’s the code that registers the
-action listener to the button.
+Let's say that you have a button which has a listener, in a dialog, or tool window. When the button
+is clicked, it should execute a `Runnable` in a [write-safe context](#what-is-a-write-safe-context).
+Here’s the code that registers the action listener to the button.
 
 ```kotlin
 init {
@@ -323,8 +343,8 @@ init {
 ```
 
 Here’s the code that queues the `Runnable`. If you run
-`TransactionGuard.getInstance().isWriteSafeModality(ModalityState.NON_MODAL)` inside the following function it returns
-`true`.
+`TransactionGuard.getInstance().isWriteSafeModality(ModalityState.NON_MODAL)` inside the following
+function it returns `true`.
 
 ```kotlin
 private fun processButtonClick() {
@@ -334,15 +354,16 @@ private fun processButtonClick() {
 }
 ```
 
-However this code is running in the EDT, and since `processButtonClick()` uses a write action to perform its job, so
-there's really no need to wrap it in a `submitTransaction()` or `invokeLater()` call. Here we have code that is:
+However this code is running in the EDT, and since `processButtonClick()` uses a write action to
+perform its job, so there's really no need to wrap it in a `submitTransaction()` or `invokeLater()`
+call. Here we have code that is:
 
 1. Running the EDT,
 2. Already running in a write-safe context,
 3. And, `processButtonClick()` itself wraps its work in a write action.
 
-In this case, it is possible to safely remove the `Runnable` and just directly call its contents. So, we can replace it
-with something like this.
+In this case, it is possible to safely remove the `Runnable` and just directly call its contents.
+So, we can replace it with something like this.
 
 ```kotlin
 ApplicationManager.getApplication().assertIsDispatchThread()
@@ -351,8 +372,8 @@ ApplicationManager.getApplication().assertIsDispatchThread()
 
 #### Asynchronous execution of Runnable (from a write-unsafe / write-safe context using submitTransaction())
 
-The simplest replacement for the `Runnable` and `Disposable` that are typically passed to `submitTransaction()`, is
-simply to replace the call:
+The simplest replacement for the `Runnable` and `Disposable` that are typically passed to
+`submitTransaction()`, is simply to replace the call:
 
 ```kotlin
 TransactionGuard.submitTransaction(Disposable, Runnable)
@@ -365,9 +386,10 @@ ApplicationManager.ApplicationManager.getApplication().invokeLater(
   Runnable, ComponentManager.getDisposed())
 ```
 
-1. Note that IDE data model objects like project, etc. all expose a `Condition` object from a call to `getDisposed().`
-2. If you have to create a `Condition` yourself, then you can just wrap your `Disposable` in a call to
-   `Disposer.isDisposed(Disposable)`.
+1. Note that IDE data model objects like project, etc. all expose a `Condition` object from a call
+   to `getDisposed().`
+2. If you have to create a `Condition` yourself, then you can just wrap your `Disposable` in a call
+   to `Disposer.isDisposed(Disposable)`.
 
 Let's take a look at a simple example of replacing old code that uses `submitTransaction()`.
 
@@ -400,19 +422,21 @@ Here's a slightly more complex example where a `Condition` object must be create
        );
    ```
 
-3. You can also just check for the condition `Disposer.isDisposed(myComponent.getModel())` at the start of the
-   `Runnable`. And not even pass the `Condition` in `invokeLater()` if you like.
+3. You can also just check for the condition `Disposer.isDisposed(myComponent.getModel())` at the
+   start of the `Runnable`. And not even pass the `Condition` in `invokeLater()` if you like.
 
 ### Side effect - invokeLater() vs submitTransaction() and impacts on test code
 
-When moving from `submitTransaction()` to `invokeLater()` some tests might need to be updated, due to one of the major
-differences between how these two functions actually work.
+When moving from `submitTransaction()` to `invokeLater()` some tests might need to be updated, due
+to one of the major differences between how these two functions actually work.
 
-In some cases, one of the consequences of using `invokeLater()` instead of `submitTransaction()` is that in tests, you
-might have to call `PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()` to ensure that the `Runnables` that
-are queued for execution on the EDT are actually executed (since the tests run in a headless environment). You can also
-call `UIUtil.dispatchAllInvocationEvents()` instead of `PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()`.
-When using `submitTransaction()` in the past, this was not necessary.
+In some cases, one of the consequences of using `invokeLater()` instead of `submitTransaction()` is
+that in tests, you might have to call
+`PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()` to ensure that the `Runnables` that
+are queued for execution on the EDT are actually executed (since the tests run in a headless
+environment). You can also call `UIUtil.dispatchAllInvocationEvents()` instead of
+`PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()`. When using `submitTransaction()` in
+the past, this was not necessary.
 
 Here’s old code, and test code.
 
@@ -457,17 +481,17 @@ fun testMyFunction() {
 
 ## PSI access and mutation
 
-This section covers Program Structure Interface (PSI) and how to use it to access files in various languages. And how to
-use it to create language specific content. Threading considerations that must be taken into account to make sure the
-IDE UI is responsive is also covered here.
+This section covers Program Structure Interface (PSI) and how to use it to access files in various
+languages. And how to use it to create language specific content. Threading considerations that must
+be taken into account to make sure the IDE UI is responsive is also covered here.
 
-> Please read the [official docs on PSI](https://plugins.jetbrains.com/docs/intellij/psi.html) before proceeding
-> further.
+> Please read the [official docs on PSI](https://plugins.jetbrains.com/docs/intellij/psi.html)
+> before proceeding further.
 
 ### How to create a PSIFile or get a reference to one
 
-There are many ways of creating a PSI file. Here are some examples of you can get a reference to a PSI file in your
-plugin.
+There are many ways of creating a PSI file. Here are some examples of you can get a reference to a
+PSI file in your plugin.
 
 1. From an action's event: `e.getData(LangDataKeys.PSI_FILE)`
 2. From a `VirtualFile`: `PsiManager.getInstance(myProject).findFile(vFile)`
@@ -483,14 +507,16 @@ There is some information on navigating PSI trees
 
 #### Visitor pattern for top down navigation (_without_ threading considerations)
 
-A very common thing to do when you have a reference to a PSI file is to navigate it from the root node to find something
-inside of the file. This is where the visitor pattern comes into play.
+A very common thing to do when you have a reference to a PSI file is to navigate it from the root
+node to find something inside of the file. This is where the visitor pattern comes into play.
 
-1. In order to get access to all the classes you might need for this, you might need to import the right set of
+1. In order to get access to all the classes you might need for this, you might need to import the
+   right set of
    [built in modules](https://plugins.jetbrains.com/docs/intellij/plugin-compatibility.html?from=jetbrains.org#modules-specific-to-functionality).
-   > There are scenarios where you might want to add functionality in the IJ platform itself. For example, let's say you
-   > wanted to add `JavaRecursiveElementVisitor` to your project to visit a PSI tree. Well, this class isn't available
-   > to the plugin by default, and needs to be "imported" in 2 steps, just as you would for a published plugin.
+   > There are scenarios where you might want to add functionality in the IJ platform itself. For
+   > example, let's say you wanted to add `JavaRecursiveElementVisitor` to your project to visit a
+   > PSI tree. Well, this class isn't available to the plugin by default, and needs to be "imported"
+   > in 2 steps, just as you would for a published plugin.
    >
    > 1. `setPlugins()` in `build.gradle.kts`, and
    > 2. `<depends>` in `plugin.xml`.
@@ -498,21 +524,22 @@ inside of the file. This is where the visitor pattern comes into play.
    > Here's what you have to do to add support for the Java language.
    >
    > 1. `build.gradle.kts`: `setPlugins("java", <other plugins, if they exist>)`
-2. In many cases, you can also use more specific APIs for top-down navigation. For example, if you need to get a list of
-   all methods in a Java class, you can do that using a visitor, but a much easier way to do that is to call
-   `PsiClass.getMethods()`.
+2. In many cases, you can also use more specific APIs for top-down navigation. For example, if you
+   need to get a list of all methods in a Java class, you can do that using a visitor, but a much
+   easier way to do that is to call `PsiClass.getMethods()`.
 3. [PsiTreeUtil.java](https://github.com/JetBrains/intellij-community/blob/master/platform/core-api/src/com/intellij/psi/util/PsiTreeUtil.java)
-   contains a number of general-purpose, language-independent functions for PSI tree navigation, some of which (for
-   example, `findChildrenOfType()`) perform top-down navigation.
+   contains a number of general-purpose, language-independent functions for PSI tree navigation,
+   some of which (for example, `findChildrenOfType()`) perform top-down navigation.
 
 > ⚠️
 > [Threading issues](https://www.jetbrains.org/intellij/sdk/docs/reference_guide/performance/performance.html#avoiding-ui-freezes)
-> might arise, since all this computation is done in the EDT, and for a really long PSI tree, this can problematic.
-> Especially w/ the use of a write lock to make some big changes in the tree. There are many sections below which deal
-> w/ cancellation and read and write locking.
+> might arise, since all this computation is done in the EDT, and for a really long PSI tree, this
+> can problematic. Especially w/ the use of a write lock to make some big changes in the tree. There
+> are many sections below which deal w/ cancellation and read and write locking.
 
-The basic visitor pattern for top down navigation looks like this. The following snippet counts the number of header and
-paragraph elements in a Markdown file, where `psiFile` is a reference to this file.
+The basic visitor pattern for top down navigation looks like this. The following snippet counts the
+number of header and paragraph elements in a Markdown file, where `psiFile` is a reference to this
+file.
 
 ```kotlin
 val count = object {
@@ -540,14 +567,16 @@ This is great sample code to navigate the tree for a Java class:
 
 #### Threading, locking, and progress cancellation check during PSI access
 
-When creating long running actions that work on a PSI tree, you have to take care of the following things:
+When creating long running actions that work on a PSI tree, you have to take care of the following
+things:
 
 1. Make sure that you are accessing the PSI tree after acquiring a read lock (in a read action).
 2. Make sure that your long running tasks can be cancelled by the user.
-3. Make sure that you don't freeze the UI and make it unresponsive for a long running task that uses the PSI tree.
+3. Make sure that you don't freeze the UI and make it unresponsive for a long running task that uses
+   the PSI tree.
 
-Here is an example of running a task in a background thread in IDEA that uses a read action, but is NOT cancellable.
-Better ways of doing this are shown below.
+Here is an example of running a task in a background thread in IDEA that uses a read action, but is
+NOT cancellable. Better ways of doing this are shown below.
 
 ```kotlin
 ApplicationManager.getApplication().executeOnPooledThread {
@@ -559,12 +588,13 @@ ApplicationManager.getApplication().executeOnPooledThread {
 
 #### Background tasks and multiple threads - The incorrect way
 
-The following is a bad example of using `Task.Backgroundable` object. It is cancellable, and it works, but it accesses
-some PSI structures inside of this task (in a background thread) which is actually a **bad thing** that leads to race
-conditions w/ the data in the EDT and the data that the background thead is currently getting from the PSI objects.
+The following is a bad example of using `Task.Backgroundable` object. It is cancellable, and it
+works, but it accesses some PSI structures inside of this task (in a background thread) which is
+actually a **bad thing** that leads to race conditions w/ the data in the EDT and the data that the
+background thead is currently getting from the PSI objects.
 
-Here's the code for an action that creates the task and runs it in the background (**without** acquiring a read lock in
-a read action):
+Here's the code for an action that creates the task and runs it in the background (**without**
+acquiring a read lock in a read action):
 
 ```kotlin
 override fun actionPerformed(e: AnActionEvent) {
@@ -582,8 +612,9 @@ override fun actionPerformed(e: AnActionEvent) {
 }
 ```
 
-Here's the code for the `doWorkInBackground(...)`. As you can see this function does not acquire a read lock, and simply
-runs the `navigateXXXTree()` functions based on whether the current file has Markdown or Java code in it.
+Here's the code for the `doWorkInBackground(...)`. As you can see this function does not acquire a
+read lock, and simply runs the `navigateXXXTree()` functions based on whether the current file has
+Markdown or Java code in it.
 
 ```kotlin
 private data class Count(var paragraph: Int = 0, var links: Int = 0, var header: Int = 0)
@@ -613,13 +644,13 @@ private fun doWorkInBackground(project: Project,
 }
 ```
 
-Let's look at the `navigateXXXTree()` functions next. They simply generate some analytics depending on whether a Java or
-Markdown file is open in the editor.
+Let's look at the `navigateXXXTree()` functions next. They simply generate some analytics depending
+on whether a Java or Markdown file is open in the editor.
 
-1. For Markdown files, it simply generates the number of headers and paragraphs that exist in the document in the
-   editor.
-2. For Java files, if a method is selected, it generates information about the enclosing class and any local variables
-   that are declared inside that method.
+1. For Markdown files, it simply generates the number of headers and paragraphs that exist in the
+   document in the editor.
+2. For Java files, if a method is selected, it generates information about the enclosing class and
+   any local variables that are declared inside that method.
 
 For Markdown files, here's the function.
 
@@ -687,49 +718,54 @@ private fun navigateJavaTree(psiFile: PsiFile,
 }
 ```
 
-Now, when you run this code, the `navigateMarkdownTree()` does not throw an exception because the PSI was accessed
-outside of a read lock. However, `navigateJavaTree()` does throw the exception below.
+Now, when you run this code, the `navigateMarkdownTree()` does not throw an exception because the
+PSI was accessed outside of a read lock. However, `navigateJavaTree()` does throw the exception
+below.
 
 ```java
 java.lang.Throwable: Read access is allowed from event dispatch thread or inside
 read-action only (see com.intellij.openapi.application.Application.runReadAction())
 ```
 
-This exception will most likely get thrown for any complicated access of the PSI from a non-EDT thread without a read
-lock.
+This exception will most likely get thrown for any complicated access of the PSI from a non-EDT
+thread without a read lock.
 
 > Note that if you access the PSI data from the EDT itself there is no need to acquire a read lock.
 
 Notes on `navigateMarkdownTree()`:
 
-- The code above doesn't trigger any read lock assertion exceptions, and it is probably because it is too simple. There
-  are a few flavors of `assertReadAccessAllowed()`, one even in `PsiFileImpl`, and they are called from various methods
-  accessing the PSI. Maybe they're not called everywhere (I assume it'd be expensive to check read access for
-  everything), just in the common APIs, and maybe this example didn't get to any.
-- Also, it's probably possible to read state without a read lock, i.e the IDE won't necessarily throw an exception, it's
-  just that you're not guaranteed any consistent results as you're racing with the UI thread (making changes to the data
-  within write actions).
-- So just because an exception isn't throw when failing to acquire a read lock to access PSI data doesn't mean the
-  results are consistent due to possibly racing w/ the UI thread making changes to that data within write actions.
+- The code above doesn't trigger any read lock assertion exceptions, and it is probably because it
+  is too simple. There are a few flavors of `assertReadAccessAllowed()`, one even in `PsiFileImpl`,
+  and they are called from various methods accessing the PSI. Maybe they're not called everywhere (I
+  assume it'd be expensive to check read access for everything), just in the common APIs, and maybe
+  this example didn't get to any.
+- Also, it's probably possible to read state without a read lock, i.e the IDE won't necessarily
+  throw an exception, it's just that you're not guaranteed any consistent results as you're racing
+  with the UI thread (making changes to the data within write actions).
+- So just because an exception isn't throw when failing to acquire a read lock to access PSI data
+  doesn't mean the results are consistent due to possibly racing w/ the UI thread making changes to
+  that data within write actions.
 - Here are the official JetBrains
-  [docs](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/general_threading_rules.html) on
-  threading and locking.
+  [docs](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/general_threading_rules.html)
+  on threading and locking.
 
 Notes on `navigateJavaTree()`:
 
-- This code throws the exception right away, which is why it is important to wrap all PSI read access inside of a read
-  action.
+- This code throws the exception right away, which is why it is important to wrap all PSI read
+  access inside of a read action.
 
 #### Background tasks and multiple threads - The correct way
 
 These are the steps we can take to fix the code above.
 
-1. We don't have to deal w/ read locks in the implementation of these two functions (`navigateJavaTree()` and
-   `navigateMarkdownTree()`). The `doWorkInBackground()` function should really be dealing with this.
-2. Wrapping the code in `doWorkInBackground()` that calls these two functions in a read lock by using `runReadAction {}`
-   eliminates these exceptions.
+1. We don't have to deal w/ read locks in the implementation of these two functions
+   (`navigateJavaTree()` and `navigateMarkdownTree()`). The `doWorkInBackground()` function should
+   really be dealing with this.
+2. Wrapping the code in `doWorkInBackground()` that calls these two functions in a read lock by
+   using `runReadAction {}` eliminates these exceptions.
 
-> Note that both functions `navigateMarkdownTree()` or `navigateJavaTree()` do not need to be modified in any way!
+> Note that both functions `navigateMarkdownTree()` or `navigateJavaTree()` do not need to be
+> modified in any way!
 
 ```kotlin
 private fun doWorkInBackground(project: Project,
@@ -754,12 +790,13 @@ private fun doWorkInBackground(project: Project,
 }
 ```
 
-For any long running background task, we have to check for cancellation to ensure that unnecessary work does nto get
-done after the user has requested that our long running background task be cancelled.
+For any long running background task, we have to check for cancellation to ensure that unnecessary
+work does nto get done after the user has requested that our long running background task be
+cancelled.
 
-For tasks that require a lot of virtual files, or PSI elements to be looped over it becomes necessary to check for
-cancellation (in addition to acquiring a read lock). Here's an example from `MarkdownRecursiveElementVisitor` which can
-be overridden to walk the PSI tree.
+For tasks that require a lot of virtual files, or PSI elements to be looped over it becomes
+necessary to check for cancellation (in addition to acquiring a read lock). Here's an example from
+`MarkdownRecursiveElementVisitor` which can be overridden to walk the PSI tree.
 
 ```kotlin
 open class MarkdownRecursiveElementVisitor : MarkdownElementVisitor(), PsiRecursiveVisitor {
@@ -770,8 +807,8 @@ open class MarkdownRecursiveElementVisitor : MarkdownElementVisitor(), PsiRecurs
 }
 ```
 
-Note about the call to `ProgressManager.checkCanceled()` above - A subclass would have to make sure to call
-`super.visitElement(...)` to ensure that this cancellation check is actually made.
+Note about the call to `ProgressManager.checkCanceled()` above - A subclass would have to make sure
+to call `super.visitElement(...)` to ensure that this cancellation check is actually made.
 
 > #### Dispatching UI events during `checkCanceled()`.
 >
@@ -779,23 +816,27 @@ Note about the call to `ProgressManager.checkCanceled()` above - A subclass woul
 >
 > - A `ProgressIndicator` may choose to implement the `PingProgress` interface. If it does, then
 >   `PingProgress.interact()` will be called whenever `checkCanceled()` is called. For details see
->   `ProgressManagerImpl.executeProcessUnderProgress()` and `ProgressManagerImpl.addCheckCanceledHook()`.
+>   `ProgressManagerImpl.executeProcessUnderProgress()` and
+>   `ProgressManagerImpl.addCheckCanceledHook()`.
 >
-> - The `PingProgress` mechanism is used by `PotemkinProgress`: "A progress indicator for write actions. Paints itself
->   explicitly, without resorting to normal Swing's delayed repaint API. Doesn't dispatch Swing events, except for
->   handling manually those that can cancel it or affect the visual presentation." I.e., `PotemkinProgress` dispatches
->   certain UI events during a write action to ensure that the progress dialog remains responsive. But, note the
->   comment, "Repaint just the dialog panel. We must not call custom paint methods during write action, because they
+> - The `PingProgress` mechanism is used by `PotemkinProgress`: "A progress indicator for write
+>   actions. Paints itself explicitly, without resorting to normal Swing's delayed repaint API.
+>   Doesn't dispatch Swing events, except for handling manually those that can cancel it or affect
+>   the visual presentation." I.e., `PotemkinProgress` dispatches certain UI events during a write
+>   action to ensure that the progress dialog remains responsive. But, note the comment, "Repaint
+>   just the dialog panel. We must not call custom paint methods during write action, because they
 >   might access the model, which might be inconsistent at that moment."
 
 > #### Don't try to acquire read or write locks directly, use actions instead
 >
-> Instead of trying to acquire read or write locks directly, Use lambdas and read or write actions instead. For example:
-> `runReadAction()`, `runWriteAction()`, `WriteCommandAction#runWriteCommandAction()`, etc.
+> Instead of trying to acquire read or write locks directly, Use lambdas and read or write actions
+> instead. For example: `runReadAction()`, `runWriteAction()`,
+> `WriteCommandAction#runWriteCommandAction()`, etc.
 >
-> The APIs for acquiring the read or write lock are deprecated and marked for removal in `2020.3`. It is good they're
-> being deprecated, because if you think about offering nonblocking read action semantics (from the platform
-> perspective), if a "read" actions is done via a lock acquire / release, how can one interrupt and re-start it?
+> The APIs for acquiring the read or write lock are deprecated and marked for removal in `2020.3`.
+> It is good they're being deprecated, because if you think about offering nonblocking read action
+> semantics (from the platform perspective), if a "read" actions is done via a lock acquire /
+> release, how can one interrupt and re-start it?
 >
 > 1. [Application.java#acquireReadActionLock()](https://github.com/JetBrains/intellij-community/blob/2b40e2ffe3cdda51990979b81567764965d890ed/platform/core-api/src/com/intellij/openapi/application/Application.java#L430)
 > 2. [Application.java#acquireWriteActionLock()](https://github.com/JetBrains/intellij-community/blob/2b40e2ffe3cdda51990979b81567764965d890ed/platform/core-api/src/com/intellij/openapi/application/Application.java#L438)
@@ -804,44 +845,47 @@ Note about the call to `ProgressManager.checkCanceled()` above - A subclass woul
 
 #### PsiViewer plugin
 
-One of the most important things to do before modifying the PSI is to understand its structure. And the best way to do
-this is to install the [PsiViewer plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) and use it to study what
-the PSI tree looks like.
+One of the most important things to do before modifying the PSI is to understand its structure. And
+the best way to do this is to install the
+[PsiViewer plugin](https://plugins.jetbrains.com/plugin/227-psiviewer) and use it to study what the
+PSI tree looks like.
 
-In this example, we will be modifying a Markdown document. So we will use this plugin to examine a Markdown file that's
-open in an IDE editor window. Here are the options that you should enable for the plugin while you're browsing around
-the editor:
+In this example, we will be modifying a Markdown document. So we will use this plugin to examine a
+Markdown file that's open in an IDE editor window. Here are the options that you should enable for
+the plugin while you're browsing around the editor:
 
-1. Open Settings -> PSIViewer and change the highlight colors to something that you like and make sure to set the alpha
-   to 255 for both references and highlighting.
+1. Open Settings -> PSIViewer and change the highlight colors to something that you like and make
+   sure to set the alpha to 255 for both references and highlighting.
 2. Open the PSIViewer tool window and enable the following options in the toolbar:
 
-- Enable highlight (you might want to disable this when you're done playing around w/ the tool window)
+- Enable highlight (you might want to disable this when you're done playing around w/ the tool
+  window)
 - Enable properties
 - Enable scroll to source
 - Enable scroll from source
 
-A great example that can help us understand how PSI modification can work is taking a look at the built-in Markdown
-plugin actions themselves. There are a few actions in the toolbar of every Markdown editor: "toggle bold", "toggle
-italic", etc.
+A great example that can help us understand how PSI modification can work is taking a look at the
+built-in Markdown plugin actions themselves. There are a few actions in the toolbar of every
+Markdown editor: "toggle bold", "toggle italic", etc.
 
-These are great to walk thru to understand how to make our own. The source files from `intellij-community` repo on
-github are:
+These are great to walk thru to understand how to make our own. The source files from
+`intellij-community` repo on github are:
 
 - Files in
   [`plugins/markdown/src/org/intellij/plugins/markdown/ui/actions/styling/`](https://github.com/JetBrains/intellij-community/tree/master/plugins/markdown/src/org/intellij/plugins/markdown/ui/actions/styling)
 - [`ToggleBoldAction.java`](https://github.com/JetBrains/intellij-community/blob/master/plugins/markdown/src/org/intellij/plugins/markdown/ui/actions/styling/ToggleBoldAction.java)
 - [`BaseToggleStateAction.java`](https://github.com/JetBrains/intellij-community/blob/master/plugins/markdown/src/org/intellij/plugins/markdown/ui/actions/styling/BaseToggleStateAction.java)
 
-The example we will build for this section entails finding hyperlinks and replacing the links w/ some modified version
-of the link string. This will require using a write lock to mutate the PSI in a cancellable action.
+The example we will build for this section entails finding hyperlinks and replacing the links w/
+some modified version of the link string. This will require using a write lock to mutate the PSI in
+a cancellable action.
 
 #### Generate PSI elements from text
 
 It might seem strange but the preferred way to
-[create PSI elements](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/modifying_psi.html) by
-generating text for the new element and then having IDEA parse this into a PSI element. Kind of like how a browser
-parses text (containing HTML) into DOM elements by setting
+[create PSI elements](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/modifying_psi.html)
+by generating text for the new element and then having IDEA parse this into a PSI element. Kind of
+like how a browser parses text (containing HTML) into DOM elements by setting
 [`innerHTML()`](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML).
 
 Here is some code that does this for Markdown elements.
@@ -858,7 +902,8 @@ private fun createNewLinkElement(project: Project, linkText: String, linkDestina
 #### Example of walking up and down PSI trees to find elements
 
 This is a dump from the PSI viewer of a snippet from this
-[README.md](https://raw.githubusercontent.com/sonar-intellij-plugin/sonar-intellij-plugin/master/README.md) file.
+[README.md](https://raw.githubusercontent.com/sonar-intellij-plugin/sonar-intellij-plugin/master/README.md)
+file.
 
 ```text
 MarkdownParagraphImpl(Markdown:PARAGRAPH)(1201,1498)
@@ -893,15 +938,17 @@ PsiElement(Markdown:Markdown:EOL)('\n')(1498,1499)
 There are a few things to note from this tree.
 
 1. The caret in the editor selects a PSI element that is at the leaf level of the selection.
-2. This will require us to walk up the tree (navigate to the parents, and their parents, and so on). We have to use a
-   `MarkdownTokenTypes` (singular) or `MarkdownTokenTypeSets` (a set).
+2. This will require us to walk up the tree (navigate to the parents, and their parents, and so on).
+   We have to use a `MarkdownTokenTypes` (singular) or `MarkdownTokenTypeSets` (a set).
 
-- An example is that we start w/ a `TEXT`, then move up to `LINK_TEXT`, then move up to `INLINE_LINK`.
+- An example is that we start w/ a `TEXT`, then move up to `LINK_TEXT`, then move up to
+  `INLINE_LINK`.
 
-3. This will require us to walk down the tree (navigate to the children, and their children, and so on). Similarly, we
-   can use the same token types or token type sets above.
+3. This will require us to walk down the tree (navigate to the children, and their children, and so
+   on). Similarly, we can use the same token types or token type sets above.
 
-- An example is that we start w/ a `INLINE_LINK` and drill down the kids, then move down to the `LINK_DESTINATION`.
+- An example is that we start w/ a `INLINE_LINK` and drill down the kids, then move down to the
+  `LINK_DESTINATION`.
 
 Here's the code that does exactly this. And it stores the result in a `LinkInfo` data class object.
 
@@ -988,25 +1035,26 @@ private fun findChildElement(element: PsiElement?, tokenSet: TokenSet): PsiEleme
 
 Here are the threading rules:
 
-1. PSI access can happen in any thread (EDT or background), as long as the read lock (via its read action) is acquired
-   before doing so.
-2. PSI mutation can only happen in the EDT (not a background thread), since as soon as the write lock (via its write
-   action) is acquired, that means that code is now running in the EDT.
+1. PSI access can happen in any thread (EDT or background), as long as the read lock (via its read
+   action) is acquired before doing so.
+2. PSI mutation can only happen in the EDT (not a background thread), since as soon as the write
+   lock (via its write action) is acquired, that means that code is now running in the EDT.
 
-Here's the action implementation that calls the code shown above. And it uses a very optimized approach to acquiring
-read and write locks, and using the background thread for blocking network IO.
+Here's the action implementation that calls the code shown above. And it uses a very optimized
+approach to acquiring read and write locks, and using the background thread for blocking network IO.
 
 1. The background thread w/ read action is used to find the hyperlink.
-2. The background thread is used to shorten this long hyperlink w/ a short one. This entails making blocking network IO
-   call. And no locks are held during this phase.
-3. Finally, a write action is acquired in the EDT to actually mutate the PSI tree w/ the information from the first 2
-   parts above. This is where the long link is replaced w/ the short link and the PSI is mutated.
+2. The background thread is used to shorten this long hyperlink w/ a short one. This entails making
+   blocking network IO call. And no locks are held during this phase.
+3. Finally, a write action is acquired in the EDT to actually mutate the PSI tree w/ the information
+   from the first 2 parts above. This is where the long link is replaced w/ the short link and the
+   PSI is mutated.
 
-And all 3 operations are done in a `Task.Backgroundable` which can be cancelled at anytime and it will end as soon as it
-can w/out changing anything under the caret in the editor.
+And all 3 operations are done in a `Task.Backgroundable` which can be cancelled at anytime and it
+will end as soon as it can w/out changing anything under the caret in the editor.
 
-- If the task actually goes to completion then a notification is shown reporting that the background task was run
-  successfully.
+- If the task actually goes to completion then a notification is shown reporting that the background
+  task was run successfully.
 - And if it gets cancelled in the meantime, then a dialog box is shown w/ an error message.
 
 ```kotlin
@@ -1102,12 +1150,13 @@ class EditorReplaceLink(val shortenUrlService: ShortenUrlService = TinyUrl()) : 
 
 Notes on `callCheckCancelled()`:
 
-1. It is also important to have checks to see whether the task has been cancelled or not through out the code. You will
-   find these calls in the functions to walk and up down the tree above. The idea is to include these in every iteration
-   in a loop to ensure that the task is aborted if this task cancellation is detected as soon as possible.
-2. Also, in some other places in the code where make heavy use of the PSI API, we can avoid making these checks, since
-   the JetBrains code is doing these cancellation checks for us. However, in places where we are mainly manipulating our
-   own code, we have to make these checks manually.
+1. It is also important to have checks to see whether the task has been cancelled or not through out
+   the code. You will find these calls in the functions to walk and up down the tree above. The idea
+   is to include these in every iteration in a loop to ensure that the task is aborted if this task
+   cancellation is detected as soon as possible.
+2. Also, in some other places in the code where make heavy use of the PSI API, we can avoid making
+   these checks, since the JetBrains code is doing these cancellation checks for us. However, in
+   places where we are mainly manipulating our own code, we have to make these checks manually.
 
 Here's the `CheckCancelled` class that is used throughout the code.
 
@@ -1151,8 +1200,8 @@ class CheckCancelled(private val indicator: ProgressIndicator?, private val proj
 Please take a look at the JetBrains (JB) Platform SDK DevGuide
 [section on PSI](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/psi.html).
 
-Also, please take a look at the [VFS and Document section](#vfs-and-document) to get an idea of the other ways to access
-file contents in your plugin.
+Also, please take a look at the [VFS and Document section](#vfs-and-document) to get an idea of the
+other ways to access file contents in your plugin.
 
 2. [JB docs on threading](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/general_threading_rules.html)
 3. [Threading issues](https://www.jetbrains.org/intellij/sdk/docs/reference_guide/performance/performance.html#avoiding-ui-freezes)
@@ -1160,33 +1209,39 @@ file contents in your plugin.
 
 ## Dynamic plugins
 
-One of the biggest changes that JetBrains has introduced to the platform SDK in 2020 is the introduction of
-[Dynamic Plugins](https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/dynamic_plugins.html). Moving
-forwards the use of components of any kind are banned.
+One of the biggest changes that JetBrains has introduced to the platform SDK in 2020 is the
+introduction of
+[Dynamic Plugins](https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/dynamic_plugins.html).
+Moving forwards the use of components of any kind are banned.
 
 Here are some reasons why:
 
-1. The use of components result in plugins that are unloadable (due to it being impossible to dereference the Plugin
-   component classes that was loaded by a classloader when IDEA itself launched).
-2. Also, they impact startup performance since code is not lazily loaded if its needed, which slows down IDEA startup.
-3. Plugins can be kept around for a long time even after they might be unloaded, due to attaching disposer to a parent
-   that might outlive the lifetime of the project itself.
+1. The use of components result in plugins that are unloadable (due to it being impossible to
+   dereference the Plugin component classes that was loaded by a classloader when IDEA itself
+   launched).
+2. Also, they impact startup performance since code is not lazily loaded if its needed, which slows
+   down IDEA startup.
+3. Plugins can be kept around for a long time even after they might be unloaded, due to attaching
+   disposer to a parent that might outlive the lifetime of the project itself.
 
-In the new dynamic world, everything is loaded lazily and can be garbage collected. Here is more information on the
+In the new dynamic world, everything is loaded lazily and can be garbage collected. Here is more
+information on the
 [deprecation of components](https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_components.html).
 
-There are some caveats of doing this that you have to keep in mind if you are used to working with components.
+There are some caveats of doing this that you have to keep in mind if you are used to working with
+components.
 
 1. Here's a
    [very short migration guide from JetBrains](https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_components.html)
    that provides some highlights of what to do in order to move components over to be services,
-   [startup activities](https://www.plugin-dev.com/intellij/general/plugin-initial-load/), listeners, or extensions.
-2. You have to pick different parent disposables for services, extensions, or listeners (in what used to be a
-   component). You can't scope a
-   [Disposable](https://jetbrains.org/intellij/sdk/docs/basics/disposers.html#choosing-a-disposable-parent) to the
-   project anymore, since the plugin can be unloaded during the life of a project.
-3. Don't cache copies of the implementations of registered extension points, as these might cause leaks due to the
-   dynamic nature of the plugin. Here's more information on
+   [startup activities](https://www.plugin-dev.com/intellij/general/plugin-initial-load/),
+   listeners, or extensions.
+2. You have to pick different parent disposables for services, extensions, or listeners (in what
+   used to be a component). You can't scope a
+   [Disposable](https://jetbrains.org/intellij/sdk/docs/basics/disposers.html#choosing-a-disposable-parent)
+   to the project anymore, since the plugin can be unloaded during the life of a project.
+3. Don't cache copies of the implementations of registered extension points, as these might cause
+   leaks due to the dynamic nature of the plugin. Here's more information on
    [dynamic extension points](https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_extension_points.html#dynamic-extension-points).
    These are extension points that are marked as dynamic so that IDEA can reload them if needed.
 4. Please read up on
@@ -1207,24 +1262,28 @@ There are 2 extension points to do just this `com.intellij.postStartupActivity` 
 Here are all the ways in which to use a `StartupActivity`:
 
 - Use a `postStartupActivity` to run something on the EDT during project open.
-- Use a `postStartupActivity` implementing `DumbAware` to run something on a background thread during project open in
-  parallel with other dumb-aware post-startup activities. Indexing is not complete when these are running.
-- Use a `backgroundPostStartupActivity` to run something on a background thread approx 5 seconds after project open.
+- Use a `postStartupActivity` implementing `DumbAware` to run something on a background thread
+  during project open in parallel with other dumb-aware post-startup activities. Indexing is not
+  complete when these are running.
+- Use a `backgroundPostStartupActivity` to run something on a background thread approx 5 seconds
+  after project open.
 - More information from the IntelliJ platform codebase about these
   [startup activities](https://github.com/JetBrains/intellij-community/blob/165e3b323c90e884972999e546f1e7085995ef7d/platform/service-container/overview.md).
 
-> 💡 You wil find many examples of how these can be used in the [migration strategies](#migration-strategies) section.
+> 💡 You wil find many examples of how these can be used in the
+> [migration strategies](#migration-strategies) section.
 
 ### Light services
 
-A light service allows you to declare a class as a service simply by using an annotation and not having to create a
-corresponding entry in [`plugin.xml`](https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html).
+A light service allows you to declare a class as a service simply by using an annotation and not
+having to create a corresponding entry in
+[`plugin.xml`](https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html).
 
 > Read all about light services
 > [here](https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_services.html#light-services).
 
-The following are some code examples of using the `@Service` annotation for a very simple service that isn't project or
-module scoped (but is application scoped).
+The following are some code examples of using the `@Service` annotation for a very simple service
+that isn't project or module scoped (but is application scoped).
 
 ```kotlin
 import com.intellij.openapi.components.Service
@@ -1246,15 +1305,16 @@ class LightService {
 Notes on the snippet:
 
 - There is no need to register these w/ `plugin.xml` making them really easy to use.
-- Depending on the constructor that is overloaded, IDEA will figure out whether this is a project, module, or
-  application scope service.
-- The only restriction to using light services is that they must be `final` (which all Kotlin classes are by default).
+- Depending on the constructor that is overloaded, IDEA will figure out whether this is a project,
+  module, or application scope service.
+- The only restriction to using light services is that they must be `final` (which all Kotlin
+  classes are by default).
 
 > ⚠️ The use of module scoped light services are discouraged, and not supported.
 >
-> ⚠️ You might find yourself looking for a `projectService` declaration that's missing from `plugin.xml` but is still
-> available as a service, in this case, make sure to look out for the following annotation on the service class
-> `@Service`.
+> ⚠️ You might find yourself looking for a `projectService` declaration that's missing from
+> `plugin.xml` but is still available as a service, in this case, make sure to look out for the
+> following annotation on the service class `@Service`.
 
 Here's a code snippet for a light service that is scoped to a project.
 
@@ -1274,23 +1334,23 @@ class LightService(private val project: Project) {
 }
 ```
 
-> 💡️ You can save a reference to the open project, since a new instance of a service is created per project (for
-> project-scope services).
+> 💡️ You can save a reference to the open project, since a new instance of a service is created per
+> project (for project-scope services).
 
 ### Migration strategies
 
-There are a handful of ways to go about removing components and replacing them w/ services, startup activities,
-listeners, etc. The following is a list of common refactoring strategies that you can use depending on your specific
-needs.
+There are a handful of ways to go about removing components and replacing them w/ services, startup
+activities, listeners, etc. The following is a list of common refactoring strategies that you can
+use depending on your specific needs.
 
 #### 1. Component -> Service
 
-In many cases you can just replace the component w/ a service, and get rid of the project opened and closed methods,
-along w/ the component name and dispose component methods.
+In many cases you can just replace the component w/ a service, and get rid of the project opened and
+closed methods, along w/ the component name and dispose component methods.
 
-Another thing to watch out for is to make sure that the `getInstance()` methods all make a `getService()` call and not
-`getComponent()`. Look at tests as well to see if they are using `getComponent()` instead of `getService()` to get an
-instance of the migrated component.
+Another thing to watch out for is to make sure that the `getInstance()` methods all make a
+`getService()` call and not `getComponent()`. Look at tests as well to see if they are using
+`getComponent()` instead of `getService()` to get an instance of the migrated component.
 
 Here's an XML snippet of what this might look like:
 
@@ -1298,7 +1358,8 @@ Here's an XML snippet of what this might look like:
 <projectService serviceImplementation="MyServiceClass" />
 ```
 
-> 💡️ If you use a [light service](#light-services) then you can skip registering the service class in `plugin.xml`.
+> 💡️ If you use a [light service](#light-services) then you can skip registering the service class
+> in `plugin.xml`.
 
 Here's the code for the service class:
 
@@ -1313,34 +1374,38 @@ class MyServiceClass : Disposable {
 }
 ```
 
-> 💡️ If you don't need to perform any custom login in your service when the project is closed, then there is no need to
-> implement `Disposable` and you can just remove the `dispose()` method.
+> 💡️ If you don't need to perform any custom login in your service when the project is closed, then
+> there is no need to implement `Disposable` and you can just remove the `dispose()` method.
 
 > #### Disposing the service and choosing a parent disposable
 >
-> In order to clean up after the service, it can simply implement the `Disposable` interface and put the logic for clean
-> up in the `dispose()` method. This should suffice for most situations, since IDEA will
+> In order to clean up after the service, it can simply implement the `Disposable` interface and put
+> the logic for clean up in the `dispose()` method. This should suffice for most situations, since
+> IDEA will
 > [automatically take care of cleaning up](https://jetbrains.org/intellij/sdk/docs/basics/disposers.html#automatically-disposed-objects)
 > the service instance.
 >
-> 1. Application-level services are automatically disposed by the platform when the IDE is closed, or the plugin
->    providing the service is unloaded.
-> 2. Project-level services are automatically disposed when the project is closed or the plugin is unloaded.
+> 1. Application-level services are automatically disposed by the platform when the IDE is closed,
+>    or the plugin providing the service is unloaded.
+> 2. Project-level services are automatically disposed when the project is closed or the plugin is
+>    unloaded.
 >
-> However, if you still want to exert finer control over when you want your service to be disposed, you can use
-> `Disposer.register()` by passing a `Project` or `Application` service instance as the parent argument.
+> However, if you still want to exert finer control over when you want your service to be disposed,
+> you can use `Disposer.register()` by passing a `Project` or `Application` service instance as the
+> parent argument.
 
 > 💡️ Here's more information from
 > [JetBrains official docs on choosing a disposable parent](https://jetbrains.org/intellij/sdk/docs/basics/disposers.html#choosing-a-disposable-parent).
 
 > #### Summary
 >
-> 1. For resources required for the entire lifetime of a plugin use an application-level or project-level service.
+> 1. For resources required for the entire lifetime of a plugin use an application-level or
+>    project-level service.
 > 2. For resources required while a dialog is displayed, use a `DialogWrapper.getDisposable()`.
-> 3. For resources required while a tool window is displayed, pass your instance implementing `Disposable` to
->    `Context.setDisposer()`.
-> 4. For resources w/ a shorter lifetime, create a disposable using a `Disposer.newDisposable()` and dispose it manually
->    using `Disposable.dispose()`.
+> 3. For resources required while a tool window is displayed, pass your instance implementing
+>    `Disposable` to `Context.setDisposer()`.
+> 4. For resources w/ a shorter lifetime, create a disposable using a `Disposer.newDisposable()` and
+>    dispose it manually using `Disposable.dispose()`.
 > 5. Finally, when passing our own parent object be careful about
 >    [non-capturing-lambdas]({{ '2020/07/14/non-capturing-lambda-problems/' | relative_url }}).
 
@@ -1348,24 +1413,27 @@ class MyServiceClass : Disposable {
 
 This is a very straightforward replacement of a component w/ a
 [startup activity](#extension-points-poststartupactivity-backgroundpoststartupactivity-to-initialize-a-plugin-on-project-load).
-The logic that is in `projectOpened()` simply goes into the `runActivity(project: Project)` method. The same approach
-used in [Component -> Service](#1-component---service) still applies (w/ removing needless methods and using
-`getService()` calls).
+The logic that is in `projectOpened()` simply goes into the `runActivity(project: Project)` method.
+The same approach used in [Component -> Service](#1-component---service) still applies (w/ removing
+needless methods and using `getService()` calls).
 
 #### 3. Component -> postStartupActivity + Service
 
-This is a combination of the two strategies above. Here's a pattern that you can use to detect if this is the right
-approach or not. If the component had some logic that executed in `projectOpened()` which requires a `Project` instance
-then you can do the following:
+This is a combination of the two strategies above. Here's a pattern that you can use to detect if
+this is the right approach or not. If the component had some logic that executed in
+`projectOpened()` which requires a `Project` instance then you can do the following:
 
 1. Make the component a service in the `plugin.xml` file. Also, add a startup activity.
-2. Instead of your component extending `ProjectComponent` have it implement `Disposable` if you need to run some logic
-   when it is disposed (when the project is closed). Or just have it not implement any interface or extend any class.
-   Make sure to accept a parameter of `Project` in the constructor.
-3. Rename the `projectOpened()` method to `onProjectOpened()`. Add any logic you might have had in any `init{}` block or
-   any other constructors to this method.
-4. Create a `getInstance(project: Project)` function that looks up the service instance from the given project.
-5. Create a startup activity inner class called eg: `MyStartupActivity` which simply calls `onProjectOpened()`.
+2. Instead of your component extending `ProjectComponent` have it implement `Disposable` if you need
+   to run some logic when it is disposed (when the project is closed). Or just have it not implement
+   any interface or extend any class. Make sure to accept a parameter of `Project` in the
+   constructor.
+3. Rename the `projectOpened()` method to `onProjectOpened()`. Add any logic you might have had in
+   any `init{}` block or any other constructors to this method.
+4. Create a `getInstance(project: Project)` function that looks up the service instance from the
+   given project.
+5. Create a startup activity inner class called eg: `MyStartupActivity` which simply calls
+   `onProjectOpened()`.
 
 This is roughly what things will end up looking like:
 
@@ -1393,10 +1461,10 @@ class MyServiceClass {
 
 #### 4. Component -> projectListener
 
-Many components just subscribe to a topic on the message bus in the `projectOpened()` method. In these cases, it is
-possible to replace the component entirely by (declaratively) registering a
-[`projectListener`](https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_listeners.html) in your
-module's `plugin.xml`.
+Many components just subscribe to a topic on the message bus in the `projectOpened()` method. In
+these cases, it is possible to replace the component entirely by (declaratively) registering a
+[`projectListener`](https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_listeners.html)
+in your module's `plugin.xml`.
 
 Here's an XML snippet of what this might look like (goes in `plugin.xml`):
 
@@ -1415,59 +1483,67 @@ class MyListenerClass(val project: Project) : SMTRunnerEventsAdapter(), Executio
 
 #### 5. Component -> projectListener + Service
 
-Sometimes a component can be replaced w/ a service and a `projectListener`, which is simply combining two of the
-strategies shown above.
+Sometimes a component can be replaced w/ a service and a `projectListener`, which is simply
+combining two of the strategies shown above.
 
 #### 6. Delete Component
 
-There are some situations where the component might have been deprecated already. In this case simply remove it from the
-appropriate module's `plugin.xml` and you can delete those files as well.
+There are some situations where the component might have been deprecated already. In this case
+simply remove it from the appropriate module's `plugin.xml` and you can delete those files as well.
 
 #### 7. Component -> AppLifecycleListener
 
-There are some situations where an application component has to be launched when IDEA starts up and it has to be
-notified when it shuts down. In this case you can use
+There are some situations where an application component has to be launched when IDEA starts up and
+it has to be notified when it shuts down. In this case you can use
 [AppLifecycleListener](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-impl/src/com/intellij/ide/AppLifecycleListener.java)
-to attach a [listener](https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_listeners.html) to IDEA
-that does just [this](https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_components.html).
+to attach a
+[listener](https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_listeners.html) to
+IDEA that does just
+[this](https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_components.html).
 
 ## VFS, Document, PSI
 
-The virtual file system (VFS) is an abstraction that is available inside the IntelliJ Platform that allows access to
-files on your computer (on your local file system, or even in JAR files), or from a source code repository, or over the
-network. There are multiple ways of accessing the contents of files in the IDE:
+The virtual file system (VFS) is an abstraction that is available inside the IntelliJ Platform that
+allows access to files on your computer (on your local file system, or even in JAR files), or from a
+source code repository, or over the network. There are multiple ways of accessing the contents of
+files in the IDE:
 
-1. VFS allows access to files at the lowest level (closest the actual file system and not an abstraction like PSI).
-2. Document provides an object model to access file contents as plain text (so its somewhere between VFS and PSI).
-3. PSI (Program Structure Interface) allows access to the contents of a file in a hierarchical object model which takes
-   the syntax and semantics of specific languages into account (kind of like how DOM represents HTML and CSS content in
-   a web browser). You can learn more about PSI in [in this section](#psi-access-and-mutation).
+1. VFS allows access to files at the lowest level (closest the actual file system and not an
+   abstraction like PSI).
+2. Document provides an object model to access file contents as plain text (so its somewhere between
+   VFS and PSI).
+3. PSI (Program Structure Interface) allows access to the contents of a file in a hierarchical
+   object model which takes the syntax and semantics of specific languages into account (kind of
+   like how DOM represents HTML and CSS content in a web browser). You can learn more about PSI in
+   [in this section](#psi-access-and-mutation).
 
 ### VFS
 
 The VFS is what the IntelliJ Platform uses to work with files. It provides:
 
-1. A universal API for working with files regardless of where they are located (on disk, in a JAR file, on a HTTP
-   server, in a VCS, etc).
-2. Information for tracking file modifications and providing both new and old versions of a file when a change is
-   detected in a file.
+1. A universal API for working with files regardless of where they are located (on disk, in a JAR
+   file, on a HTTP server, in a VCS, etc).
+2. Information for tracking file modifications and providing both new and old versions of a file
+   when a change is detected in a file.
 3. Ability to associate additional persistent data with a file in the VFS.
 
-The VFS manages a persistent snapshot of the files that are accessed via the IDE. These snapshots store only those files
-which have been requested at least once via the VFS API. Here are some important things to keep in mind about the nature
-of VFS:
+The VFS manages a persistent snapshot of the files that are accessed via the IDE. These snapshots
+store only those files which have been requested at least once via the VFS API. Here are some
+important things to keep in mind about the nature of VFS:
 
 - The contents of the cache is refreshed asynchronously to match any changes on disk.
-- Keep in mind that the snapshot is stored at the application level, as you might expect, so a file that is open in
-  multiple projects will only have one snapshot.
-- The snapshot is updated from disk during refresh operations, which generally happen asynchronously. All write
-  operations made through the VFS are synchronous and the contents is saved to disk immediately.
+- Keep in mind that the snapshot is stored at the application level, as you might expect, so a file
+  that is open in multiple projects will only have one snapshot.
+- The snapshot is updated from disk during refresh operations, which generally happen
+  asynchronously. All write operations made through the VFS are synchronous and the contents is
+  saved to disk immediately.
 
 > Read more about VFS from the
 > [official docs](https://www.jetbrains.org/intellij/sdk/docs/basics/virtual_file_system.html).
 
-There are quite a few common scenarios that you face when using VFS to work with files that your plugin needs. The
-following are some of these scenarios with code samples to help you deal with them.
+There are quite a few common scenarios that you face when using VFS to work with files that your
+plugin needs. The following are some of these scenarios with code samples to help you deal with
+them.
 
 #### Getting a list of all the virtual files in a project
 
@@ -1520,11 +1596,11 @@ This is the deprecated way of programmatically attaching a listener for VFS chan
 VirtualFileManager.getInstance().addVirtualFileListener()
 ```
 
-The new way to add a listener programmatically is to listen to `VirtualFileManager.VFS_CHANGES` events on the bus (aka
-the topic).
+The new way to add a listener programmatically is to listen to `VirtualFileManager.VFS_CHANGES`
+events on the bus (aka the topic).
 
-> There is no way to filter for these change events by path or filename, so the logic to filer out unwanted events needs
-> to go in the listener.
+> There is no way to filter for these change events by path or filename, so the logic to filer out
+> unwanted events needs to go in the listener.
 
 The following function shows how to register this in code. Note that this function runs in the EDT.
 
@@ -1569,22 +1645,23 @@ fun doAfter(events: List<VFileEvent>) {
 }
 ```
 
-Using this approach, the code attaching the listener itself has to be run at some point. So if this is a listener that
-should run when your project is opened, then you might need to add a `postStartupActivity`, which is just a class
-supplied by your plugin that will be run after the IDE opens a project. Please read all about this in the
-[dynamic plugins section](#dynamic-plugins).
+Using this approach, the code attaching the listener itself has to be run at some point. So if this
+is a listener that should run when your project is opened, then you might need to add a
+`postStartupActivity`, which is just a class supplied by your plugin that will be run after the IDE
+opens a project. Please read all about this in the [dynamic plugins section](#dynamic-plugins).
 
-> 💡 You might want to use this approach over the declarative approach shown below in case you want a reference to the
-> currently open project.
+> 💡 You might want to use this approach over the declarative approach shown below in case you want
+> a reference to the currently open project.
 
 #### Attach listeners to see changes to virtual files declaratively
 
-You can also register a listener declaratively in your `plugin.xml`. There are some differences to using this approach
-over the code approach shown above. Instead of subscribing to a topic, you can simply register a listener for a specific
-event class in your `plugin.xml`.
+You can also register a listener declaratively in your `plugin.xml`. There are some differences to
+using this approach over the code approach shown above. Instead of subscribing to a topic, you can
+simply register a listener for a specific event class in your `plugin.xml`.
 
-Here's a snippet that does something similar to the code above. So the `VirtualFileManager.VFS_CHANGES` topic is
-equivalent to the `com.intellij.openapi.vfs.newvfs.BulkFileListener` class.
+Here's a snippet that does something similar to the code above. So the
+`VirtualFileManager.VFS_CHANGES` topic is equivalent to the
+`com.intellij.openapi.vfs.newvfs.BulkFileListener` class.
 
 ```xml
 <applicationListeners>
@@ -1606,36 +1683,40 @@ class MyVfsListener : BulkFileListener {
 > Here's more information on registering VFS listeners in the
 > [official docs](https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_listeners.html#defining-application-level-listeners).
 
-> 💡 You can also declaratively attach listeners that are scoped to a project. However, this requires that the interface
-> / class that you will register in the XML can take a project object as a parameter. In the case of VFS listeners it
-> does not take a project parameter, since VFS operations are application level. So if you want to get a hold of the
-> currently open project, then you have to use the programmatic approach.
+> 💡 You can also declaratively attach listeners that are scoped to a project. However, this
+> requires that the interface / class that you will register in the XML can take a project object as
+> a parameter. In the case of VFS listeners it does not take a project parameter, since VFS
+> operations are application level. So if you want to get a hold of the currently open project, then
+> you have to use the programmatic approach.
 
 #### Asynchronously process file system events
 
-It is possible to get these file system events asynchronously (in a background thread). Take a Look at the
+It is possible to get these file system events asynchronously (in a background thread). Take a Look
+at the
 [`AsyncFileListener.java`](https://upsource.jetbrains.com/idea-ce/file/idea-ce-7cf49a16e4e15a18fa2f742635053647ae94abfb/platform/core-api/src/com/intellij/openapi/vfs/AsyncFileListener.java)
-class for examples on how to do this. The async versions are not as trivial to implement as the version that runs on the
-UI thread. Here are some notes on this:
+class for examples on how to do this. The async versions are not as trivial to implement as the
+version that runs on the UI thread. Here are some notes on this:
 
-1. You can register an extension for `vfs.asyncListener` that registers your async listener in `plugin.xml`.
+1. You can register an extension for `vfs.asyncListener` that registers your async listener in
+   `plugin.xml`.
 2. Or you can call
    [`VirtualFileManager.java`](https://upsource.jetbrains.com/idea-ce/file/idea-ce-7cf49a16e4e15a18fa2f742635053647ae94abfb/platform/core-api/src/com/intellij/openapi/vfs/VirtualFileManager.java)'s
    `addVirtualFileListener()` method.
 
 #### Intercept when the currently open file gets saved
 
-This is a code snippet that can use the `AppTopics.FILE_DOCUMENT_SYNC` topic to get an event just before a file is
-saved. Read more about
+This is a code snippet that can use the `AppTopics.FILE_DOCUMENT_SYNC` topic to get an event just
+before a file is saved. Read more about
 [`Document`](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview/documents.html#how-do-i-get-notified-when-documents-change)
 to get an understanding of what this event does and where it comes from.
 
-> Note that this listener will fire on any file that is being saved, not just the only one that is currently being
-> edited.
+> Note that this listener will fire on any file that is being saved, not just the only one that is
+> currently being edited.
 >
-> - So if you're relying on this to fire JUST for the file that is currently open, then this is not the way to go.
-> - However, if you want to do something before any files that are open in editors are going to be saved, then this is
->   the place to trap these events.
+> - So if you're relying on this to fire JUST for the file that is currently open, then this is not
+>   the way to go.
+> - However, if you want to do something before any files that are open in editors are going to be
+>   saved, then this is the place to trap these events.
 
 ```kotlin
 /**
@@ -1663,9 +1744,9 @@ private fun attachFileSaveListener() {
 
 ### Document
 
-The Document API is a way to access a file from the IDE as a simple text file. The IntelliJ Platform handles encoding
-and line break conversions when loading or saving the file transparently. There are a few ways of getting a `Document`
-object.
+The Document API is a way to access a file from the IDE as a simple text file. The IntelliJ Platform
+handles encoding and line break conversions when loading or saving the file transparently. There are
+a few ways of getting a `Document` object.
 
 - From an action using `e.getRequiredData(CommonDataKeys.EDITOR).document`.
 - From a virtual file using `FileDocumentManager.document`.
@@ -1673,7 +1754,8 @@ object.
 
 #### Example of an action that uses the Document API
 
-Here's an example of an action that uses the Document API to replace some selected text in the IDE with another string.
+Here's an example of an action that uses the Document API to replace some selected text in the IDE
+with another string.
 
 ```kotlin
 class EditorReplaceTextAction : AnAction() {
@@ -1720,20 +1802,22 @@ class EditorReplaceTextAction : AnAction() {
 
 ## UI (JetBrains UI components, Swing and Kotlin UI DSL)
 
-There are many ways for a plugin to interact w/ an end user - keyboard shortcuts that bind to actions, and UI components
-that the plugin provides, which can be totally custom, or integrated into the existing IDE's UI components. JetBrains
-also provides many UI controls that are applicable for different scenarios.
+There are many ways for a plugin to interact w/ an end user - keyboard shortcuts that bind to
+actions, and UI components that the plugin provides, which can be totally custom, or integrated into
+the existing IDE's UI components. JetBrains also provides many UI controls that are applicable for
+different scenarios.
 
-There is a range of components that span from simple fire and forget notifications, to more sophisticated UI that allows
-intense interaction w/ the user. There is even a Kotlin DSL for UI components that makes it relatively easy to create
-forms in IDEA.
+There is a range of components that span from simple fire and forget notifications, to more
+sophisticated UI that allows intense interaction w/ the user. There is even a Kotlin DSL for UI
+components that makes it relatively easy to create forms in IDEA.
 
-There is even a way to create forms using Swing, which is being phased out in favor of the Kotlin UI DSL. In addition to
-all of this, you can even create custom themes for IDEA.
+There is even a way to create forms using Swing, which is being phased out in favor of the Kotlin UI
+DSL. In addition to all of this, you can even create custom themes for IDEA.
 
-One effective approach to writing UI code for plugins is to take a look at how some UI code is written in
-`intellij-community` repo itself, to see how JetBrains does it. Documentation is sparse to non existent, and the best
-way sometimes is to take a look at the source for IDEA itself to find out how certain UI is created.
+One effective approach to writing UI code for plugins is to take a look at how some UI code is
+written in `intellij-community` repo itself, to see how JetBrains does it. Documentation is sparse
+to non existent, and the best way sometimes is to take a look at the source for IDEA itself to find
+out how certain UI is created.
 
 Here are good resources to take a look when considering writing UI code for plugins.
 
@@ -1743,23 +1827,24 @@ Here are good resources to take a look when considering writing UI code for plug
 
 ### Simple UI components - notifications, popups, dialogs
 
-This section covers some simple UI components, and the next sections get into more sophisticated interactions w/ users
-(via forms, dialogs, and the settings UI).
+This section covers some simple UI components, and the next sections get into more sophisticated
+interactions w/ users (via forms, dialogs, and the settings UI).
 
 #### Notifications
 
-Notifications are a really simple way to provide some information to the user. You can even attach actions to
-notifications in case you want the user to perform an action when they get notified.
+Notifications are a really simple way to provide some information to the user. You can even attach
+actions to notifications in case you want the user to perform an action when they get notified.
 
 - Notifications show up in the "Event Log" tool window in the IDE.
 - You can choose to have any shown notifications to be logged as well.
-- Notifications can be project specific (and be shown in the IDE window containing a project), or be a general
-  notification for the entire IDE.
-- Here are the [official docs](https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/notifications.html)
+- Notifications can be project specific (and be shown in the IDE window containing a project), or be
+  a general notification for the entire IDE.
+- Here are the
+  [official docs](https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/notifications.html)
   on notifications.
 
-This is an example of a simple action that displays two notifications using slightly different ways. Here is the snippet
-for this action that goes into `plugin.xml`.
+This is an example of a simple action that displays two notifications using slightly different ways.
+Here is the snippet for this action that goes into `plugin.xml`.
 
 ```kotlin
 <actions>
@@ -1828,18 +1913,19 @@ private fun anotherNotification(e: AnActionEvent) {
 
 #### Popups
 
-Popups are a way to get some input from the user w/out interrupting what they're doing. Popups are displayed w/out any
-chrome (UI to close them), and they disappear automatically when they lose keyboard focus. IDE uses them extensively in
-type ahead completion, auto complete, etc.
+Popups are a way to get some input from the user w/out interrupting what they're doing. Popups are
+displayed w/out any chrome (UI to close them), and they disappear automatically when they lose
+keyboard focus. IDE uses them extensively in type ahead completion, auto complete, etc.
 
-- Popups allow the user to make a single choice from a list of options that are displayed. Once the user makes a choice
-  you can provide some code (`itemChosenCallback`) that will be run on this selection.
+- Popups allow the user to make a single choice from a list of options that are displayed. Once the
+  user makes a choice you can provide some code (`itemChosenCallback`) that will be run on this
+  selection.
 - Popups can display a title.
 - They can be movable and resizable (and support remembering their size).
 - They can even be nested (show another popup when an item is selected).
 
-The following is an example of an action that shows two nested popups. Here's the snippet from `plugin.xml` for
-registering the action.
+The following is an example of an action that shows two nested popups. Here's the snippet from
+`plugin.xml` for registering the action.
 
 ```xml
 <!-- Add popup action. -->
@@ -1847,10 +1933,10 @@ registering the action.
     description="Shows sample popups" icon="/icons/ic_extension.svg" />
 ```
 
-Here's the class that implements the action (which shows one popup, and when the user selects an option in the first
-popup, the second one is shown). It shows multiple ways in which a popup can be created to display a list of items. One
-approach is to use the `createPopupChooserBuilder()`, and the other is to use `createListPopup()`, both of which are
-methods on
+Here's the class that implements the action (which shows one popup, and when the user selects an
+option in the first popup, the second one is shown). It shows multiple ways in which a popup can be
+created to display a list of items. One approach is to use the `createPopupChooserBuilder()`, and
+the other is to use `createListPopup()`, both of which are methods on
 [`JBPopupFactory.getInstance()`](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/popup/JBPopupFactory.java)
 method.
 
@@ -1899,14 +1985,15 @@ class MyList(val onChosenHandler: (String) -> Unit) : BaseListPopupStep<String>(
 
 #### Dialogs
 
-When user input is required by your plugin dialogs might be the right component to use. They are modal unlike
-notifications and popups. IDEA allows a simple boolean response to be returned from a dialog.
+When user input is required by your plugin dialogs might be the right component to use. They are
+modal unlike notifications and popups. IDEA allows a simple boolean response to be returned from a
+dialog.
 
 In order to create sophisticated UIs that go inside the dialog, it is best to use the
 [Kotlin UI DSL](#create-complex-uis-using-kotlin-ui-dsl-forms-dialogs-settings-screens).
 
-Here's a really simple example of an action that shows a dialog displaying "Press OK or Cancel" and allowing the user
-and showing OK and Cancel buttons. Here's the snippet for `plugin.xml`.
+Here's a really simple example of an action that shows a dialog displaying "Press OK or Cancel" and
+allowing the user and showing OK and Cancel buttons. Here's the snippet for `plugin.xml`.
 
 ```xml
 <!-- Add dialog action. -->
@@ -1945,8 +2032,8 @@ class SampleDialogWrapper : DialogWrapper(true) {
 }
 ```
 
-Note that in this case, `showAndGet()` is used to both show the dialog, and get the response. You can also break this
-into two steps with `show()` and `isOK()`.
+Note that in this case, `showAndGet()` is used to both show the dialog, and get the response. You
+can also break this into two steps with `show()` and `isOK()`.
 
 > Please refer to the
 > [official docs](https://github.com/JetBrains/intellij-community/blob/master/platform/platform-api/src/com/intellij/openapi/ui/DialogWrapper.java)
@@ -1957,17 +2044,18 @@ into two steps with `show()` and `isOK()`.
 
 ### Create complex UIs using Kotlin UI DSL (forms, dialogs, settings screens)
 
-In the sections below, we will be using `DialogWrapper` to take the UI we create using the Kotlin UI DSL and show them.
+In the sections below, we will be using `DialogWrapper` to take the UI we create using the Kotlin UI
+DSL and show them.
 
-In order to create more complex UIs, you can use the Kotlin UI DSL. You can display these forms in the
-[IDEA Settings UI](#create-ide-settings-ui-for-plugin), or directly in a dialog box. You can also bind the forms to data
-objects, that you can persist across IDE restarts as well.
+In order to create more complex UIs, you can use the Kotlin UI DSL. You can display these forms in
+the [IDEA Settings UI](#create-ide-settings-ui-for-plugin), or directly in a dialog box. You can
+also bind the forms to data objects, that you can persist across IDE restarts as well.
 
 #### Understanding the structure of the DSL (layout, row, and cell)
 
-The Kotlin UI DSL allows UIs to be expressed in a layout that contains rows and cells. Things are left to right aligned
-inside of each row, but you can specify if an item needs to be right aligned. Type ahead completion in the IDE also
-provides guidance on how to use this DSL.
+The Kotlin UI DSL allows UIs to be expressed in a layout that contains rows and cells. Things are
+left to right aligned inside of each row, but you can specify if an item needs to be right aligned.
+Type ahead completion in the IDE also provides guidance on how to use this DSL.
 
 Here's an example of a simple UI using this DSL, which contains the following UI components.
 
@@ -2018,18 +2106,20 @@ fun createDialogPanel(): DialogPanel = panel {
 
 #### How to bind data to the form UI
 
-One really simple way of binding the UI to a data object that you create is by passing a reference to the `KProperty`
-for each property that should be rendered by a UI component. This ensures that:
+One really simple way of binding the UI to a data object that you create is by passing a reference
+to the `KProperty` for each property that should be rendered by a UI component. This ensures that:
 
 1. The data object populates the UI component to its correct initial state before it is shown.
-2. When the user manipulates the UI component and its state changes, this is reflected in the data object's property.
+2. When the user manipulates the UI component and its state changes, this is reflected in the data
+   object's property.
 
-In the example above, note that some UI components that hold state information require a Kotlin property (from a data
-object that you provide) to bind to. This is an easy way that the DSL handles data binding in the forms for you.
+In the example above, note that some UI components that hold state information require a Kotlin
+property (from a data object that you provide) to bind to. This is an easy way that the DSL handles
+data binding in the forms for you.
 
 It is possible to provide explicit setters and getters as well instead of just using the
-[`KProperty`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/). This makes it really simple to
-create forms, since the state is loaded and saved for you, automatically.
+[`KProperty`](https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-property/). This makes
+it really simple to create forms, since the state is loaded and saved for you, automatically.
 
 #### What UI elements are available for use in the forms
 
@@ -2043,15 +2133,17 @@ create forms, since the state is loaded and saved for you, automatically.
    You can add things like `browserLink`, `comboBox`, `checkBox`, etc.
 
 > Please make sure to read the
-> [official docs](http://www.jetbrains.org/intellij/sdk/docs/user_interface_components/kotlin_ui_dsl.html) on the DSL.
+> [official docs](http://www.jetbrains.org/intellij/sdk/docs/user_interface_components/kotlin_ui_dsl.html)
+> on the DSL.
 
 #### How to display a form in a dialog
 
-The form that's created using this DSL can be displayed anywhere a `DisplayPanel` can be used (which is just a subclass
-of `JPanel`). This includes the Settings UI (shown in the [section below](#create-ide-settings-ui-for-plugin)) and in a
-dialog. Here's an sample action that takes the object returned by
-[`createDialogPanel()`](#understanding-the-structure-of-the-dsl-layout-row-and-cell) above, and displays it in a dialog,
-using a `DialogWrapper`.
+The form that's created using this DSL can be displayed anywhere a `DisplayPanel` can be used (which
+is just a subclass of `JPanel`). This includes the Settings UI (shown in the
+[section below](#create-ide-settings-ui-for-plugin)) and in a dialog. Here's an sample action that
+takes the object returned by
+[`createDialogPanel()`](#understanding-the-structure-of-the-dsl-layout-row-and-cell) above, and
+displays it in a dialog, using a `DialogWrapper`.
 
 ```kotlin
 class ShowKotlinUIDSLSampleInDialogAction : AnAction() {
@@ -2072,18 +2164,19 @@ private class MyDialogWrapper : DialogWrapper(true) {
 
 #### How to persist the data created/selected by the user, between IDE restarts (PersistentStateComponent)
 
-If you want the data that you've created in your form to be used in the rest of the IDE, it makes sense to persist this
-data and make it available to other pieces of your plugin. This is where
+If you want the data that you've created in your form to be used in the rest of the IDE, it makes
+sense to persist this data and make it available to other pieces of your plugin. This is where
 [`PersistentStateComponent`](https://github.com/JetBrains/intellij-community/blob/master/platform/projectModel-api/src/com/intellij/openapi/components/PersistentStateComponent.java)
-comes in. It allows you serialize the state of your data object to disk, and deserialize it from disk. In order to have
-IDEA persist your data object, simply do two things:
+comes in. It allows you serialize the state of your data object to disk, and deserialize it from
+disk. In order to have IDEA persist your data object, simply do two things:
 
 1. Make your data class extend `PersistentStateComponent`.
 2. Wrap this in a `Service` so that you can access it in any code in your plugin.
 
-Here's an example that shows this. The `KotlinDSLUISampleService` service contains a `State` object called `myState`
-that actually holds the data which is bound to the forms. `State` simply holds 4 properties (which can be bound to
-various UI components in a form): `myFlag: Boolean`, `myString: String`, `myInt: Int`, `myStringChoice: String`.
+Here's an example that shows this. The `KotlinDSLUISampleService` service contains a `State` object
+called `myState` that actually holds the data which is bound to the forms. `State` simply holds 4
+properties (which can be bound to various UI components in a form): `myFlag: Boolean`,
+`myString: String`, `myInt: Int`, `myStringChoice: String`.
 
 ```kotlin
 @Service
@@ -2135,8 +2228,8 @@ class KotlinDSLUISampleService : PersistentStateComponent<KotlinDSLUISampleServi
 }
 ```
 
-In the form UI example above, we just bound the data for the UI components to an object created from a simple data
-class. Here's an example.
+In the form UI example above, we just bound the data for the UI components to an object created from
+a simple data class. Here's an example.
 
 ```kotlin
 row {
@@ -2145,7 +2238,8 @@ row {
 }
 ```
 
-In order to replace that with the `PersistentStateComponent` instance, we would do something like this instead.
+In order to replace that with the `PersistentStateComponent` instance, we would do something like
+this instead.
 
 ```kotlin
 row {
@@ -2156,22 +2250,26 @@ row {
 
 In other words, `myDataObject` is replaced with `KotlinDSLUISampleService.instance.myState`.
 
-There is one very important thing to note in the code above. The `getState()` and `loadState(...)` methods should not be
-called by your code. These are hooks for IDEA to call into the service in order to manage loading and saving the state
-to persistence. You should provide accessors to your data properties that do not involve the use of `getState()`. And
-make sure that these accessors can handle `loadState(...)` providing the "initial" state (if there is anything stored in
-persistence). And you must make sure that by default, your initial state has to be defined (if there is no customized
-data to load from persistence, then your state will contain default values). IDEA uses this default state to figure out
-if the user changed anything in the form UI (the diffs will deviate from the default state).
+There is one very important thing to note in the code above. The `getState()` and `loadState(...)`
+methods should not be called by your code. These are hooks for IDEA to call into the service in
+order to manage loading and saving the state to persistence. You should provide accessors to your
+data properties that do not involve the use of `getState()`. And make sure that these accessors can
+handle `loadState(...)` providing the "initial" state (if there is anything stored in persistence).
+And you must make sure that by default, your initial state has to be defined (if there is no
+customized data to load from persistence, then your state will contain default values). IDEA uses
+this default state to figure out if the user changed anything in the form UI (the diffs will deviate
+from the default state).
 
-Also, you can specify many options to IDEA on where to store the persistent data. In this example, we have told IDEA to
-store any user modified data to an XML file called `kotlinDSLUISampleData.xml` in the `config/options/` folder where
-IDEA settings are stored. You can also specify options for `storages` that determine whether this data should be roaming
-disabled or not, and even if you should only store the data on specific platforms.
+Also, you can specify many options to IDEA on where to store the persistent data. In this example,
+we have told IDEA to store any user modified data to an XML file called `kotlinDSLUISampleData.xml`
+in the `config/options/` folder where IDEA settings are stored. You can also specify options for
+`storages` that determine whether this data should be roaming disabled or not, and even if you
+should only store the data on specific platforms.
 
 #### Example of a form UI
 
-Here's a form that uses Kotlin DSL and the `State` object (provided by the `PersistentStateComponent` service).
+Here's a form that uses Kotlin DSL and the `State` object (provided by the
+`PersistentStateComponent` service).
 
 ```kotlin
 fun createDialogPanel(): DialogPanel {
@@ -2224,13 +2322,16 @@ fun createDialogPanel(): DialogPanel {
 
 The `panel` function (in Kotlin UI DSL) actually creates a
 [`MigLayout`](https://github.com/jetbrains/intellij-community/blob/master/platform/platform-impl/src/com/intellij/ui/layout/migLayout/patched/MigLayout.kt#L43).
-`MigLayout` can produce flowing, grid based, absolute (with links), grouped and docking layouts. You can read the docs
-[here](MigLayout can produce flowing, grid based, absolute (with links), grouped and docking layouts).
+`MigLayout` can produce flowing, grid based, absolute (with links), grouped and docking layouts. You
+can read the docs [here](MigLayout can produce flowing, grid based, absolute (with links), grouped
+and docking layouts).
 
 - `panel` accepts `row` functions, which in turn accepts `cell` functions.
 - You can pass `grow` and `fill` attributes to `panel` and `cell` functions.
-- You can also wrap `JComponents` using the `component` function, which can also take `grow` and `fill` attributes.
-- `panel` automatically sizes the dialog, however, you can override it using your own predefined width and height.
+- You can also wrap `JComponents` using the `component` function, which can also take `grow` and
+  `fill` attributes.
+- `panel` automatically sizes the dialog, however, you can override it using your own predefined
+  width and height.
 
 Here's an example (`myJComponent` is just a `JComponent` that is created somewhere else).
 
@@ -2257,22 +2358,24 @@ companion object {
 }
 ```
 
-> Note that `JComponent` objects become callable within the `panel` function and they accept `CCFLags` that constrain
-> their growth.
+> Note that `JComponent` objects become callable within the `panel` function and they accept
+> `CCFLags` that constrain their growth.
 
 > Please note that it might be simpler at times to use the
-> [Swing layout managers](https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html) directly w/out using this
-> DSL.
+> [Swing layout managers](https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html)
+> directly w/out using this DSL.
 
 ### Create IDE Settings UI for plugin
 
-Let's say that we wanted to display the form created above (by `createDialogPanel()`) and we want to display it in a
-Settings UI, in addition to it being available in a `Dialog`. Note that you can display the form in both places, and
-have it update the data in the same `PersistentStateComponent` service, which is really convenient.
+Let's say that we wanted to display the form created above (by `createDialogPanel()`) and we want to
+display it in a Settings UI, in addition to it being available in a `Dialog`. Note that you can
+display the form in both places, and have it update the data in the same `PersistentStateComponent`
+service, which is really convenient.
 
-In order to tell IDEA that you want a form to be displayed in the Settings UI, you can use one of two extension points.
-In `plugin.xml` you can declare 2 types of "configurables" that allow you to customize the IDE settings UI, where a
-"configurable" is a base class provided by the JetBrains platform that allows you show your form UI.
+In order to tell IDEA that you want a form to be displayed in the Settings UI, you can use one of
+two extension points. In `plugin.xml` you can declare 2 types of "configurables" that allow you to
+customize the IDE settings UI, where a "configurable" is a base class provided by the JetBrains
+platform that allows you show your form UI.
 
 1. `projectConfigurable` - these are settings that are specific to a given project.
 2. `applicationConfigurable` - these are settings that apply to the entire IDE.
@@ -2283,17 +2386,18 @@ References:
 - [New JB docs](https://www.jetbrains.org/intellij/sdk/docs/user_interface_components/kotlin_ui_dsl.html#configurables).
 - [MacOS dark mode sync plugin source](https://github.com/gilday/dark-mode-sync-plugin)
 
-When using the Kotlin UI DSL instead of implementing `Configurable` interface, simply extend `BoundConfigurable`. When
-doing this you can:
+When using the Kotlin UI DSL instead of implementing `Configurable` interface, simply extend
+`BoundConfigurable`. When doing this you can:
 
-1. Pass a `displayName` to the constructor of the `BoundConfigurable` that will actually show up in the Settings UI,
-   (and you can type-ahead search for).
+1. Pass a `displayName` to the constructor of the `BoundConfigurable` that will actually show up in
+   the Settings UI, (and you can type-ahead search for).
 2. Pass any number of JB platform objects in the constructor, eg:
    ```kotlin
    class MyConfigurable(private val lafManager: LafManager) : BoundConfigurable("Display Name")
    ```
 
-The following is an example of this (`plugin.xml` entry, and a class that extends `BoundConfigurable`).
+The following is an example of this (`plugin.xml` entry, and a class that extends
+`BoundConfigurable`).
 
 ```xml
 <!-- Add Settings Dialog that is similar to what ShowKotlinUIDSLSampleAction does. -->
@@ -2303,8 +2407,8 @@ The following is an example of this (`plugin.xml` entry, and a class that extend
 ```
 
 The code from the previous section
-([Kotlin UI DSL](#create-complex-uis-using-kotlin-ui-dsl-forms-dialogs-settings-screens))) is used here to generate the
-form itself.
+([Kotlin UI DSL](#create-complex-uis-using-kotlin-ui-dsl-forms-dialogs-settings-screens))) is used
+here to generate the form itself.
 
 ```kotlin
 package ui
@@ -2340,15 +2444,17 @@ class KotlinDSLUISampleConfigurable : BoundConfigurable("Kotlin UI DSL") {
 
 ### Complex UI creation in dialogs
 
-There are cases where complex UI components need to be created in a `DialogWrapper`. In this case, Kotlin UI DSL can be
-used or directly creating Swing components using Swing layout managers.
+There are cases where complex UI components need to be created in a `DialogWrapper`. In this case,
+Kotlin UI DSL can be used or directly creating Swing components using Swing layout managers.
 
-> Please take a look at the [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2) repo that
-> contains a plugin that has some of the functionality shown below.
+> Please take a look at the
+> [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2) repo that contains a
+> plugin that has some of the functionality shown below.
 
-The following is an example of doing the latter to create a dialog that allows the user to paste text from the clipboard
-into an `Editor` component. The paste operation is actually implemented as an undoable command. It automatically pastes
-any text that is in the clipboard into the editor when the dialog is shown.
+The following is an example of doing the latter to create a dialog that allows the user to paste
+text from the clipboard into an `Editor` component. The paste operation is actually implemented as
+an undoable command. It automatically pastes any text that is in the clipboard into the editor when
+the dialog is shown.
 
 ```kotlin
 class ComplexDialog(private val project: Project) : DialogWrapper(true) {
@@ -2416,40 +2522,46 @@ class ComplexDialog(private val project: Project) : DialogWrapper(true) {
 
 ### Adding your plugin UI in Tool windows
 
-Tool windows provide in IDEA access to useful development tasks such as viewing your project structure, running and
-debugging your code, Git integration, and so on. Your plugin can create UI that will fit in tool windows in IDEA,
-instead of for example displaying it in a dialog box.
+Tool windows provide in IDEA access to useful development tasks such as viewing your project
+structure, running and debugging your code, Git integration, and so on. Your plugin can create UI
+that will fit in tool windows in IDEA, instead of for example displaying it in a dialog box.
 
-> Read more about Tool windows in the [official docs](https://www.jetbrains.com/help/idea/tool-windows.html).
+> Read more about Tool windows in the
+> [official docs](https://www.jetbrains.com/help/idea/tool-windows.html).
 
 For both of these types of Tool windows, the following applies:
 
 1. Each tool window can have multiple tabs (aka "contents").
-2. Each side of the IDE can only show 2 tool windows at any given time, as the primary or the secondary. For eg: you can
-   move the "Project" tool window to "Left Top", and move the "Structure" tool window to "Left Bottom". This way you can
-   open both of them at the same time. Note that when you move these tool windows to "Left Top" or "Left Bottom" how
-   they actually move to the top or bottom of the side of the IDE.
+2. Each side of the IDE can only show 2 tool windows at any given time, as the primary or the
+   secondary. For eg: you can move the "Project" tool window to "Left Top", and move the "Structure"
+   tool window to "Left Bottom". This way you can open both of them at the same time. Note that when
+   you move these tool windows to "Left Top" or "Left Bottom" how they actually move to the top or
+   bottom of the side of the IDE.
 
 There are two main types of tool windows: 1) Declarative, and 2) Programmatic.
 
-> Please take a look at the [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2) repo that
-> contains a plugin that has some of the functionality shown below.
+> Please take a look at the
+> [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2) repo that contains a
+> plugin that has some of the functionality shown below.
 
 #### 1. Declarative tool window
 
 Always visible and the user can interact with it at anytime (eg: Gradle plugin tool window).
 
-- This type of tool window must be registered in `plugin.xml` using the `com.intellij.toolWindow` extension point. You
-  can specify things to register this in XML:
+- This type of tool window must be registered in `plugin.xml` using the `com.intellij.toolWindow`
+  extension point. You can specify things to register this in XML:
   - `id`: Text displayed in the tool window button.
-  - `anchor`: Side of the screen in which the tool window is displayed ("left", "right", or "bottom").
+  - `anchor`: Side of the screen in which the tool window is displayed ("left", "right", or
+    "bottom").
   - `secondary`: Specify whether it is displayed in the primary or secondary group.
   - `icon`: Icon displayed in the tool window button (`13px` x `13px`).
-  - `factoryClass`: A class implementing `ToolWindowFactory` interface, which is used to instantiate the tool window
-    when the user clicks on the tool window button (by calling `createToolWindowContent()`). Note that if a user does
-    not interact with the button, then a tool window doesn't get created.
-  - For versions 2020.1 and later, also implement the `isApplicable(Project)` method if there's no need to display a
-    tool window for all projects. Note this condition is only evaluated the first time a project is loaded.
+  - `factoryClass`: A class implementing `ToolWindowFactory` interface, which is used to instantiate
+    the tool window when the user clicks on the tool window button (by calling
+    `createToolWindowContent()`). Note that if a user does not interact with the button, then a tool
+    window doesn't get created.
+  - For versions 2020.1 and later, also implement the `isApplicable(Project)` method if there's no
+    need to display a tool window for all projects. Note this condition is only evaluated the first
+    time a project is loaded.
 
 Here's an example.
 
@@ -2491,20 +2603,21 @@ The `plugin.xml` snippet.
 
 #### 2. Programmatic tool window
 
-Only visible when a plugin creates it to show the results of an operation (eg: Analyze Dependencies action). This type
-of tool window must be added programmatically by calling
+Only visible when a plugin creates it to show the results of an operation (eg: Analyze Dependencies
+action). This type of tool window must be added programmatically by calling
 `ToolWindowManager.getInstance().registerToolWindow(RegisterToolWindowTask)`.
 
 A couple of things to remember.
 
-1. You have to register the tool window (w/ the tool window manager) before using it. This is a one time operation.
-   There's no need to register the tool window if it's already been registered. Registering simply shows the tool window
-   in the IDEA UI. Unregistering removes it from the UI.
+1. You have to register the tool window (w/ the tool window manager) before using it. This is a one
+   time operation. There's no need to register the tool window if it's already been registered.
+   Registering simply shows the tool window in the IDEA UI. Unregistering removes it from the UI.
 2. You can tell the tool window to auto hide itself when there are no contents inside of it.
-3. You can create as many "contents" as you want and add it to the tool window. Each content is basically a tab. You can
-   also specify that the content is closable.
-4. You can also attach a disposer to a content so that you can take some action when the content or tab is closed. For
-   eg you can just unregister the tool window when there are no contents left in the tool window.
+3. You can create as many "contents" as you want and add it to the tool window. Each content is
+   basically a tab. You can also specify that the content is closable.
+4. You can also attach a disposer to a content so that you can take some action when the content or
+   tab is closed. For eg you can just unregister the tool window when there are no contents left in
+   the tool window.
 
 Here's an example of all of the things listed above.
 
@@ -2573,66 +2686,76 @@ The `plugin.xml` snippet, to register the action.
 
 #### Indices and dumb aware
 
-Displaying the contents of many tool windows requires access to the indices. Because of that, tool windows are normally
-disabled while building indices, unless true is passed as the value of `canWorkInDumbMode` to the `registerToolWindow()`
-function (for programmatic tool windows). You can also implement `DumbAware` in your factory class to let IDEA know that
-your tool window can be shown while indices are being built.
+Displaying the contents of many tool windows requires access to the indices. Because of that, tool
+windows are normally disabled while building indices, unless true is passed as the value of
+`canWorkInDumbMode` to the `registerToolWindow()` function (for programmatic tool windows). You can
+also implement `DumbAware` in your factory class to let IDEA know that your tool window can be shown
+while indices are being built.
 
 #### Creating a content for any kind of tool window
 
-Regardless of the type of tool window (declarative or programmatic) here is the sequence of operations that you have to
-perform in order to add a content:
+Regardless of the type of tool window (declarative or programmatic) here is the sequence of
+operations that you have to perform in order to add a content:
 
-1. Create the component / UI that you need for the content, ie, a Swing component (eg: `createDialogPanel()` above).
-2. Add the component / UI to the content to the `ToolWindowManager` (programmatic) or the tool window `ContentManager`
-   (declarative).
+1. Create the component / UI that you need for the content, ie, a Swing component (eg:
+   `createDialogPanel()` above).
+2. Add the component / UI to the content to the `ToolWindowManager` (programmatic) or the tool
+   window `ContentManager` (declarative).
 
 #### Content closeability
 
-A plugin can control whether the user is allowed to close tabs either 1) globally or 2) on a per content basis.
+A plugin can control whether the user is allowed to close tabs either 1) globally or 2) on a per
+content basis.
 
-1. **Globally**: This is done by passing the `canCloseContents` parameter to the `registerToolWindow()` function, or by
-   specifying `canCloseContents="true"` in `plugin.xml`. The default value is `false`. Note that calling
-   `setClosable(true)` on `ContentManager` content will be ignored unless `canCloseContents` is explicitly set.
-2. **Per content basis**: This is done by calling `setCloseable(Boolean)` on each content object itself.
+1. **Globally**: This is done by passing the `canCloseContents` parameter to the
+   `registerToolWindow()` function, or by specifying `canCloseContents="true"` in `plugin.xml`. The
+   default value is `false`. Note that calling `setClosable(true)` on `ContentManager` content will
+   be ignored unless `canCloseContents` is explicitly set.
+2. **Per content basis**: This is done by calling `setCloseable(Boolean)` on each content object
+   itself.
 
 If closing tabs is enabled in general, a plugin can disable closing of specific tabs by calling
 `Content.setCloseable(false)`.
 
 ### Add Line marker provider in your plugin
 
-Line marker providers allow your plugin to display an icon in the gutter of an editor window. You can also provide
-actions that can be run when the user interacts with the gutter icon, along with a tooltip that can be generated when
-the user hovers over the gutter icon.
+Line marker providers allow your plugin to display an icon in the gutter of an editor window. You
+can also provide actions that can be run when the user interacts with the gutter icon, along with a
+tooltip that can be generated when the user hovers over the gutter icon.
 
-> Please take a look at the [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2) repo that
-> contains a plugin that has some of the functionality shown below.
+> Please take a look at the
+> [idea-plugin-example2](https://github.com/nazmulidris/idea-plugin-example2) repo that contains a
+> plugin that has some of the functionality shown below.
 
 In order to use line marker providers, you have to do two things:
 
-1. Create a class that implements `LineMarkerProvider` that generates the `LineMarkerInfo` for the correct `PsiElement`
-   that you want IDEA to highlight in the IDE.
+1. Create a class that implements `LineMarkerProvider` that generates the `LineMarkerInfo` for the
+   correct `PsiElement` that you want IDEA to highlight in the IDE.
 2. Register this provider in `plugin.xml` and associate it to be run for a specific language.
 
-When your plugin is loaded, IDEA will then run your line marker provider when a file of that language type is loaded in
-the editor. This happens in two passes for performance reasons.
+When your plugin is loaded, IDEA will then run your line marker provider when a file of that
+language type is loaded in the editor. This happens in two passes for performance reasons.
 
-1. IDEA will first call your provider implementation with the `PsiElements` that are currently visible.
-2. IDEA will then call your provider implementation with the `PsiElements` that are currently hidden.
+1. IDEA will first call your provider implementation with the `PsiElements` that are currently
+   visible.
+2. IDEA will then call your provider implementation with the `PsiElements` that are currently
+   hidden.
 
-It is very important that you only return a `LineMarkerInfo` for the more specific `PsiElement` that you wish IDEA to
-highlight, as if you scope it too broadly, there will be scenarios where your gutter icon will blink! Here's a detailed
-explanation as to why (a comment from the source for
+It is very important that you only return a `LineMarkerInfo` for the more specific `PsiElement` that
+you wish IDEA to highlight, as if you scope it too broadly, there will be scenarios where your
+gutter icon will blink! Here's a detailed explanation as to why (a comment from the source for
 [`LineMarkerProvider.java source file`](https://github.com/JetBrains/intellij-community/blob/master/platform/lang-api/src/com/intellij/codeInsight/daemon/LineMarkerProvider.java)).
 
-> Please create line marker info for leaf elements only - i.e. the smallest possible elements. For example, instead of
-> returning method marker for `PsiMethod`, create the marker for the `PsiIdentifier` which is a name of this method.
+> Please create line marker info for leaf elements only - i.e. the smallest possible elements. For
+> example, instead of returning method marker for `PsiMethod`, create the marker for the
+> `PsiIdentifier` which is a name of this method.
 >
-> Highlighting (specifically, `LineMarkersPass`) queries all `LineMarkerProvider`s in two passes (for performance
-> reasons):
+> Highlighting (specifically, `LineMarkersPass`) queries all `LineMarkerProvider`s in two passes
+> (for performance reasons):
 >
 > 1. first pass for all elements in visible area
-> 2. second pass for all the rest elements If provider returned nothing for both areas, its line markers are cleared.
+> 2. second pass for all the rest elements If provider returned nothing for both areas, its line
+>    markers are cleared.
 >
 > So imagine a `LineMarkerProvider` which (incorrectly) written like this:
 >
@@ -2650,12 +2773,12 @@ explanation as to why (a comment from the source for
 > }
 > ```
 >
-> Note that it create `LineMarkerInfo` for the whole method body. Following will happen when this method is half-visible
-> (e.g. its name is visible but a part of its body isn't):
+> Note that it create `LineMarkerInfo` for the whole method body. Following will happen when this
+> method is half-visible (e.g. its name is visible but a part of its body isn't):
 >
 > 1. the first pass would remove line marker info because the whole `PsiMethod` isn't visible
-> 2. the second pass would try to add line marker info back because `LineMarkerProvider` was called for the `PsiMethod`
->    at last
+> 2. the second pass would try to add line marker info back because `LineMarkerProvider` was called
+>    for the `PsiMethod` at last
 >
 > As a result, line marker icon will blink annoyingly. Instead, write this:
 >
@@ -2677,13 +2800,14 @@ explanation as to why (a comment from the source for
 
 #### Example of a provider for Markdown language
 
-Let's say that for Markdown files that are open in the IDE, we want to highlight any lines that have links in them. We
-want an icon to show up in the gutter area that the user can see and click on to take some actions. For example, they
-can open the link.
+Let's say that for Markdown files that are open in the IDE, we want to highlight any lines that have
+links in them. We want an icon to show up in the gutter area that the user can see and click on to
+take some actions. For example, they can open the link.
 
 #### 1. Declare dependencies
 
-Also, because we are relying on the Markdown plugin, in our plugin, we have to add the following dependencies.
+Also, because we are relying on the Markdown plugin, in our plugin, we have to add the following
+dependencies.
 
 To `plugin.xml`, we must add.
 
@@ -2731,9 +2855,9 @@ The first thing we need to do is register our line marker provider in `plugin.xm
 
 #### 3. Provide an implementation of LineMarkerProvider
 
-Then we have to provide an implementation of `LineMarkerProvider` that returns a `LineMarkerInfo` for the most fine
-grained `PsiElement` that it successfully matches against. In other words, we can either match against the
-`LINK_DESTINATION` or the `LINK_TEXT` elements.
+Then we have to provide an implementation of `LineMarkerProvider` that returns a `LineMarkerInfo`
+for the most fine grained `PsiElement` that it successfully matches against. In other words, we can
+either match against the `LINK_DESTINATION` or the `LINK_TEXT` elements.
 
 Here's an example. For the string containing an inline Markdown link:
 
@@ -2758,7 +2882,8 @@ ASTWrapperPsiElement(Markdown:Markdown:INLINE_LINK)(1644,1810)
         PsiElement(Markdown:Markdown:))(')')(1809,1810)
 ```
 
-Here's what the implementation of the line marker provider that matches `INLINE_LINK` might look like.
+Here's what the implementation of the line marker provider that matches `INLINE_LINK` might look
+like.
 
 ```kotlin
 package ui
@@ -2791,8 +2916,8 @@ internal class MarkdownLineMarkerProvider : LineMarkerProvider {
 }
 ```
 
-You can add the `ic_linemarkerprovider.svg` icon here (create this file in the `$PROJECT_DIR/src/main/resources/icons/`
-folder.
+You can add the `ic_linemarkerprovider.svg` icon here (create this file in the
+`$PROJECT_DIR/src/main/resources/icons/` folder.
 
 ```xml
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="13px" width="13px">
@@ -2804,24 +2929,28 @@ folder.
 
 #### 4. Provide a more complex implementation of LineMarkerProvider
 
-The example we have so far, simply shows a gutter icon beside the lines in the editor window, that match our matching
-criteria. Let's say that we want to show some relevant actions that can be performed on the `PsiElement`(s) that matched
-and are associated with the gutter icon. In this case we have to delve a little deeper into the `LineMarkerInfo` class.
+The example we have so far, simply shows a gutter icon beside the lines in the editor window, that
+match our matching criteria. Let's say that we want to show some relevant actions that can be
+performed on the `PsiElement`(s) that matched and are associated with the gutter icon. In this case
+we have to delve a little deeper into the `LineMarkerInfo` class.
 
 If you look at
 [`LineMarkerInfo.java`](https://github.com/jetbrains/intellij-community/blob/master/platform/lang-api/src/com/intellij/codeInsight/daemon/LineMarkerInfo.java#L137),
-you will find a `createGutterRenderer()` method. We can actually override this method and create our own
-`GutterIconRenderer` objects that have an action group inside of them which will hold all our related actions.
+you will find a `createGutterRenderer()` method. We can actually override this method and create our
+own `GutterIconRenderer` objects that have an action group inside of them which will hold all our
+related actions.
 
 The following class
 [`RunLineMarkerProvider.java`](https://github.com/jetbrains/intellij-community/blob/master/platform/execution-impl/src/com/intellij/execution/lineMarker/RunLineMarkerProvider.java#L115)
-actually provides us some clue of how to use all of this. In IDEA, when there are targets that you can run, a gutter
-icon (play button) that allows you to execute the run target. This class actually provides an implementation of that
-functionality. Using it as inspiration, we can create the more complex version of our line marker provider.
+actually provides us some clue of how to use all of this. In IDEA, when there are targets that you
+can run, a gutter icon (play button) that allows you to execute the run target. This class actually
+provides an implementation of that functionality. Using it as inspiration, we can create the more
+complex version of our line marker provider.
 
-We are going to change our initial implementation of `MarkdownLineMarkerProvider` quite drastically. First we have to
-add a class that is our new `LineMarkerInfo` implementation called `RunLineMarkerInfo`. This class simply allows us to
-return an `ActionGroup` that we will now have to provide.
+We are going to change our initial implementation of `MarkdownLineMarkerProvider` quite drastically.
+First we have to add a class that is our new `LineMarkerInfo` implementation called
+`RunLineMarkerInfo`. This class simply allows us to return an `ActionGroup` that we will now have to
+provide.
 
 ```kotlin
 class RunLineMarkerInfo(element: PsiElement,
@@ -2894,15 +3023,16 @@ class MarkdownLineMarkerProvider : LineMarkerProvider {
 }
 ```
 
-The `createActionGroup(...)` method actually creates an `ActionGroup` and adds a bunch of actions that will be available
-when the user clicks on the gutter icon for this plugin. Note that you can also add actions that are registered in your
-`plugin.xml` using something like this.
+The `createActionGroup(...)` method actually creates an `ActionGroup` and adds a bunch of actions
+that will be available when the user clicks on the gutter icon for this plugin. Note that you can
+also add actions that are registered in your `plugin.xml` using something like this.
 
 ```kotlin
 group.add(ActionManager.getInstance().getAction("ID of your plugin action"))
 ```
 
-Finally, here's the action to open a URL that is associated with the INLINE_LINK that is highlighted in the gutter.
+Finally, here's the action to open a URL that is associated with the INLINE_LINK that is highlighted
+in the gutter.
 
 ```kotlin
 class OpenUrlAction(val linkDestination: String?) :

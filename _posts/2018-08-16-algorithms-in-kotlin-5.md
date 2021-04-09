@@ -39,40 +39,43 @@ categories:
 
 ## Introduction
 
-This tutorial is part of a collection tutorials on basic data structures and algorithms that are created using Kotlin.
-This project is useful if you are trying to get more fluency in Kotlin or need a refresher to do interview prep for
-software engineering roles.
+This tutorial is part of a collection tutorials on basic data structures and algorithms that are
+created using Kotlin. This project is useful if you are trying to get more fluency in Kotlin or need
+a refresher to do interview prep for software engineering roles.
 
 ### How to run this project
 
 You can get the code for this and all the other tutorials in this collection from
-[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of project in this repo
-in action.
+[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of
+project in this repo in action.
 
 ![]({{'assets/algo-app-anim.gif' | relative_url}})
 
-Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the command line.
+Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the
+command line.
 
 #### Importing this project into JetBrains IntelliJ IDEA
 
 - This project was created using JetBrains Idea as a Gradle and Kotlin project
-  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you import this project
-  into Idea as a Gradle project, make sure not to check "Offline work" (which if checked, won't allow the gradle
-  dependencies to be downloaded). - As of Jun 24 2018,
-  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503) (v4.4.x), so you can
-  use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
+  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you
+  import this project into Idea as a Gradle project, make sure not to check "Offline work" (which if
+  checked, won't allow the gradle dependencies to be downloaded). - As of Jun 24 2018,
+  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503)
+  (v4.4.x), so you can use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
 
 ## Undirected graphs
 
-Here's code in Kotlin that describes undirected graphs with an adjacency list to represent the edges. For more info,
-checkout this [website](https://www.geeksforgeeks.org/graph-and-its-representations/).
+Here's code in Kotlin that describes undirected graphs with an adjacency list to represent the
+edges. For more info, checkout this
+[website](https://www.geeksforgeeks.org/graph-and-its-representations/).
 
 - The adjacency list is stored in a `HashMap`, which holds a `HashSet` of nodes.
 
 - We use a [`HashSet`](https://www.geeksforgeeks.org/hashset-in-java/) instead of
-  [`LinkedHashSet`](https://www.geeksforgeeks.org/linkedhashset-in-java-with-examples/) because the order of insertion
-  doesn't really matter. This is also why we don't use
-  [`TreeSet`](https://www.geeksforgeeks.org/treeset-in-java-with-examples/), since the edges don't need to be sorted.
+  [`LinkedHashSet`](https://www.geeksforgeeks.org/linkedhashset-in-java-with-examples/) because the
+  order of insertion doesn't really matter. This is also why we don't use
+  [`TreeSet`](https://www.geeksforgeeks.org/treeset-in-java-with-examples/), since the edges don't
+  need to be sorted.
 
 - A node / vertex in this graph can be of any class (`T`).
 
@@ -165,11 +168,11 @@ fun <T> depthFirstTraversal(graph: Graph<T>, startNode: T): String {
 
 ### BFS
 
-To do a breadth first traversal of the graph, here's some code that uses a Queue (FIFO). The following implementation
-doesn't use recursion, and also keeps track of the depth as it's traversing the graph. We also have to keep track of
-which nodes are visited and unvisited, so that we don't backtrack and revisit node that have already been visited. The
-`depthMap` is optional as it is used to track the depth of the nodes, and used to stop traversal beyond a given
-`maxDepth`.
+To do a breadth first traversal of the graph, here's some code that uses a Queue (FIFO). The
+following implementation doesn't use recursion, and also keeps track of the depth as it's traversing
+the graph. We also have to keep track of which nodes are visited and unvisited, so that we don't
+backtrack and revisit node that have already been visited. The `depthMap` is optional as it is used
+to track the depth of the nodes, and used to stop traversal beyond a given `maxDepth`.
 
 ```kotlin
 /**
@@ -260,8 +263,8 @@ fun <T> breadthFirstTraversal(graph: Graph<T>,
 ## BFS and DFS traversal for binary trees
 
 To see a similar implementation of BFS and DFS traversal for binary trees, please refer to the
-[Binary-Trees]({{'/2018/08/16/algorithms-in-kotlin-6/' | relative_url}}) tutorial. Note that the binary tree traversal
-algorithm doesn't need to have a map to mark visited nodes.
+[Binary-Trees]({{'/2018/08/16/algorithms-in-kotlin-6/' | relative_url}}) tutorial. Note that the
+binary tree traversal algorithm doesn't need to have a map to mark visited nodes.
 
 ## Stacks and Queues
 

@@ -45,28 +45,29 @@ categories:
 
 ## Introduction
 
-This tutorial is part of a collection tutorials on basic data structures and algorithms that are created using Kotlin.
-This project is useful if you are trying to get more fluency in Kotlin or need a refresher to do interview prep for
-software engineering roles.
+This tutorial is part of a collection tutorials on basic data structures and algorithms that are
+created using Kotlin. This project is useful if you are trying to get more fluency in Kotlin or need
+a refresher to do interview prep for software engineering roles.
 
 ### How to run this project
 
 You can get the code for this and all the other tutorials in this collection from
-[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of project in this repo
-in action.
+[this github repo](https://github.com/nazmulidris/algorithms-in-kotlin). Here's a screen capture of
+project in this repo in action.
 
 ![]({{'assets/algo-app-anim.gif' | relative_url}})
 
-Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the command line.
+Once you've cloned the repo, type `./gradlew run` in order to build and run this project from the
+command line.
 
 #### Importing this project into JetBrains IntelliJ IDEA
 
 - This project was created using JetBrains Idea as a Gradle and Kotlin project
-  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you import this project
-  into Idea as a Gradle project, make sure not to check "Offline work" (which if checked, won't allow the gradle
-  dependencies to be downloaded). - As of Jun 24 2018,
-  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503) (v4.4.x), so you can
-  use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
+  ([more info](https://www.jetbrains.com/help/idea/getting-started-with-gradle.html)). - When you
+  import this project into Idea as a Gradle project, make sure not to check "Offline work" (which if
+  checked, won't allow the gradle dependencies to be downloaded). - As of Jun 24 2018,
+  [Java 10 doesn't work w/ this gradle distribution](https://github.com/gradle/gradle/issues/4503)
+  (v4.4.x), so you can use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).
 
 ## Binary Trees
 
@@ -219,12 +220,13 @@ fun <T> breadthFirstTraversal(root: Node<T>): MutableList<Node<T>> {
 ### Notes on the implementation
 
 - BFS traversal of a binary tree results in a the nodes being visited in their sorted order.
-- The trick in the `while` loop is leveraging the FIFO nature of the queue and allow the traversal of the tree from left
-  node to right node, which results in a breadth first traversal.
-- A `depth` field in the `Node` class is what keeps track of the number of branches from the root to this `Node`.
+- The trick in the `while` loop is leveraging the FIFO nature of the queue and allow the traversal
+  of the tree from left node to right node, which results in a breadth first traversal.
+- A `depth` field in the `Node` class is what keeps track of the number of branches from the root to
+  this `Node`.
 - The `Deque` interface supports both Stack and Queue ADTs (abstract data types).
-- There is no need to track if a node is unvisited, or visited, as you would expected when traversing a graph, due to
-  the nature of the binary tree.
+- There is no need to track if a node is unvisited, or visited, as you would expected when
+  traversing a graph, due to the nature of the binary tree.
 
 ## BFS (pretty print)
 
@@ -269,9 +271,9 @@ fun <T> printBFSTraversal(root: Node<T>): String {
 
 ### Notes on implementation
 
-- This is almost identical to the code above. The main difference here is that a `mapVisitedDepth` `Map` is used in
-  order to keep track of the depth of each traversed node, which can then be used to pretty print the output where a
-  CRLF is added at the start of each new depth.
+- This is almost identical to the code above. The main difference here is that a `mapVisitedDepth`
+  `Map` is used in order to keep track of the depth of each traversed node, which can then be used
+  to pretty print the output where a CRLF is added at the start of each new depth.
 
 ## DFS (depth first search) using a Stack
 
@@ -306,11 +308,12 @@ fun <T> depthFirstTraversal(root: Node<T>): MutableList<Node<T>> {
 
 ### Notes on the implementation
 
-- The trick in the `while` loop is to leverage the LIFO nature of stack, in order to push the children on the right on
-  top of the stack first, before the children on the left. Since the algorithm pops these items off the top of the
-  stack, whatever was pushed last will get processed sooner (that what was pushed first). And this is what results in a
-  depth first search.
-- A `depth` field in the `Node` class is what keeps track of the number of branches from the root to this `Node`.
+- The trick in the `while` loop is to leverage the LIFO nature of stack, in order to push the
+  children on the right on top of the stack first, before the children on the left. Since the
+  algorithm pops these items off the top of the stack, whatever was pushed last will get processed
+  sooner (that what was pushed first). And this is what results in a depth first search.
+- A `depth` field in the `Node` class is what keeps track of the number of branches from the root to
+  this `Node`.
 - The `Deque` interface supports both Stack and Queue ADTs (abstract data types).
 
 ## Console output from running the code

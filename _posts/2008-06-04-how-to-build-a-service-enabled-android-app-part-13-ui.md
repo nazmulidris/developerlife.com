@@ -9,12 +9,11 @@ excerpt: |
 layout: post
 title: "Android - How to build a service-enabled Android app - Part 1/3 UI"
 categories:
-- Android
+  - Android
 ---
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
 
 - [Introduction](#introduction)
 - [Building the UI](#building-the-ui)
@@ -27,10 +26,12 @@ categories:
 
 ## Introduction
 
-I've written 3 tutorials to show you how to create a service enabled Android application that performs all of it's
-[network I/O](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/) in a background thread
-([not the UI thread](https://developerlife.com/2010/10/12/android-event-dispatch-thread-or-main-thread/)). Please note
-that by service I mean web-service, not Android Service. These tutorials are split into three parts:
+I've written 3 tutorials to show you how to create a service enabled Android application that
+performs all of it's [network I/O](http://hc.apache.org/httpcomponents-core-ga/tutorial/html/) in a
+background thread
+([not the UI thread](https://developerlife.com/2010/10/12/android-event-dispatch-thread-or-main-thread/)).
+Please note that by service I mean web-service, not Android Service. These tutorials are split into
+three parts:
 
 1. How to build a simple UI without using XML, by writing Java code to layout the UI.
 
@@ -40,27 +41,31 @@ that by service I mean web-service, not Android Service. These tutorials are spl
 
 ## Building the UI
 
-Most of the information I've read on Google's Android documentation site, as well as other websites, take the approach
-of messing with XML to build an Android UI. Personally, I don't like this approach; ideally, I would like a UI builder
-like [JFormDesigner](http://www.jformdesigner.com/) for Android, to generate the underlying UI code for me, whether it's
-generated in Java or XML. The XML syntax is really cumbersome for me, and I'm really familiar with the Swing, so it's
-natural for me to lay components out in Java code, and not XML. Having said that I will show you how to use a simple
-layout in Android for the purposes of creating a simple form based UI. It will have 2 screens:
+Most of the information I've read on Google's Android documentation site, as well as other websites,
+take the approach of messing with XML to build an Android UI. Personally, I don't like this
+approach; ideally, I would like a UI builder like [JFormDesigner](http://www.jformdesigner.com/) for
+Android, to generate the underlying UI code for me, whether it's generated in Java or XML. The XML
+syntax is really cumbersome for me, and I'm really familiar with the Swing, so it's natural for me
+to lay components out in Java code, and not XML. Having said that I will show you how to use a
+simple layout in Android for the purposes of creating a simple form based UI. It will have 2
+screens:
 
 1. a login screen that has a userid and password textfield, along with a button to login
 
-2. a form screen that displays the userid, password, and a picture (that it gets from the service). It also has a button
-   to restart the app.
+2. a form screen that displays the userid, password, and a picture (that it gets from the service).
+   It also has a button to restart the app.
 
-I'm not going to delve into the lifecycle of an Android activity, and the various classes that exist in Android. Rather,
-I'm going to take the approach of showing you a sample app so that you can get your hands dirty. In future tutorials, I
-will go into greater detail on different parts of the Android API.
+I'm not going to delve into the lifecycle of an Android activity, and the various classes that exist
+in Android. Rather, I'm going to take the approach of showing you a sample app so that you can get
+your hands dirty. In future tutorials, I will go into greater detail on different parts of the
+Android API.
 
 ## The code - login screen
 
-The main activity class is called NetworkActivity. It has some methods in it to create the UI screen described above. In
-this example, I'm using [LinearLayout](http://code.google.com/android/reference/android/widget/LinearLayout.html) to
-create a simple form based UI. Here's the code for the
+The main activity class is called NetworkActivity. It has some methods in it to create the UI screen
+described above. In this example, I'm using
+[LinearLayout](http://code.google.com/android/reference/android/widget/LinearLayout.html) to create
+a simple form based UI. Here's the code for the
 [Activity](http://code.google.com/android/reference/android/app/Activity.html):
 
 ```java
@@ -157,25 +162,27 @@ private ViewGroup _createInputForm() {
 }
 ```
 
-If you're familiar with the XML code that would perform this layout, then you will find the layout params very familiar.
-Every widget that's added to the LinearLayout has to have it's layout params set. If you're familiar with Swing, then
-the Activity is similar to a JFrame. The LinearLayout is like a JPanel with a LayoutManager already set. If you look at
-the code from this perspective, then it should start to seem more familiar. If you look at the XML code, it's
-disorientating 😃.
+If you're familiar with the XML code that would perform this layout, then you will find the layout
+params very familiar. Every widget that's added to the LinearLayout has to have it's layout params
+set. If you're familiar with Swing, then the Activity is similar to a JFrame. The LinearLayout is
+like a JPanel with a LayoutManager already set. If you look at the code from this perspective, then
+it should start to seem more familiar. If you look at the XML code, it's disorientating 😃.
 
 ### UI builder and emulator performance
 
-One of the coolest Applets/Apps that I stumbled upon to help me make sense of the Android widget toolkit is
-[DroidDraw](http://www.droiddraw.org/). Try it out and you won't be disappointed. It's a simple GUI builder for Android
-that generates XML layouts; however, it will help you understand all the UI elements, even if you're doing layout in
-Java.
+One of the coolest Applets/Apps that I stumbled upon to help me make sense of the Android widget
+toolkit is [DroidDraw](http://www.droiddraw.org/). Try it out and you won't be disappointed. It's a
+simple GUI builder for Android that generates XML layouts; however, it will help you understand all
+the UI elements, even if you're doing layout in Java.
 
-I also stumbled upon [this great article](http://jars.de/english/android-emulator-performance), that talks about how to
-determine how fast your emulator runs, so that you have some idea how fast your apps might run on a real device.
+I also stumbled upon [this great article](http://jars.de/english/android-emulator-performance), that
+talks about how to determine how fast your emulator runs, so that you have some idea how fast your
+apps might run on a real device.
 
 ## The code - form screen
 
-The second screen simply displays data that it gets from a service. More on this in the networking part of the tutorial.
+The second screen simply displays data that it gets from a service. More on this in the networking
+part of the tutorial.
 
 This is what the second screen looks like:
 
@@ -260,16 +267,17 @@ private View _createInfoPanel(String uid,
 }
 ```
 
-This screen is very similar to the first one. The only interesting thing going on here is the creation of a Bitmap
-widget. A PNG file is actually loaded from a service, serialized as byte[] and sent to the app, which then has to
-display it in a widget. The PNG file's bytes can be loaded directly into the Bitmap widget and it will show the image on
-screen. The image is actually loaded from a JAR file included in the servlet that's included in the source code. More on
-this will be covered in the networking file tutorial.
+This screen is very similar to the first one. The only interesting thing going on here is the
+creation of a Bitmap widget. A PNG file is actually loaded from a service, serialized as byte[] and
+sent to the app, which then has to display it in a widget. The PNG file's bytes can be loaded
+directly into the Bitmap widget and it will show the image on screen. The image is actually loaded
+from a JAR file included in the servlet that's included in the source code. More on this will be
+covered in the networking file tutorial.
 
 ## Download source code
 
-To download the source code for this tutorial, [click here]({{'assets/android.zip' | relative_url}}). There are 3
-folders in this zip file:
+To download the source code for this tutorial, [click
+here]({{'assets/android.zip' | relative_url}}). There are 3 folders in this zip file:
 
 1. AndroidTest – This contains the Android UI and web service client code
 

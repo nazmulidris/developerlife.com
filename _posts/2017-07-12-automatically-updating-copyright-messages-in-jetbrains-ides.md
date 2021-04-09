@@ -23,15 +23,16 @@ categories:
 
 ## Introduction
 
-It is a pain to manually update copyright messages in open source code that you're going to release on GitHub 😩. There
-is a better way. You can have JetBrains based IDEs (Android Studio, Webstorm, etc) just do it for you.
+It is a pain to manually update copyright messages in open source code that you're going to release
+on GitHub 😩. There is a better way. You can have JetBrains based IDEs (Android Studio, Webstorm,
+etc) just do it for you.
 
 I'm going to use Android Studio as an example, but this works on Webstorm, etc.
 
 ## How to add copyright to Android Studio
 
-Open Android Studio and follow these setps in order to automagically generate copyright messages for all your project
-files.
+Open Android Studio and follow these setps in order to automagically generate copyright messages for
+all your project files.
 
 ### Step 1 - Create a copyright profile
 
@@ -54,9 +55,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
-- Make sure to replace `YOURCOMPANY` with your name or the name of the company that the copyright belongs to.
-- The `$today.year` snippet is a Velocity template string that just inserts the current year into the copyright message
-  when it's updated.
+- Make sure to replace `YOURCOMPANY` with your name or the name of the company that the copyright
+  belongs to.
+- The `$today.year` snippet is a Velocity template string that just inserts the current year into
+  the copyright message when it's updated.
 - Click on OK.
 
 ### Step 2 - Create a scope to apply the `android` profile to
@@ -80,5 +82,5 @@ limitations under the License.
 
 ![]({{ 'assets/copyright-4.png' | relative_url }})
 
-- When you commit your changes using Android Studio, you can just check the `Update Copyright` so that the changed files
-  will have their copyright messages updated.
+- When you commit your changes using Android Studio, you can just check the `Update Copyright` so
+  that the changed files will have their copyright messages updated.

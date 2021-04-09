@@ -144,7 +144,7 @@ is another fantastic ergonomic win for the Dygma Raise. One of the most difficul
 the learning curve to memorize your custom keymaps, and color coding these keymaps directly helps mitigate that
 difficulty!
 
-![](https://media.githubusercontent.com/media/nazmulidris/developerlife.com/main/assets/dygma-raise-typing.gif)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/4fA6kdpeTYI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 The support and development teams are really responsive and helpful. See the Linux installation issue below to see how
 they turned a Con into a Pro. Bazecor makes it easy to update firmware on the keyboard. When you order the keyboard, it
@@ -251,7 +251,7 @@ One limitation is that you can't have secondary roles activate if you use any mo
 Here's an example to illustrate. Originally, I had `Alt+Space` mapped to the `T2` key. This launched Albert on my
 machine. However, I also wanted a secondary role for this key, so when long pressed, I wanted to activate my `Layer 2`
 (which is the equivalent of my [`Mod` layer on
-UHK]({{ '/2021/03/09/mechanical-keyboard-review/#pros' | relative_url }}). **This is not possible**. So I had to remap
+UHK]({{ '/2021/03/09/mechanical-keyboard-review/#pros' | relative_url }})). **This is not possible**. So I had to remap
 my Albert shortcut to be the `NUM LOCK` key (which I never use). And then I was able to assign the primary role of the
 `T2` key to press `NUM LOCK` and the secondary role to activate `Layer 2`.
 

@@ -15,11 +15,15 @@ categories:
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Introduction](#introduction)
-- [Create a new GitHub repo for the actual code of the library](#create-a-new-github-repo-for-the-actual-code-of-the-library)
-- [Generate the personal access tokens that will be needed to publish and import](#generate-the-personal-access-tokens-that-will-be-needed-to-publish-and-import)
-- [Add GitHub Package Registry support to the build script so that the package can be published](#add-github-package-registry-support-to-the-build-script-so-that-the-package-can-be-published)
-- [Import this dependency into another gradle project](#import-this-dependency-into-another-gradle-project)
-- [References](#references)
+- [Using JitPack (much simpler, and the way to go for public dependencies)](#using-jitpack-much-simpler-and-the-way-to-go-for-public-dependencies)
+  - [Publish and build it](#publish-and-build-it)
+  - [Import and use it](#import-and-use-it)
+- [Using GitHub Package Registry (complex and has authentication issues for public dependencies)](#using-github-package-registry-complex-and-has-authentication-issues-for-public-dependencies)
+  - [Create a new GitHub repo for the actual code of the library](#create-a-new-github-repo-for-the-actual-code-of-the-library)
+  - [Generate the personal access tokens that will be needed to publish and import](#generate-the-personal-access-tokens-that-will-be-needed-to-publish-and-import)
+  - [Add GitHub Package Registry support to the build script so that the package can be published](#add-github-package-registry-support-to-the-build-script-so-that-the-package-can-be-published)
+  - [Import this dependency into another gradle project](#import-this-dependency-into-another-gradle-project)
+  - [References](#references)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -29,15 +33,86 @@ I'm used to importing libraries that I need in gradle by simply adding them as a
 implementation or testing in `build.gradle` or `build.gradle.kts`.
 
 However, I've always been curious about how to publish my own dependency that can easily be used by
-other projects. This tutorial shows how to take a Kotlin library and publish it to the
+other projects.
+
+This tutorial shows how to take a Kotlin library and publish it to the
 [GitHub Package Registry](https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages)
-a dependency that can be used in gradle projects. I used to use JFrog Bintray but both
+and JitPack, as a dependency that can be used in gradle projects. I used to use JFrog Bintray but
+both
 [Bintray and JCenter are going to be shut down](https://www.infoq.com/news/2021/02/jfrog-jcenter-bintray-closure/)
 in May 2021.
 
 In this tutorial I will create the `color-console` library that allows console messages to be
 colorized using ANSI color codes. Here is the end result snippet that we are looking to enable for
 our `color-console` library.
+
+## Using JitPack (much simpler, and the way to go for public dependencies)
+
+This could not be any easier. It's really a 2 step process, once you have your library built with
+gradle and its git repo pushed into GitHub, eg
+[`color-console`](https://github.com/nazmulidris/color-console/).
+
+### Publish and build it
+
+1. Make sure to create a new release for your dependency, eg:
+   [v1.0.0](https://github.com/nazmulidris/color-console/releases/tag/1.0.0).
+2. Visit [jitpack.com](https://jitpack.io/#nazmulidris/color-console/1.0.0) and type
+   `nazmulidris/color-console` into the text box at the top of the page, and click on "Look up".
+   This will start the import of your gradle repo into JitPack and it will build it (using
+   `build.gradle` or `build.gradle.kts` just like you would on your local machine). There are no
+   special steps or things you have to add to your build file! Once the build process is complete
+   you will see that the
+   [logs](https://jitpack.io/com/github/nazmulidris/color-console/1.0.0/build.log) are published and
+   your dependency is ready to be used. It is that simple.
+
+### Import and use it
+
+Then, in the project where you want to add this library as a dependency, eg:
+[`idea-plugin-example`](https://github.com/nazmulidris/idea-plugin-example) you have to do the
+following. You can import this dependency into your gradle projects by making the following changes
+to your `build.gradle` or `build.gradle.kts` file.
+
+1. Add this at the end of your `repositories` section.
+
+   For `build.gradle`:
+
+   ```groovy
+     repositories {maven { url 'https://jitpack.io' }}
+   }
+   ```
+
+   For `build.gradle.kts`:
+
+   ```kotlin
+   repositories {
+     maven{
+       url = uri("https://jitpack.io")
+     }
+   }
+   ```
+
+2. Add the dependency.
+
+   For `build.gradle`:
+
+   ```groovy
+   dependencies { implementation 'com.github.nazmulidris:color-console:1.0.0' }
+   ```
+
+   For `build.gradle.kts`:
+
+   ```kotlin
+   dependencies { implementation ("com.github.nazmulidris:color-console:1.0.0") }
+   ```
+
+Information about this dependency on JitPack:
+
+- You can find this dependency on JitPack
+  [here](https://jitpack.io/#nazmulidris/color-console/1.0.0)
+- You can find the JitPack build logs
+  [here](https://jitpack.io/com/github/nazmulidris/color-console/1.0.0/build.log)
+
+## Using GitHub Package Registry (complex and has authentication issues for public dependencies)
 
 Desired snippet for `build.gradle.kts` (using Kotlin DSL):
 
@@ -79,7 +154,7 @@ dependencies {
 }
 ```
 
-## Create a new GitHub repo for the actual code of the library
+### Create a new GitHub repo for the actual code of the library
 
 The code that comprises the library, that will be built is in this
 [GitHub repo](http://github.com/nazmulidris/color-console) for `color-console`.
@@ -89,7 +164,7 @@ for the Gradle build script (I only got this working w/ the Kotlin DSL and not G
 simple Kotlin and Gradle that has a single source file. Add the source code there and the following
 steps are where things get interesting.
 
-## Generate the personal access tokens that will be needed to publish and import
+### Generate the personal access tokens that will be needed to publish and import
 
 The first step is to create some [GitHub personal access tokens](https://github.com/settings/tokens)
 that will do 2 things. You might consider saving them to global environment variables using whatever
@@ -103,7 +178,7 @@ You might also consider saving the following environment variable too.
 
 3. `GITHUB_PACKAGES_USERID` - this is the GitHub username for the token. This is ok to share.
 
-## Add GitHub Package Registry support to the build script so that the package can be published
+### Add GitHub Package Registry support to the build script so that the package can be published
 
 Edit the `build.gradle.kts` file to allow this library to be published to
 [GitHub Packages](https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages).
@@ -181,7 +256,7 @@ Here is a
 so that you can see where these variables are defined and what the other functions are that generate
 the docs and the JAR files using the `pom` function.
 
-## Import this dependency into another gradle project
+### Import this dependency into another gradle project
 
 In order to load the package for the library from GitHub Packages Registry, the
 [official docs](https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages)
@@ -240,7 +315,7 @@ dependencies {
 }
 ```
 
-## References
+### References
 
 - [Tutorial on using GitHub Package Registry to publish and import Android Kotlin library](https://medium.com/@stpatrck/publish-an-android-library-to-github-packages-8dfff3ececcb)
 - [Tutorial on using GitHub Package Registry to import something from GitHub Package Registry](https://ppulikal.medium.com/publishing-android-libraries-to-the-github-package-registry-part-2-3c5aab31f477)

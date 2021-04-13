@@ -71,10 +71,16 @@ two things that were attractive about it: 1) programmable RGB backlighting, and 
 into 8 keys. So I ordered one in the white color with MX Blue switches. And I was blown away. And
 then I ordered another one with Kailh bronze speed switches (also in white)!
 
-> The beautiful thing about Dygma (when compared to UHK) is that my waiting time to get a keyboard
-> was about 3 days! I've been
-> [waiting for the UHK v2 and some modules](https://ultimatehackingkeyboard.com/blog/2021/03/15/module-production-is-underway#comments)
-> for about 6 months now (I pre-ordered them that long ago) 😥.
+> Currently Dygma ships their keyboards very quickly. I got mine within 3 days of placing an order.
+> Unfortunately UHK has been facing some temporary issues.
+>
+> - Production has been delayed for some time now with the launch of the v2 to ensure that when
+>   products ship they meet their exacting quality standards. I've been
+>   [waiting for the UHK v2 and the new modules](https://ultimatehackingkeyboard.com/blog/2021/03/15/module-production-is-underway#comments)
+>   for a few months now (I pre-ordered mine in early Nov 2020) 😥.
+> - However, these issues seem to have been addressed and when the pending pre-orders for the v2 and
+>   modules have been fulfilled, UHK should also ship in a matter of days like the Dygma Raise. This
+>   was the case when I got my UHK v1 last year.
 
 I've been using the Dygma Raise keyboard and configuration software (called
 [Bazecor](https://dygma.com/pages/bazecor)) for a few weeks now, and am using the Dygma Raise as my
@@ -84,15 +90,15 @@ as my secondary keyboard (on my secondary machine). I like them both for differe
 no clear winner between the two. The following table shows the comparison between the two for my
 programming workflow.
 
-| Keyboard         | Dygma Raise                                      | UHK v1                                                                     |
-| ---------------- | ------------------------------------------------ | -------------------------------------------------------------------------- |
-| Customer service | Amazing                                          | Amazing                                                                    |
-| Availability     | 3 day shipping                                   | Waitlisted for a half a year and still waiting 😥                          |
-| Programmability  | Limited; Bazecor is clunky to use (and is buggy) | Very advanced; Agent is a joy to use                                       |
-| Build quality    | Amazing                                          | Amazing                                                                    |
-| Hardware design  | Space bar split comfortably into 8 keys          | Space bar split into 6 keys (cramped); need to buy module to get more keys |
-| Palm rest        | Comes with the keyboard                          | Needs to be ordered separately                                             |
-| Price            | Expensive                                        | Expensive                                                                  |
+| Keyboard         | Dygma Raise                                      | UHK v1                                                                                                                          |
+| ---------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Customer service | Amazing                                          | Amazing                                                                                                                         |
+| Availability     | 3 day shipping                                   | No longer available, but shipped in a matter of days (v2 is on its way and once pre-orders are handled, it should ship in days) |
+| Programmability  | Limited; Bazecor is clunky to use (and is buggy) | Very advanced; Agent is a joy to use                                                                                            |
+| Build quality    | Amazing                                          | Amazing                                                                                                                         |
+| Hardware design  | Space bar split comfortably into 8 keys          | Space bar split into 6 keys (cramped); need to buy module to get more keys                                                      |
+| Palm rest        | Comes with the keyboard                          | Needs to be ordered separately                                                                                                  |
+| Price            | Expensive                                        | Expensive                                                                                                                       |
 
 > [Bazecor](https://github.com/Dygmalab/Bazecor) is actually a forked from
 > [keyboardio/Chrysalis](https://github.com/keyboardio/Chrysalis). You can actually use Python

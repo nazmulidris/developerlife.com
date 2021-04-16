@@ -2,9 +2,9 @@
 author: Nazmul Idris
 date: 2021-02-06 10:00:00+00:00
 excerpt: |
-  Learn how to publish a Kotlin library as a gradle dependency to the GitHub Package Registry
+  Learn how to publish a Kotlin library as a gradle dependency to JitPack or GitHub Package Registry
 layout: post
-title: "Publishing a Kotlin library as a Gradle dependency to GitHub Package Repository"
+title: "Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository"
 categories:
   - KT
 ---

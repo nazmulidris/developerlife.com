@@ -45,18 +45,18 @@ permission request.
 
 So here's the overall flow of what has to happen.
 
-1.  The Activity's `requestPermissions(Activity, Array<String>< Int)` method has to be called in
+1.  The Activity's `requestPermissions(Activity, Array<String>, Int)` method has to be called in
     order to display the permissions prompt to the end user.
 
 1.  The Activity's `onRequestPermissionsResult(Int, Array<String>, IntArray)` method has to be
     overridden in order to determine if the user pressed pressed the "ALLOW" or "DENY" button when
     presented w/ the prompt to grant the permission at runtime.
 
-        1. If the permission was granted, then the operation that required the permission can be
-        performed.
+    1. If the permission was granted, then the operation that required the permission can be
+       performed.
 
-        1. If the permission was denied, then let the user know that the app requires this permission
-        in order to function (or whatever makes sense for your app).
+    1. If the permission was denied, then let the user know that the app requires this permission in
+       order to function (or whatever makes sense for your app).
 
 In order to determine whether the permission was granted or not, requires a lengthy if statement to
 interpret the meaning of the 3 parameters of the `onRequestPermissionsResult()`. And this is where

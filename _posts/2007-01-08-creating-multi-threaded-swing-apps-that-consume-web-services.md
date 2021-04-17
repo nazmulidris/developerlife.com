@@ -3,7 +3,7 @@ author: Nazmul Idris
 date: 2007-01-08 15:00:02+00:00
 excerpt: |
   If you've ever want to incorporate web services into your graphical 
-  applications/applets/widgets written in Java, then there are some 
+  applications / applets / widgets written in Java, then there are some 
   threading issues that you have to be mindful of, and design around. This tutorial will guide 
   you though some of the important threading issues you have to keep in mind when building 
   such applications. The strategies outlined in this tutorial apply to accessing more than 

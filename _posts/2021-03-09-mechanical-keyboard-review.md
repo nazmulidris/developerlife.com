@@ -466,10 +466,14 @@ The connector is USB-C which is great. Just like the Drop Alt Captain, it has a 
 port on the keyboard itself which makes it great to add another peripheral to (Bluetooth mouse
 dongle) or a YubiKey.
 
-The customization ability of this keyboard is extremely limited and is similar to a Kinesis
-Freestyle. You can't change any key maps in the default layer, but you can press a sequence of keys
-on the keyboard to map one key to another in various layers. This nothing like UHK's Agent, or even
-the QMK software used by Drop Alt Captain.
+The customization ability of this keyboard is extremely limited and you have to make the changes on,
+and there's no software like Agent to make this easier. You can't change any key maps in the default
+layer, but you can press a sequence of keys on the keyboard to map one key to another in four other
+layers. This nothing like UHK's Agent, or even the QMK software used by Drop Alt Captain.
+
+> You can download the MD770 User Manual PDF from this
+> [support](https://www.mistelkeyboard.com/support) page. The PDF has information on how to program
+> the keyboard.
 
 The backlight is very weak. It is just not very good. I almost wish it didn't come with this
 feature. The Drop Alt Captain wins hands down in a light show competition! However this keyboard is

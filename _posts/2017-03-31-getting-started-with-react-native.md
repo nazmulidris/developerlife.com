@@ -200,7 +200,7 @@ const mainview_style = StyleSheet.create({
     width: 150,
     resizeMode: "contain", //'cover' | 'contain'
   },
-});
+})
 ```
 
 A few more things to note in the code above:
@@ -296,7 +296,7 @@ const routes = [
     name: "flexbox view 2",
     index: 2,
   },
-];
+]
 ```
 
 Pre-defined routes are just JSON objects that you create which hold some data about each destination
@@ -394,23 +394,23 @@ Router.constructor() method.
 ```javascript
 BackAndroid.addEventListener("hardwareBackPress", () => {
   // debug msg
-  let msg = "back press";
-  let length = _navigator.getCurrentRoutes().length;
+  let msg = "back press"
+  let length = _navigator.getCurrentRoutes().length
   if (!_.isNil(_navigator)) {
-    msg = `${msg} length=${length}`;
+    msg = `${msg} length=${length}`
   }
   if (!_.isNil(_route)) {
-    msg = `${msg} index=${_route.index}, name=${_route.name}`;
+    msg = `${msg} index=${_route.index}, name=${_route.name}`
   }
-  ToastAndroid.show(msg, 10000);
+  ToastAndroid.show(msg, 10000)
 
   // actual code
   if (length === 1 || length === routes.length) {
-    return false;
+    return false
   }
-  _navigator.pop();
-  return true;
-});
+  _navigator.pop()
+  return true
+})
 ```
 
 Here's the code for calling `pop()` in FlexboxView1.render() function:
@@ -420,7 +420,7 @@ Here's the code for calling `pop()` in FlexboxView1.render() function:
   activeOpacity={1}
   underlayColor="#c1e1c5"
   onPress={() => {
-    this.props.navigator.pop();
+    this.props.navigator.pop()
   }}
 >
   <Text style={flexboxview1_style.text1}>{msg1}</Text>
@@ -434,7 +434,7 @@ Here's the code for calling `pop()` in FlexboxView2.render() function:
   activeOpacity={1}
   underlayColor="#c1e1c5"
   onPress={() => {
-    this.props.navigator.pop();
+    this.props.navigator.pop()
   }}
 >
   <Text style={flexboxview2_style.text1}>{msg1}</Text>

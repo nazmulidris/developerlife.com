@@ -168,7 +168,7 @@ export const colors = {
   "Peach a11y": "#E37059",
   Pear: "#93DAAB",
   "Pear a11y": "#2E854B",
-};
+}
 ```
 
 [`main.js`](https://github.com/r3bl-alliance/react-sketchapp-airbnb/blob/master/examples/styleguide/src/main.js) -

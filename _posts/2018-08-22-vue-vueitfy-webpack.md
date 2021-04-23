@@ -124,7 +124,7 @@ Webpack takes all the HTML, CSS, and JS files in the project, packages and minif
 #### 1. Mounting to the DOM
 
 ```javascript
-new Vue({ render: (h) => h(App) }).$mount("#app");
+new Vue({ render: (h) => h(App) }).$mount("#app")
 ```
 
 There's an `index.html` file in the `public/` folder which has a `div` with `id` of `app`. The line
@@ -142,7 +142,7 @@ export const appData = {
   footer_message: "Made with ❤️ in Mountain View, California",
   title: "Vue, Vuetify, Webpack",
   time: new Date(),
-};
+}
 ```
 
 The `appData` object is the state of the application. And when this data changes, Vue components in
@@ -150,8 +150,8 @@ this project will react and refresh themselves to stay up to date w/ the data in
 
 ```javascript
 setInterval(() => {
-  appData.time = new Date();
-}, 1000);
+  appData.time = new Date()
+}, 1000)
 ```
 
 The code above updates the value of `appData.time` every second w/ the current date. When you run
@@ -163,7 +163,7 @@ Let's take a look at the root Vue component `App` to see how this is accomplishe
 In `main.js` you will find the following import statement.
 
 ```javascript
-import App from "./App.vue";
+import App from "./App.vue"
 ```
 
 This loads the `App` Vue component to be mounted to the DOM. Let's take a closer look at this root
@@ -181,8 +181,8 @@ Vue component. The `App.vue` file has 3 things in one place:
 In the case of `App.vue`, here's the `<script>` section.
 
 ```javascript
-import HelloWorld from "./components/HelloWorld";
-import { appData } from "./main";
+import HelloWorld from "./components/HelloWorld"
+import { appData } from "./main"
 
 export default {
   name: "App",
@@ -190,9 +190,9 @@ export default {
     HelloWorld,
   },
   data: () => {
-    return appData;
+    return appData
   },
-};
+}
 ```
 
 The main thing to note here is that an object is exported via `default`. This is the object which

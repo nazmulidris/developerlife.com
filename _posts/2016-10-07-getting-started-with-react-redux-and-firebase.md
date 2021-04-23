@@ -191,13 +191,13 @@ const TYPES = {
   ADD_TODO: "ADD_TODO",
   TOGGLE_TODO: "TOGGLE_TODO",
   REDUX_INIT: "REDUX_INIT",
-};
+}
 
 function action_init(): ReduxActionIF {
   return {
     type: TYPES.REDUX_INIT,
     payload: null,
-  };
+  }
 }
 ```
 
@@ -209,15 +209,15 @@ looks like:
 function reducer_main(state: ReduxStateIF, action: ReduxActionIF): ReduxStateIF {
   switch (action.type) {
     case actions.TYPES.REDUX_INIT:
-      return initialState;
+      return initialState
     case actions.TYPES.ADD_TODO:
-      return add_todo(state, action);
+      return add_todo(state, action)
     case actions.TYPES.TOGGLE_TODO:
-      return toggle_todo(state, action);
+      return toggle_todo(state, action)
     case actions.TYPES.SET_STATE_DATA:
-      return set_data(state, action);
+      return set_data(state, action)
     case actions.TYPES.SET_STATE_USER:
-      return set_user(state, action);
+      return set_user(state, action)
   }
 }
 ```
@@ -227,22 +227,22 @@ Here's an example of a reducer that toggles a selected todo list item's done sta
 ```javascript
 function toggle_todo(state: ReduxStateIF, action: ReduxActionIF) {
   try {
-    const index: number = action.payload;
-    let data_copy: DataIF = lodash.cloneDeep(applicationContext.getData());
-    let todoObject: TodoIF = data_copy.todoArray[index];
-    todoObject.done = !todoObject.done;
+    const index: number = action.payload
+    let data_copy: DataIF = lodash.cloneDeep(applicationContext.getData())
+    let todoObject: TodoIF = data_copy.todoArray[index]
+    todoObject.done = !todoObject.done
 
     const retval = {
       user: state.user,
       data: data_copy,
-    };
-    return retval;
+    }
+    return retval
   } catch (e) {
-    console.log("_modifyTodoItem had a problem ...");
-    console.dir(e);
+    console.log("_modifyTodoItem had a problem ...")
+    console.dir(e)
   }
 
-  return state;
+  return state
 }
 ```
 
@@ -268,7 +268,7 @@ ReactDOM.render(
     <App />
   </Provider>,
   document.getElementById("app")
-);
+)
 ```
 
 The following snippet is from

@@ -62,9 +62,9 @@ file from your local filesystem.
 
 ```javascript
 function createObjectFromCSVFile(inputFile: string, onFileLoadedFunction: Array) {
-  let csv = require("ya-csv");
-  let returnValue: Array = new Array();
-  let reader = csv.createCsvFileReader(inputFile, { columnsFromHeader: true });
+  let csv = require("ya-csv")
+  let returnValue: Array = new Array()
+  let reader = csv.createCsvFileReader(inputFile, { columnsFromHeader: true })
   reader.addListener(
     "data",
     // Called after each row from CSV file is loaded.
@@ -76,17 +76,17 @@ function createObjectFromCSVFile(inputFile: string, onFileLoadedFunction: Array)
       // Post Date then you can use rowObject['Type'],
       // rowObject['Trans Date'], and rowObject['Post Date'] to get
       // the values for each of the columns in the row.
-      returnValue.push(rowObject);
+      returnValue.push(rowObject)
     }
-  );
+  )
 
   reader.addListener(
     "end",
     // Called after all rows have been loaded from CSV file.
     function (data_row) {
-      onFileLoadedFunction(reader.columnNames, returnValue);
+      onFileLoadedFunction(reader.columnNames, returnValue)
     }
-  );
+  )
 }
 ```
 
@@ -98,7 +98,7 @@ By passing the object `{columnsFromHeader: true}` to the `createCsvFileReader()`
 telling the `ya-csv` parser to use the first line of the file to get all the header names.
 
 ```javascript
-csv.createCsvFileReader(inputFile, { columnsFromHeader: true });
+csv.createCsvFileReader(inputFile, { columnsFromHeader: true })
 ```
 
 Here are a few lines from the `sampledata.csv` file (in the `assets` folder).
@@ -129,17 +129,17 @@ given row.
 Finally, if you wanted to write a CSV file using this library, here is some code.
 
 ```javascript
-let csv = require("ya-csv");
-let fs = require("fs");
-let writer = csv.createCsvStreamWriter(fs.createWriteStream("file_name.csv"));
-writer.writeRecord(["column1", "column2", "column3"]);
+let csv = require("ya-csv")
+let fs = require("fs")
+let writer = csv.createCsvStreamWriter(fs.createWriteStream("file_name.csv"))
+writer.writeRecord(["column1", "column2", "column3"])
 ```
 
 Note: this code will rewrite the file everytime you create the writer. If you want to append data to
 an existing CSV file instead, then create the `writer` object in a different way.
 
 ```javascript
-let writer = csv.createCsvStreamWriter(fs.createWriteStream("file_name.csv", { flags: "a" }));
+let writer = csv.createCsvStreamWriter(fs.createWriteStream("file_name.csv", { flags: "a" }))
 ```
 
 ## inquirer
@@ -153,12 +153,12 @@ file name, and the output file name.
 Here's the code to make this happen.
 
 ```javascript
-let inquirer = require("inquirer");
-let functions = require("./functions");
+let inquirer = require("inquirer")
+let functions = require("./functions")
 
 // Display welcome message.
-let message: string = "node-csv-to-json";
-console.log(message);
+let message: string = "node-csv-to-json"
+console.log(message)
 
 // Ask the user for the path to the CVS file.
 let questions = [
@@ -174,8 +174,8 @@ let questions = [
     message: "What is the path to the output JSON file?",
     default: "assets/sampledata.json",
   },
-];
-inquirer.prompt(questions).then(userReply);
+]
+inquirer.prompt(questions).then(userReply)
 ```
 
 There's a callback function `userReply` that gets called, when the library gets the required
@@ -183,11 +183,11 @@ answers. And it passes this function an object that contains the answers.
 
 ```javascript
 function userReply(answers: FileLocationsType) {
-  let inputFile = answers.inputFilePath;
-  let outputFile = answers.outputFilePath;
+  let inputFile = answers.inputFilePath
+  let outputFile = answers.outputFilePath
 
-  console.log(inputFile);
-  console.log(outputFile);
+  console.log(inputFile)
+  console.log(outputFile)
 }
 ```
 
@@ -220,7 +220,7 @@ I've also created my own type alias, in the `types.js` file.
 type FileLocationsType = {
   inputFilePath: string,
   outputFilePath: string,
-};
+}
 ```
 
 Note: I've got `// @flow` at the top of each JS file that has Flow, to let the pre-processor know
@@ -229,14 +229,14 @@ that these are files that the type annotations should be stripped out from.
 I import my type alias into the `index.js` file using the following statement.
 
 ```javascript
-import type FileLocationsType from "./types.js";
+import type FileLocationsType from "./types.js"
 ```
 
 Then, I'm able to use the `FileLocationsType` in my code, like this.
 
 ```javascript
 function userReply(answers: FileLocationsType) {
-  let inputFile = answers.inputFilePath;
-  let outputFile = answers.outputFilePath;
+  let inputFile = answers.inputFilePath
+  let outputFile = answers.outputFilePath
 }
 ```

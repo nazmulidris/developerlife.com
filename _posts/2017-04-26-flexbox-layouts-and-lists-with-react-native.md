@@ -153,7 +153,7 @@ export const home_screen = StyleSheet.create({
     alignItems: "center", // cross axis
     backgroundColor: colors.background_dark,
   },
-});
+})
 ```
 
 #### Here are more details on the JSX ([from HomeScreen.js](https://github.com/r3bl-alliance/react-native-weather/blob/531f25099536e1337d0267029eb8975d66288271/app/HomeScreen.js)):
@@ -250,7 +250,7 @@ export const home_screen_list = StyleSheet.create({
     fontSize: values.font_place_size,
     fontFamily: values.font_body,
   },
-});
+})
 ```
 
 The following diagram shows what is happening in this `renderRow` function.

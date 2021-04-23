@@ -227,7 +227,7 @@ const router_style = StyleSheet.create({
     fontFamily: "Rubik-Regular",
     padding: 16,
   },
-});
+})
 ```
 
 However, there are some UI packages that you can install using `npm` that do not use StyleSheet
@@ -262,7 +262,7 @@ export const colors = {
   text_light: "#d9d9d9",
   text_medium: "#455a64",
   text_dark: "#263238",
-};
+}
 ```
 
 And here I've defined a values object that holds key-value pairs for named fonts families, sizes,
@@ -275,7 +275,7 @@ export const values = {
   font_body_size: 14,
   font_title_size: 20,
   border_radius: 2,
-};
+}
 ```
 
 Now that we have created variables that hold actual values for these underlying styling value
@@ -327,7 +327,7 @@ export const global = StyleSheet.create({
     width: 75,
     resizeMode: "contain", //'cover' | 'contain'
   },
-});
+})
 ```
 
 Here's an example of a styling object that isn't a StyleSheet which is required by
@@ -356,7 +356,7 @@ export const header = {
     fontFamily: values.font_body,
     fontSize: values.font_title_size,
   },
-};
+}
 ```
 
 As you can see from these examples, the styling objects are all kept in one place -
@@ -490,7 +490,7 @@ The main class to start with is the
 class. This makes a call to AppRegistry.registerComponent() so that the UI will be loaded.
 
 ```javascript
-AppRegistry.registerComponent("WeatherApp", () => nav_drawer);
+AppRegistry.registerComponent("WeatherApp", () => nav_drawer)
 ```
 
 What is `nav_drawer`? It's a Navigation Drawer. If you look at the diagram above the colored
@@ -533,7 +533,7 @@ const nav_tab = TabNavigator(
     backBehavior: "none", // back button doesn't take you to the initial tab
     tabBarOptions: css.tabs,
   }
-);
+)
 ```
 
 Navigators can also take other navigators as `screen` values, they don't have to be
@@ -555,7 +555,7 @@ const titleAndIcon = (
     <Icon name="favorite" color="white" />
     <Text style={css.header.text}>Weather App</Text>
   </View>
-);
+)
 
 const nav_stack = StackNavigator(
   // route config
@@ -573,7 +573,7 @@ const nav_stack = StackNavigator(
       ...css.header,
     },
   }
-);
+)
 ```
 
 Finally, here's an example of a DrawerNavigator that accepts a custom component that paints the

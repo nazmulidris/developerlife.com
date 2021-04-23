@@ -80,9 +80,9 @@ Here's some JavaScript code that shows how `this` can be bound to any object tha
 
 ```javascript
 function greet(name) {
-  console.log(`${this.toUpperCase()} ${name}!`);
+  console.log(`${this.toUpperCase()} ${name}!`)
 }
-greet.call("hello", "Nora"); // The first argument is bound to `this` in the call to `greet()`.
+greet.call("hello", "Nora") // The first argument is bound to `this` in the call to `greet()`.
 ```
 
 Here's a Kotlin equivalent of this code in action.

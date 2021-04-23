@@ -58,8 +58,8 @@ laptop, or native app on a mobile device). Here's the location: `.info/connected
 looks like to attach a value change listener to this path.
 
 ```javascript
-const userListRef = firebase.database().ref("USERS_ONLINE");
-const myUserRef = userListRef.push();
+const userListRef = firebase.database().ref("USERS_ONLINE")
+const myUserRef = userListRef.push()
 
 // Monitor connection state on browser tab
 firebase
@@ -68,14 +68,14 @@ firebase
   .on("value", function (snap) {
     if (snap.val()) {
       // if we lose network then remove this user from the list
-      myUserRef.onDisconnect().remove();
+      myUserRef.onDisconnect().remove()
       // set user's online status
-      setUserStatus("online");
+      setUserStatus("online")
     } else {
       // client has lost network
-      setUserStatus("offline");
+      setUserStatus("offline")
     }
-  });
+  })
 ```
 
 This is what is happening in the code above:
@@ -114,8 +114,8 @@ What does setUserStatus() do? It just takes the currently signed in user and the
 away, idle, and offline) and writes it to myUserRef.
 
 ```javascript
-let presenceObject = { user: myUserObject, status: myStatus };
-myUserRef.set(presenceObject);
+let presenceObject = { user: myUserObject, status: myStatus }
+myUserRef.set(presenceObject)
 ```
 
 ### Responding to user state changes
@@ -128,21 +128,21 @@ status is changing or when they go offline entirely.
 ```javascript
 // update the UI to show that a new user is now online
 userListRef.on("child_added", function (snap) {
-  const presence: PresenceIF = snap.val();
-  ctx.emit(GLOBAL_CONSTANTS.LE_PRESENCE_USER_ADDED, presence);
-});
+  const presence: PresenceIF = snap.val()
+  ctx.emit(GLOBAL_CONSTANTS.LE_PRESENCE_USER_ADDED, presence)
+})
 
 // update the UI to show that a user has left (gone offline)
 userListRef.on("child_removed", function (snap) {
-  const presence: PresenceIF = snap.val();
-  ctx.emit(GLOBAL_CONSTANTS.LE_PRESENCE_USER_REMOVED, presence);
-});
+  const presence: PresenceIF = snap.val()
+  ctx.emit(GLOBAL_CONSTANTS.LE_PRESENCE_USER_REMOVED, presence)
+})
 
 // update the UI to show that a user's status has changed
 userListRef.on("child_changed", function (snap) {
-  const presence: PresenceIF = snap.val();
-  ctx.emit(GLOBAL_CONSTANTS.LE_PRESENCE_USER_CHANGED, presence);
-});
+  const presence: PresenceIF = snap.val()
+  ctx.emit(GLOBAL_CONSTANTS.LE_PRESENCE_USER_CHANGED, presence)
+})
 ```
 
 - This block of code just adds 3 callbacks to listen to various child event changes to the
@@ -171,9 +171,9 @@ applicationContext.addListener(GLOBAL_CONSTANTS.LE_PRESENCE_USER_ADDED, (presenc
     displayName: "The App",
     photoURL: "https://url/image.png",
     timestamp: new Date().getTime(),
-  };
-  this.rcvMsgFromServer(msg);
-});
+  }
+  this.rcvMsgFromServer(msg)
+})
 
 applicationContext.addListener(
   GLOBAL_CONSTANTS.LE_PRESENCE_USER_REMOVED,
@@ -183,10 +183,10 @@ applicationContext.addListener(
       displayName: "The App",
       photoURL: "https://url/image.png",
       timestamp: new Date().getTime(),
-    };
-    this.rcvMsgFromServer(msg);
+    }
+    this.rcvMsgFromServer(msg)
   }
-);
+)
 
 applicationContext.addListener(
   GLOBAL_CONSTANTS.LE_PRESENCE_USER_CHANGED,
@@ -196,10 +196,10 @@ applicationContext.addListener(
       displayName: "The App",
       photoURL: "https://url/image.png",
       timestamp: new Date().getTime(),
-    };
-    this.rcvMsgFromServer(msg);
+    }
+    this.rcvMsgFromServer(msg)
   }
-);
+)
 ```
 
 There's an important thing that happens in `rcvMsgFromServer()` that is worth noting, and this has

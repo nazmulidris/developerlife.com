@@ -215,13 +215,13 @@ The project uses the Node event emitter to tie observers to observables. It all 
 import:
 
 ```javascript
-const events = require("events");
+const events = require("events")
 ```
 
 The local event emitter is created in `context.ts` using the following code:
 
 ```javascript
-this.eventEmitter = new events.EventEmitter();
+this.eventEmitter = new events.EventEmitter()
 ```
 
 To actually emit or fire events that will be dispatched to listeners / observers, here's what
@@ -237,8 +237,8 @@ On the observer-side, to actually respond to an event, this is what has to happe
 
 ```javascript
 this.eventEmitter.addListener("actual_name_of_event", function callback(param) {
-  console.log(param);
-});
+  console.log(param)
+})
 ```
 
 You can see an actual example of this in the `componentWillMount()` method in `app.js`. This code
@@ -250,15 +250,15 @@ file).
 this.le_showSnackbarListener = applicationContext.addListener(
   GLOBAL_CONSTANTS.LE_SHOW_SNACKBAR,
   function callback(param) {
-    this.showSnackBar(param);
+    this.showSnackBar(param)
   }
-);
+)
 ```
 
 To emit / fire an event that reaches this listener you would have to do this:
 
 ```javascript
-applicationContext.emit(GLOBAL_CONSTANTS.LE_SHOW_SNACKBAR, "text to show in snackbar");
+applicationContext.emit(GLOBAL_CONSTANTS.LE_SHOW_SNACKBAR, "text to show in snackbar")
 ```
 
 #### Firebase Database patterns
@@ -299,24 +299,24 @@ file. It registers a listener that is called everytime the JSON object stored in
 `userDataRootRef` node changes in Firebase.
 
 ```javascript
-let userId = ctx.getUserId();
-let userDataRootRef = _getUserDataRootRef(ctx, userId);
+let userId = ctx.getUserId()
+let userDataRootRef = _getUserDataRootRef(ctx, userId)
 userDataRootRef.on("value", function callback(snap) {
-  _processUpdateFromFirebase(snap, ctx);
-});
+  _processUpdateFromFirebase(snap, ctx)
+})
 ```
 
 Here is the code that saves data to Firebase (which ends up triggering the callback above).
 
 ```javascript
 // apply the action locally, and this will change the state
-ctx.getReduxStore().dispatch(action);
+ctx.getReduxStore().dispatch(action)
 // save to persistence
-let root_ref = _getUserDataRootRef(ctx, ctx.getUserId());
-let value = ctx.getReduxState().data;
-value[DB_CONST.SESSION_ID] = ctx.getSessionId();
-value[DB_CONST.TIMESTAMP] = ctx.getFirebaseServerTimestampObject();
-root_ref.child(DB_CONST.DATA_KEY).set(value);
+let root_ref = _getUserDataRootRef(ctx, ctx.getUserId())
+let value = ctx.getReduxState().data
+value[DB_CONST.SESSION_ID] = ctx.getSessionId()
+value[DB_CONST.TIMESTAMP] = ctx.getFirebaseServerTimestampObject()
+root_ref.child(DB_CONST.DATA_KEY).set(value)
 ```
 
 #### React UI update patterns
@@ -351,27 +351,27 @@ off to a socket, you simply emit() an event and payload to it. Similarly, you ca
 On the client, to create the socket:
 
 ```javascript
-let io = require("socket.io-client");
-this.socket = new io.connect(this.getSocketURL());
+let io = require("socket.io-client")
+this.socket = new io.connect(this.getSocketURL())
 ```
 
 To emit an event to the server, the code is similar to the Node local emitter.
 
 ```javascript
-this.socket.emit("my_named_event", { key: "value" });
+this.socket.emit("my_named_event", { key: "value" })
 ```
 
 On the server, to recieve this event, you have to setup a Socket.IO object.
 
 ```javascript
-let http = require("http");
+let http = require("http")
 let httpServer = http.createServer(function handler(req, res) {
-  res.writeHead(200, { "Content-Type": "text/html" });
-  res.end("<h1>Socket IO Server Running</h1>");
-});
+  res.writeHead(200, { "Content-Type": "text/html" })
+  res.end("<h1>Socket IO Server Running</h1>")
+})
 
-let io = require("socket.io");
-socketio = io.listen(httpServer);
+let io = require("socket.io")
+socketio = io.listen(httpServer)
 ```
 
 Then you attach a listener to it on the server:
@@ -379,9 +379,9 @@ Then you attach a listener to it on the server:
 ```javascript
 socketio.on("connection", function callback(socket) {
   socket.on("my_named_event", function listen(data) {
-    console.log("Received message from client: " + data);
-  });
-});
+    console.log("Received message from client: " + data)
+  })
+})
 ```
 
 ## Typescript
@@ -427,12 +427,12 @@ ctx
   .onAuthStateChanged(function callback(user) {
     if (user) {
       // user is signed in
-      _processAuthStateChange(ctx, user);
+      _processAuthStateChange(ctx, user)
     } else {
       // user is signed out
-      _forceAnonSignIn(ctx);
+      _forceAnonSignIn(ctx)
     }
-  });
+  })
 ```
 
 ## Misc

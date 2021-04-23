@@ -109,29 +109,29 @@ export const appReducer = (
 ): Types.AppState => {
   switch (action.type) {
     case actions.TYPES.set_watchlist: {
-      return setWatchlist(state, action.payload);
+      return setWatchlist(state, action.payload)
     }
     case actions.TYPES.set_weather_data: {
-      return setWeatherData(state, action.payload);
+      return setWeatherData(state, action.payload)
     }
     case actions.TYPES.set_user_object: {
-      return setUserObject(state, action.payload);
+      return setUserObject(state, action.payload)
     }
   }
   // in case nothing matched, just return the old state
-  return state;
-};
+  return state
+}
 ```
 
 Here's the `setUserObject` method implementation:
 
 ```javascript
 function setUserObject(state: Types.AppState, user: User) {
-  ToastAndroid.show("USER OBJECT SET", ToastAndroid.SHORT);
+  ToastAndroid.show("USER OBJECT SET", ToastAndroid.SHORT)
   return {
     ...state, // syntax : http://es6-features.org/#SpreadOperator
     user, // syntax : http://es6-features.org/#PropertyShorthand
-  };
+  }
 }
 ```
 
@@ -141,34 +141,34 @@ Here's an example of some of the types defined in `Types.js`:
 export type Action = {
   type: number,
   payload: any,
-};
+}
 
 export type State = {
   app: AppState,
-};
+}
 
 export type AppState = {
   user: User,
   locations: LocationWatchList,
   reports: WeatherReports,
-};
+}
 
 export type User = {
   isAnon: boolean,
   name: string,
   userid: string,
   profilePictureUrl: string,
-};
+}
 
-export type LocationWatchList = Array<string>;
+export type LocationWatchList = Array<string>
 
-export type WeatherReports = Array<WeatherReport>;
+export type WeatherReports = Array<WeatherReport>
 
 export type WeatherReport = {
   location: string,
   current: CurrentConditions,
   forecast: WeeklyForecast,
-};
+}
 
 export type CurrentConditions = {
   temp: number,
@@ -177,17 +177,17 @@ export type CurrentConditions = {
   uvindex: number,
   sunrise: number,
   sunset: number,
-};
+}
 
 export type WeeklyForecast = {
   days: Array<DailyForecast>,
-};
+}
 
 export type DailyForecast = {
   day: string,
   hi: number,
   lo: number,
-};
+}
 ```
 
 ## Material Design Components
@@ -257,7 +257,7 @@ export const fab = {
       backgroundColor: colors.secondary,
     },
   }),
-};
+}
 ```
 
 Finally, here's the `uiTheme` object (which doesn't really do anything in this form):
@@ -267,7 +267,7 @@ const uiTheme = {
   palette: {
     primaryColor: COLOR.green500,
   },
-};
+}
 ```
 
 ## Migrating the weather app to using Redux
@@ -377,7 +377,7 @@ const state = {
   app: { key: "value" },
   nav: {},
   net: {},
-};
+}
 ```
 
 You can now create 3 reducers, one that operates on the `app` leaf of the state, another that works
@@ -448,11 +448,11 @@ will NOT update even when we dispatch this action and add new data to the state:
 
 ```javascript
 function setWeatherData(state: Types.AppState, reports: WeatherReports) {
-  ToastAndroid.show("REDUCER: SET WEATHER DATA", ToastAndroid.SHORT);
+  ToastAndroid.show("REDUCER: SET WEATHER DATA", ToastAndroid.SHORT)
   return {
     ...state,
     reports, // shallow-equality-test will not detect this change!
-  };
+  }
 }
 ```
 
@@ -464,12 +464,12 @@ Here's what that code would look like:
 
 ```javascript
 function setWeatherData(state: Types.AppState, reports: WeatherReports) {
-  ToastAndroid.show("REDUCER: SET WEATHER DATA", ToastAndroid.SHORT);
+  ToastAndroid.show("REDUCER: SET WEATHER DATA", ToastAndroid.SHORT)
   return {
     ...state,
     reports: _.cloneDeep(reports), // shallow-equality-test
     // will detect this change!
-  };
+  }
 }
 ```
 
@@ -497,16 +497,16 @@ export const mainMiddleware = function (store) {
   return function (next) {
     return function (action: Types.Action) {
       if (action.type === actions.TYPES.request_refresh_weather_data) {
-        requestRefreshWeatherData(action.payload);
+        requestRefreshWeatherData(action.payload)
       } else if (action.type === actions.TYPES.request_add_to_watchlist) {
-        requestAddToWatchlist(action.payload);
+        requestAddToWatchlist(action.payload)
       } else {
         // must return this in order to invoke reducer functions
-        return next(action);
+        return next(action)
       }
-    };
-  };
-};
+    }
+  }
+}
 ```
 
 Note that you have to `return next(action);` in order for the reducer to continue executing any
@@ -548,7 +548,7 @@ export const store = createStore(
     app: appReducer,
   }),
   applyMiddleware(mainMiddleware)
-);
+)
 ```
 
 ### 6. Connect
@@ -593,16 +593,16 @@ of the expanded `connect()` function will show you this in action:
  * - https://goo.gl/VNQAOZ
  */
 const mapStateToProps = (state) => {
-  return { app: state.app };
-};
+  return { app: state.app }
+}
 
 const mapDispatchToProps = (dispatch) => {
-  return bindActionCreators(actions, dispatch);
-};
+  return bindActionCreators(actions, dispatch)
+}
 
 // exports HomeScreen as the connected component
 // more info - http://redux.js.org/docs/basics/UsageWithReact.html
-export const ConnectedHomeScreen = connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
+export const ConnectedHomeScreen = connect(mapStateToProps, mapDispatchToProps)(HomeScreen)
 ```
 
 Again, in this weather app example, I'm not going to be using `mapDispatchToProps` or

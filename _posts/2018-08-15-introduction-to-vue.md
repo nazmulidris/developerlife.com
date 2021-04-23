@@ -63,7 +63,7 @@ Then you can start Vue code inside the HTML file inside of `script` tags.
       message: "🐵 Hello World 🔮",
       timestamp: `Timestamp ${new Date().toLocaleString()}`,
     },
-  });
+  })
 </script>
 ```
 
@@ -120,7 +120,7 @@ Here's the full HTML file w/ this basic example of using Vue.
           message: "🐵 Hello World 🔮",
           timestamp: `Timestamp ${new Date().toLocaleString()}`,
         },
-      });
+      })
     </script>
   </body>
 </html>
@@ -152,7 +152,7 @@ Here are some more code snippets of basic Vue usage (the `v-for` directive).
         { text: "Build something awesome" },
       ],
     },
-  });
+  })
 </script>
 ```
 
@@ -179,10 +179,10 @@ Here are some more code snippets of basic Vue usage (the `v-on` directive).
     },
     methods: {
       randomGenerate() {
-        this.message = Math.random();
+        this.message = Math.random()
       },
     },
-  });
+  })
 </script>
 ```
 
@@ -208,7 +208,7 @@ support, Vue keeps the the underlying data (`data.value`) in sync with the UI el
     data: {
       value: "Some string data",
     },
-  });
+  })
 </script>
 ```
 
@@ -327,7 +327,7 @@ Vue.component("todo_list", {
                             v-bind:todo_item_prop="item"
                             v-bind:key="item.id"/>
              </ol>`,
-});
+})
 
 // Renderer for each to do item (accepts one item as props)
 Vue.component("todo_item", {
@@ -335,7 +335,7 @@ Vue.component("todo_item", {
   template: `<li v-bind:class="{ strike: todo_item_prop.done }">
               {{ todo_item_prop.text }}
             </li>`,
-});
+})
 
 // Setup the data for the to do list (and and attach to index.html)
 new Vue({
@@ -347,7 +347,7 @@ new Vue({
       { id: 2, text: "Sell laptop", done: false },
     ],
   },
-});
+})
 ```
 
 {% endraw %}

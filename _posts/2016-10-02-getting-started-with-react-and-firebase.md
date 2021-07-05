@@ -8,6 +8,7 @@ layout: post
 title: "Building a real world app using React, Firebase, and Typescript"
 hero-image: assets/react-firebase-typescript-hero.png
 categories:
+  - TypeScript
   - DB
   - FE
   - React

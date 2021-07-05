@@ -24,9 +24,9 @@ categories:
   - [Configure default Linux fonts](#configure-default-linux-fonts)
 - [Terminal and shell UI customization](#terminal-and-shell-ui-customization)
   - [Step 1 - Install `fish`, and `powerline` using `bash`](#step-1---install-fish-and-powerline-using-bash)
-  - [Step 2 - Next launch `fish` and install OMF and bobthefish](#step-2---next-launch-fish-and-install-omf-and-bobthefish)
-  - [Step 3 - Use Nord theme for your terminal and shell](#step-3---use-nord-theme-for-your-terminal-and-shell)
-  - [Step 4 - (Optional) Use a custom theme for your terminal app and shell](#step-4---optional-use-a-custom-theme-for-your-terminal-app-and-shell)
+  - [Step 2 - Use a custom theme for tilix](#step-2---use-a-custom-theme-for-tilix)
+    - [Using Nord](#using-nord)
+  - [Step 3 - (Optional) Use a custom theme for tilix](#step-3---optional-use-a-custom-theme-for-tilix)
 - [GNOME tweaks and extensions](#gnome-tweaks-and-extensions)
   - [1. Window tiling](#1-window-tiling)
   - [2. Gnome User Themes](#2-gnome-user-themes)
@@ -55,25 +55,35 @@ I've also used macOS).
 
 ### Installing fonts
 
-In order to install fonts, the easiest thing to do is get
-[Font Manager](https://fontmanager.github.io/). You can simply install it by running
-`sudo apt install -y font-manager`. You can then use Font Manager app to install whatever fonts you
-have on your computer.
+The following 3 approaches all install fonts for your current user.
 
-If you don't want to use this app, you can simply copy all your fonts to the following folder
-`~/.local/share/fonts`. And then run `sudo fc-cache -fv` to flush the font cache.
+1. In order to install fonts, the easiest thing to do is get
+   [Font Manager](https://fontmanager.github.io/). You can simply install it by running
+   `sudo apt install -y font-manager`. You can then use Font Manager app to install whatever fonts
+   you have on your computer.
+
+2. If you don't want to use this app, you can simply copy all your fonts to the following folder
+   `~/.local/share/fonts`. And then run `sudo fc-cache -fv` to flush the font cache.
+
+3. Alternatively, you can just copy all your fonts into the `~/.fonts/` folder and then run
+   `sudo fc-cache -fv`.
 
 You can also see which fonts you have installed on your system by running
 `fc-list | grep "<FONT_NAME>"`, where `<FONT_NAME>` is whatever font you have, eg: `Monaco` or
 `Hack Nerd Font`.
 
+> Note that you should only use one of the three approaches. For example if you do both steps 2 and
+> 3, then it will result in some really strange behaviours in Ubuntu! In that case just undo one of
+> the steps.
+
 Some of my favorite fonts are:
 
 1. [JetBrains Mono](https://www.jetbrains.com/lp/mono/)
-2. [An assortment of Nerd Fonts: Hack, CodeNewRoman, VictorMono](https://www.nerdfonts.com/font-downloads)
-3. [macOS fonts: Monaco, Helvetica Neue, SF Mono](https://www.quora.com/Where-is-Helvetica-Neue-located-on-a-Mac)
-4. [Google Fonts: Google Sans, Open Sans](https://fonts.google.com/)
-5. [Cascadia Code](https://github.com/microsoft/cascadia-code)
+2. [macOS fonts: Monaco, Helvetica Neue, SF Mono](https://www.quora.com/Where-is-Helvetica-Neue-located-on-a-Mac)
+3. [Fira Sans, Medium variant is good for UI font like Pop!\_OS](https://fonts.google.com/specimen/Fira+Sans)
+4. [An assortment of Nerd Fonts: Hack, CodeNewRoman, VictorMono](https://www.nerdfonts.com/font-downloads)
+5. [Google Fonts: Google Sans, Open Sans](https://fonts.google.com/)
+6. [Cascadia Code](https://github.com/microsoft/cascadia-code)
 
 ### Nerd Fonts
 
@@ -139,10 +149,35 @@ Here's an example of my `fonts.conf` file.
   </alias>
   <alias>
     <family>monospace</family>
-    <prefer><family>Hack Nerd Font</family></prefer>
+    <prefer><family>JetBrains Mono</family></prefer>
   </alias>
 
   <!-- Aliases for commonly used MS fonts. -->
+  <match>
+    <test name="family"><string>Segoe UI</string></test>
+    <edit name="family" mode="assign" binding="strong">
+      <string>Helvetica Neue</string>
+    </edit>
+  </match>
+  <match>
+    <test name="family"><string>SegoeUI</string></test>
+    <edit name="family" mode="assign" binding="strong">
+      <string>Helvetica Neue</string>
+    </edit>
+  </match>
+  <match>
+    <test name="family"><string>SegoeUI-Light</string></test>
+    <edit name="family" mode="assign" binding="strong">
+      <string>Helvetica Neue</string>
+    </edit>
+  </match>
+  <match>
+    <test name="family"><string>SegoeUI-SemiBold</string></test>
+    <edit name="family" mode="assign" binding="strong">
+      <string>Helvetica Neue</string>
+    </edit>
+  </match>
+
   <match>
     <test name="family"><string>Arial</string></test>
     <edit name="family" mode="assign" binding="strong">
@@ -188,9 +223,37 @@ Here's an example of my `fonts.conf` file.
   <match>
     <test name="family"><string>Courier New</string></test>
     <edit name="family" mode="assign" binding="strong">
-      <string>Hack Nerd Font</string>
+      <string>JetBrains Mono</string>
     </edit>
   </match>
+
+  <!-- Cambria -> Caladea, Calibri -> Carlito -->
+  <!-- Microsoft -->
+  <alias binding="same">
+    <family>Cambria</family>
+    <accept>
+      <family>Caladea</family>
+    </accept>
+  </alias>
+  <alias binding="same">
+    <family>Caladea</family>
+    <default>
+      <family>Cambria</family>
+    </default>
+  </alias>
+  <!-- Microsoft -->
+  <alias binding="same">
+    <family>Calibri</family>
+    <accept>
+      <family>Carlito</family>
+    </accept>
+  </alias>
+  <alias binding="same">
+    <family>Carlito</family>
+    <default>
+      <family>Calibri</family>
+    </default>
+  </alias>
 
 </fontconfig>
 ```
@@ -226,9 +289,13 @@ Here are some of my choices for terminal and shell selection and configuration.
 2. I use [fish shell](https://www.realjenius.com/2020/05/30/oh-my-fish/), and I've also written a
    [tutorial](https://developerlife.com/2019/10/31/fish-scripting-manual/) that I have on advanced
    fish scripting.
-3. I also have [Oh-my-fish](https://github.com/oh-my-fish/oh-my-fish) installed along w/
-   [bobthefish](https://github.com/oh-my-fish/theme-bobthefish).
-4. I also use `powerline` in order to get the prompt for my shell.
+3. I also use [`powerline`](https://github.com/b-ryan/powerline-shell) in order to get the prompt
+   for my shell. Here are two ways to install it.
+   1. Using `pip3`: `brew install python3; pip3 install powerline-shell`
+   2. Using `apt`: `sudo apt install powerline`
+   3. Once installed you have to configure your shell's prompt to use it. Here are directions for:
+      [fish](https://github.com/b-ryan/powerline-shell#fish),
+      [bash](https://github.com/b-ryan/powerline-shell#bash).
 
 ### Step 1 - Install `fish`, and `powerline` using `bash`
 
@@ -241,27 +308,34 @@ sudo apt -y install fish powerline
 sudo chsh --shell /usr/bin/fish
 ```
 
-### Step 2 - Next launch `fish` and install OMF and bobthefish
+Then you have to add the following lines to `~/.config/fish/config.fish` in order to use `powerline`
+in your fish prompt. Then restart the shell, or just run `source ~/.config/fish/config.fish` in your
+current session to apply these settings.
 
 ```shell
-# Download OMF install script and run it.
-set omfInstallScript "https://raw.githubusercontent.com/oh-my-fish/oh-my-fish/master/bin/install"
-pushd $HOME/Downloads
-curl -L $omfInstallScript > install
-chmod +x install
-./install -y --noninteractive --path=$HOME/.local/share/omf --config=$HOME/.config/omf
-popd
-
-# After installing OMF, use it to install bobthefish.
-fish -c "omf install bobthefish"
+function fish_prompt
+  powerline-shell --shell bare $status
+end
 ```
 
-### Step 3 - Use Nord theme for your terminal and shell
+### Step 2 - Use a custom theme for tilix
 
-There are some great themes that are already available which you can easily use in your terminal.
-[`Nord`](https://www.nordtheme.com/) is a great example of this. Not only is it supported in Tilix,
-and Gnome Terminal, but you can get this theme for IntelliJ IDEA, Sublime Text 3, and most other
-developer facing apps.
+There are some great themes that are already available which you can easily use in your terminal
+when you use tilix.
+
+This github [repo](https://github.com/storm119/Tilix-Themes/blob/master/Themes.md) has a lot of
+themes that are available for tilix. You can run the commands on that repo get a theme and have it
+installed on your computer. They are saved in `~/.config/tilix/schemes` folder.
+
+In order to use it, you have to go into tilix -> edit profile -> color -> color scheme. Then you can
+see all the currently installed themes in the drop down. Select whichever you like and you are good
+to go.
+
+#### Using Nord
+
+[`Nord`](https://www.nordtheme.com/) is a nice theme. Not only is it supported in Tilix, and Gnome
+Terminal, but you can get this theme for IntelliJ IDEA, Sublime Text 3, and most other developer
+facing apps.
 
 You can download "ports" of `Nord` for various apps [here](https://www.nordtheme.com/ports):
 
@@ -274,58 +348,55 @@ In order to get this theme installed in each of these applications, just visit t
 "port" for that app and follow the instructions to get it installed. Most of these instructions are
 very simple.
 
-### Step 4 - (Optional) Use a custom theme for your terminal app and shell
+### Step 3 - (Optional) Use a custom theme for tilix
 
 If you don't want to use a preexisting theme like `Nord` in your terminal, then you can create your
 own. Here's an example of a custom configuration that I had created in the past.
 
 You can use a font like `Hack Nerd Font` in your terminal or something else. Here's what my terminal
-configuration looks like (you can save it to a file named `terminal.prefs`).
+configuration looks like (you can save it to a file named `tilix.prefs`).
 
 ```ini
 [/]
-new-terminal-mode='window'
-schema-version=uint32 3
+quake-specific-monitor=0
+tab-position='bottom'
+terminal-title-style='none'
+theme-variant='dark'
+warn-vte-config-issue=false
+window-style='disable-csd-hide-toolbar'
 
 [keybindings]
-close-tab='<Primary>w'
-close-window='<Primary>q'
-move-tab-left='<Alt>comma'
-move-tab-right='<Alt>period'
-new-tab='<Primary>t'
-new-window='<Primary><Shift>t'
-next-tab='<Primary>Tab'
-preferences='<Super>comma'
-prev-tab='<Primary><Shift>Tab'
+app-preferences='<Primary><Shift>p'
+session-add-down='<Primary>d'
+session-add-right='<Primary>r'
 
-[profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
-audible-bell=true
-background-color='rgb(0,0,0)'
-background-transparency-percent=19
-bold-is-bright=true
-cell-height-scale=1.2000000000000002
+[profiles/2b7c4080-0ddd-46c5-8f23-563fd3ba789d]
+background-color='#161719'
+background-transparency-percent=9
+badge-color='#AC7EA8'
+badge-color-set=false
+bold-color-set=false
+cursor-colors-set=false
+cursor-shape='block'
 custom-command='fish'
-default-size-columns=140
+default-size-columns=120
+dim-transparency-percent=0
 font='Monaco 12'
-foreground-color='rgb(211,215,207)'
-login-shell=false
-palette=['rgb(46,52,54)', 'rgb(204,0,0)', 'rgb(78,154,6)', 'rgb(196,160,0)',\
-  'rgb(52,101,164)', 'rgb(117,80,123)', 'rgb(6,152,154)', 'rgb(211,215,207)',\
-  'rgb(150,179,121)', 'rgb(239,41,41)', 'rgb(138,226,52)', 'rgb(252,233,79)',\
-  'rgb(114,159,207)', 'rgb(173,127,168)', 'rgb(52,226,226)', 'rgb(238,238,236)']
+foreground-color='#C5C8C6'
+highlight-colors-set=false
+palette=['#000000', '#FD5FF1', '#323265650404', '#FFD7B1', '#85BEFD', '#B9B6FC', '#85BEFD', '#E0E0E0', '#000000', '#FD5FF1', '#333365650404', '#F5FFA8', '#96CBFE', '#B9B6FC', '#85BEFD', '#E0E0E0']
+terminal-bell='icon-sound'
 use-custom-command=true
-use-system-font=false
+use-system-font=true
 use-theme-colors=false
-use-theme-transparency=false
-use-transparent-background=true
-visible-name='nazmul'
+visible-name='Default'
 ```
 
-These can be loaded into Gnome using the following command.
+These can be loaded into tilix (via GNOME `dconf`) using the following command.
 
 ```shell
 # More info: https://askubuntu.com/a/1241849/872482
-cat terminal.prefs | dconf load /org/gnome/terminal/legacy/
+cat tilix.prefs | dconf load /com/gexperts/Tilix/
 ```
 
 Here's what this configuration looks like.
@@ -407,9 +478,11 @@ v1]({{ '/2021/03/09/mechanical-keyboard-review/' | relative_url}}).
 ### 2. Gnome User Themes
 
 Another big change that you can make in GNOME is changing the theme. This changes the look and feel
-of the entire operating system. You can also change icon sets as well. One of my favorite theme and
-icon sets is Nordic. You can download the theme and icon set from
-[here](https://www.gnome-look.org/p/1267246/). Here are the steps you then have to follow.
+of the entire operating system. You can also change icon sets as well.
+
+One of my favorite theme and icon sets is Nordic. The following are the steps you have to follow to
+install it. You can repeat similar steps for any other themes that you like. You can download the
+theme and icon set from [here](https://www.gnome-look.org/p/1267246/).
 
 1. Download the theme file
    [`Nordic-darker.tar.xz`](https://www.gnome-look.org/p/1267246/startdownload?file_id=1614716124&file_name=Nordic-darker.tar.xz&file_type=application/x-xz&file_size=829400)
@@ -421,6 +494,8 @@ icon sets is Nordic. You can download the theme and icon set from
    [GNOME User Themes extension](https://extensions.gnome.org/extension/19/user-themes/).
 4. Launch `gnome-tweaks` and then select the Themes from the various drop downs in the "Appearance"
    section.
+
+My current favorite is [`Material-Black-Frost-3.36`](https://www.gnome-look.org/p/1318133/).
 
 ![]({{'assets/ubuntu-ui-theme.png' | relative_url}})
 

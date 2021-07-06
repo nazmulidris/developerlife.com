@@ -503,6 +503,9 @@ Here's another example of using top level `await` in a Node.js program, while mi
 the use of `async`, `await`, and promises.
 
 ```typescript
+import { ChildProcess, spawn } from "child_process"
+import { ColorConsole, StyledColorConsole, Styles } from "r3bl-ts-utils"
+
 class SpawnCProcToRunLinuxCommandAndGetOutput {
   readonly cmd = "find"
   readonly args = [`${process.env.HOME}`, "-type", "f"]
@@ -1050,10 +1053,13 @@ The following are examples of functions to demonstrate the above. Here's a funct
 the CLI Node.js sample.
 
 ```typescript
+import * as readline from "readline"
+
 const main = async (argv: Array<string>) => {
   console.log(`Please type "${Messages.closeCommand}" or ${chalk.red("Ctrl+C")} to exit 🐾`)
   promptUserForInputViaConsoleInterface()
 }
+
 // https://nodejs.org/en/knowledge/command-line/how-to-parse-command-line-arguments/
 main(process.argv.splice(2))
 ```
@@ -1118,6 +1124,9 @@ Here's an OOP version of the code above that uses this pattern (I think the code
 w/out using `question`).
 
 ```typescript
+import * as readline from "readline"
+import * as chalk from "chalk"
+
 class UIStrings {
   public static readonly closeCommand = "quit"
   public static readonly userPrompt = `> Please type "${UIStrings.closeCommand}" or ${chalk.red(
@@ -1172,6 +1181,10 @@ const main = async (argv: Array<string>) => {
   cli.start()
 }
 
+/**
+ * Dump all the command line arguments to console.
+ * More info: https://nodejs.org/en/knowledge/command-line/how-to-parse-command-line-arguments/
+ */
 main(process.argv.splice(2))
 ```
 
@@ -1204,6 +1217,11 @@ Some interesting things to note:
   receiving that in the event listener in the correct way.
 
 ```typescript
+import * as chalk from "chalk"
+import * as utils from "r3bl-ts-utils"
+import { printHeader } from "r3bl-ts-utils"
+import { EventEmitter } from "events"
+
 class Events {
   static readonly TimerName = "EventsTimer"
   static readonly Error = "error" /* Special Node.js error name. */
@@ -1211,32 +1229,53 @@ class Events {
   static readonly Event2 = Symbol()
 }
 
-utils._let(new EventEmitter(), (emitter) => {
-  // Start Timer.
+// EventEmitter - https://nodejs.org/api/events.html#events_emitter_emit_eventname_args
+
+function main() {
+  printHeader("Events")
+
+  // Start timer.
   console.time(Events.TimerName)
 
-  // Handle Event1.
-  emitter.on(Events.Event1, (...args: any[]) => {
-    console.log(chalk.blue(`emitter.on -> Event1, args: ${JSON.stringify(args)}`))
-    console.timeLog(Events.TimerName)
-  })
+  utils._let(new EventEmitter(), (emitter) => {
+    // Handle Event1.
+    emitter.on(Events.Event1, (...args: any[]) => {
+      console.log(chalk.blue(`emitter.on -> Event1, args: ${JSON.stringify(args)}`))
+      console.timeLog(Events.TimerName)
+    })
 
-  // Handle Error.
-  emitter.on("error", (...errorArgs: any[]) => {
-    console.error(chalk.red(`emitter.on('error') -> errorArgs: ${JSON.stringify(errorArgs)}`))
-    console.timeLog(Events.TimerName)
-  })
+    // Handle Event2.
+    emitter.once(Events.Event2, (...args: any[]) => {
+      console.log(chalk.green(`emitter.once -> Event2, args: ${JSON.stringify(args)}`))
+      console.timeLog(Events.TimerName)
+    })
 
-  // Fire Event1.
-  utils._let(Events.Event1, (event) => {
-    fireEvent(emitter, event, 100, "🐵", { foo: "bar" })
-    fireEvent(emitter, event, 200)
-  })
+    // Handle Error.
+    emitter.on("error", (...errorArgs: any[]) => {
+      console.error(chalk.red(`emitter.on('error') -> errorArgs: ${JSON.stringify(errorArgs)}`))
+      console.timeLog(Events.TimerName)
+    })
 
-  // Fire Error.
-  fireError(emitter)
-  fireError(emitter, 200, "💣", { errorCode: 50 })
-})
+    // Fire Event1.
+    printHeader("Fire Event1")
+    utils._let(Events.Event1, (event) => {
+      fireEvent(emitter, event, 100, "🐵", { foo: "bar" })
+      fireEvent(emitter, event, 200)
+    })
+
+    // Fire Event2.
+    printHeader("Fire Event2")
+    utils._let(Events.Event2, (event) => {
+      fireEvent(emitter, event)
+      fireEvent(emitter, event)
+    })
+
+    // Fire Error.
+    printHeader("Fire Error")
+    fireError(emitter)
+    fireError(emitter, 200, "💣", { errorCode: 50 })
+  })
+}
 
 // TypeScript varargs -
 // https://www.damirscorner.com/blog/posts/20180216-VariableNumberOfArgumentsInTypescript.html
@@ -1259,6 +1298,8 @@ const fireEvent = (
   setTimeout(() => {
     emitter.emit(eventType, ...args)
   }, delayMs)
+
+main()
 ```
 
 ## Files
@@ -1399,6 +1440,12 @@ Or:
 Note - The promisified version of `pipline` on only works on Node.JS v15 and higher.
 
 ```typescript
+import { ColorConsole, sleep, StyledColorConsole, Styles } from "r3bl-ts-utils"
+import { Constants } from "./Constants"
+import * as fs from "fs"
+import * as zlib from "zlib"
+import { pipeline } from "stream/promises"
+
 export class CompressLargeFileEfficiently {
   performCompression = async (): Promise<void> => {
     await this.actuallyCompress().catch(console.error)
@@ -1421,7 +1468,14 @@ export class CompressLargeFileEfficiently {
   }
 }
 
-await new CompressLargeFileEfficiently().performCompression().catch(console.error)
+const main = async (): Promise<void> => {
+  await new CompressLargeFileEfficiently().performCompression()
+}
+
+main().catch(console.error)
+
+// One line version of two blocks above.
+// await new CompressLargeFileEfficiently().performCompression().catch(console.error)
 ```
 
 ### Child process
@@ -1474,23 +1528,28 @@ arguments. Here's an example.
 ##### Example 1 - spawn a child process to execute a command
 
 ```typescript
-class SpawnCProcToRunLinuxCommandAndGetOutput {
+import { ChildProcess, spawn } from "child_process"
+import { ColorConsole, StyledColorConsole, Styles } from "r3bl-ts-utils"
+
+export class SpawnCProcToRunLinuxCommandAndGetOutput {
   readonly cmd = "find"
-  readonly args = [`${process.env.HOME}`, "-type", "f"]
+  readonly args = [`${process.env.HOME}/github/notes/`, "-type", "f"]
 
   run = async (): Promise<void> => {
     const child: ChildProcess = spawn(this.cmd, this.args)
-
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolveFn, rejectFn) => {
       child.on("exit", function (code, signal) {
-        console.log(`Child process exited with code ${code} and signal ${signal}`)
-        resolve()
+        ColorConsole.create(Styles.Primary.blue)(
+          `Child process exited with code ${code} and signal ${signal}`
+        ).consoleLog(true)
+        resolveFn()
       })
       child.stdout?.on("data", (data: Buffer) => {
-        console.log(`Output : ${data.length}`)
+        StyledColorConsole.Primary(`Output : ${data.length}`).consoleLogInPlace()
       })
       child.stderr?.on("data", (data) => {
-        console.log(`Error: ${data}`)
+        ColorConsole.create(Styles.Primary.red)(`Error: ${data}`).consoleLog()
+        rejectFn()
       })
     })
   }
@@ -1560,11 +1619,13 @@ stream. For example:
 
 ```typescript
 import { ChildProcess, spawn } from "child_process"
-import { notNil } from "../core-utils/kotlin-lang-utils"
+import { ColorConsole, notNil, StyledColorConsole, Styles } from "r3bl-ts-utils"
 
 export class SpawnCProcAndPipeStdinToLinuxCommand {
   run = async (): Promise<void> => {
-    console.log(`Type words, then press Ctrl+D to count them...`)
+    ColorConsole.create(Styles.Secondary)(
+      `Type words, then press Ctrl+D to count them...`
+    ).consoleLog()
 
     const wcCommand: ChildProcess = spawn("wc")
 
@@ -1575,14 +1636,16 @@ export class SpawnCProcAndPipeStdinToLinuxCommand {
 
     return new Promise<void>((resolveFn, rejectFn) => {
       wcCommand.on("exit", function (code, signal) {
-        console.log(`Child process exited with code ${code} and signal ${signal}`)
+        ColorConsole.create(Styles.Primary.blue)(
+          `Child process exited with code ${code} and signal ${signal}`
+        ).consoleLog(true)
         resolveFn()
       })
       wcCommand.stdout?.on("data", (data: Buffer) => {
-        console.log(`Output: ${data}`)
+        StyledColorConsole.Primary(`Output: ${data}`).consoleLogInPlace()
       })
       wcCommand.stderr?.on("data", (data) => {
-        console.log(`Error: ${data}`)
+        ColorConsole.create(Styles.Primary.red)(`Error: ${data}`).consoleLog()
         rejectFn()
       })
     })
@@ -1612,8 +1675,7 @@ the `wc` command to count all the files in the current directory.
 
 ```typescript
 import { ChildProcess, spawn } from "child_process"
-import { ColorConsole, textStyle1 } from "../core-utils/color-console-utils"
-import { notNil } from "../core-utils/kotlin-lang-utils"
+import { ColorConsole, notNil, StyledColorConsole, Styles } from "r3bl-ts-utils"
 
 export class SpawnCProcToPipeOutputOfOneLinuxCommandIntoAnother {
   run = async (): Promise<void> => {
@@ -1633,19 +1695,27 @@ export class SpawnCProcToPipeOutputOfOneLinuxCommandIntoAnother {
 
     return new Promise<void>((resolveFn, rejectFn) => {
       wcChildProcess.on("exit", function (code, signal) {
-        console.log(`Child process exited with code ${code} and signal ${signal}`)
+        ColorConsole.create(Styles.Primary.blue)(
+          `Child process exited with code ${code} and signal ${signal}`
+        ).consoleLog(true)
         resolveFn()
       })
       wcChildProcess.stdout?.on("data", (data: Buffer) => {
-        console.log(`Number of files ${data}`)
+        StyledColorConsole.Primary(`Number of files ${data}`).consoleLogInPlace()
       })
       wcChildProcess.stderr?.on("data", (data) => {
-        console.log(`Error: ${data}`)
+        ColorConsole.create(Styles.Primary.red)(`Error: ${data}`).consoleLog()
         rejectFn()
       })
     })
   }
 }
+
+const main = async () => {
+  await new SpawnCProcToPipeOutputOfOneLinuxCommandIntoAnother().run()
+}
+
+main().catch(console.error)
 ```
 
 ##### Example 4 - ugly code to redirect the output of one child process command to another one
@@ -1813,7 +1883,7 @@ end
 Now, here's the equivalent script written in Node.js using `spawn()`.
 
 ```typescript
-import { _also, Optional } from "../core-utils/kotlin-lang-utils"
+import { _also, ColorConsole, Optional, StyledColorConsole, Styles } from "r3bl-ts-utils"
 import * as fs from "fs"
 
 /**
@@ -1833,14 +1903,14 @@ export class SpawnCProcToReplaceFunctionalityOfFishScript {
     try {
       const isFound = await this.doesGnomeProfileContainLinuxbrewPath()
       if (isFound) {
-        console.log(
+        ColorConsole.create(Styles.Primary.green)(
           `Nothing to do, ${MyConstants.linuxbrewSearchTerm} is already in ${MyConstants.gnomeDotProfileFile}`
-        )
+        ).consoleLog()
         return
       }
       await this.addPathToGnomeProfileFile()
     } catch (e) {
-      console.error(`Error: ${e}`)
+      ColorConsole.create(Styles.Primary.red)(`Error: ${e}`).consoleError()
     }
   }
 
@@ -1868,13 +1938,13 @@ export class SpawnCProcToReplaceFunctionalityOfFishScript {
       .shift()
     const linuxbrewPath: string = overriddenLinuxbrewPath ?? MyConstants.defaultLinuxbrewPath
 
-    console.log(`linuxbrewPath: ${linuxbrewPath}`)
+    StyledColorConsole.Primary(`linuxbrewPath: ${linuxbrewPath}`).consoleLog()
 
     const snippetToAppend = `if [ -d "${linuxbrewPath}" ] ; then
   PATH="${linuxbrewPath}/bin:$PATH"
 fi`
 
-    console.log(`snippet: ${snippetToAppend}`)
+    StyledColorConsole.Primary(`snippet: ${snippetToAppend}`).consoleLog()
 
     return new Promise<void>((resolveFn, rejectFn) => {
       fs.appendFile(
@@ -1883,11 +1953,15 @@ fi`
         (err: NodeJS.ErrnoException | null) => {
           const _onErr = () => {
             rejectFn()
-            console.error(`Problem appending file ${MyConstants.gnomeDotProfileFile}`)
+            ColorConsole.create(Styles.Primary.red)(
+              `Problem appending file ${MyConstants.gnomeDotProfileFile}`
+            ).consoleError()
           }
           const _onOk = () => {
             resolveFn()
-            console.log(`Appended file ${MyConstants.gnomeDotProfileFile}`)
+            StyledColorConsole.Primary(
+              `Appended file ${MyConstants.gnomeDotProfileFile}`
+            ).consoleLog()
           }
           err ? _onErr() : _onOk()
         }

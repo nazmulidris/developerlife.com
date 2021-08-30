@@ -211,6 +211,20 @@ if test -d "somefolder"
 end
 ```
 
+Checking for file wildcard existence is a little different than both file and folder checks. The
+reason for this is how fish handles wildcards - they are expanded by fish before it performs
+whatever command on them.
+
+```bash
+set -l files ~/Downloads/*.mp4 # This wildcard expression is expanded to include the actual files
+if test (count $files) -gt 0
+  mv ~/Downloads/*.mp4 ~/Videos/
+  echo "📹 Moved '$files' to ~/Videos/"
+else
+  echo "⛔ No mp4 files found in Downloads"
+end
+```
+
 Here's an example of how to use the `not` operator in the previous example.
 
 ```bash

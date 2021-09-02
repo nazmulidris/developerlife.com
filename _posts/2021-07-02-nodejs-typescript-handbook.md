@@ -374,7 +374,11 @@ const foo = () => {
 foo()
 ```
 
-![Call stack for the code above](https://nodejs.dev/907f18a0288ad303ad59c035397a6f7e/call-stack-third-example.svg)
+![Call stack for the code above]({{'assets/call-stack-third-example.svg' | relative_url}})
+
+Here's
+[more info from nodejs.dev](https://github.com/nodejs/nodejs.dev/blob/main/src/documentation/0029-node-event-loop/index.md)
+on this.
 
 ## TypeScript and JavaScript language
 
@@ -1431,11 +1435,11 @@ conditions. Here's an example using a transform stream (which performs `gzip` co
 Here's a snippet that uses a `gzip` transform stream in between a read and write stream, with the
 use of backpressure, in other words:
 
-- `Reader(UncompressedFile)` -> `gzip` transform -> `Writer(NewCompressedFile)`
+`Reader(UncompressedFile)` -> `gzip` transform -> `Writer(NewCompressedFile)`
 
 Or:
 
-- `Reader(UncompressedFile)` | `gzip` transform | `Writer(NewCompressedFile)`
+`Reader(UncompressedFile)` `|` `gzip` transform `|` `Writer(NewCompressedFile)`
 
 Note - The promisified version of `pipline` on only works on Node.JS v15 and higher.
 

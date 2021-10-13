@@ -103,16 +103,19 @@ that is located on a similar path to the path that is in `$MINIMIA_HOME`,
 
 ## Overriding files in the base theme
 
-The interesting files are `./_sass/minima.scss` and `./_sass/styles.scss` (which is imported by the
-former).
+The interesting files are:
+
+1. [`minima.scss`](_sass/minima.scss)
+2. [`styles.scss`](_sass/styles.scss) (which is imported by the `minima.scss`)
+
+Notes:
 
 - If we provide our own copy of these files in a similar path in this repo, then they will simply be
   considered overrides by Jekyll when it builds the static site.
-- Think of this as operator overloading but for files. So if this file `./_sass/minima.scss` is
-  found in this repo, then it overrides the equivalent one in the "base" theme located in
-  `$MINIMA_HOME`.
-- Look at the bottom of the `./_sass/minima.scss` file and you will see imports that pull in
-  `styles.scss` and `syntax.scss`. The latter is used for syntax highlighting.
+- Think of this as operator overloading but for files. So if the `minima.scss` file is found in this
+  repo, then it overrides the equivalent one in the "base" theme located in `$MINIMA_HOME`.
+- Look at the bottom of the `minima.scss` file and you will see imports that pull in `styles.scss`
+  and `syntax.scss` (used for syntax highlighting).
 
 I've created a file `./_sass/minima.scss` which overrides the corresponding file in the base theme.
 This is where I do a lot of big customizations, like creating variables, and using `@import` to
@@ -170,8 +173,8 @@ the single `./_site/assets/main.css` file everytime Jekyll generates the static 
 
 ## How to customize syntax highlighting
 
-The file `./_sass/syntax.scss` actually contains all the syntax highlighting SCSS. This overrides
-whatever comes w/ minima (it does come w/ some defaults in
+The [`syntax.scss`](_sass/syntax.scss) file actually contains all the syntax highlighting SCSS. This
+overrides whatever comes w/ minima (it does come w/ some defaults in
 `$MINIMA_HOME/_sass/minima/_syntax-hihglihting.scss`). There's a repo called
 [`pygments-css`](https://github.com/richleland/pygments-css) which I simply copy from. In this repo,
 find the styling that you like, and just copy/paste the contents of that file into the `syntax.scss`

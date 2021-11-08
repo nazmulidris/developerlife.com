@@ -51,7 +51,7 @@ apps. IDEA Ultimate / Webstorm project files are provided.
 
 To get started w/ Ink v3 please checkout this [introductory article][1.5].
 
-> ### ⚠️ This isn't a reference for: React, Node.js, TypeScript, CSS
+> ### ⚠️ This isn't a reference for React, Node.js, TypeScript, or CSS
 >
 > Learn more about these topics on [developerlife.com][1.4]:
 >

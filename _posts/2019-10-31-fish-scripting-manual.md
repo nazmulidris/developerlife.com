@@ -16,6 +16,7 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [Shebang line at the top of your scripts](#shebang-line-at-the-top-of-your-scripts)
 - [How to set variables](#how-to-set-variables)
   - [Variable scopes: local, global, global-export](#variable-scopes-local-global-global-export)
   - [Lists](#lists)
@@ -48,6 +49,13 @@ categories:
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 Learn how to write fish shell scripts by example.
+
+## Shebang line at the top of your scripts
+
+To be able to run fish scripts from your terminal, you have to do two things.
+
+1. Add the following shebang line to the top of your script file: `#!/usr/bin/env fish`.
+2. Mark the file as executable using the following command: `chmod +x <YOUR_FISH_SCRIPT_FILENAME>`.
 
 ## How to set variables
 

@@ -22,8 +22,6 @@ categories:
 
 - [What is Ink](#what-is-ink)
 - [Build a CLI app using Ink and flexbox](#build-a-cli-app-using-ink-and-flexbox)
-  - [Use Ink host components](#use-ink-host-components)
-  - [Use flexbox styling](#use-flexbox-styling)
 - [Exploration of all the UI components](#exploration-of-all-the-ui-components)
   - [Text](#text)
   - [Box](#box)
@@ -69,6 +67,23 @@ To get started w/ Ink v3 please checkout this [introductory article][1.5].
 [1.4]: https://developerlife.com/category/Web/
 [1.5]: https://developerlife.com/2021/11/04/introduction-to-ink-v3/
 
+[2.1]: https://github.com/r3bl-org/r3bl-ts-utils/blob/3251cdf13f029da641c9e467dad513f9a27abc47/src/color-console-utils.ts#L99
+[2.2]: https://github.com/facebook/react/tree/main/packages/react-dom
+[2.3]: https://developerlife.com/2021/07/02/nodejs-typescript-handbook/#user-input-and-output-via-stdin-stdout
+[2.4]: https://github.com/facebook/yoga
+[2.5]: https://github.com/vadimdemedes/ink/blob/master/package.json
+[2.6]: https://github.com/facebook/litho
+[2.7]: https://youtu.be/CGpMlWVcHok
+[2.8]: https://github.com/facebook/react/tree/master/packages/react-reconciler
+[2.10]: https://blog.atulr.com/react-custom-renderer-1/
+[2.11]: https://facebook.github.io/react-native/
+[2.12]: https://github.com/Flipboard/react-canvas
+[2.13]: https://github.com/diegomura/react-pdf
+[2.14]: https://github.com/nitin42/redocx
+[2.15]: https://github.com/iamdustan/react-hardware
+[2.16]: https://youtu.be/ZCuYPiUIONs
+[2.17]: https://giamir.com/what-is-react-fiber
+
 <!-- prettier-ignore-end -->
 
 ---
@@ -82,8 +97,8 @@ With it, you can make CLI apps that look like this:
 
 <img src="{{ 'assets/ink-demo.svg' | relative_url }}"/>
 
-Ink supplies its own [host](#react-core-renderer-reconciler) UI components (eg: `<Text>`) which has
-nothing to do w/ [react-dom][2.2] host components that come out of the box (eg: `<img>`) w/ React.
+Ink supplies its own [host][1.5] UI components (eg: `<Text>`) which has nothing to do w/
+[react-dom][2.2] host components that come out of the box (eg: `<img>`) w/ React.
 
 Ink supplied host UI components are rendered to a terminal based UI by using:
 
@@ -95,6 +110,16 @@ Ink supplied host UI components are rendered to a terminal based UI by using:
 3. You can take a look at the dependencies that Ink has in its [`package.json`][2.5]. It relies on
    packages like: `chalk`, `cli-boxes`, `cli-cursor`, `yoga-layout-prebuilt`, `react-reconciler`,
    `react-devtools-core`.
+
+<!-- prettier-ignore-start -->
+
+[1.1]: https://developerlife.com/2021/07/02/nodejs-typescript-handbook/
+[1.2]: https://developerlife.com/2021/10/19/react-hooks-redux-typescript-handbook/
+[1.3]: https://developerlife.com/2021/10/19/css-responsive-design-handbook/
+[1.4]: https://developerlife.com/category/Web/
+[1.5]: https://developerlife.com/2021/11/04/introduction-to-ink-v3/#react-core-renderer-reconciler
+
+<!-- prettier-ignore-end -->
 
 ---
 
@@ -113,17 +138,10 @@ There are 2 main TSX files we need to look at to get started.
 2. `source/ui.tsx` - We use React and Ink host components in this file to define the `App` component
    which takes props that correspond to the values which are passed into the command line above.
 
-### Use Ink host components
-
 ```yaml
 🔥TODO:
+  - Create an app that does the following
   - Make some simple UI that uses functional components and hooks (maybe Redux)
-```
-
-### Use flexbox styling
-
-```yaml
-🔥TODO:
   - Use flexbox styling in this app
 ```
 

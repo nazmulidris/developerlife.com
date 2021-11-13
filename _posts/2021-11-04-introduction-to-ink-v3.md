@@ -923,7 +923,7 @@ there yet).
 
    import React from "react"
    import { render } from "ink"
-   import App from "./ui.js"
+   import App from "./ui"
    import { _let } from "r3bl-ts-utils"
    import { Command } from "commander"
 
@@ -960,47 +960,41 @@ installed.
 $ npm i -D jest ts-jest ts-node @types/jest
 ```
 
-Then we need a new `jest.config.cjs` file.
+Then we need a new `jestconfig.json` file.
 
-> ⚠ Currently (as of Node v17.0.1) there are some serious issues when using Jest (v27.3.1) and
-> [ESM](https://jestjs.io/docs/ecmascript-modules).
->
-> When a node module is marked as `"type": "module"` in `package.json`, and `tsconfig.json` is
-> updated w/ `compilerOptions` that generate ESM code (which means that `import` & `export` is used
-> instead of `module.exports` & `require`, then a lot of existing libraries like Jest have issues
-> loading their own TS config files correctly!
->
-> These libraries tend to use `require` at their boot up sequence assuming their config files are
-> written in CJS (CommonJS modules) which then fails because we are using TS files which are
-> compiled to EJM (which means `require` can't be used). Yikes! 😮
->
-> This is a fantastic
-> [issue in the jest repo](https://github.com/facebook/jest/issues/11453#issuecomment-850977379)
-> that gets to the heart of what is going wrong. The issue is great and the comments are great, w/
-> the `ts-jest` author chiming in. And a very simple workaround is provided there as well in a
-> comment.
->
-> TL;DR: These issues will be resolved as ESM support in Node.js and the ecosystem matures. And for
-> now, an effective workaround is to use a `cjs` file instead of a `ts` file for `jest.config`. This
-> bypasses our TS code generation to ESM altogether.
-
-```javascript
-module.exports = {
-  preset: "ts-jest", // Tell Jest to use `ts-jest` plugin.
-  testEnvironment: "node", // Execution environment (can't be `ts-node`).
-  testMatch: ["<rootDir>/**/*.test.ts"], // Test files must end in `*.test.ts`.
-  testPathIgnorePatterns: ["/node_modules/"], // Don't search for tests inside `node_modules`.
-  extensionsToTreatAsEsm: [".ts"], // ESM Support for ts-jest.
-  globals: {
-    "ts-jest": {
-      useESM: true,
+```json
+{
+  "#comments": [
+    "https://jestjs.io/docs/configuration#projects-arraystring--projectconfig",
+    "https://jestjs.io/docs/configuration#testenvironment-string",
+    "https://gist.github.com/thebuilder/15a084f74b1c6a1f163fc6254ad5a5ba"
+  ],
+  "projects": [
+    {
+      "displayName": "node  (default project)",
+      "transform": {
+        "^.+\\.(t|j)sx?$": "ts-jest"
+      },
+      "testEnvironment": "node",
+      "testMatch": ["**/__tests__/**/*.test.ts?(x)"]
     },
-  },
-  moduleNameMapper: {
-    "^(\\.{1,2}/.*)\\.js$": "$1",
-  },
+    {
+      "displayName": "jsdom (browser project)",
+      "transform": {
+        "^.+\\.(t|j)sx?$": "ts-jest"
+      },
+      "testEnvironment": "jsdom",
+      "testMatch": ["**/__tests__/**/*.test.jsdom.ts?(x)"]
+    }
+  ]
 }
 ```
+
+> 💡 We have setup two projects in the `jestconfig.json` file above. Depending on the code we want
+> to test, it might expect to run in a browser environment or in node. By default tests will run in
+> the `node` test environment. If a test is named `*.test.jsdom.ts(x)` then it will be run in a
+> `jsdom` test environment (which emulates a browser environment w/ a pure JS implementation of DOM
+> and BOM that is headless).
 
 Finally, here's a simple test `ui.test.ts` that uses
 [`ink-testing-library`](https://github.com/vadimdemedes/ink-testing-library) to create the UI test.
@@ -1009,7 +1003,7 @@ Finally, here's a simple test `ui.test.ts` that uses
 import React from "react"
 import chalk from "chalk"
 import { render } from "ink-testing-library"
-import App from "../ui.js"
+import App from "../ui"
 
 describe("ink test suite", () => {
   test("greet unknown user", () => {

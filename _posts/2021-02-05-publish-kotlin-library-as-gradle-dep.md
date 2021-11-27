@@ -16,7 +16,7 @@ categories:
 
 - [Introduction](#introduction)
 - [Using JitPack (much simpler, and the way to go for public dependencies)](#using-jitpack-much-simpler-and-the-way-to-go-for-public-dependencies)
-  - [Publish and build it](#publish-and-build-it)
+  - [Publish this dependency to JitPack](#publish-this-dependency-to-jitpack)
   - [Import and use it](#import-and-use-it)
 - [Using GitHub Package Registry (complex and has authentication issues for public dependencies)](#using-github-package-registry-complex-and-has-authentication-issues-for-public-dependencies)
   - [Create a new GitHub repo for the actual code of the library](#create-a-new-github-repo-for-the-actual-code-of-the-library)
@@ -52,18 +52,79 @@ This could not be any easier. It's really a 2 step process, once you have your l
 gradle and its git repo pushed into GitHub, eg
 [`color-console`](https://github.com/nazmulidris/color-console/).
 
-### Publish and build it
+### Publish this dependency to JitPack
 
-1. Make sure to create a new release for your dependency, eg:
-   [v1.0.0](https://github.com/nazmulidris/color-console/releases/tag/1.0.0).
-2. Visit [jitpack.com](https://jitpack.io/#nazmulidris/color-console/1.0.0) and type
-   `nazmulidris/color-console` into the text box at the top of the page, and click on "Look up".
-   This will start the import of your gradle repo into JitPack and it will build it (using
-   `build.gradle` or `build.gradle.kts` just like you would on your local machine). There are no
-   special steps or things you have to add to your build file! Once the build process is complete
-   you will see that the
-   [logs](https://jitpack.io/com/github/nazmulidris/color-console/1.0.0/build.log) are published and
-   your dependency is ready to be used. It is that simple.
+Ensure that the `maven-publish` plugin is imported in `build.gradle.kts`.
+
+```kotlin
+plugins {
+  java
+  kotlin("jvm") version "1.6.0"
+  `maven-publish`
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  implementation(kotlin("stdlib-jdk8"))
+  testImplementation("junit", "junit", "4.12")
+}
+
+tasks {
+  compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+  }
+  compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+  }
+}
+
+publishing {
+  publications {
+    create<MavenPublication>("maven") {
+      groupId = "com.developerlife"
+      artifactId = "color-console"
+      version = "1.0.1"
+
+      from(components["java"])
+    }
+  }
+}
+```
+
+Before you can publish this library, make sure that you can run the following commands. This will
+ensure that JitPack can build this repo using gradle.
+
+```shell
+./gradlew clean
+./gradlew build
+./gradlew build publishToMavenLocal
+```
+
+> ⚠ Note that w/out the `publishing` section of `build.gradle.kts` you will get an error from
+> JitPack even though the `./gradlew build publishToMavenLocal` will work. This error will say
+> `ERROR: No build artifacts found`.
+> [More info](https://sami.eljabali.org/how-to-publish-a-kotlin-library-to-jitpack/#:~:text=without%20the%20above%2C%20jitpack%20will%20down%20the%20line%20show%20in%20your%20build%20log%20error%3A%20no%20build%20artifacts%20found%2C%20while%20building%20fine).
+
+In order to publish this repo to JitPack you have to do the following things.
+
+1. Make the changes that you want the repo, and commit and push it. Also, make sure that the library
+   can be built by JitPack using the command shown above.
+2. Get all the tags for this repo from GitHub using `git pull origin`. Then you can list the
+   available tags using `git tag -l`.
+3. Create a new tag. To create a new tag run this command `git tag <TAG_NAME>`, where `<TAG_NAME>`
+   could be something like `1.0.1`. Just make sure not to clobber any existing tag name.
+4. Publish the tag to GitHub using the following command `git push --tags`.
+5. Finally create a new Release for this tag using
+   [GitHub web interface](https://github.com/nazmulidris/color-console/releases).
+
+> ⚡ Note, to delete a tag from GitHub you can run this command
+> `git push --delete origin <TAG_NAME> ; git pull origin`. You can delete a tag from your local repo
+> using `git tag -d <TAG_NAME>; git push origin --tags`. You can't manage releases though, which
+> require the use of the GitHub web UI. Here's
+> [more info](https://git-scm.com/book/en/v2/Git-Basics-Tagging) on git tagging.
 
 ### Import and use it
 

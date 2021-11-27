@@ -39,43 +39,25 @@ categories:
 This article is an advanced guide to using Ink v3.2.0 (with TypeScript and React) to create CLI
 apps. IDEA Ultimate / Webstorm project files are provided.
 
-To get started w/ Ink v3 please checkout this [introductory article][1.5].
+To get started w/ Ink v3 please checkout this [introductory article][0.1].
 
 > ### ⚠️ This isn't a reference for React, Node.js, TypeScript, or CSS
 >
-> Learn more about these topics on [developerlife.com][1.4]:
+> Learn more about these topics on [developerlife.com][0.2]:
 >
 > | Resource                    | Notes                                                    |
 > | --------------------------- | -------------------------------------------------------- |
-> | [Node.js handbook][1.1]     | Learn Node.js w/ TypeScript                              |
-> | [React Hooks handbook][1.2] | Learn React, Redux, and Testing w/ TypeScript            |
-> | [CSS handbook][1.3]         | Learn CSS, grid, flexbox, to implement responsive design |
+> | [Node.js handbook][0.3]     | Learn Node.js w/ TypeScript                              |
+> | [React Hooks handbook][0.4] | Learn React, Redux, and Testing w/ TypeScript            |
+> | [CSS handbook][0.5]         | Learn CSS, grid, flexbox, to implement responsive design |
 
 <!-- prettier-ignore-start -->
 
-[1.1]: https://developerlife.com/2021/07/02/nodejs-typescript-handbook/
-[1.2]: https://developerlife.com/2021/10/19/react-hooks-redux-typescript-handbook/
-[1.3]: https://developerlife.com/2021/10/19/css-responsive-design-handbook/
-[1.4]: https://developerlife.com/category/Web/
-[1.5]: https://developerlife.com/2021/11/04/introduction-to-ink-v3/
-[1.6]: https://developerlife.com/2017/04/26/flexbox-layouts-and-lists-with-react-native/
-
-[2.1]: https://github.com/r3bl-org/r3bl-ts-utils/blob/3251cdf13f029da641c9e467dad513f9a27abc47/src/color-console-utils.ts#L99
-[2.2]: https://github.com/facebook/react/tree/main/packages/react-dom
-[2.3]: https://developerlife.com/2021/07/02/nodejs-typescript-handbook/#user-input-and-output-via-stdin-stdout
-[2.4]: https://github.com/facebook/yoga
-[2.5]: https://github.com/vadimdemedes/ink/blob/master/package.json
-[2.6]: https://github.com/facebook/litho
-[2.7]: https://youtu.be/CGpMlWVcHok
-[2.8]: https://github.com/facebook/react/tree/master/packages/react-reconciler
-[2.10]: https://blog.atulr.com/react-custom-renderer-1/
-[2.11]: https://facebook.github.io/react-native/
-[2.12]: https://github.com/Flipboard/react-canvas
-[2.13]: https://github.com/diegomura/react-pdf
-[2.14]: https://github.com/nitin42/redocx
-[2.15]: https://github.com/iamdustan/react-hardware
-[2.16]: https://youtu.be/ZCuYPiUIONs
-[2.17]: https://giamir.com/what-is-react-fiber
+[0.1]: https://developerlife.com/2021/11/04/introduction-to-ink-v3/
+[0.2]: https://developerlife.com/category/Web/
+[0.3]: https://developerlife.com/2021/07/02/nodejs-typescript-handbook/
+[0.4]: https://developerlife.com/2021/10/19/react-hooks-redux-typescript-handbook/
+[0.5]: https://developerlife.com/2021/10/19/css-responsive-design-handbook/
 
 <!-- prettier-ignore-end -->
 
@@ -113,6 +95,23 @@ Ink supplied host UI components are rendered to a terminal based UI by using:
 [1.5]: https://developerlife.com/2021/11/04/introduction-to-ink-v3/#react-core-renderer-reconciler
 [1.6]: https://github.com/nazmulidris/ts-ink-template/blob/main/README.md
 [1.7]: https://github.com/nazmulidris/ts-ink-template/blob/main/README.md#npm-scripts
+
+[2.1]: https://github.com/r3bl-org/r3bl-ts-utils/blob/3251cdf13f029da641c9e467dad513f9a27abc47/src/color-console-utils.ts#L99
+[2.2]: https://github.com/facebook/react/tree/main/packages/react-dom
+[2.3]: https://developerlife.com/2021/07/02/nodejs-typescript-handbook/#user-input-and-output-via-stdin-stdout
+[2.4]: https://github.com/facebook/yoga
+[2.5]: https://github.com/vadimdemedes/ink/blob/master/package.json
+[2.6]: https://github.com/facebook/litho
+[2.7]: https://youtu.be/CGpMlWVcHok
+[2.8]: https://github.com/facebook/react/tree/master/packages/react-reconciler
+[2.10]: https://blog.atulr.com/react-custom-renderer-1/
+[2.11]: https://facebook.github.io/react-native/
+[2.12]: https://github.com/Flipboard/react-canvas
+[2.13]: https://github.com/diegomura/react-pdf
+[2.14]: https://github.com/nitin42/redocx
+[2.15]: https://github.com/iamdustan/react-hardware
+[2.16]: https://youtu.be/ZCuYPiUIONs
+[2.17]: https://giamir.com/what-is-react-fiber
 
 <!-- prettier-ignore-end -->
 

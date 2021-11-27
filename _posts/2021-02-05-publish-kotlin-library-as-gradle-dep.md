@@ -77,6 +77,7 @@ to your `build.gradle` or `build.gradle.kts` file.
    For `build.gradle`:
 
    ```groovy
+   repositories {
      repositories {maven { url 'https://jitpack.io' }}
    }
    ```

@@ -15,10 +15,14 @@ categories:
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Introduction](#introduction)
-- [Using JitPack (much simpler, and the way to go for public dependencies)](#using-jitpack-much-simpler-and-the-way-to-go-for-public-dependencies)
-  - [Publish this dependency to JitPack](#publish-this-dependency-to-jitpack)
+- [Using JitPack 👍](#using-jitpack-)
+  - [Publish a dependency to JitPack](#publish-a-dependency-to-jitpack)
+  - [maven-publish plugin](#maven-publish-plugin)
+  - [publishing, groupId, artifactId, version](#publishing-groupid-artifactid-version)
+  - [Build & publish locally first](#build--publish-locally-first)
+  - [Prepare a release & publish](#prepare-a-release--publish)
   - [Import and use it](#import-and-use-it)
-- [Using GitHub Package Registry (complex and has authentication issues for public dependencies)](#using-github-package-registry-complex-and-has-authentication-issues-for-public-dependencies)
+- [Using GitHub Package Registry (GPR) 👎](#using-github-package-registry-gpr-)
   - [Create a new GitHub repo for the actual code of the library](#create-a-new-github-repo-for-the-actual-code-of-the-library)
   - [Generate the personal access tokens that will be needed to publish and import](#generate-the-personal-access-tokens-that-will-be-needed-to-publish-and-import)
   - [Add GitHub Package Registry support to the build script so that the package can be published](#add-github-package-registry-support-to-the-build-script-so-that-the-package-can-be-published)
@@ -46,13 +50,19 @@ In this tutorial I will create the `color-console` library that allows console m
 colorized using ANSI color codes. Here is the end result snippet that we are looking to enable for
 our `color-console` library.
 
-## Using JitPack (much simpler, and the way to go for public dependencies)
+## Using JitPack 👍
+
+> ✨ This is much simpler than [GPR](#using-github-package-registry-gpr-) and the way to go for
+> public dependencies.
 
 This could not be any easier. It's really a 2 step process, once you have your library built with
-gradle and its git repo pushed into GitHub, eg
+gradle and its git repo pushed into GitHub. Let's use the following Kotlin library that's published
+via JitPack as an example for this article:
 [`color-console`](https://github.com/nazmulidris/color-console/).
 
-### Publish this dependency to JitPack
+### Publish a dependency to JitPack
+
+### maven-publish plugin
 
 Ensure that the `maven-publish` plugin is imported in `build.gradle.kts`.
 
@@ -94,6 +104,81 @@ publishing {
 }
 ```
 
+### publishing, groupId, artifactId, version
+
+Without the `publishing` rule of `build.gradle.kts` you will get an error from JitPack even though
+the `./gradlew build publishToMavenLocal` will work. This error will say
+`ERROR: No build artifacts found`. Checkout [this tutorial][2021-11-30.jp] for more info on this.
+
+Even though the `groupId`, `artifactId`, `version` are specified inside the `publishing` rule above
+it doesn't really get applied to the final artifact served up by JitPack. JitPack renames these
+artifacts to something that reflects that they originated from `github.com` and the user
+`nazmulidris`.
+
+So the `dependencies` statement you find in a project's Gradle build file that depends on this
+library doesn't match the identifiers specified in this rule:
+`dependencies { implementation 'com.github.nazmulidris:color-console:Tag' }`. The following is
+sanitized snippet from the [build log][2021-11-30.log] that JitPack generates that shows this
+happening.
+
+<!-- prettier-ignore-start -->
+
+[2021-11-30.jp]: https://sami.eljabali.org/how-to-publish-a-kotlin-library-to-jitpack/#:~:text=without%20the%20above%2C%20jitpack%20will%20down%20the%20line%20show%20in%20your%20build%20log%20error%3A%20no%20build%20artifacts%20found%2C%20while%20building%20fine
+[2021-11-30.log]: https://jitpack.io/com/github/nazmulidris/color-console/1.0.1/build.log
+
+<!-- prettier-ignore-end -->
+
+```text
+------------------------------------------------------------
+Gradle 7.0
+------------------------------------------------------------
+Build time:   2021-04-09 22:27:31 UTC
+Revision:     d5661e3f0e07a8caff705f1badf79fb5df8022c4
+
+Kotlin:       1.4.31
+Groovy:       3.0.7
+Ant:          Apache Ant(TM) version 1.10.9 compiled on September 27 2020
+JVM:          1.8.0_252 (Private Build 25.252-b09)
+OS:           Linux 4.18.0-25-generic amd64
+
+Getting tasks: ./gradlew tasks --all
+> Task :clean UP-TO-DATE
+> Task :compileKotlin
+> Task :compileJava NO-SOURCE
+> Task :processResources NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :inspectClassesForKotlinIC
+> Task :jar
+> Task :assemble
+> Task :check
+> Task :build
+> Task :generateMetadataFileForMavenPublication
+> Task :generatePomFileForMavenPublication
+> Task :publishMavenPublicationToMavenLocal
+> Task :publishToMavenLocal
+
+BUILD SUCCESSFUL in 7s
+7 actionable tasks: 6 executed, 1 up-to-date
+Looking for artifacts...
+Looking for pom.xml in build directory and ~/.m2
+Found artifact: com.developerlife:color-console:1.0.1
+
+Build artifacts:
+com.github.nazmulidris:color-console:1.0.1
+
+Files:
+com/github/nazmulidris/color-console/1.0.1
+com/github/nazmulidris/color-console/1.0.1/build.log
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1-sources.jar
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1.jar
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1.module
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1.pom
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1.pom.md5
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1.pom.sha1
+```
+
+### Build & publish locally first
+
 Before you can publish this library, make sure that you can run the following commands, that ensure
 that JitPack can build this repo using gradle.
 
@@ -103,10 +188,7 @@ that JitPack can build this repo using gradle.
 ./gradlew build publishToMavenLocal
 ```
 
-> ⚠ Note that w/out the `publishing` section of `build.gradle.kts` you will get an error from
-> JitPack even though the `./gradlew build publishToMavenLocal` will work. This error will say
-> `ERROR: No build artifacts found`.
-> [More info](https://sami.eljabali.org/how-to-publish-a-kotlin-library-to-jitpack/#:~:text=without%20the%20above%2C%20jitpack%20will%20down%20the%20line%20show%20in%20your%20build%20log%20error%3A%20no%20build%20artifacts%20found%2C%20while%20building%20fine).
+### Prepare a release & publish
 
 In order to publish this repo to JitPack you have to do the following things.
 
@@ -176,7 +258,16 @@ Information about this dependency on JitPack:
 - You can find the JitPack build logs
   [here](https://jitpack.io/com/github/nazmulidris/color-console/1.0.0/build.log)
 
-## Using GitHub Package Registry (complex and has authentication issues for public dependencies)
+## Using GitHub Package Registry (GPR) 👎
+
+> ⚠ GPR is complex and has authentication issues for public dependencies. People are [really
+> unhappy][2021-11-30.gpr] about this.
+
+<!-- prettier-ignore-start -->
+
+[2021-11-30.gpr]: https://github.community/t/download-from-github-package-registry-without-authentication/14407
+
+<!-- prettier-ignore-end -->
 
 Desired snippet for `build.gradle.kts` (using Kotlin DSL):
 
@@ -385,4 +476,5 @@ dependencies {
 - [Tutorial on using GitHub Package Registry to import something from GitHub Package Registry](https://ppulikal.medium.com/publishing-android-libraries-to-the-github-package-registry-part-2-3c5aab31f477)
 - [Full `build.gradle.kts` example for tutorial above](https://gist.github.com/prasad79/523cfea10a3748992c8d1cb3fc04eda5)
 - [Discussion about why it is bad to need a token to import packages](https://github.community/t/download-from-github-package-registry-without-authentication/14407/44)
-- [Discussion about Kotlin versions and the DSL to publish packages](https://github.community/t/how-to-configure-gradle-github-package-registry-maven/14247/9)
+- [Discussion about Kotlin versions and the DSL to publish
+  packages](https://github.community/t/how-to-configure-gradle-github-package-registry-maven/14247/9

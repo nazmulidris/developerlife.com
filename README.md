@@ -11,6 +11,7 @@
   - [Overriding files in the base theme](#overriding-files-in-the-base-theme)
   - [How to customize syntax highlighting](#how-to-customize-syntax-highlighting)
   - [Documentation and references on Jekyll styling, minima customization, and SASS](#documentation-and-references-on-jekyll-styling-minima-customization-and-sass)
+- [Add support for mermaid diagrams](#add-support-for-mermaid-diagrams)
 - [References](#references)
   - [Running github pages locally](#running-github-pages-locally)
   - [More info on Jekyll and Liquid](#more-info-on-jekyll-and-liquid)
@@ -26,20 +27,20 @@ To use Rails on macOS, you’ll need Ruby (an interpreter for the Ruby programmi
 (software libraries) containing the Rails web application development framework. Run the following
 commands in your terminal app.
 
-1.  `xcode-select --install`
-1.  `brew install ruby`
-1.  Go to the folder in which you've cloned this repo
-    1.  run `bundle install` ⇢ like `npm install`, and will download deps
-    1.  and run `jekyll serve`⇢ like `npm run serve`, will launch server
+1. `xcode-select --install`
+1. `brew install ruby`
+1. Go to the folder in which you've cloned this repo
+1. run `bundle install` ⇢ like `npm install`, and will download deps
+1. and run `jekyll serve`⇢ like `npm run serve`, will launch server
 
 ## Creating a new project using Jekyll
 
-1.  In order to create a new project using Jekyll
-    1.  Go to a folder that you want to create your new website under, eg `~/github/`
-    1.  Run `jekyll new jekyll_test`
-        1.  Your new site will be created in `~/github/jekyll_test`
-        1.  Run `jekyll serve` to run it
-    1.  Point your web browser to `http://localhost:4000`
+1. In order to create a new project using Jekyll
+1. Go to a folder that you want to create your new website under, eg `~/github/`
+1. Run `jekyll new jekyll_test`
+1. Your new site will be created in `~/github/jekyll_test`
+1. Run `jekyll serve` to run it
+1. Point your web browser to `http://localhost:4000`
 
 # I have Jekyll and Ruby installed, and want to run this project
 
@@ -47,9 +48,9 @@ commands in your terminal app.
 
 After you clone the repo, go the `jekyll_test` folder, and
 
-1.  Run `bundler` → Takes the `Gemfile` imports and installs them
-1.  Run `jekyll serve` → Builds the static site and serves it on port 4000
-1.  Open `http://localhost:4000` in your browser
+1. Run `bundler` → Takes the `Gemfile` imports and installs them
+1. Run `jekyll serve` → Builds the static site and serves it on port 4000
+1. Open `http://localhost:4000` in your browser
 
 # RSS Readers and hero-image handling
 
@@ -152,22 +153,46 @@ the single `./_site/assets/main.css` file everytime Jekyll generates the static 
 
 ```css
 {
-    "version": 3,
-    "file": "main.css",
-    "sources": [
-        "main.scss",
-        "_sass/minima.scss",
-        "_sass/minima/_base.scss",
-        "_sass/minima/_layout.scss",
-        "_sass/syntax.scss",
-        "_sass/styles.scss"
-    ],
-    "sourcesContent": [
-        "@import \"minima\";\n",
-        "@charset \"utf-8\";\n\n@font-face {\n  font-family: \"JetBrains Mono\";\n ..."
-    ],
-    "names": [],
-    "mappings": "ACEA,UAAU,..."
+"version"
+:
+3
+,
+"file"
+:
+"main.css"
+,
+"sources"
+:
+[
+"main.scss"
+,
+"_sass/minima.scss"
+,
+"_sass/minima/_base.scss"
+,
+"_sass/minima/_layout.scss"
+,
+"_sass/syntax.scss"
+,
+"_sass/styles.scss"
+]
+,
+"sourcesContent"
+:
+[
+"@import \"minima\";\n"
+,
+"@charset \"utf-8\";\n\n@font-face {\n  font-family: \"JetBrains Mono\";\n ..."
+]
+,
+"names"
+:
+[
+]
+,
+"mappings"
+:
+"ACEA,UAAU,..."
 }
 ```
 
@@ -187,6 +212,62 @@ site.
 - [Minima docs](https://github.com/jekyll/minima)
 - [Tutorial on customization](https://ouyi.github.io/post/2017/12/23/jekyll-customization.html)
 - [SASS basics](https://sass-lang.com/guide)
+
+# Add support for mermaid diagrams
+
+More info on mermaid
+
+- [mermaid install guide](https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md)
+- [mermaid theming guide](https://mermaid-js.github.io/mermaid/#/theming)
+- [mermaid live editor](https://mermaid.live/edit)
+
+To add mermaid diagrams to markdown files on the site, you add snippets like the following.
+
+```
+<div class="mermaid">
+  graph TD
+    A[Christmas] -->|Get money| B(Go shopping)
+    B --> C{Let me think}
+    B --> G[/Another/]
+    C ==>|One| D[Laptop]
+    C -->|Two| E[iPhone]
+    C -->|Three| F[fa:fa-car Car]
+    subgraph section
+      C
+      D
+      E
+      F
+      G
+    end
+</div>
+```
+
+By default, the dark theme, font, and color overrides are provided in
+[`mermaid.html`](_includes/mermaid.html). If you wish to override them you can do as follows (some
+of these theme variables don't work in overrides via `%%{init:...}%%` or specifying them in
+`mermaid.initialize(...)` block). Here's a snippet that overrides the default them and font family.
+
+```
+<div class="mermaid">
+%%{init: {'theme': 'dark', 'themeVariables': { 'fontFamily': 'Fira Mono'}}}%%
+  sequenceDiagram
+    autonumber
+    participant created_not_running
+    created_not_running ->> running: startTicking()
+    activate running
+    participant running
+    rect rgb(83, 82, 101, 0.25)
+      loop ticking
+        running ->> running: onTick()
+      end
+    end
+    running ->> stopped: stopTicking()
+    alt duration is set
+      running ->> stopped: duration has passed
+    end
+    deactivate running
+</div>
+```
 
 # References
 
@@ -213,8 +294,8 @@ bump to getting a new person excited about tech.
 
 You might say, "I'm all for not using master in master-slave technical relationships, but this is
 clearly an instance of master-copy, not master-slave"
-[but that may not be the case](https://mail.gnome.org/archives/desktop-devel-list/2019-May/msg00066.html).
-Turns out the original usage of master in Git very likely came from another version control system
+[but that may not be the case](https://mail.gnome.org/archives/desktop-devel-list/2019-May/msg00066.html)
+. Turns out the original usage of master in Git very likely came from another version control system
 (BitKeeper) that explicitly had a notion of slave branches.
 
 - https://dev.to/lukeocodes/change-git-s-default-branch-from-master-19le

@@ -50,6 +50,12 @@ Project Loom would have helped w/ this throughput issue! However, it didn't exis
 Loom proposes the creation of new lightweight threads inside the JVM that are not peers to OS
 threads. They are sometimes referred to as green threads (from the old JDK days).
 
+> ✨ Here are some great resources on Project Loom (as of Dec 2021).
+>
+> 1. [On Parallelism & Concurrency](https://inside.java/2021/11/30/on-parallelism-and-concurrency/)
+> 2. [Structured Concurrency](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/)
+> 3. [Structured Concurrency for Java](https://openjdk.java.net/jeps/8277129)
+
 ## Overview of the code in this project
 
 The project implements a simple multithreaded server and client. The server simply waits for a

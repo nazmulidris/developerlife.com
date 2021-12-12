@@ -21,15 +21,14 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [Introduction](#introduction)
 - [What is Ink](#what-is-ink)
-- [Examples from the ink repo](#examples-from-the-ink-repo)
+- [Items covered in this article](#items-covered-in-this-article)
 - [Small example #1](#small-example-1)
 - [Medium size example #2](#medium-size-example-2)
 - [Large example #3](#large-example-3)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
----
 
 ## Introduction
 
@@ -116,7 +115,7 @@ Ink supplied host UI components are rendered to a terminal based UI by using:
 
 ---
 
-## Examples from the ink repo
+## Items covered in this article
 
 There are a wealth of examples that you can find in the
 [ink repo](https://github.com/nazmulidris/ink/tree/master/examples) itself. I suggest browsing

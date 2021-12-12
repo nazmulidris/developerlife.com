@@ -20,6 +20,7 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [Introduction](#introduction)
 - [What is Ink](#what-is-ink)
 - [Use the template to get a bare-bones CLI app](#use-the-template-to-get-a-bare-bones-cli-app)
 - [Build a CLI app using Ink and flexbox w/ Redux](#build-a-cli-app-using-ink-and-flexbox-w-redux)
@@ -31,8 +32,6 @@ categories:
   - [Tests](#tests)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
----
 
 ## Introduction
 

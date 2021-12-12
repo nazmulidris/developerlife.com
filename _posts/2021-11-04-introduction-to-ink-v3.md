@@ -20,6 +20,7 @@ categories:
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [Introduction](#introduction)
 - [What is Ink](#what-is-ink)
 - [React core, renderer, reconciler](#react-core-renderer-reconciler)
 - [Create Ink project with TypeScript](#create-ink-project-with-typescript)
@@ -52,8 +53,6 @@ categories:
   - [Use Jest for testing](#use-jest-for-testing)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
----
 
 ## Introduction
 

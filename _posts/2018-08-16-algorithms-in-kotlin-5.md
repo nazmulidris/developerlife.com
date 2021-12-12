@@ -66,7 +66,7 @@ command line.
 ## Undirected graphs
 
 Here's code in Kotlin that describes undirected graphs with an adjacency list to represent the
-edges. For more info, checkout this
+edges. For more info, check out this
 [website](https://www.geeksforgeeks.org/graph-and-its-representations/).
 
 - The adjacency list is stored in a `HashMap`, which holds a `HashSet` of nodes.

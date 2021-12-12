@@ -183,7 +183,7 @@ executeTaskOnPermissionGranted(
     })
 ```
 
-For a complete listing of sources in a real world example that uses this please checkout the
+For a complete listing of sources in a real world example that uses this please check out the
 following links.
 
 1. [Permissions.kt](https://github.com/nazmulidris/places-api-poc/blob/main/app/src/main/kotlin/com/google/api/places/places_api_poc/misc/Permissions.kt)

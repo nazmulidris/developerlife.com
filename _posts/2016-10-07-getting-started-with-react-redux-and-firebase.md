@@ -104,7 +104,7 @@ You will find the following packages in the `src` folder:
 - `server` – this folder holds all the server code (spawns Websocket, HTTP server, etc).
 
 Note that Typescript now works in any of the `client/` folders. So you can create TSX files (React
-Files that use Typescript). An example is provided in `test.tsx` that you can checkout for yourself
+Files that use Typescript). An example is provided in `test.tsx` that you can check out for yourself
 in the code.
 
 ## Redux

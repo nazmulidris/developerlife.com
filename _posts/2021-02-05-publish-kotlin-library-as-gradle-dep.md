@@ -108,7 +108,7 @@ publishing {
 
 Without the `publishing` rule of `build.gradle.kts` you will get an error from JitPack even though
 the `./gradlew build publishToMavenLocal` will work. This error will say
-`ERROR: No build artifacts found`. Checkout [this tutorial][2021-11-30.jp] for more info on this.
+`ERROR: No build artifacts found`. Check out [this tutorial][2021-11-30.jp] for more info on this.
 
 Even though the `groupId`, `artifactId`, `version` are specified inside the `publishing` rule above
 it doesn't really get applied to the final artifact served up by JitPack. JitPack renames these

@@ -434,7 +434,7 @@ In app navigation is a really important thing to get right for the UX of an app.
 feel lost and helpless in the app, and navigation is a great way for them to know where they are in
 the app. For you developers out there who want to get more design savvy, check out my old show in
 the Google Android developers channel - [http://bit.ly/uxdplaylist](http://bit.ly/uxdplaylist). And
-you can also checkout a Udacity class I did for mobile developers to get into mobile design here -
+you can also check out a Udacity class I did for mobile developers to get into mobile design here -
 [http://bit.ly/uxdclass](http://bit.ly/uxdclass).
 
 Our sample app is supposed to be a weather app with 4 screens. To keep things simple, I've left out
@@ -499,7 +499,7 @@ there is a direct mapping between the navigation hierarchy and the code, which i
 using React Navigation. It's incredibly powerful and elegant and simple to use.
 
 If you're not familiar with React Native navigators, please
-[checkout my tutorial on getting started with React Native](https://developerlife.com/2017/03/31/getting-started-with-react-native/)
+[check out my tutorial on getting started with React Native](https://developerlife.com/2017/03/31/getting-started-with-react-native/)
 where I talk about routes, and using the navigation object to push and pop routes. Just like
 [OG Navigator](https://developerlife.com/2017/03/31/getting-started-with-react-native/), you have to
 define all the Routes in your application. So regardless of what type of navigator you are using

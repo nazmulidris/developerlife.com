@@ -39,7 +39,7 @@ categories:
 This article is an advanced guide to using Ink v3.2.0 (with TypeScript and React) to create CLI
 apps. IDEA Ultimate / Webstorm project files are provided.
 
-To get started w/ Ink v3 please checkout this [introductory article][0.1].
+To get started w/ Ink v3 please check out this [introductory article][0.1].
 
 > ### ⚠️ This isn't a reference for React, Node.js, TypeScript, or CSS
 >

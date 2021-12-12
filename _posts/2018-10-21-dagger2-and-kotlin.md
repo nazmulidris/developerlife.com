@@ -547,4 +547,4 @@ class ExecutorWrapper {
 ## Real example
 
 > To see an example of Dagger 2 applied to Kotlin and Android in the context of a real Android
-> application, please checkout this [repo](https://github.com/nazmulidris/places-api-poc)
+> application, please check out this [repo](https://github.com/nazmulidris/places-api-poc)

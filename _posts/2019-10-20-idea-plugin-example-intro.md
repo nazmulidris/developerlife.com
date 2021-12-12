@@ -69,7 +69,7 @@ more tutorials in the future to cover these advanced topics as well.
 
 To get the code for this tutorial, please clone the
 [`nazmulidris/idea-plugin-example`](https://github.com/nazmulidris/idea-plugin-example) repo from
-github. Please checkout the README for this repo, and clone it to your computer, and get it running
+github. Please check out the README for this repo, and clone it to your computer, and get it running
 before following along in this tutorial. It's much easier when you have some real code and examples
 to play with in the IDE to understand the concepts in this very long tutorial.
 

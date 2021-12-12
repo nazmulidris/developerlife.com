@@ -1,6 +1,6 @@
 ---
 author: Nazmul Idris
-date: 2021-11-05 14:00:00+00:00
+date: 2021-11-25 14:00:00+00:00
 excerpt: |
   This article is reference handbook for using Ink v3.2.0 (with TypeScript and React) components
   to create CLI apps.
@@ -22,22 +22,10 @@ categories:
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [What is Ink](#what-is-ink)
-- [Exploration of all the UI components](#exploration-of-all-the-ui-components)
-  - [Text](#text)
-  - [Box](#box)
-  - [Borders](#borders)
-  - [Newline](#newline)
-  - [Spacer](#spacer)
-  - [Static](#static)
-  - [Transform](#transform)
-- [Exploration of all the React hooks](#exploration-of-all-the-react-hooks)
-  - [useInput](#useinput)
-  - [useApp](#useapp)
-  - [useStdin](#usestdin)
-  - [useStdout](#usestdout)
-  - [useStderr](#usestderr)
-  - [useFocus](#usefocus)
-  - [useFocusManager](#usefocusmanager)
+- [Examples from the ink repo](#examples-from-the-ink-repo)
+- [Small example #1](#small-example-1)
+- [Medium size example #2](#medium-size-example-2)
+- [Large example #3](#large-example-3)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -48,7 +36,7 @@ categories:
 This article is reference handbook for using Ink v3.2.0 (with TypeScript and React) components to
 create CLI apps. IDEA Ultimate / Webstorm project files are provided.
 
-To get started w/ Ink v3 please checkout this [introductory article][0.1] and this [advanced
+To get started w/ Ink v3 please check out this [introductory article][0.1] and this [advanced
 article][0.6].
 
 > ### ⚠️ This isn't a reference for React, Node.js, TypeScript, or CSS
@@ -128,46 +116,39 @@ Ink supplied host UI components are rendered to a terminal based UI by using:
 
 ---
 
-## Exploration of all the UI components
+## Examples from the ink repo
 
-```yaml
-🔥TODO:
-  - Provide small working examples of each
-```
+There are a wealth of examples that you can find in the
+[ink repo](https://github.com/nazmulidris/ink/tree/master/examples) itself. I suggest browsing
+through all of them to get some sense of how to use all the host components and hooks.
 
-### Text
+In this article, we will walk through three examples in order to get a sense of how to use the
+entire API surface of Ink. There are a lot of community contributions in the form of npm packages
+that are built using ink that we will not cover here. These examples will cover the following things
+in ink.
 
-### Box
-
-### Borders
-
-### Newline
-
-### Spacer
-
-### Static
-
-### Transform
+1. Components
+   1. `Text`
+   2. `Box`
+   3. `Border`
+   4. `Newline`
+2. Hooks
+   1. `useInput`
+   2. `useApp`
+   3. `useStdin`
+   4. `useFocus`
+   5. `useFocusManager`
 
 ---
 
-## Exploration of all the React hooks
+## Small example #1
 
-```yaml
-🔥TODO:
-  - Provide small working examples of each
-```
+---
 
-### useInput
+## Medium size example #2
 
-### useApp
+---
 
-### useStdin
+## Large example #3
 
-### useStdout
-
-### useStderr
-
-### useFocus
-
-### useFocusManager
+---

@@ -35,6 +35,7 @@ if test (uname) = "Linux"
   echo "Run the server"
   bundle install
   bundle update
+  rm -rf _site/
   bundle exec jekyll serve --incremental
 
 end

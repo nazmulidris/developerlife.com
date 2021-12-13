@@ -69,6 +69,7 @@ code {
   background-color: $syntax-highlight-background-color;
   border: 1px solid $color-gray-dark;
   border-radius: 3px;
+  padding: 0.15ch 0.75ch;
 }
 
 h1,
@@ -303,6 +304,17 @@ h1 {
   animation: animatedHeading-bg-animation 10s 2 alternate;
 }
 
+@keyframes animatedHeading-bg-animation {
+  0% {
+    background-position: left;
+  }
+  100% {
+    background-position: right;
+  }
+}
+
+// Keyboard shortcut styling.
+
 kbd {
   $colorBg: linear-gradient(45deg, rgba(246, 99, 82, 0.5), rgba(128, 0, 128, 0.3));
   $colorBorderOutline: #283340;
@@ -310,15 +322,18 @@ kbd {
   $colorBorderLowlight: rgba(88, 88, 168, 0.3);
   $colorBoxShadow: yellow;
   $colorText: #d0d05b;
-  $font: $heading-font-family;
+  $fontFamily: $heading-font-family;
+  $fontSize: 1em;
+  $paddingTopBottom: 0ch;
+  $paddingLeftRight: 0.5ch;
 
   margin: 0px 0.1em;
-  padding: 0.1em 0.6em;
+  padding: $paddingTopBottom $paddingLeftRight;
   border-radius: 3px;
   border: 1px solid $colorBorderHighlight;
   color: $colorText;
-  font-family: $font;
-  font-size: 1.05em;
+  font-family: $fontFamily;
+  font-size: $fontSize;
   display: inline-block;
   box-shadow: 0px 1px 0px $colorBorderLowlight, inset 0px 0px 0px 2px $colorBoxShadow;
   background: $colorBg;
@@ -329,11 +344,23 @@ kbd {
   text-shadow: 0 1px 0 $colorBorderOutline;
 }
 
-@keyframes animatedHeading-bg-animation {
-  0% {
-    background-position: left;
+// List styling - make lists more roomy.
+
+$roomy-list-padding: 1.2ch;
+$roomy-list-line-height: $base-line-height * 1.1;
+
+ul,
+ol {
+  line-height: $roomy-list-line-height;
+  li {
+    padding-top: 0.3 * $roomy-list-padding;
   }
-  100% {
-    background-position: right;
+}
+
+li {
+  > ul,
+  > ol {
+    padding-top: $roomy-list-padding;
+    padding-bottom: $roomy-list-padding;
   }
 }

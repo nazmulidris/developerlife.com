@@ -201,11 +201,8 @@ Here's the output that it produces.
 
 Here's a brief description of the lifecycle of the app.
 
-1. First it is started from the terminal when the script is executed using
-   <code><span style="color:#3A46FE">n</span><span style="color:#374AFE">o</span><span style="color:#334DFE">d</span><span style="color:#3051FD">e</span><span style="color:#2D55FC">
-   </span><span style="color:#2A59FB">-</span><span style="color:#275DFB">r</span><span style="color:#2461F9">
-   </span><span style="color:#2166F8">t</span><span style="color:#1E6AF7">s</span><span style="color:#1B6EF5">m</span><span style="color:#1972F4">
-   </span><span style="color:#1676F2">s</span><span style="color:#147BF0">r</span><span style="color:#127FEE">c</span><span style="color:#1083EC">/</span><span style="color:#0E87E9">e</span><span style="color:#0C8CE7">x</span><span style="color:#0A90E4">a</span><span style="color:#0994E2">m</span><span style="color:#0798DF">p</span><span style="color:#069CDC">l</span><span style="color:#05A0D9">e</span><span style="color:#04A4D6">s</span><span style="color:#03A8D3">/</span><span style="color:#02ACD0">u</span><span style="color:#02B0CD">s</span><span style="color:#01B4C9">e</span><span style="color:#01B8C6">-</span><span style="color:#01BCC2">i</span><span style="color:#01BFBF">n</span><span style="color:#01C3BB">p</span><span style="color:#01C7B7">u</span><span style="color:#01CAB3">t</span><span style="color:#02CEAF">.</span><span style="color:#02D1AB">t</span><span style="color:#03D4A7">s</span><span style="color:#04D7A3">x</span></code>.
+1. First it is started from the terminal when the script is executed using the `node ...` command
+   shown above.
 2. Once the `useInput()` hook is called the Node.js process is listening for input events on
    `process.stdin`. This prevents the Node.js process from exiting once the app is rendered once.
 3. When the user presses up, down, left, or right, this causes the X and Y padding of the app to be
@@ -355,11 +352,8 @@ This is what the output looks like when <kbd>Shift+2</kbd> (ie `@`) is typed to 
 
 Here's a brief description of the lifecycle of the app.
 
-1. You can launch this app by typing
-   <code><span style="color:#D504A6">n</span><span style="color:#D203AA">o</span><span style="color:#CF02AE">d</span><span style="color:#CC01B2">e</span><span style="color:#C801B5">
-   </span><span style="color:#C501B9">-</span><span style="color:#C101BD">r</span><span style="color:#BD01C1">
-   </span><span style="color:#BA01C4">t</span><span style="color:#B601C8">s</span><span style="color:#B201CB">m</span><span style="color:#AE02CF">
-   </span><span style="color:#AA03D2">s</span><span style="color:#A603D5">r</span><span style="color:#A204D8">c</span><span style="color:#9E06DB">/</span><span style="color:#9A07DE">e</span><span style="color:#9608E1">x</span><span style="color:#910AE3">a</span><span style="color:#8D0BE6">m</span><span style="color:#890DE8">p</span><span style="color:#850FEB">l</span><span style="color:#8111ED">e</span><span style="color:#7C13EF">s</span><span style="color:#7815F1">/</span><span style="color:#7418F3">u</span><span style="color:#701AF5">s</span><span style="color:#6B1DF6">e</span><span style="color:#6720F8">-</span><span style="color:#6322F9">i</span><span style="color:#5F25FA">n</span><span style="color:#5B28FB">p</span><span style="color:#572CFC">u</span><span style="color:#532FFD">t</span><span style="color:#4F32FD">.</span><span style="color:#4B35FE">t</span><span style="color:#4739FE">s</span><span style="color:#443DFE">x</span></code>.
+1. First it is started from the terminal when the script is executed using the `node ...` command
+   shown above.
 2. The main UI is a flexbox container (`flexDirection="column"`) which lays out three components top
    to bottom.
    1. The first row is `Row_Debug` component which displays which key is currently pressed if any.
@@ -390,3 +384,47 @@ Here's a brief description of the lifecycle of the app.
 ---
 
 ## Large example - full screen (terminal) app using Flexbox and keyboard input
+
+This large size example is similar to the medium size one, except that it has a more complex UI. It
+takes up the full height and width of the terminal that it is started in. And it listens for
+keyboard input. It also uses a lot of custom hooks. For the UI, it splits the screen into two
+columns, and adds components to each column. The UI also features a ticking clock that updates every
+1 second.
+
+> 🪄 Here's the source code for
+> [`cli.tsx`](https://github.com/nazmulidris/ts-scratch/blob/main/ink-cli-app3/src/cli.tsx). You can
+> find all the other files that are loaded by `cli.tsx` in the repo.
+
+You can run the program using the following command
+<code><font color="#F82067">n</font><font color="#F61D6B">p</font><font color="#F51A6F">m</font><font color="#F31874">
+</font><font color="#F11678">r</font><font color="#EF137C">u</font><font color="#ED1180">n</font><font color="#EB0F84">
+</font><font color="#E90D89">s</font><font color="#E60B8D">t</font><font color="#E40A91">a</font><font color="#E10895">r</font><font color="#DE0799">t</font><font color="#DB069E">-</font><font color="#D804A2">d</font><font color="#D504A6">e</font><font color="#D203AA">v</font></code>.
+
+The following output is produced.
+
+<pre>   <span style="color:#2F9ECE">╭──────────────────────────────────────────────────╮</span>
+   <span style="color:#2F9ECE">│</span> <span style="background-color:#2F9ECE"><span style="color:#161B22"><b> 1st column </b></span></span>     <span style="background-color:#2F9ECE"><span style="color:#161B22"><b> 2nd column </b></span></span>                    <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span> <span style="background-color:#161B22"><span style="color:#2F9ECE"><b> Hello </b></span></span>          <span style="color:#E6E6E6">Item 1</span>                          <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span> <span style="color:#E6E6E6"><i><b>Stranger</b></i></span>         <span style="color:#E6E6E6">Item 2</span>                          <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span> <span style="background-color:#161B22"><span style="color:#2F9ECE"><b> 7:16:58 PM </b></span></span>     <span style="background-color:#2F9ECE"><span style="color:#161B22"><b> rows: 19, columns: 58 </b></span></span>         <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span> <span style="background-color:#161B22"><span style="color:#2F9ECE"><b> keyb enabled </b></span></span>                                   <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">╰──────────────────────────────────────────────────╯</span><span style="color:#A1A1A1"> </span></pre>
+
+```yaml
+- TODO breakdown of the custom hooks
+- TODO breakdown of the UI components
+- TODO breakdown of the timer
+- TODO breakdown of the app lifecycle
+```

@@ -159,7 +159,7 @@ $ npm start -- -h
 
 And it will display the help screen.
 
-<pre><span style="color:#069CDC;">&gt;</span><span style="color:#05A0D9;"> </span><span style="color:#04A4D6;">i</span><span style="color:#03A8D3;">n</span><span style="color:#02ACD0;">k</span><span style="color:#02B0CD;">-</span><span style="color:#01B4C9;">c</span><span style="color:#01B8C6;">l</span><span style="color:#01BCC2;">i</span><span style="color:#01BFBF;">-</span><span style="color:#01C3BB;">a</span><span style="color:#01C7B7;">p</span><span style="color:#01CAB3;">p</span><span style="color:#02CEAF;">2</span><span style="color:#02D1AB;">@</span><span style="color:#03D4A7;">0</span><span style="color:#04D7A3;">.</span><span style="color:#05DA9F;">0</span><span style="color:#06DD9B;">.</span><span style="color:#08E097;">0</span><span style="color:#09E393;"> </span><span style="color:#0BE58F;">s</span><span style="color:#0CE88A;">t</span><span style="color:#0EEA86;">a</span><span style="color:#10EC82;">r</span><span style="color:#12EE7E;">t</span>
+<pre class="pre-manual-highlight"><span style="color:#069CDC;">&gt;</span><span style="color:#05A0D9;"> </span><span style="color:#04A4D6;">i</span><span style="color:#03A8D3;">n</span><span style="color:#02ACD0;">k</span><span style="color:#02B0CD;">-</span><span style="color:#01B4C9;">c</span><span style="color:#01B8C6;">l</span><span style="color:#01BCC2;">i</span><span style="color:#01BFBF;">-</span><span style="color:#01C3BB;">a</span><span style="color:#01C7B7;">p</span><span style="color:#01CAB3;">p</span><span style="color:#02CEAF;">2</span><span style="color:#02D1AB;">@</span><span style="color:#03D4A7;">0</span><span style="color:#04D7A3;">.</span><span style="color:#05DA9F;">0</span><span style="color:#06DD9B;">.</span><span style="color:#08E097;">0</span><span style="color:#09E393;"> </span><span style="color:#0BE58F;">s</span><span style="color:#0CE88A;">t</span><span style="color:#0EEA86;">a</span><span style="color:#10EC82;">r</span><span style="color:#12EE7E;">t</span>
 <span style="color:#03A8D3;">&gt;</span><span style="color:#02ACD0;"> </span><span style="color:#02B0CD;">d</span><span style="color:#01B4C9;">i</span><span style="color:#01B8C6;">s</span><span style="color:#01BCC2;">t</span><span style="color:#01BFBF;">/</span><span style="color:#01C3BB;">c</span><span style="color:#01C7B7;">l</span><span style="color:#01CAB3;">i</span><span style="color:#02CEAF;">.</span><span style="color:#02D1AB;">j</span><span style="color:#03D4A7;">s</span><span style="color:#04D7A3;"> </span><span style="color:#05DA9F;">&quot;</span><span style="color:#06DD9B;">-</span><span style="color:#08E097;">h</span><span style="color:#09E393;">&quot;</span>
 
 <span style="color:#01BFBF;">U</span><span style="color:#01C3BB;">s</span><span style="color:#01C7B7;">a</span><span style="color:#01CAB3;">g</span><span style="color:#02CEAF;">e</span><span style="color:#02D1AB;">:</span><span style="color:#03D4A7;"> </span><span style="color:#04D7A3;">c</span><span style="color:#05DA9F;">l</span><span style="color:#06DD9B;">i</span><span style="color:#08E097;"> </span><span style="color:#09E393;">[</span><span style="color:#0BE58F;">o</span><span style="color:#0CE88A;">p</span><span style="color:#0EEA86;">t</span><span style="color:#10EC82;">i</span><span style="color:#12EE7E;">o</span><span style="color:#15F079;">n</span><span style="color:#17F275;">s</span><span style="color:#19F471;">]</span>
@@ -176,8 +176,8 @@ $ npm run start
 
 We get this output.
 
-<pre>&gt; ts-ink-template-app@0.0.1 start
-&gt; dist/cli.js
+<pre class="pre-manual-highlight">&gt; ts-ink-template-app@0.0.1 start
+&gt dist/cli.js
 
 Hello, <span style="color:#A3BE8C">Stranger</span>
 </pre>
@@ -190,7 +190,7 @@ $ npm run start -- -n Grogu
 
 We get this output.
 
-<pre>&gt; ts-ink-template-app@0.0.1 start
+<pre class="pre-manual-highlight">&gt; ts-ink-template-app@0.0.1 start
 &gt; dist/cli.js &quot;-n&quot; &quot;Grogu&quot;
 
 Hello, <span style="color:#A3BE8C">Grogu</span>

@@ -1,30 +1,3 @@
-// Scrollbar styling.
-
-$scrollbarWidth: 11px;
-$scrollbarHeight: 7px;
-$colorChange: 10%;
-$scrollbarBorderRadius: 50px;
-$scrollbarThumbColor: darken($brand-color, $colorChange);
-$scrollbarThumbColorOnHover: $brand-color;
-
-::-webkit-scrollbar {
-  height: $scrollbarHeight; /* Height of horizontal scrollbar. */
-  width: $scrollbarWidth; /* Width of vertical scrollbar. */
-  border: none;
-  background: $background-color;
-}
-
-::-webkit-scrollbar-thumb:horizontal,
-::-webkit-scrollbar-thumb:vertical {
-  background: $scrollbarThumbColor;
-  border-radius: $scrollbarBorderRadius;
-}
-
-::-webkit-scrollbar-thumb:horizontal:hover,
-::-webkit-scrollbar-thumb:vertical:hover {
-  background: $scrollbarThumbColorOnHover;
-}
-
 // More info on background image on viewport: https://www.freecodecamp.org/news/css-full-page-background-image-tutorial/
 $bodyBackgroundSemiTransparentColor: rgba($background-color, 0.85);
 $headerBackgroundSemiTransparentColor: rgba(white, 0.15);
@@ -61,17 +34,6 @@ body {
   font-size: 0.9em;
 }
 
-pre,
-code {
-  @include relative-font-size(1);
-  font-family: $code-font-family;
-  font-weight: $code-font-weight;
-  background-color: $syntax-highlight-background-color;
-  border: 1px solid $color-gray-dark;
-  border-radius: 3px;
-  padding: 0.15ch 0.75ch;
-}
-
 h1,
 h2,
 h3,
@@ -90,7 +52,7 @@ hr {
   margin-bottom: calc(1rem / 2);
   border: 0;
   height: calc(1rem / 2);
-  border-radius: 1rem;
+  border-radius: $global-border-radius;
   background-image: linear-gradient(
     to right,
     transparentize($brand-color, 0.7),
@@ -99,37 +61,7 @@ hr {
   );
 }
 
-/*
-$table-row-bg-color: lighten($background-color, 10%);
-$blockquote-bg-color: lighten($background-color, 5%);
-$table-header-bg-color: darken($background-color, 5%);
-*/
-$table-row-bg-color: #424759;
-$blockquote-bg-color: #272930;
-$table-header-bg-color: #1b1b1e;
-
-table {
-  border-radius: 1rem;
-  th {
-    border-radius: 1rem;
-    background-color: $table-header-bg-color;
-    border: none;
-  }
-  td {
-    border-radius: 1rem;
-    background-color: $table-row-bg-color;
-  }
-}
-
-blockquote {
-  border-radius: 1rem;
-  border: calc(1rem / 4) solid transparentize($brand-color, 0.9);
-  font-size: $base-font-size;
-  font-style: normal;
-  color: darken($text-color, 20%);
-  background-color: $blockquote-bg-color;
-  padding: 1rem;
-}
+// Other styling.
 
 $vertical_space: 14pt;
 $border-outline: 1.125pt;
@@ -288,79 +220,4 @@ $search-post-border: 4pt;
   left: 0;
   width: 100%;
   height: 100%;
-}
-
-// Header w/ animated background color.
-
-h1 {
-  --gradient: linear-gradient(45deg, #f66352, purple, #ee6352);
-
-  font-weight: 900;
-  text-transform: uppercase;
-  background-image: var(--gradient);
-  -webkit-background-clip: text;
-  color: transparent;
-  background-size: 400%;
-  animation: animatedHeading-bg-animation 10s 2 alternate;
-}
-
-@keyframes animatedHeading-bg-animation {
-  0% {
-    background-position: left;
-  }
-  100% {
-    background-position: right;
-  }
-}
-
-// Keyboard shortcut styling.
-
-kbd {
-  $colorBg: linear-gradient(45deg, rgba(246, 99, 82, 0.5), rgba(128, 0, 128, 0.3));
-  $colorBorderOutline: #283340;
-  $colorBorderHighlight: rgba(88, 88, 168, 0.7);
-  $colorBorderLowlight: rgba(88, 88, 168, 0.3);
-  $colorBoxShadow: yellow;
-  $colorText: #d0d05b;
-  $fontFamily: $heading-font-family;
-  $fontSize: 1em;
-  $paddingTopBottom: 0ch;
-  $paddingLeftRight: 0.5ch;
-
-  margin: 0px 0.1em;
-  padding: $paddingTopBottom $paddingLeftRight;
-  border-radius: 3px;
-  border: 1px solid $colorBorderHighlight;
-  color: $colorText;
-  font-family: $fontFamily;
-  font-size: $fontSize;
-  display: inline-block;
-  box-shadow: 0px 1px 0px $colorBorderLowlight, inset 0px 0px 0px 2px $colorBoxShadow;
-  background: $colorBg;
-  -moz-box-shadow: 0 1px 0px $colorBorderLowlight, 0 0 0 2px $colorBoxShadow inset;
-  -webkit-box-shadow: 0 1px 0px $colorBorderLowlight, 0 0 0 2px $colorBorderOutline inset;
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  text-shadow: 0 1px 0 $colorBorderOutline;
-}
-
-// List styling - make lists more roomy.
-
-$roomy-list-padding: 1.2ch;
-$roomy-list-line-height: $base-line-height * 1.1;
-
-ul,
-ol {
-  line-height: $roomy-list-line-height;
-  li {
-    padding-top: 0.3 * $roomy-list-padding;
-  }
-}
-
-li {
-  > ul,
-  > ol {
-    padding-top: $roomy-list-padding;
-    padding-bottom: $roomy-list-padding;
-  }
 }

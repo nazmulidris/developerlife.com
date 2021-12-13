@@ -24,9 +24,9 @@ categories:
 - [Introduction](#introduction)
 - [What is Ink](#what-is-ink)
 - [Items covered in this article](#items-covered-in-this-article)
-- [Small example - moving a component with arrow keys](#small-example---moving-a-component-with-arrow-keys)
-- [Medium size example - keyboard input & focus manipulation](#medium-size-example---keyboard-input--focus-manipulation)
-- [Large example - full screen (terminal) app using Flexbox and keyboard input](#large-example---full-screen-terminal-app-using-flexbox-and-keyboard-input)
+- [Example 1 - moving a component with arrow keys](#example-1---moving-a-component-with-arrow-keys)
+- [Example 2 - keyboard input & focus manipulation](#example-2---keyboard-input--focus-manipulation)
+- [Example 3 - full screen app](#example-3---full-screen-app)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -149,7 +149,7 @@ following API surface of ink.
 
 ---
 
-## Small example - moving a component with arrow keys
+## Example 1 - moving a component with arrow keys
 
 This small example is a CLI app that allows the user to move a component on the screen the cursor
 around using arrow up, down, left, and right keys. It shows how we can use the `useInput()` hook to
@@ -191,7 +191,7 @@ render(<UseInputExample />)
 
 Here's the output that it produces.
 
-<pre><span style="color:#2f9ece">$ </span><span style="color:#F8F8F2">node</span> <span style="color:#FF79C6">-r</span> <span style="color:#FF79C6">tsm</span> <span style="color:#FF79C6"><u style="text-decoration-style:single">src/examples/use-input.tsx</u></span> 
+<pre class="pre-manual-highlight"><span style="color:#2f9ece">$ </span><span style="color:#F8F8F2">node</span> <span style="color:#FF79C6">-r</span> <span style="color:#FF79C6">tsm</span> <span style="color:#FF79C6"><u style="text-decoration-style:single">src/examples/use-input.tsx</u></span> 
 <span style="color:#4E9A06">Use arrow keys to move the X.</span>
 <span style="color:#CC0000">Press “q” to exit.</span>
 
@@ -212,7 +212,7 @@ Here's a brief description of the lifecycle of the app.
 
 ---
 
-## Medium size example - keyboard input & focus manipulation
+## Example 2 - keyboard input & focus manipulation
 
 This medium size example goes deep into the hooks `useFocus()` and `useFocusManager()` to
 demonstrate how to manage input focus in a CLI app. Not only can <kbd>Tab</kbd> and
@@ -336,7 +336,7 @@ render(<UseFocusExample />)
 This is what the output looks like when <kbd>Shift+2</kbd> (ie `@`) is typed to gain focus to the
 "Second" component.
 
-<pre><span style="color:#2f9ece">$ </span><span style="color:#F8F8F2">node</span> <span style="color:#FF79C6">-r</span> <span style="color:#FF79C6">tsm</span> <span style="color:#FF79C6"><u style="text-decoration-style:single">src/examples/use-focus.tsx</u></span>
+<pre class="pre-manual-highlight"><span style="color:#2f9ece">$ </span><span style="color:#F8F8F2">node</span> <span style="color:#FF79C6">-r</span> <span style="color:#FF79C6">tsm</span> <span style="color:#FF79C6"><u style="text-decoration-style:single">src/examples/use-focus.tsx</u></span>
 <span style="color:#75507B">input: @</span>
 <span style="color:#88807C">key: n/a</span>
 <span style="color:#3465A4">Press Tab to focus next element</span>
@@ -383,7 +383,7 @@ Here's a brief description of the lifecycle of the app.
 
 ---
 
-## Large example - full screen (terminal) app using Flexbox and keyboard input
+## Example 3 - full screen app
 
 This large size example is similar to the medium size one, except that it has a more complex UI. It
 takes up the full height and width of the terminal that it is started in. And it listens for

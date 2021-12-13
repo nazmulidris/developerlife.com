@@ -1,0 +1,42 @@
+// Code block styling.
+pre,
+code {
+  @include relative-font-size(1);
+  font-family: $code-font-family;
+  font-weight: $code-font-weight;
+}
+
+code {
+  $paddingWidth: 0.6ch;
+  $darkenBy: 17%;
+  $alpha: 0.8;
+
+  border: 0.2ch solid transparentize(black, $alpha);
+  padding-left: $paddingWidth;
+  padding-right: $paddingWidth;
+  border-radius: $global-border-radius;
+  background: darken($gradientStop2, $darkenBy);
+}
+
+// Unfortunately, <code> tags are nested in <pre> containers, and this removes any unwanted
+// backgrounds that are inherited.
+pre code {
+  background: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+pre {
+  background-color: $syntax-highlight-background-color;
+  border-radius: $global-border-radius;
+}
+
+// Applies to code blocks, where <code> is nested inside <pre>.
+pre {
+  overflow-x: auto;
+  > code {
+    border: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

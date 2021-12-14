@@ -183,7 +183,7 @@ $ npx create-ink-app --typescript
 This will create quite a few files and folders that form the scaffolding. You can also add a
 `.gitignore` file that contains the following.
 
-```gitignore
+```text
 node_modules
 package-lock.json
 dist

@@ -1,0 +1,39 @@
+$linkInactiveColor: $brandColor;
+$linkInactiveColor_Category: lighten($colorParrotYellow, 25%);
+
+$linkActiveColor: $globalLinkColor;
+
+a {
+  color: $linkInactiveColor;
+  text-decoration: none;
+}
+
+// Override if nested in .category (see category-chip.scss).
+.category {
+  a {
+    color: $linkInactiveColor_Category;
+  }
+}
+
+a {
+  // Animated `color` property change.
+  display: inline-block;
+  vertical-align: middle;
+  transform: translateZ(0);
+  transition-duration: 0.15s;
+  transition-property: color;
+
+  &:hover,
+  &:focus,
+  &:active {
+    color: $linkActiveColor;
+  }
+
+  .social-media-list &:hover {
+    text-decoration: none;
+
+    .username {
+      //text-decoration: underline;
+    }
+  }
+}

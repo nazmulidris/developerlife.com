@@ -4,43 +4,22 @@
     Note that page is the currently loaded page itself.
 -->
 {%- for path in page_paths -%}
-
-    {%- assign page_cursor = site.pages | where: "path", path | first -%}
-
-    {%- if page_cursor.title -%}
-
-        {%- assign link_url = page_cursor.url | relative_url -%}
-
-        {%- if page.category != nil and page.category == page_cursor.title -%}
+  {%- assign page_cursor = site.pages | where: "path", path | first -%}
+    {%- if page_cursor.title -%} {%- assign link_url = page_cursor.url | relative_url -%}
+      {%- if page.category != nil and page.category == page_cursor.category -%}
         <!-- Category (page.category) is currently selected -->
-        <a class="page-link category-selected"
-           href="{{ link_url }}">
-            {{ page_cursor.description | escape }}
-        </a>
+        <a class="page-link category-selected" href="{{ link_url }}"> {{ page_cursor.title | escape }} </a>
 
-        {%- elsif page.category == nil and page.title == page_cursor.title -%}
+      {%- elsif page.category == nil and page.title == page_cursor.title -%}
         <!-- Page (page.title) is currently selected -->
-        <a class="page-link category-selected"
-           href="{{ link_url }}">
-            {{ page_cursor.title | escape }}
-        </a>
+        <a class="page-link category-selected" href="{{ link_url }}"> {{ page_cursor.title | escape }} </a>
 
-        {%- else -%}
-            <!-- This item is not selected -->
-            <!-- Don't list excluded pages -->
-            {%- unless page_cursor.exclude -%}
-                <a class="page-link"
-                    href="{{ link_url }}">
-                    {%- if page_cursor.description != nil -%}
-                        {{ page_cursor.description | escape }}
-                    {%- else -%}
-                        {{ page_cursor.title | escape }}
-                    {%- endif -%}
-                </a>
-            {%- endunless -%}
-
-        {%- endif -%}
-
+      {%- else -%}
+        <!-- This item is not selected -->
+        <!-- Don't list excluded pages -->
+        {%- unless page_cursor.exclude -%}
+          <a class="page-link" href="{{ link_url }}"> {{ page_cursor.title | escape }} </a>
+        {%- endunless -%}
+      {%- endif -%}
     {%- endif -%}
-
 {%- endfor -%}

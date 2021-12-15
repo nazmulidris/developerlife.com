@@ -226,59 +226,60 @@ is provided which shows what keys are actually being pressed. Additionally, flex
 > [`use-focus.tsx`](https://github.com/nazmulidris/ts-scratch/blob/main/ink-cli-app3/src/examples/use-focus.tsx).
 
 ```tsx
-import { Box, Key, Newline, render, Text, useApp, useFocus, useFocusManager, useInput } from "ink"
+import { Box, Newline, render, Text, useApp, useFocus, useFocusManager } from "ink"
 import {
   _callIfTrue,
-  KeyPressed,
-  keyPressedToString,
+  KeyboardInputHandlerFn,
   makeReactElementFromArray,
-  StateHook,
+  useKeyboard,
+  UserInputKeyPress,
 } from "r3bl-ts-utils"
-import React, { FC, useState } from "react"
+import React, { FC } from "react"
+import { Props as AppContextProps } from "ink/build/components/AppContext"
+import { Props as FocusContextProps } from "ink/build/components/FocusContext"
 
+//#region Main functional component.
 const UseFocusExample: FC = function (): JSX.Element {
-  const userInputPressed = useKeyboard()
+  const [keyPress] = useKeyboard(
+    onKeyPress.bind({ app: useApp(), focusManager: useFocusManager() })
+  )
 
   return (
     <Box flexDirection="column">
-      {userInputPressed && (
-        <Row_Debug keyPressed={userInputPressed?.key} inputPressed={userInputPressed?.input} />
-      )}
+      {keyPress && <Row_Debug keyPressed={keyPress?.key} inputPressed={keyPress?.input} />}
       <Row_Instructions />
       <Row_FocusableItems />
     </Box>
   )
 }
+//#endregion
 
-interface UserInput {
-  input: string
-  key: Key
+//#region Keypress handler.
+const onKeyPress: KeyboardInputHandlerFn = function (
+  this: { app: AppContextProps; focusManager: FocusContextProps },
+  userInputKeyPress: UserInputKeyPress
+) {
+  const { app, focusManager } = this
+  const { exit } = app
+  const { focus } = focusManager
+  const { input, key } = userInputKeyPress
+
+  _callIfTrue(input === "q", exit)
+  _callIfTrue(key === "ctrl" && input === "q", exit)
+  _callIfTrue(input === "!", () => focus("1"))
+  _callIfTrue(input === "@", () => focus("2"))
+  _callIfTrue(input === "#", () => focus("3"))
 }
+//#endregion
 
-function useKeyboard(): UserInput | undefined {
-  const { exit } = useApp()
-  const { focus } = useFocusManager()
+//#region UI.
 
-  const [userInputPressed, setUserInputPressed]: StateHook<UserInput | undefined> = useState()
-
-  useInput((input, key) => {
-    setUserInputPressed({ input, key })
-    _callIfTrue(input === "q", exit)
-    _callIfTrue(key.ctrl && input === "q", exit)
-    _callIfTrue(input === "!", () => focus("1"))
-    _callIfTrue(input === "@", () => focus("2"))
-    _callIfTrue(input === "#", () => focus("3"))
-  })
-
-  return userInputPressed
-}
-
-function Row_Debug(props: { keyPressed: KeyPressed; inputPressed: KeyPressed }) {
+function Row_Debug(props: { keyPressed: string | undefined; inputPressed: string | undefined }) {
   const { inputPressed, keyPressed } = props
   return (
     <>
-      <Text color={"magenta"}>input: {keyPressedToString(inputPressed)}</Text>
-      <Text color={"gray"}>key: {keyPressedToString(keyPressed)}</Text>
+      <Text color={"magenta"}>input: {inputPressed}</Text>
+      <Text color={"gray"}>key: {keyPressed}</Text>
     </>
   )
 }
@@ -329,6 +330,8 @@ const FocusableItem: FC<{ label: string; id: string }> = function ({ label, id }
     </Text>
   )
 }
+
+//#endregion
 
 render(<UseFocusExample />)
 ```

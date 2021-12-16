@@ -452,8 +452,8 @@ function runHooks(name: string): LocalVars {
   const ttySize: TTYSize = useTTYSize()
   const time = useClock()
   const inRawMode = _let(useApp(), (it) => {
-    // Bind object to onKeyboardFn as it can't access hooks (called outside of React component).
-    return useAttachKeyboardInputHandler(onKeyboardFn.bind({ useApp: it }), true)
+    const [_, inRawMode] = useKeyboard(onKeyboardFn.bind({ useApp: it }))
+    return inRawMode
   })
   return {
     name,
@@ -472,22 +472,21 @@ interface LocalVars {
 
 Here is a brief overview of what the hooks do.
 
-1. `usePreventProcessExitDuringTesting()` is a hook that's provided in the `app-hooks.tsx` file in
-   the repo. It checks to see if the terminal is in raw mode (which is needed to enable keyboard
-   input). If it's not in raw mode & keyboard input isn't possible, it just starts a `Timer` that
-   doesn't do anything so that the Node.js process won't exit.
+1. `usePreventProcessExitDuringTesting()` is a hook that comes from `r3bl-ts-utils`. It checks to
+   see if the terminal is in raw mode (which is needed to enable keyboard input). If it's not in raw
+   mode & keyboard input isn't possible, it just starts a `Timer` that doesn't do anything so that
+   the Node.js process won't exit.
 2. `useTTYSize()` is a hook that comes from `r3bl-ts-utils`. It provides the width and height of the
    terminal. This is used by the UI code below in order to take up the full width and height of the
    terminal. A "resize" listener is also registered so that if this terminal is resized, the new
    width and height, will be propagated and the UI re-rendered by React.
-3. `useClock()` is a hook that's also provided in `app-hooks.tsx` that simply starts a `Timer` and
-   returns the current time. This time is displayed in the UI. It is updated every second and
-   `setState()` is used in order to re-render the React UI.
-4. `useAttachKeyboardInputHandler()` is provided in `app-hooks.tsx` and it simply attaches the given
-   function to handle key input from the terminal. The `useApp()` hook is provided by Ink and it
-   allows access to the `exit()` function which can be used to exit the CLI app. This is useful when
-   you create keyboard shortcuts that allow the user to exit the terminal app (eg:
-   <kbd>Ctrl+q</kbd>).
+3. `useClock()` is a hook that comes from `r3bl-ts-utils` that simply starts a `Timer` and returns
+   the current time. This time is displayed in the UI. It is updated every second and `setState()`
+   is used in order to re-render the React UI.
+4. `useKeyboard()` is a hook that comes from `r3bl-ts-utils` that simply attaches the given function
+   to handle key input from the terminal. The `useApp()` hook is provided by Ink, and it allows
+   access to the `exit()` function which can be used to exit the CLI app. This is useful when you
+   create keyboard shortcuts that allow the user to exit the terminal app (eg: <kbd>Ctrl+q</kbd>).
 5. Finally, an object (implementing `LocalVars`) is returned that is used by the `render()` function
    in order to paint the UI. This explicit passing of local state is meant to make it clear that
    this is a stateless functional component.
@@ -499,12 +498,24 @@ Here is a brief overview of what the hooks do.
 Here's the code that provides the function for keyboard input handling.
 
 ```tsx
-function onKeyboardFn(this: OnKeyboardContext, input: string, key: Key) {
+/**
+ * 🪄 This function implements `KeyboardInputHandlerFn` interface.
+ *
+ * `this` binds it to an object of type OnKeyboardContext. Since this function is a callback that's
+ * executed by Ink itself, it can't make any calls to hooks (like `useApp()` which is why re-binding
+ * `this` is needed).
+ */
+function onKeyboardFn(
+  this: {
+    useApp: ReturnType<typeof useApp>
+  },
+  keyPress: UserInputKeyPress
+) {
   const { useApp } = this
 
-  _callIfTrue(key.ctrl && input === "q", useApp.exit)
-  _callIfTrue(input === "q", useApp.exit)
-  _callIfTrue(key.escape, useApp.exit)
+  _callIfTrue(keyPress.toString() === "ctrl+q", useApp.exit)
+  _callIfTrue(keyPress.toString() === "q", useApp.exit)
+  _callIfTrue(keyPress.toString() === "escape", useApp.exit)
 }
 ```
 
@@ -512,6 +523,7 @@ And here's the function that renders the UI, using the objects in `LocalVars` th
 `runHooks()`.
 
 ```tsx
+//#region render().
 function render(locals: LocalVars) {
   const { inRawMode, ttySize, time } = locals
   return (
@@ -536,7 +548,9 @@ function render(locals: LocalVars) {
     </Box>
   )
 }
+//#endregion
 
+//#region UI.
 function renderColumn1(locals: LocalVars): JSX.Element {
   const { name } = locals
   return (
@@ -559,6 +573,7 @@ function renderColumn2(locals: LocalVars): JSX.Element {
     </>
   )
 }
+//#endregion
 ```
 
 Most of this code is flexbox in order to create the 2 column layout that takes up the entire width

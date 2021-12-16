@@ -235,8 +235,6 @@ import {
   UserInputKeyPress,
 } from "r3bl-ts-utils"
 import React, { FC } from "react"
-import { Props as AppContextProps } from "ink/build/components/AppContext"
-import { Props as FocusContextProps } from "ink/build/components/FocusContext"
 
 //#region Main functional component.
 const UseFocusExample: FC = function (): JSX.Element {
@@ -262,7 +260,7 @@ const UseFocusExample: FC = function (): JSX.Element {
 
 //#region Keypress handler.
 const onKeyPress: KeyboardInputHandlerFn = function (
-  this: { app: AppContextProps; focusManager: FocusContextProps },
+  this: { app: ReturnType<typeof useApp>; focusManager: ReturnType<typeof useFocusManager> },
   userInputKeyPress: UserInputKeyPress
 ) {
   const { app, focusManager } = this

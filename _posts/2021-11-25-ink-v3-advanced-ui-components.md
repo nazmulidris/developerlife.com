@@ -240,13 +240,19 @@ import { Props as FocusContextProps } from "ink/build/components/FocusContext"
 
 //#region Main functional component.
 const UseFocusExample: FC = function (): JSX.Element {
-  const [keyPress] = useKeyboard(
+  const [keyPress, inRawMode] = useKeyboard(
     onKeyPress.bind({ app: useApp(), focusManager: useFocusManager() })
   )
 
   return (
     <Box flexDirection="column">
-      {keyPress && <Row_Debug keyPressed={keyPress?.key} inputPressed={keyPress?.input} />}
+      {keyPress && (
+        <Row_Debug
+          inRawMode={inRawMode}
+          keyPressed={keyPress?.key}
+          inputPressed={keyPress?.input}
+        />
+      )}
       <Row_Instructions />
       <Row_FocusableItems />
     </Box>
@@ -274,13 +280,19 @@ const onKeyPress: KeyboardInputHandlerFn = function (
 
 //#region UI.
 
-function Row_Debug(props: { keyPressed: string | undefined; inputPressed: string | undefined }) {
-  const { inputPressed, keyPressed } = props
-  return (
+function Row_Debug(props: {
+  inRawMode: boolean
+  keyPressed: string | undefined
+  inputPressed: string | undefined
+}) {
+  const { inputPressed, keyPressed, inRawMode } = props
+  return inRawMode ? (
     <>
       <Text color={"magenta"}>input: {inputPressed}</Text>
       <Text color={"gray"}>key: {keyPressed}</Text>
     </>
+  ) : (
+    <Text>keyb disabled</Text>
   )
 }
 

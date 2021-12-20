@@ -2,7 +2,7 @@
 author: Nazmul Idris
 date: 2021-10-19 14:00:00+00:00
 excerpt: |
-  This handbook will take you thru using functional components in React and Redux (using TypeScript) 
+  This handbook will take you thru using function components in React and Redux (using TypeScript) 
   and writing tests for them (using react-testing-library). IDEA Ultimate / Webstorm project files
   are provided. This handbook is written as a reference. You can easily jump to the section that
   is relevant to you or read them in any order that you like.
@@ -34,7 +34,7 @@ categories:
   - [useReducer](#usereducer)
     - [Two examples (one w/out network, and one w/ network)](#two-examples-one-wout-network-and-one-w-network)
   - [useCallback and useMemo](#usecallback-and-usememo)
-  - [How to write complex functional components](#how-to-write-complex-functional-components)
+  - [How to write complex function components](#how-to-write-complex-function-components)
   - [Custom hook examples](#custom-hook-examples)
   - [References about hooks](#references-about-hooks)
 - [Keyboard focus and React](#keyboard-focus-and-react)
@@ -105,7 +105,7 @@ This handbook and its accompanying TypeScript [code][gh-repo] is a reference gui
 React Hooks with TypeScript (and write tests for them using react-testing-library).
 
 1. This is not a React primer, and is primarily aimed at developers who know React class components
-   and want to learn to use Hooks to create functional components using TypeScript.
+   and want to learn to use Hooks to create function components using TypeScript.
 2. You can jump directly to any topic in the table of contents that you are curious about in this
    handbook, you don't have to read it from start to finish.
 
@@ -126,8 +126,8 @@ repo for the toy [React DOM Mini](https://github.com/sophiebits/react-dom-mini).
 ## React Hooks
 
 React hooks exist because there were severe limitations in versions before React 16 on what
-functional components could do. And there were some problems w/ how class components function. By
-adding hooks to functional components, it basically eliminates these 2 groups of problems.
+function components could do. And there were some problems w/ how class components function. By
+adding hooks to function components, it basically eliminates these 2 groups of problems.
 
 ### Why?
 
@@ -141,7 +141,7 @@ stateful logic between components, which results in people doing things like:
   components, which makes it necessary to add "artificial" components at the top most level (to have
   a shared scope in the children) just to wrap everything else underneath it, which is not optimal.
 
-With hooks, it is now possible to reuse stateful logic between functional components! Thru the use
+With hooks, it is now possible to reuse stateful logic between function components! Thru the use
 of `useState` hook and others, you can create your own more complex hooks. The official docs have
 [Hooks at a Glance](https://reactjs.org/docs/hooks-overview.html) which is a great overview of hooks
 along w/ an example of how you can make your own.
@@ -218,7 +218,7 @@ function FriendListItem(props) {
 ```
 
 Here are some notes on the code to understand what is happening here and how to think about state in
-a functional component, and how that maps to React's memory model.
+a function component, and how that maps to React's memory model.
 
 1. With classes, it was easier to understand React's memory model, because a stateful class
    component has a constructor, which then allocates the state up front.
@@ -227,7 +227,7 @@ a functional component, and how that maps to React's memory model.
    where state actually comes into play. In hooks, this part is a little bit confusing, since there
    is no constructor. Here's one way to think about it.
 
-1. The first time the functional component is rendered (after being mounted), React will allocate
+1. The first time the function component is rendered (after being mounted), React will allocate
    any state variables that are declared via calls to `useState()`. This is stored in memory by
    React and the initial value is the argument passed to `useState(initialValue)`.
 1. This is also why React cares that these calls should not be wrapped in conditional logic or
@@ -370,19 +370,19 @@ const useMyLocalStorageHook = (key: string): MyLocalStorageHook => {
    the key-value pair to local storage.
 
 > 💡 Note that `ref.current` can also be used as a place to store the results of an expensive
-> computation that are local to a functional component, but isn't part of the state. This can be a
+> computation that are local to a function component, but isn't part of the state. This can be a
 > cache that is local to the component. Perhaps this cache can be populated on first render and then
 > re-used for subsequent renders.
 
 ### useState
 
-Reusing _stateful logic_ isn't the same as _sharing state between functional components_. For the
+Reusing _stateful logic_ isn't the same as _sharing state between function components_. For the
 latter, [`useContext`](https://reactjs.org/docs/context.html) or [Redux](#redux) might be more
 appropriate.
 
 #### Example
 
-The following code uses the `useState` hook in a functional component.
+The following code uses the `useState` hook in a function component.
 
 ```typescript
 import { ReactElement } from "react"
@@ -411,9 +411,9 @@ Here's the anatomy of each call to `useState`.
    `IndexStateHookType`).
 2. The first item is a reference to the state variable (of type `T`).
 3. The second item is the setter function for it (of type `Dispatch<SetStateAction<T>>`). This
-   mutates the state and triggers are render of the functional component.
+   mutates the state and triggers are render of the function component.
 4. It has to be initialized w/ whatever value is on the _right hand side_ 👉 expression. So it is a
-   pretty simple way of making functional components have initial state.
+   pretty simple way of making function components have initial state.
 
 > ⚠ Beware the issue of ["stale closures"](https://dmitripavlutin.com/react-hooks-stale-closures/)
 > when using `useState()`. The stale closure problem occurs when a closure captures outdated
@@ -483,10 +483,10 @@ Code that employs `useState` hook.
 ```typescript
 type StoriesStateHookType = [Story[], Dispatch<SetStateAction<Story[]>>]
 export const ListOfStoriesComponent: FC<ListOfStoriesProps> = (props) => {
-  // Store Story[] in the functional component's state.
+  // Store Story[] in the function component's state.
   const [myStories, setMyStories]: StoriesStateHookType = React.useState<Story[]>([])
 
-  // Simply call `setMyStories` to set a value to the functional component's state.
+  // Simply call `setMyStories` to set a value to the function component's state.
   React.useEffect(
     () => {
       getAsyncStoriesWithSimulatedNetworkLag().then((value) => {
@@ -605,9 +605,9 @@ Here are some acceptable use cases where these can be used.
   function is debounced or throttled.
 - When the function object is a dependency on other hooks (eg: passing the function returned by
   `useCallback` to `useEffect`).
-- When the functional component wrapped inside of `useMemo` accepts a function object prop.
+- When the function component wrapped inside of `useMemo` accepts a function object prop.
 
-### How to write complex functional components
+### How to write complex function components
 
 If the FCs (`ItemComponent`, `ListComponent`, `SearchComponent` ) are defined inside the
 [`ListOfStoriesComponent`](https://github.com/nazmulidris/ts-scratch/tree/main/react-app-hooks-intro/src/components/list/ListOfStoriesComponent.tsx)
@@ -619,7 +619,7 @@ they behave differently with keyboard focus, than if they are defined outside it
    keyboard event.
 
    > ⚠ This might have something to do with [this](https://stackoverflow.com/a/56655447/2085356),
-   > functional components being stateless. If things are declared inside of a function, then they
+   > function components being stateless. If things are declared inside of a function, then they
    > will be recreated everytime that function is run, vs if they are declared outside, then they
    > won't be recreated on every (render) call.
 
@@ -642,7 +642,7 @@ they behave differently with keyboard focus, than if they are defined outside it
 To learn about hooks, here are some important resources.
 
 - [Great video introducing hooks][h-2]
-- [Best practices on using React functional components][h-5]
+- [Best practices on using React function components][h-5]
 - [Official docs on writing custom hooks][h-4]
 - [Official Hooks API Reference for useState][h-3]
 - [Deep dive into useState hook and React memory model][h-1]
@@ -1182,7 +1182,7 @@ In your component, make sure to subscribe to the store, using the
 ```tsx
 import { _also } from "r3bl-ts-utils"
 
-// Functional component.
+// function component.
 export const SimpleReduxComponent: FC = () => {
   const state: DefaultRootState = useSelector((state) => state)
   const myState = state as State
@@ -1207,7 +1207,7 @@ store.
 ```typescript
 import { _also } from "r3bl-ts-utils"
 
-// Functional component.
+// function component.
 export const SimpleReduxComponent: FC = () => {
   const state: DefaultRootState = useSelector((state) => state)
   const myState = state as State
@@ -1632,7 +1632,7 @@ function loadDataReturnsPromise() {
   }
 }
 
-// Functional component that uses the async function (aka a promise is returned) above.
+// function component that uses the async function (aka a promise is returned) above.
 const Header = () => {
   const [text, setText] = useState("")
   const [status, setStatus] = useState("idle")
@@ -3031,7 +3031,7 @@ export class ReactReplayClassComponent extends React.Component<AnimationFramesPr
 ```
 
 You can also wrap your prop type, eg: `MyPropType`, w/ `PropsWithChildren<MyPropType>` when
-declaring your functional component to declare that your component can accept `children`. And then
+declaring your function component to declare that your component can accept `children`. And then
 you can use the destructuring syntax to get the required props out.
 
 > 💡 TypeScript supports built-in and user defined
@@ -3056,8 +3056,8 @@ export const TooltipOverlay: FC<PropsWithChildren<TooltipOverlayProps>> = ({ chi
 > of the passed `props` object. The types are defined in `TooltipOverlayProps` (`text` comes from
 > this) and `PropsWithChildren` (`children` comes from this).
 
-Here's an example for a functional component. Note the use of `FC` to specify that this is a
-functional component that takes a prop. Being a functional component, you can't declare any state
+Here's an example for a function component. Note the use of `FC` to specify that this is a
+function component that takes a prop. Being a function component, you can't declare any state
 types.
 
 ```typescript
@@ -3072,7 +3072,7 @@ This [SO thread](https://stackoverflow.com/a/58123882/2085356) has the answers. 
 
 1. Use `ReactElement` where possible.
 2. When TypeScript complains at times, use `ReactElement | null`.
-3. Class components (return `ReactElement | null`) and functional components (return `ReactElement`)
+3. Class components (return `ReactElement | null`) and function components (return `ReactElement`)
    actually return different things.
 
 ## TypeScript types in array and object destructuring

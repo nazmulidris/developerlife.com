@@ -11,7 +11,7 @@ categories:
   - TypeScript
   - React
   - Web
-  - Node.js
+  - Node
   - Server
   - CLI
 ---

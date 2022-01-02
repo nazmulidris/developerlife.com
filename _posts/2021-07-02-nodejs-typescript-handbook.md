@@ -9,7 +9,7 @@ layout: post
 title: "Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)"
 categories:
   - TypeScript
-  - Node.js
+  - Node
   - Web
   - Server
 ---

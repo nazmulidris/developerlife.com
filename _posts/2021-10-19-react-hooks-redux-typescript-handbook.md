@@ -125,9 +125,9 @@ repo for the toy [React DOM Mini](https://github.com/sophiebits/react-dom-mini).
 
 ## React Hooks
 
-React hooks exist because there were severe limitations in versions before React 16 on what
-function components could do. And there were some problems w/ how class components function. By
-adding hooks to function components, it basically eliminates these 2 groups of problems.
+React hooks exist because there were severe limitations in versions before React 16 on what function
+components could do. And there were some problems w/ how class components function. By adding hooks
+to function components, it basically eliminates these 2 groups of problems.
 
 ### Why?
 
@@ -141,8 +141,8 @@ stateful logic between components, which results in people doing things like:
   components, which makes it necessary to add "artificial" components at the top most level (to have
   a shared scope in the children) just to wrap everything else underneath it, which is not optimal.
 
-With hooks, it is now possible to reuse stateful logic between function components! Thru the use
-of `useState` hook and others, you can create your own more complex hooks. The official docs have
+With hooks, it is now possible to reuse stateful logic between function components! Thru the use of
+`useState` hook and others, you can create your own more complex hooks. The official docs have
 [Hooks at a Glance](https://reactjs.org/docs/hooks-overview.html) which is a great overview of hooks
 along w/ an example of how you can make your own.
 
@@ -227,9 +227,9 @@ a function component, and how that maps to React's memory model.
    where state actually comes into play. In hooks, this part is a little bit confusing, since there
    is no constructor. Here's one way to think about it.
 
-1. The first time the function component is rendered (after being mounted), React will allocate
-   any state variables that are declared via calls to `useState()`. This is stored in memory by
-   React and the initial value is the argument passed to `useState(initialValue)`.
+1. The first time the function component is rendered (after being mounted), React will allocate any
+   state variables that are declared via calls to `useState()`. This is stored in memory by React
+   and the initial value is the argument passed to `useState(initialValue)`.
 1. This is also why React cares that these calls should not be wrapped in conditional logic or
    loops, because it relies on the lexical order in which these `useState()` calls are declared to
    do internal bookkeeping to figure out what the values of each stateful variable is (in its
@@ -648,6 +648,10 @@ The way to get around this issue is to do the following:
 3. Use `useEffect()` and pass the getter for this state variable as a dependency to a function that
    gets called when this state variable changes. This function will be able to then run the
    React-function-component-callback that is passed into the hook to begin with.
+
+Here's a diagram of this.
+
+<img src="{{ 'assets/use-hook-outside.svg' | relative_url }}"/>
 
 For a real world example, please take a look at this
 [commit in r3bl-ts-utils](https://github.com/r3bl-org/r3bl-ts-utils/commit/a3248540ea325d3896ee56a84d003f15529169cd)
@@ -3063,8 +3067,8 @@ export class ReactReplayClassComponent extends React.Component<AnimationFramesPr
 ```
 
 You can also wrap your prop type, eg: `MyPropType`, w/ `PropsWithChildren<MyPropType>` when
-declaring your function component to declare that your component can accept `children`. And then
-you can use the destructuring syntax to get the required props out.
+declaring your function component to declare that your component can accept `children`. And then you
+can use the destructuring syntax to get the required props out.
 
 > 💡 TypeScript supports built-in and user defined
 > [utility types](https://www.TypeScriptlang.org/docs/handbook/utility-types.html) and
@@ -3088,9 +3092,8 @@ export const TooltipOverlay: FC<PropsWithChildren<TooltipOverlayProps>> = ({ chi
 > of the passed `props` object. The types are defined in `TooltipOverlayProps` (`text` comes from
 > this) and `PropsWithChildren` (`children` comes from this).
 
-Here's an example for a function component. Note the use of `FC` to specify that this is a
-function component that takes a prop. Being a function component, you can't declare any state
-types.
+Here's an example for a function component. Note the use of `FC` to specify that this is a function
+component that takes a prop. Being a function component, you can't declare any state types.
 
 ```typescript
 export const ReactReplayFunctionComponent: FC<AnimationFramesProps> = (props): ReactElement => {

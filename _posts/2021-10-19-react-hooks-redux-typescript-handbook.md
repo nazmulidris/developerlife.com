@@ -630,15 +630,21 @@ attached to the DOM, or Node.js, or a database), it is important to keep in mind
 functions that are passed to `useEffect()` **can not directly call** into the React function
 component 🧨!
 
-> 🤔 This is a pretty subtle and important point to remember when figuring how to "relay" the
+> 🤔 This is a very subtle but important point to remember when figuring how to "relay" the
 > non-React async event into the React function component world (via a custom hook that you're
-> writing).
+> writing). When using "normal" React (host components in a browser) we don't get to see this
+> because the code that interfaces with the browser's DOM is provided to us. So we are used to
+> attaching a callback function to an
+> [`onclick` props of a `button` in React](https://reactjs.org/docs/handling-events.html), and it
+> would just work 🧙. However, under the covers this host component is taking care of interfacing w/
+> a DOM async event emitter to invoke callback function via
+> [`addEventListener`](https://dom.spec.whatwg.org/#dom-eventtarget-addeventlistener) and doing
+> something similar to this hook.
 
 It might be tempting to simply pass a React-function-component-callback function to a hook, which
 then passes it on to an external event emitter listener 😈. When the listener is then executed by
 the external event emitter (which is not a React function component) then problems will arise! The
-state information that this React-function-component-callback will get will be wrong. If you use
-Redux you can bypass this problem, but if you're using `useEffect()` then you will be in trouble.
+state information that this React-function-component-callback will get will be wrong.
 
 The way to get around this issue is to do the following:
 

@@ -59,6 +59,7 @@ platforms.
 
 Highlights:
 
+- Coding in Kotlin, TypeScript, React, WASM, WASI, CLI, GUI, Rust, Node.js, Java.
 - Currently working on developer tools (Android Studio IDE) coding in Kotlin & Java.
 - Was principal SWE, founder, and CEO of a startup (TRNQL) in 2015.
   - Raised 1.5M in venture funding.
@@ -83,8 +84,9 @@ Highlights:
 
 - Experienced in building mobile apps and SDKs, web apps and APIs, IDEs, and web services
 
-- Well versed in Kotlin, Java, Android, Test driven development, Dagger2, TypeScript, JavaScript,
-  Jasmine, Karma, Python, React Native, React, Redux, Firebase, databases (SQL & object oriented)
+- Well versed in Kotlin, Java, Android, Test driven development, TypeScript, Rust, Node.js, WASM,
+  WASI, JavaScript, Jest, React, Redux, Python, React Native, Firebase, databases (SQL & NoSQL), CLI
+  apps, GUI desktop apps
 
 ### Mobile app development toolkits & infrastructure
 

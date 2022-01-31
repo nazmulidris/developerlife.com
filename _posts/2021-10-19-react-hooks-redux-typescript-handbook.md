@@ -625,10 +625,12 @@ they behave differently with keyboard focus, than if they are defined outside it
 
 ### Custom hooks
 
-When writing custom hooks, that relay external async events (eg, happening in a listener that is
-attached to the DOM, or Node.js, or a database), it is important to keep in mind that callback
-functions that are passed to `useEffect()` **can not directly call** into the React function
-component 🧨!
+When writing custom hooks, that relay external async events (eg, happening via a **listener
+function** that is attached to the DOM, or Node.js, or a database) please note that this listener
+function, which is passed to `useEffect()`, **can not directly call** into the React function
+component 🧨! If you have functions defined inside of your React function component, even though
+they look and feel like regular TypeScript / JavaScript functions they don't work the same way if
+code outside the component invokes them vs. code that is inside.
 
 > 🤔 This is a very subtle but important point to remember when figuring how to "relay" the
 > non-React async event into the React function component world (via a custom hook that you're

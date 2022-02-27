@@ -438,6 +438,9 @@ fn fun_4(node: Box<dyn HasId<Id = i32>>) {
 - Also, traits can have associated types, and `HasId` has an associated type called `IdType` which
   is just `usize`. However, it can be set to anything and shows the flexibility of traits.
 
+> Here's a diagram summarizing the journey so far. <br/> <br/>
+> <img class="post-hero-image" src="{{ 'assets/tree-approaches.drawio.svg' | relative_url }}"/>
+
 ### Basic usage of the arena (tree)
 
 The first step to using this tree is adding the dependency for `r3bl_rs_utils` to your `Cargo.toml`.

@@ -9,10 +9,10 @@ exclude: false
 
 By [Nazmul Idris]({{'/about-me' | relative_url}})
 
-I started developerlife.com in Nov 1998 when I couldn’t find a decent tutorial on XML and Java to
-build web based apps, so I decided to write one myself, and this site was born. It served up its
-[first tutorial on on 31 Dec 1998](http://xml.coverpages.org/idris199901.html) with the following
-announcement to the `xlxp-dev@fsc.fujitsu.com` mailing list.
+I started developerlife.com on Nov 1998 in Blacksburg, VA, when I couldn’t find a decent tutorial on
+XML and Java to build web based apps, so I decided to write one myself, and this site was born. It
+served up its [first tutorial on on 31 Dec 1998](http://xml.coverpages.org/idris199901.html) with
+the following announcement to the `xlxp-dev@fsc.fujitsu.com` mailing list.
 
 ```text
 XML and Java2 Tutorial
@@ -49,12 +49,14 @@ Nazmul Idris
 Like [Alan Kay](http://en.wikipedia.org/wiki/Alan_Kay) said: **"The best way to predict the future
 is to invent it."**
 
-It grew to become a trusted resource to professional programmers, college students, universities,
-research institutions, [standards bodies](http://xml.coverpages.org/xmlFAQ15.html#JAVA-GEN), online
-magazines, and even enterprise software vendors.
+Over the years it grew to become a **trusted** resource to professional programmers, college
+students, universities, research institutions,
+[standards bodies](http://xml.coverpages.org/xmlFAQ15.html#JAVA-GEN), online magazines, and even
+enterprise software vendors.
 
-Since then technologies have come and gone, and I have created tutorials on many varied topics. The
-goal of the content is in service of the creation of technology that adapts to the needs of humans.
+Since 1998 technologies have come and gone, I've moved from Blacksburg, VA to Mountain View, CA, and
+I have created tutorials on many varied topics. What hasn't changed is the goal of the content,
+which is in service of the creation of technology that adapts to the needs of all living things.
 
 You can see how this site has evolved since the beginning in the
 [Internet Archive Wayback Machine](https://web.archive.org/web/*/developerlife.com).

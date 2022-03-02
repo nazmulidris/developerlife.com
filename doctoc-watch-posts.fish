@@ -7,7 +7,7 @@
 set -l watchThisFolder ./_posts/
 
 while inotifywait --event modify $watchThisFolder | read -t arg1 arg2 arg3
-    sleep 1s
+    # sleep 5s
     echo $arg3
     doctoc $watchThisFolder$arg3
 end

@@ -3,14 +3,15 @@ title: "Build a non-binary tree that is thread safe using Rust"
 author: Nazmul Idris
 date: 2022-02-24 14:00:00+00:00
 excerpt: |
-  This article shows how to bulid a non-binary tree in Rust using various approaches until we end
-  up with a version that is thread safe and supports parallel tree walking as well. Topics like
-  interior mutability, sharing ownership, weak and strong references, custom traits for polymorphic
-  behavior, are covered in this article.
+  This article illustrates how we can build a non-binary tree in Rust using various approaches until
+  we end up with a version that is thread safe and supports parallel tree walking as well. Topics
+  like interior mutability, sharing ownership, weak and strong references, custom traits for
+  polymorphic behavior, are covered in this article.
 layout: post
 categories:
   - Rust
   - CS
+  - CLI
 ---
 
 <img class="post-hero-image" src="{{ 'assets/rust-non-binary-tree.svg' | relative_url }}"/>
@@ -33,10 +34,10 @@ categories:
 
 ## Introduction
 
-This article shows how to bulid a non-binary tree in Rust using various approaches until we end up
-with a version that is thread safe and supports parallel tree walking as well. Topics like interior
-mutability, sharing ownership, weak and strong references, custom traits for polymorphic behavior,
-are covered in this article.
+This article illustrates how we can build a non-binary tree in Rust using various approaches until
+we end up with a version that is thread safe and supports parallel tree walking as well. Topics
+like interior mutability, sharing ownership, weak and strong references, custom traits for
+polymorphic behavior, are covered in this article.
 
 A non-binary tree is a data structure that can be used to represent a tree of nodes similar to DOM,
 or Virtual DOM (React). Each node in the tree has a value and a list of children. It also has a

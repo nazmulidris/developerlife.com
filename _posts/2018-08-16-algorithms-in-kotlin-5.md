@@ -127,9 +127,7 @@ To do a depth first traversal of the graph, here's some code that uses a Stack (
  */
 fun <T> depthFirstTraversal(graph: Graph<T>, startNode: T): String {
     // Mark all the vertices / nodes as not visited.
-    val visitedMap = mutableMapOf<T, Boolean>().apply {
-        graph.adjacencyMap.keys.forEach { node -> put(node, false) }
-    }
+    val visited = mutableSetOf<T>()
 
     // Create a stack for DFS. Both ArrayDeque and LinkedList implement Deque.
     val stack: Deque<T> = ArrayDeque()
@@ -145,13 +143,13 @@ fun <T> depthFirstTraversal(graph: Graph<T>, startNode: T): String {
         // Pop the node off the top of the stack.
         val currentNode = stack.pop()
 
-        if (!visitedMap[currentNode]!!) {
+        if (!visited.contains(currentNode)) {
 
             // Store this for the result.
             traversalList.add(currentNode)
 
             // Mark the current node visited and add to the traversal list.
-            visitedMap[currentNode] = true
+            visited.add(currentNode)
 
             // Add nodes in the adjacency map.
             graph.adjacencyMap[currentNode]?.forEach { node ->
@@ -187,22 +185,20 @@ fun <T> breadthFirstTraversal(graph: Graph<T>,
 
     // Mark all the vertices / nodes as not visited. And keep track of sequence
     // in which nodes are visited, for return value.
-    class VisitedMap {
+    class Visited {
         val traversalList = mutableListOf<T>()
 
-        val visitedMap = mutableMapOf<T, Boolean>().apply {
-            for (node in graph.adjacencyMap.keys) this[node] = false
-        }
+        val visitedSet = mutableSetOf<T>()
 
-        fun isNotVisited(node: T): Boolean = !visitedMap[node]!!
+        fun isNotVisited(node: T): Boolean = !visited.contains(node)
 
         fun markVisitedAndAddToTraversalList(node: T) {
-            visitedMap[node] = true
+            visited.add(node)
             traversalList.add(node)
         }
     }
 
-    val visitedMap = VisitedMap()
+    val visited = Visited()
 
     // Keep track of the depth of each node, so that more than maxDepth nodes
     // aren't visited.
@@ -246,9 +242,9 @@ fun <T> breadthFirstTraversal(graph: Graph<T>,
         val currentDepth = depthMap[currentNode]!!
 
         if (currentDepth <= maxDepth) {
-            if (visitedMap.isNotVisited(currentNode)) {
+            if (visited.isNotVisited(currentNode)) {
                 // Mark the current node visited and add to traversal list.
-                visitedMap.markVisitedAndAddToTraversalList(currentNode)
+                visited.markVisitedAndAddToTraversalList(currentNode)
                 // Add nodes in the adjacency map.
                 queue.addAdjacentNodes(currentNode, /* depth= */currentDepth + 1)
             }
@@ -256,7 +252,7 @@ fun <T> breadthFirstTraversal(graph: Graph<T>,
 
     }
 
-    return visitedMap.traversalList.toString()
+    return visited.traversalList.toString()
 }
 ```
 

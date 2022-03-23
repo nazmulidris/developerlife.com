@@ -3,13 +3,14 @@ author: Nazmul Idris
 date: 2021-03-13 14:00:00+00:00
 excerpt: |
   Advanced guide to creating JetBrains Platform plugins: VFS, PSI, Kotlin UI DSL, Dialog, Tool window, List,
-  Swing UI and layout managers, ConsoleView, LineMarker. This is a companion of the Introduction to creating IntelliJ 
+  Swing UI and layout managers, ConsoleView, LineMarker. This is a companion of the Introduction to creating IntelliJ
   IDEA plugins tutorial.
 layout: post
 title: "Advanced guide to creating IntelliJ IDEA plugins"
 categories:
   - IJ
   - KT
+  - MP
 ---
 
 <img class="post-hero-image" src="{{ 'assets/jetbrains-plugin.svg' | relative_url }}"/>

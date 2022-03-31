@@ -441,6 +441,9 @@ impl Parse for ManagerOfThingInfo {
 > 📜 You can find the solution to the proc macro workshop
 > [here](https://github.com/jonhoo/proc-macro-workshop).
 
+> 📜 This [tutorial](https://ferrous-systems.com/blog/testing-proc-macros/) from the
+> rust-analyzer team is also quite helpful.
+
 ## Eg 1 - Function-like macro that dumps the AST
 
 Let's start our procedural macro journey w/ something very simple. It's a macro that
@@ -565,7 +568,14 @@ and the procedural macro will do the rest.
 - Declarative or the folks who are using the macros.
 - For the implementors, it ends up generating imperative code.
 
-> 📜 Please take a look at the syn example called
+> 📦 To see a real world example of a custom syntax parser, please check out the
+> [`manager_of_things.rs`](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/my_proc_macros_lib/src/manager_of_things.rs)
+> file in our [`r3bl_rs_utils` crate](https://crates.io/crates/r3bl_rs_utils). You can
+> also look at the
+> [tests](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/tests/test_manager_of_things_macro.rs)
+> to see how this macro is used.
+
+> 📜 Also take a look at the syn example called
 > [`lazy-static`](https://github.com/dtolnay/syn/tree/master/examples/lazy-static) to get
 > some more ideas on custom syntax parsing and creating custom error messages for the
 > compiler.

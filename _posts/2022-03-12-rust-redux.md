@@ -265,6 +265,16 @@ pub async fn actually_dispatch_action<'a>(
 
 With this, we can now dive into the Redux library implementation 🚀.
 
+> 📦 There are ways to automate the generation of all this boilerplate in Rust using
+> [procedural macros](https://developerlife.com/2022/03/30/rust-proc-macro/#eg-2---function-like-macro-that-parses-custom-syntax).
+> To see a real world example of using code generation to express this pattern, please
+> check out the
+> [`manager_of_things.rs`](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/my_proc_macros_lib/src/manager_of_things.rs)
+> file in our [`r3bl_rs_utils` crate](https://crates.io/crates/r3bl_rs_utils). You can
+> also look at the
+> [tests](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/tests/test_manager_of_things_macro.rs)
+> to see how this macro is used.
+
 ## Using the Redux library
 
 > 🚀 You can find a CLI app that uses this Redux library to manage an address book

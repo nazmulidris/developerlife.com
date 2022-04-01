@@ -21,6 +21,7 @@ categories:
 
 - [What are procedural macros](#what-are-procedural-macros)
 - [How to add a proc macro lib crate to your existing project](#how-to-add-a-proc-macro-lib-crate-to-your-existing-project)
+  - [Add an internal or core crate](#add-an-internal-or-core-crate)
 - [What does a syn AST look like?](#what-does-a-syn-ast-look-like)
 - [How to write a proc macro of any kind](#how-to-write-a-proc-macro-of-any-kind)
   - [Strategy](#strategy)
@@ -168,6 +169,28 @@ r3bl_rs_utils = "*"
 >    for the test that you give that script as an argument.
 > 2. Another script is provided called `cargo-watch-one-test.fish` which watches for
 >    changes in your and then runs the test you give that script as an argument.
+
+### Add an internal or core crate
+
+There are situations where you will need to share code between your public crate and your
+procedural macro crate. In this case you can add an internal or core crate to your
+project. The shared files will all go inside of this core or internal crate.
+
+For more information on this, please check out
+[this stackoverflow thread](https://stackoverflow.com/a/64288799/2085356).
+
+The basic steps look like this:
+
+1. Add a new crate `my_core_lib` and create the following dependencies:
+   - public crate (eg: `r3bl_rs_utils`) deps: `[my_core_lib, my_proc_macros_lib]`
+   - proc macro crate (eg: `my_proc_macros_lib`) deps: `[my_core_lib]`
+2. The files that need to be shared everywhere (public & proc macro crates) need to go in
+   the `my_core_lib` crate.
+
+> 📦 Here's a real example of this from the
+> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate which applies this
+> change in this
+> [commit](https://github.com/r3bl-org/r3bl-rs-utils/commit/83345a61e1de25515794e4926b7c0eb1a2fe8807).
 
 ## What does a syn AST look like?
 

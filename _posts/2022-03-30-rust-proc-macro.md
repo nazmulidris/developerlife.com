@@ -568,14 +568,20 @@ and the procedural macro will do the rest.
 - Declarative or the folks who are using the macros.
 - For the implementors, it ends up generating imperative code.
 
-> 📦 To see a real world example of a custom syntax parser, please check out the
-> [`manager_of_things.rs`](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/my_proc_macros_lib/src/manager_of_things.rs)
-> file in our [`r3bl_rs_utils` crate](https://crates.io/crates/r3bl_rs_utils). You can
-> also look at the
-> [tests](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/tests/test_manager_of_things_macro.rs)
-> to see how this macro is used.
+> 📦 To see a real world example of a custom syntax parser, please check out
+> [`manager_of_things.rs`](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/my_proc_macros_lib/src/manager_of_things.rs).
+>
+> - This is part of the [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate.
+> - You can also look at the
+>   [tests](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/tests/test_manager_of_things_macro.rs)
+>   to see how this macro is used.
+> - You can create your own custom keywords using syn via the
+>   [`syn::custom_keyword!()`](https://docs.rs/syn/latest/syn/macro.custom_keyword.html)
+>   macro.
+> - The code that's generated also uses
+>   [async traits](https://github.com/dtolnay/async-trait) which are interesting.
 
-> 📜 Also take a look at the syn example called
+> 📜 Take a look at the syn example called
 > [`lazy-static`](https://github.com/dtolnay/syn/tree/master/examples/lazy-static) to get
 > some more ideas on custom syntax parsing and creating custom error messages for the
 > compiler.

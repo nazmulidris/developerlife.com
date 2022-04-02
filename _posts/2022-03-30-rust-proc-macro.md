@@ -190,7 +190,12 @@ The basic steps look like this:
 > 📦 Here's a real example of this from the
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate which applies this
 > change in this
-> [commit](https://github.com/r3bl-org/r3bl-rs-utils/commit/83345a61e1de25515794e4926b7c0eb1a2fe8807).
+> [commit](https://github.com/r3bl-org/r3bl-rs-utils/commit/c5b57f7b81e746a7277191dc1593237b5bc12867).
+
+If you publish the public crate to crates.io, then you will need to publish each of the
+dependent crates as well. This won't happen automatically when publishing the public
+crate, you have to go in and run `cargo publish` on each and every dependent crate and
+they will be their own installable crate on crates.io.
 
 ## What does a syn AST look like?
 

@@ -694,11 +694,25 @@ generated.
 /// Example of syntax to parse:
 /// ```no_run
 /// fn_macro_custom_syntax! {
-///   ThingManager<K, V>
+///   ╭─L1──────────────────────────────────────────
+///   │     manager_ty
+///   │     ▾▾▾▾▾▾▾▾▾▾▾▾▾▾▾▾▾▾
+///   named ThingManager<K, V>
+///   │     ▴▴▴▴▴▴▴▴▴▴▴▴ ▴▴▴▴
+///   │     │            manager_ty_generic_args
+///   │     manager_name_ident
+///   ╰─────────────────────────────────────────────
+///   ╭─L2?─────────────────────────────────────────
 ///   where K: Send + Sync + 'static, V: Send + Sync + 'static
-///   for std::collections::HashMap<K, V>
+///   │     ▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴
+///   │     where_clause
+///   ╰─────────────────────────────────────────────
+///   ╭─L3──────────────────────────────────────────
+///   of_type std::collections::HashMap<K, V>
+///   │       ▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴▴
+///   │       thing_ty
+///   ╰─────────────────────────────────────────────
 /// }
-/// ```
 #[derive(Debug)]
 struct ManagerOfThingInfo {
   manager_name_ident: Ident,

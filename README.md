@@ -269,6 +269,11 @@ of these theme variables don't work in overrides via `%%{init:...}%%` or specify
 </div>
 ```
 
+# Mailchimp form for newsletter sign up
+
+- https://us14.admin.mailchimp.com/account/connected-sites/app-selection/
+- https://www.youtube.com/watch?v=zhHY4tWpFz4
+
 # References
 
 ## Running github pages locally

@@ -23,9 +23,9 @@
 
 ## Installing Ruby, Jekyll, and running this project
 
-To use Rails on macOS, you’ll need Ruby (an interpreter for the Ruby programming language) plus gems
-(software libraries) containing the Rails web application development framework. Run the following
-commands in your terminal app.
+To use Rails on macOS, you’ll need Ruby (an interpreter for the Ruby programming language)
+plus gems (software libraries) containing the Rails web application development framework.
+Run the following commands in your terminal app.
 
 1. `xcode-select --install`
 1. `brew install ruby`
@@ -54,12 +54,12 @@ After you clone the repo, go the `jekyll_test` folder, and
 
 # RSS Readers and hero-image handling
 
-Using the `hero-image` property in the YAML header of each MD file in `_posts` folder doesn't work
-with RSS readers (feedly and Fluent RSS reader). Here is the new (preferred) way of adding hero
-images so they work w/ RSS readers.
+Using the `hero-image` property in the YAML header of each MD file in `_posts` folder
+doesn't work with RSS readers (feedly and Fluent RSS reader). Here is the new (preferred)
+way of adding hero images so they work w/ RSS readers.
 
-Instead of using this YAML "hero-image" property (key) it is better to remove it and just add the
-image directly using an img tag like so:
+Instead of using this YAML "hero-image" property (key) it is better to remove it and just
+add the image directly using an img tag like so:
 
 ```
 ``<img class="post-hero-image" src="{{ 'assets/<HERO_IMAGE_HERE>' | relative_url }}"/>
@@ -69,10 +69,11 @@ I successfully tested this using Fluent RSS reader on `http://127.0.0.1:4000/fee
 
 # Customize minima theme
 
-Jekyll is configured to use minima theme. This means that there are some files that are pulled from
-this dependency by Jekyll when it builds the static site. This dependency is located on your
-computer in `echo (bundle info --path minima)`. Save the path to an environment variable called
-`$MINIMA_HOME` using `set MINIMA_HOME (bundle info --path minima)`.
+Jekyll is configured to use minima theme. This means that there are some files that are
+pulled from this dependency by Jekyll when it builds the static site. This dependency is
+located on your computer in `echo (bundle info --path minima)`. Save the path to an
+environment variable called `$MINIMA_HOME` using
+`set MINIMA_HOME (bundle info --path minima)`.
 
 Here is an example of the files in the `$MINIMA_HOME` folder.
 
@@ -95,12 +96,12 @@ Here is an example of the files in the `$MINIMA_HOME` folder.
     └── minima.scss
 ```
 
-As you can imagine, in order to customize this theme you can simply provide a file that is your repo
-that is located on a similar path to the path that is in `$MINIMIA_HOME`,
+As you can imagine, in order to customize this theme you can simply provide a file that is
+your repo that is located on a similar path to the path that is in `$MINIMIA_HOME`,
 [more info here](https://ouyi.github.io/post/2017/12/23/jekyll-customization.html)
 
-> If you edit these minima files by accident (you will need `sudo` access to edit them), you can
-> simply regenerate them by running `bundle install --force`.
+> If you edit these minima files by accident (you will need `sudo` access to edit them),
+> you can simply regenerate them by running `bundle install --force`.
 
 ## Overriding files in the base theme
 
@@ -111,16 +112,17 @@ The interesting files are:
 
 Notes:
 
-- If we provide our own copy of these files in a similar path in this repo, then they will simply be
-  considered overrides by Jekyll when it builds the static site.
-- Think of this as operator overloading but for files. So if the `minima.scss` file is found in this
-  repo, then it overrides the equivalent one in the "base" theme located in `$MINIMA_HOME`.
-- Look at the bottom of the `minima.scss` file and you will see imports that pull in `styles.scss`
-  and `syntax.scss` (used for syntax highlighting).
+- If we provide our own copy of these files in a similar path in this repo, then they will
+  simply be considered overrides by Jekyll when it builds the static site.
+- Think of this as operator overloading but for files. So if the `minima.scss` file is
+  found in this repo, then it overrides the equivalent one in the "base" theme located in
+  `$MINIMA_HOME`.
+- Look at the bottom of the `minima.scss` file and you will see imports that pull in
+  `styles.scss` and `syntax.scss` (used for syntax highlighting).
 
-I've created a file `./_sass/minima.scss` which overrides the corresponding file in the base theme.
-This is where I do a lot of big customizations, like creating variables, and using `@import` to
-bring in other `.scss` files. Here are some examples of this.
+I've created a file `./_sass/minima.scss` which overrides the corresponding file in the
+base theme. This is where I do a lot of big customizations, like creating variables, and
+using `@import` to bring in other `.scss` files. Here are some examples of this.
 
 ```scss
 @font-face {
@@ -146,10 +148,11 @@ $text-color: #e6e6e6 !default;
 These `@import` statements bring in lots of other `scss` files. One of them handles syntax
 highlighting, [more on this below](#how-to-customize-syntax-highlighting).
 
-Here's a `./_site/assets/main.css.map` file that is generated as part of the build process (which
-are driven by some key-value pairs in the `_config.yml` file) which has a list of all the `scss`
-files that are actually imported to give a clear picture of what files are actually used to generate
-the single `./_site/assets/main.css` file everytime Jekyll generates the static site.
+Here's a `./_site/assets/main.css.map` file that is generated as part of the build process
+(which are driven by some key-value pairs in the `_config.yml` file) which has a list of
+all the `scss` files that are actually imported to give a clear picture of what files are
+actually used to generate the single `./_site/assets/main.css` file everytime Jekyll
+generates the static site.
 
 ```css
 {
@@ -198,13 +201,13 @@ the single `./_site/assets/main.css` file everytime Jekyll generates the static 
 
 ## How to customize syntax highlighting
 
-The [`syntax.scss`](_sass/syntax.scss) file actually contains all the syntax highlighting SCSS. This
-overrides whatever comes w/ minima (it does come w/ some defaults in
+The [`syntax.scss`](_sass/syntax.scss) file actually contains all the syntax highlighting
+SCSS. This overrides whatever comes w/ minima (it does come w/ some defaults in
 `$MINIMA_HOME/_sass/minima/_syntax-hihglihting.scss`). There's a repo called
-[`pygments-css`](https://github.com/richleland/pygments-css) which I simply copy from. In this repo,
-find the styling that you like, and just copy/paste the contents of that file into the `syntax.scss`
-file as described in the comments in this file, and it will be applied when Jekyll builds the static
-site.
+[`pygments-css`](https://github.com/richleland/pygments-css) which I simply copy from. In
+this repo, find the styling that you like, and just copy/paste the contents of that file
+into the `syntax.scss` file as described in the comments in this file, and it will be
+applied when Jekyll builds the static site.
 
 ## Documentation and references on Jekyll styling, minima customization, and SASS
 
@@ -221,7 +224,8 @@ More info on mermaid
 - [mermaid theming guide](https://mermaid-js.github.io/mermaid/#/theming)
 - [mermaid live editor](https://mermaid.live/edit)
 
-To add mermaid diagrams to markdown files on the site, you add snippets like the following.
+To add mermaid diagrams to markdown files on the site, you add snippets like the
+following.
 
 ```
 <div class="mermaid">
@@ -243,9 +247,10 @@ To add mermaid diagrams to markdown files on the site, you add snippets like the
 ```
 
 By default, the dark theme, font, and color overrides are provided in
-[`mermaid.html`](_includes/mermaid.html). If you wish to override them you can do as follows (some
-of these theme variables don't work in overrides via `%%{init:...}%%` or specifying them in
-`mermaid.initialize(...)` block). Here's a snippet that overrides the default them and font family.
+[`mermaid.html`](_includes/mermaid.html). If you wish to override them you can do as
+follows (some of these theme variables don't work in overrides via `%%{init:...}%%` or
+specifying them in `mermaid.initialize(...)` block). Here's a snippet that overrides the
+default them and font family.
 
 ```
 <div class="mermaid">
@@ -274,6 +279,22 @@ of these theme variables don't work in overrides via `%%{init:...}%%` or specify
 - https://us14.admin.mailchimp.com/account/connected-sites/app-selection/
 - https://www.youtube.com/watch?v=zhHY4tWpFz4
 
+Forms on Mailchimp (make sure to remove address):
+
+> ⚠️ This tutorial shows how to remove the mailing address that is automatically added to
+> many things on Mailchimp -
+> [remove your address](https://www.denisejoanne.com/remove-address-from-mailchimp-footer-confirmation/i).
+
+- [new email template](https://us14.admin.mailchimp.com/campaigns/edit?id=8994713#0)
+  - The mailing address was removed from here
+- [subscribe embedded form](https://us14.admin.mailchimp.com/audience/forms/embedded-form/editor?id=491533)
+  - This form is located in `subscribe.html`
+- [popup subscribe form](https://us14.admin.mailchimp.com/signup-forms/popup-forms/editor?id=70673&site_id=81293)
+  - This form is configured to popup when 1/2 of a page is scrolled and appears on the
+    right side of the page (not a modal)
+- [subscribe confirmation form](https://us14.admin.mailchimp.com/lists/designer/?id=491533)
+  - The mailing address was removed from here
+
 # References
 
 ## Running github pages locally
@@ -290,18 +311,18 @@ of these theme variables don't work in overrides via `%%{init:...}%%` or specify
 
 The
 [Internet Engineering Task Force (IETF) points out](https://tools.ietf.org/id/draft-knodel-terminology-00.html#rfc.section.1.1.1)
-that "Master-slave is an oppressive metaphor that will and should never become fully detached from
-history" as well as "In addition to being inappropriate and arcane, the
+that "Master-slave is an oppressive metaphor that will and should never become fully
+detached from history" as well as "In addition to being inappropriate and arcane, the
 [master-slave metaphor](https://github.com/bitkeeper-scm/bitkeeper/blob/master/doc/HOWTO.ask?WT.mc_id=-blog-scottha#L231-L232)
-is both technically and historically inaccurate." There's lots of more accurate options depending on
-context and it costs me nothing to change my vocabulary, especially if it is one less little speed
-bump to getting a new person excited about tech.
+is both technically and historically inaccurate." There's lots of more accurate options
+depending on context and it costs me nothing to change my vocabulary, especially if it is
+one less little speed bump to getting a new person excited about tech.
 
-You might say, "I'm all for not using master in master-slave technical relationships, but this is
-clearly an instance of master-copy, not master-slave"
+You might say, "I'm all for not using master in master-slave technical relationships, but
+this is clearly an instance of master-copy, not master-slave"
 [but that may not be the case](https://mail.gnome.org/archives/desktop-devel-list/2019-May/msg00066.html)
-. Turns out the original usage of master in Git very likely came from another version control system
-(BitKeeper) that explicitly had a notion of slave branches.
+. Turns out the original usage of master in Git very likely came from another version
+control system (BitKeeper) that explicitly had a notion of slave branches.
 
 - https://dev.to/lukeocodes/change-git-s-default-branch-from-master-19le
 - https://www.hanselman.com/blog/EasilyRenameYourGitDefaultBranchFromMasterToMain.aspx

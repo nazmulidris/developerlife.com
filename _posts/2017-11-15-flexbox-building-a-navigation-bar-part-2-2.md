@@ -1,5 +1,5 @@
 ---
-author: Maret Idris
+author: Nadia Idris
 date: 2017-11-15 05:19:43+00:00
 excerpt: |
   This is a second article on 2 part series. In this article you will learn
@@ -34,45 +34,46 @@ categories:
 
 ## Introduction
 
-This is a second article on 2 part series. In this article you will learn how to build a simple
-example responsive navigation design using Flexbox and media queries.
+This is a second article on 2 part series. In this article you will learn how to build a
+simple example responsive navigation design using Flexbox and media queries.
 
 The first article called [Flexbox: Getting Started (Part 1/2)]({{
-'/2017/11/15/flexbox-getting-started-part-1-2/' | relative_url }}) shares fun places to learn Flexbox
-from.
+'/2017/11/15/flexbox-getting-started-part-1-2/' | relative_url }}) shares fun places to learn
+Flexbox from.
 
 ## Sample project
 
-This is the webpage I created and I have used Flexbox on the header. I have also used CSS Grid on
-the watch gallery. If you read further I explain why I chose to use CSS Grid in addition to Flexbox
-(instead of relying on Flexbox alone).
+This is the webpage I created and I have used Flexbox on the header. I have also used CSS
+Grid on the watch gallery. If you read further I explain why I chose to use CSS Grid in
+addition to Flexbox (instead of relying on Flexbox alone).
 
 ![]({{ 'assets/flexbox-navbar-1.png' | relative_url }})
 
 ## Implementing a responsive design
 
-This is what the header looks like on a screen width smaller than 600px. The logo is above the
-navigation.
+This is what the header looks like on a screen width smaller than 600px. The logo is above
+the navigation.
 
 ![]( {{'assets/flexbox-navbar-2.png' | relative_url}} )
 
-The same header looks like this on on a screen width 600px and larger. The logo and navigation are
-beside each other, centered vertically.
+The same header looks like this on on a screen width 600px and larger. The logo and
+navigation are beside each other, centered vertically.
 
 ![]( {{'assets/flexbox-navbar-3.png' | relative_url}} )
 
 ## Get the source code
 
 You can download the source code for the HTML and CSS for this project
-[here](https://github.com/MaretIdris/website-flexbox).
+[here](https://github.com/nadiaidris/website-flexbox).
 
 Let’s look at the CSS Box model and HTML first.
 
-- I have a main container called `header-container,` which I surrounded in a yellow border in the
-  images below (so you can see what it contains).
+- I have a main container called `header-container,` which I surrounded in a yellow border
+  in the images below (so you can see what it contains).
 - It includes 2 containers (both of which have blue borders below):
   1. `logo`
-  2. `nav`. Inside of the `nav`, there is the common unordered list with the navigation page names.
+  2. `nav`. Inside of the `nav`, there is the common unordered list with the navigation
+     page names.
 
 ![]( {{'assets/flexbox-navbar-4.png' | relative_url}} )
 
@@ -83,7 +84,9 @@ This is what the code looks like.
 ```html
 <header class="header-container">
   <div class="logo">
-    <a href="index.html" title="Henne home page"> <img src="images/logo.png" width="180" /></a>
+    <a href="index.html" title="Henne home page">
+      <img src="images/logo.png" width="180"
+    /></a>
   </div>
   <nav>
     <ul>
@@ -98,7 +101,8 @@ This is what the code looks like.
 
 ## CSS details
 
-Because I have two layouts, I used a media query to create a breakpoint and change the CSS styling.
+Because I have two layouts, I used a media query to create a breakpoint and change the CSS
+styling.
 
 ### Screen width smaller than 600px
 
@@ -154,7 +158,8 @@ li a:hover {
 
 - There is a `header-container`, which is a **flex container.**
   - The browser knows that it’s a flex container, because it’s `display` is set to `flex`.
-  - `flex-direction` is set to `column` (<i class="fas fa-long-arrow-alt-down"/>), which means
+  - `flex-direction` is set to `column` (<i class="fas fa-long-arrow-alt-down"/>), which
+    means
     1. `main-axis` is `vertical` (<i class="fas fa-arrows-alt-v"/>)
     1. `cross-axis` is `horizontal` (<i class="fas fa-arrows-alt-h"/>)
 - Then there is a bunch of extra styling below that, which is not Flexbox.
@@ -183,29 +188,31 @@ The following code snippet declares a media query, when the screen is 600px or l
 }
 ```
 
-You’ll notice that on `header-container` I haven’t declared `display: flex;` and that’s because the
-way I set up the media query. The previous styles still apply and I am overwriting the lines of code
-that I want changed.
+You’ll notice that on `header-container` I haven’t declared `display: flex;` and that’s
+because the way I set up the media query. The previous styles still apply and I am
+overwriting the lines of code that I want changed.
 
-I have changed the `flex-direction` to `row`. Which means that the main-axis is now horizontal.
+I have changed the `flex-direction` to `row`. Which means that the main-axis is now
+horizontal.
 
 ![]( {{'assets/flexbox-navbar-7.png' | relative_url}} )
 
-Also added `justify-content` property with a value of `space-between`. This makes sure the `logo`
-and `nav` containers are on the opposite ends of the `header-container`.
+Also added `justify-content` property with a value of `space-between`. This makes sure the
+`logo` and `nav` containers are on the opposite ends of the `header-container`.
 
-I used `align-self` on the nav, which is a **flex item**. `align-self` is a **flex item property**
-and it centers the cross-axis. Which in my case is the vertical alignment, because my main axis is
-horizontal (`flex-direction: row;`). In other words, vertically centers the items.
+I used `align-self` on the nav, which is a **flex item**. `align-self` is a **flex item
+property** and it centers the cross-axis. Which in my case is the vertical alignment,
+because my main axis is horizontal (`flex-direction: row;`). In other words, vertically
+centers the items.
 
 ### Things to note
 
-- If you add an image to HTML, it includes a tiny bit of space on the bottom of it. In order to
-  remove it, use `display` property and set its value to `block`. I used it on `logo img` and also
-  on `watch-image`.
+- If you add an image to HTML, it includes a tiny bit of space on the bottom of it. In
+  order to remove it, use `display` property and set its value to `block`. I used it on
+  `logo img` and also on `watch-image`.
 
-- I could have used Flexbox on the `nav` but I would have ended up with 2 extra lines of code, so I
-  decided not to. If you want to use Flexbox, it will look like this:
+- I could have used Flexbox on the `nav` but I would have ended up with 2 extra lines of
+  code, so I decided not to. If you want to use Flexbox, it will look like this:
 
 ```css
 header ul {
@@ -220,8 +227,8 @@ header ul li {
 }
 ```
 
-Instead I used `display: inline`;. inline places all the `nav` titles beside each other, no need to
-use Flexbox. By default HTML would have placed `nav` titles below one another.
+Instead I used `display: inline`;. inline places all the `nav` titles beside each other,
+no need to use Flexbox. By default HTML would have placed `nav` titles below one another.
 
 ```css
 header ul li {
@@ -233,9 +240,9 @@ header ul li {
 
 ### <i class="fas fa-exclamation-circle"></i> Add this for Chrome
 
-If you want the media queries to show up properly in Chrome, add this `meta-data` tag to the head
-element of your HTML document. If you don’t do this, then your HTML will not be responsive on the
-most popular browser in the world!
+If you want the media queries to show up properly in Chrome, add this `meta-data` tag to
+the head element of your HTML document. If you don’t do this, then your HTML will not be
+responsive on the most popular browser in the world!
 
 ```html
 <!-- https://css-tricks.com/snippets/html/responsive-meta-tag/ -->
@@ -244,15 +251,15 @@ most popular browser in the world!
 
 ## CSS Grid
 
-Originally I wanted to create the image gallery using Flexbox. I struggled with it for a while but I
-couldn’t get the watches in watch-grid to align left, while having the same amount of space between
-them. I also went through other people’s examples, but none of them worked for this case without
-hacks. So I ended up using CSS Grid.
+Originally I wanted to create the image gallery using Flexbox. I struggled with it for a
+while but I couldn’t get the watches in watch-grid to align left, while having the same
+amount of space between them. I also went through other people’s examples, but none of
+them worked for this case without hacks. So I ended up using CSS Grid.
 
 If you look at the CSS styles (they are all on
-[Github](https://github.com/MaretIdris/website-flexbox)), you will see that the `display` is set to
-`grid` and that tells the browser that it’s dealing with a grid. You will also find new property
-names like `grid-template-columns` and `grid-template-rows`.
+[Github](https://github.com/nadiaidris/website-flexbox)), you will see that the `display`
+is set to `grid` and that tells the browser that it’s dealing with a grid. You will also
+find new property names like `grid-template-columns` and `grid-template-rows`.
 
 ```css
 .watch-grid {
@@ -264,15 +271,15 @@ names like `grid-template-columns` and `grid-template-rows`.
 }
 ```
 
-CSS Grid shares some of the same property names with Flexbox, like `justify-content` for example, so
-it’s pretty simple to get started with the CSS Grid. I learnt it from
-[“CSS Grid First Look"](https://www.lynda.com/CSS-tutorials/CSS-Grid-First-Look/422835-2.html) from
-Lynda.com. If you are interested in, check out this
+CSS Grid shares some of the same property names with Flexbox, like `justify-content` for
+example, so it’s pretty simple to get started with the CSS Grid. I learnt it from
+[“CSS Grid First Look"](https://www.lynda.com/CSS-tutorials/CSS-Grid-First-Look/422835-2.html)
+from Lynda.com. If you are interested in, check out this
 [awesome video by Morten Rand-Hendriksen](https://youtu.be/txZq7Laz7_4) first.
 
-- About CSS Grid and Chrome. I used percentages (`%`) instead of fractions (`fr`) because Chrome
-  doesn’t display them correctly with fractions. I am not sure why, but if you know why, please let
-  me know.
+- About CSS Grid and Chrome. I used percentages (`%`) instead of fractions (`fr`) because
+  Chrome doesn’t display them correctly with fractions. I am not sure why, but if you know
+  why, please let me know.
 
 - If you want to see how all of the CSS Grid code looks like, check it out at
-  [Github](https://github.com/MaretIdris/website-flexbox).
+  [Github](https://github.com/nadiaidris/website-flexbox).

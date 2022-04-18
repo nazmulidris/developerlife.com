@@ -23,9 +23,9 @@ categories:
 - [Of "things" and their "managers"](#of-things-and-their-managers)
 - [Using the Redux library](#using-the-redux-library)
 - [The Store struct](#the-store-struct)
-- [Sync reducer functions](#sync-reducer-functions)
-- [Async middleware functions](#async-middleware-functions)
-- [Async subscriber functions](#async-subscriber-functions)
+- [Reducer functions](#reducer-functions)
+- [Middleware functions](#middleware-functions)
+- [Subscriber functions](#subscriber-functions)
 - [Wrapping up](#wrapping-up)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -484,7 +484,14 @@ add/remove/dispatch/get/clear/etc. Here are some of these methods.
    functions.
 4. `add_reducer` which allows us to add a reducer function.
 
-## Sync reducer functions
+## Reducer functions
+
+> With `0.7.12` of the library, the codebase has been refactored to make all the things
+> async. Please read the
+> [README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) for
+> details on these changes and how to build your own reducers. Instead of using function
+> pointers, the new implementation uses async trait objects (which are much easier to
+> reason about and create, and also can be made async).
 
 These live in the `SafeStoreStateMachineWrapper` struct. The reducer functions are managed
 by a `ReducerManager` which is just a type alias for `SafeListManager`. Here's the
@@ -531,7 +538,14 @@ When an action is dispatched to the store, each reducer function is called one a
 another, and the state is updated. These happen sequentially (not in separate Tokio
 tasks). Before the reducers are run the middleware functions are run.
 
-## Async middleware functions
+## Middleware functions
+
+> With `0.7.12` of the library, the codebase has been refactored to make all the things
+> async. Please read the
+> [README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) for
+> details on these changes and how to build your own reducers. Instead of using function
+> pointers, the new implementation uses async trait objects (which are much easier to
+> reason about and create, and also can be made async).
 
 These live in the `SafeStoreStateMachineWrapper` struct. The middleware functions are
 managed by a `MiddlewareManager` which is just a type alias for `SafeListManager`. Here's
@@ -579,7 +593,14 @@ up and passed to the reducer functions (which actually generate new states). The
 reducers are run sequentially. When the final state is ready, it is then passed to each
 subscriber function; each subscriber function is run in a separate Tokio task).
 
-## Async subscriber functions
+## Subscriber functions
+
+> With `0.7.12` of the library, the codebase has been refactored to make all the things
+> async. Please read the
+> [README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) for
+> details on these changes and how to build your own reducers. Instead of using function
+> pointers, the new implementation uses async trait objects (which are much easier to
+> reason about and create, and also can be made async).
 
 These live in the `SafeStoreStateMachineWrapper` struct. The subscriber functions are
 managed by a `SubscriberManager` which is just a type alias for `SafeListManager`. Here's
@@ -622,7 +643,9 @@ their own Tokio tasks.
 > `add-sync` to see what happens.
 
 > 📜 The source code for the finished Redux library can be found
-> [here](https://github.com/r3bl-org/r3bl-rs-utils).
+> [here](https://github.com/r3bl-org/r3bl-rs-utils). You can always find the most up to
+> date information on this library in it's
+> [`README`](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) file.
 
 > 📦 You can use this Redux library today by adding
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate as a dependency in your

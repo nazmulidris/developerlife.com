@@ -40,11 +40,11 @@ separate Tokio tasks).
 > 💡 Learn more about:
 >
 > - Redux [from the official docs](https://redux.js.org/). You can get familiar w/ the
->   store, reducer functions, async middleware, and subscribers. Along w/ the idea of
+>   store, reducer functions, `async` middleware, and subscribers. Along w/ the idea of
 >   finite state machines as an effective way to manage your application's state.
 > - Tokio [from our article](https://developerlife.com/2022/03/12/rust-tokio/). You can
->   get familiar with the async programming model and the Tokio runtime. And get some
->   insights into writing macros that help you write async code.
+>   get familiar with the `async` programming model and the Tokio runtime. And get some
+>   insights into writing macros that help you write `async` code.
 
 > 📜 The source code for the finished Redux library can be found
 > [here](https://github.com/r3bl-org/r3bl-rs-utils).
@@ -70,12 +70,12 @@ Before we start, let's get familiar with the Redux architecture.
 3. Once an action has been dispatched to the store, the reducer functions are responsible
    for updating the state based on these incoming actions. Reducer functions must also be
    pure functions, ie, no side effects are allowed (can't generate unique ids, perform
-   async function calls, use random number generators, or even use the current time). This
+   `async` function calls, use random number generators, or even use the current time). This
    is severely limiting, since these side effects are where most important things in an
    application's business logic actually happen. This is where middleware functions come
    in.
 4. The middleware is a function that takes an action and returns a new action. This is
-   where all kinds of async operations can be performed. Ultimately, each middleware
+   where all kinds of `async` operations can be performed. Ultimately, each middleware
    function call asynchronously resolves into a new action. This action is then dispatched
    to the store (where the pure reducer function will use it to generate a new state).
 5. The subscriber is a function that is called whenever the state of the store changes.
@@ -89,9 +89,9 @@ and in parallel. However, we will run the reducer functions in sequence.
 Here are some of our assumptions about the performance characteristics of these
 components.
 
-1. A reducer function is pure and is really fast. It isn't allowed to do any async work,
+1. A reducer function is pure and is really fast. It isn't allowed to do any `async` work,
    so its very limited in what it can do. It is best to run these in sequence.
-2. A middleware function is async and can be really slow (doing computations or waiting
+2. A middleware function is `async` and can be really slow (doing computations or waiting
    around for IO). These are heavy functions and its good that we can run them
    asynchronously using Tokio.
 3. A Subscriber function can be really slow as well, since it can render some really
@@ -108,7 +108,7 @@ To make things even more flexible, we will provide 2 ways of dispatching actions
 1. **A spawning dispatch function**. This frees the main thread from waiting around for
    the middleware, reducer, and subscriber functions to complete. Even the reducer
    functions will not block the calling thread. A new Tokio task is spawned inside of
-   which the reducers are run, the async middleware and async subscribers are also run.
+   which the reducers are run, the `async` middleware and `async` subscribers are also run.
 2. **A regular dispatch function**. This does not spawn a new Tokio task. Instead, it runs
    the reducer functions on the calling thread. However, the middleware and subscriber
    functions will be run asynchronously in other Tokio tasks. You can actually await the
@@ -213,7 +213,7 @@ this common pattern across some of our structs. Here are two examples of such ma
 > about macros and how they can be used w/ this "manager" and "thing" pattern.
 
 ```rust
-/// The `$lambda` expression is not async.
+/// The `$lambda` expression is not `async`.
 macro_rules! iterate_over_vec_with {
   ($this:ident, $locked_list_arc:expr, $lambda:expr) => {
     let locked_list = $locked_list_arc.get();
@@ -224,7 +224,7 @@ macro_rules! iterate_over_vec_with {
   };
 }
 
-/// The `$lambda` expression is async.
+/// The `$lambda` expression is `async`.
 macro_rules! iterate_over_vec_with_async {
   ($this:ident, $locked_list_arc:expr, $lambda:expr) => {
     let locked_list = $locked_list_arc.get();
@@ -343,7 +343,7 @@ let reducer_fn = |state: &State, action: &Action| match action {
 };
 ```
 
-Here's an example of an async subscriber function (which are run in parallel after an
+Here's an example of an `async` subscriber function (which are run in parallel after an
 action is dispatched). The following example uses a lambda that captures a shared object.
 This is a pretty common pattern that you might encounter when creating subscribers that
 share state in your enclosing block or scope.
@@ -362,7 +362,7 @@ let subscriber_fn = with(shared_object.clone(), |it| {
 });
 ```
 
-Here are two types of async middleware functions. One that returns an action (which will
+Here are two types of `async` middleware functions. One that returns an action (which will
 get dispatched once this middleware returns), and another that doesn't return anything
 (like a logger middleware that just dumps the current action to the console). Note that
 both these functions share the `shared_object` reference from above.
@@ -426,7 +426,7 @@ store.dispatch(&Action::AddPop(1)).await;
 assert_eq!(shared_object.lock().unwrap().pop(), Some(21));
 store.clear_subscribers().await;
 
-// Test async middleware: mw_returns_action.
+// Test `async` middleware: mw_returns_action.
 shared_object.lock().unwrap().clear();
 store
   .add_middleware(SafeMiddlewareFnWrapper::new(mw_returns_action))
@@ -487,11 +487,11 @@ add/remove/dispatch/get/clear/etc. Here are some of these methods.
 ## Reducer functions
 
 > With `0.7.12` of the library, the codebase has been refactored to make all the things
-> async. Please read the
+> `async`. Please read the
 > [README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) for
 > details on these changes and how to build your own reducers. Instead of using function
-> pointers, the new implementation uses async trait objects (which are much easier to
-> reason about and create, and also can be made async).
+> pointers, the new implementation uses `async` trait objects (which are much easier to
+> reason about and create, and also can be made `async`).
 
 These live in the `SafeStoreStateMachineWrapper` struct. The reducer functions are managed
 by a `ReducerManager` which is just a type alias for `SafeListManager`. Here's the
@@ -541,11 +541,11 @@ tasks). Before the reducers are run the middleware functions are run.
 ## Middleware functions
 
 > With `0.7.12` of the library, the codebase has been refactored to make all the things
-> async. Please read the
+> `async`. Please read the
 > [README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) for
 > details on these changes and how to build your own reducers. Instead of using function
-> pointers, the new implementation uses async trait objects (which are much easier to
-> reason about and create, and also can be made async).
+> pointers, the new implementation uses `async` trait objects (which are much easier to
+> reason about and create, and also can be made `async`).
 
 These live in the `SafeStoreStateMachineWrapper` struct. The middleware functions are
 managed by a `MiddlewareManager` which is just a type alias for `SafeListManager`. Here's
@@ -558,7 +558,7 @@ the breakdown of this in terms of "manager" and "thing".
 The middleware function itself (which is a "thing") is wrapped in a
 `SafeMiddlewareFnWrapper` which is a "manager". Here's the breakdown:
 
-1. "manager": `SafeMiddlewareFnWrapper` which manages an async function.
+1. "manager": `SafeMiddlewareFnWrapper` which manages an `async` function.
 2. "thing": `SafeMiddlewareFn` which wraps a function that takes an action and returns an
    option that can hold an action. This means that it can return `None` or `Some`
    containing an action.
@@ -596,11 +596,11 @@ subscriber function; each subscriber function is run in a separate Tokio task).
 ## Subscriber functions
 
 > With `0.7.12` of the library, the codebase has been refactored to make all the things
-> async. Please read the
+> `async`. Please read the
 > [README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) for
 > details on these changes and how to build your own reducers. Instead of using function
-> pointers, the new implementation uses async trait objects (which are much easier to
-> reason about and create, and also can be made async).
+> pointers, the new implementation uses `async` trait objects (which are much easier to
+> reason about and create, and also can be made `async`).
 
 These live in the `SafeStoreStateMachineWrapper` struct. The subscriber functions are
 managed by a `SubscriberManager` which is just a type alias for `SafeListManager`. Here's
@@ -613,7 +613,7 @@ the breakdown of this in terms of "manager" and "thing".
 The middleware function itself (which is a "thing") is wrapped in a
 `SafeSubscriberFnWrapper` which is a "manager". Here's the breakdown:
 
-1. "manager": `SafeSubscriberFnWrapper` which manages an async function.
+1. "manager": `SafeSubscriberFnWrapper` which manages an `async` function.
 2. "thing": `SafeSubscriberFn` which wraps a function that takes a state and returns
    nothing.
 

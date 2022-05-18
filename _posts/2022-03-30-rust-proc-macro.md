@@ -1170,6 +1170,8 @@ things this macro has to do:
 > And you can get the source for the test
 > [here](https://github.com/nazmulidris/rust_scratch/blob/main/macros/tests/test_derive_macro_builder.rs).
 
+### Stub out the implementation
+
 We need to make an entry in `lib.rs` for it, like so:
 
 ```rust
@@ -1254,6 +1256,8 @@ pub fn derive_proc_macro_impl(input: proc_macro::TokenStream) -> proc_macro::Tok
 }
 ```
 
+### Testing the macro
+
 Here's the test for the derive macro, `test_derive_macro_builder.rs`. They have to cover
 all the different kinds of structs that we might encounter, some that have generics, some
 that don't.
@@ -1316,6 +1320,8 @@ fn test_proc_macro_generics() {
 }
 ```
 
+### Implementation details
+
 Now that we have the skeleton of the entire thing, let's look at some details of how this
 is implemented. It's worth taking a closer look at the
 [`utils` module](https://github.com/nazmulidris/rust_scratch/blob/main/macros/my_proc_macros_lib/src/utils/mod.rs#),
@@ -1341,6 +1347,12 @@ implemented. One of the interesting things that this builder macro does is that 
 trait bounds to the existing `where` clause. This is done to make sure that the
 `<Foo>Builder` `struct` implements the `Default` trait for the `Foo` struct. It also adds
 a trait bound for `Debug`. Here's a snippet of that.
+
+> 🔮 There is no need to handle properties or fields that have `Option` type. Creating the
+> requirement that the `<Foo>Builder` `struct` implements `Default` for the `Foo` struct
+> ensures that if a field has an `Option<T>` type, then the default will be `None`. In
+> other words, if you don't specify a value for an `Option<T>` field type then the default
+> will be `None`!.
 
 ```rust
 let required_trait_bounds: Vec<&str> = vec!["std::default::Default", "std::fmt::Debug"];

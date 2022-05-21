@@ -70,10 +70,10 @@ Before we start, let's get familiar with the Redux architecture.
 3. Once an action has been dispatched to the store, the reducer functions are responsible
    for updating the state based on these incoming actions. Reducer functions must also be
    pure functions, ie, no side effects are allowed (can't generate unique ids, perform
-   `async` function calls, use random number generators, or even use the current time). This
-   is severely limiting, since these side effects are where most important things in an
-   application's business logic actually happen. This is where middleware functions come
-   in.
+   `async` function calls, use random number generators, or even use the current time).
+   This is severely limiting, since these side effects are where most important things in
+   an application's business logic actually happen. This is where middleware functions
+   come in.
 4. The middleware is a function that takes an action and returns a new action. This is
    where all kinds of `async` operations can be performed. Ultimately, each middleware
    function call asynchronously resolves into a new action. This action is then dispatched
@@ -108,7 +108,8 @@ To make things even more flexible, we will provide 2 ways of dispatching actions
 1. **A spawning dispatch function**. This frees the main thread from waiting around for
    the middleware, reducer, and subscriber functions to complete. Even the reducer
    functions will not block the calling thread. A new Tokio task is spawned inside of
-   which the reducers are run, the `async` middleware and `async` subscribers are also run.
+   which the reducers are run, the `async` middleware and `async` subscribers are also
+   run.
 2. **A regular dispatch function**. This does not spawn a new Tokio task. Instead, it runs
    the reducer functions on the calling thread. However, the middleware and subscriber
    functions will be run asynchronously in other Tokio tasks. You can actually await the
@@ -177,7 +178,7 @@ impl<T> SafeThingManager<T>
 where
   T: Sync + Send + 'static,
 {
-  pub fn new( -> SafeThing<T>) Self {
+  pub fn new() -> SafeThing<T> {
     Self {
       my_arc: Arc::new(RwLock::new(Thing::new())),
     }

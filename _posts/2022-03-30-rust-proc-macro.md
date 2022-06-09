@@ -71,7 +71,7 @@ procedural macros:
 > to write. Here are some resources to help you w/ learning declarative macros.
 >
 > 1. [Declarative macros included in this article's repo (but not covered in this article)](https://github.com/nazmulidris/rust_scratch/blob/main/macros/tests/decl/main.rs)
-> 2. [Little book of Rust macros](https://danielkeep.github.io/tlborm/book/pim-README.html)
+> 2. [Little book of Rust macros](https://veykril.github.io/tlborm/introduction.html)
 > 3. [Great YT video on declarative macros](https://youtu.be/q6paRBbLgNw)
 
 Here's a summary:

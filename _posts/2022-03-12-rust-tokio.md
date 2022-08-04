@@ -10,6 +10,7 @@ layout: post
 categories:
   - Rust
   - CLI
+  - TUI
   - CC
 ---
 
@@ -34,26 +35,25 @@ categories:
 
 ## Introduction
 
-This article illustrates how to write concurrent and parallel code in Rust using Tokio.
-The pedagogical example we will use is building an asynchronous implementation of a
-middleware runner that you might find in a Redux store.
+This article illustrates how to write concurrent and parallel code in Rust using Tokio. The
+pedagogical example we will use is building an asynchronous implementation of a middleware runner
+that you might find in a Redux store.
 
-This will get us ready to build a [Redux](https://redux.js.org/) library that will be the
-heart of more complex TUI apps next using crates like `termion` and `tui`.
+This will get us ready to build a [Redux](https://redux.js.org/) library that will be the heart of
+more complex TUI apps next using crates like `termion` and `tui`.
 
 > 📜 The source code for the finished app named `tokio_example` can be found
 > [here](https://github.com/nazmulidris/rust_scratch/tree/main/tokio).
 
 ## Concurrency and async/await, vs parallelism
 
-Concurrency is being able to break up your program or function into smaller tasks that can
-be interleaved, possibly on the _same thread_. This approach lends itself well to speeding
-up _many_ IO bound (where the CPU is mostly idling while waiting around for data to
-arrive) workloads or tasks
+Concurrency is being able to break up your program or function into smaller tasks that can be
+interleaved, possibly on the _same thread_. This approach lends itself well to speeding up _many_ IO
+bound (where the CPU is mostly idling while waiting around for data to arrive) workloads or tasks
 
-Parallelism is being able to break up your program or function so that it can be run on
-multiple hardware threads at the same time. This approach is well suited to speeding up
-CPU bound workloads or tasks.
+Parallelism is being able to break up your program or function so that it can be run on multiple
+hardware threads at the same time. This approach is well suited to speeding up CPU bound workloads
+or tasks.
 
 | Concurrency                                            | Parallelism                                        |
 | ------------------------------------------------------ | -------------------------------------------------- |
@@ -65,81 +65,75 @@ Concurrency means that multiple tasks can be executed in an interleaving fashion
 
 - Concurrency **does not mean** that these tasks are running in parallel.
 - Concurrency lends itself well in improving throughput of IO bound tasks.
-- It is possible to implement concurrency using a single thread (just like its done in
-  JavaScript).
+- It is possible to implement concurrency using a single thread (just like its done in JavaScript).
 
-The key to making this work is having yield points in the code that makes up a function,
-and the ability to resume execution of the function at a later time, resuming from a
-previously suspended yield point.
+The key to making this work is having yield points in the code that makes up a function, and the
+ability to resume execution of the function at a later time, resuming from a previously suspended
+yield point.
 
-1. In Rust, a yield point is declared in your function's code when you use the `.await`
-   call. When you `await` a future inside of an `async` block, it will be able to schedule
-   itself off the thread and make way for another task.
-2. If a function (or lambda or code block) has a yield point, then it must be marked
-   `async`. It might be useful to think of `async` as something that allows `await` inside
-   a function or a block, but doesn’t actually make anything "async" (the yield points in
-   your code makes it so).
+1. In Rust, a yield point is declared in your function's code when you use the `.await` call. When
+   you `await` a future inside of an `async` block, it will be able to schedule itself off the
+   thread and make way for another task.
+2. If a function (or lambda or code block) has a yield point, then it must be marked `async`. It
+   might be useful to think of `async` as something that allows `await` inside a function or a
+   block, but doesn’t actually make anything "async" (the yield points in your code makes it so).
 
-Together, they tell the compiler (and Tokio) to generate the appropriate code to make this
-all work for the code that you write.
+Together, they tell the compiler (and Tokio) to generate the appropriate code to make this all work
+for the code that you write.
 
-For IO bound operations, when a task is waiting for some IO, it can yield, and then
-another task can be run in the meantime. This prevents resources (threads, CPU, etc) from
-being tied up while the task just idles waiting around for IO to appear. When there is
-data is available, then the yielded task can be resumed, and can do some useful work w/
-this data.
+For IO bound operations, when a task is waiting for some IO, it can yield, and then another task can
+be run in the meantime. This prevents resources (threads, CPU, etc) from being tied up while the
+task just idles waiting around for IO to appear. When there is data is available, then the yielded
+task can be resumed, and can do some useful work w/ this data.
 
-> ⚡ [Here are details](https://tokio.rs/tokio/tutorial/async) on how Rust implements the
-> "waker" which is the thing that lets the yielded function know that the data is ready.
+> ⚡ [Here are details](https://tokio.rs/tokio/tutorial/async) on how Rust implements the "waker"
+> which is the thing that lets the yielded function know that the data is ready.
 
-This is also how Node.js gets its incredible throughput in a single threaded runtime
-environment. Using a single native thread to wait around for IO bound operations results
-in really poor throughput since the
+This is also how Node.js gets its incredible throughput in a single threaded runtime environment.
+Using a single native thread to wait around for IO bound operations results in really poor
+throughput since the
 [number of native threads is severely hardware constrained in most modern operating systems](https://www.baeldung.com/linux/max-threads-per-process#factors-that-affect-maximum-thread-count).
 
-- However, green threads can be used to mimic the behavior of native threads, while using
-  this yield and resume mechanism under the hood.
-- To give you some perspective, native threads may be in the order of 30K-60K per process
-  on a modern machine, whereas you can have millions of green threads running per process.
+- However, green threads can be used to mimic the behavior of native threads, while using this yield
+  and resume mechanism under the hood.
+- To give you some perspective, native threads may be in the order of 30K-60K per process on a
+  modern machine, whereas you can have millions of green threads running per process.
 
 > ☕ If you are familiar with Java, check out our
-> [Project Loom](https://developerlife.com/2019/12/02/project-loom-experiment/) article
-> which goes into this new JVM implementation of green threads and structured concurrency
-> w/out using the `async` and `await` keywords, but its a similar kind of idea.
+> [Project Loom](https://developerlife.com/2019/12/02/project-loom-experiment/) article which goes
+> into this new JVM implementation of green threads and structured concurrency w/out using the
+> `async` and `await` keywords, but its a similar kind of idea.
 
-In contrast, parallelism means that multiple tasks can be run in parallel at the same
-time, usually relying on multiple CPU cores that a machine has. This is different than
-concurrency in that there are no yield points and interleaving of tasks. Instead each task
-is run in its own thread. This is especially useful in tasks that are CPU bound (and not
-IO bound).
+In contrast, parallelism means that multiple tasks can be run in parallel at the same time, usually
+relying on multiple CPU cores that a machine has. This is different than concurrency in that there
+are no yield points and interleaving of tasks. Instead each task is run in its own thread. This is
+especially useful in tasks that are CPU bound (and not IO bound).
 
-> 🔅 Here's a [great video on YouTube](https://www.youtube.com/watch?v=FNcXf-4CLH0), by
-> JT, that explains the difference between concurrency and parallelism. And introduces
-> `async`/`await` in Rust.
+> 🔅 Here's a [great video on YouTube](https://www.youtube.com/watch?v=FNcXf-4CLH0), by JT, that
+> explains the difference between concurrency and parallelism. And introduces `async`/`await` in
+> Rust.
 
 ## Async/await, Rust, and Tokio
 
-You don't need to use [Tokio](https://https://tokio.rs/) in order to use `async` and
-`await` in Rust. However, Tokio is very powerful and makes very easy to do complex things
-with it.
+You don't need to use [Tokio](https://https://tokio.rs/) in order to use `async` and `await` in
+Rust. However, Tokio is very powerful and makes very easy to do complex things with it.
 
 - Tokio is an asynchronous runtime for Rust.
-- It provides a nice abstraction layer over the native threading by providing a
-  multi-threaded runtime for executing asynchronous code.
+- It provides a nice abstraction layer over the native threading by providing a multi-threaded
+  runtime for executing asynchronous code.
 
-> 🔅 Here's an [excellent video](https://youtu.be/MZyleK8elPk) by the author of Tokio on
-> what it is and how to use it.
+> 🔅 Here's an [excellent video](https://youtu.be/MZyleK8elPk) by the author of Tokio on what it is
+> and how to use it.
 
-> 🔅 Here's another [excellent video](https://www.youtube.com/watch?v=ThjvMReOXYM) by Jon
-> Gjengset that goes into how to use `async` / `await` and Tokio.
+> 🔅 Here's another [excellent video](https://www.youtube.com/watch?v=ThjvMReOXYM) by Jon Gjengset
+> that goes into how to use `async` / `await` and Tokio.
 
-You can configure the runtime to be single or multi-threaded (under the hood). If you use
-the
+You can configure the runtime to be single or multi-threaded (under the hood). If you use the
 [`#[tokio::main]`](https://docs.rs/tokio/latest/tokio/attr.main.html#using-the-multi-thread-runtime)
-macro then you are using the multi-threaded runtime, which uses a native thread pool that
-is configured to use the number of cores on your machine's CPU and it has a task stealing
-algorithm to provide high parallel performance. Here's the code that the macro expands to
-(it gives you an idea of how the Tokio runtime works):
+macro then you are using the multi-threaded runtime, which uses a native thread pool that is
+configured to use the number of cores on your machine's CPU and it has a task stealing algorithm to
+provide high parallel performance. Here's the code that the macro expands to (it gives you an idea
+of how the Tokio runtime works):
 
 ```rust
 fn main() {
@@ -155,30 +149,28 @@ fn main() {
 
 > 💡 Learn more about Tokio [here](https://tokio.rs/tokio/tutorial).
 >
-> - It provides a great introduction for what use cases Tokio is good for and what use
->   cases that it doesn't really work for.
-> - For example if you're reading a lot of files, then you can just use an ordinary thread
->   pool in Rust instead of Tokio, since it doesn't really provide additional benefit over
->   it.
-> - Another example is if your tasks involve running lots of CPU bound computations in
->   parallel then you should consider using
->   [`rayon`](https://docs.rs/rayon/latest/rayon/).
+> - It provides a great introduction for what use cases Tokio is good for and what use cases that it
+>   doesn't really work for.
+> - For example if you're reading a lot of files, then you can just use an ordinary thread pool in
+>   Rust instead of Tokio, since it doesn't really provide additional benefit over it.
+> - Another example is if your tasks involve running lots of CPU bound computations in parallel then
+>   you should consider using [`rayon`](https://docs.rs/rayon/latest/rayon/).
 > - However if you are doing a lot of IO bound tasks at the same time then Tokio rocks 🎉.
 
 ## Implementing async middleware w/ function pointers
 
-A Redux middleware is just a function. It takes an action as an argument, and may return
-nothing, or it may return a new action. The middleware is where you are allowed to run
-side effects. So it is a natural candidate for `async`/`await` and Tokio. We will
-implement a simple middleware runner framework that allows middleware functions to be run
-asynchronously and produce either a new action or nothing.
+A Redux middleware is just a function. It takes an action as an argument, and may return nothing, or
+it may return a new action. The middleware is where you are allowed to run side effects. So it is a
+natural candidate for `async`/`await` and Tokio. We will implement a simple middleware runner
+framework that allows middleware functions to be run asynchronously and produce either a new action
+or nothing.
 
 > 📦 For a real implementation of this middleware and Redux library, check out the
-> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate. The README has
-> excellent documentation on async traits, parallel and concurrent execution, and Tokio.
+> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate. The README has excellent
+> documentation on async traits, parallel and concurrent execution, and Tokio.
 
-So, a middleware function is of type `SafeFn<A>`, where `A` is the action type. Here's
-what the struct looks like.
+So, a middleware function is of type `SafeFn<A>`, where `A` is the action type. Here's what the
+struct looks like.
 
 ```rust
 use tokio::{sync::RwLock};
@@ -196,32 +188,30 @@ pub struct SafeFnWrapper<A> {
 Here's how we can read the `SafeFn` definition.
 
 1. The middleware function signature is just `FnMut(A) -> Option<A>`.
-2. However, we want to make this asynchronous and parallel, so we have to wrap it in a
-   `RwLock` (which is a mutex), and then wrap that in an `Arc`. Now we can safely clone
-   the `Arc` and pass it between thread boundaries. Please note that the `RwLock` is nor a
-   "blocking" mutex or lock, rather it is an `async` one. More on this in
-   [this section](#advanced-topic---locks-and-tokio).
-3. Finally, we also have to mark the function w/ 2 other traits: `Sync` and `Send`. This
-   is to be explicit and let the Rust compiler know that we intend for this lambda to be
-   passed between thread boundaries, and that it should ensure that this is safe to do so!
-   This is part of the awesomeness that is Rust and what allows us to use "fearless
-   concurrency".
+2. However, we want to make this asynchronous and parallel, so we have to wrap it in a `RwLock`
+   (which is a mutex), and then wrap that in an `Arc`. Now we can safely clone the `Arc` and pass it
+   between thread boundaries. Please note that the `RwLock` is nor a "blocking" mutex or lock,
+   rather it is an `async` one. More on this in [this section](#advanced-topic---locks-and-tokio).
+3. Finally, we also have to mark the function w/ 2 other traits: `Sync` and `Send`. This is to be
+   explicit and let the Rust compiler know that we intend for this lambda to be passed between
+   thread boundaries, and that it should ensure that this is safe to do so! This is part of the
+   awesomeness that is Rust and what allows us to use "fearless concurrency".
 
-> 💡 To understand the lifetimes and traits that are used, here are some excellent
-> resources on lifetimes, closures, and returning references:
+> 💡 To understand the lifetimes and traits that are used, here are some excellent resources on
+> lifetimes, closures, and returning references:
 >
 > 1. <https://stackoverflow.com/questions/59442080/rust-pass-a-function-reference-to-threads>
 > 2. <https://stackoverflow.com/questions/68547268/cannot-borrow-data-in-an-arc-as-mutable>
 > 3. <https://willmurphyscode.net/2018/04/25/fixing-a-simple-lifetime-error-in-rust/>
 > 4. <https://medium.com/@alistairisrael/demystifying-closures-futures-and-async-await-in-rust-part-3-async-await-9ed20eede7a4>
 
-Please note that so far we don't have any mention of `async` or `await`. And we also have
-another struct called `SafeFnWrapper<A>` that we haven't mentioned yet.
+Please note that so far we don't have any mention of `async` or `await`. And we also have another
+struct called `SafeFnWrapper<A>` that we haven't mentioned yet.
 
-1. We actually don't work directly with `SafeFn` type, and instead we use the
-   `SafeFnWrapper` struct which simply manages a `SafeFn` type. This allows us to manage
-   the complexity of the `Arc<RwLock<dyn FnMut...>>` thread-safe lambda and be able to
-   easily clone the `Arc` then unwrap and use it as needed.
+1. We actually don't work directly with `SafeFn` type, and instead we use the `SafeFnWrapper` struct
+   which simply manages a `SafeFn` type. This allows us to manage the complexity of the
+   `Arc<RwLock<dyn FnMut...>>` thread-safe lambda and be able to easily clone the `Arc` then unwrap
+   and use it as needed.
 2. This is a very useful pattern that we will be using more extensively when we
    [create the full Redux store](https://developerlife.com/2022/03/12/rust-redux/).
 
@@ -265,65 +255,59 @@ impl<A: Sync + Send + 'static> SafeFnWrapper<A> {
 }
 ```
 
-> ⚡ There are some subtleties to using a "blocking" lock / mutex instead of an async one.
-> Read more about it in [this section](#advanced-topic---locks-and-tokio).
+> ⚡ There are some subtleties to using a "blocking" lock / mutex instead of an async one. Read more
+> about it in [this section](#advanced-topic---locks-and-tokio).
 
-We have just used the `async` keyword, but not `await` yet. We have a `spawn()` function
-that returns a `Future<Option<A>>` type. Its just a type alias for
-`tokio::task::JoinHandle`.
+We have just used the `async` keyword, but not `await` yet. We have a `spawn()` function that
+returns a `Future<Option<A>>` type. Its just a type alias for `tokio::task::JoinHandle`.
 
-1. This is returned by a call to `tokio::spawn()` which **actually asynchronously runs the
-   lambda**.
+1. This is returned by a call to `tokio::spawn()` which **actually asynchronously runs the lambda**.
 2. This allows the calling thread not to be blocked while the lambda is running 🎉.
-3. Just to simulate a task w/ long and unknown delay, each spawn operation will wait
-   between 1 and 5 seconds before calling the lambda.
+3. Just to simulate a task w/ long and unknown delay, each spawn operation will wait between 1 and 5
+   seconds before calling the lambda.
 
-So we could `await` the results that come back from the `spawn()` function. This is just
-like TypeScript promises. The `spawn()` function returns a promise, that the caller can
-`await` and unwrap into a result. So we have set the caller up to be an `async` function
-that `await`s the result of `spawn()`.
+So we could `await` the results that come back from the `spawn()` function. This is just like
+TypeScript promises. The `spawn()` function returns a promise, that the caller can `await` and
+unwrap into a result. So we have set the caller up to be an `async` function that `await`s the
+result of `spawn()`.
 
-> 🤔 A Tokio task is an asynchronous green thread. They are created by passing an `async`
-> block to `tokio::spawn`. The `tokio::spawn` function returns a `JoinHandle`, which the
-> caller may use to interact with the spawned task. The `async` block may have a return
-> value. The caller may obtain the return value using `.await` on the `JoinHandle`.
+> 🤔 A Tokio task is an asynchronous green thread. They are created by passing an `async` block to
+> `tokio::spawn`. The `tokio::spawn` function returns a `JoinHandle`, which the caller may use to
+> interact with the spawned task. The `async` block may have a return value. The caller may obtain
+> the return value using `.await` on the `JoinHandle`.
 >
-> Tasks are the unit of execution managed by the scheduler. Spawning the task submits it
-> to the Tokio scheduler, which then ensures that the task executes when it has work to
-> do. The spawned task may be executed on the same thread as where it was spawned, or it
-> may execute on a different runtime thread. The task can also be moved between threads
-> after being spawned.
+> Tasks are the unit of execution managed by the scheduler. Spawning the task submits it to the
+> Tokio scheduler, which then ensures that the task executes when it has work to do. The spawned
+> task may be executed on the same thread as where it was spawned, or it may execute on a different
+> runtime thread. The task can also be moved between threads after being spawned.
 >
-> Tasks in Tokio are very lightweight. Under the hood, they require only a single
-> allocation and 64 bytes of memory. Applications should feel free to spawn thousands, if
-> not millions of tasks. Read more about Tokio's `spawn()` function
-> [here](https://tokio.rs/tokio/tutorial/spawning).
+> Tasks in Tokio are very lightweight. Under the hood, they require only a single allocation and 64
+> bytes of memory. Applications should feel free to spawn thousands, if not millions of tasks. Read
+> more about Tokio's `spawn()` function [here](https://tokio.rs/tokio/tutorial/spawning).
 
-Please note the use of `'static` bound in the impl block (with `Sync + Send`). When you
-spawn a task on the Tokio runtime, its type's lifetime must be `'static`. This means that
-the spawned task must not contain any references to data owned outside the task.
+Please note the use of `'static` bound in the impl block (with `Sync + Send`). When you spawn a task
+on the Tokio runtime, its type's lifetime must be `'static`. This means that the spawned task must
+not contain any references to data owned outside the task.
 
-> 🤔 It is a common misconception that `'static` always means "lives forever", but this is
-> not the case. Just because a value is `'static` does not mean that you have a memory
-> leak. You can read more in Common Rust Lifetime Misconceptions
+> 🤔 It is a common misconception that `'static` always means "lives forever", but this is not the
+> case. Just because a value is `'static` does not mean that you have a memory leak. You can read
+> more in Common Rust Lifetime Misconceptions
 > [here](https://github.com/pretzelhammer/rust-blog/blob/master/posts/common-rust-lifetime-misconceptions.md#2-if-t-static-then-t-must-be-valid-for-the-entire-program).
 >
 > 🐝 `Sync` + `Send` traits:
 >
-> - Tasks spawned by `tokio::spawn` must implement the `Send` marker trait. This allows
->   the Tokio runtime to move the tasks between threads while they are suspended at an
->   `.await`.
-> - Tasks are `Send` when all data that is held across `.await` calls is `Send`. This is a
->   bit subtle. When `.await` is called, the task yields back to the scheduler. The next
->   time the task is executed, it resumes from the point it last yielded.
-> - To make this work, all state that is used after `.await` must be saved by the task. If
->   this state is `Send`, i.e. can be moved across threads, then the task itself can be
->   moved across threads. Conversely, if the state is not `Send`, then neither is the
->   task.
+> - Tasks spawned by `tokio::spawn` must implement the `Send` marker trait. This allows the Tokio
+>   runtime to move the tasks between threads while they are suspended at an `.await`.
+> - Tasks are `Send` when all data that is held across `.await` calls is `Send`. This is a bit
+>   subtle. When `.await` is called, the task yields back to the scheduler. The next time the task
+>   is executed, it resumes from the point it last yielded.
+> - To make this work, all state that is used after `.await` must be saved by the task. If this
+>   state is `Send`, i.e. can be moved across threads, then the task itself can be moved across
+>   threads. Conversely, if the state is not `Send`, then neither is the task.
 
-Now that we have `SafeWrapperFn` struct, let's take a look at some middleware functions.
-Below, we have two of them: `logger_mw()` and `adder_mw()`. And we have also defined the
-action enum called `Action`.
+Now that we have `SafeWrapperFn` struct, let's take a look at some middleware functions. Below, we
+have two of them: `logger_mw()` and `adder_mw()`. And we have also defined the action enum called
+`Action`.
 
 ```rust
 use crate::middleware::SafeFnWrapper;
@@ -395,29 +379,28 @@ async fn main() {
 }
 ```
 
-Here you can finally see the use of the `async` and `await` keywords. Both middleware
-functions can be spawned and run concurrently by the Tokio runtime. You can see that there
-are multiple calls to the `spawn()` method on both of the middleware function objects.
+Here you can finally see the use of the `async` and `await` keywords. Both middleware functions can
+be spawned and run concurrently by the Tokio runtime. You can see that there are multiple calls to
+the `spawn()` method on both of the middleware function objects.
 
 1. `spawn()` without `await`:
-   - We don't really care what result the `logger_mw()` call produces. So we don't have to
-     `.await` it. We can safely fire and forget it.
-   - The two calls to `mw_fun.spawn()` run in parallel 🚀. The `main()` function doesn't
-     wait for these functions to return anything. And `mw_fun.spawn()` is the first call
-     that the `main()` function waits for it to complete.
+   - We don't really care what result the `logger_mw()` call produces. So we don't have to `.await`
+     it. We can safely fire and forget it.
+   - The two calls to `mw_fun.spawn()` run in parallel 🚀. The `main()` function doesn't wait for
+     these functions to return anything. And `mw_fun.spawn()` is the first call that the `main()`
+     function waits for it to complete.
    - However, in order to prevent the Tokio runtime from
      [exiting before the spawned tasks have been completed](https://tokio.rs/tokio/topics/bridging),
      we have to `await` the futures (in the for loop at the end).
 2. `spawn()` with `await`:
    - We want to do something w/ result from the `adder_mw()` calls.
    - So we `.await` them, and the result is then unwrapped and printed to the console.
-   - The `async` `main()` function waits after each `mw_fun.spawn()` call with the
-     `.await` call then unwraps the result and prints it.
+   - The `async` `main()` function waits after each `mw_fun.spawn()` call with the `.await` call
+     then unwraps the result and prints it.
 
-Here's the output that's produced by the program before it exits. Note that each function
-will show up in the terminal w/ a different delay since each task can take between 100 and
-1000 ms. However, the program won't exit until all 4 tasks have been completed, regardless
-of how long they take 👏.
+Here's the output that's produced by the program before it exits. Note that each function will show
+up in the terminal w/ a different delay since each task can take between 100 and 1000 ms. However,
+the program won't exit until all 4 tasks have been completed, regardless of how long they take 👏.
 
 ```shell
 $ cargo run
@@ -429,26 +412,24 @@ Some(Result(3))
 
 ## Implementing async middleware w/ async traits
 
-You can use the `async-trait` crate in order to use the `async` keyword in your trait
-methods. This is an alternative approach to using function pointers in the previous
-section.
+You can use the `async-trait` crate in order to use the `async` keyword in your trait methods. This
+is an alternative approach to using function pointers in the previous section.
 
-Please read the
-[README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) of the
-[`r3bl_rs_utils` crate](https://crates.io/crates/r3bl_rs_utils/) for details on how to use
-them, for both parallel and concurrent execution of `async` middleware. Instead of using
-function pointers, the new implementation uses `async` trait objects (which are much
-easier to reason about and create, and also can be made `async`).
+Please read the [README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) of the
+[`r3bl_rs_utils` crate](https://crates.io/crates/r3bl_rs_utils/) for details on how to use them, for
+both parallel and concurrent execution of `async` middleware. Instead of using function pointers,
+the new implementation uses `async` trait objects (which are much easier to reason about and create,
+and also can be made `async`).
 
 > 📦 For a real implementation of this middleware and Redux library, check out the
-> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate. The README has
-> excellent documentation on async traits, parallel and concurrent execution, and Tokio.
+> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate. The README has excellent
+> documentation on async traits, parallel and concurrent execution, and Tokio.
 
 ## Writing tests
 
-Tokio provides [testing support](https://docs.rs/tokio/latest/tokio/attr.test.html) for
-the code that we've just written. Here's an integration test for the middleware functions
-that are shown above.
+Tokio provides [testing support](https://docs.rs/tokio/latest/tokio/attr.test.html) for the code
+that we've just written. Here's an integration test for the middleware functions that are shown
+above.
 
 ```rust
 use std::sync::{Arc, Mutex};
@@ -492,34 +473,32 @@ async fn test_complex_mw_example_works() {
 
 ## Advanced topic - locks and tokio
 
-The standard library provides `RwLock` and `Mutex` types. These are meant to be used using
-"regular" blocking code, rather than "async" code. You can spawn threads that work well
-with these locks. However, if you mix and match these locks with `async` code, you'll get
-problems and the Rust compiler will complain. Here's the kind of issue that you might
-face.
+The standard library provides `RwLock` and `Mutex` types. These are meant to be used using "regular"
+blocking code, rather than "async" code. You can spawn threads that work well with these locks.
+However, if you mix and match these locks with `async` code, you'll get problems and the Rust
+compiler will complain. Here's the kind of issue that you might face.
 
-1. Locking the mutex will block the thread, which is generally something you want to avoid
-   in `async` code as it can prevent other tasks from running.
-2. The compiler error will warn you that the mutex guard that you get by locking can't be
-   shared between threads safely, so it won't compile.
+1. Locking the mutex will block the thread, which is generally something you want to avoid in
+   `async` code as it can prevent other tasks from running.
+2. The compiler error will warn you that the mutex guard that you get by locking can't be shared
+   between threads safely, so it won't compile.
 
-In order to fix it, you'll need to use the `tokio::sync::Mutex` or `tokio::sync::RwLock`
-type. And you will have to:
+In order to fix it, you'll need to use the `tokio::sync::Mutex` or `tokio::sync::RwLock` type. And
+you will have to:
 
 1. Replace calls to (`lock().` or `write().` or `read().`) `unwrap()` with `.await`.
 2. Make sure to use `.await` in an `async` block.
 
-This version of the lock will yield control back to the task executor when it needs to
-wait rather than blocking the thread, and will also allow it to be shared between threads
-if necessary.
+This version of the lock will yield control back to the task executor when it needs to wait rather
+than blocking the thread, and will also allow it to be shared between threads if necessary.
 
 > 🚀 Here's more information on this topic:
 >
 > 1. [Official tokio docs on `async` mutex](https://tokio.rs/tokio/tutorial/shared-state).
 > 2. [SO thread](https://stackoverflow.com/a/67277503/2085356).
 > 3. Please take a look at our
->    [Redux library implementation](https://developerlife.com/2022/03/12/rust-redux/)
->    which makes extensive use of this.
+>    [Redux library implementation](https://developerlife.com/2022/03/12/rust-redux/) which makes
+>    extensive use of this.
 
 Here's an example using "regular" blocking code.
 
@@ -567,17 +546,16 @@ pub fn spawn(
 
 ## Async lambdas
 
-> 🪄 Currently `async` lambdas are only supported in Rust nightly channel, after enabling
-> the feature `async_closure`. Please see this
+> 🪄 Currently `async` lambdas are only supported in Rust nightly channel, after enabling the
+> feature `async_closure`. Please see this
 > [async RFC for more details](https://github.com/rust-lang/rfcs/blob/master/text/2394-async_await.md#async--closures).
 
 ### Without macros
 
-The following snippet is an example of an `async` function that accepts a lambda, w/out
-enabling `async_closure`. Note that the return type is of type `Fun` which is
-`Future<Output = R>`. Essentially, this is a function that returns a `Future` just like a
-TypeScript promises. However, it has severe limitations since the `receiver_fn` argument
-below can't be an `async` function.
+The following snippet is an example of an `async` function that accepts a lambda, w/out enabling
+`async_closure`. Note that the return type is of type `Fun` which is `Future<Output = R>`.
+Essentially, this is a function that returns a `Future` just like a TypeScript promises. However, it
+has severe limitations since the `receiver_fn` argument below can't be an `async` function.
 
 For more information, see this [SO thread](https://stackoverflow.com/a/60723870/2085356).
 
@@ -602,9 +580,9 @@ where
 
 ### With macros
 
-The `SafeListManager` struct shown below simply wraps a `Vec` in an `async` `RwLock` in an
-`Arc` and manages that reference, allowing for a safe way to add and remove items from the
-list. And passing that list around between threads (green or otherwise).
+The `SafeListManager` struct shown below simply wraps a `Vec` in an `async` `RwLock` in an `Arc` and
+manages that reference, allowing for a safe way to add and remove items from the list. And passing
+that list around between threads (green or otherwise).
 
 ```rust
 use std::sync::Arc;
@@ -644,8 +622,8 @@ where
 }
 ```
 
-Here's a macro called `iterate_over_vec_with_async` that can iterate over the list and
-call a function on each item. This function is passed as a lambda to this macro.
+Here's a macro called `iterate_over_vec_with_async` that can iterate over the list and call a
+function on each item. This function is passed as a lambda to this macro.
 
 > 💡 For more information on creating macros, check out these resources:
 >
@@ -697,13 +675,12 @@ for subscriber_fn in list.iter() {
 
 ## Wrapping up
 
-This is a simple introduction to Tokio. The tutorials and videos are a great resource for
-learning Tokio, along w/ the tutorials that are provided on the
-[Tokio website](https://tokio.rs/).
+This is a simple introduction to Tokio. The tutorials and videos are a great resource for learning
+Tokio, along w/ the tutorials that are provided on the [Tokio website](https://tokio.rs/).
 
-We will take this and build upon it further to create a full Redux library in Rust using
-Tokio [here](https://developerlife.com/2022/03/12/rust-redux/).
+We will take this and build upon it further to create a full Redux library in Rust using Tokio
+[here](https://developerlife.com/2022/03/12/rust-redux/).
 
 > 📦 For a real implementation of this middleware and Redux library, check out the
-> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate. The README has
-> excellent documentation on async traits, parallel and concurrent execution, and Tokio.
+> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate. The README has excellent
+> documentation on async traits, parallel and concurrent execution, and Tokio.

@@ -1,12 +1,12 @@
 ---
-title: "Create DSLs with Rust - Part 1"
+title: "Create a simple DSL for CSS like syntax for TUIs"
 author: Nazmul Idris
 date: 2022-08-04 15:00:00+00:00
 excerpt: |
   Procedural macros are a way for you to extend the Rust complier and provide plugins
   that you can use to extend the language. They allow to create your own DSL (domain
   specific language). This article goes into the details of creating a simple DSL to 
-  mimic the CSS language but in Rust, for a TUI app framework.
+  mimic CSS syntax but in Rust, for a TUI app framework.
 layout: post
 categories:
   - Rust
@@ -19,7 +19,7 @@ categories:
 
 <!-- TOC -->
 
-- [Create a simple DSL for CSS](#create-a-simple-dsl-for-css)
+- [Create a simple DSL for CSS like syntax for TUIs](#create-a-simple-dsl-for-css-like-syntax-for-tuis)
 - [What are procedural macros](#what-are-procedural-macros)
 - [Heading 1](#heading-1)
 - [Heading 2](#heading-2)
@@ -28,17 +28,17 @@ categories:
 
 <!-- /TOC -->
 
-## Create a simple DSL for CSS like styling
+## Create a simple DSL for CSS like syntax for TUIs
+<a id="markdown-create-a-simple-dsl-for-css-like-syntax-for-tuis" name="create-a-simple-dsl-for-css-like-syntax-for-tuis"></a>
 
-<a id="markdown-create-a-simple-dsl-for-css" name="create-a-simple-dsl-for-css"></a>
 
 - TK: provide an intro to what we are going to achieve in this article (simple CSS syntax)
 - TK: provide context (the tui library) for this work (why is it important to build this?)
 - TK: provide some hint about what greater ambitions we have (stylesheet syntax, JSX like syntax)
 
 ## What are procedural macros
-
 <a id="markdown-what-are-procedural-macros" name="what-are-procedural-macros"></a>
+
 
 For an introduction to procedural macros, please read our article
 [Procedural Macros](https://developerlife.com/2022/03/30/rust-proc-macro/). The following is a
@@ -75,20 +75,20 @@ snippet from this article.
 > | Procedural - attribute     | Like function-like, replaces token stream of annotated item (not just `struct` or `enum`)                                |
 
 ## Heading 1
-
 <a id="markdown-heading-1" name="heading-1"></a>
 
-## Heading 2
 
+## Heading 2
 <a id="markdown-heading-2" name="heading-2"></a>
 
-## Learning resources
 
+## Learning resources
 <a id="markdown-learning-resources" name="learning-resources"></a>
 
-## Wrapping up
 
+## Wrapping up
 <a id="markdown-wrapping-up" name="wrapping-up"></a>
+
 
 In the future we will expand this DSL to include more features like generating the entire stylesheet
 declaratively. And then move on to creating JSX like syntax in Rust for the TUI library.

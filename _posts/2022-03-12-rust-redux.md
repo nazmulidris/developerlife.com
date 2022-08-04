@@ -10,6 +10,7 @@ layout: post
 categories:
   - Rust
   - CLI
+  - TUI
   - CC
 ---
 

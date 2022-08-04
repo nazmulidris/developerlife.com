@@ -1750,5 +1750,6 @@ pub fn foo() -> &'static str {
 
 ## Wrapping up
 
-> 📜 You can find all the examples of procedural macros shown in this article in this
-> [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/).
+> 📜 You can find all the examples of procedural macros shown in this article in the
+> `r3bl_rs_utils_macro` [repo](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/macro/). This is
+> just part of the `r3bl_rs_utils` [crate](https://crates.io/crates/r3bl_rs_utils).

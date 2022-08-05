@@ -32,9 +32,60 @@ categories:
 <a id="markdown-create-a-simple-dsl-for-css-like-syntax-for-tuis" name="create-a-simple-dsl-for-css-like-syntax-for-tuis"></a>
 
 
-- TK: provide an intro to what we are going to achieve in this article (simple CSS syntax)
-- TK: provide context (the tui library) for this work (why is it important to build this?)
-- TK: provide some hint about what greater ambitions we have (stylesheet syntax, JSX like syntax)
+1. TK: provide an intro to what we are going to achieve in this article (simple CSS syntax)
+2. TK: provide context (the tui library) for this work (why is it important to build this?)
+3. TK: provide some hint about what greater ambitions we have (stylesheet syntax, JSX like syntax)
+
+In this article, we will create a simple DSL for CSS like syntax to declaratively create styling for
+TUI apps.
+
+The motivation for doing this comes from having built a TUI library in the
+[`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate and wanting to make it easier to by
+providing a declarative API.
+
+This library allows developers to build "rich" text user interface apps in Rust, which are fully
+async, and leverages ideas from CSS, React, and Redux. Once we built the library, we wanted to make
+it easier for developer to declaratively create styling and even layouts, rather than having to do
+it imperatively.
+
+In frontend web development, we take it for granted that we can describe things declaratively rather
+than imperatively. Anytime we use CSS, JSX, or HTML we are doing this. Here's an example of creating
+a style imperatively in the `r3bl_rs_utils` tui framework.
+
+```rust
+use crossterm::style::*;
+use r3bl_rs_utils::*;
+
+fn make_a_style(id: &str) -> Style {
+  let black = Color::Rgb { r: 0, g: 0, b: 0 };
+  Style {
+    id: id.to_string(),
+    dim: true,
+    bold: true,
+    color_fg: Some(black.into()),
+    color_bg: Some(black.into()),
+    ..Style::default()
+  }
+}
+```
+
+And instead we wanted to be able to express the same thing declaratively, like so.
+
+```rust
+use crossterm::style::*;
+use r3bl_rs_utils::*;
+
+fn make_a_style(id: &str) -> Style {
+  let black = Color::Rgb { r: 0, g: 0, b: 0 };
+  style! {
+    id: style2
+    attrib: [dim, bold]
+    margin: 1
+    color_fg: Color::Red
+    color_bg: Color::Rgb { r: 0, g: 0, b: 0 }
+  }
+}
+```
 
 ## What are procedural macros
 <a id="markdown-what-are-procedural-macros" name="what-are-procedural-macros"></a>

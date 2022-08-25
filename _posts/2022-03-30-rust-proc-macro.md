@@ -68,9 +68,10 @@ declared in the `lib.rs` file). Here are the key benefits of procedural macros:
 > to use. If you have simple use cases they work great, since they are so easy to write. Here are
 > some resources to help you w/ learning declarative macros.
 >
-> 1. [Declarative macros included in this article's repo (but not covered in this article)](https://github.com/nazmulidris/rust_scratch/blob/main/macros/tests/decl/main.rs)
-> 2. [Little book of Rust macros](https://veykril.github.io/tlborm/introduction.html)
-> 3. [Great YT video on declarative macros](https://youtu.be/q6paRBbLgNw)
+> 1. [Declarative macros in r3bl_rs_utils crate](https://github.com/r3bl-org/r3bl_rs_utils/search?q=macro_rules)
+> 2. [Declarative macros included in this article's repo (but not covered in this article)](https://github.com/nazmulidris/rust_scratch/blob/main/macros/tests/decl/main.rs)
+> 3. [Little book of Rust macros](https://veykril.github.io/tlborm/introduction.html)
+> 4. [Great YT video on declarative macros](https://youtu.be/q6paRBbLgNw)
 
 Here's a summary:
 
@@ -80,6 +81,17 @@ Here's a summary:
 | Procedural - function like | Operates on the code passed inside parenthesis of invocation to produce new token stream.                                |
 | Procedural - derive        | Can't touch token stream of annotated `struct` or `enum`, only add new token stream below; can declare helper attributes |
 | Procedural - attribute     | Like function-like, replaces token stream of annotated item (not just `struct` or `enum`)                                |
+
+> 📜 **Source code examples**
+>
+> 1. You can find "real world" examples of both declarative and procedural macros in the
+>    `r3bl_rs_utils` [crate](https://crates.io/crates/r3bl_rs_utils).
+>
+>    - [proc macros](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/macro)
+>    - [decl macros](https://github.com/r3bl-org/r3bl_rs_utils/search?q=macro_rules)
+>
+> 2. You can find all the pedagogical examples of macros shown in this article in this
+>    [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/)
 
 ## How to add a proc macro lib crate to your existing project
 
@@ -1722,6 +1734,13 @@ pub fn foo() -> &'static str {
 
 ## Wrapping up
 
-> 📜 You can find all the examples of procedural macros shown in this article in the
-> `r3bl_rs_utils_macro` [repo](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/macro/). This is
-> just part of the `r3bl_rs_utils` [crate](https://crates.io/crates/r3bl_rs_utils).
+> 📜 **Source code examples**
+>
+> 1. You can find "real world" examples of both declarative and procedural macros in the
+>    `r3bl_rs_utils` [crate](https://crates.io/crates/r3bl_rs_utils).
+>
+>    - [proc macros](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/macro)
+>    - [decl macros](https://github.com/r3bl-org/r3bl_rs_utils/search?q=macro_rules)
+>
+> 2. You can find all the pedagogical examples of macros shown in this article in this
+>    [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/)

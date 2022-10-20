@@ -295,6 +295,10 @@ project, you write macros like the ones shown below.
 
 > 📜 This article will provide examples of each of these types of macros. You can find them all in
 > this [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/).
+>
+> 💡 You can also take a look at this tutorial by
+> [JetBrains](https://blog.jetbrains.com/rust/2022/03/18/procedural-macros-under-the-hood-part-i/)
+> which goes into visual descriptions of the AST, token tree, etc.
 
 ```rust
 extern crate proc_macro;

@@ -62,6 +62,9 @@ accepting input piped to `stdin`.
 >
 > 1. Here's what the function returns: `atty::isnt(atty::Stream::Stdin)`.
 > 2. You will also find these other functions that are related: `is_tty()`, `is_stdout_piped`.
+>
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.
 
 ```rust
 fn main() {
@@ -255,3 +258,6 @@ Here are a list of crates that are used in this app.
 2. `atty` - <https://crates.io/crates/atty>
 
 We will explore more complex TUIs built w/ Rust in the future.
+
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.

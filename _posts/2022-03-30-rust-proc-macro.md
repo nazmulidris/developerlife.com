@@ -92,6 +92,9 @@ Here's a summary:
 >
 > 2. You can find all the pedagogical examples of macros shown in this article in this
 >    [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/)
+>
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.
 
 ## How to add a proc macro lib crate to your existing project
 
@@ -197,6 +200,9 @@ The basic steps look like this:
 > 📦 Here's a real example of this from the
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate which applies this change in this
 > [commit](https://github.com/r3bl-org/r3bl-rs-utils/commit/c5b57f7b81e746a7277191dc1593237b5bc12867).
+>
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.
 
 If you publish the public crate to crates.io, then you will need to publish each of the dependent
 crates as well. This won't happen automatically when publishing the public crate, you have to go in
@@ -1748,3 +1754,6 @@ pub fn foo() -> &'static str {
 >
 > 2. You can find all the pedagogical examples of macros shown in this article in this
 >    [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/)
+>
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.

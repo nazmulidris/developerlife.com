@@ -35,9 +35,9 @@ categories:
 ## Introduction
 
 This article illustrates how we can build a non-binary tree in Rust using various approaches until
-we end up with a version that is thread safe and supports parallel tree walking as well. Topics
-like interior mutability, sharing ownership, weak and strong references, custom traits for
-polymorphic behavior, are covered in this article.
+we end up with a version that is thread safe and supports parallel tree walking as well. Topics like
+interior mutability, sharing ownership, weak and strong references, custom traits for polymorphic
+behavior, are covered in this article.
 
 A non-binary tree is a data structure that can be used to represent a tree of nodes similar to DOM,
 or Virtual DOM (React). Each node in the tree has a value and a list of children. It also has a
@@ -51,6 +51,9 @@ will be allow us to make the tree thread safe and parallel friendly (we will nam
 
 > 📜 You can take a look the source code of this thread safe non-binary tree data structure named
 > `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-rs-utils).
+
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.
 
 ## Naive approach using weak and strong references
 
@@ -421,6 +424,9 @@ fn fun_4(node: Box<dyn HasId<Id = i32>>) {
 > 📦 You can get `Arena`, `Node` and `style_primary` from
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate.
 
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.
+
 `Arena` provides a trait called `HasId` that represents the `id` of a node in the tree. Both a
 `usize` and `Node` can be an instance of this trait.
 
@@ -439,7 +445,7 @@ fn fun_4(node: Box<dyn HasId<Id = i32>>) {
 - Also, traits can have associated types, and `HasId` has an associated type called `IdType` which
   is just `usize`. However, it can be set to anything and shows the flexibility of traits.
 
-> Here's a diagram summarizing the journey so far. <br/> <br/>
+> Here's a diagram summarizing the journey so far. <br/> <br/> >
 > <img class="post-hero-image" src="{{ 'assets/tree-approaches.drawio.svg' | relative_url }}"/>
 
 ### Basic usage of the arena (tree)
@@ -652,3 +658,6 @@ There are functions that make it easy to unwrap things in Rust that are wrapped 
 
 > 📜 You can take a look the source code of this thread safe non-binary tree data structure named
 > `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-rs-utils).
+
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.

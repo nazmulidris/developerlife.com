@@ -53,6 +53,9 @@ tasks. But the reducer functions will be run in sequence (not in separate Tokio 
 > 📦 You can use this Redux library today by adding
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate as a dependency in your
 > `Cargo.toml`.
+>
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.
 
 This article is getting us ready to building more complex TUI apps next using crates like `termion`
 and `tui`.
@@ -267,6 +270,9 @@ With this, we can now dive into the Redux library implementation 🚀.
 > the
 > [tests](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/tests/test_manager_of_things_macro.rs)
 > to see how this macro is used.
+>
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.
 
 ## Using the Redux library
 
@@ -296,6 +302,9 @@ our shared application state. It allows for a few things:
 > 📦 You can use this Redux library today by adding
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate as a dependency in your
 > `Cargo.toml`.
+>
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.
 
 This is what the API looks like when we use it our app. Let's say we have the following action enum,
 and state struct.
@@ -628,3 +637,6 @@ Tokio tasks.
 > 📦 You can use this Redux library today by adding
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate as a dependency in your
 > `Cargo.toml`.
+>
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.

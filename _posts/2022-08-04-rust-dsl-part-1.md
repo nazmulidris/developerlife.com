@@ -5,7 +5,7 @@ date: 2022-08-04 15:00:00+00:00
 excerpt: |
   Procedural macros are a way for you to extend the Rust compiler and provide plugins
   that you can use to extend the language. They allow to create your own DSL (domain
-  specific language). This article goes into the details of creating a simple DSL to 
+  specific language). This article goes into the details of creating a simple DSL to
   mimic CSS syntax but in Rust, for a TUI app framework.
 layout: post
 categories:
@@ -45,10 +45,15 @@ The motivation for doing this comes from having built a TUI library in the
 ergonomic for developers, so that it is easier to use and familiar to declarative styling from CSS,
 etc.
 
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.
+
 > 🦜 What is a TUI? The best way to grok it is to see one in action.
 >
 > 1. Clone [this repo](https://github.com/r3bl-org/r3bl-cmdr) (for the
 >    [`r3bl-cmdr` crate](https://crates.io/crates/r3bl-cmdr)) to your local or remote machine.
+>    - 🌟 Please star [this repo](https://github.com/r3bl-org/r3bl-cmdr) on github if you like it
+>      🙏.
 > 2. Run `cargo run` (in `r3bl-cmdr` folder) to see it doing its thing. Works great over
 >    [SSH](https://en.wikipedia.org/wiki/Secure_Shell) too!
 > 3. Check out the source code in this repo, to get a handle on how to use the `r3bl_rs_utils::tui`
@@ -669,6 +674,10 @@ In the future we will expand this DSL to include more features like generating t
 declaratively. And then move on to creating JSX like syntax in Rust for layout stuff in the `tui`
 module as well. More articles to follow based on this work.
 
-> 📜 For more examples of procedural macros, check out the `r3bl_rs_utils_macro` >
-> [repo](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/macro/). This is part of the
-> `r3bl_rs_utils` [crate](https://crates.io/crates/r3bl_rs_utils).
+> 📜 For more examples of procedural macros, check out the
+> [`r3bl_rs_utils_macro` repo](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/macro/).
+>
+> 💡 This is part of the [`r3bl_rs_utils` crate](https://crates.io/crates/r3bl_rs_utils).
+>
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> you like it 🙏.

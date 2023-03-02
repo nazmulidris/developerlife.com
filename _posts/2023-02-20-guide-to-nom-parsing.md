@@ -61,6 +61,7 @@ how the nom library works.
     - [Excellent beginner to advanced](https://github.com/benkay86/nom-tutorial)
     - [Write a parser from scratch](https://github.com/rust-bakery/nom/blob/main/doc/making_a_new_parser_from_scratch.md)
   - Reference docs:
+    - [nominomicon](https://tfpk.github.io/nominomicon/introduction.html)
     - [What combinator or parser to use?](https://github.com/rust-bakery/nom/blob/main/doc/choosing_a_combinator.md)
     - [docs.rs](https://docs.rs/nom/7.1.3/nom/)
     - [Upgrading to nom 5.0](https://github.com/rust-bakery/nom/blob/main/doc/upgrading_to_nom_5.md)

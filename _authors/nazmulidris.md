@@ -5,4 +5,4 @@ position: Software Engineer
 link: /about-me/
 ---
 
-Nazmul is a SWE focused on Android and Web frontend technologies.
+Nazmul is a software engineer focused on Rust, TUI, Web, and Android technologies.

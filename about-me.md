@@ -13,7 +13,7 @@ exclude: false
     </div>
     <div class="avatar-text">
         Hi, I'm <a href="http://www.google.com/search?hl=en&q=nazmul+idris">
-        Nazmul</a> 😃. I am an ex-Google SWE, entrepreneur, designer, leader,
+        Nazmul</a> 😃. I am a software engineer, entrepreneur, designer, leader,
         HsingI-er, racer, healer, storyteller. I 💓 leadership, authenticity,
         empowerment & lifelong learning.
     </div>

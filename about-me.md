@@ -14,7 +14,7 @@ exclude: false
     <div class="avatar-text">
         Hi, I'm <a href="http://www.google.com/search?hl=en&q=nazmul+idris">
         Nazmul</a> 😃. I am a software engineer, entrepreneur, designer, leader,
-        HsingI-er, racer, storyteller. I 💓 leadership, authenticity,
+        TaiChi-er, racer, storyteller. I 💓 leadership, authenticity,
         empowerment & lifelong learning.
     </div>
 </div>

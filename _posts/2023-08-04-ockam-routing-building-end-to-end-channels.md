@@ -1,5 +1,5 @@
 ---
-title: "How to use Ockam Routing (with the Rust library) to build end-to-end channels"
+title: "Create End-to-End Channels in Rust with Ockam Routing"
 author: Nazmul Idris
 date: 2023-08-04 15:00:00+00:00
 excerpt: |
@@ -34,6 +34,8 @@ management, credential management, and authorization policy enforcement &mdash; 
 scale. Ockam's end-to-end [secure channels](https://docs.ockam.io/reference/command/secure-channels)
 guarantee authenticity, integrity, and confidentiality of all data-in-motion at the application
 layer.
+
+> 🚀 Please star and fork / clone the [Ockam repo](https://github.com/build-trust/ockam) 🌟.
 
 One of the key features that makes this possible is
 [Ockam Routing](https://docs.ockam.io/reference/command/routing#routing). Routing allows us to
@@ -704,6 +706,8 @@ Ockam Routing and transports are extremely powerful and flexible. They are one o
 that enables Ockam Secure Channels to be implemented. By layering Ockam Secure Channels and other
 protocols over Ockam Routing, we can provide end-to-end guarantees over arbitrary transport
 topologies that span many networks and clouds.
+
+> 🚀 Please star and fork / clone the [Ockam repo](https://github.com/build-trust/ockam) 🌟.
 
 In a future blog post we will be covering
 [Ockam Secure Channels](https://docs.ockam.io/reference/command/secure-channels) and how they can be

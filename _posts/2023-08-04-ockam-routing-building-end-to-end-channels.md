@@ -6,16 +6,11 @@ excerpt: |
   A guide on how to use Ockam Routing, using the Rust library, to secure your apps by building
   end-to-end channels. It is to get us thinking about security when building apps
   and consider the "who and where" for the data that is sent and received by our apps.
+canonical_url: https://www.ockam.io/blog/routing
 layout: post
 categories:
   - Rust
 ---
-
-<!--
-    This is to ensure that search engines don’t get mad about duplication, since the original
-    article is posted on ockam.io.
--->
-<link rel="canonical" href="https://www.ockam.io/blog/routing" />
 
 <img class="post-hero-image" src="{{ 'assets/ockam.svg' | relative_url }}"/>
 

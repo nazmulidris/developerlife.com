@@ -31,40 +31,39 @@ categories:
 
 ## Introduction
 
-This article illustrates how we can build a CLI app in Rust that is a very basic implementation of
-grep. This app will have 2 modes of operation: piping lines in from `stdin` and searching them, and
-reading a file and searching thru it. The output of the program will be lines that match the search
-term w/ the term being highlighted. Topics like `stdin` manipulation in a terminal, detecting when
-the terminal is in `tty` mode vs `piped` mode, doing simple file I/O, creating non consuming
-builders, and managing `Result`s, along w/ building a simple CLI interface are covered in this
-article.
+This article illustrates how we can build a CLI app in Rust that is a very basic
+implementation of grep. This app will have 2 modes of operation: piping lines in from
+`stdin` and searching them, and reading a file and searching thru it. The output of the
+program will be lines that match the search term w/ the term being highlighted. Topics
+like `stdin` manipulation in a terminal, detecting when the terminal is in `tty` mode vs
+`piped` mode, doing simple file I/O, creating non consuming builders, and managing
+`Result`s, along w/ building a simple CLI interface are covered in this article.
 
-The app we are building is very simple by design. It is getting us ready to building more complex
-TUI apps next using crates like `termion` and `tui`.
+The app we are building is very simple by design so we can get a handle on command line
+arguments, stdin, stdout, and piping.
 
 > 📜 The source code for the finished app named `rust-grep-cli` can be found
 > [here](https://github.com/nazmulidris/rust_scratch/tree/main/rust-grep-cli).
 
 ## Building the main function
 
-The first thing we need to do is build the main function. This is where we will be routing our app
-to be in mode 1 or mode 2. We have to detect whether the terminal is in `tty` mode or `piped` mode.
-In order to do this we have to use a crate [`atty`](https://crates.io/crates/atty). Helper methods
-based on this crate are available in the [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils)
-crate, which is what we will be using in our app.
+The first thing we need to do is build the main function. This is where we will be routing
+our app to be in mode 1 or mode 2. We have to detect whether the terminal is in `tty` mode
+or `piped` mode. In order to do this we have to use a crate
+[`is_terminal`](https://crates.io/crates/is_terminal). Helper methods based on this crate
+are available in the [`r3bl_tuify`](https://crates.io/crates/r3bl_tuify) crate, which is
+what we will be using in our app.
 
-Here's the `main` function, w/ the most important thing being the call to `is_stdin_piped()`. This
-uses `r3bl_rs_utils` which itself uses `atty` to determine whether the terminal is currently
-accepting input piped to `stdin`.
+Here's the `main` function, w/ the most important thing being the call to
+`is_stdin_piped()`. This uses `r3bl_rs_utils` which itself uses `atty` to determine
+whether the terminal is currently accepting input piped to `stdin`.
 
-> 📜 You can find the source for `is_stdin_piped()` (in `r3bl_rs_utils` crate)
-> [here](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/src/utils/tty.rs).
+> 📜 You can find the source for `is_stdin_piped()` (in `r3bl_tuify` crate) [in
+> `term.rs`](https://github.com/r3bl-org/r3bl-rs-utils/). You will also find these other
+> functions that are related: `is_tty()`, `is_stdout_piped`.
 >
-> 1. Here's what the function returns: `atty::isnt(atty::Stream::Stdin)`.
-> 2. You will also find these other functions that are related: `is_tty()`, `is_stdout_piped`.
->
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
-> you like it 🙏.
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on
+> github if you like it 🙏.
 
 ```rust
 fn main() {

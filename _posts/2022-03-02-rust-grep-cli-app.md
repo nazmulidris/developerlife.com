@@ -59,11 +59,12 @@ Here's the `main` function, w/ the most important thing being the call to
 whether the terminal is currently accepting input piped to `stdin`.
 
 > 📜 You can find the source for `is_stdin_piped()` (in `r3bl_tuify` crate) [in
-> `term.rs`](https://github.com/r3bl-org/r3bl-rs-utils/). You will also find these other
-> functions that are related: `is_tty()`, `is_stdout_piped`.
+> `term.rs`](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tuify/src/term.rs). You
+> will also find these other functions that are related: `is_tty()`, `is_stdout_piped`.
 >
 > 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on
-> github if you like it 🙏.
+> github if you like it 🙏. If you would like to contribute to it, please click
+> [here](https://github.com/r3bl-org/r3bl_rs_utils/contribute).
 
 ```rust
 fn main() {
@@ -258,5 +259,6 @@ Here are a list of crates that are used in this app.
 
 We will explore more complex TUIs built w/ Rust in the future.
 
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
-> you like it 🙏.
+> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on
+> github if you like it 🙏. If you would like to contribute to it, please click
+> [here](https://github.com/r3bl-org/r3bl_rs_utils/contribute).

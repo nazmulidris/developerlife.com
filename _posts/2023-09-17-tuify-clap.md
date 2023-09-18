@@ -185,9 +185,23 @@ Here are two examples of adding interactivity.
 ### Example 1: Add interactivity using a list selection component
 <a id="markdown-example-1%3A-add-interactivity-using-a-list-selection-component" name="example-1%3A-add-interactivity-using-a-list-selection-component"></a>
 
-Here's an example of adding interactivity using a list selection component. This is useful when
-the values that a field can take are known in advance. In this example, they are since `selection-mode` is
-a `clap` `EnumValue` that can only take one of the following values: `single`, or `multiple`.
+Here's an example of adding interactivity using a list selection component. This is useful
+when the values that a field can take are known in advance. In this example, they are
+since `selection-mode` is a `clap` `EnumValue` that can only take one of the following
+values: `single`, or `multiple`.
+
+In this scenario, `--selection-mode` is *not* passed in the command line. So it only
+interactively prompts the user for this piece of information. Similarly, if the user does
+not provide this information, the app exits and provides a help message.
+
+```shell
+cat TODO.todo | cargo run -- select-from-list --command-to-run-with-each-selection "echo %"
+```
+
+<!-- tuify-interactive-selection-mode-not-provided -->
+<video width="800" controls>
+  <source src="https://github.com/r3bl-org/r3bl_rs_utils/assets/2966499/be65d9b2-575b-47c0-8291-110340bd2fe7" type="video/mp4"/>
+</video>
 
 ```rust
 // Handle `selection-mode` is not passed in.
@@ -233,7 +247,21 @@ Here's an example of adding interactivity using a text input field. This is usef
 that a field can take are not known in advance. The `r3bl_tuify` crate uses the `reedline` crate to
 do this.
 
-> Fun fact: `reedline` is the text input field (line editor) that is used in `nushell`.
+> Fun fact: [`reedline`](https://docs.rs/reedline/) is the text input field (line editor)
+> that is used in [`nushell`](https://github.com/nushell/nushell).
+
+In this scenario, `--command-to-run-with-each-selection` is *not* passed in the command
+line. So it only interactively prompts the user for this piece of information. Similarly,
+if the user does not provide this information, the app exits and provides a help message.
+
+```shell
+cat TODO.todo | cargo run -- select-from-list --selection-mode single
+```
+
+<!-- tuify-interactive-command-to-run-with-selection-not-provided -->
+<video width="800" controls>
+  <source src="https://github.com/r3bl-org/r3bl_rs_utils/assets/2966499/d8d7d419-c85e-4c10-bea5-345aa31a92a3" type="video/mp4"/>
+</video>
 
 ```rust
 // Handle `command-to-run-with-each-selection` is not passed in.

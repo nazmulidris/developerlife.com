@@ -199,7 +199,7 @@ cat TODO.todo | cargo run -- select-from-list --command-to-run-with-each-selecti
 ```
 
 <!-- tuify-interactive-selection-mode-not-provided -->
-<video width="800" controls>
+<video width="100%" controls>
   <source src="https://github.com/r3bl-org/r3bl_rs_utils/assets/2966499/be65d9b2-575b-47c0-8291-110340bd2fe7" type="video/mp4"/>
 </video>
 
@@ -259,7 +259,7 @@ cat TODO.todo | cargo run -- select-from-list --selection-mode single
 ```
 
 <!-- tuify-interactive-command-to-run-with-selection-not-provided -->
-<video width="800" controls>
+<video width="100%" controls>
   <source src="https://github.com/r3bl-org/r3bl_rs_utils/assets/2966499/d8d7d419-c85e-4c10-bea5-345aa31a92a3" type="video/mp4"/>
 </video>
 

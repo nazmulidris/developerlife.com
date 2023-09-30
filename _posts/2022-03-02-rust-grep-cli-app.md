@@ -45,6 +45,10 @@ arguments, stdin, stdout, and piping.
 > 📜 The source code for the finished app named `rust-grep-cli` can be found
 > [here](https://github.com/nazmulidris/rust_scratch/tree/main/rust-grep-cli).
 
+> For more information on general Rust type system design (functional approach rather than
+> object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
+> by Will Crichton demonstrating Typed Design Patterns with Rust.
+
 ## Building the main function
 
 The first thing we need to do is build the main function. This is where we will be routing

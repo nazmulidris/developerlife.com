@@ -96,6 +96,10 @@ Here's a summary:
 > 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
 > you like it 🙏.
 
+> For more information on general Rust type system design (functional approach rather than
+> object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
+> by Will Crichton demonstrating Typed Design Patterns with Rust.
+
 ## How to add a proc macro lib crate to your existing project
 
 Rust has two kinds of macros: declarative and procedural. Declarative macros are made using

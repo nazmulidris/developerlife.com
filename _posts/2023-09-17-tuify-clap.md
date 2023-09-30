@@ -57,6 +57,10 @@ built using `clap`.
 > There are a lot of small features that need to be added. And they can be a nice stepping stone
 > into the world of open source contribution 🎉.
 
+> For more information on general Rust type system design (functional approach rather than
+> object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
+> by Will Crichton demonstrating Typed Design Patterns with Rust.
+
 ## CLI design concepts
 <a id="markdown-cli-design-concepts" name="cli-design-concepts"></a>
 

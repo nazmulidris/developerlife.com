@@ -39,6 +39,10 @@ we end up with a version that is thread safe and supports parallel tree walking 
 interior mutability, sharing ownership, weak and strong references, custom traits for polymorphic
 behavior, are covered in this article.
 
+> For more information on general Rust type system design (functional approach rather than
+> object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
+> by Will Crichton demonstrating Typed Design Patterns with Rust.
+
 A non-binary tree is a data structure that can be used to represent a tree of nodes similar to DOM,
 or Virtual DOM (React). Each node in the tree has a value and a list of children. It also has a
 parent. The first implementation that we will do is going to be a naive approach, that will get us

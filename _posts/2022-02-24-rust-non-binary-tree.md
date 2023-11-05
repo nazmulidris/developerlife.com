@@ -56,7 +56,7 @@ will be allow us to make the tree thread safe and parallel friendly (we will nam
 > 📜 You can take a look the source code of this thread safe non-binary tree data structure named
 > `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-rs-utils).
 
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.
 
 ## Naive approach using weak and strong references
@@ -428,7 +428,7 @@ fn fun_4(node: Box<dyn HasId<Id = i32>>) {
 > 📦 You can get `Arena`, `Node` and `style_primary` from
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate.
 
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.
 
 `Arena` provides a trait called `HasId` that represents the `id` of a node in the tree. Both a
@@ -663,5 +663,5 @@ There are functions that make it easy to unwrap things in Rust that are wrapped 
 > 📜 You can take a look the source code of this thread safe non-binary tree data structure named
 > `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-rs-utils).
 
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.

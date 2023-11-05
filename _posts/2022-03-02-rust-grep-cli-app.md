@@ -59,16 +59,16 @@ are available in the [`r3bl_tuify`](https://crates.io/crates/r3bl_tuify) crate, 
 what we will be using in our app.
 
 Here's the `main` function, w/ the most important thing being the call to
-`is_stdin_piped()`. This uses `r3bl_rs_utils` which itself uses `atty` to determine
-whether the terminal is currently accepting input piped to `stdin`.
+`is_stdin_piped()`. This uses the `r3bl_rs_utils` crate which itself uses `atty` to
+determine whether the terminal is currently accepting input piped to `stdin`.
 
 > 📜 You can find the source for `is_stdin_piped()` (in `r3bl_tuify` crate) [in
-> `term.rs`](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tuify/src/term.rs). You
+> `term.rs`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tuify/src/term.rs). You
 > will also find these other functions that are related: `is_tty()`, `is_stdout_piped`.
 >
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on
 > github if you like it 🙏. If you would like to contribute to it, please click
-> [here](https://github.com/r3bl-org/r3bl_rs_utils/contribute).
+> [here](https://github.com/r3bl-org/r3bl-open-core/contribute).
 
 ```rust
 fn main() {
@@ -263,6 +263,6 @@ Here are a list of crates that are used in this app.
 
 We will explore more complex TUIs built w/ Rust in the future.
 
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on
 > github if you like it 🙏. If you would like to contribute to it, please click
-> [here](https://github.com/r3bl-org/r3bl_rs_utils/contribute).
+> [here](https://github.com/r3bl-org/r3bl-open-core/contribute).

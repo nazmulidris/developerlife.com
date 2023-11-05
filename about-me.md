@@ -13,7 +13,7 @@ exclude: false
     </div>
     <div class="avatar-text">
         Hi, I'm <a href="http://www.google.com/search?hl=en&q=nazmul+idris">
-        Nazmul</a> 😃. I am an ex-Googler, <a href="https://github.com/r3bl-org/r3bl_rs_utils/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+        Nazmul</a> 😃. I am an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
         TaiChi-er, racer, storyteller. I 💓 leadership, authenticity,
         empowerment & lifelong learning.
     </div>

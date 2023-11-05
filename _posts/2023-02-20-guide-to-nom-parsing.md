@@ -314,12 +314,13 @@ complex parsers. You start w/ the simplest one first, and then build up from the
 
 
 > 💡 You can get the source code for the Markdown parser shown in this article from the
-> [`r3bl_rs_utils`](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/tui/src/tui/md_parser) repo.
+> [`r3bl-open-core`](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/tui/md_parser)
+> repo.
 >
 > 🌟 Please star this repo on github if you like it 🙏.
 
-The [`md_parser`](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/tui/src/tui/md_parser) module
-in the `r3bl_rs_utils` repo contains a fully functional Markdown parser (and isn't written as a test
+The [`md_parser`](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/tui/md_parser) module
+in the `r3bl-open-core` repo contains a fully functional Markdown parser (and isn't written as a test
 but a real module that you can use in your projects that need a Markdown parser). This parser
 supports standard Markdown syntax as well as some extensions that are added to make it work w/ R3BL
 products. It makes a great starting point to study how a relatively complex parser is written. There
@@ -328,23 +329,23 @@ are lots of tests that you can follow along to understand what the code is doing
 Here are some entry points into the codebase.
 
 1. The main function
-   [`parse_markdown()`](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tui/src/tui/md_parser/parser.rs)
+   [`parse_markdown()`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/parser.rs)
    that does the parsing of a string slice into a
-   [`Document`](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tui/src/tui/md_parser/types.rs).
+   [`Document`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs).
    The tests are provided alongside the code itself. And you can follow along to see how other
    smaller parsers are used to build up this big one that parses the whole of the Markdown document.
 
    1. All the parsers related to parsing metadata specific for R3BL applications which are not
       standard Markdown can be found in
-      [`parser_impl_metadata`](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tui/src/tui/md_parser/parser_impl_metadata.rs).
+      [`parser_impl_metadata`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/parser_impl_metadata.rs).
    2. All the parsers that are related to parsing the main "blocks" of Markdown, such as order
       lists, unordered lists, code blocks, text blocks, heading blocks, can be found
-      [`parser_impl_block`](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tui/src/tui/md_parser/parser_impl_block.rs)
+      [`parser_impl_block`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/parser_impl_block.rs)
    3. All the parsers that are related to parsing a single line of Markdown text, such as links,
       bold, italic, etc. can be found
-      [`parser_impl_element`](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tui/src/tui/md_parser/parser_impl_element.rs)
+      [`parser_impl_element`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/parser_impl_element.rs)
 
-2. The [types](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tui/src/tui/md_parser/types.rs)
+2. The [types](https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs)
    that are used to represent the Markdown document model
-   ([`Document`](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tui/src/tui/md_parser/types.rs))
+   ([`Document`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs))
    and all the other intermediate types (`Fragment`, `Block`, etc) & enums required for parsing.

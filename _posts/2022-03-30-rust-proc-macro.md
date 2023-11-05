@@ -68,7 +68,7 @@ declared in the `lib.rs` file). Here are the key benefits of procedural macros:
 > to use. If you have simple use cases they work great, since they are so easy to write. Here are
 > some resources to help you w/ learning declarative macros.
 >
-> 1. [Declarative macros in r3bl_rs_utils crate](https://github.com/r3bl-org/r3bl_rs_utils/search?q=macro_rules)
+> 1. [Declarative macros in `r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules)
 > 2. [Declarative macros included in this article's repo (but not covered in this article)](https://github.com/nazmulidris/rust_scratch/blob/main/macros/tests/decl/main.rs)
 > 3. [Little book of Rust macros](https://veykril.github.io/tlborm/introduction.html)
 > 4. [Great YT video on declarative macros](https://youtu.be/q6paRBbLgNw)
@@ -87,13 +87,13 @@ Here's a summary:
 > 1. You can find "real world" examples of both declarative and procedural macros in the
 >    `r3bl_rs_utils` [crate](https://crates.io/crates/r3bl_rs_utils).
 >
->    - [proc macros](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/macro)
->    - [decl macros](https://github.com/r3bl-org/r3bl_rs_utils/search?q=macro_rules)
+>    - [proc macros](https://github.com/r3bl-org/r3bl-open-core/tree/main/macro)
+>    - [decl macros](https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules)
 >
 > 2. You can find all the pedagogical examples of macros shown in this article in this
 >    [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/)
 >
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.
 
 > For more information on general Rust type system design (functional approach rather than
@@ -205,7 +205,7 @@ The basic steps look like this:
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate which applies this change in this
 > [commit](https://github.com/r3bl-org/r3bl-rs-utils/commit/c5b57f7b81e746a7277191dc1593237b5bc12867).
 >
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.
 
 If you publish the public crate to crates.io, then you will need to publish each of the dependent
@@ -1753,11 +1753,11 @@ pub fn foo() -> &'static str {
 > 1. You can find "real world" examples of both declarative and procedural macros in the
 >    `r3bl_rs_utils` [crate](https://crates.io/crates/r3bl_rs_utils).
 >
->    - [proc macros](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/macro)
->    - [decl macros](https://github.com/r3bl-org/r3bl_rs_utils/search?q=macro_rules)
+>    - [proc macros](https://github.com/r3bl-org/r3bl-open-core/tree/main/macro)
+>    - [decl macros](https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules)
 >
 > 2. You can find all the pedagogical examples of macros shown in this article in this
 >    [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/)
 >
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.

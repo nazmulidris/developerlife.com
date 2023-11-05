@@ -45,7 +45,7 @@ The motivation for doing this comes from having built a TUI library in the
 ergonomic for developers, so that it is easier to use and familiar to declarative styling from CSS,
 etc.
 
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.
 
 > 🦜 What is a TUI? The best way to grok it is to see one in action.
@@ -679,9 +679,10 @@ declaratively. And then move on to creating JSX like syntax in Rust for layout s
 module as well. More articles to follow based on this work.
 
 > 📜 For more examples of procedural macros, check out the
-> [`r3bl_rs_utils_macro` repo](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/macro/).
+> [`r3bl_rs_utils_macro`](https://github.com/r3bl-org/r3bl-open-core/tree/main/macro/)
+> repo.
 >
 > 💡 This is part of the [`r3bl_rs_utils` crate](https://crates.io/crates/r3bl_rs_utils).
 >
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.

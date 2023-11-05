@@ -143,9 +143,9 @@ Let's use some pictures to understand the story of how we got here. And how to r
 
 > If you would like to get involved in an open source project and like Rust crates, please
 > consider contributing to the [r3bl_tuify
-> repo](https://github.com/r3bl-org/r3bl_rs_utils/contribute). There are a lot of small
+> repo](https://github.com/r3bl-org/r3bl-open-core/contribute). There are a lot of small
 > features that need to be added. And they can be a nice stepping stone into the world of
 > open source contribution 🎉.
 >
 > 🚀 Please star and fork / clone the
-> [r3bl_tuify repo](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/tuify) 🌟.
+> [r3bl_tuify repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify) 🌟.

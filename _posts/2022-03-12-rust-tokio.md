@@ -173,7 +173,7 @@ or nothing.
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate. The README has excellent
 > documentation on async traits, parallel and concurrent execution, and Tokio.
 >
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.
 
 So, a middleware function is of type `SafeFn<A>`, where `A` is the action type. Here's what the
@@ -432,7 +432,7 @@ and also can be made `async`).
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate. The README has excellent
 > documentation on async traits, parallel and concurrent execution, and Tokio.
 >
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.
 
 ## Writing tests
@@ -695,5 +695,5 @@ We will take this and build upon it further to create a full Redux library in Ru
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate. The README has excellent
 > documentation on async traits, parallel and concurrent execution, and Tokio.
 >
-> 🌟 Please star the [`r3bl_rs_utils` repo](https://github.com/r3bl-org/r3bl_rs_utils) on github if
+> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
 > you like it 🙏.

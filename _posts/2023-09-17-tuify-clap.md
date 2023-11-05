@@ -49,11 +49,11 @@ this in a way that is additive to the existing CLI experience. We can "tuify" ou
 built using `clap`.
 
 > 🚀 Please star and fork / clone the
-> [r3bl_tuify repo](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/tuify) 🌟. We will use this
+> [r3bl_tuify repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify) 🌟. We will use this
 > repo as an example to learn how to add minimal interactivity to your clap CLI apps
 >
 > If you would like to get involved in an open source project and like Rust crates, please feel free
-> to contribute to the [r3bl_tuify repo](https://github.com/r3bl-org/r3bl_rs_utils/contribute).
+> to contribute to the [r3bl_tuify repo](https://github.com/r3bl-org/r3bl-open-core/contribute).
 > There are a lot of small features that need to be added. And they can be a nice stepping stone
 > into the world of open source contribution 🎉.
 
@@ -116,7 +116,7 @@ Here's a video of this in action, where the app is prompting the user for two it
 
 <!-- tuify-interactive-happy-path -->
 <video width="100%" controls>
-  <source src="https://github.com/r3bl-org/r3bl_rs_utils/assets/2966499/51de8867-513b-429f-aff2-63dd25d71c82" type="video/mp4"/>
+  <source src="https://github.com/r3bl-org/r3bl-open-core/assets/2966499/51de8867-513b-429f-aff2-63dd25d71c82" type="video/mp4"/>
 </video>
 
 ## The r3bl_tuify crate and clap
@@ -124,7 +124,7 @@ Here's a video of this in action, where the app is prompting the user for two it
 
 The `r3bl_tuify` app itself uses `clap` to parse the command line arguments. Here's an overview of
 what that looks like (all of it using the `derive` macro approach). Here's a link to the
-[`main.rs::AppArgs`](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tuify/src/main.rs#L30).
+[`main.rs::AppArgs`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tuify/src/main.rs#L30).
 
 ```rust
 #[derive(Debug, Parser)]
@@ -182,7 +182,7 @@ You can add this programmatically using the library to your existing CLI apps.
 > recommended. The binary is more of a convenience for shell scripts only on Linux.
 
 You can see how to use the library to perform this interactivity in
-[`main.rs::show_tui()`](https://github.com/r3bl-org/r3bl_rs_utils/blob/main/tuify/src/main.rs#L179).
+[`main.rs::show_tui()`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tuify/src/main.rs#L179).
 
 Here are two examples of adding interactivity.
 
@@ -204,7 +204,7 @@ cat TODO.todo | cargo run -- select-from-list --command-to-run-with-each-selecti
 
 <!-- tuify-interactive-selection-mode-not-provided -->
 <video width="100%" controls>
-  <source src="https://github.com/r3bl-org/r3bl_rs_utils/assets/2966499/be65d9b2-575b-47c0-8291-110340bd2fe7" type="video/mp4"/>
+  <source src="https://github.com/r3bl-org/r3bl-open-core/assets/2966499/be65d9b2-575b-47c0-8291-110340bd2fe7" type="video/mp4"/>
 </video>
 
 ```rust
@@ -264,7 +264,7 @@ cat TODO.todo | cargo run -- select-from-list --selection-mode single
 
 <!-- tuify-interactive-command-to-run-with-selection-not-provided -->
 <video width="100%" controls>
-  <source src="https://github.com/r3bl-org/r3bl_rs_utils/assets/2966499/d8d7d419-c85e-4c10-bea5-345aa31a92a3" type="video/mp4"/>
+  <source src="https://github.com/r3bl-org/r3bl-open-core/assets/2966499/d8d7d419-c85e-4c10-bea5-345aa31a92a3" type="video/mp4"/>
 </video>
 
 ```rust
@@ -326,10 +326,10 @@ scroll view, form input fields, and more. If you would like to contribute to thi
 it would be great to have your help.
 
 > 🚀 Please star and fork / clone the
-> [r3bl_tuify repo](https://github.com/r3bl-org/r3bl_rs_utils/tree/main/tuify) 🌟. We will use this
+> [r3bl_tuify repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify) 🌟. We will use this
 > repo as an example to learn how to add minimal interactivity to your clap CLI apps
 >
 > If you would like to get involved in an open source project and like Rust crates, please feel free
-> to contribute to the [r3bl_tuify repo](https://github.com/r3bl-org/r3bl_rs_utils/contribute).
+> to contribute to the [r3bl_tuify repo](https://github.com/r3bl-org/r3bl-open-core/contribute).
 > There are a lot of small features that need to be added. And they can be a nice stepping stone
 > into the world of open source contribution 🎉.

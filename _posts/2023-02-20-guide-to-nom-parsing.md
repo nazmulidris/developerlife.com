@@ -51,6 +51,8 @@ listed below are very useful for learning nom. Think of them as a reference guid
 how the nom library works.
 
 - Useful:
+  - Source code examples (fantastic way to learn nom):
+    - [export-logseq-notes repo](https://github.com/dimfeld/export-logseq-notes/tree/master/src)
   - Videos:
     - [Intro from the author 7yrs old](https://youtu.be/EXEMm5173SM)
     - Nom 7 deep dive videos:

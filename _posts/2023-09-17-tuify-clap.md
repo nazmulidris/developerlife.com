@@ -48,14 +48,7 @@ CLI apps to make them more ergonomic to use. And we can do this without going fu
 this in a way that is additive to the existing CLI experience. We can "tuify" our CLI apps that are
 built using `clap`.
 
-> 🚀 Please star and fork / clone the
-> [r3bl_tuify repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify) 🌟. We will use this
-> repo as an example to learn how to add minimal interactivity to your clap CLI apps
->
-> If you would like to get involved in an open source project and like Rust crates, please feel free
-> to contribute to the [r3bl_tuify repo](https://github.com/r3bl-org/r3bl-open-core/contribute).
-> There are a lot of small features that need to be added. And they can be a nice stepping stone
-> into the world of open source contribution 🎉.
+{%- include featured.html -%}
 
 > For more information on general Rust type system design (functional approach rather than
 > object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
@@ -325,11 +318,4 @@ existing CLI experiences. Things like multi line editor component w/ syntax high
 scroll view, form input fields, and more. If you would like to contribute to this effort,
 it would be great to have your help.
 
-> 🚀 Please star and fork / clone the
-> [r3bl_tuify repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify) 🌟. We will use this
-> repo as an example to learn how to add minimal interactivity to your clap CLI apps
->
-> If you would like to get involved in an open source project and like Rust crates, please feel free
-> to contribute to the [r3bl_tuify repo](https://github.com/r3bl-org/r3bl-open-core/contribute).
-> There are a lot of small features that need to be added. And they can be a nice stepping stone
-> into the world of open source contribution 🎉.
+{%- include featured.html -%}

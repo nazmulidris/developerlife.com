@@ -48,7 +48,7 @@ categories:
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-Learn how to write fish shell scripts by example.
+{%- include featured.html -%}
 
 ## Shebang line at the top of your scripts
 
@@ -827,3 +827,5 @@ function timed -d Pass the program or function that you want to execute as an ar
   echo "⏲ Total runtime: $RUNTIME min ⏲"
 end
 ```
+
+{%- include featured.html -%}

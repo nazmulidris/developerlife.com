@@ -28,7 +28,6 @@ categories:
 ## Introduction
 <a id="markdown-introduction" name="introduction"></a>
 
-
 This tutorial is a guide to parsing with nom. It covers the basics of parsing and how to use nom to
 parse a string into a data structure. We will cover a variety of different examples ranging from
 parsing simple CSS like syntax to a full blown Markdown parser.
@@ -38,13 +37,14 @@ This tutorial has 2 examples in it:
 1. [CSS style syntax](#getting-to-know-nom-using-a-simple-example)
 2. [Markdown parser](#build-a-markdown-parser)
 
+{%- include featured.html -%}
+
 > For more information on general Rust type system design (functional approach rather than
 > object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
 > by Will Crichton demonstrating Typed Design Patterns with Rust.
 
 ## Documentation
 <a id="markdown-documentation" name="documentation"></a>
-
 
 nom is a huge topic. This tutorial takes a hands on approach to learning nom. However, the resources
 listed below are very useful for learning nom. Think of them as a reference guide and deep dive into
@@ -314,7 +314,6 @@ complex parsers. You start w/ the simplest one first, and then build up from the
 ## Build a Markdown parser
 <a id="markdown-build-a-markdown-parser" name="build-a-markdown-parser"></a>
 
-
 > 💡 You can get the source code for the Markdown parser shown in this article from the
 > [`r3bl-open-core`](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/tui/md_parser)
 > repo.
@@ -351,3 +350,5 @@ Here are some entry points into the codebase.
    that are used to represent the Markdown document model
    ([`Document`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs))
    and all the other intermediate types (`Fragment`, `Block`, etc) & enums required for parsing.
+
+{%- include featured.html -%}

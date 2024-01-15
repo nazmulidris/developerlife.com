@@ -27,7 +27,6 @@ categories:
 ## Introduction
 <a id="markdown-introduction" name="introduction"></a>
 
-
 There are few things that generate as much fear and anxiety in developers as `git` merge
 conflicts. `git` is very popular and very powerful, and it is a low level command line
 tool. And it is not very user friendly. It is meant to be orchestrate-able and automated
@@ -40,6 +39,8 @@ TUIs, or even conversational interfaces.
 
 But that's not the focus of this article which is all about the CLI experience of inducing
 and resolving merge conflicts. So let's get started.
+
+{%- include featured.html -%}
 
 ## Setting the stage for a merge conflict
 <a id="markdown-setting-the-stage-for-a-merge-conflict" name="setting-the-stage-for-a-merge-conflict"></a>
@@ -141,11 +142,5 @@ Let's use some pictures to understand the story of how we got here. And how to r
 ## Next steps
 <a id="markdown-next-steps" name="next-steps"></a>
 
-> If you would like to get involved in an open source project and like Rust crates, please
-> consider contributing to the [r3bl_tuify
-> repo](https://github.com/r3bl-org/r3bl-open-core/contribute). There are a lot of small
-> features that need to be added. And they can be a nice stepping stone into the world of
-> open source contribution 🎉.
->
-> 🚀 Please star and fork / clone the
-> [r3bl_tuify repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify) 🌟.
+
+{%- include featured.html -%}

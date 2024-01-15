@@ -49,6 +49,8 @@ arguments, stdin, stdout, and piping.
 > object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
 > by Will Crichton demonstrating Typed Design Patterns with Rust.
 
+{%- include featured.html -%}
+
 ## Building the main function
 
 The first thing we need to do is build the main function. This is where we will be routing
@@ -263,6 +265,4 @@ Here are a list of crates that are used in this app.
 
 We will explore more complex TUIs built w/ Rust in the future.
 
-> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on
-> github if you like it 🙏. If you would like to contribute to it, please click
-> [here](https://github.com/r3bl-org/r3bl-open-core/contribute).
+{%- include featured.html -%}

@@ -54,10 +54,9 @@ will be allow us to make the tree thread safe and parallel friendly (we will nam
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate.
 
 > 📜 You can take a look the source code of this thread safe non-binary tree data structure named
-> `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-rs-utils).
+> `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/utils).
 
-> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
-> you like it 🙏.
+{%- include featured.html -%}
 
 ## Naive approach using weak and strong references
 
@@ -661,7 +660,6 @@ There are functions that make it easy to unwrap things in Rust that are wrapped 
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate.
 
 > 📜 You can take a look the source code of this thread safe non-binary tree data structure named
-> `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-rs-utils).
+> `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/utils).
 
-> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
-> you like it 🙏.
+{%- include featured.html -%}

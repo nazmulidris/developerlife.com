@@ -16,10 +16,12 @@ categories:
 
 <img class="post-hero-image" src="{{ 'assets/rust-proc-macro.svg' | relative_url }}"/>
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<!-- TOC -->
 
 - [What are procedural macros](#what-are-procedural-macros)
+  - [Declarative macros have limitations](#declarative-macros-have-limitations)
+  - [Summary of proc vs decl macros](#summary-of-proc-vs-decl-macros)
+  - [Source code examples](#source-code-examples)
 - [How to add a proc macro lib crate to your existing project](#how-to-add-a-proc-macro-lib-crate-to-your-existing-project)
   - [Add an internal or core crate](#add-an-internal-or-core-crate)
 - [What does a syn AST look like?](#what-does-a-syn-ast-look-like)
@@ -39,17 +41,20 @@ categories:
   - [Better implementation that handles generics](#better-implementation-that-handles-generics)
   - [Using quote!](#using-quote)
 - [Eg 4 - Derive macro that generates a builder](#eg-4---derive-macro-that-generates-a-builder)
+  - [Stub out the implementation](#stub-out-the-implementation)
+  - [Testing the macro](#testing-the-macro)
+  - [Implementation details](#implementation-details)
 - [Eg 5 - Attribute macro that adds logging to a function](#eg-5---attribute-macro-that-adds-logging-to-a-function)
   - [Create entry in lib.rs](#create-entry-in-librs)
   - [How to parse item?](#how-to-parse-item)
   - [How to parse args containing attributes for variant 1?](#how-to-parse-args-containing-attributes-for-variant-1)
   - [How to parse args containing set of identifiers for variant 2?](#how-to-parse-args-containing-set-of-identifiers-for-variant-2)
 - [Learning resources](#learning-resources)
-- [Wrapping up](#wrapping-up)
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<!-- /TOC -->
 
 ## What are procedural macros
+<a id="markdown-what-are-procedural-macros" name="what-are-procedural-macros"></a>
 
 **Procedural macros** are a way for you to extend the Rust compiler and provide plugins that you can
 use to extend the language. They are really powerful and require some more work to setup in an
@@ -64,16 +69,20 @@ declared in the `lib.rs` file). Here are the key benefits of procedural macros:
   [DSL (domain specific language)](https://developerlife.com/2020/04/04/kotlin-dsl-intro/) like in
   Kotlin and babel and JavaScript.
 
-> 💡 **Declarative macros** have many limitations (eg: they can't work with generics) but are easier
-> to use. If you have simple use cases they work great, since they are so easy to write. Here are
-> some resources to help you w/ learning declarative macros.
->
-> 1. [Declarative macros in `r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules)
-> 2. [Declarative macros included in this article's repo (but not covered in this article)](https://github.com/nazmulidris/rust_scratch/blob/main/macros/tests/decl/main.rs)
-> 3. [Little book of Rust macros](https://veykril.github.io/tlborm/introduction.html)
-> 4. [Great YT video on declarative macros](https://youtu.be/q6paRBbLgNw)
+### Declarative macros have limitations
+<a id="markdown-declarative-macros-have-limitations" name="declarative-macros-have-limitations"></a>
 
-Here's a summary:
+For example they can't work with generics. They are easier to write than procedural
+macros. If you have simple use cases they work great, since they are so easy to write.
+Here are some resources to help you w/ learning declarative macros.
+
+1. [Declarative macros in `r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules)
+2. [Declarative macros included in this article's repo (but not covered in this article)](https://github.com/nazmulidris/rust_scratch/blob/main/macros/tests/decl/main.rs)
+3. [Little book of Rust macros](https://veykril.github.io/tlborm/introduction.html)
+4. [Great YT video on declarative macros](https://youtu.be/q6paRBbLgNw)
+
+### Summary of proc vs decl macros
+<a id="markdown-summary-of-proc-vs-decl-macros" name="summary-of-proc-vs-decl-macros"></a>
 
 | Macro type                 | Capabilities & limitations                                                                                               |
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
@@ -82,25 +91,24 @@ Here's a summary:
 | Procedural - derive        | Can't touch token stream of annotated `struct` or `enum`, only add new token stream below; can declare helper attributes |
 | Procedural - attribute     | Like function-like, replaces token stream of annotated item (not just `struct` or `enum`)                                |
 
-> 📜 **Source code examples**
->
-> 1. You can find "real world" examples of both declarative and procedural macros in the
->    `r3bl_rs_utils` [crate](https://crates.io/crates/r3bl_rs_utils).
->
->    - [proc macros](https://github.com/r3bl-org/r3bl-open-core/tree/main/macro)
->    - [decl macros](https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules)
->
-> 2. You can find all the pedagogical examples of macros shown in this article in this
->    [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/)
->
-> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
-> you like it 🙏.
+### Source code examples
+<a id="markdown-source-code-examples" name="source-code-examples"></a>
+
+1. You can find "real world" examples of both declarative and procedural macros in the
+   `r3bl-open-core` [repo](https://github.com/r3bl-org/r3bl-open-core).
+   - [proc macros](https://github.com/r3bl-org/r3bl-open-core/tree/main/macro)
+   - [decl macros](https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules)
+2. You can find all the pedagogical examples of macros shown in this article in this
+   [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/).
+
+{%- include featured.html -%}
 
 > For more information on general Rust type system design (functional approach rather than
 > object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
 > by Will Crichton demonstrating Typed Design Patterns with Rust.
 
 ## How to add a proc macro lib crate to your existing project
+<a id="markdown-how-to-add-a-proc-macro-lib-crate-to-your-existing-project" name="how-to-add-a-proc-macro-lib-crate-to-your-existing-project"></a>
 
 Rust has two kinds of macros: declarative and procedural. Declarative macros are made using
 `macro_rules!` inline in your code w/out creating a new lib crate. This article is about procedural
@@ -185,6 +193,7 @@ r3bl_rs_utils = "*"
 >    and then runs the test you give that script as an argument.
 
 ### Add an internal or core crate
+<a id="markdown-add-an-internal-or-core-crate" name="add-an-internal-or-core-crate"></a>
 
 There are situations where you will need to share code between your public crate and your procedural
 macro crate. In this case you can add an internal or core crate to your project. The shared files
@@ -214,6 +223,7 @@ and run `cargo publish` on each and every dependent crate and they will be their
 crate on crates.io.
 
 ## What does a syn AST look like?
+<a id="markdown-what-does-a-syn-ast-look-like%3F" name="what-does-a-syn-ast-look-like%3F"></a>
 
 Before writing macros, let's talk about how we need to think about things:
 
@@ -299,6 +309,7 @@ the string `"fn foo() -> u32 { 42 }"` using
 > [dump-syntax](https://github.com/dtolnay/syn/blob/master/examples/dump-syntax/src/main.rs).
 
 ## How to write a proc macro of any kind
+<a id="markdown-how-to-write-a-proc-macro-of-any-kind" name="how-to-write-a-proc-macro-of-any-kind"></a>
 
 There are 3 kinds of proc macros. Once you've created a new library crate for them inside your
 project, you write macros like the ones shown below.
@@ -342,6 +353,7 @@ pub fn log_entry_and_exit(args: TokenStream, input: TokenStream) -> TokenStream 
 ```
 
 ### Strategy
+<a id="markdown-strategy" name="strategy"></a>
 
 The rough idea is that we will have to parse "things" into this `proc_macro2::TokenStream` in order
 to manipulate them. They can be parsed into this AST from:
@@ -364,6 +376,7 @@ In order to do this parsing you have to use the
   an `ItemFn` AST and then you can work w/ the fields provided by `ItemFn` after that.
 
 ### Examples
+<a id="markdown-examples" name="examples"></a>
 
 So here are some examples of what this looks like.
 
@@ -398,6 +411,7 @@ So here are some examples of what this looks like.
    implement which allows you greater control over the parsing process.
 
 ### Writing your own Parse trait impl in different ways
+<a id="markdown-writing-your-own-parse-trait-impl-in-different-ways" name="writing-your-own-parse-trait-impl-in-different-ways"></a>
 
 This might not be intuitive, but you can parse the **same** `TokenStream` using various different
 parsers. You can parse a `TokenStream` as a `Type` or `Ident` or whatever else depending on what you
@@ -490,6 +504,7 @@ impl Parse for ManagerOfThingInfo {
 > team is also quite helpful.
 
 ## Eg 1 - Function-like macro that dumps the AST
+<a id="markdown-eg-1---function-like-macro-that-dumps-the-ast" name="eg-1---function-like-macro-that-dumps-the-ast"></a>
 
 Let's start our procedural macro journey w/ something very simple. It's a macro that doesn't really
 emit any token stream. It just prints out the AST of the input as debug. So we won't be using
@@ -601,6 +616,7 @@ fn test_proc_macro() {
 > parse a custom syntax.
 
 ## Eg 2 - Function-like macro that parses custom syntax
+<a id="markdown-eg-2---function-like-macro-that-parses-custom-syntax" name="eg-2---function-like-macro-that-parses-custom-syntax"></a>
 
 There are times when you need to create your own syntax or domain specific language. Examples of
 this are JSX for React. Or DAO generators for a database. In these cases, it's not just about
@@ -630,6 +646,7 @@ procedural macro will do the rest.
 > ideas on custom syntax parsing and creating custom error messages for the compiler.
 
 ### Desired syntax and behavior
+<a id="markdown-desired-syntax-and-behavior" name="desired-syntax-and-behavior"></a>
 
 Let's say that we want to parse a custom syntax like the following, which basically is a declaration
 of how a manager for the struct `HashMap<K, V>` should be created.
@@ -689,6 +706,7 @@ where
 ```
 
 ### Implementing the syntax parser
+<a id="markdown-implementing-the-syntax-parser" name="implementing-the-syntax-parser"></a>
 
 So how would we implement this macro? The first thing is to create a custom parser for the syntax.
 There are 2 main things we have to do:
@@ -792,6 +810,7 @@ impl Parse for ManagerOfThingInfo {
 ````
 
 ### Implementing the code generator
+<a id="markdown-implementing-the-code-generator" name="implementing-the-code-generator"></a>
 
 In this example almost all the work goes into parsing the custom syntax. The code generator we are
 going to implement is trivial. Here's what it looks like.
@@ -834,6 +853,7 @@ pub fn fn_proc_macro_impl(input: TokenStream) ->:TokenStream {
   `./cargo-watch-one-test.fish test_fn_macro_custom_syntax`
 
 ## Eg 3 - Derive macro that adds a method to a struct
+<a id="markdown-eg-3---derive-macro-that-adds-a-method-to-a-struct" name="eg-3---derive-macro-that-adds-a-method-to-a-struct"></a>
 
 We are going to come up w/ a made-up derive macro called `Describe` just for our pedagogical
 purposes.
@@ -843,6 +863,7 @@ purposes.
 2. We will then extend this derive macro to handle generics.
 
 ### Test for expected output
+<a id="markdown-test-for-expected-output" name="test-for-expected-output"></a>
 
 Here are some simple cases that we should be able to handle in our initial implementation.
 
@@ -882,6 +903,7 @@ fn test_proc_macro() {
 > `./cargo-watch-one-test.fish test_derive_macro_describe`.
 
 ### Watch macro expansion
+<a id="markdown-watch-macro-expansion" name="watch-macro-expansion"></a>
 
 As we are developing this macro it is really useful not only to have the tests running (in watch
 mode) but also have the macro expansion running in watch mode.
@@ -892,6 +914,7 @@ mode) but also have the macro expansion running in watch mode.
 > `./cargo-watch-macro-expand-one-test.fish test_derive_macro_describe`.
 
 ### Naive implementation
+<a id="markdown-naive-implementation" name="naive-implementation"></a>
 
 Let's implement this derive macro in a naive way. We won't handle generics, that will happen
 [later](#better-implementation-that-handles-generics).
@@ -1004,6 +1027,7 @@ The `quote!` macro is incredibly powerful and it has a lot of smarts built into 
 when we implement generics support next.
 
 ### Better implementation that handles generics
+<a id="markdown-better-implementation-that-handles-generics" name="better-implementation-that-handles-generics"></a>
 
 Here's an example of what a simple `Generics` object looks like when generated from
 `struct Point<T> { ... }`.
@@ -1093,6 +1117,7 @@ This might provide some insight into how the `Generics` object itself is structu
 need to do any of this, since `quote!()` is awesome 🤯.
 
 ### Using quote!
+<a id="markdown-using-quote!" name="using-quote!"></a>
 
 Here's a mental model for using `quote!()`:
 
@@ -1160,6 +1185,7 @@ Here are some tips and tricks for using `quote!()`:
    generating `TokenStream`s manually, and then passing them to `quote!()`.
 
 ## Eg 4 - Derive macro that generates a builder
+<a id="markdown-eg-4---derive-macro-that-generates-a-builder" name="eg-4---derive-macro-that-generates-a-builder"></a>
 
 Now that we have seen a relatively simple derive procedural macro, let's look at a more complex one
 that implements the builder pattern and supports generics. There are two things this macro has to
@@ -1177,6 +1203,7 @@ do:
 > [here](https://github.com/nazmulidris/rust_scratch/blob/main/macros/tests/test_derive_macro_builder.rs).
 
 ### Stub out the implementation
+<a id="markdown-stub-out-the-implementation" name="stub-out-the-implementation"></a>
 
 We need to make an entry in `lib.rs` for it, like so:
 
@@ -1262,6 +1289,7 @@ pub fn derive_proc_macro_impl(input: proc_macro::TokenStream) -> proc_macro::Tok
 ```
 
 ### Testing the macro
+<a id="markdown-testing-the-macro" name="testing-the-macro"></a>
 
 Here's the test for the derive macro, `test_derive_macro_builder.rs`. They have to cover all the
 different kinds of structs that we might encounter, some that have generics, some that don't.
@@ -1325,6 +1353,7 @@ fn test_proc_macro_generics() {
 ```
 
 ### Implementation details
+<a id="markdown-implementation-details" name="implementation-details"></a>
 
 Now that we have the skeleton of the entire thing, let's look at some details of how this is
 implemented. It's worth taking a closer look at the
@@ -1403,6 +1432,7 @@ fn add_trait_bounds_to_existing_where_clause_ts(
 >   `./cargo-watch-macro-expand-one-test.fish test_derive_macro_builder`
 
 ## Eg 5 - Attribute macro that adds logging to a function
+<a id="markdown-eg-5---attribute-macro-that-adds-logging-to-a-function" name="eg-5---attribute-macro-that-adds-logging-to-a-function"></a>
 
 [Attribute procedural macros](https://doc.rust-lang.org/reference/procedural-macros.html#attribute-macros)
 are very similar to derive procedural macros, with a few key differences.
@@ -1446,6 +1476,7 @@ might try out. So let's just make 2 macros.
    ```
 
 ### Create entry in lib.rs
+<a id="markdown-create-entry-in-lib.rs" name="create-entry-in-lib.rs"></a>
 
 Let's start by creating an entry in `lib.rs` for these attribute macros.
 
@@ -1505,6 +1536,7 @@ pub fn attrib_proc_macro_impl_2(
 > `./cargo-watch-one-test.fish test_attribute_macro_logger`
 
 ### How to parse item?
+<a id="markdown-how-to-parse-item%3F" name="how-to-parse-item%3F"></a>
 
 How do we parse the `item` parameter? We can use `syn::ItemFn` and `parse_macro_input!()` to parse
 it into something usable. Here's an example.
@@ -1524,6 +1556,7 @@ pub fn attrib_proc_macro_impl_2(args: TokenStream, item: TokenStream) -> TokenSt
 ```
 
 ### How to parse args containing attributes for variant 1?
+<a id="markdown-how-to-parse-args-containing-attributes-for-variant-1%3F" name="how-to-parse-args-containing-attributes-for-variant-1%3F"></a>
 
 How do we parse `args` parameter into something we can use? We can use
 [`syn::AttributeArgs`](https://docs.rs/syn/latest/syn/type.AttributeArgs.html) along w/
@@ -1621,6 +1654,7 @@ fn key() -> &'static str {
 ```
 
 ### How to parse args containing set of identifiers for variant 2?
+<a id="markdown-how-to-parse-args-containing-set-of-identifiers-for-variant-2%3F" name="how-to-parse-args-containing-set-of-identifiers-for-variant-2%3F"></a>
 
 We can also provide our own custom implementation of the `Parse` trait if we want to. Here's an
 example of this based on syn's
@@ -1720,23 +1754,20 @@ pub fn foo() -> &'static str {
 > [`trace-var`](https://github.com/dtolnay/syn/tree/master/examples/trace-var).
 
 ## Learning resources
+<a id="markdown-learning-resources" name="learning-resources"></a>
 
 - Overview
-
   - [Excellent overview video](https://youtu.be/g4SYTOc8fL0)
 
 - Books / articles
-
   - [Macro how to](https://doc.rust-lang.org/reference/procedural-macros.html#function-like-procedural-macros)
   - [Macro how to](https://doc.rust-lang.org/book/ch19-06-macros.html#procedural-macros-for-generating-code-from-attributes)
 
 - Workshop
-
   - [Proc macro workshop](https://github.com/dtolnay/proc-macro-workshop/blob/master/README.md)
   - [Proc macro workshop solutions](https://github.com/jonhoo/proc-macro-workshop)
 
 - Technical guides to getting things working
-
   - [Tutorial - Add lib crate for macros](https://dev.to/dandyvica/rust-procedural-macros-step-by-step-tutorial-36n8)
   - [`lib.rs` restriction](https://users.rust-lang.org/t/how-to-import-procedural-macros-that-is-not-in-lib-rs/58323/9)
   - [Quote](https://docs.rs/quote)
@@ -1746,18 +1777,12 @@ pub fn foo() -> &'static str {
   - [Workshop derive builder problem](https://github.com/dtolnay/proc-macro-workshop/blob/master/README.md#derive-macro-derivebuilder)
   - [Solution hints for builder problem](https://github.com/dtolnay/proc-macro-workshop/blob/master/builder/tests/01-parse.rs)
 
-## Wrapping up
+- Source code examples
+  1. You can find "real world" examples of both declarative and procedural macros in the
+    `r3bl-open-core` [repo](https://github.com/r3bl-org/r3bl-open-core).
+    - [proc macros](https://github.com/r3bl-org/r3bl-open-core/tree/main/macro)
+    - [decl macros](https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules)
+  2. You can find all the pedagogical examples of macros shown in this article in this
+    [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/).
 
-> 📜 **Source code examples**
->
-> 1. You can find "real world" examples of both declarative and procedural macros in the
->    `r3bl_rs_utils` [crate](https://crates.io/crates/r3bl_rs_utils).
->
->    - [proc macros](https://github.com/r3bl-org/r3bl-open-core/tree/main/macro)
->    - [decl macros](https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules)
->
-> 2. You can find all the pedagogical examples of macros shown in this article in this
->    [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/)
->
-> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
-> you like it 🙏.
+{%- include featured.html -%}

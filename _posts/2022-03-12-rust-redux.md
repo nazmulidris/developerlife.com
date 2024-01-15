@@ -50,12 +50,7 @@ tasks. But the reducer functions will be run in sequence (not in separate Tokio 
 > 📜 The source code for the finished Redux library can be found
 > [here](https://github.com/r3bl-org/r3bl-rs-utils).
 
-> 📦 You can use this Redux library today by adding
-> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate as a dependency in your
-> `Cargo.toml`.
->
-> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
-> you like it 🙏.
+{%- include featured.html -%}
 
 This article is getting us ready to building more complex TUI apps next using crates like `termion`
 and `tui`.
@@ -638,9 +633,4 @@ Tokio tasks.
 > information on this library in it's
 > [`README`](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) file.
 
-> 📦 You can use this Redux library today by adding
-> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils/) crate as a dependency in your
-> `Cargo.toml`.
->
-> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
-> you like it 🙏.
+{%- include featured.html -%}

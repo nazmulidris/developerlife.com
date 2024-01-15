@@ -20,6 +20,7 @@ categories:
 <!-- TOC -->
 
 - [Create a DSL for CSS like syntax for TUIs](#create-a-dsl-for-css-like-syntax-for-tuis)
+  - [A TUI brings GUI features to terminal apps](#a-tui-brings-gui-features-to-terminal-apps)
   - [What is a style, and how is it used?](#what-is-a-style-and-how-is-it-used)
   - [Life of a style](#life-of-a-style)
   - [Going from imperative to declarative style declaration](#going-from-imperative-to-declarative-style-declaration)
@@ -35,7 +36,6 @@ categories:
 ## Create a DSL for CSS like syntax for TUIs
 <a id="markdown-create-a-dsl-for-css-like-syntax-for-tuis" name="create-a-dsl-for-css-like-syntax-for-tuis"></a>
 
-
 In this article, we will create a simple DSL
 ([domain specific language](https://docs.microsoft.com/en-us/visualstudio/modeling/about-domain-specific-languages?view=vs-2022))
 for CSS like syntax to declaratively create styling for TUI apps. You might be thinking, but why? 🤔
@@ -45,24 +45,32 @@ The motivation for doing this comes from having built a TUI library in the
 ergonomic for developers, so that it is easier to use and familiar to declarative styling from CSS,
 etc.
 
-> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
-> you like it 🙏.
+{%- include featured.html -%}
 
-> 🦜 What is a TUI? The best way to grok it is to see one in action.
->
-> 1. Clone [this repo](https://github.com/r3bl-org/r3bl-cmdr) (for the
->    [`r3bl-cmdr` crate](https://crates.io/crates/r3bl-cmdr)) to your local or remote machine.
->    - 🌟 Please star [this repo](https://github.com/r3bl-org/r3bl-cmdr) on github if you like it
->      🙏.
-> 2. Run `cargo run` (in `r3bl-cmdr` folder) to see it doing its thing. Works great over
->    [SSH](https://en.wikipedia.org/wiki/Secure_Shell) too!
-> 3. Check out the source code in this repo, to get a handle on how to use the `r3bl_rs_utils::tui`
->    module.
+### A TUI brings GUI features to terminal apps
+<a id="markdown-a-tui-brings-gui-features-to-terminal-apps" name="a-tui-brings-gui-features-to-terminal-apps"></a>
 
-This TUI library allows developers to build "rich" text user interface apps in Rust, which are fully
-async, and leverages ideas from CSS, React, and Redux. Once we built the library, we wanted to make
-it easier for developer to declaratively create styling and even layouts, rather than having to do
-it imperatively.
+The best way to grok what a TUI is, is to see one in action.
+
+<img src="https://user-images.githubusercontent.com/2966499/234949476-98ad595a-3b72-497f-8056-84b6acda80e2.gif"/>
+
+1. <kbd>TUI library crate</kbd>: Clone [this TUI library
+   repo](https://github.com/r3bl-org/r3bl-open-core/) for the [`r3bl_tui`
+   crate](https://crates.io/crates/r3bl_tui) to your local or remote machine. You can run
+   the examples in the
+   [README](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui#examples-to-get-you-started).
+2. <kbd>TUI apps crate</kbd>: Clone [this TUI apps
+   repo](https://github.com/r3bl-org/r3bl-open-core) for the [`r3bl-cmdr`
+   crate](https://crates.io/crates/r3bl-cmdr) to your local or remote machine. Run `cargo
+   run` (in `r3bl-cmdr` folder) to see it doing its thing. Works great over
+   [SSH](https://en.wikipedia.org/wiki/Secure_Shell) too! Or you can just run `cargo
+   install r3bl-cmdr`. And then run `edi` or `giti`.
+
+The TUI library allows developers to build "rich" text user interface apps in Rust, which
+are fully async, and loosely leverages architectural ideas from CSS, React, web app
+development paradigm, and Elm. Once we built the library, we wanted to make it easier for
+developer to declaratively create styling and even layouts, rather than having to do it
+imperatively.
 
 > 💭 In frontend web development, we take it for granted that we can describe things
 > [declaratively rather than imperatively](https://www.educative.io/blog/declarative-vs-imperative-programming).
@@ -678,11 +686,4 @@ In the future we will expand this DSL to include more features like generating t
 declaratively. And then move on to creating JSX like syntax in Rust for layout stuff in the `tui`
 module as well. More articles to follow based on this work.
 
-> 📜 For more examples of procedural macros, check out the
-> [`r3bl_rs_utils_macro`](https://github.com/r3bl-org/r3bl-open-core/tree/main/macro/)
-> repo.
->
-> 💡 This is part of the [`r3bl_rs_utils` crate](https://crates.io/crates/r3bl_rs_utils).
->
-> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
-> you like it 🙏.
+{%- include featured.html -%}

@@ -44,6 +44,8 @@ can scale up or down depending on your needs, which makes it easy to get started
 handle demanding use cases when you get there. Also it's published under the MIT license
 ([which is React is too now](https://medium.freecodecamp.org/facebook-just-changed-the-license-on-react-heres-a-2-minute-explanation-why-5878478913b2)).
 
+{%- include featured.html -%}
+
 ## Getting started quickly (single HTML file)
 
 The simplest way to get started with Vue is to grab the development version script for it and add it
@@ -372,3 +374,5 @@ new Vue({
 
 You can get the code used in this tutorial in the
 [<i class="fab fa-github"></i> vue_intro](https://github.com/nazmulidris/vue_intro) GiHub repo.
+
+{%- include featured.html -%}

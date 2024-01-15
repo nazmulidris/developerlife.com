@@ -47,6 +47,8 @@ interacting w/ a desktop OS as fun and productive as possible (for me). I've com
 change that I've made to my Ubuntu desktop environment to make it a pleasure for me to use and I'm
 sharing them here. YMMV 🙂.
 
+{%- include featured.html -%}
+
 ## Fonts
 
 I tend to install a collection of fonts that I've been curating over the years on every system that
@@ -665,3 +667,5 @@ presses that you have configured on your system to do whatever it is that you wa
 management things (like switch workspaces, switch windows between workspaces, etc) and I use my
 custom key mappings for these `xdotool` commands. Here is a [my review of the UHK
 v1]({{ '/2021/03/09/mechanical-keyboard-review/' | relative_url}}).
+
+{%- include featured.html -%}

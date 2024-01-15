@@ -47,6 +47,8 @@ Before we get started, here are some good references to take a look at:
 > [Chrome Extension](https://chrome.google.com/webstore/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial?hl=en-US&gl=US)
 > 🛠️
 
+{%- include featured.html -%}
+
 ## Step 1: Create a new Chrome Extension
 <a id="markdown-step-1%3A-create-a-new-chrome-extension" name="step-1%3A-create-a-new-chrome-extension"></a>
 
@@ -205,7 +207,6 @@ for the end user, and also for the review process to take less time.
 ## Next steps: Contribute to the Shortlink project
 <a id="markdown-next-steps%3A-contribute-to-the-shortlink-project" name="next-steps%3A-contribute-to-the-shortlink-project"></a>
 
-
 > 🚀 Please star and fork / clone the [Shortlink repo](https://github.com/r3bl-org/shortlink) 🌟
 > Install the
 > [Chrome Extension](https://chrome.google.com/webstore/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial?hl=en-US&gl=US)
@@ -215,3 +216,5 @@ If you would like to get involved in an open source project and like Chrome exte
 free to contribute to the [Shortlink repo](https://github.com/r3bl-org/shortlink/issues). There are
 a lot of small features that need to be added. And they can be a nice stepping stone into the world
 of open source contribution 🎉.
+
+{%- include featured.html -%}

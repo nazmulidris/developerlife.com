@@ -45,16 +45,16 @@ Read [this tutorial]({{ '/2024/01/13/write-simple-netcat-in-rust/' | relative_ur
 learn more about the basics of TCP client and server programming in Rust (without using
 Tokio).
 
-{%- include featured.html -%}
-
-Here's a video of the app that we will build in action.
 <!--
 simple-netcat-in-rust video
 Source: https://github.com/nazmulidris/developerlife.com/issues/4
 -->
-<video width="100%" controls>
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/14ce32ce-0988-4853-acd5-1174b1864d57" type="video/mp4"/>
-</video>
+> Here's a video of the app that we are going to build in action.
+> <video width="100%" controls>
+>   <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/14ce32ce-0988-4853-acd5-1174b1864d57" type="video/mp4"/>
+> </video>
+
+{%- include featured.html -%}
 
 > You can find the finished source code for this tutorial
 > [here](https://github.com/nazmulidris/rust-scratch/tree/main/tcp-server-netcat-client).

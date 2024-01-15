@@ -83,6 +83,8 @@ Once you are done with the basics, and want to get into more advanced topics, pl
 [Advanced guide to creating IntelliJ IDEA
 plugins]({{ '2021/03/13/ij-idea-plugin-advanced/' | relative_url }}).
 
+{%- include featured.html -%}
+
 ## What are plugins?
 
 IntelliJ IDEA is a very powerful IDE platform. This platform is used to roll out a variety of IDEs
@@ -1211,6 +1213,8 @@ fun testSelectedTextIsSearchedOnStackOverflow() {
   }
 }
 ```
+
+{%- include featured.html -%}
 
 ## References
 

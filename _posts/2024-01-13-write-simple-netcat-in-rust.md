@@ -37,16 +37,17 @@ send and receive data. We will create an app that can behave both as a client an
 2. Our server will listen for incoming TCP connections from clients, and display the
    message from the client, and send a response back to the client.
 
-{%- include featured.html -%}
 
-Here's a video of the app that we will build in action.
 <!--
 simple-netcat-in-rust video
 Source: https://github.com/nazmulidris/developerlife.com/issues/3
 -->
-<video width="100%" controls>
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/ffe83b3e-6997-4afc-bdf3-5d867f995611" type="video/mp4"/>
-</video>
+> Here's a video of the app that we are going to build in action.
+> <video width="100%" controls>
+>   <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/ffe83b3e-6997-4afc-bdf3-5d867f995611" type="video/mp4"/>
+> </video>
+
+{%- include featured.html -%}
 
 > You can find the finished source code for this tutorial
 > [here](https://github.com/nazmulidris/rust-scratch/tree/main/rtelnet).
@@ -372,7 +373,7 @@ Here are a few things to note about the server code:
   incoming connection. We spawn a new thread for each incoming connection. This is [not a
   scalable solution](https://g.co/bard/share/74f433bad400), but it is good enough for this
   pedagogical example. We will learn about more scalable solutions in a the [Write a
-  simple TCP chat server in Rust]({{ '/2024/01/13/write-simple-char-server-in-rust/' |
+  simple TCP chat server in Rust]({{ '/2024/01/13/write-simple-chat-server-in-rust/' |
   relative_url}}) tutorial.
 
 Now, let's look at the `handle_connection()` function that is called by the spawned
@@ -460,7 +461,7 @@ fn process(incoming: &Vec<u8>) -> Vec<u8> {
 <a id="markdown-next-steps" name="next-steps"></a>
 
 Now that you have a handle on the basics of writing a simple netcat client and server, you
-can read [this tutorial]({{ '/2024/01/13/write-simple-char-server-in-rust/' |
+can read [this tutorial]({{ '/2024/01/13/write-simple-chat-server-in-rust/' |
 relative_url}}) to learn more about creating a more advanced TCP server that netcat,
 telnet, or PuTTY clients can connect to, in order to have multiple client apps chat with
 each other.

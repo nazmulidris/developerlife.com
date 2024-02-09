@@ -228,8 +228,12 @@ The point of spawning in Tokio is twofold:
    (e.g. using `select` to wait for one of many options, or `join` to wait for all options
    to finish).
 
-> You can get more info on this topic
-> [here](https://users.rust-lang.org/t/socket-per-thread-in-tokio/83712/7).
+More information:
+1. You can get more info on this topic
+    [here](https://users.rust-lang.org/t/socket-per-thread-in-tokio/83712/7).
+2. For an even deeper dive into how Tokio tasks themselves are implemented for intra-task
+   concurrency, please take a look at this [excellent
+   article](https://without.boats/blog/let-futures-be-futures/).
 
 ## Handle client task function
 <a id="markdown-handle-client-task-function" name="handle-client-task-function"></a>

@@ -16,12 +16,12 @@ categories:
 
 <img class="post-hero-image" src="{{ 'assets/rust-tokio-3.svg' | relative_url }}"/>
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<!-- TOC -->
 
 - [Introduction](#introduction)
 - [Concurrency and async/await, vs parallelism](#concurrency-and-asyncawait-vs-parallelism)
 - [Async/await, Rust, and Tokio](#asyncawait-rust-and-tokio)
+  - [Learn more about Tokio](#learn-more-about-tokio)
 - [Implementing async middleware w/ function pointers](#implementing-async-middleware-w-function-pointers)
 - [Implementing async middleware w/ async traits](#implementing-async-middleware-w-async-traits)
 - [Writing tests](#writing-tests)
@@ -31,9 +31,10 @@ categories:
   - [With macros](#with-macros)
 - [Wrapping up](#wrapping-up)
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<!-- /TOC -->
 
 ## Introduction
+<a id="markdown-introduction" name="introduction"></a>
 
 This article illustrates how to write concurrent and parallel code in Rust using Tokio. The
 pedagogical example we will use is building an asynchronous implementation of a middleware runner
@@ -52,6 +53,7 @@ more complex TUI apps next using crates like `termion` and `tui`.
 {%- include featured.html -%}
 
 ## Concurrency and async/await, vs parallelism
+<a id="markdown-concurrency-and-async%2Fawait%2C-vs-parallelism" name="concurrency-and-async%2Fawait%2C-vs-parallelism"></a>
 
 Concurrency is being able to break up your program or function into smaller tasks that can be
 interleaved, possibly on the _same thread_. This approach lends itself well to speeding up _many_ IO
@@ -120,6 +122,7 @@ especially useful in tasks that are CPU bound (and not IO bound).
 > Rust.
 
 ## Async/await, Rust, and Tokio
+<a id="markdown-async%2Fawait%2C-rust%2C-and-tokio" name="async%2Fawait%2C-rust%2C-and-tokio"></a>
 
 You don't need to use [Tokio](https://https://tokio.rs/) in order to use `async` and `await` in
 Rust. However, Tokio is very powerful and makes very easy to do complex things with it.
@@ -153,17 +156,29 @@ fn main() {
 }
 ```
 
-> 💡 Learn more about Tokio [here](https://tokio.rs/tokio/tutorial).
->
-> - It provides a great introduction for what use cases Tokio is good for and what use cases that it
->   doesn't really work for.
-> - For example if you're reading a lot of files, then you can just use an ordinary thread pool in
->   Rust instead of Tokio, since it doesn't really provide additional benefit over it.
-> - Another example is if your tasks involve running lots of CPU bound computations in parallel then
->   you should consider using [`rayon`](https://docs.rs/rayon/latest/rayon/).
-> - However if you are doing a lot of IO bound tasks at the same time then Tokio rocks 🎉.
+### Learn more about Tokio
+<a id="markdown-learn-more-about-tokio" name="learn-more-about-tokio"></a>
+
+Basics:
+- <https://tokio.rs/tokio/tutorial>
+- It provides a great introduction for what use cases Tokio is good for and what use cases
+  that it doesn't really work for.
+- For example if you're reading a lot of files, then you can just use an ordinary thread
+  pool in Rust instead of Tokio, since it doesn't really provide additional benefit over
+  it.
+- Another example is if your tasks involve running lots of CPU bound computations in
+  parallel then you should consider using [`rayon`](https://docs.rs/rayon/latest/rayon/).
+- However if you are doing a lot of IO bound tasks at the same time then Tokio rocks 🎉.
+
+Deep dives:
+1. You can get more info on this topic
+    [here](https://users.rust-lang.org/t/socket-per-thread-in-tokio/83712/7).
+2. For an even deeper dive into how Tokio tasks themselves are implemented for intra-task
+   concurrency, please take a look at this [excellent
+   article](https://without.boats/blog/let-futures-be-futures/).
 
 ## Implementing async middleware w/ function pointers
+<a id="markdown-implementing-async-middleware-w%2F-function-pointers" name="implementing-async-middleware-w%2F-function-pointers"></a>
 
 A Redux middleware is just a function. It takes an action as an argument, and may return nothing, or
 it may return a new action. The middleware is where you are allowed to run side effects. So it is a
@@ -420,6 +435,7 @@ Some(Result(3))
 ```
 
 ## Implementing async middleware w/ async traits
+<a id="markdown-implementing-async-middleware-w%2F-async-traits" name="implementing-async-middleware-w%2F-async-traits"></a>
 
 You can use the `async-trait` crate in order to use the `async` keyword in your trait methods. This
 is an alternative approach to using function pointers in the previous section.
@@ -438,6 +454,7 @@ and also can be made `async`).
 > you like it 🙏.
 
 ## Writing tests
+<a id="markdown-writing-tests" name="writing-tests"></a>
 
 Tokio provides [testing support](https://docs.rs/tokio/latest/tokio/attr.test.html) for the code
 that we've just written. Here's an integration test for the middleware functions that are shown
@@ -484,6 +501,7 @@ async fn test_complex_mw_example_works() {
 ```
 
 ## Advanced topic - locks and tokio
+<a id="markdown-advanced-topic---locks-and-tokio" name="advanced-topic---locks-and-tokio"></a>
 
 The standard library provides `RwLock` and `Mutex` types. These are meant to be used using "regular"
 blocking code, rather than "async" code. You can spawn threads that work well with these locks.
@@ -557,12 +575,14 @@ pub fn spawn(
 ```
 
 ## Async lambdas
+<a id="markdown-async-lambdas" name="async-lambdas"></a>
 
 > 🪄 Currently `async` lambdas are only supported in Rust nightly channel, after enabling the
 > feature `async_closure`. Please see this
 > [async RFC for more details](https://github.com/rust-lang/rfcs/blob/master/text/2394-async_await.md#async--closures).
 
 ### Without macros
+<a id="markdown-without-macros" name="without-macros"></a>
 
 The following snippet is an example of an `async` function that accepts a lambda, w/out enabling
 `async_closure`. Note that the return type is of type `Fun` which is `Future<Output = R>`.
@@ -591,6 +611,7 @@ where
 ```
 
 ### With macros
+<a id="markdown-with-macros" name="with-macros"></a>
 
 The `SafeListManager` struct shown below simply wraps a `Vec` in an `async` `RwLock` in an `Arc` and
 manages that reference, allowing for a safe way to add and remove items from the list. And passing
@@ -686,6 +707,7 @@ for subscriber_fn in list.iter() {
 > [here](https://developerlife.com/2022/03/12/rust-redux/).
 
 ## Wrapping up
+<a id="markdown-wrapping-up" name="wrapping-up"></a>
 
 This is a simple introduction to Tokio. The tutorials and videos are a great resource for learning
 Tokio, along w/ the tutorials that are provided on the [Tokio website](https://tokio.rs/).

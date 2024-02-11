@@ -19,6 +19,21 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
+# Feb 2024 - New deployment instructions
+
+Recently GitHub made some changes to how github pages works. This is also related to the
+push GitHub Actions and Ruby 3. This
+[commit](https://github.com/nazmulidris/developerlife.com/commit/7aed03520b67a148330209fb6971a2245dc48e97)
+has the details.
+
+Here are the instructions.
+
+1) Run `run.fish` to build the site. The `docs` folder holds the entire site output.
+2) Commit the changes to the `docs` folder. And push to `main`.
+3) If you want to run the changes locally, you can run `npm install -g serve && serve
+   docs` and open `http://localhost:3000` in your browser. There is no need to use
+   `webrick` and `bundle exec jekyll serve` anymore.
+
 # I don't have Jekyll and Ruby installed
 
 ## Installing Ruby, Jekyll, and running this project

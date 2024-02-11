@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>How to overcome your fear of git merge conflicts | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="How to overcome your fear of git merge conflicts" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A visual guide on how to understand git merge conflict messages and resolve them with confidence." />
+<meta property="og:description" content="A visual guide on how to understand git merge conflict messages and resolve them with confidence." />
+<link rel="canonical" href="http://developerlife.com/2023/09/22/overcome-your-fear-of-merge-conflicts/" />
+<meta property="og:url" content="http://developerlife.com/2023/09/22/overcome-your-fear-of-merge-conflicts/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-09-22T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="How to overcome your fear of git merge conflicts" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2023-09-22T00:00:00-05:00","datePublished":"2023-09-22T00:00:00-05:00","description":"A visual guide on how to understand git merge conflict messages and resolve them with confidence.","headline":"How to overcome your fear of git merge conflicts","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2023/09/22/overcome-your-fear-of-merge-conflicts/"},"url":"http://developerlife.com/2023/09/22/overcome-your-fear-of-merge-conflicts/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;How to overcome your fear of git merge conflicts&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = How to overcome your fear of git merge conflicts</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">How to overcome your fear of git merge conflicts</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Sep 22, 2023
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/git-merge-conflict-hero.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#setting-the-stage-for-a-merge-conflict">Setting the stage for a merge conflict</a></li>
+  <li><a href="#picture-1-how-we-got-here">Picture 1: How we got here</a></li>
+  <li><a href="#picture-2-the-conflict-when-develop-is-applied-to-main">Picture 2: The conflict when develop is applied to main</a></li>
+  <li><a href="#picture-3-how-to-understand-the-diff">Picture 3: How to understand the diff</a></li>
+  <li><a href="#picture-4-how-to-resolve-the-conflict">Picture 4: How to resolve the conflict</a></li>
+  <li><a href="#next-steps">Next steps</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>There are few things that generate as much fear and anxiety in developers as <code class="language-plaintext highlighter-rouge">git</code> merge
+conflicts. <code class="language-plaintext highlighter-rouge">git</code> is very popular and very powerful, and it is a low level command line
+tool. And it is not very user friendly. It is meant to be orchestrate-able and automated
+using scripts and CI/CD tools, and build systems; it is extremely flexible. It is not
+meant to be used in an interactive manner w/ a human user at the keyboard.</p>
+
+<p>This just creates an opportunity for others to come along and craft user experiences on
+top of <code class="language-plaintext highlighter-rouge">git</code> that are more use case driven. And these UXes can come in the form or GUIs,
+TUIs, or even conversational interfaces.</p>
+
+<p>But that’s not the focus of this article which is all about the CLI experience of inducing
+and resolving merge conflicts. So let’s get started.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h2 id="setting-the-stage-for-a-merge-conflict">
+        
+        
+          Setting the stage for a merge conflict <a href="#setting-the-stage-for-a-merge-conflict">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-setting-the-stage-for-a-merge-conflict" name="setting-the-stage-for-a-merge-conflict"></a></p>
+
+<p>Let’s create a local repo from scratch and set things up so that we can predictably
+generate a merge conflict. Here’s what we will do at a high level:</p>
+<ol>
+  <li>Create a local repo.</li>
+  <li>Create a <code class="language-plaintext highlighter-rouge">main</code> branch.</li>
+  <li>Create a file in the <code class="language-plaintext highlighter-rouge">main</code> branch and add some content to it.</li>
+  <li>Create a <code class="language-plaintext highlighter-rouge">feature</code> branch based on the <code class="language-plaintext highlighter-rouge">main</code> branch.</li>
+  <li>Modify the file in the <code class="language-plaintext highlighter-rouge">feature</code> branch.</li>
+  <li>Modify the same file in the <code class="language-plaintext highlighter-rouge">main</code> branch with a change that is going to conflict w/ a change in <code class="language-plaintext highlighter-rouge">feature</code> branch.</li>
+  <li>Merge the <code class="language-plaintext highlighter-rouge">feature</code> branch into the <code class="language-plaintext highlighter-rouge">main</code> branch.</li>
+</ol>
+
+<p>Here’s a script to get you started:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env bash</span>
+
+<span class="c"># Create a local repo.</span>
+<span class="nb">export </span><span class="nv">TMP_REPO_DIR</span><span class="o">=</span><span class="s2">"~/Downloads/tmp/git-merge-conflict-demo"</span>
+<span class="k">if</span> <span class="o">[</span> <span class="nt">-d</span> <span class="nv">$TMP_REPO_DIR</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
+  </span><span class="nb">echo</span> <span class="s2">"Folder exists, recreating </span><span class="nv">$TMP_REPO_DIR</span><span class="s2">"</span>
+  <span class="nb">rm</span> <span class="nt">-rf</span> <span class="nv">$TMP_REPO_DIR</span>
+  <span class="nb">mkdir</span> <span class="nt">-p</span> <span class="nv">$TMP_REPO_DIR</span>
+<span class="k">else
+  </span><span class="nb">echo</span> <span class="s2">"Folder does not exist, creating </span><span class="nv">$TMP_REPO_DIR</span><span class="s2">"</span>
+  <span class="nb">mkdir</span> <span class="nt">-p</span> <span class="nv">$TMP_REPO_DIR</span>
+<span class="k">fi
+</span><span class="nb">cd</span> <span class="nv">$TMP_REPO_DIR</span>
+git init
+git checkout <span class="nt">-b</span> main
+
+<span class="c"># Create a file in the main branch and add some content to it.</span>
+<span class="c"># This is the "OG change".</span>
+<span class="nb">echo</span> <span class="nt">-e</span> <span class="s2">"This is a new feature.</span><span class="se">\n</span><span class="s2">## 3. Example 3"</span> <span class="o">&gt;</span> file.txt
+git add file.txt
+git commit <span class="nt">-m</span> <span class="s2">"Add myexample3"</span>
+
+<span class="c"># Create a develop branch based on the main branch.</span>
+git checkout <span class="nt">-b</span> develop main
+
+<span class="c"># Person A comes along and changes this line w/ a plus in the develop branch.</span>
+<span class="nb">echo</span> <span class="nt">-e</span> <span class="s2">"This is a new feature.</span><span class="se">\n</span><span class="s2">## 3. Example 3+"</span> <span class="o">&gt;</span> file.txt
+git add file.txt
+git commit <span class="nt">-m</span> <span class="s2">"Fix typo w/ plus in develop branch"</span>
+
+<span class="c"># Person B comes along and change this line w/ a minus in the main branch.</span>
+<span class="c"># This is going to conflict with the change in the develop branch.</span>
+git checkout main
+<span class="nb">echo</span> <span class="nt">-e</span> <span class="s2">"This is a new feature.</span><span class="se">\n</span><span class="s2">## 3. Example 3-"</span> <span class="o">&gt;</span> file.txt
+git add file.txt
+git commit <span class="nt">-m</span> <span class="s2">"Fix typo w/ minus in main branch"</span>
+
+<span class="c"># Merge (using rebase, so no extra commit) the develop branch into the main branch.</span>
+git rebase develop
+</code></pre></div></div>
+
+<p>This results in a merge conflict. And when you run <code class="language-plaintext highlighter-rouge">git diff</code> it looks like this:</p>
+
+<div class="language-diff highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="gh">diff --cc file.txt
+index 89da142,ef43c8f..0000000
+</span><span class="gd">--- a/file.txt
+</span><span class="gi">+++ b/file.txt
+</span>@@@ -1,2 -1,2 +1,8 @@@
+  This is a new feature.
+<span class="gi">++&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+</span> +## 3. Example 3+
+<span class="gi">++||||||| parent of 7c0f0e4 (Fix typo w/ - in main branch)
+++## 3. Example 3
+++=======
++ ## 3. Example 3-
+++&gt;&gt;&gt;&gt;&gt;&gt;&gt; 7c0f0e4 (Fix typo w/ - in main branch)
+</span></code></pre></div></div>
+
+<p>Let’s use some pictures to understand the story of how we got here. And how to resolve this.</p>
+      <h2 id="picture-1-how-we-got-here">
+        
+        
+          Picture 1: How we got here <a href="#picture-1-how-we-got-here">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-picture-1%3A-how-we-got-here" name="picture-1%3A-how-we-got-here"></a></p>
+
+<p><img src="/assets/git-merge-conflicts/act1.svg" alt="" /></p>
+      <h2 id="picture-2-the-conflict-when-develop-is-applied-to-main">
+        
+        
+          Picture 2: The conflict when develop is applied to main <a href="#picture-2-the-conflict-when-develop-is-applied-to-main">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-picture-2%3A-the-conflict-when-develop-is-applied-to-main" name="picture-2%3A-the-conflict-when-develop-is-applied-to-main"></a></p>
+
+<p><img src="/assets/git-merge-conflicts/act2.svg" alt="" /></p>
+      <h2 id="picture-3-how-to-understand-the-diff">
+        
+        
+          Picture 3: How to understand the diff <a href="#picture-3-how-to-understand-the-diff">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-picture-3%3A-how-to-understand-the-diff" name="picture-3%3A-how-to-understand-the-diff"></a></p>
+
+<p><img src="/assets/git-merge-conflicts/act3.svg" alt="" /></p>
+      <h2 id="picture-4-how-to-resolve-the-conflict">
+        
+        
+          Picture 4: How to resolve the conflict <a href="#picture-4-how-to-resolve-the-conflict">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-picture-4%3A-how-to-resolve-the-conflict" name="picture-4%3A-how-to-resolve-the-conflict"></a></p>
+
+<p><img src="/assets/git-merge-conflicts/act4.svg" alt="" /></p>
+      <h2 id="next-steps">
+        
+        
+          Next steps <a href="#next-steps">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-next-steps" name="next-steps"></a></p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

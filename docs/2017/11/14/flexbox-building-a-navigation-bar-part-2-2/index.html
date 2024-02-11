@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Flexbox: Building a navigation bar (Part 2/2) | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Flexbox: Building a navigation bar (Part 2/2)" />
+<meta name="author" content="Nadia Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This is a second article on 2 part series. In this article you will learn how to build a simple example responsive navigation design using Flexbox and media queries. 📦" />
+<meta property="og:description" content="This is a second article on 2 part series. In this article you will learn how to build a simple example responsive navigation design using Flexbox and media queries. 📦" />
+<link rel="canonical" href="http://developerlife.com/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/" />
+<meta property="og:url" content="http://developerlife.com/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-11-14T23:19:43-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Flexbox: Building a navigation bar (Part 2/2)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nadia Idris"},"dateModified":"2017-11-14T23:19:43-06:00","datePublished":"2017-11-14T23:19:43-06:00","description":"This is a second article on 2 part series. In this article you will learn how to build a simple example responsive navigation design using Flexbox and media queries. 📦","headline":"Flexbox: Building a navigation bar (Part 2/2)","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/"},"url":"http://developerlife.com/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Flexbox: Building a navigation bar (Part 2/2)&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Flexbox: Building a navigation bar (Part 2/2)</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Flexbox: Building a navigation bar (Part 2/2)</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Nov 14, 2017
+
+            <!--Author-->
+            ∙ <a href="https://nadiaidris.com">Nadia Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="https://nadiaidris.com">Nadia</a>,
+            a frontend SWE in Silicon Valley.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            <i class="fas fa-terminal"></i> &&
+            <i class="fas fa-code"></i> &&
+            <i class="fas fa-coffee"></i> 😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nadiaidris1"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nadiaidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://dribbble.com/nadiaidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#dribbble"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/flexbox-hero-image.jpg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#sample-project">Sample project</a></li>
+  <li><a href="#implementing-a-responsive-design">Implementing a responsive design</a></li>
+  <li><a href="#get-the-source-code">Get the source code</a></li>
+  <li><a href="#css-details">CSS details</a>
+    <ul>
+      <li><a href="#screen-width-smaller-than-600px">Screen width smaller than 600px</a>
+        <ul>
+          <li><a href="#notes-on-the-code">Notes on the code</a></li>
+        </ul>
+      </li>
+      <li><a href="#screen-width-larger-than-600px">Screen width larger than 600px</a></li>
+      <li><a href="#things-to-note">Things to note</a></li>
+      <li><a href="#i-classfas-fa-exclamation-circlei-add-this-for-chrome"><i class="fas fa-exclamation-circle"></i> Add this for Chrome</a></li>
+    </ul>
+  </li>
+  <li><a href="#css-grid">CSS Grid</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This is a second article on 2 part series. In this article you will learn how to build a
+simple example responsive navigation design using Flexbox and media queries.</p>
+
+<p>The first article called <a href="/2017/11/15/flexbox-getting-started-part-1-2/">Flexbox: Getting Started (Part 1/2)</a> shares fun places to learn
+Flexbox from.</p>
+      <h2 id="sample-project">
+        
+        
+          Sample project <a href="#sample-project">#</a>
+        
+        
+      </h2>
+    
+
+<p>This is the webpage I created and I have used Flexbox on the header. I have also used CSS
+Grid on the watch gallery. If you read further I explain why I chose to use CSS Grid in
+addition to Flexbox (instead of relying on Flexbox alone).</p>
+
+<p><img src="/assets/flexbox-navbar-1.png" alt="" /></p>
+      <h2 id="implementing-a-responsive-design">
+        
+        
+          Implementing a responsive design <a href="#implementing-a-responsive-design">#</a>
+        
+        
+      </h2>
+    
+
+<p>This is what the header looks like on a screen width smaller than 600px. The logo is above
+the navigation.</p>
+
+<p><img src="/assets/flexbox-navbar-2.png" alt="" /></p>
+
+<p>The same header looks like this on on a screen width 600px and larger. The logo and
+navigation are beside each other, centered vertically.</p>
+
+<p><img src="/assets/flexbox-navbar-3.png" alt="" /></p>
+      <h2 id="get-the-source-code">
+        
+        
+          Get the source code <a href="#get-the-source-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>You can download the source code for the HTML and CSS for this project
+<a href="https://github.com/nadiaidris/website-flexbox">here</a>.</p>
+
+<p>Let’s look at the CSS Box model and HTML first.</p>
+
+<ul>
+  <li>I have a main container called <code class="language-plaintext highlighter-rouge">header-container,</code> which I surrounded in a yellow border
+in the images below (so you can see what it contains).</li>
+  <li>It includes 2 containers (both of which have blue borders below):
+    <ol>
+      <li><code class="language-plaintext highlighter-rouge">logo</code></li>
+      <li><code class="language-plaintext highlighter-rouge">nav</code>. Inside of the <code class="language-plaintext highlighter-rouge">nav</code>, there is the common unordered list with the navigation
+page names.</li>
+    </ol>
+  </li>
+</ul>
+
+<p><img src="/assets/flexbox-navbar-4.png" alt="" /></p>
+
+<p><img src="/assets/flexbox-navbar-5.png" alt="" /></p>
+
+<p>This is what the code looks like.</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;header</span> <span class="na">class=</span><span class="s">"header-container"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;div</span> <span class="na">class=</span><span class="s">"logo"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;a</span> <span class="na">href=</span><span class="s">"index.html"</span> <span class="na">title=</span><span class="s">"Henne home page"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;img</span> <span class="na">src=</span><span class="s">"images/logo.png"</span> <span class="na">width=</span><span class="s">"180"</span>
+    <span class="nt">/&gt;&lt;/a&gt;</span>
+  <span class="nt">&lt;/div&gt;</span>
+  <span class="nt">&lt;nav&gt;</span>
+    <span class="nt">&lt;ul&gt;</span>
+      <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">title=</span><span class="s">"Home"</span><span class="nt">&gt;</span>Home<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">class=</span><span class="s">"active"</span> <span class="na">title=</span><span class="s">"Watches"</span><span class="nt">&gt;</span>Watches<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">title=</span><span class="s">"Our Story"</span><span class="nt">&gt;</span>Our Story<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="nt">&lt;li&gt;&lt;a</span> <span class="na">title=</span><span class="s">"Contact"</span><span class="nt">&gt;</span>Contact<span class="nt">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;/ul&gt;</span>
+  <span class="nt">&lt;/nav&gt;</span>
+<span class="nt">&lt;/header&gt;</span>
+</code></pre></div></div>
+      <h2 id="css-details">
+        
+        
+          CSS details <a href="#css-details">#</a>
+        
+        
+      </h2>
+    
+
+<p>Because I have two layouts, I used a media query to create a breakpoint and change the CSS
+styling.</p>
+      <h3 id="screen-width-smaller-than-600px">
+        
+        
+          Screen width smaller than 600px <a href="#screen-width-smaller-than-600px">#</a>
+        
+        
+      </h3>
+    
+
+<p>If the screen width is between 0px and 599px, the following CSS is applied.</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.header-container</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="n">flex</span><span class="p">;</span>
+  <span class="nl">flex-direction</span><span class="p">:</span> <span class="n">column</span><span class="p">;</span>
+  <span class="nl">border-bottom</span><span class="p">:</span> <span class="m">1px</span> <span class="nb">solid</span> <span class="m">#f2f2f2</span><span class="p">;</span>
+  <span class="nl">padding</span><span class="p">:</span> <span class="m">2.3em</span> <span class="m">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.logo</span> <span class="p">{</span>
+  <span class="nl">margin-left</span><span class="p">:</span> <span class="m">5%</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nc">.logo</span> <span class="nt">img</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="nb">block</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nt">nav</span> <span class="p">{</span>
+  <span class="nl">margin</span><span class="p">:</span> <span class="m">1.5em</span> <span class="m">0</span> <span class="m">0</span> <span class="m">5%</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c">/*
+   More info on block, inline-block, inline
+   https://www.w3schools.com/css/css_inline-block.asp
+   */</span>
+<span class="nt">header</span> <span class="nt">ul</span> <span class="nt">li</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="nb">inline</span><span class="p">;</span>
+  <span class="nl">padding</span><span class="p">:</span> <span class="m">0</span> <span class="m">1.4em</span> <span class="m">0</span> <span class="m">0</span><span class="p">;</span>
+  <span class="nl">font-size</span><span class="p">:</span> <span class="m">0.9em</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nt">header</span> <span class="nt">ul</span> <span class="nt">li</span> <span class="nt">a</span> <span class="p">{</span>
+  <span class="nl">text-decoration</span><span class="p">:</span> <span class="nb">none</span><span class="p">;</span>
+  <span class="nl">color</span><span class="p">:</span> <span class="m">#7d7c7d</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nt">li</span> <span class="nt">a</span><span class="nc">.active</span> <span class="p">{</span>
+  <span class="nl">color</span><span class="p">:</span> <span class="m">#000000</span><span class="p">;</span>
+  <span class="nl">border-bottom</span><span class="p">:</span> <span class="m">2px</span> <span class="nb">solid</span> <span class="m">#000000</span><span class="p">;</span>
+  <span class="nl">font-weight</span><span class="p">:</span> <span class="m">300</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nt">li</span> <span class="nt">a</span><span class="nd">:hover</span> <span class="p">{</span>
+  <span class="nl">color</span><span class="p">:</span> <span class="m">#b6b6b6</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h4 id="notes-on-the-code">
+        
+        
+          Notes on the code <a href="#notes-on-the-code">#</a>
+        
+        
+      </h4>
+    
+
+<ul>
+  <li>There is a <code class="language-plaintext highlighter-rouge">header-container</code>, which is a <strong>flex container.</strong>
+    <ul>
+      <li>The browser knows that it’s a flex container, because it’s <code class="language-plaintext highlighter-rouge">display</code> is set to <code class="language-plaintext highlighter-rouge">flex</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">flex-direction</code> is set to <code class="language-plaintext highlighter-rouge">column</code> (<i class="fas fa-long-arrow-alt-down"></i>), which
+means
+        <ol>
+          <li><code class="language-plaintext highlighter-rouge">main-axis</code> is <code class="language-plaintext highlighter-rouge">vertical</code> (<i class="fas fa-arrows-alt-v"></i>)</li>
+          <li><code class="language-plaintext highlighter-rouge">cross-axis</code> is <code class="language-plaintext highlighter-rouge">horizontal</code> (<i class="fas fa-arrows-alt-h"></i>)</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li>Then there is a bunch of extra styling below that, which is not Flexbox.</li>
+</ul>
+
+<p><img src="/assets/flexbox-navbar-6.png" alt="" /></p>
+      <h3 id="screen-width-larger-than-600px">
+        
+        
+          Screen width larger than 600px <a href="#screen-width-larger-than-600px">#</a>
+        
+        
+      </h3>
+    
+
+<p>The following code snippet declares a media query, when the screen is 600px or larger.</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">@media</span> <span class="n">screen</span> <span class="n">and</span> <span class="p">(</span><span class="n">min-width</span><span class="p">:</span> <span class="m">600px</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nc">.header-container</span> <span class="p">{</span>
+    <span class="nl">flex-direction</span><span class="p">:</span> <span class="n">row</span><span class="p">;</span>
+    <span class="nl">justify-content</span><span class="p">:</span> <span class="n">space-between</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nc">.logo</span> <span class="p">{</span>
+    <span class="nl">margin-left</span><span class="p">:</span> <span class="m">2.3em</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nt">nav</span> <span class="p">{</span>
+    <span class="nl">align-self</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+    <span class="nl">margin</span><span class="p">:</span> <span class="m">0</span> <span class="m">0.8em</span> <span class="m">0</span> <span class="m">0</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You’ll notice that on <code class="language-plaintext highlighter-rouge">header-container</code> I haven’t declared <code class="language-plaintext highlighter-rouge">display: flex;</code> and that’s
+because the way I set up the media query. The previous styles still apply and I am
+overwriting the lines of code that I want changed.</p>
+
+<p>I have changed the <code class="language-plaintext highlighter-rouge">flex-direction</code> to <code class="language-plaintext highlighter-rouge">row</code>. Which means that the main-axis is now
+horizontal.</p>
+
+<p><img src="/assets/flexbox-navbar-7.png" alt="" /></p>
+
+<p>Also added <code class="language-plaintext highlighter-rouge">justify-content</code> property with a value of <code class="language-plaintext highlighter-rouge">space-between</code>. This makes sure the
+<code class="language-plaintext highlighter-rouge">logo</code> and <code class="language-plaintext highlighter-rouge">nav</code> containers are on the opposite ends of the <code class="language-plaintext highlighter-rouge">header-container</code>.</p>
+
+<p>I used <code class="language-plaintext highlighter-rouge">align-self</code> on the nav, which is a <strong>flex item</strong>. <code class="language-plaintext highlighter-rouge">align-self</code> is a <strong>flex item
+property</strong> and it centers the cross-axis. Which in my case is the vertical alignment,
+because my main axis is horizontal (<code class="language-plaintext highlighter-rouge">flex-direction: row;</code>). In other words, vertically
+centers the items.</p>
+      <h3 id="things-to-note">
+        
+        
+          Things to note <a href="#things-to-note">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li>
+    <p>If you add an image to HTML, it includes a tiny bit of space on the bottom of it. In
+order to remove it, use <code class="language-plaintext highlighter-rouge">display</code> property and set its value to <code class="language-plaintext highlighter-rouge">block</code>. I used it on
+<code class="language-plaintext highlighter-rouge">logo img</code> and also on <code class="language-plaintext highlighter-rouge">watch-image</code>.</p>
+  </li>
+  <li>
+    <p>I could have used Flexbox on the <code class="language-plaintext highlighter-rouge">nav</code> but I would have ended up with 2 extra lines of
+code, so I decided not to. If you want to use Flexbox, it will look like this:</p>
+  </li>
+</ul>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">header</span> <span class="nt">ul</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="n">flex</span><span class="p">;</span>
+  <span class="nl">flex-flow</span><span class="p">:</span> <span class="n">row</span> <span class="n">wrap</span><span class="p">;</span>
+  <span class="nl">list-style-type</span><span class="p">:</span> <span class="nb">none</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nt">header</span> <span class="nt">ul</span> <span class="nt">li</span> <span class="p">{</span>
+  <span class="nl">padding</span><span class="p">:</span> <span class="m">0</span> <span class="m">1.4em</span> <span class="m">0</span> <span class="m">0</span><span class="p">;</span>
+  <span class="nl">font-size</span><span class="p">:</span> <span class="m">0.9em</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Instead I used <code class="language-plaintext highlighter-rouge">display: inline</code>;. inline places all the <code class="language-plaintext highlighter-rouge">nav</code> titles beside each other,
+no need to use Flexbox. By default HTML would have placed <code class="language-plaintext highlighter-rouge">nav</code> titles below one another.</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">header</span> <span class="nt">ul</span> <span class="nt">li</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="nb">inline</span><span class="p">;</span>
+  <span class="nl">padding</span><span class="p">:</span> <span class="m">0</span> <span class="m">1.4em</span> <span class="m">0</span> <span class="m">0</span><span class="p">;</span>
+  <span class="nl">font-size</span><span class="p">:</span> <span class="m">0.9em</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="-add-this-for-chrome">
+        
+        
+          <i class="fas fa-exclamation-circle"></i> Add this for Chrome <a href="#-add-this-for-chrome">#</a>
+        
+        
+      </h3>
+    
+
+<p>If you want the media queries to show up properly in Chrome, add this <code class="language-plaintext highlighter-rouge">meta-data</code> tag to
+the head element of your HTML document. If you don’t do this, then your HTML will not be
+responsive on the most popular browser in the world!</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- https://css-tricks.com/snippets/html/responsive-meta-tag/ --&gt;</span>
+<span class="nt">&lt;meta</span> <span class="na">name=</span><span class="s">"viewport"</span> <span class="na">content=</span><span class="s">"width=device-width"</span> <span class="nt">/&gt;</span>
+</code></pre></div></div>
+      <h2 id="css-grid">
+        
+        
+          CSS Grid <a href="#css-grid">#</a>
+        
+        
+      </h2>
+    
+
+<p>Originally I wanted to create the image gallery using Flexbox. I struggled with it for a
+while but I couldn’t get the watches in watch-grid to align left, while having the same
+amount of space between them. I also went through other people’s examples, but none of
+them worked for this case without hacks. So I ended up using CSS Grid.</p>
+
+<p>If you look at the CSS styles (they are all on
+<a href="https://github.com/nadiaidris/website-flexbox">Github</a>), you will see that the <code class="language-plaintext highlighter-rouge">display</code>
+is set to <code class="language-plaintext highlighter-rouge">grid</code> and that tells the browser that it’s dealing with a grid. You will also
+find new property names like <code class="language-plaintext highlighter-rouge">grid-template-columns</code> and <code class="language-plaintext highlighter-rouge">grid-template-rows</code>.</p>
+
+<div class="language-css highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">.watch-grid</span> <span class="p">{</span>
+  <span class="nl">display</span><span class="p">:</span> <span class="n">grid</span><span class="p">;</span>
+  <span class="py">grid-template-columns</span><span class="p">:</span> <span class="m">50%</span> <span class="m">50%</span><span class="p">;</span>
+  <span class="py">grid-template-rows</span><span class="p">:</span> <span class="nb">auto</span><span class="p">;</span>
+  <span class="nl">margin-top</span><span class="p">:</span> <span class="m">30px</span><span class="p">;</span>
+  <span class="nl">justify-content</span><span class="p">:</span> <span class="nb">center</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>CSS Grid shares some of the same property names with Flexbox, like <code class="language-plaintext highlighter-rouge">justify-content</code> for
+example, so it’s pretty simple to get started with the CSS Grid. I learnt it from
+<a href="https://www.lynda.com/CSS-tutorials/CSS-Grid-First-Look/422835-2.html">“CSS Grid First Look”</a>
+from Lynda.com. If you are interested in, check out this
+<a href="https://youtu.be/txZq7Laz7_4">awesome video by Morten Rand-Hendriksen</a> first.</p>
+
+<ul>
+  <li>
+    <p>About CSS Grid and Chrome. I used percentages (<code class="language-plaintext highlighter-rouge">%</code>) instead of fractions (<code class="language-plaintext highlighter-rouge">fr</code>) because
+Chrome doesn’t display them correctly with fractions. I am not sure why, but if you know
+why, please let me know.</p>
+  </li>
+  <li>
+    <p>If you want to see how all of the CSS Grid code looks like, check it out at
+<a href="https://github.com/nadiaidris/website-flexbox">Github</a>.</p>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/React">
+                #react</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Web">
+                #web</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/01/28/swingx-tutorial-task-pane/">
+                        SwingX Tutorial - Task Pane (JXTaskPane, Container)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/">
+                        How to use glass pane for animation (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/react-hooks-redux-typescript-handbook/">
+                        React hooks (v17.0.3) and Redux handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/css-responsive-design-handbook/">
+                        CSS responsive design using Grid, Flexbox, and media queries handbook
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/22/vue-vueitfy-webpack/">
+                        Vue.js, Webpack, Vueitify, Electron, and vue-cli
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/15/introduction-to-vue/">
+                        Getting started with Vue.js
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/19/loading-csv-files-in-javascript-and-node/">
+                        Loading CSV files in Node
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

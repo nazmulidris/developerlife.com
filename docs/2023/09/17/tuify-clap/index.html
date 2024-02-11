@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>tuify your clap CLI apps and make them more interactive | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="tuify your clap CLI apps and make them more interactive" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A guide on how to add minimal interactivity to your clap CLI apps using tuify. It doesn’t have to be an all or nothing approach w/ going full TUI or CLI." />
+<meta property="og:description" content="A guide on how to add minimal interactivity to your clap CLI apps using tuify. It doesn’t have to be an all or nothing approach w/ going full TUI or CLI." />
+<link rel="canonical" href="http://developerlife.com/2023/09/17/tuify-clap/" />
+<meta property="og:url" content="http://developerlife.com/2023/09/17/tuify-clap/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-09-17T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="tuify your clap CLI apps and make them more interactive" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2023-09-17T10:00:00-05:00","datePublished":"2023-09-17T10:00:00-05:00","description":"A guide on how to add minimal interactivity to your clap CLI apps using tuify. It doesn’t have to be an all or nothing approach w/ going full TUI or CLI.","headline":"tuify your clap CLI apps and make them more interactive","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2023/09/17/tuify-clap/"},"url":"http://developerlife.com/2023/09/17/tuify-clap/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;tuify your clap CLI apps and make them more interactive&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = tuify your clap CLI apps and make them more interactive</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">tuify your clap CLI apps and make them more interactive</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Sep 17, 2023
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/tuify-clap-hero.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#cli-design-concepts">CLI design concepts</a></li>
+  <li><a href="#show-me">Show me</a></li>
+  <li><a href="#the-r3bl_tuify-crate-and-clap">The r3bl_tuify crate and clap</a>
+    <ul>
+      <li><a href="#example-1-add-interactivity-using-a-list-selection-component">Example 1: Add interactivity using a list selection component</a></li>
+      <li><a href="#example-2-adding-interactivity-using-a-text-input-field">Example 2: Adding interactivity using a text input field</a></li>
+    </ul>
+  </li>
+  <li><a href="#next-steps">Next steps</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>As developers we tend to spend a lot of time in the terminal. It is a great place to exercise
+precise control over our computers. And it is a great place to automate tasks. However, there are
+some rough edges to this experience. For example, even though the interaction metaphor w/ CLI apps
+is a conversation, we have to be very precise in the language we use in this conversation. Lots of
+trial and error, patience and resilience are required to make it work. And it does not have to be
+this way.</p>
+
+<p>To use a racing analogy, terminals are like race cars. They are fast and powerful, and you can
+exercise direct and precise control over them. But if you get things wrong, there can be
+consequences. Porsche is a car company that
+<a href="https://en.wikipedia.org/wiki/List_of_24_Hours_of_Le_Mans_winners#By_manufacturer">wins endurance races</a>,
+and a very long time ago, they decided to make a race car that was friendly to the ergonomics of
+their drivers.</p>
+
+<p>The thinking was that if the driver is comfortable, they will perform better, and the 24 hour race
+wins will be just a little bit closer within reach. Similarly, we can add some interactivity to our
+CLI apps to make them more ergonomic to use. And we can do this without going full TUI. We can do
+this in a way that is additive to the existing CLI experience. We can “tuify” our CLI apps that are
+built using <code class="language-plaintext highlighter-rouge">clap</code>.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+<blockquote>
+  <p>For more information on general Rust type system design (functional approach rather than
+object oriented), please take a look at this <a href="https://arxiv.org/pdf/2307.07069.pdf">paper</a>
+by Will Crichton demonstrating Typed Design Patterns with Rust.</p>
+</blockquote>
+      <h2 id="cli-design-concepts">
+        
+        
+          CLI design concepts <a href="#cli-design-concepts">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-cli-design-concepts" name="cli-design-concepts"></a></p>
+
+<p>Here are some great resources to learn more about good CLI design concepts. The Rust crate <code class="language-plaintext highlighter-rouge">clap</code> is
+used by a lot of Rust apps to implement this CLI. And in this tutorial we will take a look at how to
+add some interactivity to these <code class="language-plaintext highlighter-rouge">clap</code> CLI apps using the <code class="language-plaintext highlighter-rouge">r3bl_tuify</code> crate.</p>
+
+<blockquote>
+  <p>Note that these resources are all about CLI and not TUI. There isn’t very much information out
+there about TUIs. It is a new and evolving space.</p>
+</blockquote>
+
+<ol>
+  <li><a href="https://clig.dev/#foreword">Command Line Interface Guidelines</a></li>
+  <li><a href="https://docs.rs/clap/latest/clap/_derive/#overview"><code class="language-plaintext highlighter-rouge">clap</code> docs</a></li>
+  <li><a href="https://rust-cli-recommendations.sunshowers.io/handling-arguments.html"><code class="language-plaintext highlighter-rouge">clap</code> command and subcommand structure guidelines</a></li>
+  <li><a href="https://rust-cli-recommendations.sunshowers.io/hierarchical-config.html">Hierarchy of configuration</a></li>
+</ol>
+
+<p>The CLI guidelines above do a great job of explaining how to create a good CLI experience. However
+they do not cover how to add interactivity to your CLI apps. Why would we want to do this? Let’s
+take a real example to illustrate the benefits of this next.</p>
+      <h2 id="show-me">
+        
+        
+          Show me <a href="#show-me">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-show-me" name="show-me"></a></p>
+
+<p>This example is a little “meta”. The <code class="language-plaintext highlighter-rouge">r3bl_tuify</code> crate, that allows interactivity to be added to
+<code class="language-plaintext highlighter-rouge">clap</code> CLI apps, is available as a binary and library. The binary which can be used from the command
+line (and uses <code class="language-plaintext highlighter-rouge">clap</code>) uses the library to provide an interactive experience when certain arguments
+aren’t provided on the command line.</p>
+
+<p>The idea with the binary target is that you might want to quickly incorporate some interactivity
+into your shell scripts without getting into the Rust library. In this case, you can use the <code class="language-plaintext highlighter-rouge">rt</code>
+binary target to do that. This binary takes quite a few arguments as you might imagine. However, you
+don’t have to supply all of them at the start.</p>
+
+<p>So instead of typing this massive command at the start (where <code class="language-plaintext highlighter-rouge">cargo run --</code> simply runs the binary
+called <code class="language-plaintext highlighter-rouge">rt</code>):</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>TODO.todo | cargo run <span class="nt">--</span> <span class="k">select</span><span class="nt">-from-list</span> <span class="se">\</span>
+    <span class="nt">--selection-mode</span> single <span class="se">\</span>
+    <span class="nt">--command-to-run-with-each-selection</span> <span class="s2">"echo %"</span>
+</code></pre></div></div>
+
+<p>You can simply type the following shorter command and have the app prompt you for the rest of the
+information that it needs:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>TODO.todo | cargo run <span class="nt">--</span> <span class="k">select</span><span class="nt">-from-list</span>
+</code></pre></div></div>
+
+<p>Here’s a video of this in action, where the app is prompting the user for two items:</p>
+
+<ol>
+  <li>the <code class="language-plaintext highlighter-rouge">selection-mode</code> and</li>
+  <li><code class="language-plaintext highlighter-rouge">command-to-run-with-each-selection</code> interactively 🎉:</li>
+</ol>
+
+<!-- tuify-interactive-happy-path -->
+<video width="100%" controls="">
+  <source src="https://github.com/r3bl-org/r3bl-open-core/assets/2966499/51de8867-513b-429f-aff2-63dd25d71c82" type="video/mp4" />
+</video>
+      <h2 id="the-r3bl_tuify-crate-and-clap">
+        
+        
+          The r3bl_tuify crate and clap <a href="#the-r3bl_tuify-crate-and-clap">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-the-r3bl_tuify-crate-and-clap" name="the-r3bl_tuify-crate-and-clap"></a></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">r3bl_tuify</code> app itself uses <code class="language-plaintext highlighter-rouge">clap</code> to parse the command line arguments. Here’s an overview of
+what that looks like (all of it using the <code class="language-plaintext highlighter-rouge">derive</code> macro approach). Here’s a link to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tuify/src/main.rs#L30"><code class="language-plaintext highlighter-rouge">main.rs::AppArgs</code></a>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Debug,</span> <span class="nd">Parser)]</span>
+<span class="nd">#[command(bin_name</span> <span class="nd">=</span> <span class="s">"rt"</span><span class="nd">)]</span>
+<span class="nd">#[command(about</span> <span class="nd">=</span> <span class="s">"Easily add lightweight TUI capabilities to any CLI apps using pipes"</span><span class="nd">,</span> <span class="nd">long_about</span> <span class="nd">=</span> <span class="nd">None)]</span>
+<span class="nd">#[command(version)]</span>
+<span class="nd">#[command(next_line_help</span> <span class="nd">=</span> <span class="kc">true</span><span class="nd">)]</span>
+<span class="nd">#[command(arg_required_else_help(</span><span class="kc">true</span><span class="nd">))]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">AppArgs</span> <span class="p">{</span>
+    <span class="nd">#[clap(subcommand)]</span>
+    <span class="n">command</span><span class="p">:</span> <span class="n">CLICommand</span><span class="p">,</span>
+
+    <span class="nd">#[clap(flatten)]</span>
+    <span class="n">global_opts</span><span class="p">:</span> <span class="n">GlobalOpts</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="nd">#[derive(Debug,</span> <span class="nd">Args)]</span>
+<span class="k">struct</span> <span class="n">GlobalOpts</span> <span class="p">{</span>
+    <span class="cd">/// Print debug output to log file (log.txt)</span>
+    <span class="nd">#[arg(long,</span> <span class="nd">short</span> <span class="nd">=</span> <span class="sc">'l'</span><span class="nd">)]</span>
+    <span class="n">enable_logging</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+
+    <span class="cd">/// Optional maximum height of the TUI (rows)</span>
+    <span class="nd">#[arg(value_name</span> <span class="nd">=</span> <span class="s">"height"</span><span class="nd">,</span> <span class="nd">long,</span> <span class="nd">short</span> <span class="nd">=</span> <span class="sc">'r'</span><span class="nd">)]</span>
+    <span class="n">tui_height</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span><span class="p">,</span>
+
+    <span class="cd">/// Optional maximum width of the TUI (columns)</span>
+    <span class="nd">#[arg(value_name</span> <span class="nd">=</span> <span class="s">"width"</span><span class="nd">,</span> <span class="nd">long,</span> <span class="nd">short</span> <span class="nd">=</span> <span class="sc">'c'</span><span class="nd">)]</span>
+    <span class="n">tui_width</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="nd">#[derive(Debug,</span> <span class="nd">Subcommand)]</span>
+<span class="k">enum</span> <span class="n">CLICommand</span> <span class="p">{</span>
+    <span class="cd">/// Show TUI to allow you to select one or more options from a list, piped in via stdin 👉</span>
+    <span class="n">SelectFromList</span> <span class="p">{</span>
+        <span class="cd">/// Would you like to select one or more items?</span>
+        <span class="nd">#[arg(value_name</span> <span class="nd">=</span> <span class="s">"mode"</span><span class="nd">,</span> <span class="nd">long,</span> <span class="nd">short</span> <span class="nd">=</span> <span class="sc">'s'</span><span class="nd">)]</span>
+        <span class="n">selection_mode</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">SelectionMode</span><span class="o">&gt;</span><span class="p">,</span>
+
+        <span class="cd">/// Each selected item is passed to this command as `%` and executed in your shell.</span>
+        <span class="cd">/// For eg: "echo %". Please wrap the command in quotes 💡</span>
+        <span class="nd">#[arg(value_name</span> <span class="nd">=</span> <span class="s">"command"</span><span class="nd">,</span> <span class="nd">long,</span> <span class="nd">short</span> <span class="nd">=</span> <span class="sc">'c'</span><span class="nd">)]</span>
+        <span class="n">command_to_run_with_each_selection</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The things to note are that the <code class="language-plaintext highlighter-rouge">selection_mode</code> and <code class="language-plaintext highlighter-rouge">command_to_run_with_each_selection</code> fields of
+the <code class="language-plaintext highlighter-rouge">CliCommand::SelectFromList</code> enum are optional. This is where the <code class="language-plaintext highlighter-rouge">r3bl_tuify</code> crate comes in.
+It will prompt the user for these two fields if they are not supplied on the command line.</p>
+
+<p>You can add this programmatically using the library to your existing CLI apps.</p>
+
+<blockquote>
+  <p>The piping option using the binary is severely limited, so the library option is strongly
+recommended. The binary is more of a convenience for shell scripts only on Linux.</p>
+</blockquote>
+
+<p>You can see how to use the library to perform this interactivity in
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tuify/src/main.rs#L179"><code class="language-plaintext highlighter-rouge">main.rs::show_tui()</code></a>.</p>
+
+<p>Here are two examples of adding interactivity.</p>
+      <h3 id="example-1-add-interactivity-using-a-list-selection-component">
+        
+        
+          Example 1: Add interactivity using a list selection component <a href="#example-1-add-interactivity-using-a-list-selection-component">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-1%3A-add-interactivity-using-a-list-selection-component" name="example-1%3A-add-interactivity-using-a-list-selection-component"></a></p>
+
+<p>Here’s an example of adding interactivity using a list selection component. This is useful
+when the values that a field can take are known in advance. In this example, they are
+since <code class="language-plaintext highlighter-rouge">selection-mode</code> is a <code class="language-plaintext highlighter-rouge">clap</code> <code class="language-plaintext highlighter-rouge">EnumValue</code> that can only take one of the following
+values: <code class="language-plaintext highlighter-rouge">single</code>, or <code class="language-plaintext highlighter-rouge">multiple</code>.</p>
+
+<p>In this scenario, <code class="language-plaintext highlighter-rouge">--selection-mode</code> is <em>not</em> passed in the command line. So it only
+interactively prompts the user for this piece of information. Similarly, if the user does
+not provide this information, the app exits and provides a help message.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>TODO.todo | cargo run <span class="nt">--</span> <span class="k">select</span><span class="nt">-from-list</span> <span class="nt">--command-to-run-with-each-selection</span> <span class="s2">"echo %"</span>
+</code></pre></div></div>
+
+<!-- tuify-interactive-selection-mode-not-provided -->
+<video width="100%" controls="">
+  <source src="https://github.com/r3bl-org/r3bl-open-core/assets/2966499/be65d9b2-575b-47c0-8291-110340bd2fe7" type="video/mp4" />
+</video>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Handle `selection-mode` is not passed in.</span>
+<span class="k">let</span> <span class="n">selection_mode</span> <span class="o">=</span> <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">selection_mode</span><span class="p">)</span> <span class="o">=</span> <span class="n">maybe_selection_mode</span> <span class="p">{</span>
+    <span class="n">selection_mode</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">possible_values_for_selection_mode</span> <span class="o">=</span>
+        <span class="nf">get_possible_values_for_subcommand_and_option</span><span class="p">(</span>
+            <span class="s">"select-from-list"</span><span class="p">,</span>
+            <span class="s">"selection-mode"</span><span class="p">,</span>
+        <span class="p">);</span>
+    <span class="nf">print_help_for_subcommand_and_option</span><span class="p">(</span><span class="s">"select-from-list"</span><span class="p">,</span> <span class="s">"selection-mode"</span><span class="p">)</span><span class="nf">.ok</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="n">user_selection</span> <span class="o">=</span> <span class="nf">select_from_list</span><span class="p">(</span>
+        <span class="s">"Choose selection-mode"</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="n">possible_values_for_selection_mode</span><span class="p">,</span>
+        <span class="n">max_height_row_count</span><span class="p">,</span>
+        <span class="n">max_width_col_count</span><span class="p">,</span>
+        <span class="nn">SelectionMode</span><span class="p">::</span><span class="n">Single</span><span class="p">,</span>
+    <span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">user_selection</span><span class="p">)</span> <span class="o">=</span> <span class="n">user_selection</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="o">=</span> <span class="n">user_selection</span><span class="nf">.first</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"selection-mode: {}"</span><span class="p">,</span> <span class="n">it</span><span class="p">);</span>
+            <span class="nn">SelectionMode</span><span class="p">::</span><span class="nf">from_str</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="k">true</span><span class="p">)</span><span class="nf">.unwrap_or</span><span class="p">(</span><span class="nn">SelectionMode</span><span class="p">::</span><span class="n">Single</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">print_help_for</span><span class="p">(</span><span class="s">"select-from-list"</span><span class="p">)</span><span class="nf">.ok</span><span class="p">();</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nf">print_help_for</span><span class="p">(</span><span class="s">"select-from-list"</span><span class="p">)</span><span class="nf">.ok</span><span class="p">();</span>
+        <span class="k">return</span><span class="p">;</span>
+    <span class="p">};</span>
+
+    <span class="n">it</span>
+<span class="p">};</span>
+</code></pre></div></div>
+      <h3 id="example-2-adding-interactivity-using-a-text-input-field">
+        
+        
+          Example 2: Adding interactivity using a text input field <a href="#example-2-adding-interactivity-using-a-text-input-field">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-2%3A-adding-interactivity-using-a-text-input-field" name="example-2%3A-adding-interactivity-using-a-text-input-field"></a></p>
+
+<p>Here’s an example of adding interactivity using a text input field. This is useful when the values
+that a field can take are not known in advance. The <code class="language-plaintext highlighter-rouge">r3bl_tuify</code> crate uses the <code class="language-plaintext highlighter-rouge">reedline</code> crate to
+do this.</p>
+
+<blockquote>
+  <p>Fun fact: <a href="https://docs.rs/reedline/"><code class="language-plaintext highlighter-rouge">reedline</code></a> is the text input field (line editor)
+that is used in <a href="https://github.com/nushell/nushell"><code class="language-plaintext highlighter-rouge">nushell</code></a>.</p>
+</blockquote>
+
+<p>In this scenario, <code class="language-plaintext highlighter-rouge">--command-to-run-with-each-selection</code> is <em>not</em> passed in the command
+line. So it only interactively prompts the user for this piece of information. Similarly,
+if the user does not provide this information, the app exits and provides a help message.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cat </span>TODO.todo | cargo run <span class="nt">--</span> <span class="k">select</span><span class="nt">-from-list</span> <span class="nt">--selection-mode</span> single
+</code></pre></div></div>
+
+<!-- tuify-interactive-command-to-run-with-selection-not-provided -->
+<video width="100%" controls="">
+  <source src="https://github.com/r3bl-org/r3bl-open-core/assets/2966499/d8d7d419-c85e-4c10-bea5-345aa31a92a3" type="video/mp4" />
+</video>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Handle `command-to-run-with-each-selection` is not passed in.</span>
+<span class="k">let</span> <span class="n">command_to_run_with_each_selection</span> <span class="o">=</span>
+    <span class="k">match</span> <span class="n">maybe_command_to_run_with_each_selection</span> <span class="p">{</span>
+        <span class="nf">Some</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="n">it</span><span class="p">,</span>
+        <span class="nb">None</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="nf">print_help_for_subcommand_and_option</span><span class="p">(</span>
+                <span class="s">"select-from-list"</span><span class="p">,</span>
+                <span class="s">"command-to-run-with-each-selection"</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="nf">.ok</span><span class="p">();</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">line_editor</span> <span class="o">=</span> <span class="nn">Reedline</span><span class="p">::</span><span class="nf">create</span><span class="p">();</span>
+            <span class="k">let</span> <span class="n">prompt</span> <span class="o">=</span> <span class="n">DefaultPrompt</span> <span class="p">{</span>
+                <span class="n">left_prompt</span><span class="p">:</span> <span class="nn">DefaultPromptSegment</span><span class="p">::</span><span class="nf">Basic</span><span class="p">(</span>
+                    <span class="s">"Enter command to run w/ each selection `%`: "</span><span class="nf">.to_string</span><span class="p">(),</span>
+                <span class="p">),</span>
+                <span class="n">right_prompt</span><span class="p">:</span> <span class="nn">DefaultPromptSegment</span><span class="p">::</span><span class="n">Empty</span><span class="p">,</span>
+            <span class="p">};</span>
+
+            <span class="k">let</span> <span class="n">sig</span> <span class="o">=</span> <span class="n">line_editor</span><span class="nf">.read_line</span><span class="p">(</span><span class="o">&amp;</span><span class="n">prompt</span><span class="p">);</span>
+            <span class="k">match</span> <span class="n">sig</span> <span class="p">{</span>
+                <span class="nf">Ok</span><span class="p">(</span><span class="nn">Signal</span><span class="p">::</span><span class="nf">Success</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="k">if</span> <span class="n">buffer</span><span class="nf">.is_empty</span><span class="p">()</span> <span class="p">{</span>
+                        <span class="nf">print_help_for</span><span class="p">(</span><span class="s">"select-from-list"</span><span class="p">)</span><span class="nf">.ok</span><span class="p">();</span>
+                        <span class="k">return</span><span class="p">;</span>
+                    <span class="p">}</span>
+                    <span class="nd">println!</span><span class="p">(</span><span class="s">"Command to run w/ each selection: {}"</span><span class="p">,</span> <span class="n">buffer</span><span class="p">);</span>
+                    <span class="n">buffer</span>
+                <span class="p">}</span>
+                <span class="n">_</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="nf">print_help_for</span><span class="p">(</span><span class="s">"select-from-list"</span><span class="p">)</span><span class="nf">.ok</span><span class="p">();</span>
+                    <span class="k">return</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+
+<span class="c1">// Actually get input from the user.</span>
+<span class="k">let</span> <span class="n">selected_items</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="nf">select_from_list</span><span class="p">(</span>
+        <span class="s">"Select one line"</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="n">lines</span><span class="p">,</span>
+        <span class="n">max_height_row_count</span><span class="p">,</span>
+        <span class="n">max_width_col_count</span><span class="p">,</span>
+        <span class="n">selection_mode</span><span class="p">,</span>
+    <span class="p">);</span>
+    <span class="nf">convert_user_input_into_vec_of_strings</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+<span class="p">};</span>
+</code></pre></div></div>
+      <h2 id="next-steps">
+        
+        
+          Next steps <a href="#next-steps">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-next-steps" name="next-steps"></a></p>
+
+<p>There are many more components that need to be added to make it easier to “tuify” lots of
+existing CLI experiences. Things like multi line editor component w/ syntax highlighting,
+scroll view, form input fields, and more. If you would like to contribute to this effort,
+it would be great to have your help.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/04/ockam-routing-building-end-to-end-channels/">
+                        Create End-to-End Channels in Rust with Ockam Routing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2023/09/17/tuify-clap/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

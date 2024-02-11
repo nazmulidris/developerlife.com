@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Build a non-binary tree that is thread safe using Rust | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Build a non-binary tree that is thread safe using Rust" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This article illustrates how we can build a non-binary tree in Rust using various approaches until we end up with a version that is thread safe and supports parallel tree walking as well. Topics like interior mutability, sharing ownership, weak and strong references, custom traits for polymorphic behavior, are covered in this article." />
+<meta property="og:description" content="This article illustrates how we can build a non-binary tree in Rust using various approaches until we end up with a version that is thread safe and supports parallel tree walking as well. Topics like interior mutability, sharing ownership, weak and strong references, custom traits for polymorphic behavior, are covered in this article." />
+<link rel="canonical" href="http://developerlife.com/2022/02/24/rust-non-binary-tree/" />
+<meta property="og:url" content="http://developerlife.com/2022/02/24/rust-non-binary-tree/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-02-24T08:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build a non-binary tree that is thread safe using Rust" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2022-02-24T08:00:00-06:00","datePublished":"2022-02-24T08:00:00-06:00","description":"This article illustrates how we can build a non-binary tree in Rust using various approaches until we end up with a version that is thread safe and supports parallel tree walking as well. Topics like interior mutability, sharing ownership, weak and strong references, custom traits for polymorphic behavior, are covered in this article.","headline":"Build a non-binary tree that is thread safe using Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2022/02/24/rust-non-binary-tree/"},"url":"http://developerlife.com/2022/02/24/rust-non-binary-tree/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Build a non-binary tree that is thread safe using Rust&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Build a non-binary tree that is thread safe using Rust</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build a non-binary tree that is thread safe using Rust</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Feb 24, 2022
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/rust-non-binary-tree.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#naive-approach-using-weak-and-strong-references">Naive approach using weak and strong references</a>
+    <ul>
+      <li><a href="#thread-safety">Thread safety</a></li>
+      <li><a href="#implementation">Implementation</a></li>
+    </ul>
+  </li>
+  <li><a href="#sophisticated-approach-using-memory-arena">Sophisticated approach using memory arena</a>
+    <ul>
+      <li><a href="#traits">Traits</a></li>
+      <li><a href="#arena-implementation-details">Arena implementation details</a></li>
+      <li><a href="#basic-usage-of-the-arena-tree">Basic usage of the arena (tree)</a></li>
+      <li><a href="#multithreading">Multithreading</a></li>
+    </ul>
+  </li>
+  <li><a href="#wrapping-up">Wrapping up</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This article illustrates how we can build a non-binary tree in Rust using various approaches until
+we end up with a version that is thread safe and supports parallel tree walking as well. Topics like
+interior mutability, sharing ownership, weak and strong references, custom traits for polymorphic
+behavior, are covered in this article.</p>
+
+<blockquote>
+  <p>For more information on general Rust type system design (functional approach rather than
+object oriented), please take a look at this <a href="https://arxiv.org/pdf/2307.07069.pdf">paper</a>
+by Will Crichton demonstrating Typed Design Patterns with Rust.</p>
+</blockquote>
+
+<p>A non-binary tree is a data structure that can be used to represent a tree of nodes similar to DOM,
+or Virtual DOM (React). Each node in the tree has a value and a list of children. It also has a
+parent. The first implementation that we will do is going to be a naive approach, that will get us
+into shared ownership, interior mutability, and weak and strong references. Subsequent approaches
+will be allow us to make the tree thread safe and parallel friendly (we will name them <code class="language-plaintext highlighter-rouge">Arena</code> and
+<code class="language-plaintext highlighter-rouge">Node</code> and you can use the via the <a href="https://crates.io/crates/r3bl_rs_utils"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> crate</a>.</p>
+
+<blockquote>
+  <p>📦 The tree (<code class="language-plaintext highlighter-rouge">Arena</code> &amp; <code class="language-plaintext highlighter-rouge">Node</code>) is available for you to use in your projects via the
+<a href="https://crates.io/crates/r3bl_rs_utils"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate.</p>
+</blockquote>
+
+<blockquote>
+  <p>📜 You can take a look the source code of this thread safe non-binary tree data structure named
+<code class="language-plaintext highlighter-rouge">Arena</code> in its github <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/utils">repo</a>.</p>
+</blockquote>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h2 id="naive-approach-using-weak-and-strong-references">
+        
+        
+          Naive approach using weak and strong references <a href="#naive-approach-using-weak-and-strong-references">#</a>
+        
+        
+      </h2>
+    
+
+<p>Our first attempt at implementing this data structure will involve using a struct that can hold
+references to children that it owns. And also a reference to a parent that it does not own, but has
+a weak reference to. Also this opens up this data structure to 2 things:</p>
+
+<ol>
+  <li>Shared ownership - While the children are owned by the struct, it is necessary to provide access
+to these children node to other code that use this tree data structure. Moving these references
+out of the tree isn’t desirable. And cloning the entire node before moving it out of the tree
+isn’t optimal either. This is where shared onwnership comes into play. In order to do that, we
+wrap the underlying node in a <code class="language-plaintext highlighter-rouge">Rc</code>. This is a reference counted pointer. However, that isn’t
+enough, since once we pass a (shared) reference to other code (that is using this tree), we need
+to provide the ability to mutate what is inside the node itself, which leads us to interior
+mutability.</li>
+  <li>Interior mutability - Once a reference (that allows for shared ownership) of a node is passed to
+code using the tree, it becomes necessary to allow modifications to the underlying node itself.
+This requires us to use interior mutability by wrapping the node in a <code class="language-plaintext highlighter-rouge">RefCell</code>. Which is then
+wrapped in the <code class="language-plaintext highlighter-rouge">Rc</code> that we use to share ownership. Combining these two together gets us to where
+we need to be.</li>
+</ol>
+
+<blockquote>
+  <p>🧸 Here is a much simpler snippet of code for you to play with
+<a href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;gist=f8db9ee621dc064051dab005a273e86c">in the Rust playground</a>
+before we get into our naive implementation. It will get you warmed up with the concepts of shared
+ownership, interior mutability, weak, and strong references.</p>
+</blockquote>
+      <h3 id="thread-safety">
+        
+        
+          Thread safety <a href="#thread-safety">#</a>
+        
+        
+      </h3>
+    
+
+<p>While this is a good start, we haven’t dealt with thread safety. Rust makes it very easy to handle
+this paralellism, we simply do the following:</p>
+
+<ol>
+  <li>Replace <code class="language-plaintext highlighter-rouge">Rc</code> with <code class="language-plaintext highlighter-rouge">Arc</code>.</li>
+  <li>Replace <code class="language-plaintext highlighter-rouge">RefCell</code> with <code class="language-plaintext highlighter-rouge">RwLock</code> (note that we could have also used <code class="language-plaintext highlighter-rouge">Mutex</code> but we are using
+<code class="language-plaintext highlighter-rouge">RwLock</code> for better performance in use cases where more nodes will be accessed in the tree,
+rather than new nodes added to the tree).</li>
+</ol>
+      <h3 id="implementation">
+        
+        
+          Implementation <a href="#implementation">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s some code that we will use to implement this data structure. Let’s start w/ describing the
+struct that holds the value or payload, the children, and parent references.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// This struct holds underlying data. It shouldn't be created directly, instead use:</span>
+<span class="cd">/// [`Node`](struct@Node).</span>
+<span class="cd">///</span>
+<span class="cd">/// ```text</span>
+<span class="cd">/// NodeData</span>
+<span class="cd">///  | | |</span>
+<span class="cd">///  | | +- value: T ---------------------------------------+</span>
+<span class="cd">///  | |                                                    |</span>
+<span class="cd">///  | |                                        Simple onwership of value</span>
+<span class="cd">///  | |</span>
+<span class="cd">///  | +-- parent: RwLock&lt;WeakNodeNodeRef&lt;T&gt;&gt; --------+</span>
+<span class="cd">///  |                                            |</span>
+<span class="cd">///  |                 This describes a non-ownership relationship.</span>
+<span class="cd">///  |                 When a node is dropped, its parent will not be dropped.</span>
+<span class="cd">///  |</span>
+<span class="cd">///  +---- children: RwLock&lt;Vec&lt;Child&lt;T&gt;&gt;&gt; ---+</span>
+<span class="cd">///                                           |</span>
+<span class="cd">///                 This describes an ownership relationship.</span>
+<span class="cd">///                 When a node is dropped its children will be dropped as well.</span>
+<span class="cd">/// ```</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">NodeData</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="k">where</span>
+  <span class="n">T</span><span class="p">:</span> <span class="n">Display</span><span class="p">,</span>
+<span class="p">{</span>
+  <span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+  <span class="n">parent</span><span class="p">:</span> <span class="n">Parent</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="n">children</span><span class="p">:</span> <span class="n">Children</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here are the type aliases used for readability.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">type</span> <span class="n">NodeDataRef</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">NodeData</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+<span class="k">type</span> <span class="n">WeakNodeNodeRef</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">Weak</span><span class="o">&lt;</span><span class="n">NodeData</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+
+<span class="cd">/// Parent relationship is one of non-ownership.</span>
+<span class="cd">/// This is not a `RwLock&lt;NodeDataRef&lt;T&gt;&gt;` which would cause memory leak.</span>
+<span class="k">type</span> <span class="n">Parent</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">RwLock</span><span class="o">&lt;</span><span class="n">WeakNodeNodeRef</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+
+<span class="cd">/// Children relationship is one of ownership.</span>
+<span class="k">type</span> <span class="n">Children</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">RwLock</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Child</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;&gt;</span><span class="p">;</span>
+<span class="k">type</span> <span class="n">Child</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">NodeDataRef</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Here’s a visualization of the relationships between a node, its children, and parent, in terms of
+ownership.</p>
+
+<p><img class="post-hero-image" src="/assets/rust-weak-ref.svg" /></p>
+
+<ol>
+  <li>When a node is dropped, its children will be dropped as well (since it owns them). We represent
+this relationship w/ a strong reference.</li>
+  <li>However, the parent should not be dropped (since it does not own them). We represent this
+relationship w/ a weak reference.</li>
+</ol>
+
+<p>So far we don’t have any functions or methods that allow us to do anything with the <code class="language-plaintext highlighter-rouge">NodeData</code>. So
+lets add some. First step is adding a <code class="language-plaintext highlighter-rouge">Node</code> struct itself (which will allow us to manage references
+more easily).</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// This struct is used to own a [`NodeData`] inside an [`Arc`]. The [`Arc`]</span>
+<span class="cd">/// can be shared, so that it can have multiple owners. It does not have</span>
+<span class="cd">/// getter methods for [`NodeData`]'s properties, instead it implements the</span>
+<span class="cd">/// `Deref` trait to allow it to be used as a [`NodeData`].</span>
+<span class="cd">///</span>
+<span class="cd">/// # Shared ownership</span>
+<span class="cd">///</span>
+<span class="cd">/// After an instance of this struct is created and it's internal reference is</span>
+<span class="cd">/// cloned (and given to another) dropping this instance will not drop the cloned</span>
+<span class="cd">/// internal reference.</span>
+<span class="cd">///</span>
+<span class="cd">/// ```text</span>
+<span class="cd">/// Node { arc_ref: Arc&lt;NodeData&gt; }</span>
+<span class="cd">///    ▲                 ▲</span>
+<span class="cd">///    │                 │</span>
+<span class="cd">///    │      This atomic ref owns the</span>
+<span class="cd">///    │      `NodeData` &amp; is shared</span>
+<span class="cd">///    │</span>
+<span class="cd">///    1. Has methods to manipulate nodes and their children.</span>
+<span class="cd">///</span>
+<span class="cd">///    2. When it is dropped, if there are other `Arc`s (shared via</span>
+<span class="cd">///       `get_copy_of_internal_arc()`) pointing to the same underlying</span>
+<span class="cd">///       `NodeData`, then the `NodeData` will not be dropped.</span>
+<span class="cd">///</span>
+<span class="cd">///    3. This struct is necessary in order for `add_child_and_update_its_parent`</span>
+<span class="cd">///       to work. Some pointers need to be swapped between 2 nodes for this work</span>
+<span class="cd">///       (and one of these pointers is a weak one). It is not possible to do this</span>
+<span class="cd">///       using two `NodeData` objects, without wrapping them in `Arc`s.</span>
+<span class="cd">/// ```</span>
+
+<span class="nd">#[derive(Debug)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Display</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="n">arc_ref</span><span class="p">:</span> <span class="n">NodeDataRef</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Now it is time to add some methods. First the implementation of the
+<a href="https://doc.rust-lang.org/book/ch19-03-advanced-traits.html#using-the-newtype-pattern-to-implement-external-traits-on-external-types"><code class="language-plaintext highlighter-rouge">Deref</code></a>
+trait for <code class="language-plaintext highlighter-rouge">Node</code>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Deref</span> <span class="k">for</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="k">where</span>
+  <span class="n">T</span><span class="p">:</span> <span class="n">Display</span><span class="p">,</span>
+<span class="p">{</span>
+  <span class="k">type</span> <span class="n">Target</span> <span class="o">=</span> <span class="n">NodeData</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+
+  <span class="k">fn</span> <span class="nf">deref</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="k">Self</span><span class="p">::</span><span class="n">Target</span> <span class="p">{</span>
+    <span class="o">&amp;</span><span class="k">self</span><span class="py">.arc_ref</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And now the rest of the methods.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="k">where</span>
+  <span class="n">T</span><span class="p">:</span> <span class="n">Display</span><span class="p">,</span>
+<span class="p">{</span>
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Node</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">new_node</span> <span class="o">=</span> <span class="n">NodeData</span> <span class="p">{</span>
+      <span class="n">value</span><span class="p">,</span>
+      <span class="n">parent</span><span class="p">:</span> <span class="nn">RwLock</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Weak</span><span class="p">::</span><span class="nf">new</span><span class="p">()),</span>
+      <span class="n">children</span><span class="p">:</span> <span class="nn">RwLock</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Vec</span><span class="p">::</span><span class="nf">new</span><span class="p">()),</span>
+    <span class="p">};</span>
+    <span class="k">let</span> <span class="n">arc_ref</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">new_node</span><span class="p">);</span>
+    <span class="n">Node</span> <span class="p">{</span> <span class="n">arc_ref</span> <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_copy_of_internal_arc</span><span class="p">(</span><span class="k">self</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">Self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">NodeDataRef</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nn">Arc</span><span class="p">::</span><span class="nf">clone</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="py">.arc_ref</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">create_and_add_child</span><span class="p">(</span>
+    <span class="k">self</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">Self</span><span class="p">,</span>
+    <span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+  <span class="p">)</span> <span class="k">-&gt;</span> <span class="n">NodeDataRef</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">new_child</span> <span class="o">=</span> <span class="nn">Node</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+    <span class="k">self</span><span class="nf">.add_child_and_update_its_parent</span><span class="p">(</span><span class="o">&amp;</span><span class="n">new_child</span><span class="p">);</span>
+    <span class="n">new_child</span><span class="nf">.get_copy_of_internal_arc</span><span class="p">()</span>
+  <span class="p">}</span>
+
+  <span class="cd">/// 🔏 Write locks used.</span>
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">add_child_and_update_its_parent</span><span class="p">(</span>
+    <span class="k">self</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">Self</span><span class="p">,</span>
+    <span class="n">child</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">Node</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="p">)</span> <span class="p">{</span>
+    <span class="p">{</span>
+      <span class="k">let</span> <span class="k">mut</span> <span class="n">my_children</span> <span class="o">=</span> <span class="k">self</span><span class="py">.arc_ref.children</span><span class="nf">.write</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+      <span class="n">my_children</span><span class="nf">.push</span><span class="p">(</span><span class="n">child</span><span class="nf">.get_copy_of_internal_arc</span><span class="p">());</span>
+    <span class="p">}</span> <span class="c1">// `my_children` guard dropped.</span>
+
+    <span class="p">{</span>
+      <span class="k">let</span> <span class="k">mut</span> <span class="n">childs_parent</span> <span class="o">=</span> <span class="n">child</span><span class="py">.arc_ref.parent</span><span class="nf">.write</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+      <span class="o">*</span><span class="n">childs_parent</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">downgrade</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="nf">.get_copy_of_internal_arc</span><span class="p">());</span>
+    <span class="p">}</span> <span class="c1">// `my_parent` guard dropped.</span>
+  <span class="p">}</span>
+
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">has_parent</span><span class="p">(</span><span class="k">self</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">Self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">bool</span> <span class="p">{</span>
+    <span class="k">self</span><span class="nf">.get_parent</span><span class="p">()</span><span class="nf">.is_some</span><span class="p">()</span>
+  <span class="p">}</span>
+
+  <span class="cd">/// 🔒 Read lock used.</span>
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_parent</span><span class="p">(</span><span class="k">self</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">Self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">NodeDataRef</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">my_parent_weak</span> <span class="o">=</span> <span class="k">self</span><span class="py">.arc_ref.parent</span><span class="nf">.read</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">my_parent_arc_ref</span><span class="p">)</span> <span class="o">=</span> <span class="n">my_parent_weak</span><span class="nf">.upgrade</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nf">Some</span><span class="p">(</span><span class="n">my_parent_arc_ref</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="nb">None</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>🧸 Here’s the complete code listing of this naive implementation for you to play with
+<a href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;gist=b194d56e5dcd538d88dc4e490c39862b">in the Rust playground</a>.</p>
+</blockquote>
+      <h2 id="sophisticated-approach-using-memory-arena">
+        
+        
+          Sophisticated approach using memory arena <a href="#sophisticated-approach-using-memory-arena">#</a>
+        
+        
+      </h2>
+    
+
+<p>In our naive example, we manage references that are strong (owned, children) and weak (not owned,
+parent). And we have to wrap the <code class="language-plaintext highlighter-rouge">NodeData</code> inside of a <code class="language-plaintext highlighter-rouge">Node</code> in order to be able to share it. This
+is quite cumbersome to use. We will use the idea of a memory arena to simplify this. Here’s the
+<a href="https://en.wikipedia.org/wiki/Region-based_memory_management">wikipedia definition of a memory arena</a>.</p>
+
+<p>We wil call the node struct <code class="language-plaintext highlighter-rouge">Node</code>, and the tree struct <code class="language-plaintext highlighter-rouge">Arena</code>. The fundamental idea is that when
+nodes are created we save them in a <code class="language-plaintext highlighter-rouge">HashMap</code>. Each entry in this map must have an <code class="language-plaintext highlighter-rouge">id</code> (which can
+be anything, in our case we will use <code class="language-plaintext highlighter-rouge">usize</code>). Now instead of using a vector of strong references to
+store children, we can just use a <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code>. Similarly, the parent will just be a <code class="language-plaintext highlighter-rouge">&lt;usize&gt;</code>. This
+makes it trivial to add a child to a node, and set the parent. Deletion is very easy as well, since
+we just remove the node and it’s children from the underlying <code class="language-plaintext highlighter-rouge">HashMap</code>. We can also pass references
+around (both strong and weak) to the underlying nodes w/out worrying about affecting the tree. It
+simplifies so many things just by having a level of indirection that is not a smart pointer /
+reference, but a simple <code class="language-plaintext highlighter-rouge">id</code>. The constrains is that each node now must have an <code class="language-plaintext highlighter-rouge">id</code>. Given that
+this is a <code class="language-plaintext highlighter-rouge">usize</code> that’s not an overhead, and makes working with nodes very easy, and memory and CPU
+efficient.</p>
+
+<p>Before we begin w/ the memory arena (that we will name <code class="language-plaintext highlighter-rouge">Arena</code> and <code class="language-plaintext highlighter-rouge">Node</code>), let’s take a look at
+traits and how we will be using them to get us polymorphic behavior in Rust. We know that each node
+must have an <code class="language-plaintext highlighter-rouge">id</code>, so the following section goes into quite a bit of detail on how can go about
+implementing this.</p>
+      <h3 id="traits">
+        
+        
+          Traits <a href="#traits">#</a>
+        
+        
+      </h3>
+    
+
+<p>Traits are like TypeScript, Java, or Kotlin interfaces. They also act like Kotlin extension
+functions. Traits come into play when we want to pass an argument to a function that takes something
+that implements a certain trait.</p>
+
+<p>They are meant for 2 things:</p>
+
+<ol>
+  <li>Extension of existing types - This is done by adding methods to existing types. The section below
+goes into detail about how this is leveraged in our example.</li>
+  <li>Adaptation of existing types - An example of this is a library provide a trait that describes
+some functionality that it needs for us to implement in order for us to use it. In this case, we
+would need to implement that trait on a struct that we create in order for that to be usable w/
+this library. A simple example of this is the <code class="language-plaintext highlighter-rouge">Display</code> trait or <code class="language-plaintext highlighter-rouge">Iterator</code> trait.</li>
+</ol>
+
+<p>Here’s an example of a trait before getting into the specifics of what is used in <code class="language-plaintext highlighter-rouge">Arena</code>. We’ve
+defined a trait named <code class="language-plaintext highlighter-rouge">HasId</code> which has an associated type <code class="language-plaintext highlighter-rouge">Id</code> and a method <code class="language-plaintext highlighter-rouge">id</code> that returns an
+instance of that associated type (in this case, it’s <code class="language-plaintext highlighter-rouge">i32</code>). The actual implementation in <code class="language-plaintext highlighter-rouge">Arena</code> is
+derived from this.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">trait</span> <span class="n">HasId</span> <span class="p">{</span>
+  <span class="k">type</span> <span class="n">Id</span><span class="p">;</span>
+  <span class="k">fn</span> <span class="nf">id</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="k">Self</span><span class="p">::</span><span class="n">Id</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">Node</span> <span class="p">{</span>
+  <span class="n">id</span><span class="p">:</span> <span class="nb">i32</span><span class="p">,</span>
+  <span class="n">payload</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+  <span class="n">children</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">i32</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">HasId</span> <span class="k">for</span> <span class="n">Node</span> <span class="p">{</span>
+  <span class="k">type</span> <span class="n">Id</span> <span class="o">=</span> <span class="nb">i32</span><span class="p">;</span>
+
+  <span class="k">fn</span> <span class="nf">id</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="k">Self</span><span class="p">::</span><span class="n">Id</span> <span class="p">{</span>
+    <span class="o">&amp;</span><span class="k">self</span><span class="py">.id</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">HasId</span> <span class="k">for</span> <span class="nb">i32</span> <span class="p">{</span>
+  <span class="k">type</span> <span class="n">Id</span> <span class="o">=</span> <span class="nb">i32</span><span class="p">;</span>
+
+  <span class="k">fn</span> <span class="nf">id</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="k">Self</span><span class="p">::</span><span class="n">Id</span> <span class="p">{</span>
+    <span class="k">self</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here are the various forms of using the <code class="language-plaintext highlighter-rouge">HasId</code> trait as an argument to a function. You can see that
+arguments of type <code class="language-plaintext highlighter-rouge">Node</code> and <code class="language-plaintext highlighter-rouge">i32</code> are passed interchangably to the functions 🪄. There is event a
+variant that takes a <code class="language-plaintext highlighter-rouge">Node</code> or <code class="language-plaintext highlighter-rouge">i32</code> wrapped in a <code class="language-plaintext highlighter-rouge">Box</code>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="n">my_node</span> <span class="o">=</span> <span class="n">Node</span> <span class="p">{</span>
+  <span class="n">id</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="n">payload</span><span class="p">:</span> <span class="s">"payload"</span><span class="nf">.to_string</span><span class="p">(),</span>
+  <span class="n">children</span><span class="p">:</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span>
+<span class="p">};</span>
+
+<span class="k">let</span> <span class="n">my_i32_id</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="nf">fun_0</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_node</span><span class="p">);</span>
+
+<span class="nf">fun_1</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_node</span><span class="p">);</span>
+<span class="nf">fun_1</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_i32_id</span><span class="p">);</span>
+
+<span class="nf">fun_2</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_node</span><span class="p">);</span>
+<span class="nf">fun_2</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_i32_id</span><span class="p">);</span>
+
+<span class="nf">fun_3</span><span class="p">(</span><span class="o">&amp;</span><span class="n">my_i32_id</span><span class="p">);</span>
+
+<span class="nf">fun_4</span><span class="p">(</span><span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">my_node</span><span class="p">));</span> <span class="c1">// `my_node` is moved into `fun_4`.</span>
+<span class="nf">fun_4</span><span class="p">(</span><span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">my_i32_id</span><span class="p">));</span> <span class="c1">// `my_i32_id` is moved into `fun_4`.</span>
+</code></pre></div></div>
+
+<p>Finally here are the function definitions for the 4 forms that you see used above. You can see there
+are various ways to tell Rust that you would like your function to accept an argument that
+implements this trait. Depending on what style looks best to you, you can choose from these forms.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">r3bl_rs_utils</span><span class="p">::</span><span class="nn">utils</span><span class="p">::</span><span class="n">style_primary</span><span class="p">;</span>
+
+<span class="cd">/// This accepts a borrowed `Node` object.</span>
+<span class="k">fn</span> <span class="nf">fun_0</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">Node</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nd">println!</span><span class="p">(</span><span class="s">"{}: {}"</span><span class="p">,</span> <span class="nf">style_primary</span><span class="p">(</span><span class="s">"fun_0:"</span><span class="p">),</span> <span class="n">node</span><span class="nf">.id</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="cd">/// This accepts a borrowed object that implements `HasId`.</span>
+<span class="k">fn</span> <span class="nf">fun_1</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">dyn</span> <span class="n">HasId</span><span class="o">&lt;</span><span class="n">Id</span> <span class="o">=</span> <span class="nb">i32</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nd">println!</span><span class="p">(</span><span class="s">"{}: {}"</span><span class="p">,</span> <span class="nf">style_primary</span><span class="p">(</span><span class="s">"fun_1:"</span><span class="p">),</span> <span class="n">node</span><span class="nf">.id</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="cd">/// This takes an object that implements `HasId`.</span>
+<span class="k">fn</span> <span class="nf">fun_2_own</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="k">impl</span> <span class="n">HasId</span><span class="o">&lt;</span><span class="n">Id</span> <span class="o">=</span> <span class="nb">i32</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nd">println!</span><span class="p">(</span><span class="s">"{}: {}"</span><span class="p">,</span> <span class="nf">style_primary</span><span class="p">(</span><span class="s">"fun_2:"</span><span class="p">),</span> <span class="n">node</span><span class="nf">.id</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">fun_2</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">impl</span> <span class="n">HasId</span><span class="o">&lt;</span><span class="n">Id</span> <span class="o">=</span> <span class="nb">i32</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nd">println!</span><span class="p">(</span><span class="s">"{}: {}"</span><span class="p">,</span> <span class="nf">style_primary</span><span class="p">(</span><span class="s">"fun_2:"</span><span class="p">),</span> <span class="n">node</span><span class="nf">.id</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="cd">/// This takes an `i32` which also implements `HasId`.</span>
+<span class="k">fn</span> <span class="nf">fun_3_own</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="nb">i32</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nd">println!</span><span class="p">(</span><span class="s">"{}: {}"</span><span class="p">,</span> <span class="nf">style_primary</span><span class="p">(</span><span class="s">"fun_3:"</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">node</span><span class="nf">.id</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">fun_3</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">i32</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nd">println!</span><span class="p">(</span><span class="s">"{}: {}"</span><span class="p">,</span> <span class="nf">style_primary</span><span class="p">(</span><span class="s">"fun_3:"</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">node</span><span class="nf">.id</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="cd">/// This takes a `Node` object that's in a `Box` reference.</span>
+<span class="k">fn</span> <span class="nf">fun_4</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">HasId</span><span class="o">&lt;</span><span class="n">Id</span> <span class="o">=</span> <span class="nb">i32</span><span class="o">&gt;&gt;</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nd">println!</span><span class="p">(</span><span class="s">"{}: {}"</span><span class="p">,</span> <span class="nf">style_primary</span><span class="p">(</span><span class="s">"fun_4:"</span><span class="p">),</span> <span class="n">node</span><span class="nf">.id</span><span class="p">());</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>🧸 You can
+<a href="https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2021&amp;gist=8cdf3a53e35d7c2372a2b154bd93d422">play with this code</a>
+in Rust playground.</p>
+</blockquote>
+      <h3 id="arena-implementation-details">
+        
+        
+          Arena implementation details <a href="#arena-implementation-details">#</a>
+        
+        
+      </h3>
+    
+
+<blockquote>
+  <p>📦 You can get <code class="language-plaintext highlighter-rouge">Arena</code>, <code class="language-plaintext highlighter-rouge">Node</code> and <code class="language-plaintext highlighter-rouge">style_primary</code> from
+<a href="https://crates.io/crates/r3bl_rs_utils"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate.</p>
+</blockquote>
+
+<blockquote>
+  <p>🌟 Please star the <a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo</a> on github if
+you like it 🙏.</p>
+</blockquote>
+
+<p><code class="language-plaintext highlighter-rouge">Arena</code> provides a trait called <code class="language-plaintext highlighter-rouge">HasId</code> that represents the <code class="language-plaintext highlighter-rouge">id</code> of a node in the tree. Both a
+<code class="language-plaintext highlighter-rouge">usize</code> and <code class="language-plaintext highlighter-rouge">Node</code> can be an instance of this trait.</p>
+
+<ul>
+  <li>While this <code class="language-plaintext highlighter-rouge">id</code> could also just simply be represented by <code class="language-plaintext highlighter-rouge">usize</code>, using this trait to describe the
+arguments that the <code class="language-plaintext highlighter-rouge">Arena</code> struct takes gives us the benefit of using any one of these things as
+an argument: <code class="language-plaintext highlighter-rouge">usize</code>, <code class="language-plaintext highlighter-rouge">Node</code>.</li>
+  <li>There’s another benefit of using this trait; the <code class="language-plaintext highlighter-rouge">Arena::add_new_node()</code> method takes a 2nd
+argument that holds an <code class="language-plaintext highlighter-rouge">Option</code> that wraps anything that implements the <code class="language-plaintext highlighter-rouge">HasId</code> trait. This is
+necessary because Rust doesn’t support optional arguments and we need to be able to add a root
+node which requires the 2nd argument to be <code class="language-plaintext highlighter-rouge">None</code>. However, this makes the API clumsy since we
+have to manually wrap the <code class="language-plaintext highlighter-rouge">&amp;dyn HasId</code> in an<code class="language-plaintext highlighter-rouge">Option</code>. By implementing the <code class="language-plaintext highlighter-rouge">HasId</code> trait on <code class="language-plaintext highlighter-rouge">usize</code>
+itself, it becomes possible to call <code class="language-plaintext highlighter-rouge">into_some()</code> method on it and get an <code class="language-plaintext highlighter-rouge">Option</code> that wraps the
+id itself.</li>
+  <li>Since <code class="language-plaintext highlighter-rouge">Node</code> contains a <code class="language-plaintext highlighter-rouge">usize</code> field, that implements the <code class="language-plaintext highlighter-rouge">HasId</code> trait, we can delegate the
+implementation of the <code class="language-plaintext highlighter-rouge">impl HasId for Node</code> to contained <code class="language-plaintext highlighter-rouge">usize</code> field itself.</li>
+  <li>Also, traits can have associated types, and <code class="language-plaintext highlighter-rouge">HasId</code> has an associated type called <code class="language-plaintext highlighter-rouge">IdType</code> which
+is just <code class="language-plaintext highlighter-rouge">usize</code>. However, it can be set to anything and shows the flexibility of traits.</li>
+</ul>
+
+<blockquote>
+  <p>Here’s a diagram summarizing the journey so far. <br /> <br /> &gt;
+<img class="post-hero-image" src="/assets/tree-approaches.drawio.svg" /></p>
+</blockquote>
+      <h3 id="basic-usage-of-the-arena-tree">
+        
+        
+          Basic usage of the arena (tree) <a href="#basic-usage-of-the-arena-tree">#</a>
+        
+        
+      </h3>
+    
+
+<p>The first step to using this tree is adding the dependency for <code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> to your <code class="language-plaintext highlighter-rouge">Cargo.toml</code>.</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[dependencies]</span>
+<span class="py">r3bl_rs_utils</span> <span class="p">=</span> <span class="s">"0.4.0"</span>
+</code></pre></div></div>
+
+<p>Now you can start using the <code class="language-plaintext highlighter-rouge">Arena</code> struct. This is the main tree struct that you will be
+interacting with. Another struct called <code class="language-plaintext highlighter-rouge">Node</code> is used to represent a node in the tree.</p>
+
+<p>Here’s an example. This is a test that creates a tree with a few nodes, looks them up by <code class="language-plaintext highlighter-rouge">id</code>, and
+then performs a tree walk (which returns a list of <code class="language-plaintext highlighter-rouge">id</code>’s).</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">r3bl_rs_utils</span><span class="p">::{</span>
+  <span class="nn">tree_memory_arena</span><span class="p">::{</span><span class="n">Arena</span><span class="p">,</span> <span class="n">HasId</span><span class="p">,</span> <span class="n">MTArena</span><span class="p">,</span> <span class="n">ResultUidList</span><span class="p">},</span>
+  <span class="nn">utils</span><span class="p">::{</span><span class="n">style_primary</span><span class="p">,</span> <span class="n">style_prompt</span><span class="p">},</span>
+<span class="p">};</span>
+
+<span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">test_can_add_nodes_to_tree</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Can create an arena.</span>
+  <span class="k">let</span> <span class="k">mut</span> <span class="n">arena</span> <span class="o">=</span> <span class="nn">Arena</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+  <span class="k">let</span> <span class="n">node_1_value</span> <span class="o">=</span> <span class="mi">42</span> <span class="k">as</span> <span class="nb">usize</span><span class="p">;</span>
+  <span class="k">let</span> <span class="n">node_2_value</span> <span class="o">=</span> <span class="mi">100</span> <span class="k">as</span> <span class="nb">usize</span><span class="p">;</span>
+
+  <span class="c1">// Can insert a node - node_1.</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">node_1_id</span> <span class="o">=</span> <span class="n">arena</span><span class="nf">.add_new_node</span><span class="p">(</span><span class="n">node_1_value</span><span class="p">,</span> <span class="nb">None</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">node_1_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Can find node_1 by id.</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">node_1_id</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">as</span> <span class="nb">usize</span><span class="p">;</span>
+    <span class="nd">assert!</span><span class="p">(</span><span class="n">arena</span><span class="nf">.get_node_arc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node_1_id</span><span class="p">)</span><span class="nf">.is_some</span><span class="p">());</span>
+
+    <span class="k">let</span> <span class="n">node_1_ref</span> <span class="o">=</span> <span class="nd">dbg!</span><span class="p">(</span><span class="n">arena</span><span class="nf">.get_node_arc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node_1_id</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">());</span>
+    <span class="k">let</span> <span class="n">node_1_ref_weak</span> <span class="o">=</span> <span class="n">arena</span><span class="nf">.get_node_arc_weak</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node_1_id</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">node_1_ref</span><span class="nf">.read</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="py">.payload</span><span class="p">,</span> <span class="n">node_1_value</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span>
+      <span class="n">node_1_ref_weak</span><span class="nf">.upgrade</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.read</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="py">.payload</span><span class="p">,</span>
+      <span class="mi">42</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Can't find node by id that doesn't exist.</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">node_id_dne</span> <span class="o">=</span> <span class="mi">200</span> <span class="k">as</span> <span class="nb">usize</span><span class="p">;</span>
+    <span class="nd">assert!</span><span class="p">(</span><span class="n">arena</span><span class="nf">.get_node_arc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node_id_dne</span><span class="p">)</span><span class="nf">.is_none</span><span class="p">());</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Can add child to node_1.</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">node_1_id</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">as</span> <span class="nb">usize</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">node_2_id</span> <span class="o">=</span> <span class="n">arena</span><span class="nf">.add_new_node</span><span class="p">(</span><span class="n">node_2_value</span><span class="p">,</span> <span class="n">node_1_id</span><span class="nf">.into_some</span><span class="p">());</span>
+    <span class="k">let</span> <span class="n">node_2_ref</span> <span class="o">=</span> <span class="nd">dbg!</span><span class="p">(</span><span class="n">arena</span><span class="nf">.get_node_arc</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node_2_id</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">());</span>
+    <span class="k">let</span> <span class="n">node_2_ref_weak</span> <span class="o">=</span> <span class="n">arena</span><span class="nf">.get_node_arc_weak</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node_2_id</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">node_2_ref</span><span class="nf">.read</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="py">.payload</span><span class="p">,</span> <span class="n">node_2_value</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span>
+      <span class="n">node_2_ref_weak</span><span class="nf">.upgrade</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.read</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="py">.payload</span><span class="p">,</span>
+      <span class="n">node_2_value</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Can dfs tree walk.</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">node_1_id</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">as</span> <span class="nb">usize</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">node_2_id</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">as</span> <span class="nb">usize</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="n">node_list</span> <span class="o">=</span> <span class="nd">dbg!</span><span class="p">(</span><span class="n">arena</span><span class="nf">.tree_walk_dfs</span><span class="p">(</span><span class="o">&amp;</span><span class="n">node_1_id</span><span class="p">)</span><span class="nf">.unwrap</span><span class="p">());</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">node_list</span><span class="nf">.len</span><span class="p">(),</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">node_list</span><span class="p">,</span> <span class="nd">vec!</span><span class="p">[</span><span class="n">node_1_id</span><span class="p">,</span> <span class="n">node_2_id</span><span class="p">]);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>📜 There are more complex ways of using this <code class="language-plaintext highlighter-rouge">Arena</code>. Please look at these extensive integration
+tests that put the <code class="language-plaintext highlighter-rouge">Arena</code> API thru its paces
+<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/tests/tree_memory_arena_test.rs">here</a>.</p>
+</blockquote>
+      <h3 id="multithreading">
+        
+        
+          Multithreading <a href="#multithreading">#</a>
+        
+        
+      </h3>
+    
+
+<p><code class="language-plaintext highlighter-rouge">Arena</code> is thread-safe by design. However, there’s another struct called <code class="language-plaintext highlighter-rouge">MTArena</code> that allow for
+parallel tree walking, and even sharing <code class="language-plaintext highlighter-rouge">Arena</code> instances between threads &amp; shared ownership of the
+underlying tree itself across various parts of your code.</p>
+
+<p>Instead of creating a new <code class="language-plaintext highlighter-rouge">Arena</code> instance, we create a new <code class="language-plaintext highlighter-rouge">MTArena</code> instance. And we have an extra
+method that allows for the creation of a new thread to perform tree walking. We have to supply a
+closure that is passed to this function <code class="language-plaintext highlighter-rouge">tree_walk_parallel(&lt;id&gt;, &lt;lambda&gt;);</code>.</p>
+
+<p>Here’s an example from the integration tests.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">test_mt_arena_insert_and_walk_in_parallel</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">type</span> <span class="n">ThreadResult</span> <span class="o">=</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span><span class="p">;</span>
+  <span class="k">type</span> <span class="n">Handles</span> <span class="o">=</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">JoinHandle</span><span class="o">&lt;</span><span class="n">ThreadResult</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+
+  <span class="k">let</span> <span class="k">mut</span> <span class="n">handles</span><span class="p">:</span> <span class="n">Handles</span> <span class="o">=</span> <span class="nn">Vec</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+  <span class="k">let</span> <span class="n">arena</span> <span class="o">=</span> <span class="nn">MTArena</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+
+  <span class="c1">// Thread 1 - add root. Spawn and wait (since the 2 threads below need the root).</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">arena_arc</span> <span class="o">=</span> <span class="n">arena</span><span class="nf">.get_arena_arc</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">thread</span> <span class="o">=</span> <span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+      <span class="k">let</span> <span class="k">mut</span> <span class="n">arena_write</span> <span class="o">=</span> <span class="n">arena_arc</span><span class="nf">.write</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+      <span class="k">let</span> <span class="n">root</span> <span class="o">=</span> <span class="n">arena_write</span><span class="nf">.add_new_node</span><span class="p">(</span><span class="s">"foo"</span><span class="nf">.to_string</span><span class="p">(),</span> <span class="nb">None</span><span class="p">);</span>
+      <span class="nd">vec!</span><span class="p">[</span><span class="n">root</span><span class="p">]</span>
+    <span class="p">});</span>
+    <span class="n">thread</span><span class="nf">.join</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Thread 2 - add child. Just spawn, don't wait to finish.</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">arena_arc</span> <span class="o">=</span> <span class="n">arena</span><span class="nf">.get_arena_arc</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">thread</span> <span class="o">=</span> <span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+      <span class="k">let</span> <span class="k">mut</span> <span class="n">arena_write</span> <span class="o">=</span> <span class="n">arena_arc</span><span class="nf">.write</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+      <span class="k">let</span> <span class="n">parent</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;&gt;</span> <span class="o">=</span>
+        <span class="n">arena_write</span><span class="nf">.filter_all_nodes_by</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">move</span> <span class="p">|</span><span class="n">_id</span><span class="p">,</span> <span class="n">payload</span><span class="p">|</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="n">payload</span> <span class="o">==</span> <span class="s">"foo"</span> <span class="p">{</span>
+            <span class="k">true</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">false</span>
+          <span class="p">}</span>
+        <span class="p">});</span>
+      <span class="k">let</span> <span class="n">parent_id</span> <span class="o">=</span> <span class="n">parent</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.first</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.clone</span><span class="p">();</span>
+      <span class="k">let</span> <span class="n">child</span> <span class="o">=</span> <span class="n">arena_write</span><span class="nf">.add_new_node</span><span class="p">(</span><span class="s">"bar"</span><span class="nf">.to_string</span><span class="p">(),</span> <span class="n">parent_id</span><span class="nf">.into_some</span><span class="p">());</span>
+      <span class="nd">vec!</span><span class="p">[</span><span class="n">parent_id</span><span class="p">,</span> <span class="n">child</span><span class="p">]</span>
+    <span class="p">});</span>
+
+    <span class="n">handles</span><span class="nf">.push</span><span class="p">(</span><span class="n">thread</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Thread 3 - add another child. Just spawn, don't wait to finish.</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">arena_arc</span> <span class="o">=</span> <span class="n">arena</span><span class="nf">.get_arena_arc</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">thread</span> <span class="o">=</span> <span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+      <span class="k">let</span> <span class="k">mut</span> <span class="n">arena_write</span> <span class="o">=</span> <span class="n">arena_arc</span><span class="nf">.write</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+      <span class="k">let</span> <span class="n">parent</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;&gt;</span> <span class="o">=</span>
+        <span class="n">arena_write</span><span class="nf">.filter_all_nodes_by</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">move</span> <span class="p">|</span><span class="n">_id</span><span class="p">,</span> <span class="n">payload</span><span class="p">|</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="n">payload</span> <span class="o">==</span> <span class="s">"foo"</span> <span class="p">{</span>
+            <span class="k">true</span>
+          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">false</span>
+          <span class="p">}</span>
+        <span class="p">});</span>
+      <span class="k">let</span> <span class="n">parent_id</span> <span class="o">=</span> <span class="n">parent</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.first</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.clone</span><span class="p">();</span>
+      <span class="k">let</span> <span class="n">child</span> <span class="o">=</span> <span class="n">arena_write</span><span class="nf">.add_new_node</span><span class="p">(</span><span class="s">"baz"</span><span class="nf">.to_string</span><span class="p">(),</span> <span class="n">parent_id</span><span class="nf">.into_some</span><span class="p">());</span>
+      <span class="nd">vec!</span><span class="p">[</span><span class="n">parent_id</span><span class="p">,</span> <span class="n">child</span><span class="p">]</span>
+    <span class="p">});</span>
+
+    <span class="n">handles</span><span class="nf">.push</span><span class="p">(</span><span class="n">thread</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Wait for all threads to complete.</span>
+  <span class="n">handles</span><span class="nf">.into_iter</span><span class="p">()</span><span class="nf">.for_each</span><span class="p">(</span><span class="k">move</span> <span class="p">|</span><span class="n">handle</span><span class="p">|</span> <span class="p">{</span>
+    <span class="n">handle</span><span class="nf">.join</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+  <span class="p">});</span>
+  <span class="nd">println!</span><span class="p">(</span><span class="s">"{:#?}"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">arena</span><span class="p">);</span>
+
+  <span class="c1">// Perform tree walking in parallel. Note the lamda does capture many enclosing variable context.</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">arena_arc</span> <span class="o">=</span> <span class="n">arena</span><span class="nf">.get_arena_arc</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">fn_arc</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="k">move</span> <span class="p">|</span><span class="n">uid</span><span class="p">,</span> <span class="n">payload</span><span class="p">|</span> <span class="p">{</span>
+      <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"{} {} {} Arena weak_count:{} strong_count:{}"</span><span class="p">,</span>
+        <span class="nf">style_primary</span><span class="p">(</span><span class="s">"walker_fn - closure"</span><span class="p">),</span>
+        <span class="n">uid</span><span class="p">,</span>
+        <span class="n">payload</span><span class="p">,</span>
+        <span class="nn">Arc</span><span class="p">::</span><span class="nf">weak_count</span><span class="p">(</span><span class="o">&amp;</span><span class="n">arena_arc</span><span class="p">),</span>
+        <span class="nn">Arc</span><span class="p">::</span><span class="nf">weak_count</span><span class="p">(</span><span class="o">&amp;</span><span class="n">arena_arc</span><span class="p">)</span>
+      <span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="c1">// Walk tree w/ a new thread using arc to lambda.</span>
+    <span class="p">{</span>
+      <span class="k">let</span> <span class="n">thread_handle</span><span class="p">:</span> <span class="n">JoinHandle</span><span class="o">&lt;</span><span class="n">ResultUidList</span><span class="o">&gt;</span> <span class="o">=</span>
+        <span class="n">arena</span><span class="nf">.tree_walk_parallel</span><span class="p">(</span><span class="o">&amp;</span><span class="mi">0</span><span class="p">,</span> <span class="n">fn_arc</span><span class="nf">.clone</span><span class="p">());</span>
+
+      <span class="k">let</span> <span class="n">result_node_list</span> <span class="o">=</span> <span class="n">thread_handle</span><span class="nf">.join</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+      <span class="nd">println!</span><span class="p">(</span><span class="s">"{:#?}"</span><span class="p">,</span> <span class="n">result_node_list</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Walk tree w/ a new thread using arc to lambda.</span>
+    <span class="p">{</span>
+      <span class="k">let</span> <span class="n">thread_handle</span><span class="p">:</span> <span class="n">JoinHandle</span><span class="o">&lt;</span><span class="n">ResultUidList</span><span class="o">&gt;</span> <span class="o">=</span>
+        <span class="n">arena</span><span class="nf">.tree_walk_parallel</span><span class="p">(</span><span class="o">&amp;</span><span class="mi">1</span><span class="p">,</span> <span class="n">fn_arc</span><span class="nf">.clone</span><span class="p">());</span>
+
+      <span class="k">let</span> <span class="n">result_node_list</span> <span class="o">=</span> <span class="n">thread_handle</span><span class="nf">.join</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+      <span class="nd">println!</span><span class="p">(</span><span class="s">"{:#?}"</span><span class="p">,</span> <span class="n">result_node_list</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="wrapping-up">
+        
+        
+          Wrapping up <a href="#wrapping-up">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are lots of other useful library functions that you can check out in <code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> crate.
+There are functions that make it easy to unwrap things in Rust that are wrapped in an <code class="language-plaintext highlighter-rouge">&lt;Option&gt;</code>, or
+<code class="language-plaintext highlighter-rouge">&lt;Arc&lt;RwLock&gt;&gt;</code>, etc. There are Kotlin inspired scope functions if you like that type of thing.</p>
+
+<blockquote>
+  <p>📦 The tree (<code class="language-plaintext highlighter-rouge">Arena</code> &amp; <code class="language-plaintext highlighter-rouge">Node</code>) is available for you to use in your projects via the
+<a href="https://crates.io/crates/r3bl_rs_utils"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate.</p>
+</blockquote>
+
+<blockquote>
+  <p>📜 You can take a look the source code of this thread safe non-binary tree data structure named
+<code class="language-plaintext highlighter-rouge">Arena</code> in its github <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/utils">repo</a>.</p>
+</blockquote>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/CS">
+                #cs</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/12/11/algo-ts-2/">
+                        Algorithms and data structures in TypeScript: non binary tree traversal
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/11/21/algo-ts-1/">
+                        Algorithms and data structures in TypeScript: string tokenizer, rate limiter
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/04/ockam-routing-building-end-to-end-channels/">
+                        Create End-to-End Channels in Rust with Ockam Routing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2022/02/24/rust-non-binary-tree/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

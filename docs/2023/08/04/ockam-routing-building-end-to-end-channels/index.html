@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Create End-to-End Channels in Rust with Ockam Routing | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Create End-to-End Channels in Rust with Ockam Routing" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A guide on how to use Ockam Routing, using the Rust library, to secure your apps by building end-to-end channels. It is to get us thinking about security when building apps and consider the “who and where” for the data that is sent and received by our apps." />
+<meta property="og:description" content="A guide on how to use Ockam Routing, using the Rust library, to secure your apps by building end-to-end channels. It is to get us thinking about security when building apps and consider the “who and where” for the data that is sent and received by our apps." />
+<link rel="canonical" href="https://www.ockam.io/blog/routing" />
+<meta property="og:url" content="https://www.ockam.io/blog/routing" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-08-04T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Create End-to-End Channels in Rust with Ockam Routing" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2023-08-04T10:00:00-05:00","datePublished":"2023-08-04T10:00:00-05:00","description":"A guide on how to use Ockam Routing, using the Rust library, to secure your apps by building end-to-end channels. It is to get us thinking about security when building apps and consider the “who and where” for the data that is sent and received by our apps.","headline":"Create End-to-End Channels in Rust with Ockam Routing","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.ockam.io/blog/routing"},"url":"https://www.ockam.io/blog/routing"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Create End-to-End Channels in Rust with Ockam Routing&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Create End-to-End Channels in Rust with Ockam Routing</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Create End-to-End Channels in Rust with Ockam Routing</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Aug 4, 2023
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/ockam.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#mitigating-risk">Mitigating risk</a></li>
+  <li><a href="#our-journey">Our journey</a></li>
+  <li><a href="#lets-dive-in">Let’s dive in</a></li>
+  <li><a href="#simple-example">Simple example</a></li>
+  <li><a href="#complex-example">Complex example</a>
+    <ul>
+      <li><a href="#initiator-node">Initiator node</a></li>
+      <li><a href="#middle-node">Middle node</a></li>
+      <li><a href="#responder-node">Responder node</a></li>
+    </ul>
+  </li>
+  <li><a href="#next-steps">Next steps</a></li>
+</ul>
+
+<!-- /TOC -->
+
+<p><a href="https://github.com/build-trust/ockam">Ockam</a> is a suite of programming libraries, command line
+tools, and managed cloud services to orchestrate end-to-end encryption, mutual authentication, key
+management, credential management, and authorization policy enforcement — all at massive
+scale. Ockam’s end-to-end <a href="https://docs.ockam.io/reference/command/secure-channels">secure channels</a>
+guarantee authenticity, integrity, and confidentiality of all data-in-motion at the application
+layer.</p>
+
+<blockquote>
+  <p>🚀 Please star and fork / clone the <a href="https://github.com/build-trust/ockam">Ockam repo</a> 🌟.</p>
+</blockquote>
+
+<p>One of the key features that makes this possible is
+<a href="https://docs.ockam.io/reference/command/routing#routing">Ockam Routing</a>. Routing allows us to
+create secure channels over multi-hop, multi-protocol routes which can span various network
+topologies (servers behind NAT firewalls with no external ports open, etc) and transport protocols
+(TCP, UDP, WebSockets, BLE, etc).</p>
+
+<p>In this blog post we will explore the Ockam Rust Library and see how routing works in Ockam. We will
+work with Rust code and look at some code examples that demonstrate the simple case, and more
+advanced use cases.</p>
+      <h2 id="mitigating-risk">
+        
+        
+          Mitigating risk <a href="#mitigating-risk">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-mitigating-risk" name="mitigating-risk"></a></p>
+
+<p>Before we get started, let’s quickly discuss the pitfalls of using existing approaches to securing
+communications within applications. Security is not something that most of us think about when we
+are building systems and are focused on getting things working and shipping.</p>
+
+<p>Traditional secure communication implementations are typically tightly coupled with transport
+protocols in a way that all their security is limited to the length and duration of one underlying
+transport connection.</p>
+
+<ol>
+  <li>For example, most TLS implementations are tightly coupled with the underlying TCP connection. If
+your application’s data and requests travel over two TCP connection hops (TCP → TCP), then all
+TLS guarantees break at the bridge between the two networks. This bridge, gateway, or load
+balancer then becomes a point of weakness for application data.</li>
+  <li>Traditional secure communication protocols are also unable to protect your application’s data if
+it travels over multiple different transport protocols. They can’t guarantee data authenticity or
+data integrity if your application’s communication path is UDP → TCP or BLE → TCP.</li>
+</ol>
+
+<p>In other words using traditional secure communication implementations you may be opening the doors
+to losing trust in the data that your apps are working on. Here are some aspects of your apps that
+may be at risk:</p>
+
+<ol>
+  <li>Lack of trust in the data your app receives.
+    <ul>
+      <li>Who sent it to my app?</li>
+      <li>Is it actually the data they sent my app?</li>
+      <li>Missing authentication, data integrity.</li>
+    </ul>
+  </li>
+  <li>Lack of trust in the data your app sends.
+    <ul>
+      <li>Who am I sending the data to?</li>
+      <li>Would someone else, other than them, be able to see it?</li>
+    </ul>
+  </li>
+</ol>
+      <h2 id="our-journey">
+        
+        
+          Our journey <a href="#our-journey">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-our-journey" name="our-journey"></a></p>
+
+<p>In this blog post we will create two examples of Ockam nodes communicating with each other using
+Ockam Routing and Ockam Transports. We will use the Rust library to create these Ockam nodes and
+setup routing. Ockam Routing and transports enable other Ockam protocols to provide end-to-end
+guarantees like trust, security, privacy, reliable delivery, and ordering at the application layer.</p>
+
+<ul>
+  <li><em>Ockam Routing</em>: is a simple and lightweight message-based protocol that makes it possible to
+bidirectionally exchange messages over a large variety of communication topologies: TCP -&gt; TCP or
+TCP -&gt; TCP -&gt; TCP or BLE -&gt; UDP -&gt; TCP or BLE -&gt; TCP -&gt; TCP or TCP -&gt; Kafka -&gt; TCP or any other
+topology you can imagine.</li>
+  <li><em>Ockam Transports</em>: adapt Ockam Routing to various transport protocols.</li>
+</ul>
+
+<p>An Ockam node is any running application that can communicate with other applications using various
+Ockam protocols like
+<a href="https://docs.ockam.io/reference/command/advanced-routing">Routing, Relays, and Portals</a>, Secure
+Channels, etc.</p>
+
+<p>An Ockam node can be defined as any independent process which provides an API supporting the Ockam
+Routing protocol. We can create Ockam nodes using the
+<a href="https://docs.ockam.io/reference/command">Ockam command line interface (CLI)</a> (<code class="language-plaintext highlighter-rouge">ockam</code> command) or
+using various Ockam programming libraries like our Rust and Elixir libraries. We will be using the
+Rust library in this blog post.</p>
+      <h2 id="lets-dive-in">
+        
+        
+          Let’s dive in <a href="#lets-dive-in">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-let's-dive-in" name="let's-dive-in"></a></p>
+
+<blockquote>
+  <p>💡 To get started please follow
+<a href="https://docs.ockam.io/reference/libraries/rust#introduction">this guide</a> to get the Rust
+toolchain setup on your machine along with an empty project.</p>
+
+  <ol>
+    <li>The empty project is named <code class="language-plaintext highlighter-rouge">hello_ockam</code>.</li>
+    <li>This will be the starting point for all our examples in this blog post.</li>
+  </ol>
+</blockquote>
+      <h2 id="simple-example">
+        
+        
+          Simple example <a href="#simple-example">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-simple-example" name="simple-example"></a></p>
+
+<p>For our first example, we will create a simple Ockam node that will send a message over some hops
+(in the same node) to a worker (in the same node) that just echoes the message back. There are no
+TCP transports involved and all the messages are being passed back and forth inside the same node.
+This will give us a feel for building workers and routing at a basic level.</p>
+
+<p>When a worker is started on a node, it is given one or more addresses. The node maintains a mailbox
+for each address and whenever a message arrives for a specific address it delivers that message to
+the corresponding registered worker.</p>
+
+<blockquote>
+  <p>💡 For more information on creating nodes and workers using the Rust library, please refer to this
+<a href="https://docs.ockam.io/reference/libraries/rust/nodes">guide</a>.</p>
+</blockquote>
+
+<p>We will need to create a Rust source file with a <code class="language-plaintext highlighter-rouge">main()</code> program, and two other Rust source files
+with two workers: <code class="language-plaintext highlighter-rouge">Hopper</code> and <code class="language-plaintext highlighter-rouge">Echoer</code>. We can then send a string message and see if we can get it
+echoed back.</p>
+
+<p>Before we begin let’s consider routing. When we send a message inside of a node it carries with it 2
+metadata fields, <code class="language-plaintext highlighter-rouge">onward_route</code> and <code class="language-plaintext highlighter-rouge">return_route</code>, where a <code class="language-plaintext highlighter-rouge">route</code> is simply a list of <code class="language-plaintext highlighter-rouge">addresses</code>.
+Each worker gets an <code class="language-plaintext highlighter-rouge">address</code> in a node.</p>
+
+<p>So, if we wanted to send a message from the <code class="language-plaintext highlighter-rouge">app</code> address to the <code class="language-plaintext highlighter-rouge">echoer</code> address, with 3 hops in
+the middle, we can build a route like the following.</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌───────────────────────┐
+│  Node 1               │
+├───────────────────────┤
+│  ┌────────────────┐   │
+│  │ Address:       │   │
+│  │ 'app'          │   │
+│  └─┬────────────▲─┘   │
+│  ┌─▼────────────┴─┐   │
+│  │ Address:       │   │
+│  │ 'hopper1..3'   │x3 │
+│  └─┬────────────▲─┘   │
+│  ┌─▼────────────┴─┐   │
+│  │ Address:       │   │
+│  │ 'echoer'       │   │
+│  └────────────────┘   │
+└───────────────────────┘
+</code></pre></div></div>
+
+<p>Here’s the Rust code to build this route.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Send a message to the echoer worker via the "hopper1", "hopper2", and "hopper3" workers.</span>
+<span class="k">let</span> <span class="n">route</span> <span class="o">=</span> <span class="nd">route!</span><span class="p">[</span><span class="s">"hopper1"</span><span class="p">,</span> <span class="s">"hopper2"</span><span class="p">,</span> <span class="s">"hopper3"</span><span class="p">,</span> <span class="s">"echoer"</span><span class="p">];</span>
+</code></pre></div></div>
+
+<p>Let’s add some source code to make this happen next. The first thing we will do is add one more
+dependency to this empty <code class="language-plaintext highlighter-rouge">hello_ockam</code> project. The
+<a href="https://docs.rs/colored/latest/colored/"><code class="language-plaintext highlighter-rouge">colored</code> crate</a> will give us colorized console output
+which will make the output from our examples so much easier to read and understand.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo add colored
+</code></pre></div></div>
+
+<p>Then we add the <code class="language-plaintext highlighter-rouge">echoer</code> worker (in our <code class="language-plaintext highlighter-rouge">hello_ockam</code> project) by creating a new <code class="language-plaintext highlighter-rouge">/src/echoer.rs</code>
+file and copy / pasting the following code in it.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">colored</span><span class="p">::</span><span class="n">Colorize</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">ockam</span><span class="p">::{</span><span class="n">Context</span><span class="p">,</span> <span class="nb">Result</span><span class="p">,</span> <span class="n">Routed</span><span class="p">,</span> <span class="n">Worker</span><span class="p">};</span>
+
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Echoer</span><span class="p">;</span>
+
+<span class="cd">/// When a worker is started on a node, it is given one or more addresses. The node</span>
+<span class="cd">/// maintains a mailbox for each address and whenever a message arrives for a specific</span>
+<span class="cd">/// address it delivers that message to the corresponding registered worker.</span>
+<span class="cd">///</span>
+<span class="cd">/// Workers can handle messages from other workers running on the same or a different</span>
+<span class="cd">/// node. In response to a message, an worker can: make local decisions, change its</span>
+<span class="cd">/// internal state, create more workers, or send more messages to other workers running on</span>
+<span class="cd">/// the same or a different node.</span>
+<span class="nd">#[ockam::worker]</span>
+<span class="k">impl</span> <span class="n">Worker</span> <span class="k">for</span> <span class="n">Echoer</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">Context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">;</span>
+    <span class="k">type</span> <span class="n">Message</span> <span class="o">=</span> <span class="nb">String</span><span class="p">;</span>
+
+    <span class="k">async</span> <span class="k">fn</span> <span class="nf">handle_message</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">Context</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">Routed</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// Echo the message body back on its return_route.</span>
+        <span class="k">let</span> <span class="n">addr_str</span> <span class="o">=</span> <span class="n">ctx</span><span class="nf">.address</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">msg_str</span> <span class="o">=</span> <span class="n">msg</span><span class="nf">.as_body</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">new_msg_str</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"👈 echo back: {}"</span><span class="p">,</span> <span class="n">msg</span><span class="p">);</span>
+
+        <span class="c1">// Formatting stdout output.</span>
+        <span class="k">let</span> <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nd">format!</span><span class="p">(</span><span class="s">"📣 'echoer' worker → Address: {}"</span><span class="p">,</span> <span class="n">addr_str</span><span class="nf">.bright_yellow</span><span class="p">()),</span>
+            <span class="nd">format!</span><span class="p">(</span><span class="s">"    Received: '{}'"</span><span class="p">,</span> <span class="n">msg_str</span><span class="nf">.green</span><span class="p">()),</span>
+            <span class="nd">format!</span><span class="p">(</span><span class="s">"    Sent: '{}'"</span><span class="p">,</span> <span class="n">new_msg_str</span><span class="nf">.cyan</span><span class="p">()),</span>
+        <span class="p">];</span>
+        <span class="n">lines</span>
+            <span class="nf">.iter</span><span class="p">()</span>
+            <span class="nf">.for_each</span><span class="p">(|</span><span class="n">line</span><span class="p">|</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">line</span><span class="nf">.white</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">()));</span>
+
+        <span class="n">ctx</span><span class="nf">.send</span><span class="p">(</span><span class="n">msg</span><span class="nf">.return_route</span><span class="p">(),</span> <span class="n">new_msg_str</span><span class="p">)</span><span class="k">.await</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Next we add the <code class="language-plaintext highlighter-rouge">hopper</code> worker (in our <code class="language-plaintext highlighter-rouge">hello_ockam</code> project) by creating a new <code class="language-plaintext highlighter-rouge">/src/hopper.rs</code>
+file and copy / pasting the following code in it.</p>
+
+<p>Note how this worker manipulates the <code class="language-plaintext highlighter-rouge">onward_route</code> &amp; <code class="language-plaintext highlighter-rouge">return_route</code> fields of the message to send
+it to the next hop. We will actually see this in the console output when we run this code soon.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">colored</span><span class="p">::</span><span class="n">Colorize</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">ockam</span><span class="p">::{</span><span class="n">Any</span><span class="p">,</span> <span class="n">Context</span><span class="p">,</span> <span class="nb">Result</span><span class="p">,</span> <span class="n">Routed</span><span class="p">,</span> <span class="n">Worker</span><span class="p">};</span>
+
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Hopper</span><span class="p">;</span>
+
+<span class="nd">#[ockam::worker]</span>
+<span class="k">impl</span> <span class="n">Worker</span> <span class="k">for</span> <span class="n">Hopper</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">Context</span> <span class="o">=</span> <span class="n">Context</span><span class="p">;</span>
+    <span class="k">type</span> <span class="n">Message</span> <span class="o">=</span> <span class="n">Any</span><span class="p">;</span>
+
+    <span class="cd">/// This handle function takes any incoming message and forwards. it to the next hop</span>
+    <span class="cd">/// in it's onward route.</span>
+    <span class="k">async</span> <span class="k">fn</span> <span class="nf">handle_message</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">Context</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">Routed</span><span class="o">&lt;</span><span class="n">Any</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// Cast the msg to a Routed&lt;String&gt;</span>
+        <span class="k">let</span> <span class="n">msg</span><span class="p">:</span> <span class="n">Routed</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">msg</span><span class="nf">.cast</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="k">let</span> <span class="n">msg_str</span> <span class="o">=</span> <span class="n">msg</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.white</span><span class="p">()</span><span class="nf">.on_bright_black</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">addr_str</span> <span class="o">=</span> <span class="n">ctx</span><span class="nf">.address</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.white</span><span class="p">()</span><span class="nf">.on_bright_black</span><span class="p">();</span>
+
+        <span class="c1">// Some type conversion.</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">message</span> <span class="o">=</span> <span class="n">msg</span><span class="nf">.into_local_message</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">transport_message</span> <span class="o">=</span> <span class="n">message</span><span class="nf">.transport_mut</span><span class="p">();</span>
+
+        <span class="c1">// Remove my address from the onward_route.</span>
+        <span class="k">let</span> <span class="n">removed_address</span> <span class="o">=</span> <span class="n">transport_message</span><span class="py">.onward_route</span><span class="nf">.step</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">removed_addr_str</span> <span class="o">=</span> <span class="n">removed_address</span>
+            <span class="nf">.to_string</span><span class="p">()</span>
+            <span class="nf">.white</span><span class="p">()</span>
+            <span class="nf">.on_bright_black</span><span class="p">()</span>
+            <span class="nf">.strikethrough</span><span class="p">();</span>
+
+        <span class="c1">// Formatting stdout output.</span>
+        <span class="k">let</span> <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nd">format!</span><span class="p">(</span><span class="s">"🐇 'hopper' worker → Addr: '{}'"</span><span class="p">,</span> <span class="n">addr_str</span><span class="p">),</span>
+            <span class="nd">format!</span><span class="p">(</span><span class="s">"    Received: '{}'"</span><span class="p">,</span> <span class="n">msg_str</span><span class="p">),</span>
+            <span class="nd">format!</span><span class="p">(</span><span class="s">"    onward_route -&gt; remove: '{}'"</span><span class="p">,</span> <span class="n">removed_addr_str</span><span class="p">),</span>
+            <span class="nd">format!</span><span class="p">(</span><span class="s">"    return_route -&gt; prepend: '{}'"</span><span class="p">,</span> <span class="n">addr_str</span><span class="p">),</span>
+        <span class="p">];</span>
+        <span class="n">lines</span>
+            <span class="nf">.iter</span><span class="p">()</span>
+            <span class="nf">.for_each</span><span class="p">(|</span><span class="n">line</span><span class="p">|</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">line</span><span class="nf">.black</span><span class="p">()</span><span class="nf">.on_yellow</span><span class="p">()));</span>
+
+        <span class="c1">// Insert my address at the beginning return_route.</span>
+        <span class="n">transport_message</span>
+            <span class="py">.return_route</span>
+            <span class="nf">.modify</span><span class="p">()</span>
+            <span class="nf">.prepend</span><span class="p">(</span><span class="n">ctx</span><span class="nf">.address</span><span class="p">());</span>
+
+        <span class="c1">// Send the message on its onward_route.</span>
+        <span class="n">ctx</span><span class="nf">.forward</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="k">.await</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And finally let’s add a <code class="language-plaintext highlighter-rouge">main()</code> to our <code class="language-plaintext highlighter-rouge">hello_ockam</code> project. This will be the entry point for our
+example.</p>
+
+<blockquote>
+  <p>💡 When a new node starts and calls an <code class="language-plaintext highlighter-rouge">async</code> <code class="language-plaintext highlighter-rouge">main</code> function, it turns that function into a
+worker with an address of <code class="language-plaintext highlighter-rouge">app</code>. This makes it easy to send and receive messages from the <code class="language-plaintext highlighter-rouge">main</code>
+function (i.e the <code class="language-plaintext highlighter-rouge">app</code> worker).</p>
+</blockquote>
+
+<p>Create an empty file <code class="language-plaintext highlighter-rouge">/examples/03-routing-many.hops.rs</code> (note this is in the <code class="language-plaintext highlighter-rouge">examples/</code> folder and
+not <code class="language-plaintext highlighter-rouge">src/</code> folder like the workers above).</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">colored</span><span class="p">::</span><span class="n">Colorize</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">hello_ockam</span><span class="p">::{</span><span class="n">Echoer</span><span class="p">,</span> <span class="n">Hopper</span><span class="p">};</span>
+<span class="k">use</span> <span class="nn">ockam</span><span class="p">::{</span><span class="n">node</span><span class="p">,</span> <span class="n">route</span><span class="p">,</span> <span class="n">Context</span><span class="p">,</span> <span class="nb">Result</span><span class="p">};</span>
+
+<span class="nd">#[rustfmt::skip]</span>
+<span class="k">const</span> <span class="n">HELP_TEXT</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span><span class="s">r#"
+┌───────────────────────┐
+│  Node 1               │
+├───────────────────────┤
+│  ┌────────────────┐   │
+│  │ Address:       │   │
+│  │ 'app'          │   │
+│  └─┬────────────▲─┘   │
+│  ┌─▼────────────┴─┐   │
+│  │ Address:       │   │
+│  │ 'hopper1..3'   │x3 │
+│  └─┬────────────▲─┘   │
+│  ┌─▼────────────┴─┐   │
+│  │ Address:       │   │
+│  │ 'echoer'       │   │
+│  └────────────────┘   │
+└───────────────────────┘
+"#</span><span class="p">;</span>
+
+<span class="cd">/// This node routes a message through many hops.</span>
+<span class="nd">#[ockam::node]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">HELP_TEXT</span><span class="nf">.green</span><span class="p">());</span>
+
+    <span class="nf">print_title</span><span class="p">(</span><span class="nd">vec!</span><span class="p">[</span>
+        <span class="s">"Run a node w/ 'app', 'echoer' and 'hopper1', 'hopper2', 'hopper3' workers"</span><span class="p">,</span>
+        <span class="s">"then send a message over 3 hops"</span><span class="p">,</span>
+        <span class="s">"finally stop the node"</span><span class="p">,</span>
+    <span class="p">]);</span>
+
+    <span class="c1">// Create a node with default implementations.</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">node</span> <span class="o">=</span> <span class="nf">node</span><span class="p">(</span><span class="n">ctx</span><span class="p">);</span>
+
+    <span class="c1">// Start an Echoer worker at address "echoer".</span>
+    <span class="n">node</span><span class="nf">.start_worker</span><span class="p">(</span><span class="s">"echoer"</span><span class="p">,</span> <span class="n">Echoer</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Start 3 hop workers at addresses "hopper1", "hopper2" and "hopper3".</span>
+    <span class="n">node</span><span class="nf">.start_worker</span><span class="p">(</span><span class="s">"hopper1"</span><span class="p">,</span> <span class="n">Hopper</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">node</span><span class="nf">.start_worker</span><span class="p">(</span><span class="s">"hopper2"</span><span class="p">,</span> <span class="n">Hopper</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">node</span><span class="nf">.start_worker</span><span class="p">(</span><span class="s">"hopper3"</span><span class="p">,</span> <span class="n">Hopper</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Send a message to the echoer worker via the "hopper1", "hopper2", and "hopper3" workers.</span>
+    <span class="k">let</span> <span class="n">route</span> <span class="o">=</span> <span class="nd">route!</span><span class="p">[</span><span class="s">"hopper1"</span><span class="p">,</span> <span class="s">"hopper2"</span><span class="p">,</span> <span class="s">"hopper3"</span><span class="p">,</span> <span class="s">"echoer"</span><span class="p">];</span>
+    <span class="k">let</span> <span class="n">route_msg</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">route</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">msg</span> <span class="o">=</span> <span class="s">"Hello Ockam!"</span><span class="p">;</span>
+    <span class="n">node</span><span class="nf">.send</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="n">msg</span><span class="nf">.to_string</span><span class="p">())</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Wait to receive a reply and print it.</span>
+    <span class="k">let</span> <span class="n">reply</span> <span class="o">=</span> <span class="n">node</span><span class="py">.receive</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Formatting stdout output.</span>
+    <span class="k">let</span> <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"🏃 Node 1 →"</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"    sending: {}"</span><span class="p">,</span> <span class="n">msg</span><span class="nf">.green</span><span class="p">()),</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"    over route: {}"</span><span class="p">,</span> <span class="n">route_msg</span><span class="nf">.blue</span><span class="p">()),</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"    and receiving: '{}'"</span><span class="p">,</span> <span class="n">reply</span><span class="nf">.purple</span><span class="p">()),</span> <span class="c1">// Should print "👈 echo back:  Hello Ockam!"</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"    then {}"</span><span class="p">,</span> <span class="s">"stopping"</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.red</span><span class="p">()),</span>
+    <span class="p">];</span>
+    <span class="n">lines</span>
+        <span class="nf">.iter</span><span class="p">()</span>
+        <span class="nf">.for_each</span><span class="p">(|</span><span class="n">line</span><span class="p">|</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">line</span><span class="nf">.black</span><span class="p">()</span><span class="nf">.on_white</span><span class="p">()));</span>
+
+    <span class="c1">// Stop all workers, stop the node, cleanup and return.</span>
+    <span class="n">node</span><span class="nf">.stop</span><span class="p">()</span><span class="k">.await</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">print_title</span><span class="p">(</span><span class="n">title</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">line</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"🚀 {}"</span><span class="p">,</span> <span class="n">title</span><span class="nf">.join</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">  → "</span><span class="p">)</span><span class="nf">.white</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">line</span><span class="nf">.black</span><span class="p">()</span><span class="nf">.on_bright_black</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Now it is time to run our program to see what it does! 🎉</p>
+
+<p>In your terminal app, run the following command. Note that <code class="language-plaintext highlighter-rouge">OCKAM_LOG=none</code> is used to disable
+logging output from the Ockam library. This is done to make the output of the example easier to
+read.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">OCKAM_LOG</span><span class="o">=</span>none cargo run <span class="nt">--example</span> 03-routing-many-hops
+</code></pre></div></div>
+
+<p>And you should see something like the following. Our example program creates multiple hop workers
+(three <code class="language-plaintext highlighter-rouge">hopper</code> workers) between the <code class="language-plaintext highlighter-rouge">app</code> and the <code class="language-plaintext highlighter-rouge">echoer</code> and route our message through them 🚀.</p>
+
+<p><img src="/assets/ockam-routing-1-images/03-routing-many-hops.png" alt="Output from running 03-routing-many-hops" /></p>
+      <h2 id="complex-example">
+        
+        
+          Complex example <a href="#complex-example">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-complex-example" name="complex-example"></a></p>
+
+<blockquote>
+  <p>💡 This example continues from the simple example above, we are going to reuse all the
+dependencies and workers in this example so please make sure to complete the
+<a href="#simple-example">simple example</a> before working on this one.</p>
+</blockquote>
+
+<p>In this example, we will introduce
+<a href="https://docs.ockam.io/reference/libraries/rust/routing">TCP transports</a> in between the hops.
+Instead of passing messages around between workers in the same node, we will spawn multiple nodes.
+Then we will have a few TCP transports (TCP socket client and listener combos) that will connect the
+nodes.</p>
+
+<p>An Ockam transport is a plugin for Ockam Routing. It moves Ockam Routing messages using a specific
+transport protocol like TCP, UDP, WebSockets, Bluetooth, etc.</p>
+
+<p>We will have three nodes:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">node_initiator</code>: The first node initiates sending the message over TCP to the middle node (port
+<code class="language-plaintext highlighter-rouge">3000</code>).</li>
+  <li><code class="language-plaintext highlighter-rouge">node_middle</code>: Then middle node simply forwards this message on to the last node over TCP again
+(port <code class="language-plaintext highlighter-rouge">4000</code> this time).</li>
+  <li><code class="language-plaintext highlighter-rouge">node_responder</code>: And finally the responder node receives the message and sends a reply back to
+the initiator node.</li>
+</ol>
+
+<p>The following diagram depicts what we will build next. In this example all these nodes are on the
+same machine, but they can easy just be nodes on different machines.</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──────────────────────┐
+│node_initiator        │
+├──────────────────────┤
+│ ┌──────────────────┐ │
+│ │Address:          │ │     ┌───────────────────────────┐
+│ │'app'             │ │     │node_middle                │
+│ └──┬────────────▲──┘ │     ├───────────────────────────┤
+│ ┌──▼────────────┴──┐ │     │ ┌──────────────────┐      │
+│ │TCP transport     └─┼─────┼─►TCP transport     │      │
+│ │connect to 3000   ◄─┼─────┼─┐listening on 3000 │      │
+│ └──────────────────┘ │     │ └──┬────────────▲──┘      │
+└──────────────────────┘     │ ┌──▼────────────┴───────┐ │
+                             │ │Address:               │ │   ┌──────────────────────┐
+                             │ │'forward_to_responder' │ │   │node_responder        │
+                             │ └──┬────────────▲───────┘ │   ├──────────────────────┤
+                             │ ┌──▼────────────┴──┐      │   │ ┌──────────────────┐ │
+                             │ │TCP transport     └──────┼───┼─►TCP transport     │ │
+                             │ │connect to 4000   ◄──────┼───┼─┐listening on 4000 │ │
+                             │ └──────────────────┘      │   │ └──┬────────────▲──┘ │
+                             └───────────────────────────┘   │ ┌──▼────────────┴──┐ │
+                                                             │ │Address:          │ │
+                                                             │ │'echoer'          │ │
+                                                             │ └──────────────────┘ │
+                                                             └──────────────────────┘
+</code></pre></div></div>
+
+<p>Let’s start by creating a new file <code class="language-plaintext highlighter-rouge">/examples/04-routing-over-two-transport-hops.rs</code> (in the
+<code class="language-plaintext highlighter-rouge">/examples/</code> folder and not <code class="language-plaintext highlighter-rouge">/src/</code> folder). Then copy / paste the following code in that file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">colored</span><span class="p">::</span><span class="n">Colorize</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">hello_ockam</span><span class="p">::{</span><span class="n">Echoer</span><span class="p">,</span> <span class="n">Forwarder</span><span class="p">};</span>
+<span class="k">use</span> <span class="nn">ockam</span><span class="p">::{</span>
+    <span class="n">node</span><span class="p">,</span> <span class="n">route</span><span class="p">,</span> <span class="n">AsyncTryClone</span><span class="p">,</span> <span class="n">Context</span><span class="p">,</span> <span class="nb">Result</span><span class="p">,</span> <span class="n">TcpConnectionOptions</span><span class="p">,</span> <span class="n">TcpListenerOptions</span><span class="p">,</span>
+    <span class="n">TcpTransportExtension</span><span class="p">,</span>
+<span class="p">};</span>
+
+<span class="nd">#[rustfmt::skip]</span>
+<span class="k">const</span> <span class="n">HELP_TEXT</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span><span class="s">r#"
+┌──────────────────────┐
+│node_initiator        │
+├──────────────────────┤
+│ ┌──────────────────┐ │
+│ │Address:          │ │     ┌───────────────────────────┐
+│ │'app'             │ │     │node_middle                │
+│ └──┬────────────▲──┘ │     ├───────────────────────────┤
+│ ┌──▼────────────┴──┐ │     │ ┌──────────────────┐      │
+│ │TCP transport     └─┼─────┼─►TCP transport     │      │
+│ │connect to 3000   ◄─┼─────┼─┐listening on 3000 │      │
+│ └──────────────────┘ │     │ └──┬────────────▲──┘      │
+└──────────────────────┘     │ ┌──▼────────────┴───────┐ │
+                             │ │Address:               │ │   ┌──────────────────────┐
+                             │ │'forward_to_responder' │ │   │node_responder        │
+                             │ └──┬────────────▲───────┘ │   ├──────────────────────┤
+                             │ ┌──▼────────────┴──┐      │   │ ┌──────────────────┐ │
+                             │ │TCP transport     └──────┼───┼─►TCP transport     │ │
+                             │ │connect to 4000   ◄──────┼───┼─┐listening on 4000 │ │
+                             │ └──────────────────┘      │   │ └──┬────────────▲──┘ │
+                             └───────────────────────────┘   │ ┌──▼────────────┴──┐ │
+                                                             │ │Address:          │ │
+                                                             │ │'echoer'          │ │
+                                                             │ └──────────────────┘ │
+                                                             └──────────────────────┘
+"#</span><span class="p">;</span>
+
+<span class="nd">#[ockam::node]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">HELP_TEXT</span><span class="nf">.green</span><span class="p">());</span>
+
+    <span class="k">let</span> <span class="n">ctx_clone</span> <span class="o">=</span> <span class="n">ctx</span><span class="nf">.async_try_clone</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">ctx_clone_2</span> <span class="o">=</span> <span class="n">ctx</span><span class="nf">.async_try_clone</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">node_responder</span> <span class="o">=</span> <span class="nf">create_responder_node</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">node_middle</span> <span class="o">=</span> <span class="nf">create_middle_node</span><span class="p">(</span><span class="n">ctx_clone</span><span class="p">)</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+
+    <span class="nf">create_initiator_node</span><span class="p">(</span><span class="n">ctx_clone_2</span><span class="p">)</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+
+    <span class="n">node_responder</span><span class="nf">.stop</span><span class="p">()</span><span class="k">.await</span><span class="nf">.ok</span><span class="p">();</span>
+    <span class="n">node_middle</span><span class="nf">.stop</span><span class="p">()</span><span class="k">.await</span><span class="nf">.ok</span><span class="p">();</span>
+
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"{}"</span><span class="p">,</span>
+        <span class="s">"App finished, stopping node_responder &amp; node_middle"</span><span class="nf">.red</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">print_title</span><span class="p">(</span><span class="n">title</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="nb">str</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">line</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"🚀 {}"</span><span class="p">,</span> <span class="n">title</span><span class="nf">.join</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">  → "</span><span class="p">)</span><span class="nf">.white</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">line</span><span class="nf">.black</span><span class="p">()</span><span class="nf">.on_bright_black</span><span class="p">())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This code won’t actually compile, since there are 3 functions missing from this source file. We are
+just adding this file first in order to stage the rest of the code we will write next.</p>
+
+<p>This <code class="language-plaintext highlighter-rouge">main()</code> function creates the three nodes like we see in the diagram above, and it also stops
+them after the example is done running.</p>
+      <h3 id="initiator-node">
+        
+        
+          Initiator node <a href="#initiator-node">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-initiator-node" name="initiator-node"></a></p>
+
+<p>So let’s write the function that creates the initiator node first. Copy the following into the
+source file we created earlier (<code class="language-plaintext highlighter-rouge">/examples/04-routing-over-two-transport-hops.rs</code>), and paste it
+below the existing code there:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// This node routes a message, to a worker on a different node, over two TCP transport</span>
+<span class="cd">/// hops.</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">create_initiator_node</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nf">print_title</span><span class="p">(</span><span class="nd">vec!</span><span class="p">[</span>
+        <span class="s">"Create node_initiator that routes a message, over 2 TCP transport hops, to 'echoer' worker on node_responder"</span><span class="p">,</span>
+        <span class="s">"stop"</span><span class="p">,</span>
+    <span class="p">]);</span>
+
+    <span class="c1">// Create a node with default implementations.</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">node</span> <span class="o">=</span> <span class="nf">node</span><span class="p">(</span><span class="n">ctx</span><span class="p">);</span>
+
+    <span class="c1">// Initialize the TCP transport.</span>
+    <span class="k">let</span> <span class="n">tcp_transport</span> <span class="o">=</span> <span class="n">node</span><span class="nf">.create_tcp_transport</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Create a TCP connection to the middle node.</span>
+    <span class="k">let</span> <span class="n">connection_to_middle_node</span> <span class="o">=</span> <span class="n">tcp_transport</span>
+        <span class="nf">.connect</span><span class="p">(</span><span class="s">"localhost:3000"</span><span class="p">,</span> <span class="nn">TcpConnectionOptions</span><span class="p">::</span><span class="nf">new</span><span class="p">())</span>
+        <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Send a message to the "echoer" worker, on a different node, over two TCP hops. Wait</span>
+    <span class="c1">// to receive a reply and print it.</span>
+    <span class="k">let</span> <span class="n">route</span> <span class="o">=</span> <span class="nd">route!</span><span class="p">[</span><span class="n">connection_to_middle_node</span><span class="p">,</span> <span class="s">"forward_to_responder"</span><span class="p">,</span> <span class="s">"echoer"</span><span class="p">];</span>
+    <span class="k">let</span> <span class="n">route_str</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">route</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">msg</span> <span class="o">=</span> <span class="s">"Hello Ockam!"</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">reply</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="py">.send_and_receive</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="n">msg</span><span class="nf">.to_string</span><span class="p">())</span>
+        <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Formatting stdout output.</span>
+    <span class="k">let</span> <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s">"🏃 node_initiator →"</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"    sending: {}"</span><span class="p">,</span> <span class="n">msg</span><span class="nf">.green</span><span class="p">()),</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"    over route: '{}'"</span><span class="p">,</span> <span class="n">route_str</span><span class="nf">.blue</span><span class="p">()),</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"    and received: '{}'"</span><span class="p">,</span> <span class="n">reply</span><span class="nf">.purple</span><span class="p">()),</span> <span class="c1">// Should print "👈 echo back:  Hello Ockam!"</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"    then {}"</span><span class="p">,</span> <span class="s">"stopping"</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.red</span><span class="p">()),</span>
+    <span class="p">];</span>
+    <span class="n">lines</span>
+        <span class="nf">.iter</span><span class="p">()</span>
+        <span class="nf">.for_each</span><span class="p">(|</span><span class="n">line</span><span class="p">|</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">line</span><span class="nf">.black</span><span class="p">()</span><span class="nf">.on_white</span><span class="p">()));</span>
+
+    <span class="c1">// Stop all workers, stop the node, cleanup and return.</span>
+    <span class="n">node</span><span class="nf">.stop</span><span class="p">()</span><span class="k">.await</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This (initiator) node will send a message to the responder using the following route.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="n">route</span> <span class="o">=</span> <span class="nd">route!</span><span class="p">[</span><span class="n">connection_to_middle_node</span><span class="p">,</span> <span class="s">"forward_to_responder"</span><span class="p">,</span> <span class="s">"echoer"</span><span class="p">];</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>💡 Note the use of a mix of TCP transport routes as well as addresses for other workers. Also note
+that this node does not have to be aware of the full topology of the network of nodes. It just
+knows that it has to jump over the TCP transport <code class="language-plaintext highlighter-rouge">connection_to_middle_node</code> and then have its
+message routed to <code class="language-plaintext highlighter-rouge">forward_to_responder</code> address followed by <code class="language-plaintext highlighter-rouge">echoer</code> address.</p>
+</blockquote>
+      <h3 id="middle-node">
+        
+        
+          Middle node <a href="#middle-node">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-middle-node" name="middle-node"></a></p>
+
+<p>Let’s create the middle node next, which will run the worker <code class="language-plaintext highlighter-rouge">Forwarder</code> on this address:
+<code class="language-plaintext highlighter-rouge">forward_to_responder</code>.</p>
+
+<p>Copy and paste the following into the source file we created above
+(<code class="language-plaintext highlighter-rouge">/examples/04-routing-over-two-transport-hops.rs</code>).</p>
+
+<ul>
+  <li>This middle node simply forwards whatever comes into its TCP listener (on <code class="language-plaintext highlighter-rouge">3000</code>) to port <code class="language-plaintext highlighter-rouge">4000</code>.</li>
+  <li>This node has a <code class="language-plaintext highlighter-rouge">Forwarder</code> worker on address <code class="language-plaintext highlighter-rouge">forward_to_responder</code>, so that’s how the initiator
+can reach this address specified in its route at the start of this example.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// - Starts a TCP listener at 127.0.0.1:3000.</span>
+<span class="cd">/// - This node creates a TCP connection to a node at 127.0.0.1:4000.</span>
+<span class="cd">/// - Starts a forwarder worker to forward messages to 127.0.0.1:4000.</span>
+<span class="cd">/// - Then runs forever waiting to route messages.</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">create_middle_node</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nn">ockam</span><span class="p">::</span><span class="n">Node</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nf">print_title</span><span class="p">(</span><span class="nd">vec!</span><span class="p">[</span>
+        <span class="s">"Create node_middle that listens on 3000 and forwards to 4000"</span><span class="p">,</span>
+        <span class="s">"wait for messages until stopped"</span><span class="p">,</span>
+    <span class="p">]);</span>
+
+    <span class="c1">// Create a node with default implementations.</span>
+    <span class="k">let</span> <span class="n">node</span> <span class="o">=</span> <span class="nf">node</span><span class="p">(</span><span class="n">ctx</span><span class="p">);</span>
+
+    <span class="c1">// Initialize the TCP transport.</span>
+    <span class="k">let</span> <span class="n">tcp_transport</span> <span class="o">=</span> <span class="n">node</span><span class="nf">.create_tcp_transport</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Create a TCP connection to the responder node.</span>
+    <span class="k">let</span> <span class="n">connection_to_responder</span> <span class="o">=</span> <span class="n">tcp_transport</span>
+        <span class="nf">.connect</span><span class="p">(</span><span class="s">"127.0.0.1:4000"</span><span class="p">,</span> <span class="nn">TcpConnectionOptions</span><span class="p">::</span><span class="nf">new</span><span class="p">())</span>
+        <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Create a Forwarder worker.</span>
+    <span class="n">node</span><span class="nf">.start_worker</span><span class="p">(</span>
+        <span class="s">"forward_to_responder"</span><span class="p">,</span>
+        <span class="n">Forwarder</span> <span class="p">{</span>
+            <span class="n">address</span><span class="p">:</span> <span class="n">connection_to_responder</span><span class="nf">.into</span><span class="p">(),</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Create a TCP listener and wait for incoming connections.</span>
+    <span class="k">let</span> <span class="n">listener</span> <span class="o">=</span> <span class="n">tcp_transport</span>
+        <span class="nf">.listen</span><span class="p">(</span><span class="s">"127.0.0.1:3000"</span><span class="p">,</span> <span class="nn">TcpListenerOptions</span><span class="p">::</span><span class="nf">new</span><span class="p">())</span>
+        <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Allow access to the Forwarder via TCP connections from the TCP listener.</span>
+    <span class="n">node</span><span class="nf">.flow_controls</span><span class="p">()</span>
+        <span class="nf">.add_consumer</span><span class="p">(</span><span class="s">"forward_to_responder"</span><span class="p">,</span> <span class="n">listener</span><span class="nf">.flow_control_id</span><span class="p">());</span>
+
+    <span class="c1">// Don't call node.stop() here so this node runs forever.</span>
+    <span class="nf">Ok</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="responder-node">
+        
+        
+          Responder node <a href="#responder-node">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-responder-node" name="responder-node"></a></p>
+
+<p>Finally, we will create the responder node. This node will run the worker <code class="language-plaintext highlighter-rouge">echoer</code> which actually
+echoes the message back to the initiator. Copy and paste the following into the source file above
+(<code class="language-plaintext highlighter-rouge">/examples/04-routing-over-two-transport-hops.rs</code>).</p>
+
+<ul>
+  <li>This node has an <code class="language-plaintext highlighter-rouge">Echoer</code> worker on address <code class="language-plaintext highlighter-rouge">echoer</code>, so that’s how the initiator can reach this
+address specified in its route at the start of this example.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// This node starts a TCP listener and an echoer worker. It then runs forever waiting for</span>
+<span class="cd">/// messages.</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">create_responder_node</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">Context</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nn">ockam</span><span class="p">::</span><span class="n">Node</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nf">print_title</span><span class="p">(</span><span class="nd">vec!</span><span class="p">[</span>
+        <span class="s">"Create node_responder that runs tcp listener on 4000 and 'echoer' worker"</span><span class="p">,</span>
+        <span class="s">"wait for messages until stopped"</span><span class="p">,</span>
+    <span class="p">]);</span>
+
+    <span class="c1">// Create a node with default implementations.</span>
+    <span class="k">let</span> <span class="n">node</span> <span class="o">=</span> <span class="nf">node</span><span class="p">(</span><span class="n">ctx</span><span class="p">);</span>
+
+    <span class="c1">// Initialize the TCP transport.</span>
+    <span class="k">let</span> <span class="n">tcp_transport</span> <span class="o">=</span> <span class="n">node</span><span class="nf">.create_tcp_transport</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Create an echoer worker.</span>
+    <span class="n">node</span><span class="nf">.start_worker</span><span class="p">(</span><span class="s">"echoer"</span><span class="p">,</span> <span class="n">Echoer</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Create a TCP listener and wait for incoming connections.</span>
+    <span class="k">let</span> <span class="n">listener</span> <span class="o">=</span> <span class="n">tcp_transport</span>
+        <span class="nf">.listen</span><span class="p">(</span><span class="s">"127.0.0.1:4000"</span><span class="p">,</span> <span class="nn">TcpListenerOptions</span><span class="p">::</span><span class="nf">new</span><span class="p">())</span>
+        <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Allow access to the Echoer via TCP connections from the TCP listener.</span>
+    <span class="n">node</span><span class="nf">.flow_controls</span><span class="p">()</span>
+        <span class="nf">.add_consumer</span><span class="p">(</span><span class="s">"echoer"</span><span class="p">,</span> <span class="n">listener</span><span class="nf">.flow_control_id</span><span class="p">());</span>
+
+    <span class="nf">Ok</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Let’s run this example to see what it does 🎉.</p>
+
+<p>In your terminal app, run the following command. Note that <code class="language-plaintext highlighter-rouge">OCKAM_LOG=none</code> is used to disable
+logging output from the Ockam library. This is done to make the output of the example easier to
+read.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run <span class="nt">--example</span> 04-routing-over-two-transport-hops
+</code></pre></div></div>
+
+<p>This should produce output similar to the following. Our example program creates a route that
+traverses multiple nodes and TCP transports from the <code class="language-plaintext highlighter-rouge">app</code> to the <code class="language-plaintext highlighter-rouge">echoer</code> and routes our message
+through them 🚀.</p>
+
+<p><img src="/assets/ockam-routing-1-images/04-routing-over-two-transport-hops.png" alt="Output from running 04-routing-over-two-transport-hops" /></p>
+      <h2 id="next-steps">
+        
+        
+          Next steps <a href="#next-steps">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-next-steps" name="next-steps"></a></p>
+
+<p>Ockam Routing and transports are extremely powerful and flexible. They are one of the key features
+that enables Ockam Secure Channels to be implemented. By layering Ockam Secure Channels and other
+protocols over Ockam Routing, we can provide end-to-end guarantees over arbitrary transport
+topologies that span many networks and clouds.</p>
+
+<blockquote>
+  <p>🚀 Please star and fork / clone the <a href="https://github.com/build-trust/ockam">Ockam repo</a> 🌟.</p>
+</blockquote>
+
+<p>In a future blog post we will be covering
+<a href="https://docs.ockam.io/reference/command/secure-channels">Ockam Secure Channels</a> and how they can be
+used to provide end-to-end guarantees over arbitrary transport topologies. So stay tuned!</p>
+
+<p>In the meantime here are some good jumping off points to learn more about Ockam:</p>
+
+<ul>
+  <li><a href="https://docs.ockam.io/reference/libraries/rust/routing">Deep dive into Ockam Routing</a>.</li>
+  <li>Install
+<a href="https://github.com/build-trust/ockam#install-ockam-command">Ockam command line interface (CLI)</a>
+(<code class="language-plaintext highlighter-rouge">ockam</code> command) on your computer and try to
+<a href="https://github.com/build-trust/ockam#end-to-end-encrypted-and-mutually-authenticated-communication">create end-to-end encrypted communication</a>
+between two apps. That will give you a taste of the experience of using Ockam on the command line
+in addition to our Rust library.</li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2023/08/04/ockam-routing-building-end-to-end-channels/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

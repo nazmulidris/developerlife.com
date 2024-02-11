@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Write code using async/await in Rust | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Write code using async/await in Rust" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This article illustrates how to write concurrent and parallel code in Rust using Tokio. The pedagogical example we will use is building an asynchronous implementation of a middleware runner that you might find in a Redux store." />
+<meta property="og:description" content="This article illustrates how to write concurrent and parallel code in Rust using Tokio. The pedagogical example we will use is building an asynchronous implementation of a middleware runner that you might find in a Redux store." />
+<link rel="canonical" href="http://developerlife.com/2022/03/12/rust-tokio/" />
+<meta property="og:url" content="http://developerlife.com/2022/03/12/rust-tokio/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-12T07:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Write code using async/await in Rust" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2022-03-12T07:00:00-06:00","datePublished":"2022-03-12T07:00:00-06:00","description":"This article illustrates how to write concurrent and parallel code in Rust using Tokio. The pedagogical example we will use is building an asynchronous implementation of a middleware runner that you might find in a Redux store.","headline":"Write code using async/await in Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2022/03/12/rust-tokio/"},"url":"http://developerlife.com/2022/03/12/rust-tokio/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Write code using async/await in Rust&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Write code using async/await in Rust</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Write code using async/await in Rust</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Mar 12, 2022
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/rust-tokio-3.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#concurrency-and-asyncawait-vs-parallelism">Concurrency and async/await, vs parallelism</a></li>
+  <li><a href="#asyncawait-rust-and-tokio">Async/await, Rust, and Tokio</a>
+    <ul>
+      <li><a href="#learn-more-about-tokio">Learn more about Tokio</a></li>
+    </ul>
+  </li>
+  <li><a href="#implementing-async-middleware-w-function-pointers">Implementing async middleware w/ function pointers</a></li>
+  <li><a href="#implementing-async-middleware-w-async-traits">Implementing async middleware w/ async traits</a></li>
+  <li><a href="#writing-tests">Writing tests</a></li>
+  <li><a href="#advanced-topic---locks-and-tokio">Advanced topic - locks and tokio</a></li>
+  <li><a href="#async-lambdas">Async lambdas</a>
+    <ul>
+      <li><a href="#without-macros">Without macros</a></li>
+      <li><a href="#with-macros">With macros</a></li>
+    </ul>
+  </li>
+  <li><a href="#wrapping-up">Wrapping up</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>This article illustrates how to write concurrent and parallel code in Rust using Tokio. The
+pedagogical example we will use is building an asynchronous implementation of a middleware runner
+that you might find in a Redux store.</p>
+
+<p>This will get us ready to build a <a href="https://redux.js.org/">Redux</a> library that will be the heart of
+more complex TUI apps next using crates like <code class="language-plaintext highlighter-rouge">termion</code> and <code class="language-plaintext highlighter-rouge">tui</code>.</p>
+
+<blockquote>
+  <p>📜 The source code for the finished app named <code class="language-plaintext highlighter-rouge">tokio_example</code> can be found
+<a href="https://github.com/nazmulidris/rust_scratch/tree/main/tokio">here</a>.</p>
+</blockquote>
+
+<blockquote>
+  <p>For more information on general Rust type system design (functional approach rather than
+object oriented), please take a look at this <a href="https://arxiv.org/pdf/2307.07069.pdf">paper</a>
+by Will Crichton demonstrating Typed Design Patterns with Rust.</p>
+</blockquote>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h2 id="concurrency-and-asyncawait-vs-parallelism">
+        
+        
+          Concurrency and async/await, vs parallelism <a href="#concurrency-and-asyncawait-vs-parallelism">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-concurrency-and-async%2Fawait%2C-vs-parallelism" name="concurrency-and-async%2Fawait%2C-vs-parallelism"></a></p>
+
+<p>Concurrency is being able to break up your program or function into smaller tasks that can be
+interleaved, possibly on the <em>same thread</em>. This approach lends itself well to speeding up <em>many</em> IO
+bound (where the CPU is mostly idling while waiting around for data to arrive) workloads or tasks</p>
+
+<p>Parallelism is being able to break up your program or function so that it can be run on multiple
+hardware threads at the same time. This approach is well suited to speeding up CPU bound workloads
+or tasks.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Concurrency</th>
+      <th>Parallelism</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Break up code into small tasks that can be interleaved</td>
+      <td>Break up code so it can be run on multiple threads</td>
+    </tr>
+    <tr>
+      <td>Can run on single thread</td>
+      <td>Run on multiple hardware threads</td>
+    </tr>
+    <tr>
+      <td>Good for IO bound workloads</td>
+      <td>Good for CPU bound workloads</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Concurrency means that multiple tasks can be executed in an interleaving fashion.</p>
+
+<ul>
+  <li>Concurrency <strong>does not mean</strong> that these tasks are running in parallel.</li>
+  <li>Concurrency lends itself well in improving throughput of IO bound tasks.</li>
+  <li>It is possible to implement concurrency using a single thread (just like its done in JavaScript).</li>
+</ul>
+
+<p>The key to making this work is having yield points in the code that makes up a function, and the
+ability to resume execution of the function at a later time, resuming from a previously suspended
+yield point.</p>
+
+<ol>
+  <li>In Rust, a yield point is declared in your function’s code when you use the <code class="language-plaintext highlighter-rouge">.await</code> call. When
+you <code class="language-plaintext highlighter-rouge">await</code> a future inside of an <code class="language-plaintext highlighter-rouge">async</code> block, it will be able to schedule itself off the
+thread and make way for another task.</li>
+  <li>If a function (or lambda or code block) has a yield point, then it must be marked <code class="language-plaintext highlighter-rouge">async</code>. It
+might be useful to think of <code class="language-plaintext highlighter-rouge">async</code> as something that allows <code class="language-plaintext highlighter-rouge">await</code> inside a function or a
+block, but doesn’t actually make anything “async” (the yield points in your code makes it so).</li>
+</ol>
+
+<p>Together, they tell the compiler (and Tokio) to generate the appropriate code to make this all work
+for the code that you write.</p>
+
+<p>For IO bound operations, when a task is waiting for some IO, it can yield, and then another task can
+be run in the meantime. This prevents resources (threads, CPU, etc) from being tied up while the
+task just idles waiting around for IO to appear. When there is data is available, then the yielded
+task can be resumed, and can do some useful work w/ this data.</p>
+
+<blockquote>
+  <p>⚡ <a href="https://tokio.rs/tokio/tutorial/async">Here are details</a> on how Rust implements the “waker”
+which is the thing that lets the yielded function know that the data is ready.</p>
+</blockquote>
+
+<p>This is also how Node.js gets its incredible throughput in a single threaded runtime environment.
+Using a single native thread to wait around for IO bound operations results in really poor
+throughput since the
+<a href="https://www.baeldung.com/linux/max-threads-per-process#factors-that-affect-maximum-thread-count">number of native threads is severely hardware constrained in most modern operating systems</a>.</p>
+
+<ul>
+  <li>However, green threads can be used to mimic the behavior of native threads, while using this yield
+and resume mechanism under the hood.</li>
+  <li>To give you some perspective, native threads may be in the order of 30K-60K per process on a
+modern machine, whereas you can have millions of green threads running per process.</li>
+</ul>
+
+<blockquote>
+  <p>☕ If you are familiar with Java, check out our
+<a href="https://developerlife.com/2019/12/02/project-loom-experiment/">Project Loom</a> article which goes
+into this new JVM implementation of green threads and structured concurrency w/out using the
+<code class="language-plaintext highlighter-rouge">async</code> and <code class="language-plaintext highlighter-rouge">await</code> keywords, but its a similar kind of idea.</p>
+</blockquote>
+
+<p>In contrast, parallelism means that multiple tasks can be run in parallel at the same time, usually
+relying on multiple CPU cores that a machine has. This is different than concurrency in that there
+are no yield points and interleaving of tasks. Instead each task is run in its own thread. This is
+especially useful in tasks that are CPU bound (and not IO bound).</p>
+
+<blockquote>
+  <p>🔅 Here’s a <a href="https://www.youtube.com/watch?v=FNcXf-4CLH0">great video on YouTube</a>, by JT, that
+explains the difference between concurrency and parallelism. And introduces <code class="language-plaintext highlighter-rouge">async</code>/<code class="language-plaintext highlighter-rouge">await</code> in
+Rust.</p>
+</blockquote>
+      <h2 id="asyncawait-rust-and-tokio">
+        
+        
+          Async/await, Rust, and Tokio <a href="#asyncawait-rust-and-tokio">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-async%2Fawait%2C-rust%2C-and-tokio" name="async%2Fawait%2C-rust%2C-and-tokio"></a></p>
+
+<p>You don’t need to use <a href="https://https://tokio.rs/">Tokio</a> in order to use <code class="language-plaintext highlighter-rouge">async</code> and <code class="language-plaintext highlighter-rouge">await</code> in
+Rust. However, Tokio is very powerful and makes very easy to do complex things with it.</p>
+
+<ul>
+  <li>Tokio is an asynchronous runtime for Rust.</li>
+  <li>It provides a nice abstraction layer over the native threading by providing a multi-threaded
+runtime for executing asynchronous code.</li>
+</ul>
+
+<blockquote>
+  <p>🔅 Here’s an <a href="https://youtu.be/MZyleK8elPk">excellent video</a> by the author of Tokio on what it is
+and how to use it.</p>
+</blockquote>
+
+<blockquote>
+  <p>🔅 Here’s another <a href="https://www.youtube.com/watch?v=ThjvMReOXYM">excellent video</a> by Jon Gjengset
+that goes into how to use <code class="language-plaintext highlighter-rouge">async</code> / <code class="language-plaintext highlighter-rouge">await</code> and Tokio.</p>
+</blockquote>
+
+<p>You can configure the runtime to be single or multi-threaded (under the hood). If you use the
+<a href="https://docs.rs/tokio/latest/tokio/attr.main.html#using-the-multi-thread-runtime"><code class="language-plaintext highlighter-rouge">#[tokio::main]</code></a>
+macro then you are using the multi-threaded runtime, which uses a native thread pool that is
+configured to use the number of cores on your machine’s CPU and it has a task stealing algorithm to
+provide high parallel performance. Here’s the code that the macro expands to (it gives you an idea
+of how the Tokio runtime works):</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nn">runtime</span><span class="p">::</span><span class="nn">Builder</span><span class="p">::</span><span class="nf">new_multi_thread</span><span class="p">()</span>
+        <span class="nf">.enable_all</span><span class="p">()</span>
+        <span class="nf">.build</span><span class="p">()</span>
+        <span class="nf">.unwrap</span><span class="p">()</span>
+        <span class="nf">.block_on</span><span class="p">(</span><span class="k">async</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Hello world"</span><span class="p">);</span>
+        <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="learn-more-about-tokio">
+        
+        
+          Learn more about Tokio <a href="#learn-more-about-tokio">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-learn-more-about-tokio" name="learn-more-about-tokio"></a></p>
+
+<p>Basics:</p>
+<ul>
+  <li><a href="https://tokio.rs/tokio/tutorial">https://tokio.rs/tokio/tutorial</a></li>
+  <li>It provides a great introduction for what use cases Tokio is good for and what use cases
+that it doesn’t really work for.</li>
+  <li>For example if you’re reading a lot of files, then you can just use an ordinary thread
+pool in Rust instead of Tokio, since it doesn’t really provide additional benefit over
+it.</li>
+  <li>Another example is if your tasks involve running lots of CPU bound computations in
+parallel then you should consider using <a href="https://docs.rs/rayon/latest/rayon/"><code class="language-plaintext highlighter-rouge">rayon</code></a>.</li>
+  <li>However if you are doing a lot of IO bound tasks at the same time then Tokio rocks 🎉.</li>
+</ul>
+
+<p>Deep dives:</p>
+<ol>
+  <li>You can get more info on this topic
+ <a href="https://users.rust-lang.org/t/socket-per-thread-in-tokio/83712/7">here</a>.</li>
+  <li>For an even deeper dive into how Tokio tasks themselves are implemented for intra-task
+concurrency, please take a look at this <a href="https://without.boats/blog/let-futures-be-futures/">excellent
+article</a>.</li>
+</ol>
+      <h2 id="implementing-async-middleware-w-function-pointers">
+        
+        
+          Implementing async middleware w/ function pointers <a href="#implementing-async-middleware-w-function-pointers">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-implementing-async-middleware-w%2F-function-pointers" name="implementing-async-middleware-w%2F-function-pointers"></a></p>
+
+<p>A Redux middleware is just a function. It takes an action as an argument, and may return nothing, or
+it may return a new action. The middleware is where you are allowed to run side effects. So it is a
+natural candidate for <code class="language-plaintext highlighter-rouge">async</code>/<code class="language-plaintext highlighter-rouge">await</code> and Tokio. We will implement a simple middleware runner
+framework that allows middleware functions to be run asynchronously and produce either a new action
+or nothing.</p>
+
+<blockquote>
+  <p>📦 For a real implementation of this middleware and Redux library, check out the
+<a href="https://crates.io/crates/r3bl_rs_utils/"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate. The README has excellent
+documentation on async traits, parallel and concurrent execution, and Tokio.</p>
+
+  <p>🌟 Please star the <a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo</a> on github if
+you like it 🙏.</p>
+</blockquote>
+
+<p>So, a middleware function is of type <code class="language-plaintext highlighter-rouge">SafeFn&lt;A&gt;</code>, where <code class="language-plaintext highlighter-rouge">A</code> is the action type. Here’s what the
+struct looks like.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">tokio</span><span class="p">::{</span><span class="nn">sync</span><span class="p">::</span><span class="n">RwLock</span><span class="p">};</span>
+
+<span class="k">pub</span> <span class="k">type</span> <span class="n">SafeFn</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">RwLock</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nf">FnMut</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="o">+</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+<span class="c1">//                   ^^^^^^^^^^                             ^^^^^^^^^^^</span>
+<span class="c1">//                   Safe to pass      Declare`FnMut` has thread safety</span>
+<span class="c1">//                   around.           requirement to rust compiler.</span>
+
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">SafeFnWrapper</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="n">fn_mut</span><span class="p">:</span> <span class="n">SafeFn</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s how we can read the <code class="language-plaintext highlighter-rouge">SafeFn</code> definition.</p>
+
+<ol>
+  <li>The middleware function signature is just <code class="language-plaintext highlighter-rouge">FnMut(A) -&gt; Option&lt;A&gt;</code>.</li>
+  <li>However, we want to make this asynchronous and parallel, so we have to wrap it in a <code class="language-plaintext highlighter-rouge">RwLock</code>
+(which is a mutex), and then wrap that in an <code class="language-plaintext highlighter-rouge">Arc</code>. Now we can safely clone the <code class="language-plaintext highlighter-rouge">Arc</code> and pass it
+between thread boundaries. Please note that the <code class="language-plaintext highlighter-rouge">RwLock</code> is nor a “blocking” mutex or lock,
+rather it is an <code class="language-plaintext highlighter-rouge">async</code> one. More on this in <a href="#advanced-topic---locks-and-tokio">this section</a>.</li>
+  <li>Finally, we also have to mark the function w/ 2 other traits: <code class="language-plaintext highlighter-rouge">Sync</code> and <code class="language-plaintext highlighter-rouge">Send</code>. This is to be
+explicit and let the Rust compiler know that we intend for this lambda to be passed between
+thread boundaries, and that it should ensure that this is safe to do so! This is part of the
+awesomeness that is Rust and what allows us to use “fearless concurrency”.</li>
+</ol>
+
+<blockquote>
+  <p>💡 To understand the lifetimes and traits that are used, here are some excellent resources on
+lifetimes, closures, and returning references:</p>
+
+  <ol>
+    <li><a href="https://stackoverflow.com/questions/59442080/rust-pass-a-function-reference-to-threads">https://stackoverflow.com/questions/59442080/rust-pass-a-function-reference-to-threads</a></li>
+    <li><a href="https://stackoverflow.com/questions/68547268/cannot-borrow-data-in-an-arc-as-mutable">https://stackoverflow.com/questions/68547268/cannot-borrow-data-in-an-arc-as-mutable</a></li>
+    <li><a href="https://willmurphyscode.net/2018/04/25/fixing-a-simple-lifetime-error-in-rust/">https://willmurphyscode.net/2018/04/25/fixing-a-simple-lifetime-error-in-rust/</a></li>
+    <li><a href="https://medium.com/@alistairisrael/demystifying-closures-futures-and-async-await-in-rust-part-3-async-await-9ed20eede7a4">https://medium.com/@alistairisrael/demystifying-closures-futures-and-async-await-in-rust-part-3-async-await-9ed20eede7a4</a></li>
+  </ol>
+</blockquote>
+
+<p>Please note that so far we don’t have any mention of <code class="language-plaintext highlighter-rouge">async</code> or <code class="language-plaintext highlighter-rouge">await</code>. And we also have another
+struct called <code class="language-plaintext highlighter-rouge">SafeFnWrapper&lt;A&gt;</code> that we haven’t mentioned yet.</p>
+
+<ol>
+  <li>We actually don’t work directly with <code class="language-plaintext highlighter-rouge">SafeFn</code> type, and instead we use the <code class="language-plaintext highlighter-rouge">SafeFnWrapper</code> struct
+which simply manages a <code class="language-plaintext highlighter-rouge">SafeFn</code> type. This allows us to manage the complexity of the
+<code class="language-plaintext highlighter-rouge">Arc&lt;RwLock&lt;dyn FnMut...&gt;&gt;</code> thread-safe lambda and be able to easily clone the <code class="language-plaintext highlighter-rouge">Arc</code> then unwrap
+and use it as needed.</li>
+  <li>This is a very useful pattern that we will be using more extensively when we
+<a href="https://developerlife.com/2022/03/12/rust-redux/">create the full Redux store</a>.</li>
+</ol>
+
+<p>Here’s the impl block of the <code class="language-plaintext highlighter-rouge">SafeFnWrapper</code> struct.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">tokio</span><span class="p">::{</span><span class="nn">sync</span><span class="p">::</span><span class="n">RwLock</span><span class="p">,</span> <span class="nn">task</span><span class="p">::</span><span class="n">JoinHandle</span><span class="p">};</span>
+
+<span class="k">pub</span> <span class="k">type</span> <span class="n">Future</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">JoinHandle</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">A</span><span class="p">:</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="k">'static</span><span class="o">&gt;</span> <span class="n">SafeFnWrapper</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">(</span>
+    <span class="n">fn_mut</span><span class="p">:</span> <span class="k">impl</span> <span class="nf">FnMut</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="k">'static</span>
+  <span class="p">)</span> <span class="k">-&gt;</span> <span class="n">SafeFnWrapper</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nn">SafeFnWrapper</span><span class="p">::</span><span class="nf">set</span><span class="p">(</span><span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">RwLock</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">fn_mut</span><span class="p">)))</span>
+  <span class="p">}</span>
+
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">set</span><span class="p">(</span><span class="n">fn_mut</span><span class="p">:</span> <span class="n">SafeFn</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="k">Self</span> <span class="p">{</span>
+    <span class="k">Self</span> <span class="p">{</span> <span class="n">fn_mut</span> <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="cd">/// Get a clone of the `fn_mut` field (which holds a thread safe `FnMut`).</span>
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">SafeFn</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">self</span><span class="py">.fn_mut</span><span class="nf">.clone</span><span class="p">()</span>
+  <span class="p">}</span>
+
+  <span class="cd">/// This is an `async` function. Make sure to use `await` on the return value.</span>
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">spawn</span><span class="p">(</span>
+    <span class="o">&amp;</span><span class="k">self</span><span class="p">,</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span>
+  <span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Future</span><span class="o">&lt;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">arc_lock_fn_mut</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.get</span><span class="p">();</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+      <span class="c1">// Delay before calling the function.</span>
+      <span class="k">let</span> <span class="n">delay_ms</span> <span class="o">=</span> <span class="nn">rand</span><span class="p">::</span><span class="nf">thread_rng</span><span class="p">()</span><span class="nf">.gen_range</span><span class="p">(</span><span class="mi">100</span><span class="o">..</span><span class="mi">1_000</span><span class="p">)</span> <span class="k">as</span> <span class="nb">u64</span><span class="p">;</span>
+      <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">delay_ms</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+      <span class="k">let</span> <span class="k">mut</span> <span class="n">fn_mut</span> <span class="o">=</span> <span class="n">arc_lock_fn_mut</span><span class="nf">.write</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span> <span class="c1">// 👀 `unwrap()` for blocking.</span>
+      <span class="nf">fn_mut</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>⚡ There are some subtleties to using a “blocking” lock / mutex instead of an async one. Read more
+about it in <a href="#advanced-topic---locks-and-tokio">this section</a>.</p>
+</blockquote>
+
+<p>We have just used the <code class="language-plaintext highlighter-rouge">async</code> keyword, but not <code class="language-plaintext highlighter-rouge">await</code> yet. We have a <code class="language-plaintext highlighter-rouge">spawn()</code> function that
+returns a <code class="language-plaintext highlighter-rouge">Future&lt;Option&lt;A&gt;&gt;</code> type. Its just a type alias for <code class="language-plaintext highlighter-rouge">tokio::task::JoinHandle</code>.</p>
+
+<ol>
+  <li>This is returned by a call to <code class="language-plaintext highlighter-rouge">tokio::spawn()</code> which <strong>actually asynchronously runs the lambda</strong>.</li>
+  <li>This allows the calling thread not to be blocked while the lambda is running 🎉.</li>
+  <li>Just to simulate a task w/ long and unknown delay, each spawn operation will wait between 1 and 5
+seconds before calling the lambda.</li>
+</ol>
+
+<p>So we could <code class="language-plaintext highlighter-rouge">await</code> the results that come back from the <code class="language-plaintext highlighter-rouge">spawn()</code> function. This is just like
+TypeScript promises. The <code class="language-plaintext highlighter-rouge">spawn()</code> function returns a promise, that the caller can <code class="language-plaintext highlighter-rouge">await</code> and
+unwrap into a result. So we have set the caller up to be an <code class="language-plaintext highlighter-rouge">async</code> function that <code class="language-plaintext highlighter-rouge">await</code>s the
+result of <code class="language-plaintext highlighter-rouge">spawn()</code>.</p>
+
+<blockquote>
+  <p>🤔 A Tokio task is an asynchronous green thread. They are created by passing an <code class="language-plaintext highlighter-rouge">async</code> block to
+<code class="language-plaintext highlighter-rouge">tokio::spawn</code>. The <code class="language-plaintext highlighter-rouge">tokio::spawn</code> function returns a <code class="language-plaintext highlighter-rouge">JoinHandle</code>, which the caller may use to
+interact with the spawned task. The <code class="language-plaintext highlighter-rouge">async</code> block may have a return value. The caller may obtain
+the return value using <code class="language-plaintext highlighter-rouge">.await</code> on the <code class="language-plaintext highlighter-rouge">JoinHandle</code>.</p>
+
+  <p>Tasks are the unit of execution managed by the scheduler. Spawning the task submits it to the
+Tokio scheduler, which then ensures that the task executes when it has work to do. The spawned
+task may be executed on the same thread as where it was spawned, or it may execute on a different
+runtime thread. The task can also be moved between threads after being spawned.</p>
+
+  <p>Tasks in Tokio are very lightweight. Under the hood, they require only a single allocation and 64
+bytes of memory. Applications should feel free to spawn thousands, if not millions of tasks. Read
+more about Tokio’s <code class="language-plaintext highlighter-rouge">spawn()</code> function <a href="https://tokio.rs/tokio/tutorial/spawning">here</a>.</p>
+</blockquote>
+
+<p>Please note the use of <code class="language-plaintext highlighter-rouge">'static</code> bound in the impl block (with <code class="language-plaintext highlighter-rouge">Sync + Send</code>). When you spawn a task
+on the Tokio runtime, its type’s lifetime must be <code class="language-plaintext highlighter-rouge">'static</code>. This means that the spawned task must
+not contain any references to data owned outside the task.</p>
+
+<blockquote>
+  <p>🤔 It is a common misconception that <code class="language-plaintext highlighter-rouge">'static</code> always means “lives forever”, but this is not the
+case. Just because a value is <code class="language-plaintext highlighter-rouge">'static</code> does not mean that you have a memory leak. You can read
+more in Common Rust Lifetime Misconceptions
+<a href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/common-rust-lifetime-misconceptions.md#2-if-t-static-then-t-must-be-valid-for-the-entire-program">here</a>.</p>
+
+  <p>🐝 <code class="language-plaintext highlighter-rouge">Sync</code> + <code class="language-plaintext highlighter-rouge">Send</code> traits:</p>
+
+  <ul>
+    <li>Tasks spawned by <code class="language-plaintext highlighter-rouge">tokio::spawn</code> must implement the <code class="language-plaintext highlighter-rouge">Send</code> marker trait. This allows the Tokio
+runtime to move the tasks between threads while they are suspended at an <code class="language-plaintext highlighter-rouge">.await</code>.</li>
+    <li>Tasks are <code class="language-plaintext highlighter-rouge">Send</code> when all data that is held across <code class="language-plaintext highlighter-rouge">.await</code> calls is <code class="language-plaintext highlighter-rouge">Send</code>. This is a bit
+subtle. When <code class="language-plaintext highlighter-rouge">.await</code> is called, the task yields back to the scheduler. The next time the task
+is executed, it resumes from the point it last yielded.</li>
+    <li>To make this work, all state that is used after <code class="language-plaintext highlighter-rouge">.await</code> must be saved by the task. If this
+state is <code class="language-plaintext highlighter-rouge">Send</code>, i.e. can be moved across threads, then the task itself can be moved across
+threads. Conversely, if the state is not <code class="language-plaintext highlighter-rouge">Send</code>, then neither is the task.</li>
+  </ul>
+</blockquote>
+
+<p>Now that we have <code class="language-plaintext highlighter-rouge">SafeWrapperFn</code> struct, let’s take a look at some middleware functions. Below, we
+have two of them: <code class="language-plaintext highlighter-rouge">logger_mw()</code> and <code class="language-plaintext highlighter-rouge">adder_mw()</code>. And we have also defined the action enum called
+<code class="language-plaintext highlighter-rouge">Action</code>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="k">crate</span><span class="p">::</span><span class="nn">middleware</span><span class="p">::</span><span class="n">SafeFnWrapper</span><span class="p">;</span>
+
+<span class="cd">/// Does not capture context or return anything.</span>
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">logger_mw</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">SafeFnWrapper</span><span class="o">&lt;</span><span class="n">Action</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">logger_lambda</span> <span class="o">=</span> <span class="p">|</span><span class="n">action</span><span class="p">:</span> <span class="n">Action</span><span class="p">|</span> <span class="p">{</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"logging: {:?}"</span><span class="p">,</span> <span class="n">action</span><span class="p">);</span>
+    <span class="nb">None</span>
+  <span class="p">};</span>
+  <span class="nn">SafeFnWrapper</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">logger_lambda</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="cd">/// Captures context and returns a `Future&lt;Action&gt;`.</span>
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">adder_mw</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">SafeFnWrapper</span><span class="o">&lt;</span><span class="n">Action</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="k">mut</span> <span class="n">stack</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">i32</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nn">Vec</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+  <span class="k">let</span> <span class="n">adder_lambda</span> <span class="o">=</span> <span class="k">move</span> <span class="p">|</span><span class="n">action</span><span class="p">:</span> <span class="n">Action</span><span class="p">|</span> <span class="k">match</span> <span class="n">action</span> <span class="p">{</span>
+    <span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+      <span class="k">let</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+      <span class="n">stack</span><span class="nf">.push</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>
+      <span class="nf">Some</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Result</span><span class="p">(</span><span class="n">sum</span><span class="p">))</span>
+    <span class="p">}</span>
+    <span class="n">_</span> <span class="k">=&gt;</span> <span class="nb">None</span><span class="p">,</span>
+  <span class="p">};</span>
+  <span class="nn">SafeFnWrapper</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">adder_lambda</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="cd">/// Action enum.</span>
+<span class="nd">#[derive(Debug,</span> <span class="nd">PartialEq,</span> <span class="nd">Eq,</span> <span class="nd">Hash,</span> <span class="nd">Clone)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">Action</span> <span class="p">{</span>
+  <span class="nf">Add</span><span class="p">(</span><span class="nb">i32</span><span class="p">,</span> <span class="nb">i32</span><span class="p">),</span>
+  <span class="nf">Result</span><span class="p">(</span><span class="nb">i32</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Finally, let’s put it all together into the <code class="language-plaintext highlighter-rouge">main</code> function of our program.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Imports.</span>
+<span class="k">use</span> <span class="nn">tokio_example_lib</span><span class="p">::{</span>
+  <span class="nn">middleware</span><span class="p">::{</span><span class="n">Future</span><span class="p">,</span> <span class="n">SafeFnWrapper</span><span class="p">},</span>
+  <span class="nn">my_middleware</span><span class="p">::{</span><span class="n">adder_mw</span><span class="p">,</span> <span class="n">logger_mw</span><span class="p">,</span> <span class="n">Action</span><span class="p">},</span>
+<span class="p">};</span>
+
+<span class="nd">#[tokio::main]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="k">mut</span> <span class="n">handles</span> <span class="o">=</span> <span class="nn">Vec</span><span class="p">::</span><span class="o">&lt;</span><span class="n">Future</span><span class="o">&lt;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="n">Action</span><span class="o">&gt;&gt;&gt;</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+
+  <span class="c1">// Spawn tasks and don't await their completion - fire and forget so to speak.</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">mw_fun</span><span class="p">:</span> <span class="n">SafeFnWrapper</span><span class="o">&lt;</span><span class="n">Action</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nf">logger_mw</span><span class="p">();</span>
+    <span class="n">handles</span><span class="nf">.push</span><span class="p">(</span><span class="n">mw_fun</span><span class="nf">.spawn</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)));</span>
+    <span class="n">handles</span><span class="nf">.push</span><span class="p">(</span><span class="n">mw_fun</span><span class="nf">.spawn</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)));</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Spawn tasks and await their completion.</span>
+  <span class="p">{</span>
+    <span class="k">let</span> <span class="n">mw_fun</span><span class="p">:</span> <span class="n">SafeFnWrapper</span><span class="o">&lt;</span><span class="n">Action</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nf">adder_mw</span><span class="p">();</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">mw_fun</span><span class="nf">.spawn</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">mw_fun</span><span class="nf">.spawn</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">());</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Needed to wait for all the spawned futures to complete, otherwise</span>
+  <span class="c1">// the tokio runtime spawned in `main()` before the spawned futures complete.</span>
+  <span class="c1">// More info: https://tokio.rs/tokio/topics/bridging</span>
+  <span class="k">for</span> <span class="n">handle</span> <span class="k">in</span> <span class="n">handles</span> <span class="p">{</span>
+    <span class="n">handle</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here you can finally see the use of the <code class="language-plaintext highlighter-rouge">async</code> and <code class="language-plaintext highlighter-rouge">await</code> keywords. Both middleware functions can
+be spawned and run concurrently by the Tokio runtime. You can see that there are multiple calls to
+the <code class="language-plaintext highlighter-rouge">spawn()</code> method on both of the middleware function objects.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">spawn()</code> without <code class="language-plaintext highlighter-rouge">await</code>:
+    <ul>
+      <li>We don’t really care what result the <code class="language-plaintext highlighter-rouge">logger_mw()</code> call produces. So we don’t have to <code class="language-plaintext highlighter-rouge">.await</code>
+it. We can safely fire and forget it.</li>
+      <li>The two calls to <code class="language-plaintext highlighter-rouge">mw_fun.spawn()</code> run in parallel 🚀. The <code class="language-plaintext highlighter-rouge">main()</code> function doesn’t wait for
+these functions to return anything. And <code class="language-plaintext highlighter-rouge">mw_fun.spawn()</code> is the first call that the <code class="language-plaintext highlighter-rouge">main()</code>
+function waits for it to complete.</li>
+      <li>However, in order to prevent the Tokio runtime from
+<a href="https://tokio.rs/tokio/topics/bridging">exiting before the spawned tasks have been completed</a>,
+we have to <code class="language-plaintext highlighter-rouge">await</code> the futures (in the for loop at the end).</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">spawn()</code> with <code class="language-plaintext highlighter-rouge">await</code>:
+    <ul>
+      <li>We want to do something w/ result from the <code class="language-plaintext highlighter-rouge">adder_mw()</code> calls.</li>
+      <li>So we <code class="language-plaintext highlighter-rouge">.await</code> them, and the result is then unwrapped and printed to the console.</li>
+      <li>The <code class="language-plaintext highlighter-rouge">async</code> <code class="language-plaintext highlighter-rouge">main()</code> function waits after each <code class="language-plaintext highlighter-rouge">mw_fun.spawn()</code> call with the <code class="language-plaintext highlighter-rouge">.await</code> call
+then unwraps the result and prints it.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>Here’s the output that’s produced by the program before it exits. Note that each function will show
+up in the terminal w/ a different delay since each task can take between 100 and 1000 ms. However,
+the program won’t exit until all 4 tasks have been completed, regardless of how long they take 👏.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>cargo run
+logging: Add<span class="o">(</span>1, 2<span class="o">)</span>
+logging: Add<span class="o">(</span>1, 2<span class="o">)</span>
+Some<span class="o">(</span>Result<span class="o">(</span>3<span class="o">))</span>
+Some<span class="o">(</span>Result<span class="o">(</span>3<span class="o">))</span>
+</code></pre></div></div>
+      <h2 id="implementing-async-middleware-w-async-traits">
+        
+        
+          Implementing async middleware w/ async traits <a href="#implementing-async-middleware-w-async-traits">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-implementing-async-middleware-w%2F-async-traits" name="implementing-async-middleware-w%2F-async-traits"></a></p>
+
+<p>You can use the <code class="language-plaintext highlighter-rouge">async-trait</code> crate in order to use the <code class="language-plaintext highlighter-rouge">async</code> keyword in your trait methods. This
+is an alternative approach to using function pointers in the previous section.</p>
+
+<p>Please read the <a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux">README</a> of the
+<a href="https://crates.io/crates/r3bl_rs_utils/"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> crate</a> for details on how to use them, for
+both parallel and concurrent execution of <code class="language-plaintext highlighter-rouge">async</code> middleware. Instead of using function pointers,
+the new implementation uses <code class="language-plaintext highlighter-rouge">async</code> trait objects (which are much easier to reason about and create,
+and also can be made <code class="language-plaintext highlighter-rouge">async</code>).</p>
+
+<blockquote>
+  <p>📦 For a real implementation of this middleware and Redux library, check out the
+<a href="https://crates.io/crates/r3bl_rs_utils/"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate. The README has excellent
+documentation on async traits, parallel and concurrent execution, and Tokio.</p>
+
+  <p>🌟 Please star the <a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo</a> on github if
+you like it 🙏.</p>
+</blockquote>
+      <h2 id="writing-tests">
+        
+        
+          Writing tests <a href="#writing-tests">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-writing-tests" name="writing-tests"></a></p>
+
+<p>Tokio provides <a href="https://docs.rs/tokio/latest/tokio/attr.test.html">testing support</a> for the code
+that we’ve just written. Here’s an integration test for the middleware functions that are shown
+above.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::{</span><span class="nb">Arc</span><span class="p">,</span> <span class="n">Mutex</span><span class="p">};</span>
+
+<span class="k">use</span> <span class="nn">tokio_example_lib</span><span class="p">::{</span>
+  <span class="nn">middleware</span><span class="p">::</span><span class="n">SafeFnWrapper</span><span class="p">,</span>
+  <span class="nn">my_middleware</span><span class="p">::{</span><span class="n">adder_mw</span><span class="p">,</span> <span class="n">logger_mw</span><span class="p">,</span> <span class="n">Action</span><span class="p">},</span>
+<span class="p">};</span>
+
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_logger_mw_works</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">logger_mw</span><span class="p">()</span><span class="nf">.spawn</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+  <span class="nd">assert!</span><span class="p">(</span><span class="n">result</span><span class="nf">.is_none</span><span class="p">());</span>
+<span class="p">}</span>
+
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_adder_mw_works</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">adder_mw</span><span class="p">()</span><span class="nf">.spawn</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+  <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Result</span><span class="p">(</span><span class="mi">3</span><span class="p">)));</span>
+<span class="p">}</span>
+
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_complex_mw_example_works</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">stack</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Mutex</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nd">vec!</span><span class="p">[]));</span>
+  <span class="k">let</span> <span class="n">stack_ref</span> <span class="o">=</span> <span class="n">stack</span><span class="nf">.clone</span><span class="p">();</span>
+  <span class="k">let</span> <span class="n">adder_lambda</span> <span class="o">=</span> <span class="k">move</span> <span class="p">|</span><span class="n">action</span><span class="p">:</span> <span class="n">Action</span><span class="p">|</span> <span class="k">match</span> <span class="n">action</span> <span class="p">{</span>
+    <span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+      <span class="k">let</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+      <span class="k">let</span> <span class="k">mut</span> <span class="n">stack_ref</span> <span class="o">=</span> <span class="n">stack_ref</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+      <span class="n">stack_ref</span><span class="nf">.push</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>
+      <span class="nf">Some</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Result</span><span class="p">(</span><span class="n">sum</span><span class="p">))</span>
+    <span class="p">}</span>
+    <span class="n">_</span> <span class="k">=&gt;</span> <span class="nb">None</span><span class="p">,</span>
+  <span class="p">};</span>
+  <span class="k">let</span> <span class="n">foo</span> <span class="o">=</span> <span class="nn">SafeFnWrapper</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">adder_lambda</span><span class="p">);</span>
+  <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="n">foo</span><span class="nf">.spawn</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+  <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Result</span><span class="p">(</span><span class="mi">3</span><span class="p">)));</span>
+  <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">stack</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.len</span><span class="p">(),</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="advanced-topic---locks-and-tokio">
+        
+        
+          Advanced topic - locks and tokio <a href="#advanced-topic---locks-and-tokio">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-advanced-topic---locks-and-tokio" name="advanced-topic---locks-and-tokio"></a></p>
+
+<p>The standard library provides <code class="language-plaintext highlighter-rouge">RwLock</code> and <code class="language-plaintext highlighter-rouge">Mutex</code> types. These are meant to be used using “regular”
+blocking code, rather than “async” code. You can spawn threads that work well with these locks.
+However, if you mix and match these locks with <code class="language-plaintext highlighter-rouge">async</code> code, you’ll get problems and the Rust
+compiler will complain. Here’s the kind of issue that you might face.</p>
+
+<ol>
+  <li>Locking the mutex will block the thread, which is generally something you want to avoid in
+<code class="language-plaintext highlighter-rouge">async</code> code as it can prevent other tasks from running.</li>
+  <li>The compiler error will warn you that the mutex guard that you get by locking can’t be shared
+between threads safely, so it won’t compile.</li>
+</ol>
+
+<p>In order to fix it, you’ll need to use the <code class="language-plaintext highlighter-rouge">tokio::sync::Mutex</code> or <code class="language-plaintext highlighter-rouge">tokio::sync::RwLock</code> type. And
+you will have to:</p>
+
+<ol>
+  <li>Replace calls to (<code class="language-plaintext highlighter-rouge">lock().</code> or <code class="language-plaintext highlighter-rouge">write().</code> or <code class="language-plaintext highlighter-rouge">read().</code>) <code class="language-plaintext highlighter-rouge">unwrap()</code> with <code class="language-plaintext highlighter-rouge">.await</code>.</li>
+  <li>Make sure to use <code class="language-plaintext highlighter-rouge">.await</code> in an <code class="language-plaintext highlighter-rouge">async</code> block.</li>
+</ol>
+
+<p>This version of the lock will yield control back to the task executor when it needs to wait rather
+than blocking the thread, and will also allow it to be shared between threads if necessary.</p>
+
+<blockquote>
+  <p>🚀 Here’s more information on this topic:</p>
+
+  <ol>
+    <li><a href="https://tokio.rs/tokio/tutorial/shared-state">Official tokio docs on <code class="language-plaintext highlighter-rouge">async</code> mutex</a>.</li>
+    <li><a href="https://stackoverflow.com/a/67277503/2085356">SO thread</a>.</li>
+    <li>Please take a look at our
+<a href="https://developerlife.com/2022/03/12/rust-redux/">Redux library implementation</a> which makes
+extensive use of this.</li>
+  </ol>
+</blockquote>
+
+<p>Here’s an example using “regular” blocking code.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="n">RwLock</span><span class="p">;</span> <span class="c1">// 👀 Different for async lock.</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="n">JoinHandle</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">spawn</span><span class="p">(</span>
+  <span class="o">&amp;</span><span class="k">self</span><span class="p">,</span>
+  <span class="n">action</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Future</span><span class="o">&lt;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">arc_lock_fn_mut</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.get</span><span class="p">();</span>
+  <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+    <span class="c1">// Delay before calling the function.</span>
+    <span class="k">let</span> <span class="n">delay_ms</span> <span class="o">=</span> <span class="nn">rand</span><span class="p">::</span><span class="nf">thread_rng</span><span class="p">()</span><span class="nf">.gen_range</span><span class="p">(</span><span class="mi">100</span><span class="o">..</span><span class="mi">1_000</span><span class="p">)</span> <span class="k">as</span> <span class="nb">u64</span><span class="p">;</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">delay_ms</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">fn_mut</span> <span class="o">=</span> <span class="n">arc_lock_fn_mut</span><span class="nf">.write</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span> <span class="c1">// 👀 Different for `async` lock.</span>
+    <span class="nf">fn_mut</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s an example after switching to <code class="language-plaintext highlighter-rouge">async</code> locks.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="n">RwLock</span><span class="p">;</span> <span class="c1">// 👀 Different from blocking.</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="n">JoinHandle</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">spawn</span><span class="p">(</span>
+  <span class="o">&amp;</span><span class="k">self</span><span class="p">,</span>
+  <span class="n">action</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Future</span><span class="o">&lt;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">arc_lock_fn_mut</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.get</span><span class="p">();</span>
+  <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+    <span class="c1">// Delay before calling the function.</span>
+    <span class="k">let</span> <span class="n">delay_ms</span> <span class="o">=</span> <span class="nn">rand</span><span class="p">::</span><span class="nf">thread_rng</span><span class="p">()</span><span class="nf">.gen_range</span><span class="p">(</span><span class="mi">100</span><span class="o">..</span><span class="mi">1_000</span><span class="p">)</span> <span class="k">as</span> <span class="nb">u64</span><span class="p">;</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">delay_ms</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">fn_mut</span> <span class="o">=</span> <span class="n">arc_lock_fn_mut</span><span class="nf">.write</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>  <span class="c1">// 👀 Different from blocking.</span>
+    <span class="nf">fn_mut</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="async-lambdas">
+        
+        
+          Async lambdas <a href="#async-lambdas">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-async-lambdas" name="async-lambdas"></a></p>
+
+<blockquote>
+  <p>🪄 Currently <code class="language-plaintext highlighter-rouge">async</code> lambdas are only supported in Rust nightly channel, after enabling the
+feature <code class="language-plaintext highlighter-rouge">async_closure</code>. Please see this
+<a href="https://github.com/rust-lang/rfcs/blob/master/text/2394-async_await.md#async--closures">async RFC for more details</a>.</p>
+</blockquote>
+      <h3 id="without-macros">
+        
+        
+          Without macros <a href="#without-macros">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-without-macros" name="without-macros"></a></p>
+
+<p>The following snippet is an example of an <code class="language-plaintext highlighter-rouge">async</code> function that accepts a lambda, w/out enabling
+<code class="language-plaintext highlighter-rouge">async_closure</code>. Note that the return type is of type <code class="language-plaintext highlighter-rouge">Fun</code> which is <code class="language-plaintext highlighter-rouge">Future&lt;Output = R&gt;</code>.
+Essentially, this is a function that returns a <code class="language-plaintext highlighter-rouge">Future</code> just like a TypeScript promises. However, it
+has severe limitations since the <code class="language-plaintext highlighter-rouge">receiver_fn</code> argument below can’t be an <code class="language-plaintext highlighter-rouge">async</code> function.</p>
+
+<p>For more information, see this <a href="https://stackoverflow.com/a/60723870/2085356">SO thread</a>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="n">RwLock</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">future</span><span class="p">::</span><span class="n">Future</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="n">unwrap_arc_write_lock_and_call_async</span><span class="o">&lt;</span><span class="nb">Fn</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">Fut</span><span class="p">,</span> <span class="n">R</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="n">arc_lock_wrapped_value</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="n">RwLock</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+  <span class="n">receiver_fn</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nb">Fn</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Fut</span>
+<span class="k">where</span>
+  <span class="nb">Fn</span><span class="p">:</span> <span class="nf">FnMut</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">T</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Fut</span><span class="p">,</span>
+  <span class="n">Fut</span><span class="p">:</span> <span class="n">Future</span><span class="o">&lt;</span><span class="n">Output</span> <span class="o">=</span> <span class="n">R</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">{</span>
+  <span class="k">let</span> <span class="n">arc_copy</span> <span class="o">=</span> <span class="n">arc_lock_wrapped_value</span><span class="nf">.clone</span><span class="p">();</span>
+  <span class="k">let</span> <span class="k">mut</span> <span class="n">write_guard</span><span class="p">:</span> <span class="n">RwLockWriteGuard</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">arc_copy</span><span class="nf">.write</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>
+  <span class="nf">receiver_fn</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">write_guard</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="with-macros">
+        
+        
+          With macros <a href="#with-macros">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-with-macros" name="with-macros"></a></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">SafeListManager</code> struct shown below simply wraps a <code class="language-plaintext highlighter-rouge">Vec</code> in an <code class="language-plaintext highlighter-rouge">async</code> <code class="language-plaintext highlighter-rouge">RwLock</code> in an <code class="language-plaintext highlighter-rouge">Arc</code> and
+manages that reference, allowing for a safe way to add and remove items from the list. And passing
+that list around between threads (green or otherwise).</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="n">RwLock</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">type</span> <span class="n">SafeList</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">RwLock</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;&gt;</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">SafeListManager</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="k">where</span>
+  <span class="n">T</span><span class="p">:</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="k">'static</span><span class="p">,</span>
+<span class="p">{</span>
+  <span class="n">list</span><span class="p">:</span> <span class="n">SafeList</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">SafeListManager</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="k">where</span>
+  <span class="n">T</span><span class="p">:</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="k">'static</span><span class="p">,</span>
+<span class="p">{</span>
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">SafeList</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">self</span><span class="py">.list</span><span class="nf">.clone</span><span class="p">()</span>
+  <span class="p">}</span>
+
+  <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">push</span><span class="p">(</span>
+    <span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span>
+    <span class="n">item</span><span class="p">:</span> <span class="n">T</span><span class="p">,</span>
+  <span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">arc</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.get</span><span class="p">();</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">locked_list</span> <span class="o">=</span> <span class="n">arc</span><span class="nf">.write</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>
+    <span class="n">locked_list</span><span class="nf">.push</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">clear</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">arc</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.get</span><span class="p">();</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">locked_list</span> <span class="o">=</span> <span class="n">arc</span><span class="nf">.write</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>
+    <span class="n">locked_list</span><span class="nf">.clear</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s a macro called <code class="language-plaintext highlighter-rouge">iterate_over_vec_with_async</code> that can iterate over the list and call a
+function on each item. This function is passed as a lambda to this macro.</p>
+
+<blockquote>
+  <p>💡 For more information on creating macros, check out these resources:</p>
+
+  <ul>
+    <li><a href="https://stackoverflow.com/questions/28953262/pass-member-function-body-as-macro-parameter">https://stackoverflow.com/questions/28953262/pass-member-function-body-as-macro-parameter</a></li>
+    <li><a href="https://cheats.rs/#tooling-directives">https://cheats.rs/#tooling-directives</a></li>
+    <li><a href="https://dhghomon.github.io/easy_rust/Chapter_61.html">https://dhghomon.github.io/easy_rust/Chapter_61.html</a></li>
+    <li><a href="https://stackoverflow.com/questions/26731243/how-do-i-use-a-macro-across-module-files">https://stackoverflow.com/questions/26731243/how-do-i-use-a-macro-across-module-files</a></li>
+  </ul>
+</blockquote>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Define macro.</span>
+<span class="nd">macro_rules!</span> <span class="n">iterate_over_vec_with_async</span> <span class="p">{</span>
+  <span class="p">(</span><span class="nv">$locked_list_arc:expr</span><span class="p">,</span> <span class="nv">$receiver_fn:expr</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">locked_list</span> <span class="o">=</span> <span class="nv">$locked_list_arc</span><span class="nf">.get</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">list</span> <span class="o">=</span> <span class="n">locked_list</span><span class="nf">.read</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">_i</span><span class="p">,</span> <span class="n">list_item</span><span class="p">)</span> <span class="k">in</span> <span class="n">list</span><span class="nf">.iter</span><span class="p">()</span><span class="nf">.enumerate</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nv">$receiver_fn</span><span class="p">(</span><span class="n">list_item</span><span class="nf">.clone</span><span class="p">())</span><span class="k">.await</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">use</span> <span class="n">iterate_over_vec_with_async</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Here’s some code that uses the macro.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Use macro.</span>
+<span class="k">let</span> <span class="n">state_clone</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">self</span><span class="nf">.get_state_clone</span><span class="p">();</span>
+<span class="nd">iterate_over_vec_with_async!</span><span class="p">(</span>
+  <span class="k">self</span><span class="py">.subscriber_manager</span><span class="p">,</span>
+  <span class="p">|</span><span class="n">subscriber_fn</span><span class="p">:</span> <span class="n">SafeSubscriberFnWrapper</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span><span class="p">|</span> <span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+    <span class="n">subscriber_fn</span><span class="nf">.spawn</span><span class="p">(</span><span class="n">state_clone</span><span class="nf">.clone</span><span class="p">())</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+  <span class="p">}</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<p>Without the macro, this is what the code would look like.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="n">locked_list</span> <span class="o">=</span> <span class="k">self</span><span class="py">.subscriber_manager</span><span class="nf">.get</span><span class="p">();</span>
+<span class="k">let</span> <span class="n">list</span> <span class="o">=</span> <span class="n">locked_list</span><span class="nf">.read</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>
+<span class="k">for</span> <span class="n">subscriber_fn</span> <span class="k">in</span> <span class="n">list</span><span class="nf">.iter</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">subscriber_fn</span><span class="nf">.spawn</span><span class="p">(</span><span class="k">self</span><span class="py">.state</span><span class="nf">.clone</span><span class="p">())</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>⚡ You can find this code in the full Redux library implementation
+<a href="https://developerlife.com/2022/03/12/rust-redux/">here</a>.</p>
+</blockquote>
+      <h2 id="wrapping-up">
+        
+        
+          Wrapping up <a href="#wrapping-up">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-wrapping-up" name="wrapping-up"></a></p>
+
+<p>This is a simple introduction to Tokio. The tutorials and videos are a great resource for learning
+Tokio, along w/ the tutorials that are provided on the <a href="https://tokio.rs/">Tokio website</a>.</p>
+
+<p>We will take this and build upon it further to create a full Redux library in Rust using Tokio
+<a href="https://developerlife.com/2022/03/12/rust-redux/">here</a>.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CC">
+                #cc</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TUI">
+                #tui</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/05/27/task-api-3-of-5-monitoring-http-post-operations/">
+                        Task API (3 of 3) - Monitoring HTTP POST operations
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/08/task-api-2-of-5-task-api-in-depth/">
+                        Task API (2 of 3) - Task API in-depth
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/05/task-api-quick-start-guide/">
+                        Task API (1 of 3) - Quick Start Guide
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/">
+                        Creating multi-threaded Swing apps that consume web services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2006/06/09/introduction-to-java-50-javautilconcurrent-api/">
+                        Introduction to Java 5 java.util.concurrent API
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/introduction-to-threads/">
+                        Introduction to Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/04/ockam-routing-building-end-to-end-channels/">
+                        Create End-to-End Channels in Rust with Ockam Routing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2022/03/12/rust-tokio/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

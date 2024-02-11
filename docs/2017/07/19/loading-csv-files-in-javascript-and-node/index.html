@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Loading CSV files in Node | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Loading CSV files in Node" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Tutorial and code on GitHub that demonstrates the use of ya-csv and inquirer to load CSV files from node.js and convert them into JSON files, to generate sample data for other apps." />
+<meta property="og:description" content="Tutorial and code on GitHub that demonstrates the use of ya-csv and inquirer to load CSV files from node.js and convert them into JSON files, to generate sample data for other apps." />
+<link rel="canonical" href="http://developerlife.com/2017/07/19/loading-csv-files-in-javascript-and-node/" />
+<meta property="og:url" content="http://developerlife.com/2017/07/19/loading-csv-files-in-javascript-and-node/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-07-19T18:36:19-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Loading CSV files in Node" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2017-07-19T18:36:19-05:00","datePublished":"2017-07-19T18:36:19-05:00","description":"Tutorial and code on GitHub that demonstrates the use of ya-csv and inquirer to load CSV files from node.js and convert them into JSON files, to generate sample data for other apps.","headline":"Loading CSV files in Node","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2017/07/19/loading-csv-files-in-javascript-and-node/"},"url":"http://developerlife.com/2017/07/19/loading-csv-files-in-javascript-and-node/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Loading CSV files in Node&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Loading CSV files in Node</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Loading CSV files in Node</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jul 19, 2017
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#instructions-to-run-this">Instructions to run this</a></li>
+  <li><a href="#what-is-in-this-project">What is in this project</a>
+    <ul>
+      <li><a href="#ya-csv">ya-csv</a></li>
+      <li><a href="#inquirer">inquirer</a></li>
+      <li><a href="#flow-type">Flow type</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h1 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h1>
+    
+
+<p>This project loads a CSV file from the local filesystem and generates a JSON object that’s written
+to a JSON file, which can be used for sample data in other projects.</p>
+      <h1 id="instructions-to-run-this">
+        
+        
+          Instructions to run this <a href="#instructions-to-run-this">#</a>
+        
+        
+      </h1>
+    
+
+<ol>
+  <li>
+    <p>Clone the project from <a href="https://github.com/r3bl-alliance/node-csv-to-json">GitHub</a>
+<code class="language-plaintext highlighter-rouge">https://github.com/r3bl-alliance/node-csv-to-json</code>.</p>
+  </li>
+  <li>
+    <p>Go to the folder that you cloned the project in, and run <code class="language-plaintext highlighter-rouge">npm install</code>.</p>
+  </li>
+  <li>
+    <p>Then build the code using <code class="language-plaintext highlighter-rouge">npm run build</code>.</p>
+  </li>
+  <li>
+    <p>Finally run it using <code class="language-plaintext highlighter-rouge">npm start</code>.</p>
+  </li>
+</ol>
+
+<p>There’s a script <code class="language-plaintext highlighter-rouge">run.sh</code> that is provided for your convenience to do the build and run step in one.</p>
+      <h1 id="what-is-in-this-project">
+        
+        
+          What is in this project <a href="#what-is-in-this-project">#</a>
+        
+        
+      </h1>
+    
+
+<p>There are a few interesting things in this project that I will call out in this article.</p>
+
+<ol>
+  <li>
+    <p>Using <code class="language-plaintext highlighter-rouge">ya-csv</code> to load CSV files from the filesystem. More info
+<a href="https://www.npmjs.com/package/ya-csv">here</a>.</p>
+  </li>
+  <li>
+    <p>Using <code class="language-plaintext highlighter-rouge">inquirer</code> to prompt the user for input from the console. This is a good library to build a
+command line interpreter (CLI). More info <a href="https://www.npmjs.com/package/inquirer">here</a>.</p>
+  </li>
+  <li>
+    <p>Using Flow type in order to annotate the JavaScript code with static typing that is used while
+building, but stripped before running the code. More info
+<a href="https://flow.org/en/docs/types/">here</a>.</p>
+  </li>
+</ol>
+      <h2 id="ya-csv">
+        
+        
+          ya-csv <a href="#ya-csv">#</a>
+        
+        
+      </h2>
+    
+
+<p>This is a really simple to use library to read and write CSV files. Here’s the code to read a CSV
+file from your local filesystem.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">createObjectFromCSVFile</span><span class="p">(</span><span class="nx">inputFile</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span> <span class="nx">onFileLoadedFunction</span><span class="p">:</span> <span class="nb">Array</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">csv</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">ya-csv</span><span class="dl">"</span><span class="p">)</span>
+  <span class="kd">let</span> <span class="nx">returnValue</span><span class="p">:</span> <span class="nb">Array</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Array</span><span class="p">()</span>
+  <span class="kd">let</span> <span class="nx">reader</span> <span class="o">=</span> <span class="nx">csv</span><span class="p">.</span><span class="nf">createCsvFileReader</span><span class="p">(</span><span class="nx">inputFile</span><span class="p">,</span> <span class="p">{</span> <span class="na">columnsFromHeader</span><span class="p">:</span> <span class="kc">true</span> <span class="p">})</span>
+  <span class="nx">reader</span><span class="p">.</span><span class="nf">addListener</span><span class="p">(</span>
+    <span class="dl">"</span><span class="s2">data</span><span class="dl">"</span><span class="p">,</span>
+    <span class="c1">// Called after each row from CSV file is loaded.</span>
+    <span class="p">(</span><span class="nx">rowObject</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="c1">// The rowObject is a JSON object, you can get it's properties</span>
+      <span class="c1">// out by using the keys that are from the first header row of</span>
+      <span class="c1">// the input CSV file.</span>
+      <span class="c1">// Eg: if header row of the CSV file is: Type, Trans Date,</span>
+      <span class="c1">// Post Date then you can use rowObject['Type'],</span>
+      <span class="c1">// rowObject['Trans Date'], and rowObject['Post Date'] to get</span>
+      <span class="c1">// the values for each of the columns in the row.</span>
+      <span class="nx">returnValue</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="nx">rowObject</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">)</span>
+
+  <span class="nx">reader</span><span class="p">.</span><span class="nf">addListener</span><span class="p">(</span>
+    <span class="dl">"</span><span class="s2">end</span><span class="dl">"</span><span class="p">,</span>
+    <span class="c1">// Called after all rows have been loaded from CSV file.</span>
+    <span class="nf">function </span><span class="p">(</span><span class="nx">data_row</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nf">onFileLoadedFunction</span><span class="p">(</span><span class="nx">reader</span><span class="p">.</span><span class="nx">columnNames</span><span class="p">,</span> <span class="nx">returnValue</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">ya-csv</code> library reads each line from your input file and fires an event <code class="language-plaintext highlighter-rouge">data</code> that you attach
+a listener function to. If you have 10 rows in your CSV (including the header), then the function
+will be run 9 times.</p>
+
+<p>By passing the object <code class="language-plaintext highlighter-rouge">{columnsFromHeader: true}</code> to the <code class="language-plaintext highlighter-rouge">createCsvFileReader()</code> function, you are
+telling the <code class="language-plaintext highlighter-rouge">ya-csv</code> parser to use the first line of the file to get all the header names.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">csv</span><span class="p">.</span><span class="nf">createCsvFileReader</span><span class="p">(</span><span class="nx">inputFile</span><span class="p">,</span> <span class="p">{</span> <span class="na">columnsFromHeader</span><span class="p">:</span> <span class="kc">true</span> <span class="p">})</span>
+</code></pre></div></div>
+
+<p>Here are a few lines from the <code class="language-plaintext highlighter-rouge">sampledata.csv</code> file (in the <code class="language-plaintext highlighter-rouge">assets</code> folder).</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Type,Trans Date,Post Date,Description,Amount,
+Sale,06/30/2017,07/02/2017,WHOLEFDS STC 10267,-25.25,
+Sale,06/30/2017,07/02/2017,WHOLEFDS LAT 10155,-16.56,
+Sale,06/29/2017,06/30/2017,AMAZON MKTPLACE PMTS,-12.99,
+Sale,06/29/2017,06/30/2017,Amazon.com,-44.6,
+Sale,06/29/2017,07/02/2017,WHOLEFDS STC 10267,-7.5,
+</code></pre></div></div>
+
+<p>The first line is used to get the following column names:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">Type</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Trans Date</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Post Date</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Description</code></li>
+  <li><code class="language-plaintext highlighter-rouge">Amount</code></li>
+  <li>``</li>
+</ol>
+
+<p>In the <code class="language-plaintext highlighter-rouge">data</code> listener function of the <code class="language-plaintext highlighter-rouge">ya-csv</code> parser, you can access these fields using the
+following syntax: <code class="language-plaintext highlighter-rouge">rowObject['Trans Date']</code>. Note: there are spaces in the column names, which is
+why you can’t use the normal <code class="language-plaintext highlighter-rouge">rowObject.Trans Date</code> syntax to get the cell at that column for the
+given row.</p>
+
+<p>Finally, if you wanted to write a CSV file using this library, here is some code.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">csv</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">ya-csv</span><span class="dl">"</span><span class="p">)</span>
+<span class="kd">let</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">fs</span><span class="dl">"</span><span class="p">)</span>
+<span class="kd">let</span> <span class="nx">writer</span> <span class="o">=</span> <span class="nx">csv</span><span class="p">.</span><span class="nf">createCsvStreamWriter</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nf">createWriteStream</span><span class="p">(</span><span class="dl">"</span><span class="s2">file_name.csv</span><span class="dl">"</span><span class="p">))</span>
+<span class="nx">writer</span><span class="p">.</span><span class="nf">writeRecord</span><span class="p">([</span><span class="dl">"</span><span class="s2">column1</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">column2</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">column3</span><span class="dl">"</span><span class="p">])</span>
+</code></pre></div></div>
+
+<p>Note: this code will rewrite the file everytime you create the writer. If you want to append data to
+an existing CSV file instead, then create the <code class="language-plaintext highlighter-rouge">writer</code> object in a different way.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">writer</span> <span class="o">=</span> <span class="nx">csv</span><span class="p">.</span><span class="nf">createCsvStreamWriter</span><span class="p">(</span><span class="nx">fs</span><span class="p">.</span><span class="nf">createWriteStream</span><span class="p">(</span><span class="dl">"</span><span class="s2">file_name.csv</span><span class="dl">"</span><span class="p">,</span> <span class="p">{</span> <span class="na">flags</span><span class="p">:</span> <span class="dl">"</span><span class="s2">a</span><span class="dl">"</span> <span class="p">}))</span>
+</code></pre></div></div>
+      <h2 id="inquirer">
+        
+        
+          inquirer <a href="#inquirer">#</a>
+        
+        
+      </h2>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">inquirer</code> library is a very sophisticated way to get user input. You can present the user with
+prompts and get text input, or even checkboxes, radio buttons, etc. all done as text.</p>
+
+<p>For the purposes of this project, the requirement was to get two things from the user: the input
+file name, and the output file name.</p>
+
+<p>Here’s the code to make this happen.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">inquirer</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">inquirer</span><span class="dl">"</span><span class="p">)</span>
+<span class="kd">let</span> <span class="nx">functions</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">./functions</span><span class="dl">"</span><span class="p">)</span>
+
+<span class="c1">// Display welcome message.</span>
+<span class="kd">let</span> <span class="nx">message</span><span class="p">:</span> <span class="nx">string</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">node-csv-to-json</span><span class="dl">"</span>
+<span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span>
+
+<span class="c1">// Ask the user for the path to the CVS file.</span>
+<span class="kd">let</span> <span class="nx">questions</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span>
+    <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">input</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">inputFilePath</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">message</span><span class="p">:</span> <span class="dl">"</span><span class="s2">What is the path to your input CSV file?</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">default</span><span class="p">:</span> <span class="dl">"</span><span class="s2">assets/sampledata.csv</span><span class="dl">"</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">output</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">outputFilePath</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">message</span><span class="p">:</span> <span class="dl">"</span><span class="s2">What is the path to the output JSON file?</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">default</span><span class="p">:</span> <span class="dl">"</span><span class="s2">assets/sampledata.json</span><span class="dl">"</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="p">]</span>
+<span class="nx">inquirer</span><span class="p">.</span><span class="nf">prompt</span><span class="p">(</span><span class="nx">questions</span><span class="p">).</span><span class="nf">then</span><span class="p">(</span><span class="nx">userReply</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>There’s a callback function <code class="language-plaintext highlighter-rouge">userReply</code> that gets called, when the library gets the required
+answers. And it passes this function an object that contains the answers.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">userReply</span><span class="p">(</span><span class="nx">answers</span><span class="p">:</span> <span class="nx">FileLocationsType</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">inputFile</span> <span class="o">=</span> <span class="nx">answers</span><span class="p">.</span><span class="nx">inputFilePath</span>
+  <span class="kd">let</span> <span class="nx">outputFile</span> <span class="o">=</span> <span class="nx">answers</span><span class="p">.</span><span class="nx">outputFilePath</span>
+
+  <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="nx">inputFile</span><span class="p">)</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="nx">outputFile</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="flow-type">
+        
+        
+          Flow type <a href="#flow-type">#</a>
+        
+        
+      </h2>
+    
+
+<p>Facebook’s Flow type is an excellent way to add type safety to JavaScript in a very non invasive
+way. Flow is great for creating type aliases that describe the shape of objects, so that you can
+remember what type of object goes where, instead of having to guess.</p>
+
+<p>Here are some great links for Flow and Node.</p>
+
+<ol>
+  <li><a href="https://flow.org/blog/2015/02/18/Import-Types/"><code class="language-plaintext highlighter-rouge">import type</code></a>.</li>
+  <li><a href="https://stackoverflow.com/questions/39385890/how-to-import-flow-annotations-types-and-interfaces-from-an-npm-published-modul">Flow and <code class="language-plaintext highlighter-rouge">npm</code></a>.</li>
+  <li><a href="https://flow.org/">Flow website</a>.</li>
+  <li><a href="https://flow.org/en/docs/types/">Flow type annotations</a>.</li>
+</ol>
+
+<p>I’ve also added some npm scripts to make this go easier.</p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">npm run build</code> - This actually stripts out all the flow annotations and copies the JS files to
+the <code class="language-plaintext highlighter-rouge">lib/</code> folder.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">npm start</code> - This just runs the index.js file in the <code class="language-plaintext highlighter-rouge">lib/</code> folder (and not <code class="language-plaintext highlighter-rouge">src</code> folder).</p>
+  </li>
+</ol>
+
+<p>The way I’ve used Flow in this project is to annotate some of the variables with primitive types
+such as <code class="language-plaintext highlighter-rouge">string</code>, and <code class="language-plaintext highlighter-rouge">Array</code>.</p>
+
+<p>I’ve also created my own type alias, in the <code class="language-plaintext highlighter-rouge">types.js</code> file.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">type</span> <span class="nx">FileLocationsType</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">inputFilePath</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="na">outputFilePath</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Note: I’ve got <code class="language-plaintext highlighter-rouge">// @flow</code> at the top of each JS file that has Flow, to let the pre-processor know
+that these are files that the type annotations should be stripped out from.</p>
+
+<p>I import my type alias into the <code class="language-plaintext highlighter-rouge">index.js</code> file using the following statement.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">type</span> <span class="nx">FileLocationsType</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./types.js</span><span class="dl">"</span>
+</code></pre></div></div>
+
+<p>Then, I’m able to use the <code class="language-plaintext highlighter-rouge">FileLocationsType</code> in my code, like this.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">userReply</span><span class="p">(</span><span class="nx">answers</span><span class="p">:</span> <span class="nx">FileLocationsType</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">inputFile</span> <span class="o">=</span> <span class="nx">answers</span><span class="p">.</span><span class="nx">inputFilePath</span>
+  <span class="kd">let</span> <span class="nx">outputFile</span> <span class="o">=</span> <span class="nx">answers</span><span class="p">.</span><span class="nx">outputFilePath</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Web">
+                #web</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/react-hooks-redux-typescript-handbook/">
+                        React hooks (v17.0.3) and Redux handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/css-responsive-design-handbook/">
+                        CSS responsive design using Grid, Flexbox, and media queries handbook
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/22/vue-vueitfy-webpack/">
+                        Vue.js, Webpack, Vueitify, Electron, and vue-cli
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/15/introduction-to-vue/">
+                        Getting started with Vue.js
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2017/07/19/loading-csv-files-in-javascript-and-node/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

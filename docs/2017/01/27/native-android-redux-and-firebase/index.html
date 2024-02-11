@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Android, Redux, Firebase Auth &amp; Database, and Material Design | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Android, Redux, Firebase Auth &amp; Database, and Material Design" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Redux and React are things that are normally associated with web development. Redux is a beautiful design pattern that can help with any application, even native ones! I used Firebase in order to do cross platform data synchronization across web and mobile clients. I also used Firebase auth and Material Design to craft a real-world app. The code for this tutorial is in GitHub." />
+<meta property="og:description" content="Redux and React are things that are normally associated with web development. Redux is a beautiful design pattern that can help with any application, even native ones! I used Firebase in order to do cross platform data synchronization across web and mobile clients. I also used Firebase auth and Material Design to craft a real-world app. The code for this tutorial is in GitHub." />
+<link rel="canonical" href="http://developerlife.com/2017/01/27/native-android-redux-and-firebase/" />
+<meta property="og:url" content="http://developerlife.com/2017/01/27/native-android-redux-and-firebase/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-01-27T04:05:05-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Android, Redux, Firebase Auth &amp; Database, and Material Design" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2017-01-27T04:05:05-06:00","datePublished":"2017-01-27T04:05:05-06:00","description":"Redux and React are things that are normally associated with web development. Redux is a beautiful design pattern that can help with any application, even native ones! I used Firebase in order to do cross platform data synchronization across web and mobile clients. I also used Firebase auth and Material Design to craft a real-world app. The code for this tutorial is in GitHub.","headline":"Android, Redux, Firebase Auth &amp; Database, and Material Design","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2017/01/27/native-android-redux-and-firebase/"},"url":"http://developerlife.com/2017/01/27/native-android-redux-and-firebase/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Android, Redux, Firebase Auth &amp; Database, and Material Design&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Android, Redux, Firebase Auth & Database, and Material Design</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Android, Redux, Firebase Auth &amp; Database, and Material Design</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jan 27, 2017
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+<img class="post-hero-image" src="/assets/and-redux-hero.png"/>
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#material-design-and-material-components-for-android">Material Design and Material Components for Android</a></li>
+  <li><a href="#architecture">Architecture</a>
+    <ul>
+      <li><a href="#using-redux-and-firebase">Using Redux and Firebase</a>
+        <ul>
+          <li><a href="#redux-%E2%86%92-store--middleware--reducer">Redux → Store + Middleware + Reducer</a></li>
+          <li><a href="#firebase-listeners">Firebase Listener(s)</a></li>
+          <li><a href="#android-middleware">Android Middleware</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#redux-middleware-and-firebase">Redux Middleware and Firebase</a></li>
+  <li><a href="#firebase-database-and-auth">Firebase database and auth</a></li>
+  <li><a href="#what-happens-in-the-reducer-and-what-happens-in-the-middleware-and-how-that-relates-to-firebase">What happens in the reducer and what happens in the middleware and how that relates to Firebase</a>
+    <ul>
+      <li><a href="#actions-that-are-processed-by-redux">Actions that are processed by Redux</a></li>
+      <li><a href="#interaction-between-redux-and-firebase-via-async-action-pattern-in-the-middleware">Interaction between Redux and Firebase via Async Action pattern in the Middleware</a></li>
+    </ul>
+  </li>
+  <li><a href="#app-startup-time">App startup time</a></li>
+  <li><a href="#offline-mode">Offline mode</a></li>
+  <li><a href="#anonymous-auth-vs-signed-in-experience">Anonymous auth vs signed in experience</a></li>
+  <li><a href="#closing-thoughts">Closing thoughts</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>Redux is normally associated with web development. Redux is a beautiful design pattern that can help
+with any application, even native Android ones! This is the approach that I took to integrate the
+Redux pattern into native Android development, and leverage the stability and predictability of a
+finite state machine to native development.</p>
+
+<p>Further, I used Firebase in order to do cross platform data synchronization across web and mobile
+clients. Firebase has the benefit of providing offline mode for web and native mobile client apps,
+which is incredibly powerful.</p>
+
+<p>And I decided to use Firebase authentication for web, and mobile as well, which provides a
+consolidated way to do cross platform anonymous authentication and signed in authentication using a
+variety of social sign in providers (Google, Facebook, etc.)</p>
+
+<p>Here’s a video of the app in action and here’s a link to the code that produced this app on
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/tree/978224a82f31f34c84cdaeb91763fcd48a991d5f/mobile_android_native">GitHub</a>.
+It’s a pretty sophisticated app, so please pay attention to the video and look thru the code on
+GitHub. You will find things like:</p>
+
+<ul>
+  <li>
+    <p>Fast boot time by persisting the redux state to local storage.</p>
+  </li>
+  <li>
+    <p>The ability to have anonymous auth (and save the state of the app), then switch to a signed in
+state and then retain the data that was created in the anonymous auth state of the app.</p>
+  </li>
+  <li>
+    <p>Proper handling of sign-in and anonymous authentication, and not burdening the user with Login,
+SignUp, and SignIn. Just replace all that with a single button press that takes the app from
+anonymous-auth mode to signed-in mode.</p>
+  </li>
+  <li>
+    <p>Using Redux middleware (and not just reducers) to play nice with Firebase updates, and solve a lot
+of murky synchronization issues that would otherwise present themselves.</p>
+  </li>
+  <li>
+    <p>The app also has a sophisticated debug mechanism that exposes the history of redux state
+transitions and even the ability to diff between 2 states in the Android app itself. You can see
+the app going thru it’s state changes from startup until present moment. These are incredibly
+valuable insights that you have on the lifecycle of your application that you leverage to build
+some really compelling apps.</p>
+  </li>
+</ul>
+
+<p><a href="https://youtu.be/9yhxD2o51ZQ" title="Click to play video"><img src="https://img.youtube.com/vi/9yhxD2o51ZQ/0.jpg" alt="Click to play video" /></a></p>
+
+<p>There’s a web app that works hand in hand with this mobile app. Here are some links for the web app:</p>
+
+<ul>
+  <li><a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/tree/978224a82f31f34c84cdaeb91763fcd48a991d5f/web">Web app code on Github</a></li>
+  <li><a href="https://todolist-redux-r3bl-alliance.herokuapp.com/">Run the web app on heroku</a></li>
+</ul>
+
+<p>This is a screenshot of the web app in action:</p>
+
+<p><img src="/assets/and-redux-1.png" alt="" /></p>
+
+<p>This is also incredibly powerful because it showcases how the ideas that are used in the Android
+native app are very similar to those implemented in the web app, such as:</p>
+
+<ul>
+  <li>Reducers and middleware are very similar on both native Android and web.</li>
+  <li>Firebase auth is used in both cases, so that sign-in and anonymous auth work pretty much the same.</li>
+  <li>Firebase database is used in a similar way (in addition to the use of middleware) that makes user
+data synchronization between the web and mobile apps seamless, and offline!</li>
+</ul>
+      <h2 id="material-design-and-material-components-for-android">
+        
+        
+          Material Design and Material Components for Android <a href="#material-design-and-material-components-for-android">#</a>
+        
+        
+      </h2>
+    
+
+<p>This entire app is built using Material Components for Android. You can learn more about it
+<a href="https://material.io/components/android/catalog/">here</a>.</p>
+
+<ul>
+  <li>It uses both <code class="language-plaintext highlighter-rouge">com.android.support:appcompat-v7</code> and <code class="language-plaintext highlighter-rouge">com.android.support:design</code> libraries in the
+app’s <code class="language-plaintext highlighter-rouge">build.gradle</code>.</li>
+  <li>It uses AppCompatActivity from the material design support library
+(<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/java/com/r3bl/todo_app/ui/MainActivity.java">MainActivity.java</a>).</li>
+  <li>It uses Toolbar, FloatingActionButton, CircleIndicators, ViewPager, BottomSheetDialogFragment, a
+whole host of other Material Design components.</li>
+  <li>It uses Material Design
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/res/values/styles.xml">themes</a>
+as well.</li>
+  <li>It even uses ConstraintLayout in some screens, which was in beta while this was being developed.</li>
+</ul>
+
+<p>Please check out the
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/tree/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/java/com/r3bl/todo_app/ui">ui package</a>
+of the source code, and the
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/tree/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/res/layout">res folder</a>
+on GitHub.</p>
+      <h2 id="architecture">
+        
+        
+          Architecture <a href="#architecture">#</a>
+        
+        
+      </h2>
+    
+
+<p>For more information on how Redux is used with the native Android app and how it syncs with the web
+app, check out the wiki page on
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/wiki">GitHub</a>.</p>
+      <h3 id="using-redux-and-firebase">
+        
+        
+          Using Redux and Firebase <a href="#using-redux-and-firebase">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><a href="https://medium.com/@meagle/understanding-87566abcfb7a#.8dlay3nwa">More info on Redux Middleware</a></li>
+  <li><a href="http://redux.js.org/docs/advanced/AsyncActions.html">More info on async actions</a></li>
+  <li><a href="https://reactjsnews.com/redux-middleware">More info on JS middleware</a></li>
+</ul>
+      <h4 id="redux--store--middleware--reducer">
+        
+        
+          Redux → Store + Middleware + Reducer <a href="#redux--store--middleware--reducer">#</a>
+        
+        
+      </h4>
+    
+
+<ol>
+  <li>create a middleware for the store</li>
+  <li>in this middleware, when redux actions come in for adding todo items or toggling todo items or
+deleting todo items, then modify what needs to be modified and save it to firebase -&gt; do NOT
+dispatch these actions!</li>
+</ol>
+      <h4 id="firebase-listeners">
+        
+        
+          Firebase Listener(s) <a href="#firebase-listeners">#</a>
+        
+        
+      </h4>
+    
+
+<ol>
+  <li>create a firebase listener that simply takes the snapshot data and creates a redux action (like
+set_state_data) and then applies it to the redux store</li>
+</ol>
+      <h4 id="android-middleware">
+        
+        
+          Android Middleware <a href="#android-middleware">#</a>
+        
+        
+      </h4>
+    
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">_initReduxStore</span><span class="o">()</span> <span class="o">{</span>
+  <span class="n">_log</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ReduxDebugLog</span><span class="o">();</span>
+  <span class="nc">State</span> <span class="n">state</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">State</span><span class="o">();</span>
+  <span class="n">com</span><span class="o">.</span><span class="na">brianegan</span><span class="o">.</span><span class="na">bansa</span><span class="o">.</span><span class="na">Reducer</span> <span class="n">reducer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Reducer</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+  <span class="n">_store</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BaseStore</span><span class="o">&lt;&gt;(</span><span class="n">state</span><span class="o">,</span> <span class="n">reducer</span><span class="o">,</span> <span class="k">new</span> <span class="nc">Middleware</span><span class="o">&lt;</span><span class="nc">State</span><span class="o">&gt;()</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">dispatch</span><span class="o">(</span><span class="nc">Store</span><span class="o">&lt;</span><span class="nc">State</span><span class="o">&gt;</span> <span class="n">store</span><span class="o">,</span> <span class="nc">Action</span> <span class="n">action</span><span class="o">,</span> <span class="nc">NextDispatcher</span> <span class="n">next</span><span class="o">)</span> <span class="o">{</span>
+      <span class="nc">App</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Middleware [START]"</span><span class="o">,</span> <span class="s">""</span><span class="o">);</span>
+      <span class="nc">App</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Middleware [state]"</span><span class="o">,</span> <span class="n">store</span><span class="o">.</span><span class="na">getState</span><span class="o">().</span><span class="na">toString</span><span class="o">());</span>
+      <span class="nc">App</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Middleware [action]"</span><span class="o">,</span> <span class="n">action</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+      <span class="nc">App</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Middleware [END]"</span><span class="o">,</span> <span class="s">""</span><span class="o">);</span>
+      <span class="n">next</span><span class="o">.</span><span class="na">dispatch</span><span class="o">(</span><span class="n">action</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">next.dispatch(action)</code> is what allows the middleware to keep processing actions in the chain. If
+this call was removed, then the middleware would just stop processing that action (just like java
+servlet filtering). So it’s best to make this call, and just ignore the actions that don’t need to
+be processed in the reducer. So there are some actions that will be processed by the middleware and
+others that will be processed by the reducer.</p>
+
+<p><img src="/assets/and-redux-2.jpg" alt="" /></p>
+
+<p>The Middleware handles the following actions:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">AddTodoItemAction</code> (this writes to Firebase)</li>
+  <li><code class="language-plaintext highlighter-rouge">ToggleTodoItemAction</code> (this writes to Firebase)</li>
+</ol>
+
+<p>The Reducer handles the following actions:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">ResetStateAction</code> (no connection to Firebase)</li>
+  <li><code class="language-plaintext highlighter-rouge">RestoreStateAction</code> (no connection to Firebase)</li>
+  <li><code class="language-plaintext highlighter-rouge">SetUserAction</code> (these are read from Firebase)</li>
+  <li><code class="language-plaintext highlighter-rouge">SetDataAction</code> (these are read from Firebase)</li>
+</ol>
+      <h2 id="redux-middleware-and-firebase">
+        
+        
+          Redux Middleware and Firebase <a href="#redux-middleware-and-firebase">#</a>
+        
+        
+      </h2>
+    
+
+<p>The Redux library I’m using for this project is the Bansa library on
+<a href="https://github.com/brianegan/bansa">GitHub</a>. You can add it to your build.gradle and get started
+very quickly.</p>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// First, add JitPack to your repositories</span>
+<span class="n">repositories</span> <span class="o">{</span>
+<span class="o">...</span>
+<span class="n">maven</span> <span class="o">{</span> <span class="n">url</span> <span class="s2">"https://jitpack.io"</span> <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="c1">// Base package. Everything else is built upon it!</span>
+<span class="n">compile</span> <span class="s1">'com.github.brianegan.bansa:bansa:1.0.0-beta'</span>
+</code></pre></div></div>
+
+<p>Here are some links that contain some important details about this Redux Middleware and Async
+Actions pattern (which is used in the native Android and web app):</p>
+
+<ul>
+  <li><a href="https://medium.com/@meagle/understanding-87566abcfb7a#.8dlay3nwa">More info on Redux Middleware</a></li>
+  <li><a href="http://redux.js.org/docs/advanced/AsyncActions.html">More info on async actions</a></li>
+  <li><a href="https://reactjsnews.com/redux-middleware">More info on JS middleware</a></li>
+</ul>
+
+<p>The way to get Redux and Firebase to work together is to use Middleware that handles some actions,
+and have the Reducer functions handle some other actions (instead of doing it all in the reducers).
+Now, regardless of whether these actions are handled by the Middleware or Reducers, they are
+dispatched to the Redux Store.</p>
+
+<p>The Redux store contains the state of the application, which stores:</p>
+
+<ol>
+  <li>the currently logged in user data, and</li>
+  <li>the todolist data for this user.</li>
+</ol>
+      <h2 id="firebase-database-and-auth">
+        
+        
+          Firebase database and auth <a href="#firebase-database-and-auth">#</a>
+        
+        
+      </h2>
+    
+
+<p>Both of these things are backed to Firebase. The following video shows what the Firebase database
+looks like:</p>
+
+<p><a href="https://youtu.be/Tdnedi6EVxQ" title="Click to play video"><img src="https://img.youtube.com/vi/Tdnedi6EVxQ/0.jpg" alt="Click to play video" /></a></p>
+      <h2 id="what-happens-in-the-reducer-and-what-happens-in-the-middleware-and-how-that-relates-to-firebase">
+        
+        
+          What happens in the reducer and what happens in the middleware and how that relates to Firebase <a href="#what-happens-in-the-reducer-and-what-happens-in-the-middleware-and-how-that-relates-to-firebase">#</a>
+        
+        
+      </h2>
+    
+
+<p>The following diagrams shows how the various actions are processed by Middleware, or Reducers, and
+how that interaction works with Firebase:</p>
+
+<p><img src="/assets/and-redux-2.jpg" alt="" /></p>
+      <h3 id="actions-that-are-processed-by-redux">
+        
+        
+          Actions that are processed by Redux <a href="#actions-that-are-processed-by-redux">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <strong>Middleware</strong> handles the following actions:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">AddTodoItemAction</code> (this writes to Firebase)</li>
+  <li><code class="language-plaintext highlighter-rouge">ToggleTodoItemAction</code> (this writes to Firebase)</li>
+</ol>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">dispatch</span><span class="o">(</span><span class="nc">Store</span><span class="o">&lt;</span><span class="nc">State</span><span class="o">&gt;</span> <span class="n">store</span><span class="o">,</span> <span class="nc">Action</span> <span class="n">actionParam</span><span class="o">,</span> <span class="nc">NextDispatcher</span> <span class="n">next</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="k">try</span> <span class="o">{</span>
+
+    <span class="nc">State</span> <span class="n">newState</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="na">getState</span><span class="o">().</span><span class="na">deepCopy</span><span class="o">();</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">actionParam</span> <span class="k">instanceof</span> <span class="nc">Actions</span><span class="o">.</span><span class="na">AddTodoItem</span><span class="o">)</span> <span class="o">{</span>
+
+      <span class="k">if</span> <span class="o">(</span><span class="n">newState</span><span class="o">.</span><span class="na">data</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="n">newState</span><span class="o">.</span><span class="na">data</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Data</span><span class="o">();</span>
+      <span class="nc">Actions</span><span class="o">.</span><span class="na">AddTodoItem</span> <span class="n">action</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Actions</span><span class="o">.</span><span class="na">AddTodoItem</span><span class="o">)</span> <span class="n">actionParam</span><span class="o">;</span>
+      <span class="n">newState</span><span class="o">.</span><span class="na">data</span><span class="o">.</span><span class="na">todoArray</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">action</span><span class="o">.</span><span class="na">getParam</span><span class="o">());</span>
+      <span class="n">_ctx</span><span class="o">.</span><span class="na">getDatabase</span><span class="o">().</span><span class="na">saveUserDataToFirebase</span><span class="o">(</span><span class="n">newState</span><span class="o">.</span><span class="na">data</span><span class="o">);</span>
+
+    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">actionParam</span> <span class="k">instanceof</span> <span class="nc">Actions</span><span class="o">.</span><span class="na">ToggleTodoItem</span><span class="o">)</span> <span class="o">{</span>
+
+      <span class="nc">Actions</span><span class="o">.</span><span class="na">ToggleTodoItem</span> <span class="n">action</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Actions</span><span class="o">.</span><span class="na">ToggleTodoItem</span><span class="o">)</span> <span class="n">actionParam</span><span class="o">;</span>
+      <span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="na">getParam</span><span class="o">();</span>
+      <span class="n">newState</span><span class="o">.</span><span class="na">data</span><span class="o">.</span><span class="na">todoArray</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">index</span><span class="o">).</span><span class="na">done</span> <span class="o">=</span>
+            <span class="o">!</span><span class="n">newState</span><span class="o">.</span><span class="na">data</span><span class="o">.</span><span class="na">todoArray</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">index</span><span class="o">).</span><span class="na">done</span><span class="o">;</span>
+      <span class="n">_ctx</span><span class="o">.</span><span class="na">getDatabase</span><span class="o">().</span><span class="na">saveUserDataToFirebase</span><span class="o">(</span><span class="n">newState</span><span class="o">.</span><span class="na">data</span><span class="o">);</span>
+
+    <span class="o">}</span>
+
+  <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">App</span><span class="o">.</span><span class="na">logErr</span><span class="o">(</span><span class="s">"StateMiddleware"</span><span class="o">,</span> <span class="s">"problem with dispatch()"</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="n">next</span><span class="o">.</span><span class="na">dispatch</span><span class="o">(</span><span class="n">actionParam</span><span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The <strong>Reducer</strong> handles the following actions:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">ResetStateAction</code> (no connection to Firebase)</li>
+  <li><code class="language-plaintext highlighter-rouge">RestoreStateAction</code> (no connection to Firebase)</li>
+  <li><code class="language-plaintext highlighter-rouge">SetUserAction</code> (these are read from Firebase)</li>
+  <li><code class="language-plaintext highlighter-rouge">SetDataAction</code> (these are read from Firebase)</li>
+</ol>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="nc">State</span> <span class="nf">reduce</span><span class="o">(</span><span class="nc">State</span> <span class="n">state</span><span class="o">,</span> <span class="nc">Action</span> <span class="n">actionParam</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="k">try</span> <span class="o">{</span>
+
+    <span class="nc">State</span> <span class="n">newState</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="na">deepCopy</span><span class="o">();</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">actionParam</span> <span class="k">instanceof</span> <span class="nc">Actions</span><span class="o">.</span><span class="na">SetUser</span><span class="o">)</span> <span class="o">{</span>
+
+      <span class="nc">Actions</span><span class="o">.</span><span class="na">SetUser</span> <span class="n">action</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Actions</span><span class="o">.</span><span class="na">SetUser</span><span class="o">)</span> <span class="n">actionParam</span><span class="o">;</span>
+      <span class="n">newState</span><span class="o">.</span><span class="na">user</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="na">getParam</span><span class="o">();</span>
+
+    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">actionParam</span> <span class="k">instanceof</span> <span class="nc">Actions</span><span class="o">.</span><span class="na">SetData</span><span class="o">)</span> <span class="o">{</span>
+
+      <span class="nc">Actions</span><span class="o">.</span><span class="na">SetData</span> <span class="n">action</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Actions</span><span class="o">.</span><span class="na">SetData</span><span class="o">)</span> <span class="n">actionParam</span><span class="o">;</span>
+      <span class="n">newState</span><span class="o">.</span><span class="na">data</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="na">getParam</span><span class="o">();</span>
+
+    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">actionParam</span> <span class="k">instanceof</span> <span class="nc">Actions</span><span class="o">.</span><span class="na">RestoreState</span><span class="o">)</span> <span class="o">{</span>
+
+      <span class="nc">Actions</span><span class="o">.</span><span class="na">RestoreState</span> <span class="n">action</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Actions</span><span class="o">.</span><span class="na">RestoreState</span><span class="o">)</span> <span class="n">actionParam</span><span class="o">;</span>
+      <span class="n">newState</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="na">getParam</span><span class="o">();</span>
+
+    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">actionParam</span> <span class="k">instanceof</span> <span class="nc">Actions</span><span class="o">.</span><span class="na">ResetState</span><span class="o">)</span> <span class="o">{</span>
+
+      <span class="nc">Actions</span><span class="o">.</span><span class="na">ResetState</span> <span class="n">action</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Actions</span><span class="o">.</span><span class="na">ResetState</span><span class="o">)</span> <span class="n">actionParam</span><span class="o">;</span>
+      <span class="n">newState</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">State</span><span class="o">();</span>
+
+    <span class="o">}</span>
+
+    <span class="n">ctx</span><span class="o">.</span><span class="na">getReduxLog</span><span class="o">().</span><span class="na">push</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">getTime</span><span class="o">(),</span> <span class="n">state</span><span class="o">,</span> <span class="n">actionParam</span><span class="o">,</span> <span class="n">newState</span><span class="o">);</span>
+
+    <span class="nc">App</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Reducer"</span><span class="o">,</span> <span class="s">"applying action: "</span> <span class="o">+</span> <span class="n">actionParam</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getSimpleName</span><span class="o">());</span>
+
+    <span class="k">return</span> <span class="n">newState</span><span class="o">;</span>
+
+  <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">App</span><span class="o">.</span><span class="na">logErr</span><span class="o">(</span><span class="s">"Reducer"</span><span class="o">,</span> <span class="s">"problem running reduce()"</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="k">return</span> <span class="n">state</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h3 id="interaction-between-redux-and-firebase-via-async-action-pattern-in-the-middleware">
+        
+        
+          Interaction between Redux and Firebase via Async Action pattern in the Middleware <a href="#interaction-between-redux-and-firebase-via-async-action-pattern-in-the-middleware">#</a>
+        
+        
+      </h3>
+    
+
+<p>The magic that makes the interaction between Firebase and Redux work is the following:</p>
+
+<ol>
+  <li>
+    <p>In the Redux Middleware, when redux actions come in for adding todo items or toggling todo items
+or deleting todo items, then modify what needs to be modified and save it to firebase -&gt; do NOT
+dispatch these actions.</p>
+  </li>
+  <li>
+    <p>For Firebase, create a firebase listener that simply takes the snapshot data and creates a redux
+action (like set_state_data) and then applies it to the redux store.</p>
+  </li>
+</ol>
+      <h2 id="app-startup-time">
+        
+        
+          App startup time <a href="#app-startup-time">#</a>
+        
+        
+      </h2>
+    
+
+<p>The todo list app has to do a few things before it can be ready for use by the user (after the user
+has launched the app). It has to figure out whether its using anonymous auth or signed in auth, and
+then perform the auth, and then get the data from Firebase, then update the UI. This can take a few
+seconds over a slow cellular network. So what might happen is that the app is launched by the user
+and it doesn’t do anything during this time. Rule of thumb is that if an app is unresponsive for 3
+seconds, users think that it has died. So how can we improve on this?</p>
+
+<p>Redux is a finite state machine. And the entire app’s state is represented in a single object. This
+makes it really straightforward to persist the entire state object as a JSON string into local
+storage. In fact, every time any data is saved to Firebase, it gets dumped into local storage.
+Here’s the code for that (in
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/java/com/r3bl/todo_app/container/firebase/MyDB.java">MyDB.java</a>):</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">saveStateToSharedPrefs</span><span class="o">(</span><span class="nc">App</span> <span class="n">context</span><span class="o">,</span> <span class="nc">State</span> <span class="n">state</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">SharedPreferences</span><span class="o">.</span><span class="na">Editor</span> <span class="n">pref</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getSharedPreferences</span><span class="o">(</span><span class="nc">MyDB</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">(),</span>
+                                                               <span class="nc">Context</span><span class="o">.</span><span class="na">MODE_PRIVATE</span><span class="o">)</span>
+                                         <span class="o">.</span><span class="na">edit</span><span class="o">();</span>
+  <span class="n">pref</span><span class="o">.</span><span class="na">putString</span><span class="o">(</span><span class="nc">Locations</span><span class="o">.</span><span class="na">DATA_KEY</span><span class="o">.</span><span class="na">name</span><span class="o">(),</span>
+                 <span class="n">state</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+  <span class="n">pref</span><span class="o">.</span><span class="na">apply</span><span class="o">();</span>
+
+  <span class="nc">App</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Database.saveStateToSharedPrefs"</span><span class="o">,</span>
+          <span class="s">"saving state to SharedPreferences"</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>On the flip side, when the Application class
+(<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/java/com/r3bl/todo_app/container/App.java">App.java</a>)
+loads, it initializes the Redux store and then loads the Redux state (if there is any) and then
+applies it to the Redux store! And voila! The app has restored itself instantly to the previous
+state that it was left in, the last time it was run!</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">();</span>
+  <span class="n">log</span><span class="o">(</span><span class="s">"App.onCreate"</span><span class="o">,</span> <span class="s">"[START]"</span><span class="o">);</span>
+
+  <span class="n">_initReduxStore</span><span class="o">();</span>
+  <span class="n">_initFromSharedPrefs</span><span class="o">();</span>
+  <span class="n">_initDatabase</span><span class="o">();</span>
+  <span class="n">_initFirebaseAuth</span><span class="o">();</span>
+
+  <span class="n">log</span><span class="o">(</span><span class="s">"App.onCreate"</span><span class="o">,</span> <span class="s">"[END]"</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">//</span>
+<span class="c1">// Shared Preferences</span>
+<span class="c1">//</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">_initFromSharedPrefs</span><span class="o">()</span> <span class="o">{</span>
+  <span class="nc">State</span> <span class="n">oldState</span> <span class="o">=</span> <span class="nc">MyDB</span><span class="o">.</span><span class="na">loadStateFromSharedPrefs</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">oldState</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">getReduxStore</span><span class="o">().</span><span class="na">dispatch</span><span class="o">(</span><span class="k">new</span> <span class="nc">Actions</span><span class="o">.</span><span class="na">RestoreState</span><span class="o">(</span><span class="n">oldState</span><span class="o">));</span>
+    <span class="n">log</span><span class="o">(</span><span class="s">"App._initFromSharedPrefs"</span><span class="o">,</span> <span class="s">"loaded saved state from SharedPreferences"</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Here’s the code to actually load the data from local storage (in
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/java/com/r3bl/todo_app/container/firebase/MyDB.java">MyDB.java</a>):</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="nc">State</span> <span class="nf">loadStateFromSharedPrefs</span><span class="o">(</span><span class="nc">App</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">SharedPreferences</span> <span class="n">pref</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="na">getSharedPreferences</span><span class="o">(</span><span class="nc">MyDB</span><span class="o">.</span><span class="na">class</span><span class="o">.</span><span class="na">getSimpleName</span><span class="o">(),</span>
+                                                        <span class="nc">Context</span><span class="o">.</span><span class="na">MODE_PRIVATE</span><span class="o">);</span>
+  <span class="nc">String</span> <span class="n">serform</span> <span class="o">=</span> <span class="n">pref</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="nc">Locations</span><span class="o">.</span><span class="na">DATA_KEY</span><span class="o">.</span><span class="na">name</span><span class="o">(),</span> <span class="kc">null</span><span class="o">);</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">serform</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+  <span class="nc">Gson</span> <span class="n">gson</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GsonBuilder</span><span class="o">().</span><span class="na">create</span><span class="o">();</span>
+  <span class="nc">State</span> <span class="n">retval</span> <span class="o">=</span> <span class="n">gson</span><span class="o">.</span><span class="na">fromJson</span><span class="o">(</span><span class="n">serform</span><span class="o">,</span> <span class="nc">State</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="nc">App</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Database.loadStateFromSharedPrefs"</span><span class="o">,</span>
+          <span class="s">"loading state from SharedPreferences"</span><span class="o">);</span>
+
+  <span class="k">return</span> <span class="n">retval</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h2 id="offline-mode">
+        
+        
+          Offline mode <a href="#offline-mode">#</a>
+        
+        
+      </h2>
+    
+
+<p>The beauty of using Firebase is that offline mode is handled for you out of the box. You have to
+accommodate the behavior of Firebase in order for this to work. In Firebase, when you update a JSON
+object, then the listener is fired on the node that made this change. The reason for this is to
+ensure that the Firebase Database can operate in offline mode. So when you write to the database, it
+will notify you when this write operation has completed. So you request a write - you don’t force it
+to happen right now. This is why you have to shift your thinking from the mindset that when you
+mutate a data structure in memory, then this change has occurred already (if there were no
+exceptions). In the realtime database world of Firebase, we request writes/deletes/changes, and when
+they happen, we get notified and that is when we re-act to the data model having been actually
+modified. This is reflected in this todo list app in the way async actions are used in the
+Middleware, and how some actions are handled in the Middleware and others in the Reducer.</p>
+
+<p>So, if you can shift your thinking to this Firebase mindset and adopt Redux Reducers and Middleware,
+then yes, offline mode comes for “free”.</p>
+      <h2 id="anonymous-auth-vs-signed-in-experience">
+        
+        
+          Anonymous auth vs signed in experience <a href="#anonymous-auth-vs-signed-in-experience">#</a>
+        
+        
+      </h2>
+    
+
+<p>A lot of people get authentication wrong. The notion of SignIn, Login, and SignUp being different
+things is a reflection of a lack of understanding of signin flow works. I’ve had the benefit of
+working on the Google+ team at Google and had a thorough exposure to the underpinnings of
+authentication and the UX of authentication. There are 2 critical times in most mobile apps - when a
+user is asked to signin and when a user is asked to checkout. These are times of huge abandonments
+and uninstalls of an app. So please keep this in mind when designing and building your next mobile
+app, whether it’s in Android, or iOS, or React Native.</p>
+
+<p>In our todo list app, we have no signed-out state at all! You are either signed in anonymously, or
+you are signed in using Google. I’m using Firebase Auth, so you can just keep adding multiple
+providers (like Facebook, etc). I’m just sticking with Google to keep things really straightforward
+on Android.</p>
+
+<p>The Application object (App.java) is where most of this magic is setup to happen. There is a class
+called
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md/blob/6de82aea9aa38f6dc4f4bd3c7a31887d0093399d/mobile_android_native/app/src/main/java/com/r3bl/todo_app/container/firebase/MyAuth.java">MyAuth.java</a>
+which handles the logic for sign-in (Google and Anonmous) and sign-out. The way Firebase Auth works
+is that there is a single method <code class="language-plaintext highlighter-rouge">onAuthStateChanged()</code> that will determine everything. This keeps
+things simple. And it makes for a single point of integration with Firebase Auth. Here’s the
+implementation of that method in MyAuth.java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * main firebase auth callback that pretty much takes care of all auth state changes
+ */</span>
+<span class="nd">@Override</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">onAuthStateChanged</span><span class="o">(</span><span class="nd">@NonNull</span> <span class="nc">FirebaseAuth</span> <span class="n">firebaseAuth</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">FirebaseUser</span> <span class="n">user</span> <span class="o">=</span> <span class="n">firebaseAuth</span><span class="o">.</span><span class="na">getCurrentUser</span><span class="o">();</span>
+  <span class="nc">App</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Auth"</span><span class="o">,</span>
+          <span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"onAuthStateChanged: %s"</span><span class="o">,</span>
+                        <span class="n">user</span><span class="o">)</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">?</span> <span class="s">"user is null"</span> <span class="o">:</span> <span class="s">"user is NOT null"</span><span class="o">);</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">user</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">_processUserLogin</span><span class="o">(</span><span class="n">user</span><span class="o">);</span>
+
+  <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+    <span class="c1">// user isn't signed in, so kick off anon auth</span>
+    <span class="n">_forceAnonSignIn</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>There is one tricky thing to handle. Since the user is allowed to signin and out at will, and they
+might be signed into multiple Google accounts on their phone, this can lead to some interesting
+situations. The way this todo list app is designed right now is that any data created in anonymous
+auth mode will actually be saved when the user signs in (for the first time). This way, the work
+isn’t lost when they go from anonymous -&gt; signed in. However, to keep things simple, I don’t do a
+sophisticated merge. I simply detect if the user data exists in Firebase, and if it does NOT then I
+copy the anonymous data to the new user account. However, if there’s pre-existing data for this
+user, then I delete the anonymous data. In the ‘real world’ you would want to come up with a better
+data migration policy than this, but this app is meant to be a teaching tool, and not a full blown
+production app.</p>
+
+<p>Here’s the rest of the code in MyAuth.java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">_processUserLogin</span><span class="o">(</span><span class="nd">@NonNull</span> <span class="nc">FirebaseUser</span> <span class="n">firebaseUserObject</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">firebaseUserObject</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span><span class="o">;</span>
+
+  <span class="c1">// new_user is signed in (anon or social)</span>
+  <span class="nc">User</span> <span class="n">old_user</span> <span class="o">=</span> <span class="n">_ctx</span><span class="o">.</span><span class="na">getReduxState</span><span class="o">().</span><span class="na">user</span><span class="o">;</span>
+  <span class="nc">User</span> <span class="n">new_user</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">User</span><span class="o">(</span><span class="n">firebaseUserObject</span><span class="o">);</span>
+
+  <span class="kt">boolean</span> <span class="n">performMigration</span> <span class="o">=</span> <span class="n">old_user</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span>
+                             <span class="n">old_user</span><span class="o">.</span><span class="na">isAnonymous</span> <span class="o">&amp;&amp;</span>
+                             <span class="o">!</span><span class="n">new_user</span><span class="o">.</span><span class="na">isAnonymous</span><span class="o">;</span>
+
+  <span class="n">_ctx</span><span class="o">.</span><span class="na">getDatabase</span><span class="o">().</span><span class="na">removeUserDataValueListener</span><span class="o">();</span> <span class="c1">// stop listening to db updates</span>
+  <span class="n">_ctx</span><span class="o">.</span><span class="na">getDatabase</span><span class="o">().</span><span class="na">removeUserInfoValueListener</span><span class="o">();</span> <span class="c1">// stop listening to db updates</span>
+
+  <span class="k">if</span> <span class="o">(</span><span class="n">performMigration</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">// anon -&gt; signedin ... do data migration</span>
+    <span class="n">_ctx</span><span class="o">.</span><span class="na">getDatabase</span><span class="o">().</span><span class="na">performDataMigration</span><span class="o">(</span><span class="n">old_user</span><span class="o">,</span> <span class="n">new_user</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="c1">// process user login</span>
+  <span class="n">_ctx</span><span class="o">.</span><span class="na">getDatabase</span><span class="o">().</span><span class="na">saveUserAndLoadData</span><span class="o">(</span><span class="n">new_user</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">//</span>
+<span class="c1">// Anon sign in</span>
+<span class="c1">//</span>
+
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">_forceAnonSignIn</span><span class="o">()</span> <span class="o">{</span>
+  <span class="n">_auth</span><span class="o">.</span><span class="na">signInAnonymously</span><span class="o">()</span>
+       <span class="o">.</span><span class="na">addOnCompleteListener</span><span class="o">(</span>
+         <span class="n">task</span> <span class="o">-&gt;</span> <span class="o">{</span>
+           <span class="nc">App</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Auth"</span><span class="o">,</span> <span class="s">"_forceAnonSignIn: anon auth complete"</span><span class="o">);</span>
+           <span class="k">if</span> <span class="o">(!</span><span class="n">task</span><span class="o">.</span><span class="na">isSuccessful</span><span class="o">())</span> <span class="o">{</span>
+             <span class="nc">App</span><span class="o">.</span><span class="na">logErr</span><span class="o">(</span><span class="s">"Auth"</span><span class="o">,</span> <span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span>
+                    <span class="s">"_forceAnonSignIn: problem with anon auth, %s"</span><span class="o">,</span>
+                    <span class="n">task</span><span class="o">.</span><span class="na">getException</span><span class="o">()));</span>
+           <span class="o">}</span>
+         <span class="o">});</span>
+<span class="o">}</span>
+
+<span class="c1">//</span>
+<span class="c1">// Google sign in</span>
+<span class="c1">//</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">firebaseAuthWithGoogle</span><span class="o">(</span><span class="nc">GoogleSignInAccount</span> <span class="n">acct</span><span class="o">,</span>
+                                   <span class="nc">String</span> <span class="n">googleIdToken</span><span class="o">,</span>
+                                   <span class="nc">AuthCredential</span> <span class="n">credential</span><span class="o">,</span>
+                                   <span class="nc">MainActivity</span> <span class="n">mainActivity</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">_auth</span><span class="o">.</span><span class="na">signInWithCredential</span><span class="o">(</span><span class="n">credential</span><span class="o">)</span>
+       <span class="o">.</span><span class="na">addOnCompleteListener</span><span class="o">(</span><span class="n">mainActivity</span><span class="o">,</span> <span class="k">new</span> <span class="nc">OnCompleteListener</span><span class="o">&lt;</span><span class="nc">AuthResult</span><span class="o">&gt;()</span> <span class="o">{</span>
+         <span class="nd">@Override</span>
+         <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onComplete</span><span class="o">(</span><span class="nd">@NonNull</span> <span class="nc">Task</span><span class="o">&lt;</span><span class="nc">AuthResult</span><span class="o">&gt;</span> <span class="n">task</span><span class="o">)</span> <span class="o">{</span>
+           <span class="nc">App</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Auth"</span><span class="o">,</span>
+                   <span class="s">"firebaseAuthWithGoogle -&gt; signInWithCredential:onComplete:"</span> <span class="o">+</span>
+                   <span class="n">task</span><span class="o">.</span><span class="na">isSuccessful</span><span class="o">());</span>
+           <span class="k">if</span> <span class="o">(!</span><span class="n">task</span><span class="o">.</span><span class="na">isSuccessful</span><span class="o">())</span> <span class="o">{</span>
+             <span class="nc">App</span><span class="o">.</span><span class="na">logErr</span><span class="o">(</span><span class="s">"Auth"</span><span class="o">,</span> <span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span>
+                    <span class="s">"firebaseAuthWithGoogle: problem with signin, %s"</span><span class="o">,</span>
+                    <span class="n">task</span><span class="o">.</span><span class="na">getException</span><span class="o">()));</span>
+           <span class="o">}</span>
+         <span class="o">}</span>
+       <span class="o">});</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">signOut</span><span class="o">()</span> <span class="o">{</span>
+  <span class="n">_auth</span><span class="o">.</span><span class="na">signOut</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h2 id="closing-thoughts">
+        
+        
+          Closing thoughts <a href="#closing-thoughts">#</a>
+        
+        
+      </h2>
+    
+
+<p>You can use the Redux pattern in your native Android apps, and iOS apps as well.</p>
+
+<ul>
+  <li>
+    <p>It’s a very powerful way to simplify complex app state changes, and can improve reliability.</p>
+  </li>
+  <li>
+    <p>Firebase provides offline mode, and Redux plays nice with it if you use reducers and middleware in
+the right way.</p>
+  </li>
+  <li>
+    <p>It also provides a natural way to interact with any web apps that you have to build on the same
+backend.</p>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Android">
+                #android</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/DB">
+                #db</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/State">
+                #state</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-in-depth/">
+                        In-depth exploration of Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/07/introduction-to-android-architecture-components/">
+                        Introduction to Android Architecture Components
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/29/getting-started-with-mediaplayer-on-android/">
+                        Getting started with MediaPlayer on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/20/gps/">
+                        Android Location Providers (gps, network, passive)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/05/android-animation-framework/">
+                        Android Animation Framework Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-listview/">
+                        Android ListView and custom adapter Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-linearlayout/">
+                        Android LinearLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/31/android-ui-themes/">
+                        Android UI Themes Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/29/android-tablelayout/">
+                        Android TableLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/option-and-context-menu/">
+                        Android Option and Context menu Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/android-xml-view-inflation/">
+                        Android XML View inflation Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/14/android-app-lifecycle-activity-intent-and-service-draft/">
+                        Android Activity and sub-Activity Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/">
+                        Android - How to build a service-enabled Android app - Part 1/3 UI
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-23-networking/">
+                        Android - How to build a service-enabled Android App - Part 2/3 Networking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/01/28/swingx-tutorial-task-pane/">
+                        SwingX Tutorial - Task Pane (JXTaskPane, Container)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/">
+                        How to use glass pane for animation (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2017/01/27/native-android-redux-and-firebase/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

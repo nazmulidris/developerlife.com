@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Task API (2 of 3) - Task API in-depth | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Task API (2 of 3) - Task API in-depth" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="More details on the Task API introduced in the first Task API tutorial. SampleApp from the first tutorial is dissected under a microscope along with the API itself. Also contains information on which external libraries are optional and which are required." />
+<meta property="og:description" content="More details on the Task API introduced in the first Task API tutorial. SampleApp from the first tutorial is dissected under a microscope along with the API itself. Also contains information on which external libraries are optional and which are required." />
+<link rel="canonical" href="http://developerlife.com/2008/04/08/task-api-2-of-5-task-api-in-depth/" />
+<meta property="og:url" content="http://developerlife.com/2008/04/08/task-api-2-of-5-task-api-in-depth/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2008-04-08T12:28:39-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Task API (2 of 3) - Task API in-depth" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2008-04-08T12:28:39-05:00","datePublished":"2008-04-08T12:28:39-05:00","description":"More details on the Task API introduced in the first Task API tutorial. SampleApp from the first tutorial is dissected under a microscope along with the API itself. Also contains information on which external libraries are optional and which are required.","headline":"Task API (2 of 3) - Task API in-depth","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2008/04/08/task-api-2-of-5-task-api-in-depth/"},"url":"http://developerlife.com/2008/04/08/task-api-2-of-5-task-api-in-depth/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Task API (2 of 3) - Task API in-depth&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Task API (2 of 3) - Task API in-depth</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Task API (2 of 3) - Task API in-depth</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Apr 8, 2008
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#background---threads-101">Background - threads 101</a></li>
+  <li><a href="#architecture---how">Architecture - how?</a></li>
+  <li><a href="#the-abstracttask-class">The AbstractTask class</a>
+    <ul>
+      <li><a href="#the-functor-taskexecutor-and-coarse-grained-status-information">The functor (TaskExecutor) and coarse-grained-status information</a></li>
+      <li><a href="#adding-and-removing-status-listeners">Adding and removing status listeners</a></li>
+    </ul>
+  </li>
+  <li><a href="#lifecycle-of-a-task">Lifecycle of a Task</a>
+    <ul>
+      <li><a href="#the-handler-taskhandler">The handler (TaskHandler)</a></li>
+      <li><a href="#starting">Starting</a></li>
+      <li><a href="#stoppingcanceling-and-shutdown">Stopping/Canceling and Shutdown</a></li>
+    </ul>
+  </li>
+  <li><a href="#monitoring-progress-and-canceling-tasks">Monitoring Progress and Canceling tasks</a></li>
+  <li><a href="#package-structure">Package structure</a></li>
+  <li><a href="#dependencies-and-optional-libraries">Dependencies and optional libraries</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>For a brief introduction on what the Task API is and how to quickly get started using it, read the
+first tutorial in the series -
+<a href="https://developerlifecom.wordpress.com/2008/04/06/task-api-quick-start-guide/">Task API - Quick Start Guide</a>.
+This tutorial will go into lots of details on how the Task API works using the SampleApp shown in
+the first tutorial.</p>
+      <h2 id="background---threads-101">
+        
+        
+          Background - threads 101 <a href="#background---threads-101">#</a>
+        
+        
+      </h2>
+    
+
+<p>If you are not familiar with threading or EDT, then you can learn more about threads in the
+<a href="http://www.amazon.com/gp/product/0321349601/104-6050793-5284701?ie=UTF8&amp;tag=developerlife-20&amp;linkCode=xm2&amp;camp=1789&amp;creativeASIN=0321349601">Concurrency in Practice</a>
+book. You can learn more about the Event Dispatch Thread (EDT) in the
+<a href="http://www.amazon.com/gp/product/0132413930/104-6050793-5284701?ie=UTF8&amp;tag=developerlife-20&amp;linkCode=xm2&amp;camp=1789&amp;creativeASIN=0132413930">Filthy Rich Clients</a>
+book.</p>
+      <h2 id="architecture---how">
+        
+        
+          Architecture - how? <a href="#architecture---how">#</a>
+        
+        
+      </h2>
+    
+
+<p>If you are familiar with
+<a href="http://java.sun.com/javase/6/docs/api/javax/swing/SwingWorker.html">SwingWorker</a>, then you will
+know that you work with it by creating a subclass (or anonymous inner class implementation) in which
+you define a doInBackground() method. Then you execute the task, and you have the option of
+canceling it. Instead of taking this approach of making inner class implementations in-line, the
+Task API works via a set of handlers and <a href="http://en.wikipedia.org/wiki/Functor">functors</a> that you
+simply attach to a Task to tell it:</p>
+
+<ol>
+  <li>
+    <p>what to execute in the background</p>
+  </li>
+  <li>
+    <p>what to do when the task completes successfully, or fails, or gets interrupted.</p>
+  </li>
+</ol>
+
+<p>You can also listen to bound properties (JavaBeans style properties) that will report status
+changes, progress updates, etc. It makes it very easy to work with the API, and if you’re used to
+writing event driven code, then this approach is very natural. There is a whole host of support
+classes that are provided to make your life really easy when working with these tasks - their
+functors, handlers, and listeners. I’ve worked very hard to make this API easy to use… it’s not a
+‘lazy’ implementation on my part… I’ve worked very hard so that you don’t have to! :) . Another
+nice feature the API has is that it auto-cleans up resources, and auto-stops things, making it
+relatively easy to manage the lifecycle of these tasks and the resources &amp; hooks (listeners, etc)
+that they consume. More on this in the other tutorials.</p>
+
+<p>The following diagram illustrates the basic architecture of the API:</p>
+
+<p><img src="/assets/taskapi-4.png" alt="" /></p>
+      <h2 id="the-abstracttask-class">
+        
+        
+          The AbstractTask class <a href="#the-abstracttask-class">#</a>
+        
+        
+      </h2>
+    
+
+<p>SimpleTask is a subclass of AbstractTask. AbstractTask provides most of the functionality that’s
+common between SimpleTask, NetworkTask, and RecurringNetworkTask. This includes:</p>
+
+<ol>
+  <li>
+    <p>Managing status listeners.</p>
+  </li>
+  <li>
+    <p>Binding with functors (TaskExecutor).</p>
+  </li>
+  <li>
+    <p>Binding with handlers (SimpleTaskHandler).</p>
+  </li>
+  <li>
+    <p>Functionality is also provided to interface with TaskManager - that allows the management and
+monitoring of these tasks.</p>
+  </li>
+</ol>
+
+<p>Future tutorials will go into more details on all these new classes (NetworkTask,
+RecurringNetworkTask, and TaskManager).</p>
+
+<p>All tasks can report coarse-grained-status information, and this is handled by attaching a
+PropertyChangeListener to the Task. Here’s an example of this:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">_task</span><span class="o">.</span><span class="na">addStatusListener</span><span class="o">(</span><span class="k">new</span> <span class="nc">PropertyChangeListener</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">propertyChange</span><span class="o">(</span><span class="nc">PropertyChangeEvent</span> <span class="n">evt</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">sout</span><span class="o">(</span><span class="s">":: task status change - "</span> <span class="o">+</span>
+         <span class="nc">ProgressMonitorUtils</span><span class="o">.</span><span class="na">parseStatusMessageFrom</span><span class="o">(</span><span class="n">evt</span><span class="o">));</span>
+    <span class="n">lblProgressStatus</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="nc">ProgressMonitorUtils</span><span class="o">.</span><span class="na">parseStatusMessageFrom</span><span class="o">(</span><span class="n">evt</span><span class="o">));</span>
+  <span class="o">}</span>
+<span class="o">});</span>
+</code></pre></div></div>
+
+<p>The ProgressMonitorUtils class is provided to make it simpler to parse information out of
+PropertyChangeEvents, and in my opinion makes the code more readable and easier to understand
+(instead of having to remember to get the old value or was it the new value from the event?).</p>
+      <h4 id="the-functor-taskexecutor-and-coarse-grained-status-information">
+        
+        
+          The functor (TaskExecutor) and coarse-grained-status information <a href="#the-functor-taskexecutor-and-coarse-grained-status-information">#</a>
+        
+        
+      </h4>
+    
+
+<p>The TaskExecutor interface (TaskExecutorIF) has 1 main method: doInBackground(). This method is
+where you write your code that does “something in the background”. This code is guaranteed to run in
+a NON-EDT thread by the Task API. While it’s executing, it can report status updates, etc. to the
+Task, which are then propagated to any listeners that are attached to the Task. An adapter -
+TaskExecutorAdapter is provided which you can override just to implement the doInBackground()
+method.. It has other methods that you can override, which report coarse-grained status information
+to the Task (and it’s status listeners). Here’s the code for TaskExecutorAdapter:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">TaskExecutorAdapter</span><span class="o">&lt;</span><span class="nc">ReturnValueType</span><span class="o">&gt;</span>
+    <span class="kd">implements</span> <span class="nc">TaskExecutorIF</span><span class="o">&lt;</span><span class="nc">ReturnValueType</span><span class="o">&gt;</span> <span class="o">{</span>
+
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="s">"TaskRoot"</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">getStartMessage</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">" started."</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">getInterruptedMessage</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">" was interrupted."</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">getCancelledMessage</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">" was cancelled."</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">getSuccessMessage</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">" completed successfully."</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">getRetryMessage</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="s">"Please try again."</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">getNotOnlineMessage</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="s">"Application is not online, did not run "</span> <span class="o">+</span> <span class="n">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">"."</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="o">}</span><span class="c1">//end class TaskExecutorAdapter</span>
+</code></pre></div></div>
+
+<p>Except for the doInBackground() method, all the others really report coarse-grained status
+information to any Task status listeners. This information includes notification of when the task
+started, stopped, was canceled, encountered an error, etc.</p>
+
+<p>The type binds a functor with it’s handler. If your doInBackground() method produces a return value
+at the end of it’s execution, then this value gets passed to the handler’s ok() method. More on this
+below.</p>
+      <h4 id="adding-and-removing-status-listeners">
+        
+        
+          Adding and removing status listeners <a href="#adding-and-removing-status-listeners">#</a>
+        
+        
+      </h4>
+    
+
+<p>The other half of this equation is the Task’s addStatusListener() and clearAllStatusListeners(). The
+add method is used to attach a property change listener that can receive coarse-grained-status
+information. The clear method is used to remove all listeners that are currently attached to a Task.
+Tasks try to clean up after themselves, so in case you forget to clear all the status listeners and
+you shutdown a task, it will clear all it’s status listeners for you!</p>
+      <h2 id="lifecycle-of-a-task">
+        
+        
+          Lifecycle of a Task <a href="#lifecycle-of-a-task">#</a>
+        
+        
+      </h2>
+    
+      <h4 id="the-handler-taskhandler">
+        
+        
+          The handler (TaskHandler) <a href="#the-handler-taskhandler">#</a>
+        
+        
+      </h4>
+    
+
+<p>The SimpleTaskHandlerIF interface is a callback into your code that lets you know when a Task is
+going through it’s various lifecycle stages. Here’s the code for SimpleTaskHandlerIF:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * TaskHandlerIF is an interface that encapsulates the various lifecyle
+ * stages that a task will go through. This allows task writers to add
+ * event handling code as a task progresses through
+ * various stages.
+ * &lt;p/&gt;
+ * Here's a quick rundown of the various paths that can be taken:
+ * &lt;ol&gt;
+ * &lt;li&gt;beforeStart -&gt; started -&gt; stopped -&gt; ok
+ * &lt;li&gt;beforeStart -&gt; started -&gt; stopped -&gt; error
+ * &lt;li&gt;beforeStart -&gt; started -&gt; stopped -&gt; interrupted
+ * &lt;li&gt;beforeStart -&gt; started -&gt; stopped -&gt; cancelled
+ * &lt;/ol&gt;
+ *
+ * @author Nazmul Idris
+ * @version 1.0
+ * @since Oct 5, 2007, 9:59:16 AM
+ */</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">SimpleTaskHandlerIF</span><span class="o">&lt;</span><span class="nc">ReturnValueType</span><span class="o">&gt;</span> <span class="o">{</span>
+
+<span class="cm">/**
+ * this method is called before the background thread is started.
+ * good place to do prep work if any needs to be done.
+ * this may not run in the EDT.
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">beforeStart</span><span class="o">(</span><span class="nc">AbstractTask</span> <span class="n">task</span><span class="o">);</span>
+
+<span class="cm">/**
+ * this is called after the task is started, it's not running in the
+ * background at this point, but is just about to. all the states have
+ * been setup (in the task) and updates sent out.
+ * this may not run in the EDT.
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">started</span><span class="o">(</span><span class="nc">AbstractTask</span> <span class="n">task</span><span class="o">);</span>
+
+<span class="cm">/**
+ * this is called after the task has ended normally (not interrupted).
+ * ok or error may be called after this.
+ * this runs in the EDT.
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">stopped</span><span class="o">(</span><span class="kt">long</span> <span class="n">time</span><span class="o">,</span> <span class="nc">AbstractTask</span> <span class="n">task</span><span class="o">);</span>
+
+<span class="cm">/**
+ * this is called after the task has been interrupted. ok or error may
+ * not be called after this. this is caused by underlying IOException,
+ * InterruptedIOException, or InterruptedException.
+ * this runs in the EDT.
+ *
+ * @param e this holds the underlying exception that holds
+ *          more information on the
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">interrupted</span><span class="o">(</span><span class="nc">Throwable</span> <span class="n">e</span><span class="o">,</span> <span class="nc">AbstractTask</span> <span class="n">task</span><span class="o">);</span>
+
+<span class="cm">/**
+ * this is called after stopped(). it signifies successful task completion.
+ * this runs in the EDT.
+ *
+ * @param value this is optional. the task may want to pass an object
+ *              or objects to the task
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">ok</span><span class="o">(</span><span class="nc">ReturnValueType</span> <span class="n">value</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">,</span> <span class="nc">AbstractTask</span> <span class="n">task</span><span class="o">);</span>
+
+<span class="cm">/**
+ * this is called after stopped(). it signifies failure of task execution.
+ * this runs in the EDT.
+ *
+ * @param e this is used to pass the exception that caused the task to
+ *          stop to be reported to the
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">error</span><span class="o">(</span><span class="nc">Throwable</span> <span class="n">e</span><span class="o">,</span> <span class="kt">long</span> <span class="n">time</span><span class="o">,</span> <span class="nc">AbstractTask</span> <span class="n">task</span><span class="o">);</span>
+
+<span class="cm">/**
+ * This is called after started(). it signifies that the task was
+ * cancelled by cancel() being called on it's SwingWorker thread.
+ * This is not the same as InterruptedIOException from the IO layer,
+ * which results in an Err.
+ * Cancel trumps: {@link #stopped(long, AbstractTask)},
+ * {@link #error(Throwable,long, AbstractTask)},
+ * {@link #ok}, and {@link #interrupted(Throwable, AbstractTask)}.
+ * &lt;p/&gt;
+ * In your handler implementation, just throw the results away, and
+ * assume everything has stopped and terminated.
+ * this runs in the EDT.
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">cancelled</span><span class="o">(</span><span class="kt">long</span> <span class="n">time</span><span class="o">,</span> <span class="nc">AbstractTask</span> <span class="n">task</span><span class="o">);</span>
+
+<span class="cm">/**
+ * This method is called on the task handler when
+ * {@link AbstractTask#shutdown()} is called. It
+ * signifies that the task is going to stop.
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">shutdownCalled</span><span class="o">(</span><span class="nc">AbstractTask</span> <span class="n">task</span><span class="o">);</span>
+
+<span class="o">}</span><span class="c1">//end interface SimpleTaskHandlerIF</span>
+</code></pre></div></div>
+
+<p>Instead of implementing this interface, you can use an adapter class provided to make it easier for
+you to create your own handler (SimpleTaskHandler). You don’t have to provide an implementation for
+each of these methods if you use this adapter. There are a couple of things to note when writing
+your handler:</p>
+
+<ol>
+  <li>
+    <p>Not all the methods in the callback are executed in the EDT, some are actually run in the
+background thread that’s executing your functor (TaskExectutor).</p>
+  </li>
+  <li>
+    <p>If you look at the documentation for each of the methods in the interface, you will find which
+methods are run in the EDT and which are run in the background thread.</p>
+  </li>
+</ol>
+
+<p>This handler is intrinsically tied to the progress monitor and task cancellation described in the
+next section. There are a few different ways in which a Task can be canceled which causes the
+handler’s methods to be called (in your code).</p>
+
+<p>The handler is also intrinsically tied to the functor, via the type that’s created by the functor
+and passed to the handler (via it’s ok() method).</p>
+      <h4 id="starting">
+        
+        
+          Starting <a href="#starting">#</a>
+        
+        
+      </h4>
+    
+
+<p>The Task API uses a SwingWorker under the covers to actually run your functor. This SwingWorker is
+managed by the API so that you don’t have to explicitly create one and control it, etc. A Task has
+lots of other resources attached to it (in addition to the underlying SwingWorker) like an object
+that allows task progress information to be reported to progress status listeners. This is called
+UIHook. This user interface hook allows status information to be reported to the UI and it allows
+the user to cancel the task at anytime, including any underlying IO operation that the Task is
+currently performing. More on this in the monitoring progress section. So, every Task supports
+progress monitoring and cancellation. To keep things simple, the following constraint is in place,
+only one underlying thread can execute at any given time. That is, if you run execute() on a task,
+then only 1 underlying SwingWorker will be created and executed. If you try and run execute() while
+a thread is already running then you will get an exception - TaskExeception. If you want multiple
+threads to run through your functor, there are many different ways to accomplish this. You can
+simply create more than 1 SimpleTask object and execute them with the same functor. Or you can
+create a RecurringTask and have it work on objects in a queue.</p>
+
+<p>The reason for this single thread constraint is to make it simpler/easier for you to wire a Task up
+to a UI. It’s really simple to bind a set of listeners to one Task knowing that the background
+operation will provide status and progress updates to the UI. However, if this Task was allowed to
+spawn multiple background threads, then you would have to distinguish which one of these concurrent
+threads did the status or progress update come from, which makes things more complicated.</p>
+      <h4 id="stoppingcanceling-and-shutdown">
+        
+        
+          Stopping/Canceling and Shutdown <a href="#stoppingcanceling-and-shutdown">#</a>
+        
+        
+      </h4>
+    
+
+<p>Once you call shutdown() on a Task, it can no longer be started. You can cancel() a task execution
+(which will cause the underlying SwingWorker background thread to be terminated) and then execute()
+it again. However, shutdown() is a one time operation. Once shutdown() your Task is dead. In order
+to do be able to run it again, you have to create a new Task object and execute() it. Calling
+shutdown() causes all the status listeners, etc. to be cleared from the Task. So it cleans itself up
+when you shut it down.</p>
+      <h2 id="monitoring-progress-and-canceling-tasks">
+        
+        
+          Monitoring Progress and Canceling tasks <a href="#monitoring-progress-and-canceling-tasks">#</a>
+        
+        
+      </h2>
+    
+
+<p>One of the most important features that a Task has is the ability to report it’s progress to a
+property change listener that’s hooked up to it. It performs this by the use of a class called
+SwingUIHookAdapter. This class is responsible for broadcasting any progress status messages to
+registered listeners. It also keeps track of any underlying SwingWorkers that are currently
+executing and if the underlying SwingWorker is canceled, then it causes the UIHook to be canceled as
+well. So here are the different ways to cancel a task:</p>
+
+<ol>
+  <li>
+    <p>call cancel() on the Task, this will cause the underlying SwingWorker (if any is currently
+executing) to be canceled. This will also trip the SwingUIHookAdapter.</p>
+  </li>
+  <li>
+    <p>call cancel() on the UIHook itself. This will not cancel() the underlying SwingWorker - it causes
+an exception to be raised if any underlying IO operations are currently being performed via this
+filtered stream - InputStreamUIHookSupport. This filtered stream works very closely with the
+UIHook to ensure that everything is in sync. If you don’t use this filtered stream and call
+cancel() on the UIHook then it won’t really do anything.</p>
+  </li>
+</ol>
+
+<p>So as you can see there are many ways to cancel a Task that’s currently executing. Which cancel()
+method you call depends on what you want to happen. Please note that a reference to the UIHook and
+SwingWorker (that’s currently running) is passed to your functor in it’s doInBackground() method.
+This is so that you can report progress status, and do whatever else that you need while your
+functor is actually running.</p>
+
+<p>There are 2 types of progress messages that are sent - Send and Receive. The reason there are 2
+types is because I wanted to accommodate IO progress. In IO, there is read operation progress
+(Receive) and write operation progress (Send). You can selectively enable or disable these types of
+progress status events to be propagated to your listeners via:</p>
+
+<ol>
+  <li>
+    <p>enableRecieveStatusNotification(boolean);</p>
+  </li>
+  <li>
+    <p>enableSendStatusNotification(boolean);</p>
+  </li>
+</ol>
+
+<p>Here’s an example of how you wire a listener to get Send and Receive progress status updates (from
+the SampleApp’s _initHook()):</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="nc">SwingUIHookAdapter</span> <span class="nf">_initHook</span><span class="o">(</span><span class="nc">SwingUIHookAdapter</span> <span class="n">hook</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">hook</span><span class="o">.</span><span class="na">enableRecieveStatusNotification</span><span class="o">(</span><span class="n">checkboxRecvStatus</span><span class="o">.</span><span class="na">isSelected</span><span class="o">());</span>
+  <span class="n">hook</span><span class="o">.</span><span class="na">enableSendStatusNotification</span><span class="o">(</span><span class="n">checkboxSendStatus</span><span class="o">.</span><span class="na">isSelected</span><span class="o">());</span>
+
+  <span class="n">hook</span><span class="o">.</span><span class="na">setProgressMessage</span><span class="o">(</span><span class="n">ttfProgressMsg</span><span class="o">.</span><span class="na">getText</span><span class="o">());</span>
+
+  <span class="nc">PropertyChangeListener</span> <span class="n">listener</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">PropertyChangeListener</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">propertyChange</span><span class="o">(</span><span class="nc">PropertyChangeEvent</span> <span class="n">evt</span><span class="o">)</span> <span class="o">{</span>
+      <span class="nc">SwingUIHookAdapter</span><span class="o">.</span><span class="na">PropertyList</span> <span class="n">type</span> <span class="o">=</span> <span class="nc">ProgressMonitorUtils</span><span class="o">.</span><span class="na">parseTypeFrom</span><span class="o">(</span><span class="n">evt</span><span class="o">);</span>
+      <span class="kt">int</span> <span class="n">progress</span> <span class="o">=</span> <span class="nc">ProgressMonitorUtils</span><span class="o">.</span><span class="na">parsePercentFrom</span><span class="o">(</span><span class="n">evt</span><span class="o">);</span>
+      <span class="nc">String</span> <span class="n">msg</span> <span class="o">=</span> <span class="nc">ProgressMonitorUtils</span><span class="o">.</span><span class="na">parseMessageFrom</span><span class="o">(</span><span class="n">evt</span><span class="o">);</span>
+
+      <span class="n">progressBar</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span><span class="n">progress</span><span class="o">);</span>
+      <span class="n">progressBar</span><span class="o">.</span><span class="na">setString</span><span class="o">(</span><span class="n">type</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+
+      <span class="n">sout</span><span class="o">(</span><span class="n">msg</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">};</span>
+
+  <span class="n">hook</span><span class="o">.</span><span class="na">addRecieveStatusListener</span><span class="o">(</span><span class="n">listener</span><span class="o">);</span>
+  <span class="n">hook</span><span class="o">.</span><span class="na">addSendStatusListener</span><span class="o">(</span><span class="n">listener</span><span class="o">);</span>
+  <span class="n">hook</span><span class="o">.</span><span class="na">addUnderlyingIOStreamInterruptedOrClosed</span><span class="o">(</span><span class="k">new</span> <span class="nc">PropertyChangeListener</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">propertyChange</span><span class="o">(</span><span class="nc">PropertyChangeEvent</span> <span class="n">evt</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">sout</span><span class="o">(</span><span class="n">evt</span><span class="o">.</span><span class="na">getPropertyName</span><span class="o">()</span> <span class="o">+</span> <span class="s">" fired!!!"</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+
+  <span class="k">return</span> <span class="n">hook</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This is an example of how the UIHook is used along with the filtered stream in SampleApp:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">GetMethod</span> <span class="n">get</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GetMethod</span><span class="o">(</span><span class="n">ttfURI</span><span class="o">.</span><span class="na">getText</span><span class="o">());</span>
+<span class="k">new</span> <span class="nf">HttpClient</span><span class="o">().</span><span class="na">executeMethod</span><span class="o">(</span><span class="n">get</span><span class="o">);</span>
+<span class="nc">ByteBuffer</span> <span class="n">data</span> <span class="o">=</span> <span class="nc">HttpUtils</span><span class="o">.</span><span class="na">getMonitoredResponse</span><span class="o">(</span><span class="n">hook</span><span class="o">,</span> <span class="n">get</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>Here’s the HttpUtils.getMonitoredResponse() method implementation:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * can monitor an HTTP GET or POST response.
+ * make sure to release the connection once the POST/GET method is complete,
+ * using {@link HttpMethodBase#releaseConnection()}
+ */</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">ByteBuffer</span> <span class="nf">getMonitoredResponse</span><span class="o">(</span><span class="nc">UIHookAdapter</span> <span class="n">hook</span><span class="o">,</span>
+                                              <span class="nc">HttpMethodBase</span> <span class="n">method</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">IOException</span><span class="o">,</span> <span class="nc">IllegalArgumentException</span>
+<span class="o">{</span>
+  <span class="nc">Validate</span><span class="o">.</span><span class="na">notNull</span><span class="o">(</span><span class="n">method</span><span class="o">,</span> <span class="s">"method can not be null"</span><span class="o">);</span>
+
+  <span class="k">try</span> <span class="o">{</span>
+    <span class="nc">InputStreamUIHookSupport</span> <span class="n">is</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">InputStreamUIHookSupport</span><span class="o">(</span>
+        <span class="nc">InputStreamUIHookSupport</span><span class="o">.</span><span class="na">Type</span><span class="o">.</span><span class="na">RecvStatus</span><span class="o">,</span>
+        <span class="n">hook</span> <span class="o">==</span> <span class="kc">null</span>
+        <span class="o">?</span> <span class="kc">null</span>
+        <span class="o">:</span> <span class="n">hook</span><span class="o">.</span><span class="na">getUIHook</span><span class="o">(),</span>
+        <span class="n">method</span><span class="o">);</span>
+
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">ByteBuffer</span><span class="o">(</span><span class="n">is</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="k">finally</span> <span class="o">{</span>
+    <span class="n">method</span><span class="o">.</span><span class="na">releaseConnection</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>As you can see in this code, the InputStreamUIHookSupport needs access to the UIHook and an
+HTTPMethod or another InputStream in order to wire it up for progress updates. As the filtered
+stream reads data from the underlying InputStream, it fires off progress status updates, which are
+then propagated by the UIHook to any listeners. If cancel() is called on the UIHook, then it causes
+an IOException to the thrown and the filtered InputStream aborts immediately! This is a great way to
+stop any underlying IO immediately.</p>
+
+<p>If your code doesn’t use the UIHook or filtered input stream, then calling cancel() on the Task will
+still work. However, if cancel() is called and you don’t check the isCanceled() flag of the
+underlying SwingWorker (passed to you in doInBackground()) to stop your code, then it will continue
+until it completes. The handler’s cancelled() method will be called immediately, but your code will
+continue to run. This problem arises from not having a stop() method in Java threads (having a
+stop() method introduces its own problems).
+<a href="https://developerlife.com/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">This tutorial</a>
+talks about this scenario in more detail. Not to worry, your handler will properly run and you will
+get a callback notifying you that the task is canceled.</p>
+
+<p>Additionally, if you don’t have any underlying IO to monitor, and just want to send arbitrary
+progress messages, you can do so by using the following methods in the UIHook:</p>
+
+<ol>
+  <li>
+    <p>updateSendStatusInUI(int progress, int total);</p>
+  </li>
+  <li>
+    <p>updateRecieveStatusInUI(int progress, int total);</p>
+  </li>
+  <li>
+    <p>closeInUI();</p>
+  </li>
+</ol>
+
+<p>These methods are normally orchestrated by the filtered InputStream, but you can orchestrate them
+manually in your code if you want to “fake it”. Calling these methods in your doInBackground()
+implementation will cause progress status messages to be propagated to any listeners that are hooked
+up to your Task’s UIHook object.</p>
+
+<p>The topics covered here are not easy to understand or keep straight in your head. I recommend
+reading the Javadocs on the source code and looking at the sample code to make sense of all this.
+Again, if you don’t want to understand any of this, you don’t have to, if you just want to use the
+API.</p>
+      <h2 id="package-structure">
+        
+        
+          Package structure <a href="#package-structure">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are just a few packages in the Task API:</p>
+
+<ol>
+  <li>
+    <p>Samples.* - this is where all the sample code is located. There are 4 samples, which correlate
+to the tutorials you are reading.</p>
+  </li>
+  <li>
+    <p>SampleService - this is a debug Servlet that has a GET and POST implementation that simply
+responds with whatever data is passed to the request. Good for testing.</p>
+  </li>
+  <li>
+    <p>Task.* - this is where all the major classes that you will use are located, like SimpleTask, the
+functor and handler adapters.</p>
+  </li>
+  <li>
+    <p>Task.ProgressMonitor.* - this is where all the progress status related classes are located.</p>
+  </li>
+  <li>
+    <p>Task.Support.* - this is where miscellaneous classes that are required to make the API work are
+located.</p>
+  </li>
+</ol>
+      <h2 id="dependencies-and-optional-libraries">
+        
+        
+          Dependencies and optional libraries <a href="#dependencies-and-optional-libraries">#</a>
+        
+        
+      </h2>
+    
+
+<p>When you download the <a href="/assets/taskapi.zip">taskapi.zip</a> distribution you will
+find a lot of JARs in the dist/ folder and the lib/ folder. The dist/ folder contains all the JARs
+that you will need to include in your project, along with the taskapi.jar file itself. The lib/
+folder is where these JARs are copied from (except for taskapi.jar, which is built from the code).</p>
+
+<p>Here’s a listing of all these JARs:</p>
+
+<table cellpadding="4" width="730" cellspacing="2" border="0">
+
+<tbody>
+
+<tr>
+
+<td width="206" valign="top"><strong>JAR</strong>
+
+</td>
+
+<td width="515" valign="top"><strong>Required or not</strong>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">AnimatedTransitions-0.11.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">appicons.zip
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">commons-codec-1.3.jar
+
+</td>
+
+<td width="515" valign="top">This is required.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">commons-httpclient-3.1.jar
+
+</td>
+
+<td width="515" valign="top">This is required.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">commons-lang-2.4.jar
+
+</td>
+
+<td width="515" valign="top">This is required.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">commons-logging-1.1.1.jar
+
+</td>
+
+<td width="515" valign="top">This is required.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">forms-1.2.0.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">jaxen-core.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">jaxen-jdom.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">jdom.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">jide-oss-2.2.2.02.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">looks-2.1.4.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">saxpath.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">servlet-api.jar
+
+</td>
+
+<td width="515" valign="top">Not required.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">swingx-0.9.2.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">TableLayout.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">TimingFramework-1.0.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">TableLayout-javadoc.jar
+
+</td>
+
+<td width="515" valign="top">Not required.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">TableLayout-src.jar
+
+</td>
+
+<td width="515" valign="top">Not required.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">weather_icons_png.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="206" valign="top">weather_service.jar
+
+</td>
+
+<td width="515" valign="top">This is required to run the Samples.
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CC">
+                #cc</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/05/27/task-api-3-of-5-monitoring-http-post-operations/">
+                        Task API (3 of 3) - Monitoring HTTP POST operations
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/05/task-api-quick-start-guide/">
+                        Task API (1 of 3) - Quick Start Guide
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/">
+                        Creating multi-threaded Swing apps that consume web services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2006/06/09/introduction-to-java-50-javautilconcurrent-api/">
+                        Introduction to Java 5 java.util.concurrent API
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/introduction-to-threads/">
+                        Introduction to Threads
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2008/04/08/task-api-2-of-5-task-api-in-depth/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

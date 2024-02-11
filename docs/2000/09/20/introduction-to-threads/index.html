@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Introduction to Threads | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Introduction to Threads" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Introduction to multithreading in Java" />
+<meta property="og:description" content="Introduction to multithreading in Java" />
+<link rel="canonical" href="http://developerlife.com/2000/09/20/introduction-to-threads/" />
+<meta property="og:url" content="http://developerlife.com/2000/09/20/introduction-to-threads/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2000-09-20T13:00:57-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Introduction to Threads" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2000-09-20T13:00:57-05:00","datePublished":"2000-09-20T13:00:57-05:00","description":"Introduction to multithreading in Java","headline":"Introduction to Threads","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2000/09/20/introduction-to-threads/"},"url":"http://developerlife.com/2000/09/20/introduction-to-threads/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Introduction to Threads&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Introduction to Threads</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Introduction to Threads</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Sep 20, 2000
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#what-is-a-thread">What is a thread?</a></li>
+  <li><a href="#java-threads">Java threads</a></li>
+  <li><a href="#implementing-runnable-vs-extending-thread">Implementing Runnable vs. extending Thread</a>
+    <ul>
+      <li><a href="#choosing-to-implement-runnable">Choosing to implement Runnable</a></li>
+      <li><a href="#choosing-to-extend-thread">Choosing to extend Thread</a></li>
+      <li><a href="#source-code-examples">Source code examples</a></li>
+    </ul>
+  </li>
+  <li><a href="#servlets-and-rmi-potential-hazard">Servlets and RMI potential hazard</a></li>
+  <li><a href="#the-synchronized-keyword">The synchronized keyword</a></li>
+  <li><a href="#thread-safe-vs-threaded-classes">Thread-safe vs. threaded classes</a></li>
+  <li><a href="#example-problem">Example Problem</a></li>
+  <li><a href="#solution-design">Solution (design)</a></li>
+  <li><a href="#code">Code</a></li>
+  <li><a href="#why">Why?</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="what-is-a-thread">
+        
+        
+          What is a thread? <a href="#what-is-a-thread">#</a>
+        
+        
+      </h2>
+    
+
+<p>A thread is a path of execution through code; in other words, a thread is a single sequential flow
+of control within a program. What does that mean? In Java, objects are not “alive”, rather threads
+are “alive”. Threads run through your code (ie, the methods in your objects). When you invoke the
+main() method in your class, the Java Virtual Machine (JVM) creates a thread for you that actually
+runs the code in this method. Another thread that is always running in the JVM is the garbage
+collector thread (which makes sure to reclaim memory for objects that are no longer referenced by
+any other objects).</p>
+
+<p>For example, let’s say you have a class, called MyClass.java, that has a main() and print() method,
+shown in Figure 1. When you run this class, by typing java MyClass at the command prompt, the JVM
+creates a thread to run through the main() method. At the same time during which the thread is
+running through your object, the JVM has a garbage collection thread running, ie, they are running
+concurrently.</p>
+
+<p><img src="/assets/threads-1.jpg" alt="" /></p>
+      <h2 id="java-threads">
+        
+        
+          Java threads <a href="#java-threads">#</a>
+        
+        
+      </h2>
+    
+
+<p>Java allows you to create your own threads that can be run through any class that you write. Threads
+are lightweight processes (if you’re familiar with UNIX processes). By allowing you to spawn any
+number of threads in a single (JVM) process, you can have your objects perform concurrent tasks.
+This is very important for network programming, in a distributed environment, where your objects
+might be waiting for data from objects on other hosts (ie, remote objects). By being multithreaded,
+your objects can do something else while they wait; for example, they can service a large number of
+requests from other remote objects. Threads are used heavily in the Servlet API, EJB, RMI and just
+about any server framework.</p>
+
+<p>There is more than one way to use threads. Sometimes you have to create “threaded” classes (ie,
+classes that create and manage their own threads to perform concurrent tasks), but most of the time
+you have to make sure that your classes will handle multiple threads trampling through them (for
+example, Servlet classes).</p>
+
+<p>In the advanced thread tutorial you will see how to make complex “threaded” classes. In this
+tutorial you will learn how to:</p>
+
+<ol>
+  <li>
+    <p>make simple “threaded” classes (classes that create and manage their own threads)</p>
+  </li>
+  <li>
+    <p>create classes that can handle multiple threads trampling through them (for example, Servlet
+classes).</p>
+  </li>
+</ol>
+      <h2 id="implementing-runnable-vs-extending-thread">
+        
+        
+          Implementing Runnable vs. extending Thread <a href="#implementing-runnable-vs-extending-thread">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are two ways of creating your own “threaded” classes, you can:</p>
+
+<ol>
+  <li>
+    <p>implement the java.lang.Runnable interface</p>
+  </li>
+  <li>
+    <p>extend the java.lang.Thread class.</p>
+  </li>
+</ol>
+
+<p>These two ways of creating threads have slightly different semantics, in the way in which a thread
+runs through your objects. However, there are similarities in using either of the two ways, you must
+have a run() method. Your thread will execute this run() method, once the thread has been
+instantiated and started.</p>
+      <h3 id="choosing-to-implement-runnable">
+        
+        
+          Choosing to implement Runnable <a href="#choosing-to-implement-runnable">#</a>
+        
+        
+      </h3>
+    
+
+<p>In fact, the Runnable interface only has one method, which is public void run(). The way to use
+Runnable is as follows:</p>
+
+<ol>
+  <li>
+    <p>Create a class that implements Runnable and be sure to implement the run() method</p>
+  </li>
+  <li>
+    <p>In order to make this run() method come “alive”, you have to create a Thread object and pass it
+the Runnable implementation class as a parameter (to the constructor).</p>
+  </li>
+  <li>
+    <p>Then you have to invoke the start() method on this Thread object.</p>
+  </li>
+</ol>
+
+<p>Your Runnable object (the threaded class) is not a thread itself. However, you can use the Thread
+class (in Java everything is represented as a class, even threads) to run your Runnable object
+(concurrently). So you have separate Thread objects, potentially all running through the same
+instance of your Runnable object. You can choose not to do this, but you can do this if you want to,
+since you have to give the Thread constructor a reference to the Runnable object in order to
+instantiate the Thread object. Don’t forget to start() the Thread object, in order to make your
+Runnable object come “alive”.</p>
+
+<p>The Servlet API, for example, chooses to have Servlets implement the Runnable interface rather than
+extending the Thread class. The end result of this is that there is one instance of the each Servlet
+class, and the Servlet container creates a new thread for each HTTP request that comes in (for that
+Servlet) and attaches it to the same Servlet object. This is the Singleton pattern, where only the
+same (single) instance of a class is used anywhere that an object of that class is required. Now,
+you can override this default behaviour of Servlets, by having your Servlet extend
+<a href="http://jserv.javasoft.com/products/java-server/documentation/webserver1.1/apidoc/Package-javax.servlet.html">SingleThreadedModel</a>.
+This starts to emulate the behavior that you would get by extending Thread. When you extend
+SingleThreadedModel, a new Servlet object is created for every thread that is created to service
+each HTTP request. This behavior is illustrated in Figure 2. Please refer to the source code example
+below on the details of implementing Runnable.</p>
+
+<p>The behavior of RMI objects is very similar to this. When a client looks up a remote reference, they
+get a stub to the skeleton of the remote object. Now, there is only one remote object, per remote
+reference. However, a multitude of clients can connect to this singular remote object and invoke
+methods on it. Sounds like the Singleton pattern at work again. The skeleton creates a new Thread
+that runs through the singular remote object (in addition to managing all the protocol translation
+between it and the stub). This is very similar to the Servlet mechanism. This kind of design
+strategy exists in most server frameworks, from Servlets, to RMI, to CORBA ORBs.</p>
+
+<p><img src="/assets/threads-2.jpg" alt="" /></p>
+      <h3 id="choosing-to-extend-thread">
+        
+        
+          Choosing to extend Thread <a href="#choosing-to-extend-thread">#</a>
+        
+        
+      </h3>
+    
+
+<p>Another way of creating “threaded classes” is by extending the Thread class directly. This might
+seem simpler than implementing the Runnable interface, but its the same amount of work. In fact,
+sometimes it is not possible to extend Thread, because your threaded class might have to extend
+something else. The only difference between implementing Runnable and extending Thread is that by
+extending Thread, each of your threads has a unique object associated with it, whereas with
+Runnable, many threads share the same object instance. This behaviour is also illustrated in
+Figure 2. Please refer to the source code example for details of extending Thread.</p>
+      <h3 id="source-code-examples">
+        
+        
+          Source code examples <a href="#source-code-examples">#</a>
+        
+        
+      </h3>
+    
+
+<p>Two implementations of the ThreadedClass class are shown below, created once by implementing
+Runnable, and again by extending Thread. You can correlate the source code to Figure 2.</p>
+
+<p>The code to implement Runnable is shown below:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="mi">1</span><span class="o">:</span> <span class="c1">//Implementing Runnable</span>
+   <span class="mi">2</span><span class="o">:</span> <span class="kd">public</span> <span class="kd">class</span> <span class="nc">ThreadedClass</span>
+   <span class="mi">3</span><span class="o">:</span> <span class="kd">implements</span> <span class="nc">Runnable</span>
+   <span class="mi">4</span><span class="o">:</span> <span class="o">{</span>
+   <span class="mi">5</span><span class="o">:</span>     <span class="kt">int</span> <span class="n">data</span><span class="o">;</span>
+   <span class="mi">6</span><span class="o">:</span>
+   <span class="mi">7</span><span class="o">:</span>     <span class="kd">public</span> <span class="nf">ThreadedClass</span><span class="o">(){</span>
+   <span class="mi">8</span><span class="o">:</span>         <span class="n">data</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+   <span class="mi">9</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">10</span><span class="o">:</span>
+  <span class="mi">11</span><span class="o">:</span>     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">(){</span>
+  <span class="mi">12</span><span class="o">:</span>         <span class="c1">//this method runs when start() is invoked on the thread</span>
+  <span class="mi">13</span><span class="o">:</span>         <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span> <span class="n">data</span> <span class="o">);</span>
+  <span class="mi">14</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">15</span><span class="o">:</span>
+  <span class="mi">16</span><span class="o">:</span>     <span class="kd">public</span> <span class="nc">Thread</span> <span class="nf">getNewThread</span><span class="o">(){</span>
+  <span class="mi">17</span><span class="o">:</span>         <span class="nc">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Thread</span><span class="o">(</span> <span class="k">this</span> <span class="o">);</span>
+  <span class="mi">18</span><span class="o">:</span>         <span class="k">return</span> <span class="n">t</span><span class="o">;</span>
+  <span class="mi">19</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">20</span><span class="o">:</span>
+  <span class="mi">21</span><span class="o">:</span>     <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span> <span class="nc">String</span><span class="o">[]</span> <span class="n">args</span> <span class="o">){</span>
+  <span class="mi">22</span><span class="o">:</span>         <span class="nc">ThreadedClass</span> <span class="n">threadedClass</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ThreadedClass</span><span class="o">();</span>
+  <span class="mi">23</span><span class="o">:</span>         <span class="nc">Thread</span> <span class="n">t1</span> <span class="o">=</span> <span class="n">threadedClass</span><span class="o">.</span><span class="na">getNewThread</span><span class="o">();</span>
+  <span class="mi">24</span><span class="o">:</span>         <span class="n">t1</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+  <span class="mi">25</span><span class="o">:</span>
+  <span class="mi">26</span><span class="o">:</span>         <span class="nc">Thread</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">threadedClass</span><span class="o">.</span><span class="na">getNewThread</span><span class="o">();</span>
+  <span class="mi">27</span><span class="o">:</span>         <span class="n">t2</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+  <span class="mi">28</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">29</span><span class="o">:</span> <span class="o">}</span>
+</code></pre></div></div>
+
+<p>In the main() method of the code above, only one instance of ThreadedClass is created. This one
+instance is used to spawn a multitude of threads (each executing the run() method of the same
+object). This is analogous to what happens with RMI or Servlets. This is how you can share instance
+variables of a Servlet across multiple threads of the same Servlet running in the Servlet container.
+If you wish to create a new instance of a Servlet per thread, then your Servlet has to extend
+<a href="http://jserv.javasoft.com/products/java-server/documentation/webserver1.1/apidoc/Package-javax.servlet.html">SingleThreadModel</a>.</p>
+
+<p>The code to extend Thread is shown below:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="mi">1</span><span class="o">:</span> <span class="c1">//Extend Thread</span>
+   <span class="mi">2</span><span class="o">:</span> <span class="kd">public</span> <span class="kd">class</span> <span class="nc">ThreadedClass</span>
+   <span class="mi">3</span><span class="o">:</span> <span class="kd">extends</span> <span class="nc">Thread</span>
+   <span class="mi">4</span><span class="o">:</span> <span class="o">{</span>
+   <span class="mi">5</span><span class="o">:</span>     <span class="kt">int</span> <span class="n">data</span><span class="o">;</span>
+   <span class="mi">6</span><span class="o">:</span>
+   <span class="mi">7</span><span class="o">:</span>     <span class="kd">public</span> <span class="nf">ThreadedClass</span><span class="o">(){</span>
+   <span class="mi">8</span><span class="o">:</span>         <span class="n">data</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+   <span class="mi">9</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">10</span><span class="o">:</span>
+  <span class="mi">11</span><span class="o">:</span>     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">(){</span>
+  <span class="mi">12</span><span class="o">:</span>         <span class="c1">//this method runs when start() is invoked on the thread</span>
+  <span class="mi">13</span><span class="o">:</span>         <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span> <span class="n">data</span> <span class="o">);</span>
+  <span class="mi">14</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">15</span><span class="o">:</span>
+  <span class="mi">16</span><span class="o">:</span>     <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span> <span class="nc">String</span><span class="o">[]</span> <span class="n">args</span> <span class="o">){</span>
+  <span class="mi">17</span><span class="o">:</span>         <span class="nc">ThreadedClass</span> <span class="n">t1</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ThreadedClass</span><span class="o">();</span>
+  <span class="mi">18</span><span class="o">:</span>         <span class="n">t1</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+  <span class="mi">19</span><span class="o">:</span>
+  <span class="mi">20</span><span class="o">:</span>         <span class="nc">ThreadedClass</span> <span class="n">t2</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ThreadedClass</span><span class="o">();</span>
+  <span class="mi">21</span><span class="o">:</span>         <span class="n">t2</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+  <span class="mi">22</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">23</span><span class="o">:</span> <span class="o">}</span>
+</code></pre></div></div>
+
+<p>Notice the difference between the Runnable and Thread versions? In the Runnable version you just
+created one ThreadedClass object and then created a bunch of Thread objects based on this Runnable
+object. These threads were all running through the same Runnable object (the ThreadedClass object).
+In the “extends Thread” version, you actually have to create a new ThreadedClass object per thread
+that you want to start.</p>
+
+<p>Depending on the problem you have to solve, you have to choose the appropriate method in your
+design. The 2 methods have their differences, and by understanding these differences you can take
+advantage of them in your threaded classes.</p>
+      <h2 id="servlets-and-rmi-potential-hazard">
+        
+        
+          Servlets and RMI potential hazard <a href="#servlets-and-rmi-potential-hazard">#</a>
+        
+        
+      </h2>
+    
+
+<p>When you are creating classes that are going to be used by Servlets or RMI objects, you <strong>must</strong>
+make these classes “thread-safe”. You must made them make them thread-safe because many RMI or
+Servlet threads might be trampling through your code concurrently at any given time (by the very
+nature of RMI and Servlet architecture). This is where **synchronization **comes in. In the previous
+case, where you were creating threaded classes, you are the one spawning the threads, and the
+objects that these threads trample through are responsible for being thread-safe. The difference
+between making threaded classes vs. making thread-safe classes is very similar to throwing
+exceptions vs. catching them.</p>
+      <h2 id="the-synchronized-keyword">
+        
+        
+          The synchronized keyword <a href="#the-synchronized-keyword">#</a>
+        
+        
+      </h2>
+    
+
+<p>In Java, when the synchronized keyword is used in a method, the JVM guarantees that only one thread
+will be able to run through that method at any given time, ie, there is no concurrent thread access
+to that block of code. These blocks of code are also known as critical sections. You can synchronize
+entire methods by using the synchronized keyword in the method declaration, or you can just mark
+certain lines of code as synchronized. When you use the latter, approach, you have to use an object
+to synchronize “on”. I will explain this in detail in the advanced tutorial, but for now, just use
+“this” to synchronize code blocks. Here is an example of how to use the synchronize keyword to make
+an entire method mutually exclusive, or thread-safe:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">someMethod</span><span class="o">()</span> <span class="o">{..}</span>
+</code></pre></div></div>
+
+<p>Now, in order to make just a few lines of code thread-safe, use:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">synchronized</span><span class="o">(</span> <span class="k">this</span> <span class="o">){</span>
+    <span class="c1">//critical section</span>
+<span class="o">};</span>
+</code></pre></div></div>
+
+<p>Why would you want to make only a section of your method thread-safe? Code that is thread-safe (ie,
+protected by synchronized) is slower than code that isn’t. For better performance, you should only
+make those lines of your code thread-safe, that absolutely need to be. In the advanced thread
+tutorial, you will see why the code is slower, and what exactly the synchronized keyword does (it
+has something to do with object level monitors). However, if this tutorial satisfies your needs,
+then you can save time by not going through the advanced tutorial :).</p>
+      <h2 id="thread-safe-vs-threaded-classes">
+        
+        
+          Thread-safe vs. threaded classes <a href="#thread-safe-vs-threaded-classes">#</a>
+        
+        
+      </h2>
+    
+
+<p>When you make thread-safe classes, you have to keep in mind that multiple threads could be trampling
+through the methods of your class. This requires <strong>special care</strong> in designing and coding these
+classes, because there is no way of knowing what thread will invoke what method (and in what
+sequence) on an object of this class. You have to take into account all possible scenarios or design
+in such a way that the number of possible states that your object can reach is minimized. I prefer
+to use the smart solution and design in such a way that the number of states my object can reach is
+minimized, that way I don’t have to think about too many possibilities of what might happen when
+multiple threads are trampling through the same instance of my class.</p>
+
+<p>In order to make thread-safe classes there are a few simple rules to follow:</p>
+
+<ul>
+  <li>
+    <p>Mutator method access to any shared objects must be synchronized.</p>
+  </li>
+  <li>
+    <p>Accessor method access to any shared objects need not be synchronized.</p>
+
+    <ul>
+      <li><strong>There is an exception to this rule however.</strong> When your shared object’s value fluctuates very
+frequently (like stock prices), then it is necessary to synchronize the accessor too, in order
+to report the correct value of the object rather than some intermediate (and inaccurate) value
+of the object. There are more advanced techniques to get around making your accessors
+synchronized which I will show you in the advanced thread tutorial. But for now, be sure to
+synchronize everything!</li>
+    </ul>
+  </li>
+</ul>
+      <h2 id="example-problem">
+        
+        
+          Example Problem <a href="#example-problem">#</a>
+        
+        
+      </h2>
+    
+
+<p>I will illustrate the problem by using a bank account example. Lets say that I have a bank account
+object (this is not thread-safe) which is accessed by a bunch of threads. My bank account object has
+a method that adds a given amount of money and removes that same amount and returns (ie, after the
+method returns my bank balance is still the same). Then I have another main class that simply spawns
+a lot of threads and lets them loose on my bank account object.</p>
+
+<p>Now, you might think that this example shouldn’t even have any problems because that method in my
+bank account object doesn’t do anything. Well, adding money and then removing it from a bank account
+are NOT atomic operations; an atomic operation is one that the JVM guarantees will occur without any
+interruptions (for example updating a register in a processor). When many threads are trampling
+through my (not thread-safe) bank account object, the bank balance does change! This is because
+other threads mess with my bank balance before each thread gets done using it; so as one thread adds
+money, and is just about to remove it, another thread could go in and remove more money, and my bank
+balance is negative for an instant! There are an infinite number of possibilities (most of which are
+undesirable) when a lot of threads are let loose on this poor object.</p>
+
+<p>Here is some code (from TestUnsafe.java) for a design that is not thread-safe (and messes up my bank
+balance with multiple threads):</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="mi">1</span><span class="o">:</span> <span class="c1">//BankAcct - NOT thread safe</span>
+   <span class="mi">2</span><span class="o">:</span> <span class="kd">class</span> <span class="nc">BankAcct</span><span class="o">{</span>
+   <span class="mi">3</span><span class="o">:</span>     <span class="kt">int</span> <span class="n">bal</span><span class="o">;</span>
+   <span class="mi">4</span><span class="o">:</span>
+   <span class="mi">5</span><span class="o">:</span>     <span class="kd">public</span> <span class="nf">BankAcct</span><span class="o">(</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">){</span>
+   <span class="mi">6</span><span class="o">:</span>         <span class="n">bal</span> <span class="o">=</span> <span class="n">i</span><span class="o">;</span>
+   <span class="mi">7</span><span class="o">:</span>     <span class="o">}</span>
+   <span class="mi">8</span><span class="o">:</span>
+   <span class="mi">9</span><span class="o">:</span>      <span class="kt">void</span> <span class="nf">doNothing</span><span class="o">(){</span>
+  <span class="mi">10</span><span class="o">:</span>         <span class="n">addRemove</span><span class="o">(</span> <span class="mi">10</span> <span class="o">);</span>
+  <span class="mi">11</span><span class="o">:</span>         <span class="n">addRemove</span><span class="o">(</span> <span class="mi">20</span> <span class="o">);</span>
+  <span class="mi">12</span><span class="o">:</span>         <span class="n">addRemove</span><span class="o">(</span> <span class="mi">30</span> <span class="o">);</span>
+  <span class="mi">13</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">14</span><span class="o">:</span>
+  <span class="mi">15</span><span class="o">:</span>      <span class="kt">void</span> <span class="nf">addRemove</span><span class="o">(</span> <span class="kt">int</span> <span class="n">m</span> <span class="o">){</span>
+  <span class="mi">16</span><span class="o">:</span>         <span class="n">bal</span><span class="o">+=</span><span class="n">m</span><span class="o">;</span>
+  <span class="mi">17</span><span class="o">:</span>         <span class="nc">Util</span><span class="o">.</span><span class="na">sleepRandom</span><span class="o">();</span>
+  <span class="mi">18</span><span class="o">:</span>         <span class="n">bal</span><span class="o">-=</span><span class="n">m</span><span class="o">;</span>
+  <span class="mi">19</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">20</span><span class="o">:</span>
+  <span class="mi">21</span><span class="o">:</span>      <span class="kt">int</span> <span class="nf">get</span><span class="o">(){</span>
+  <span class="mi">22</span><span class="o">:</span>         <span class="k">return</span> <span class="n">bal</span><span class="o">;</span>
+  <span class="mi">23</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">24</span><span class="o">:</span> <span class="o">}</span><span class="c1">//end BankAcct class</span>
+  <span class="mi">25</span><span class="o">:</span>
+  <span class="mi">26</span><span class="o">:</span> <span class="c1">//TestUnsafe - creates threads and tramples through BankAcct</span>
+  <span class="mi">27</span><span class="o">:</span> <span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestUnsafe</span> <span class="kd">extends</span> <span class="nc">Thread</span><span class="o">{</span>
+  <span class="mi">28</span><span class="o">:</span>     <span class="c1">//data members for this thread</span>
+  <span class="mi">29</span><span class="o">:</span>     <span class="kd">private</span> <span class="nc">String</span> <span class="n">name</span><span class="o">;</span>
+  <span class="mi">30</span><span class="o">:</span>     <span class="nc">BankAcct</span> <span class="n">ba</span><span class="o">;</span>
+  <span class="mi">31</span><span class="o">:</span>
+  <span class="mi">32</span><span class="o">:</span>     <span class="c1">//start this method</span>
+  <span class="mi">33</span><span class="o">:</span>     <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span> <span class="nc">String</span><span class="o">[]</span> <span class="n">args</span> <span class="o">){</span>
+  <span class="mi">34</span><span class="o">:</span>         <span class="nc">BankAcct</span> <span class="n">ba</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BankAcct</span><span class="o">(</span> <span class="mi">0</span> <span class="o">);</span>
+  <span class="mi">35</span><span class="o">:</span>         <span class="k">new</span> <span class="nc">TestUnsafe</span><span class="o">(</span> <span class="s">"**      "</span> <span class="o">,</span> <span class="n">ba</span> <span class="o">).</span><span class="na">start</span><span class="o">();</span>
+  <span class="mi">36</span><span class="o">:</span>         <span class="k">new</span> <span class="nc">TestUnsafe</span><span class="o">(</span> <span class="s">"  ++    "</span> <span class="o">,</span> <span class="n">ba</span><span class="o">).</span><span class="na">start</span><span class="o">();</span>
+  <span class="mi">37</span><span class="o">:</span>         <span class="k">new</span> <span class="nc">TestUnsafe</span><span class="o">(</span> <span class="s">"    ==  "</span> <span class="o">,</span> <span class="n">ba</span> <span class="o">).</span><span class="na">start</span><span class="o">();</span>
+  <span class="mi">38</span><span class="o">:</span>         <span class="k">new</span> <span class="nc">TestUnsafe</span><span class="o">(</span> <span class="s">"      //"</span> <span class="o">,</span> <span class="n">ba</span> <span class="o">).</span><span class="na">start</span><span class="o">();</span>
+  <span class="mi">39</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">40</span><span class="o">:</span>
+  <span class="mi">41</span><span class="o">:</span>     <span class="c1">//constructor</span>
+  <span class="mi">42</span><span class="o">:</span>     <span class="kd">public</span> <span class="nf">TestUnsafe</span><span class="o">(</span> <span class="nc">String</span> <span class="n">n</span> <span class="o">,</span> <span class="nc">BankAcct</span> <span class="n">ba</span> <span class="o">){</span>
+  <span class="mi">43</span><span class="o">:</span>         <span class="k">this</span><span class="o">.</span><span class="na">ba</span> <span class="o">=</span> <span class="n">ba</span><span class="o">;</span>
+  <span class="mi">44</span><span class="o">:</span>         <span class="n">name</span>    <span class="o">=</span> <span class="n">n</span><span class="o">;</span>
+  <span class="mi">45</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">46</span><span class="o">:</span>
+  <span class="mi">47</span><span class="o">:</span>     <span class="c1">//extending Thread</span>
+  <span class="mi">48</span><span class="o">:</span>     <span class="kd">public</span>  <span class="kt">void</span> <span class="nf">run</span><span class="o">(){</span>
+  <span class="mi">49</span><span class="o">:</span>         <span class="n">doWork</span><span class="o">();</span>
+  <span class="mi">50</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">51</span><span class="o">:</span>
+  <span class="mi">52</span><span class="o">:</span>     <span class="c1">//simply displays the bank balance before and after this thread</span>
+  <span class="mi">53</span><span class="o">:</span>     <span class="c1">//messes with the bankaccount</span>
+  <span class="mi">54</span><span class="o">:</span>     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">doWork</span><span class="o">(){</span>
+  <span class="mi">55</span><span class="o">:</span>         <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+                    <span class="n">name</span><span class="o">+</span><span class="s">" :doWork() - start : account bal = "</span><span class="o">+</span><span class="n">ba</span><span class="o">.</span><span class="na">get</span><span class="o">()</span> <span class="o">);</span>
+  <span class="mi">56</span><span class="o">:</span>
+  <span class="mi">57</span><span class="o">:</span>         <span class="n">ba</span><span class="o">.</span><span class="na">doNothing</span><span class="o">();</span>
+  <span class="mi">58</span><span class="o">:</span>
+  <span class="mi">59</span><span class="o">:</span>         <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+                    <span class="n">name</span><span class="o">+</span><span class="s">" :doWork() - end   : account bal = "</span><span class="o">+</span><span class="n">ba</span><span class="o">.</span><span class="na">get</span><span class="o">()</span> <span class="o">);</span>
+  <span class="mi">60</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">61</span><span class="o">:</span>
+  <span class="mi">62</span><span class="o">:</span>
+  <span class="mi">63</span><span class="o">:</span> <span class="o">}</span><span class="c1">//end TestUnsafe class</span>
+</code></pre></div></div>
+
+<p>If you compile, and then run TestUnsafe.java at a command prompt/console (by typing java
+TestUnsafe), you will notice, from the output, that the bank balance is changing quite a bit. You
+will see that the bank balance figure changes as the program runs, however, at the end the bank
+balance is zero. Now, the problem is the fluctuations as the program runs; it should be zero,
+because the doNothing() method of BankAcct, should not affect the bank balance. However, due to
+TestUnsafe threads trampling through the BankAcct, it messes everything up.</p>
+      <h2 id="solution-design">
+        
+        
+          Solution (design) <a href="#solution-design">#</a>
+        
+        
+      </h2>
+    
+
+<p>Obviously the solution to this problem would be to synchronize the method in the BankAcct object
+that messes with the bank balance. This would guarantee that only one thread was trampling through
+it at any given time.</p>
+
+<p>Also it is necessary to synchronize the accessor method too! Why? Well, the methods to add and
+remove money from the account are so fast that when I use get() it sometimes returns the value of my
+bank balance in the middle of doNothing(). So one thread is in the middle of executing doNothing()
+at which point my bank balance is non-zero. At this same instant, another thread calls get() an gets
+a non-zero value of my bank account. Ooops! The way to solve this is to synchronize the get() method
+too, in order to ensure that my real bank balance is returned. On the other hand, if you wish to
+monitor the state of this object at all times, then you might want to leave the get()
+un-synchronized. It all depends on what you want to do.</p>
+
+<p>The code below contains the thread-safe solution for this bank account problem:</p>
+      <h2 id="code">
+        
+        
+          Code <a href="#code">#</a>
+        
+        
+      </h2>
+    
+
+<p>Here is the source code for the solution TestSafe.java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="mi">1</span><span class="o">:</span> <span class="c1">//BankAcct - thread safe version</span>
+   <span class="mi">2</span><span class="o">:</span> <span class="kd">class</span> <span class="nc">BankAcct</span><span class="o">{</span>
+   <span class="mi">3</span><span class="o">:</span>     <span class="kt">int</span> <span class="n">bal</span><span class="o">;</span>
+   <span class="mi">4</span><span class="o">:</span>
+   <span class="mi">5</span><span class="o">:</span>     <span class="kd">public</span> <span class="nf">BankAcct</span><span class="o">(</span> <span class="kt">int</span> <span class="n">i</span> <span class="o">){</span>
+   <span class="mi">6</span><span class="o">:</span>         <span class="n">bal</span> <span class="o">=</span> <span class="n">i</span><span class="o">;</span>
+   <span class="mi">7</span><span class="o">:</span>     <span class="o">}</span>
+   <span class="mi">8</span><span class="o">:</span>
+   <span class="mi">9</span><span class="o">:</span>      <span class="kt">void</span> <span class="nf">doNothing</span><span class="o">(){</span>
+  <span class="mi">10</span><span class="o">:</span>         <span class="n">addRemove</span><span class="o">(</span> <span class="mi">10</span> <span class="o">);</span>
+  <span class="mi">11</span><span class="o">:</span>         <span class="n">addRemove</span><span class="o">(</span> <span class="mi">20</span> <span class="o">);</span>
+  <span class="mi">12</span><span class="o">:</span>         <span class="n">addRemove</span><span class="o">(</span> <span class="mi">30</span> <span class="o">);</span>
+  <span class="mi">13</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">14</span><span class="o">:</span>
+  <span class="mi">15</span><span class="o">:</span>      <span class="kd">synchronized</span> <span class="kt">void</span> <span class="nf">addRemove</span><span class="o">(</span> <span class="kt">int</span> <span class="n">m</span> <span class="o">){</span>
+  <span class="mi">16</span><span class="o">:</span>         <span class="n">bal</span><span class="o">+=</span><span class="n">m</span><span class="o">;</span>
+  <span class="mi">17</span><span class="o">:</span>         <span class="nc">Util</span><span class="o">.</span><span class="na">sleepRandom</span><span class="o">();</span>
+  <span class="mi">18</span><span class="o">:</span>         <span class="n">bal</span><span class="o">-=</span><span class="n">m</span><span class="o">;</span>
+  <span class="mi">19</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">20</span><span class="o">:</span>
+  <span class="mi">21</span><span class="o">:</span>      <span class="kd">public</span> <span class="kd">synchronized</span> <span class="kt">int</span> <span class="nf">get</span><span class="o">(){</span>
+  <span class="mi">22</span><span class="o">:</span>         <span class="k">return</span> <span class="n">bal</span><span class="o">;</span>
+  <span class="mi">23</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">24</span><span class="o">:</span> <span class="o">}</span>
+</code></pre></div></div>
+
+<p>The TestSafe class hasn’t changed much from TestUnsafe: only the main() method is different, it
+creates TestSafe objects, rather than TestUnsafe ones. When you run this code (by compiling and
+running TestSafe.java) you will see that the bank balance is always 0. Don’t forget to compile
+TestSafe, before running it (due to namespace conflicts with TestUnsafe’s BankAcct class). Now if
+you make the get() method unsynchronized you will see some fluctuations in the bank balance, but
+this is because the get() method might be getting the value of the balance just as its changing. At
+the end of each method run, the value is still 0 though. This is a very <strong>interesting</strong> effect.</p>
+      <h2 id="why">
+        
+        
+          Why? <a href="#why">#</a>
+        
+        
+      </h2>
+    
+
+<p>You don’t really have a choice, all your code should be thread-safe and re-entrant. Re-entrant means
+that once a method is called on your object, it should be possible for someone else to call that
+method. For an example of something that’s non-re-entrant the IBM XML Parser (version 1.x) comes to
+mind. When certain methods are called on the IBM DOM parser, and exceptions are thrown the entire
+object becomes frozen and no one can call any more methods on that object. This is an example of
+non-reentrant code. The parser code was probably not even tread-safe. I hope they have fixed these
+problems in the newer versions.</p>
+
+<p>In the realm of the server (which is NOT the realm of the client) the rules are different. <strong>One of
+the rules in this domain is that your code MUST be thread-safe whether you like it or not</strong>.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CC">
+                #cc</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/05/27/task-api-3-of-5-monitoring-http-post-operations/">
+                        Task API (3 of 3) - Monitoring HTTP POST operations
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/08/task-api-2-of-5-task-api-in-depth/">
+                        Task API (2 of 3) - Task API in-depth
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/05/task-api-quick-start-guide/">
+                        Task API (1 of 3) - Quick Start Guide
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/">
+                        Creating multi-threaded Swing apps that consume web services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2006/06/09/introduction-to-java-50-javautilconcurrent-api/">
+                        Introduction to Java 5 java.util.concurrent API
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2000/09/20/introduction-to-threads/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

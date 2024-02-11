@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Java vs Kotlin for Android development | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Java vs Kotlin for Android development" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial showcases the differences between using Java and Kotlin in Android development" />
+<meta property="og:description" content="This tutorial showcases the differences between using Java and Kotlin in Android development" />
+<link rel="canonical" href="http://developerlife.com/2019/05/11/kotlin-vs-java/" />
+<meta property="og:url" content="http://developerlife.com/2019/05/11/kotlin-vs-java/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-05-11T12:59:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Java vs Kotlin for Android development" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2019-05-11T12:59:00-05:00","datePublished":"2019-05-11T12:59:00-05:00","description":"This tutorial showcases the differences between using Java and Kotlin in Android development","headline":"Java vs Kotlin for Android development","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2019/05/11/kotlin-vs-java/"},"url":"http://developerlife.com/2019/05/11/kotlin-vs-java/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Java vs Kotlin for Android development&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Java vs Kotlin for Android development</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Java vs Kotlin for Android development</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->May 11, 2019
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/java-vs-kotlin.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#video-of-the-app-in-action">Video of the app in action</a></li>
+  <li><a href="#architecture-of-the-giphy-viewer-app">Architecture of the Giphy viewer app</a>
+    <ul>
+      <li><a href="#overview-of-the-kotlin-codebase">Overview of the Kotlin codebase</a></li>
+      <li><a href="#overview-of-the-java-codebase">Overview of the Java codebase</a></li>
+    </ul>
+  </li>
+  <li><a href="#differences-between-java-and-kotlin">Differences between Java and Kotlin</a>
+    <ul>
+      <li><a href="#sealed-data-classes-vs-builders">Sealed data classes vs builders</a></li>
+      <li><a href="#typedefs-and-lambdas-vs-interfaces">typedefs and lambdas vs interfaces</a></li>
+      <li><a href="#coroutines-vs-asynctask">Coroutines vs AsyncTask</a></li>
+      <li><a href="#extension-function-expressions">Extension function expressions</a></li>
+      <li><a href="#constructors">Constructors</a></li>
+    </ul>
+  </li>
+  <li><a href="#related-articles">Related articles</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>I’ve been working w/ Kotlin to write Android apps for about 1 year now, and I’ve really love it 😍.
+I’ve also been working w/ vanilla ES6 JavaScript a lot in the past year, which surprisingly has made
+my Kotlin better (since I’d been a Java developer for many decades prior to this).</p>
+
+<p>However, I hadn’t used both Java and Kotlin on the same app before, so I decided to write the same
+exact Android app using Java, and also using Kotlin to experience what the major differences would
+be. This tutorial contains a side by side comparison between Kotlin and Java for the same Android
+app, which is a simple endless scrolling Giphy viewer.</p>
+      <h2 id="video-of-the-app-in-action">
+        
+        
+          Video of the app in action <a href="#video-of-the-app-in-action">#</a>
+        
+        
+      </h2>
+    
+
+<!-- Image resize and flexbox: https://stackoverflow.com/a/37799733/2085356 -->
+<div style="display:flex; justify-content:center; flex-flow:row nowrap; align-items:flex-start;">
+<img src="https://raw.githubusercontent.com/nazmulidris/giphy-viewer-kotlin/main/files/giphy.gif" style="max-width:40%; padding-bottom:24px; padding-right: 16px" />
+<div>
+  The app allows a user to see trending GIFs from the Giphy API. It
+  allows the user to search for GIFs. Whether the user is browsing
+  trending GIFs or searching for them, infinite scrolling is supported, so
+  the more they swipe down on the app, 25 images are loaded at a time.
+  Thumbnails of the images are loaded in the RecyclerView, and when the
+  user clicks on an item, a high res version of the image is opened in a
+  new activity and the URL is shortened and copied to the clipboard.
+
+<br /><br /> <a href="https://github.com/r3bl-org/giphy-viewer-kotlin"> GitHub repo for the Kotlin
+app</a> <br /><br /> <a href="https://github.com/nazmulidris/giphy_viewer"> GitHub repo for the Java
+app</a>
+
+</div>
+</div>
+      <h2 id="architecture-of-the-giphy-viewer-app">
+        
+        
+          Architecture of the Giphy viewer app <a href="#architecture-of-the-giphy-viewer-app">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li>
+    <p>The app uses Architecture components (<code class="language-plaintext highlighter-rouge">LiveData</code> and <code class="language-plaintext highlighter-rouge">ViewModel</code>) to actually get the data from
+the Giphy API on Android, and then populate a <code class="language-plaintext highlighter-rouge">RecyclerView</code> that uses a
+<code class="language-plaintext highlighter-rouge">StaggeredGridLayoutManager</code> to display the images.</p>
+  </li>
+  <li>
+    <p>It uses Fresco to load and cache the images.</p>
+  </li>
+  <li>
+    <p>It uses Paginate library to handle infinite scrolling of the <code class="language-plaintext highlighter-rouge">RecyclerView</code>.</p>
+  </li>
+  <li>
+    <p>It also uses Kotlin coroutines and <code class="language-plaintext highlighter-rouge">tinyurl.com</code> in order to generate and copy short URLs for the
+selected GIF.</p>
+  </li>
+  <li>
+    <p>The tests (unit and instrumented) are written using Espresso, JUnit4, MockK, Roboelectric, and
+AssertJ. <em>I really like Karma and Jasmine (from the JavaScript world) and in a future project will
+be using Kotlin testing libraries that allow <code class="language-plaintext highlighter-rouge">describe</code> and <code class="language-plaintext highlighter-rouge">it</code> blocks in the test code.</em></p>
+  </li>
+</ul>
+
+<p><img src="https://raw.githubusercontent.com/nazmulidris/giphy-viewer-kotlin/main/files/arch-diagram.png" style="width:100%;" /></p>
+      <h3 id="overview-of-the-kotlin-codebase">
+        
+        
+          Overview of the Kotlin codebase <a href="#overview-of-the-kotlin-codebase">#</a>
+        
+        
+      </h3>
+    
+
+<p>You can get the GitHub repo for the Kotlin app
+<a href="https://github.com/r3bl-org/giphy-viewer-kotlin">here</a>.</p>
+
+<p><a href="https://github.com/r3bl-org/giphy-viewer-kotlin">
+<img src="https://repository-images.githubusercontent.com/182448002/ce195500-732d-11e9-87fc-425635e0dac5" />
+</a></p>
+
+<ul>
+  <li>
+    <p><strong>MyApplication.kt</strong> is the custom Application class that acts as a dependency injection component
+that provides various objects that are needed in various places throughout the app.</p>
+  </li>
+  <li>
+    <p><strong>State.kt</strong> contains sealed classes that represent various events and state representations that
+are used throughout the app.</p>
+  </li>
+  <li>
+    <p><strong>Util.kt</strong> contains a set of extension function expressions and typedefs that are used throughout
+the app. Coroutine functions are included here as well.</p>
+  </li>
+  <li>
+    <p><strong>MyViewModel.kt</strong> contains the AndroidViewModel that holds the data that’s loaded from the
+network service, and also exposes the network service end points to the rest of the app.</p>
+  </li>
+  <li>
+    <p><strong>NetworkService.kt</strong> contains the integration w/ the Giphy Android SDK. Calls from the ViewModel
+are passed on the methods of GiphyClient, which ends up making calls to the Giphy Android API.</p>
+  </li>
+  <li>
+    <p><strong>RecyclerViewManager.kt</strong> contains the RecyclerView data adapter, RowViewModel implementation,
+and configuration w/ the StaggeredGridLayoutManager. It also hooks into the ViewModel’s observable
+to react to changes in the underlying data (as a result of network service request being made from
+various parts of the app).</p>
+  </li>
+  <li>
+    <p><strong>NetworkServiceTest.kt</strong> contains the classes that connect to web services to load data over the
+network (GiphyClient SDK).</p>
+  </li>
+  <li>
+    <p><strong>Unit tests (test/)</strong> test classes in State.kt and some functions in NetworkService (using
+Roboelectric).</p>
+  </li>
+  <li>
+    <p><strong>Instrumented tests (androidTest/)</strong> test classes in NetworkServiceTest.kt over the network.</p>
+  </li>
+</ul>
+      <h3 id="overview-of-the-java-codebase">
+        
+        
+          Overview of the Java codebase <a href="#overview-of-the-java-codebase">#</a>
+        
+        
+      </h3>
+    
+
+<p>You can get the GitHub repo for the Java app <a href="https://github.com/nazmulidris/giphy_viewer">here</a>.</p>
+
+<p>The Java code is setup in a very similar fashion to the Kotlin one. However, there are no unit or
+instrumented tests in this repo. Here’s the mapping from the Kotlin codebase to the Java one.</p>
+
+<ul>
+  <li><strong>State.kt</strong> -&gt; <strong>AppMode.java</strong>, <strong>DataEvent.java</strong></li>
+  <li><strong>NetworkService.kt</strong> -&gt; <strong>GipyhClient.java</strong></li>
+  <li><strong>MyViewModel.kt</strong> -&gt; <strong>AppViewModel.java</strong></li>
+  <li><strong>RecyclerViewManager.kt</strong> -&gt; <strong>RecyclerViewManager.java</strong></li>
+  <li><strong>MyApplication.kt</strong> -&gt; N/A</li>
+  <li><strong>FullScreenActivity.kt</strong> -&gt; <strong>FullScreenActivity.java</strong></li>
+  <li><strong>MainActivity.kt</strong> -&gt; <strong>MainActivity.java</strong>, <strong>SearchViewManager.java</strong></li>
+</ul>
+      <h2 id="differences-between-java-and-kotlin">
+        
+        
+          Differences between Java and Kotlin <a href="#differences-between-java-and-kotlin">#</a>
+        
+        
+      </h2>
+    
+
+<p>If you use Android Studio itself to automatically convert Java code to Kotlin, then you end up w/
+code that isn’t very idiomatic in Kotlin. I actually wrote the Java version of the app first, then
+took inspiration from that to generate the Kotlin version. And I tried to be idiomatic in Kotlin
+wherever I could think of, and while I’m sure there are things in the app I can do better, I had to
+make some major changes for the Kotlin version to be idiomatic in Kotlin.</p>
+
+<p>Also, it really helped that I’m doing a lot of work w/ ES6 (JavaScript) because I was able to think
+about high order functions and start writing the code w/ this in mind, rather than thinking in Java
+terms of interfaces and anonymous inner classes. The following are some big differences that I was
+able to spot in between the Java and Kotlin versions.</p>
+      <h3 id="sealed-data-classes-vs-builders">
+        
+        
+          Sealed data classes vs builders <a href="#sealed-data-classes-vs-builders">#</a>
+        
+        
+      </h3>
+    
+
+<p>One of the biggest wins in the Kotlin version was being able to use sealed data classes, which
+eliminated so much boilerplate code over Java builder pattern that it was quite shocking.</p>
+
+<p>Here’s an example of a builder in the Java version, which expresses an <code class="language-plaintext highlighter-rouge">AppMode</code> which is something
+that can either be <code class="language-plaintext highlighter-rouge">Trending</code> or <code class="language-plaintext highlighter-rouge">Searching</code>.</p>
+
+<p>Here’s some code that shows <code class="language-plaintext highlighter-rouge">AppMode</code> being used:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nf">AppViewModel</span><span class="o">(</span><span class="nd">@NonNull</span> <span class="nc">Application</span> <span class="n">application</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">super</span><span class="o">(</span><span class="n">application</span><span class="o">);</span>
+  <span class="nc">Fresco</span><span class="o">.</span><span class="na">initialize</span><span class="o">(</span><span class="n">application</span><span class="o">);</span>
+  <span class="n">appModeLiveData</span><span class="o">.</span><span class="na">setValue</span><span class="o">(</span>
+      <span class="nc">AppMode</span><span class="o">.</span><span class="na">Builder</span>
+        <span class="o">.</span><span class="na">builder</span><span class="o">()</span>
+        <span class="o">.</span><span class="na">mode</span><span class="o">(</span><span class="nc">AppMode</span><span class="o">.</span><span class="na">Mode</span><span class="o">.</span><span class="na">Trending</span><span class="o">)</span>
+        <span class="o">.</span><span class="na">build</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>And here’s the implementation of <code class="language-plaintext highlighter-rouge">AppMode</code> itself:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Specifies whether the app is in "search" or "trending" mode.
+ *
+ * &lt;ol&gt;
+ * &lt;li&gt;With Search mode enabled, the "search" API endpoint is used.
+ * &lt;li&gt;With it disabled, the "trending" API endpoint is used.
+ * &lt;/ol&gt;
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">AppMode</span> <span class="o">{</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Builder</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="nc">Mode</span>   <span class="n">mode</span>  <span class="o">=</span> <span class="nc">Mode</span><span class="o">.</span><span class="na">Trending</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="nc">String</span> <span class="n">query</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="nc">Builder</span> <span class="nf">builder</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">Builder</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="nc">Builder</span> <span class="nf">mode</span><span class="o">(</span><span class="nc">Mode</span> <span class="n">mode</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="nc">Builder</span> <span class="nf">query</span><span class="o">(</span><span class="nc">String</span> <span class="n">query</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="nc">AppMode</span> <span class="nf">build</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">AppMode</span><span class="o">(</span><span class="n">mode</span><span class="o">,</span> <span class="n">query</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="nf">AppMode</span><span class="o">(</span><span class="nd">@NonNull</span> <span class="nc">Mode</span> <span class="n">mode</span><span class="o">,</span> <span class="nd">@Nullable</span> <span class="nc">String</span> <span class="n">query</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">this</span><span class="o">.</span><span class="na">mode</span> <span class="o">=</span> <span class="n">mode</span><span class="o">;</span>
+  <span class="k">this</span><span class="o">.</span><span class="na">query</span> <span class="o">=</span> <span class="n">query</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">enum</span> <span class="nc">Mode</span> <span class="o">{</span>
+  <span class="nc">Search</span><span class="o">,</span>
+  <span class="nc">Trending</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="nc">Mode</span> <span class="n">mode</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isTrendingMode</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">mode</span> <span class="o">==</span> <span class="nc">Mode</span><span class="o">.</span><span class="na">Trending</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isSearchingMode</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">mode</span> <span class="o">==</span> <span class="n">mode</span><span class="o">.</span><span class="na">Search</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="nc">String</span> <span class="n">query</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">getSearchQuery</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">query</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+  <span class="nc">StringBuilder</span> <span class="n">stringBuilder</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StringBuilder</span><span class="o">();</span>
+  <span class="k">switch</span> <span class="o">(</span><span class="n">mode</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="nl">Search:</span>
+      <span class="n">stringBuilder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="nc">Mode</span><span class="o">.</span><span class="na">Search</span><span class="o">.</span><span class="na">name</span><span class="o">()).</span><span class="na">append</span><span class="o">(</span><span class="s">", query:"</span><span class="o">).</span><span class="na">append</span><span class="o">(</span><span class="n">query</span><span class="o">);</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">Trending:</span>
+      <span class="n">stringBuilder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="nc">Mode</span><span class="o">.</span><span class="na">Trending</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
+      <span class="k">break</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="k">return</span> <span class="n">stringBuilder</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Whew! That is a lot of boilerplate code to express something that can be done in Kotlin in the
+following lines 🙀:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/** User interaction causes a mode to be created and set on the UI. */</span>
+<span class="k">sealed</span> <span class="kd">class</span> <span class="nc">AppMode</span> <span class="p">{</span>
+  <span class="kd">data class</span> <span class="nc">Trending</span><span class="p">(</span><span class="kd">val</span> <span class="py">timestamp</span><span class="p">:</span> <span class="nc">Date</span> <span class="p">=</span> <span class="nc">Date</span><span class="p">())</span> <span class="p">:</span> <span class="nc">AppMode</span><span class="p">()</span>
+  <span class="kd">data class</span> <span class="nc">Search</span><span class="p">(</span><span class="kd">val</span> <span class="py">query</span><span class="p">:</span> <span class="nc">String</span><span class="p">,</span> <span class="kd">val</span> <span class="py">timestamp</span><span class="p">:</span> <span class="nc">Date</span> <span class="p">=</span> <span class="nc">Date</span><span class="p">())</span> <span class="p">:</span> <span class="nc">AppMode</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Using this is also so much simpler in Kolin (compared to the Java version):</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">appViewModel</span><span class="p">.</span><span class="n">appMode</span> <span class="p">=</span> <span class="nc">AppMode</span><span class="p">.</span><span class="nc">Trending</span><span class="p">()</span>
+<span class="n">appViewModel</span><span class="p">.</span><span class="n">appMode</span> <span class="p">=</span> <span class="nc">AppMode</span><span class="p">.</span><span class="nc">Search</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Also, w/ sealed classes, I can also use the <code class="language-plaintext highlighter-rouge">when</code> keyword:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">makeRequest</span><span class="p">(</span><span class="n">appMode</span><span class="p">:</span> <span class="nc">AppMode</span><span class="p">,</span>
+              <span class="n">responseHandler</span><span class="p">:</span> <span class="nc">GiphyClientResponseHandler</span><span class="p">,</span>
+              <span class="n">offset</span><span class="p">:</span> <span class="nc">Int</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span>
+<span class="p">)</span> <span class="p">=</span> <span class="k">when</span> <span class="p">(</span><span class="n">appMode</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">is</span> <span class="nc">AppMode</span><span class="p">.</span><span class="nc">Trending</span> <span class="p">-&gt;</span> <span class="p">{</span> <span class="cm">/* Do stuff. */</span> <span class="p">}</span>
+    <span class="k">is</span> <span class="nc">AppMode</span><span class="p">.</span><span class="nc">Search</span>   <span class="p">-&gt;</span> <span class="p">{</span> <span class="cm">/* Do stuff. */</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Similarly, there’s a <code class="language-plaintext highlighter-rouge">DataEvent.java</code> class that gets shrunk in a similar fashion in Kotlin.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Represents changes in underlying data (from the Giphy server). Changes can be
+ * either:
+ *
+ * &lt;ol&gt;
+ * &lt;li&gt;Refresh - entirely new data set is available.
+ * &lt;li&gt;Update - more data was added to existing set (the amount of new data is
+ * specified).
+ * &lt;/ol&gt;
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">DataEvent</span> <span class="o">{</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">Builder</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="nc">Type</span> <span class="n">type</span>    <span class="o">=</span> <span class="nc">Type</span><span class="o">.</span><span class="na">Refresh</span><span class="o">;</span>
+  <span class="kd">private</span> <span class="kt">int</span>  <span class="n">newSize</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="nc">Builder</span> <span class="nf">builder</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">Builder</span><span class="o">();</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="nc">Builder</span> <span class="nf">type</span><span class="o">(</span><span class="nc">Type</span> <span class="n">mode</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">type</span> <span class="o">=</span> <span class="n">mode</span><span class="o">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="nc">Builder</span> <span class="nf">newSize</span><span class="o">(</span><span class="kt">int</span> <span class="n">newSize</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">newSize</span> <span class="o">=</span> <span class="n">newSize</span><span class="o">;</span>
+    <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="nc">DataEvent</span> <span class="nf">build</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">DataEvent</span><span class="o">(</span><span class="n">type</span><span class="o">,</span> <span class="n">newSize</span><span class="o">);</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="nf">DataEvent</span><span class="o">(</span><span class="nd">@NonNull</span> <span class="nc">Type</span> <span class="n">mode</span><span class="o">,</span> <span class="kt">int</span> <span class="n">query</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">this</span><span class="o">.</span><span class="na">type</span> <span class="o">=</span> <span class="n">mode</span><span class="o">;</span>
+  <span class="k">this</span><span class="o">.</span><span class="na">newSize</span> <span class="o">=</span> <span class="n">query</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">enum</span> <span class="nc">Type</span> <span class="o">{</span>
+  <span class="nc">Refresh</span><span class="o">,</span>
+  <span class="nc">GetMore</span><span class="o">,</span>
+  <span class="nc">Error</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="nc">Type</span> <span class="n">type</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="nc">Type</span> <span class="nf">getType</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">type</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isErrorType</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">type</span> <span class="o">==</span> <span class="nc">Type</span><span class="o">.</span><span class="na">Error</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isRefreshType</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">type</span> <span class="o">==</span> <span class="nc">Type</span><span class="o">.</span><span class="na">Refresh</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isGetMoreType</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">type</span> <span class="o">==</span> <span class="nc">Type</span><span class="o">.</span><span class="na">GetMore</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kt">int</span> <span class="n">newSize</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kt">int</span> <span class="nf">getNewSize</span><span class="o">()</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">newSize</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+  <span class="nc">StringBuilder</span> <span class="n">stringBuilder</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StringBuilder</span><span class="o">();</span>
+  <span class="k">switch</span> <span class="o">(</span><span class="n">type</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="nl">GetMore:</span>
+      <span class="n">stringBuilder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="nc">Type</span><span class="o">.</span><span class="na">Refresh</span><span class="o">.</span><span class="na">name</span><span class="o">()).</span><span class="na">append</span><span class="o">(</span><span class="s">", newSize:"</span><span class="o">).</span><span class="na">append</span><span class="o">(</span><span class="n">newSize</span><span class="o">);</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">Refresh:</span>
+      <span class="n">stringBuilder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="nc">Type</span><span class="o">.</span><span class="na">Refresh</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">Error:</span>
+      <span class="n">stringBuilder</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="nc">Type</span><span class="o">.</span><span class="na">Error</span><span class="o">.</span><span class="na">name</span><span class="o">());</span>
+      <span class="k">break</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="k">return</span> <span class="n">stringBuilder</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>And here’s the Kotlin version:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * GiphyClient responses result in this event being broadcast to various
+ * parts of the UI that need to respond to these underlying data model changes.
+ */</span>
+<span class="k">sealed</span> <span class="kd">class</span> <span class="nc">NetworkServiceResponse</span> <span class="p">{</span>
+  <span class="kd">data class</span> <span class="nc">Refresh</span><span class="p">(</span><span class="kd">val</span> <span class="py">timestamp</span><span class="p">:</span> <span class="nc">Date</span> <span class="p">=</span> <span class="nc">Date</span><span class="p">())</span> <span class="p">:</span> <span class="nc">NetworkServiceResponse</span><span class="p">()</span>
+  <span class="kd">data class</span> <span class="nc">Error</span><span class="p">(</span><span class="kd">val</span> <span class="py">timestamp</span><span class="p">:</span> <span class="nc">Date</span> <span class="p">=</span> <span class="nc">Date</span><span class="p">())</span> <span class="p">:</span> <span class="nc">NetworkServiceResponse</span><span class="p">()</span>
+  <span class="kd">data class</span> <span class="nc">More</span><span class="p">(</span><span class="kd">val</span> <span class="py">newSize</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span> <span class="kd">val</span> <span class="py">timestamp</span><span class="p">:</span> <span class="nc">Date</span> <span class="p">=</span> <span class="nc">Date</span><span class="p">())</span> <span class="p">:</span>
+    <span class="nc">NetworkServiceResponse</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Yup, it’s incredible how much more terse and ‘ergonomic’ Kotlin is to use when compared to Java 🎉.</p>
+      <h3 id="typedefs-and-lambdas-vs-interfaces">
+        
+        
+          typedefs and lambdas vs interfaces <a href="#typedefs-and-lambdas-vs-interfaces">#</a>
+        
+        
+      </h3>
+    
+
+<p>In the Java version, I was passing anonymous inner classes that implement <code class="language-plaintext highlighter-rouge">Runnable</code> around to some
+functions. Here’s an example:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">final</span> <span class="kd">class</span> <span class="nc">ViewHolder</span> <span class="o">{</span>
+  <span class="cm">/* Snip. */</span>
+  <span class="kt">void</span> <span class="nf">setupSwipeRefreshLayout</span><span class="o">()</span> <span class="o">{</span>
+    <span class="n">onRefreshGestureHandler</span> <span class="o">=</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">appViewModel</span><span class="o">.</span><span class="na">requestRefreshData</span><span class="o">(</span>
+        <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">swipeRefreshLayout</span><span class="o">.</span><span class="na">setRefreshing</span><span class="o">(</span><span class="kc">false</span><span class="o">)</span>
+    <span class="o">);</span>
+    <span class="cm">/* Snip. */</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>And in the <code class="language-plaintext highlighter-rouge">AppViewModel.java</code> class here’s the function that takes the <code class="language-plaintext highlighter-rouge">Runnable</code> parameter:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">requestRefreshData</span><span class="o">(</span><span class="nd">@Nullable</span> <span class="nc">Runnable</span> <span class="n">runOnRefreshComplete</span><span class="o">)</span> <span class="o">{</span>
+  <span class="cm">/* Snip. */</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>In Kotlin, instead of requiring <code class="language-plaintext highlighter-rouge">Runnable</code> blocks to be passed around, I created the following
+<code class="language-plaintext highlighter-rouge">typedef</code>:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typealias</span> <span class="nc">BlockLambda</span> <span class="p">=</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span>
+</code></pre></div></div>
+
+<p>And here’s the <code class="language-plaintext highlighter-rouge">requestRefreshData()</code> function in Kotlin:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">requestRefreshData</span><span class="p">(</span><span class="n">runOnComplete</span><span class="p">:</span> <span class="nc">BlockLambda</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span><span class="cm">/* Snip. */</span><span class="p">}</span>
+</code></pre></div></div>
+
+<p>And here’s an example of calling this function:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">appViewModel</span><span class="p">.</span><span class="nf">requestRefreshData</span> <span class="p">{</span> <span class="n">swipeRefreshLayout</span><span class="p">.</span><span class="n">isRefreshing</span> <span class="p">=</span> <span class="k">false</span> <span class="p">}</span>
+</code></pre></div></div>
+
+<p>In the Kotlin version, if still using <code class="language-plaintext highlighter-rouge">Runnable</code> I could do something like the following
+<code class="language-plaintext highlighter-rouge">Runnable {/* Do stuff. */}</code> but, since I’m writing all of the code in Kotlin, by ditching
+<code class="language-plaintext highlighter-rouge">Runnable</code> and going w/ my <code class="language-plaintext highlighter-rouge">BlockLambda</code> typedef instead, I can achieve the same result w/ the
+following <code class="language-plaintext highlighter-rouge">{/* Do stuff. */</code>}`. For more info on single abstract method (SAM) conversions,
+<a href="https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions">click here</a>.</p>
+
+<p>There are other places where I ended up using another <code class="language-plaintext highlighter-rouge">typedef</code> that I created called
+<code class="language-plaintext highlighter-rouge">BlockWithSingleArgLambda</code> to pass lambdas around that simply accepted a single argument.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">typealias</span> <span class="nc">BlockWithSingleArgLambda</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="p">=</span> <span class="p">(</span><span class="nc">T</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nc">Unit</span>
+</code></pre></div></div>
+
+<p>Here’s an example of it being used in the <code class="language-plaintext highlighter-rouge">RecyclerView</code> <code class="language-plaintext highlighter-rouge">DataAdapter</code>:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dataAdapter</span> <span class="p">=</span> <span class="nc">DataAdapter</span> <span class="p">{</span> <span class="n">it</span><span class="p">:</span><span class="nc">Media</span> <span class="p">-&gt;</span>
+  <span class="n">activity</span><span class="p">.</span><span class="nf">startActivity</span><span class="p">(</span><span class="nc">FullScreenActivity</span><span class="p">.</span><span class="nf">getIntent</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="n">it</span><span class="p">))</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>In the lamda that I pass to the <code class="language-plaintext highlighter-rouge">DataAdapter</code> I simply use <code class="language-plaintext highlighter-rouge">it</code> to reference the argument that I
+expect will be passed to my lambda.</p>
+
+<p>Here’s an example of this lambda that I’m passing acutally being executed:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">private</span> <span class="k">inner</span> <span class="kd">class</span> <span class="nc">RowViewHolder</span><span class="p">(</span>
+  <span class="n">cellView</span><span class="p">:</span> <span class="nc">View</span><span class="p">,</span>
+  <span class="kd">val</span> <span class="py">imageView</span><span class="p">:</span> <span class="nc">SimpleDraweeView</span> <span class="p">=</span> <span class="n">cellView</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="nc">R</span><span class="p">.</span><span class="n">id</span><span class="p">.</span><span class="n">image_grid_cell</span><span class="p">)</span>
+<span class="p">)</span> <span class="p">:</span> <span class="nc">RecyclerView</span><span class="p">.</span><span class="nc">ViewHolder</span><span class="p">(</span><span class="n">cellView</span><span class="p">)</span> <span class="p">{</span>
+<span class="k">fun</span> <span class="nf">bindDataToView</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nc">Media</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="nc">BlockWithSingleArgLambda</span><span class="p">&lt;</span><span class="nc">Media</span><span class="p">&gt;)</span> <span class="p">{</span>
+  <span class="n">imageView</span><span class="p">.</span><span class="nf">setOnClickListener</span> <span class="p">{</span> <span class="n">block</span><span class="p">.</span><span class="nf">invoke</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="p">}</span>
+  <span class="cm">/* Snip. */</span>
+<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This is so much cleaner IMO than having to define abstract classes or interfaces to achieve the same
+result.</p>
+      <h3 id="coroutines-vs-asynctask">
+        
+        
+          Coroutines vs AsyncTask <a href="#coroutines-vs-asynctask">#</a>
+        
+        
+      </h3>
+    
+
+<p>The Kotlin version of the app has a feature that’s not present in the Java version which is that it
+shortens the URL of the GIF when the user clicks on a thumbnail in the <code class="language-plaintext highlighter-rouge">RecyclerView</code> before copying
+that to the clipboard.</p>
+
+<p>I decided to use coroutines, since I really like ES6 promises and async/await. And while I’ve used
+<code class="language-plaintext highlighter-rouge">AsyncTask</code> and <code class="language-plaintext highlighter-rouge">Executors</code> quite extensively in the past, I really like this new approach to async
+programming.</p>
+
+<p>Here’s an example of a coroutine that shortens the given URL string (<code class="language-plaintext highlighter-rouge">shortenUrl()</code> actually does
+the work of shortening the URL by using a <code class="language-plaintext highlighter-rouge">HttpURLConnection</code> that needs to be run in a background
+thread (and not the main thread):</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">suspend</span> <span class="k">fun</span> <span class="nf">shorten</span><span class="p">(</span><span class="n">longUrl</span><span class="p">:</span> <span class="nc">String</span><span class="p">):</span> <span class="nc">String</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">suspendCoroutine</span> <span class="p">{</span> <span class="n">promise</span> <span class="p">-&gt;</span>
+    <span class="k">try</span> <span class="p">{</span>
+      <span class="kd">val</span> <span class="py">shortUrl</span> <span class="p">=</span> <span class="nf">shortenUrl</span><span class="p">(</span><span class="n">longUrl</span><span class="p">)</span>
+      <span class="n">promise</span><span class="p">.</span><span class="nf">resume</span><span class="p">(</span><span class="n">shortUrl</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">catch</span> <span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="nc">Exception</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">promise</span><span class="p">.</span><span class="nf">resume</span><span class="p">(</span><span class="n">longUrl</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s code to call this coroutine from an Android activity:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">private</span> <span class="k">fun</span> <span class="nf">shortenUriAndCopyToClipboard</span><span class="p">(</span><span class="n">imageUri</span><span class="p">:</span> <span class="nc">Uri</span><span class="p">)</span> <span class="p">{</span>
+<span class="kd">val</span> <span class="py">longUrl</span> <span class="p">=</span> <span class="n">imageUri</span><span class="p">.</span><span class="nf">toString</span><span class="p">()</span>
+<span class="nc">GlobalScope</span><span class="p">.</span><span class="nf">launch</span><span class="p">(</span><span class="nc">Dispatchers</span><span class="p">.</span><span class="nc">IO</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">shortUrl</span><span class="p">:</span> <span class="nc">String</span>
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="n">shortUrl</span> <span class="p">=</span> <span class="nf">shorten</span><span class="p">(</span><span class="n">longUrl</span><span class="p">)</span>
+    <span class="nf">info</span> <span class="p">{</span> <span class="s">"coroutine-shortUrl: $shortUrl"</span> <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">catch</span> <span class="p">(</span><span class="n">e</span><span class="p">:</span> <span class="nc">Exception</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">shortUrl</span> <span class="p">=</span> <span class="n">longUrl</span>
+    <span class="nf">info</span> <span class="p">{</span> <span class="s">"coroutine-copyUrlToClipboard exception! $e"</span> <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="nf">copyTextToClipboard</span><span class="p">(</span><span class="n">shortUrl</span><span class="p">)</span>
+  <span class="nf">toast</span><span class="p">(</span><span class="k">this</span><span class="nd">@FullScreenActivity</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">setText</span><span class="p">(</span><span class="s">"URL copied to clipboard"</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="extension-function-expressions">
+        
+        
+          Extension function expressions <a href="#extension-function-expressions">#</a>
+        
+        
+      </h3>
+    
+
+<p>I love using extension function expressions when I can. Here are some examples:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">inline</span> <span class="k">fun</span> <span class="nf">toast</span><span class="p">(</span>
+    <span class="n">context</span><span class="p">:</span> <span class="nc">Context</span><span class="p">,</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">""</span><span class="p">,</span>
+    <span class="n">duration</span><span class="p">:</span> <span class="nc">Int</span> <span class="p">=</span> <span class="nc">Toast</span><span class="p">.</span><span class="nc">LENGTH_SHORT</span><span class="p">,</span>
+    <span class="k">crossinline</span> <span class="n">block</span><span class="p">:</span> <span class="nc">Toast</span><span class="p">.()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span>
+<span class="p">)</span> <span class="p">{</span>
+  <span class="nf">runOnUiThread</span> <span class="p">{</span>
+    <span class="nf">with</span><span class="p">(</span><span class="nc">Toast</span><span class="p">.</span><span class="nf">makeText</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">duration</span><span class="p">))</span> <span class="p">{</span>
+      <span class="nf">block</span><span class="p">()</span>
+      <span class="nf">show</span><span class="p">()</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fun</span> <span class="nf">runOnUiThread</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="nc">BlockLambda</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nc">Handler</span><span class="p">(</span><span class="nc">Looper</span><span class="p">.</span><span class="nf">getMainLooper</span><span class="p">()).</span><span class="nf">post</span> <span class="p">{</span> <span class="n">block</span><span class="p">.</span><span class="nf">invoke</span><span class="p">()</span> <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>I am still getting used to the ability to do things like <code class="language-plaintext highlighter-rouge">Toast.() -&gt; Unit</code> 😁.</p>
+      <h3 id="constructors">
+        
+        
+          Constructors <a href="#constructors">#</a>
+        
+        
+      </h3>
+    
+
+<p>Another thing I noticed is that I was able to leverage the terse constructor syntax of Kotlin to
+make it much simpler to pass arguments, and also defined variables that operated on those variables
+in the constructor argument list itself, instead of polluting the main function body w/ this code.</p>
+
+<p>Here’s an example where I pull out an <code class="language-plaintext highlighter-rouge">imageView</code> from a <code class="language-plaintext highlighter-rouge">cellView</code> which is passed to this
+function:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">private</span> <span class="k">inner</span> <span class="kd">class</span> <span class="nc">RowViewHolder</span><span class="p">(</span>
+  <span class="n">cellView</span><span class="p">:</span> <span class="nc">View</span><span class="p">,</span>
+  <span class="kd">val</span> <span class="py">imageView</span><span class="p">:</span> <span class="nc">SimpleDraweeView</span> <span class="p">=</span> <span class="n">cellView</span><span class="p">.</span><span class="nf">find</span><span class="p">(</span><span class="nc">R</span><span class="p">.</span><span class="n">id</span><span class="p">.</span><span class="n">image_grid_cell</span><span class="p">)</span>
+<span class="p">)</span> <span class="p">:</span> <span class="nc">RecyclerView</span><span class="p">.</span><span class="nc">ViewHolder</span><span class="p">(</span><span class="n">cellView</span><span class="p">)</span> <span class="p">{</span>
+<span class="k">fun</span> <span class="nf">bindDataToView</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nc">Media</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="nc">BlockWithSingleArgLambda</span><span class="p">&lt;</span><span class="nc">Media</span><span class="p">&gt;)</span>
+  <span class="p">{</span><span class="cm">/*Snip. */</span><span class="p">}}</span>
+</code></pre></div></div>
+
+<p>Another thing that I started using is <code class="language-plaintext highlighter-rouge">init</code> blocks and <code class="language-plaintext highlighter-rouge">apply</code> blocks in Kotlin code, to put code
+to initialize a variable where I declare the variable itself.</p>
+
+<p>Here’s an example of using <code class="language-plaintext highlighter-rouge">apply</code>:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">private</span> <span class="kd">val</span> <span class="py">layoutManager</span><span class="p">:</span> <span class="nc">StaggeredGridLayoutManager</span> <span class="p">=</span>
+  <span class="nc">StaggeredGridLayoutManager</span><span class="p">(</span><span class="nc">GRID_SPAN_COUNT</span><span class="p">,</span> <span class="nc">VERTICAL</span><span class="p">)</span>
+      <span class="p">.</span><span class="nf">apply</span> <span class="p">{</span>
+        <span class="n">gapStrategy</span> <span class="p">=</span> <span class="nc">GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS</span>
+        <span class="n">recyclerView</span><span class="p">.</span><span class="n">layoutManager</span> <span class="p">=</span> <span class="k">this</span>
+      <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s an example of using <code class="language-plaintext highlighter-rouge">init</code>:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">private</span> <span class="kd">var</span> <span class="py">dataAdapter</span><span class="p">:</span> <span class="nc">DataAdapter</span>
+<span class="nf">init</span> <span class="p">{</span>
+  <span class="n">dataAdapter</span> <span class="p">=</span> <span class="nc">DataAdapter</span> <span class="p">{</span>
+    <span class="n">activity</span><span class="p">.</span><span class="nf">startActivity</span><span class="p">(</span><span class="nc">FullScreenActivity</span><span class="p">.</span><span class="nf">getIntent</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="n">it</span><span class="p">))</span>
+  <span class="p">}</span>
+  <span class="n">recyclerView</span><span class="p">.</span><span class="n">adapter</span> <span class="p">=</span> <span class="n">dataAdapter</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="related-articles">
+        
+        
+          Related articles <a href="#related-articles">#</a>
+        
+        
+      </h2>
+    
+
+<p>After I wrote this tutorial, I found the following article by the team that created OkHttp talking
+about their journey in migrating their library from Java to Kotlin. Here’s a
+<a href="https://publicobject.com/2019/05/13/metrics-for-okhttps-kotlin-upgrade/">link</a>.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Android">
+                #android</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/KT">
+                #kt</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TDD">
+                #tdd</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-in-depth/">
+                        In-depth exploration of Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/07/introduction-to-android-architecture-components/">
+                        Introduction to Android Architecture Components
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/29/getting-started-with-mediaplayer-on-android/">
+                        Getting started with MediaPlayer on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/20/gps/">
+                        Android Location Providers (gps, network, passive)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/05/android-animation-framework/">
+                        Android Animation Framework Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-listview/">
+                        Android ListView and custom adapter Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-linearlayout/">
+                        Android LinearLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/31/android-ui-themes/">
+                        Android UI Themes Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/29/android-tablelayout/">
+                        Android TableLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/option-and-context-menu/">
+                        Android Option and Context menu Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/android-xml-view-inflation/">
+                        Android XML View inflation Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/14/android-app-lifecycle-activity-intent-and-service-draft/">
+                        Android Activity and sub-Activity Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/">
+                        Android - How to build a service-enabled Android app - Part 1/3 UI
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-23-networking/">
+                        Android - How to build a service-enabled Android App - Part 2/3 Networking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/02/06/publish-kotlin-library-as-gradle-dep/">
+                        Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/11/20/idea-plugin-example-intro/">
+                        Introduction to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/15/non-capturing-lambda-problems/">
+                        Potential problems of using non-capturing lambdas
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
+                        Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-testing-setup/">
+                        Kotlin and Test Driven Development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-extension-function-expressions/">
+                        Kotlin Extension Function Expressions
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-and-kotlin/">
+                        Advanced Dagger 2 w/ Android and Kotlin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2019/05/11/kotlin-vs-java/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

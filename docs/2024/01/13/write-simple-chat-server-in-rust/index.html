@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Write a simple TCP chat server in Rust | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Write a simple TCP chat server in Rust" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A guide on how to create write a simple TCP chat server in Rust using Tokio" />
+<meta property="og:description" content="A guide on how to create write a simple TCP chat server in Rust using Tokio" />
+<link rel="canonical" href="http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/" />
+<meta property="og:url" content="http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-01-13T09:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Write a simple TCP chat server in Rust" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-01-13T09:00:00-06:00","datePublished":"2024-01-13T09:00:00-06:00","description":"A guide on how to create write a simple TCP chat server in Rust using Tokio","headline":"Write a simple TCP chat server in Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/"},"url":"http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Write a simple TCP chat server in Rust&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Write a simple TCP chat server in Rust</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Write a simple TCP chat server in Rust</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jan 13, 2024
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/chatserver-hero.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#build-a-chat-server-using-tokio">Build a chat server using Tokio</a></li>
+  <li><a href="#the-chat-server-comprises-all-these-pieces">The chat server comprises all these pieces</a></li>
+  <li><a href="#add-dependencies-to-cargotoml">Add dependencies to Cargo.toml</a></li>
+  <li><a href="#main-function">Main function</a>
+    <ul>
+      <li><a href="#tokiospawn-does-not-spawn-a-new-thread-so-what-does-it-actually-do">tokio::spawn does not spawn a new thread, so what does it actually do?</a></li>
+    </ul>
+  </li>
+  <li><a href="#handle-client-task-function">Handle client task function</a>
+    <ul>
+      <li><a href="#two-concurrent-tasks-in-the-tokioselect-block">Two concurrent tasks in the tokio::select! block</a></li>
+      <li><a href="#handle-read-from-broadcast-channel-function">Handle read from broadcast channel function</a></li>
+      <li><a href="#handle-socket-read-function">Handle socket read function</a></li>
+    </ul>
+  </li>
+  <li><a href="#next-steps">Next steps</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="build-a-chat-server-using-tokio">
+        
+        
+          Build a chat server using Tokio <a href="#build-a-chat-server-using-tokio">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-build-a-chat-server-using-tokio" name="build-a-chat-server-using-tokio"></a></p>
+
+<p>In this tutorial we will build a simple chat server using Tokio. The server will be able
+to handle multiple clients, and each client will be able to send messages to the server,
+which will then broadcast the message to all other connected clients.</p>
+
+<ul>
+  <li>We will use Tokio’s <code class="language-plaintext highlighter-rouge">tokio::net::TcpListener</code> and <code class="language-plaintext highlighter-rouge">tokio::net::TcpStream</code> to create a
+TCP server that listens for incoming connections and handles them concurrently.</li>
+  <li>We will also use Tokio’s <code class="language-plaintext highlighter-rouge">tokio::sync::broadcast</code> to broadcast messages to all connected
+clients.</li>
+</ul>
+
+<p>Read <a href="/2024/01/13/write-simple-netcat-in-rust/">this tutorial</a> to
+learn more about the basics of TCP client and server programming in Rust (without using
+Tokio).</p>
+
+<!--
+simple-netcat-in-rust video
+Source: https://github.com/nazmulidris/developerlife.com/issues/4
+-->
+<blockquote>
+  <p>Here’s a video of the app that we are going to build in action.</p>
+  <video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/14ce32ce-0988-4853-acd5-1174b1864d57" type="video/mp4" />
+</video>
+</blockquote>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+<blockquote>
+  <p>You can find the finished source code for this tutorial
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-server-netcat-client">here</a>.</p>
+</blockquote>
+      <h2 id="the-chat-server-comprises-all-these-pieces">
+        
+        
+          The chat server comprises all these pieces <a href="#the-chat-server-comprises-all-these-pieces">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-the-chat-server-comprises-all-these-pieces" name="the-chat-server-comprises-all-these-pieces"></a></p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   ┌─CLIENT-1───────┐      ┌─CLIENT─2───────┐        ┌─CLIENT─3──────┐
+   │                │      │                │        │               │
+   └───────┼────────┘      └──────┼─────────┘        └─────┼─────────┘
+           │                      │                        │
+┌─SERVER───┼──────────────────────┼────────────────────────┼────────────┐
+│          │                      │                        │            │
+│                                                                       │
+│ handle_client_task()   handle_client_task()    handle_client_task()   │
+│ ┌───────────────────┐ ┌────────────────────┐  ┌─────────────────────┐ │
+│ │   ┌────┐ ┌────┐   │ │   ┌────┐ ┌────┐    │  │    ┌────┐ ┌────┐    │ │
+│ │   │ TX │ │ RX │   │ │   │ TX │ │ RX │    │  │    │ TX │ │ RX │    │ │
+│ │   └─┬──┘ └─▲──┘   │ │   └─┬──┘ └─▲──┘    │  │    └─┬──┘ └─▲──┘    │ │
+│ │     │      │      │ │     │      │       │  │      │      │       │ │
+│ └─────┼──────┼──────┘ └─────┼──────┼───────┘  └──────┼──────┼───────┘ │
+│       │      │              │      │                 │      │         │
+│       │      │              │      │                 │      │         │
+│ ┌─────▼──────┴──────────────▼──────┴─────────────────▼──────┴───────┐ │
+│ │                    (TX, RX) = channel::broadcast()                │ │
+│ └───────────────────────────────────────────────────────────────────┘ │
+└───────────────────────────────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<!-- Diagram source
+https://asciiflow.com/#/share/eJztVs1Kw0AQfpVlTy1E0ApiA54kB0E8xCI5LJTYBhRjhDZCSylIzh56CCXP4TlP0ydxwzbtbnY2bdL1p9VhApOdmW9mv0yWneDAffawGbz6voF9d%2BwNsIknBI8INtvnxwbBY2q1ztrUCr1RSF8IRpks4pTq5fWVddM5OmFvsqKlLOL3RfzGoqnRog%2BkM0X8qSqekCDvBhVEqB7J3qjcexjIAqCMzbcAoRf8B4RfQ9dAMTSLqWJGmSa7ZeedA2QUpcSV%2BSgS286tZd9Zdj0q9kXZZvUQp%2BRSmVRTeOAHN%2Bj7XrfnP3pB2A3d4VOjyaKUHnUKD6yFXpQf1LvpTBtMcYsl3xI4QZfeaIPzZ4oA7IMfRCwu8TqDlgpNVU6CmkUdZ2XaDoKbi1gUM22Ho4RrZkNQBabmH2VMxeJBnORLWVa%2BJDVXMQmYnVUzwijx86OKiLYI%2BC%2F45QU1naP8tSAVf7aSRV4TbTDCFpGSDrSNV%2B389iIC7XOtdw2NaHWh5M3KJGbS6DgGPUeb6AL16GUh8HzTvB%2B8uP2eOwzzuwLArvax%2F7UKzKY22WPgP6gET%2FH0Ex1Q3VY%3D)
+-->
+
+<p>The server has a <code class="language-plaintext highlighter-rouge">main</code> function that creates a <code class="language-plaintext highlighter-rouge">tokio::net::TcpListener</code> and listens for
+incoming connections. When a new connection is received, it spawns a new task to handle
+the connection using <code class="language-plaintext highlighter-rouge">tokio::spawn()</code>.</p>
+
+<p>Using <code class="language-plaintext highlighter-rouge">tokio::select!</code>, the task tries to do the following concurrently, and waits until
+one of them completes:</p>
+<ol>
+  <li>The task reads messages from its client and broadcasts them to all other connected
+clients. It also echoes the message back to its client.</li>
+  <li>The task listens for messages from other clients and sends them to its client.</li>
+</ol>
+
+<p>When one task above completes, the other is dropped. Then the code path with the completed
+task executes. Then the code returns to the infinite loop, if it hasn’t returned already.</p>
+
+<p>A client can be any TCP client, such as <code class="language-plaintext highlighter-rouge">telnet</code>, <code class="language-plaintext highlighter-rouge">nc</code>, or PuTTY.</p>
+      <h2 id="add-dependencies-to-cargotoml">
+        
+        
+          Add dependencies to Cargo.toml <a href="#add-dependencies-to-cargotoml">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-add-dependencies-to-cargo.toml" name="add-dependencies-to-cargo.toml"></a></p>
+
+<p>Let’s create a new project by running <code class="language-plaintext highlighter-rouge">cargo create --bin tcp-server-netcat-client</code>. Then
+we will add the following dependencies to our <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file.</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># tokio.</span>
+<span class="nn">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.35.1"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
+
+<span class="c"># stdout logging.</span>
+<span class="nn">femme</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"2.2.1"</span> <span class="p">}</span>
+<span class="nn">log</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.4.20"</span> <span class="p">}</span>
+
+<span class="c"># r3bl_rs_utils_core - friendly name generator.</span>
+<span class="nn">r3bl_rs_utils_core</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.9.12"</span> <span class="p">}</span>
+<span class="nn">r3bl_tui</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.5.1"</span> <span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="main-function">
+        
+        
+          Main function <a href="#main-function">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-main-function" name="main-function"></a></p>
+
+<p>We will implement the following algorithm for our server in our main function:</p>
+<ol>
+  <li>Create a broadcast channel. It will be shared by all the client tasks.</li>
+  <li>Create <code class="language-plaintext highlighter-rouge">TcpListener</code> and bind to an address &amp; port.</li>
+  <li>Loop:
+    <ul>
+      <li>Accept socket connection, and get its <code class="language-plaintext highlighter-rouge">TCPStream</code>.</li>
+      <li>Use <code class="language-plaintext highlighter-rouge">tokio::spawn()</code> to spawn a task to handle this client connection and its
+<code class="language-plaintext highlighter-rouge">TCPStream</code>.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>In the task that handles the connection:</p>
+<ol>
+  <li>Get <code class="language-plaintext highlighter-rouge">BufReader</code> &amp; <code class="language-plaintext highlighter-rouge">BufWriter</code> from the <code class="language-plaintext highlighter-rouge">TCPStream</code>. The reader and writer allow us to
+read data from and write data to the client socket.</li>
+  <li>Loop:
+    <ul>
+      <li>Use <code class="language-plaintext highlighter-rouge">tokio::select!</code> to concurrently:
+        <ul>
+          <li>Read from broadcast channel (via <code class="language-plaintext highlighter-rouge">recv()</code>):
+            <ul>
+              <li>Send the message to the client (only if it is from a different client) over the
+socket (use <code class="language-plaintext highlighter-rouge">BufWriter</code> to write the message).</li>
+            </ul>
+          </li>
+          <li>Read from socket (via <code class="language-plaintext highlighter-rouge">BufReader::read_line()</code>):
+            <ul>
+              <li>Read <code class="language-plaintext highlighter-rouge">incoming</code> from reader.</li>
+              <li>Call <code class="language-plaintext highlighter-rouge">process(incoming)</code> and generate <code class="language-plaintext highlighter-rouge">outgoing</code>. This colorizes the <code class="language-plaintext highlighter-rouge">incoming</code>
+message with a lolcat effect to generate the <code class="language-plaintext highlighter-rouge">outgoing</code> message.</li>
+              <li>Send <code class="language-plaintext highlighter-rouge">incoming</code> message to other connected clients (via the broadcast channel).</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+  <p>You can find the finished source code for this tutorial
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-server-netcat-client">here</a>.</p>
+</blockquote>
+
+<p>Here’s the code for the main function, and some supporting type aliases and structs:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">type</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="nd">#[derive(Debug,</span> <span class="nd">Clone)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">MsgType</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="n">socket_addr</span><span class="p">:</span> <span class="n">SocketAddr</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">from_id</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="nd">#[tokio::main]</span>
+<span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">addr</span> <span class="o">=</span> <span class="s">"127.0.0.1:3000"</span><span class="p">;</span>
+
+    <span class="c1">// Start logging.</span>
+    <span class="nn">femme</span><span class="p">::</span><span class="nf">start</span><span class="p">();</span>
+
+    <span class="c1">// Create TCP listener.</span>
+    <span class="k">let</span> <span class="n">tcp_listener</span> <span class="o">=</span> <span class="nn">TcpListener</span><span class="p">::</span><span class="nf">bind</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Server is ready to accept connections on {}"</span><span class="p">,</span> <span class="n">addr</span><span class="p">);</span>
+
+    <span class="c1">// Create channel shared among all clients that connect to the server loop.</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">tx</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="nn">broadcast</span><span class="p">::</span><span class="nn">channel</span><span class="p">::</span><span class="o">&lt;</span><span class="n">MsgType</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+
+    <span class="c1">// Server loop.</span>
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="c1">// Accept incoming socket connections.</span>
+        <span class="k">let</span> <span class="p">(</span><span class="n">tcp_stream</span><span class="p">,</span> <span class="n">socket_addr</span><span class="p">)</span> <span class="o">=</span> <span class="n">tcp_listener</span><span class="nf">.accept</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="k">let</span> <span class="n">tx</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">handle_client_task</span><span class="p">(</span><span class="n">tcp_stream</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">socket_addr</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+            <span class="k">match</span> <span class="n">result</span> <span class="p">{</span>
+                <span class="nf">Ok</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"handle_client_task() terminated gracefully"</span><span class="p">)</span>
+                <span class="p">}</span>
+                <span class="nf">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="k">log</span><span class="p">::</span><span class="nd">error!</span><span class="p">(</span><span class="s">"handle_client_task() encountered error: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>To run the server, you can run <code class="language-plaintext highlighter-rouge">cargo run</code>. There are no command line arguments to pass or
+parse.</p>
+      <h3 id="tokiospawn-does-not-spawn-a-new-thread-so-what-does-it-actually-do">
+        
+        
+          tokio::spawn does not spawn a new thread, so what does it actually do? <a href="#tokiospawn-does-not-spawn-a-new-thread-so-what-does-it-actually-do">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-tokio%3A%3Aspawn-does-not-spawn-a-new-thread%2C-so-what-does-it-actually-do%3F" name="tokio%3A%3Aspawn-does-not-spawn-a-new-thread%2C-so-what-does-it-actually-do%3F"></a></p>
+
+<p>Since <code class="language-plaintext highlighter-rouge">tokio::spawn</code> sounds similar to <code class="language-plaintext highlighter-rouge">thread::spawn</code> it might be easy to assume that
+<code class="language-plaintext highlighter-rouge">tokio::spawn</code> creates a new thread. This would go against the idea of even using tokio
+(which is all about concurrency and non blocking IO), since handling one connection per
+thread isn’t <a href="https://g.co/bard/share/74f433bad400">scalable</a>, which is what we did in
+this tutorial: <a href="/2024/01/13/write-simple-netcat-in-rust/">Write a simple TCP chat server in Rust</a>.</p>
+
+<p><code class="language-plaintext highlighter-rouge">tokio::spawn</code> does not create a thread; it creates a Tokio task, which is a
+co-operatively scheduled entity that Tokio knows how to schedule on the Tokio runtime (in
+turn, the Tokio runtime can have as many worker threads as you want - from 1 upwards).</p>
+
+<p>By using <code class="language-plaintext highlighter-rouge">tokio::spawn</code>, you allow the Tokio runtime to switch to another task at points
+in the task where it has a <code class="language-plaintext highlighter-rouge">.await</code>, and only those points. Your alternative, if you don’t
+want multiple tasks, is to use things like <code class="language-plaintext highlighter-rouge">select!</code>, <code class="language-plaintext highlighter-rouge">join!</code> and functions with <code class="language-plaintext highlighter-rouge">select</code>
+or ` join` in their name to have concurrent I/O in a single task.</p>
+
+<p>The point of spawning in Tokio is twofold:</p>
+
+<ol>
+  <li>If your runtime has multiple threads, then two tasks can execute in parallel on
+different threads, reducing latency.</li>
+  <li>It is almost always easier to understand a complex program in terms of different tasks
+doing their work, than in terms of a single large task doing lots of work concurrently
+(e.g. using <code class="language-plaintext highlighter-rouge">select</code> to wait for one of many options, or <code class="language-plaintext highlighter-rouge">join</code> to wait for all options
+to finish).</li>
+</ol>
+
+<p>More information:</p>
+<ol>
+  <li>You can get more info on this topic
+ <a href="https://users.rust-lang.org/t/socket-per-thread-in-tokio/83712/7">here</a>.</li>
+  <li>For an even deeper dive into how Tokio tasks themselves are implemented for intra-task
+concurrency, please take a look at this <a href="https://without.boats/blog/let-futures-be-futures/">excellent
+article</a>.</li>
+</ol>
+      <h2 id="handle-client-task-function">
+        
+        
+          Handle client task function <a href="#handle-client-task-function">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-handle-client-task-function" name="handle-client-task-function"></a></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">handle_client_task</code> function is where all the magic happens.</p>
+<ol>
+  <li>It reads messages from its client (over TCP socket) and broadcasts them to all other
+connected clients.</li>
+  <li>It processes the message from its client and echoes it back to its client (over TCP
+socket).</li>
+  <li>It reads messages from other clients (over broadcast channel) and sends them to its
+client (over socket).</li>
+</ol>
+
+<p>Here’s the code for the <code class="language-plaintext highlighter-rouge">handle_client_task()</code> function:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="nf">handle_client_task</span><span class="p">(</span>
+    <span class="k">mut</span> <span class="n">tcp_stream</span><span class="p">:</span> <span class="n">TcpStream</span><span class="p">,</span>
+    <span class="n">tx</span><span class="p">:</span> <span class="n">Sender</span><span class="o">&lt;</span><span class="n">MsgType</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">socket_addr</span><span class="p">:</span> <span class="n">SocketAddr</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Handle socket connection from client"</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">id</span> <span class="o">=</span> <span class="nn">friendly_random_id</span><span class="p">::</span><span class="nf">generate_friendly_random_id</span><span class="p">();</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">rx</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.subscribe</span><span class="p">();</span>
+
+    <span class="c1">// Set up buf reader and writer.</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">writer</span><span class="p">)</span> <span class="o">=</span> <span class="n">tcp_stream</span><span class="nf">.split</span><span class="p">();</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">reader</span> <span class="o">=</span> <span class="nn">BufReader</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">reader</span><span class="p">);</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">writer</span> <span class="o">=</span> <span class="nn">BufWriter</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">writer</span><span class="p">);</span>
+
+    <span class="c1">// Send welcome message to client w/ ids.</span>
+    <span class="k">let</span> <span class="n">welcome_msg_for_client</span> <span class="o">=</span>
+        <span class="nn">ColorWheel</span><span class="p">::</span><span class="nf">lolcat_into_string</span><span class="p">(</span><span class="o">&amp;</span><span class="nd">format!</span><span class="p">(</span><span class="s">"addr: {}, id: {}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">socket_addr</span><span class="p">,</span> <span class="n">id</span><span class="p">));</span>
+    <span class="n">writer</span><span class="nf">.write</span><span class="p">(</span><span class="n">welcome_msg_for_client</span><span class="nf">.as_bytes</span><span class="p">())</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">writer</span><span class="nf">.flush</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">incoming</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">tx</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="c1">// Read from broadcast channel.</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">rx</span><span class="nf">.recv</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nf">read_from_broadcast_channel</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">socket_addr</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">writer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">id</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+            <span class="p">}</span>
+
+            <span class="c1">// Read from socket.</span>
+            <span class="n">network_read_result</span> <span class="o">=</span> <span class="n">reader</span><span class="nf">.read_line</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">incoming</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">let</span> <span class="n">num_bytes_read</span><span class="p">:</span> <span class="nb">usize</span> <span class="o">=</span> <span class="n">network_read_result</span><span class="o">?</span><span class="p">;</span>
+                <span class="c1">// EOF check.</span>
+                <span class="k">if</span> <span class="n">num_bytes_read</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="nf">handle_socket_read</span><span class="p">(</span><span class="n">num_bytes_read</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">id</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">incoming</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">writer</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">socket_addr</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+                <span class="n">incoming</span><span class="nf">.clear</span><span class="p">();</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="two-concurrent-tasks-in-the-tokioselect-block">
+        
+        
+          Two concurrent tasks in the tokio::select! block <a href="#two-concurrent-tasks-in-the-tokioselect-block">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-two-concurrent-tasks-in-the-tokio%3A%3Aselect!-block" name="two-concurrent-tasks-in-the-tokio%3A%3Aselect!-block"></a></p>
+
+<ol>
+  <li>Read from broadcast channel. The function <code class="language-plaintext highlighter-rouge">read_from_broadcast_channel()</code> does this work.</li>
+  <li>Read from socket. The function <code class="language-plaintext highlighter-rouge">handle_socket_read()</code> does this work.</li>
+</ol>
+
+<p>Whichever task completes first, the <code class="language-plaintext highlighter-rouge">tokio::select!</code> block will go down that code path,
+and drop the other task.</p>
+      <h3 id="handle-read-from-broadcast-channel-function">
+        
+        
+          Handle read from broadcast channel function <a href="#handle-read-from-broadcast-channel-function">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-handle-read-from-broadcast-channel-function" name="handle-read-from-broadcast-channel-function"></a></p>
+
+<p>Here’s the code for the <code class="language-plaintext highlighter-rouge">read_from_broadcast_channel()</code> function:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="nf">read_from_broadcast_channel</span><span class="p">(</span>
+    <span class="n">result</span><span class="p">:</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">RecvError</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">socket_addr</span><span class="p">:</span> <span class="n">SocketAddr</span><span class="p">,</span>
+    <span class="n">writer</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">BufWriter</span><span class="o">&lt;</span><span class="n">WriteHalf</span><span class="o">&lt;</span><span class="nv">'_</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+    <span class="n">id</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">match</span> <span class="n">result</span> <span class="p">{</span>
+        <span class="nf">Ok</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">msg</span><span class="p">:</span> <span class="n">MsgType</span> <span class="o">=</span> <span class="n">it</span><span class="p">;</span>
+            <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"[{}]: channel: {:?}"</span><span class="p">,</span> <span class="n">id</span><span class="p">,</span> <span class="n">msg</span><span class="p">);</span>
+            <span class="k">if</span> <span class="n">msg</span><span class="py">.socket_addr</span> <span class="o">!=</span> <span class="n">socket_addr</span> <span class="p">{</span>
+                <span class="n">writer</span><span class="nf">.write</span><span class="p">(</span><span class="n">msg</span><span class="py">.payload</span><span class="nf">.as_bytes</span><span class="p">())</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+                <span class="n">writer</span><span class="nf">.flush</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="nf">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="k">log</span><span class="p">::</span><span class="nd">error!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="handle-socket-read-function">
+        
+        
+          Handle socket read function <a href="#handle-socket-read-function">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-handle-socket-read-function" name="handle-socket-read-function"></a></p>
+
+<p>Here’s the code for the <code class="language-plaintext highlighter-rouge">handle_socket_read()</code> function:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="nf">handle_socket_read</span><span class="p">(</span>
+    <span class="n">num_bytes_read</span><span class="p">:</span> <span class="nb">usize</span><span class="p">,</span>
+    <span class="n">id</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">incoming</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">writer</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">BufWriter</span><span class="o">&lt;</span><span class="n">WriteHalf</span><span class="o">&lt;</span><span class="nv">'_</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+    <span class="n">tx</span><span class="p">:</span> <span class="n">Sender</span><span class="o">&lt;</span><span class="n">MsgType</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="n">socket_addr</span><span class="p">:</span> <span class="n">SocketAddr</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
+        <span class="s">"[{}]: incoming: {}, size: {}"</span><span class="p">,</span>
+        <span class="n">id</span><span class="p">,</span>
+        <span class="n">incoming</span><span class="nf">.trim</span><span class="p">(),</span>
+        <span class="n">num_bytes_read</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Process incoming -&gt; outgoing.</span>
+    <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="nf">process</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming</span><span class="p">);</span>
+
+    <span class="c1">// outgoing -&gt; Writer.</span>
+    <span class="n">writer</span><span class="nf">.write</span><span class="p">(</span><span class="n">outgoing</span><span class="nf">.as_bytes</span><span class="p">())</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">writer</span><span class="nf">.flush</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Broadcast outgoing to the channel.</span>
+    <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.send</span><span class="p">(</span><span class="n">MsgType</span> <span class="p">{</span>
+        <span class="n">socket_addr</span><span class="p">,</span>
+        <span class="n">payload</span><span class="p">:</span> <span class="n">incoming</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="n">from_id</span><span class="p">:</span> <span class="n">id</span><span class="nf">.to_string</span><span class="p">(),</span>
+    <span class="p">});</span>
+
+    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
+        <span class="s">"[{}]: outgoing: {}, size: {}"</span><span class="p">,</span>
+        <span class="n">id</span><span class="p">,</span>
+        <span class="n">outgoing</span><span class="nf">.trim</span><span class="p">(),</span>
+        <span class="n">num_bytes_read</span>
+    <span class="p">);</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">process</span><span class="p">(</span><span class="n">incoming</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
+    <span class="c1">// Remove new line from incoming.</span>
+    <span class="k">let</span> <span class="n">incoming_trimmed</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">incoming</span><span class="nf">.trim</span><span class="p">());</span>
+    <span class="c1">// Colorize it.</span>
+    <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="nn">ColorWheel</span><span class="p">::</span><span class="nf">lolcat_into_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming_trimmed</span><span class="p">);</span>
+    <span class="c1">// Add new line back to outgoing.</span>
+    <span class="nd">format!</span><span class="p">(</span><span class="s">"{}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">outgoing</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="next-steps">
+        
+        
+          Next steps <a href="#next-steps">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-next-steps" name="next-steps"></a></p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/04/ockam-routing-building-end-to-end-channels/">
+                        Create End-to-End Channels in Rust with Ockam Routing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2024/01/13/write-simple-chat-server-in-rust/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

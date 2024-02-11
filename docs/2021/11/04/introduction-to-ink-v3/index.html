@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript) | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This article is an introduction to using Ink v3.2.0 (with TypeScript and React) to create CLI apps. IDEA Ultimate / Webstorm project files are provided." />
+<meta property="og:description" content="This article is an introduction to using Ink v3.2.0 (with TypeScript and React) to create CLI apps. IDEA Ultimate / Webstorm project files are provided." />
+<link rel="canonical" href="http://developerlife.com/2021/11/04/introduction-to-ink-v3/" />
+<meta property="og:url" content="http://developerlife.com/2021/11/04/introduction-to-ink-v3/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-11-04T09:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2021-11-04T09:00:00-05:00","datePublished":"2021-11-04T09:00:00-05:00","description":"This article is an introduction to using Ink v3.2.0 (with TypeScript and React) to create CLI apps. IDEA Ultimate / Webstorm project files are provided.","headline":"Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2021/11/04/introduction-to-ink-v3/"},"url":"http://developerlife.com/2021/11/04/introduction-to-ink-v3/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Nov 4, 2021
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/ink-intro.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#what-is-ink">What is Ink</a></li>
+  <li><a href="#react-core-renderer-reconciler">React core, renderer, reconciler</a></li>
+  <li><a href="#create-ink-project-with-typescript">Create Ink project with TypeScript</a>
+    <ul>
+      <li><a href="#1--packagejson">1. 📄 package.json</a></li>
+      <li><a href="#2--npm-link">2. 🤖 npm link</a></li>
+      <li><a href="#3--distclijs">3. 📄 dist/cli.js</a></li>
+      <li><a href="#4--tsconfigjson">4. 📄 tsconfig.json</a></li>
+      <li><a href="#5--source">5. 📂 source/</a></li>
+      <li><a href="#6--readmemd">6. 📄 readme.md</a></li>
+      <li><a href="#7--editorconfig">7. 📄 .editorconfig</a></li>
+    </ul>
+  </li>
+  <li><a href="#resolving-permissions-problems-on-linux">Resolving permissions problems on Linux</a></li>
+  <li><a href="#nodejs-executable-modules-npm-link-and-npm-bin">Node.js executable modules, npm link, and npm bin</a>
+    <ul>
+      <li><a href="#what-is-an-executable-module">What is an executable module?</a></li>
+      <li><a href="#my-nodejs-configuration">My Node.js configuration</a></li>
+      <li><a href="#installing-a-module-globally-and-then-executing-it">Installing a module globally and then executing it</a></li>
+      <li><a href="#creating-your-own-executable-module">Creating your own executable module</a>
+        <ul>
+          <li><a href="#running-this-module-using-the-symlink-generated-via-npm-link">Running this module using the symlink generated via npm link</a></li>
+          <li><a href="#running-this-module-using-npm-exec--c-in-the-modules-folder">Running this module using npm exec -c in the module’s folder</a></li>
+        </ul>
+      </li>
+      <li><a href="#specify-more-than-one-executable-in-bin-property">Specify more than one executable in bin property</a></li>
+      <li><a href="#meta-example">Meta example</a></li>
+      <li><a href="#npm-install--g">npm install -g</a></li>
+      <li><a href="#npm-files">npm files</a></li>
+      <li><a href="#npm-config">npm config</a></li>
+    </ul>
+  </li>
+  <li><a href="#make-major-changes-to-create-ink-app-v211-scaffolding">Make major changes to create-ink-app v2.1.1 scaffolding</a>
+    <ul>
+      <li><a href="#rename-source-to-src">Rename source to src</a></li>
+      <li><a href="#update-a-few-dependencies">Update a few dependencies</a></li>
+      <li><a href="#break-all-the-things----switch-ts-strict-mode--commander">Break all the things 💣 - Switch TS strict mode &amp; commander</a></li>
+      <li><a href="#drop-support-for-xo">Drop support for xo</a></li>
+      <li><a href="#drop-support-for-ava">Drop support for ava</a></li>
+      <li><a href="#use-jest-for-testing">Use Jest for testing</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This article is an introduction to using Ink v3.2.0 (with TypeScript and React) to create CLI apps.
+IDEA Ultimate / Webstorm project files are provided.</p>
+
+<blockquote>
+      <h3 id="️-this-isnt-a-reference-for-react-nodejs-typescript-css">
+        
+        
+          ⚠️ This isn’t a reference for: React, Node.js, TypeScript, CSS <a href="#️-this-isnt-a-reference-for-react-nodejs-typescript-css">#</a>
+        
+        
+      </h3>
+    
+
+  <p>Learn more about these topics on <a href="https://developerlife.com/category/Web/">developerlife.com</a>:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Resource</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://developerlife.com/2021/07/02/nodejs-typescript-handbook/">Node.js handbook</a></td>
+        <td>Learn Node.js w/ TypeScript</td>
+      </tr>
+      <tr>
+        <td><a href="https://developerlife.com/2021/10/19/react-hooks-redux-typescript-handbook/">React Hooks handbook</a></td>
+        <td>Learn React, Redux, and Testing w/ TypeScript</td>
+      </tr>
+      <tr>
+        <td><a href="https://developerlife.com/2021/10/19/css-responsive-design-handbook/">CSS handbook</a></td>
+        <td>Learn CSS, grid, flexbox, to implement responsive design</td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end --><hr />
+      <h2 id="what-is-ink">
+        
+        
+          What is Ink <a href="#what-is-ink">#</a>
+        
+        
+      </h2>
+    
+
+<p>Ink is a React renderer written in TypeScript using the <a href="https://github.com/facebook/react/tree/master/packages/react-reconciler"><code class="language-plaintext highlighter-rouge">react-reconciler</code></a> package. So
+instead of rendering React components to the DOM Ink actually renders them to a terminal based UI.</p>
+
+<p>With it, you can make CLI apps that look like this:</p>
+
+<p><img src="/assets/ink-demo.svg" /></p>
+
+<p>Ink supplies its own <a href="#react-core-renderer-reconciler">host</a> UI components (eg: <code class="language-plaintext highlighter-rouge">&lt;Text&gt;</code>) which has
+nothing to do w/ <a href="https://github.com/facebook/react/tree/main/packages/react-dom">react-dom</a> host components that come out of the box (eg: <code class="language-plaintext highlighter-rouge">&lt;img&gt;</code>) w/ React.</p>
+
+<p>Ink supplied host UI components are rendered to a terminal based UI by using:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">console</code> streams to manipulate the <a href="https://github.com/r3bl-org/r3bl-ts-utils/blob/3251cdf13f029da641c9e467dad513f9a27abc47/src/color-console-utils.ts#L99">output to the console</a>, and <a href="https://developerlife.com/2021/07/02/nodejs-typescript-handbook/#user-input-and-output-via-stdin-stdout">input from the
+console</a>.</li>
+  <li><a href="https://github.com/facebook/yoga">Yoga</a> to implement CSS flexbox layout and positioning. Yoga is written in C++ that allows
+flexbox layout itself to be implemented in various platforms (like <a href="https://github.com/facebook/litho">Lithio on Android</a>,
+Node.js, .Net, etc).</li>
+  <li>You can take a look at the dependencies that Ink has in its <a href="https://github.com/vadimdemedes/ink/blob/master/package.json"><code class="language-plaintext highlighter-rouge">package.json</code></a>. It relies on
+packages like: <code class="language-plaintext highlighter-rouge">chalk</code>, <code class="language-plaintext highlighter-rouge">cli-boxes</code>, <code class="language-plaintext highlighter-rouge">cli-cursor</code>, <code class="language-plaintext highlighter-rouge">yoga-layout-prebuilt</code>, <code class="language-plaintext highlighter-rouge">react-reconciler</code>,
+<code class="language-plaintext highlighter-rouge">react-devtools-core</code>.</li>
+</ol><hr />
+      <h2 id="react-core-renderer-reconciler">
+        
+        
+          React core, renderer, reconciler <a href="#react-core-renderer-reconciler">#</a>
+        
+        
+      </h2>
+    
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end -->
+
+<p>The following is an overview of React to understand custom renderers like Ink.</p>
+
+<p>React core only includes APIs that are needed to define components. They don’t have any platform
+specific code or diffing algorithm. Things like <code class="language-plaintext highlighter-rouge">React.createElement()</code>, <code class="language-plaintext highlighter-rouge">React.createClass()</code>,
+<code class="language-plaintext highlighter-rouge">React.Component</code>, <code class="language-plaintext highlighter-rouge">React.Children</code>, and <code class="language-plaintext highlighter-rouge">React.PropTypes</code> are defined here.</p>
+
+<p>Renderers are needed to transform React component trees into DOM nodes in a browser
+(<a href="https://github.com/facebook/react/tree/main/packages/react-dom"><code class="language-plaintext highlighter-rouge">react-dom</code></a>), or native platform views (<a href="https://facebook.github.io/react-native/">React Native</a>).</p>
+
+<p>A React component tree is made up of <a href="https://blog.atulr.com/react-custom-renderer-1/"><code class="language-plaintext highlighter-rouge">host</code> and <code class="language-plaintext highlighter-rouge">composite</code></a> components.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">host</code> components are platform specific components that belong to the host environment, eg:
+browser / DOM, <a href="https://facebook.github.io/react-native/">React Native</a>, <a href="https://github.com/Flipboard/react-canvas">React Canvas</a>, <a href="https://github.com/diegomura/react-pdf">React PDF</a>, <a href="https://github.com/nitin42/redocx">React Docx</a>,
+<a href="https://github.com/iamdustan/react-hardware">React Hardware</a> etc.</li>
+</ol>
+
+<ul>
+  <li>For a browser / DOM host these could be things like <code class="language-plaintext highlighter-rouge">div</code> or <code class="language-plaintext highlighter-rouge">img</code> (aka regular DOM nodes). They
+typically begin with lower-case in the case of <a href="https://github.com/facebook/react/tree/main/packages/react-dom"><code class="language-plaintext highlighter-rouge">react-dom</code></a>.</li>
+  <li>For a React Native app on Android these could be things like <code class="language-plaintext highlighter-rouge">Text</code> or <code class="language-plaintext highlighter-rouge">View</code> that map to the
+Android View hierarchy.</li>
+</ul>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">composite</code> components are user-defined components that you write in React. These are things that
+you write using React like <code class="language-plaintext highlighter-rouge">&lt;MyButton&gt;</code>, <code class="language-plaintext highlighter-rouge">&lt;MyContent&gt;</code>, etc.</li>
+</ol>
+
+<p>The reconciler is a diffing algorithm that helps React figure out what host components to update on
+a state change. The <a href="https://giamir.com/what-is-react-fiber">Fiber reconciler</a> is the default since React v16. Fiber reconciler can
+perform the reconciliation of the tree by splitting work into minor chunks and hence can prioritize,
+pause and resume work thus freeing up the main thread to perform work efficiently.</p>
+
+<p>Ink provides its own custom renderer and host components that you can use.</p>
+
+<blockquote>
+      <h3 id="-resources-to-help-you-create-your-own-renderer">
+        
+        
+          💡 Resources to help you create your own renderer <a href="#-resources-to-help-you-create-your-own-renderer">#</a>
+        
+        
+      </h3>
+    
+
+  <table>
+    <thead>
+      <tr>
+        <th>Resource</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://youtu.be/CGpMlWVcHok">Video</a></td>
+        <td>Build your own renderer &amp; learn how React works under the hood</td>
+      </tr>
+      <tr>
+        <td><a href="https://blog.atulr.com/react-custom-renderer-1/">Tutorial</a></td>
+        <td>Build your own renderer &amp; learn how React works under the hood</td>
+      </tr>
+      <tr>
+        <td><a href="https://youtu.be/ZCuYPiUIONs">Video</a></td>
+        <td>Understand React Fiber Reconciler</td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote><hr />
+      <h2 id="create-ink-project-with-typescript">
+        
+        
+          Create Ink project with TypeScript <a href="#create-ink-project-with-typescript">#</a>
+        
+        
+      </h2>
+    
+
+<p>Ink provides the equivalent of <a href="https://create-react-app.dev/docs/getting-started/"><code class="language-plaintext highlighter-rouge">create-react-app</code></a> for its projects called
+<a href="https://www.npmjs.com/package/create-ink-app"><code class="language-plaintext highlighter-rouge">create-ink-app</code></a>. You can run it via <a href="https://docs.npmjs.com/cli/v7/commands/npx"><code class="language-plaintext highlighter-rouge">npx</code></a> to generate a TypeScript “scaffold” project
+using the following commands.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">mkdir </span>ink-cli-app
+<span class="nv">$ </span><span class="nb">cd </span>ink-cli-app
+<span class="nv">$ </span>npx create-ink-app <span class="nt">--typescript</span>
+</code></pre></div></div>
+
+<p>This will create quite a few files and folders that form the scaffolding. You can also add a
+<code class="language-plaintext highlighter-rouge">.gitignore</code> file that contains the following.</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>node_modules
+package-lock.json
+dist
+</code></pre></div></div>
+
+<p>A lot of important things happen when the scaffolding is created by running <code class="language-plaintext highlighter-rouge">create-ink-app</code>. Here
+are some of highlights of the files that are generated and the npm global configuration that is
+changed.</p>
+
+<blockquote>
+  <p>⚠ If you don’t know what symlinks are, please read <a href="https://linuxize.com/post/how-to-create-symbolic-links-in-linux-using-the-ln-command/">this</a> before continuing.</p>
+</blockquote>
+      <h3 id="1--packagejson">
+        
+        
+          1. 📄 package.json <a href="#1--packagejson">#</a>
+        
+        
+      </h3>
+    
+
+<p>This file names the module, pulls in all the dependencies for the Ink app, and sets up the module to
+be executable.</p>
+
+<p><code class="language-plaintext highlighter-rouge">name</code>:</p>
+
+<ul>
+  <li>The name of the folder in which you run <code class="language-plaintext highlighter-rouge">npx create-ink-app</code> is used for the value of this
+property. In this case it is <code class="language-plaintext highlighter-rouge">ink-cli-app</code>.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">devDependencies</code>:</p>
+
+<ul>
+  <li>Notably it pulls in <code class="language-plaintext highlighter-rouge">xo</code> for linting, and <a href="https://blog.logrocket.com/code-testing-and-linting-using-ava-and-xo/"><code class="language-plaintext highlighter-rouge">ava</code></a> for testing.</li>
+  <li>And TypeScript as expected.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">dependencies</code>:</p>
+
+<ul>
+  <li>Notably it pulls in <a href="https://www.npmjs.com/package/meow"><code class="language-plaintext highlighter-rouge">meow</code></a> which does command line argument parsing gets added.</li>
+  <li>And <code class="language-plaintext highlighter-rouge">react</code> and <code class="language-plaintext highlighter-rouge">ink</code> as expected.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">bin</code>:</p>
+
+<ul>
+  <li>
+    <p>This module is executable since the <code class="language-plaintext highlighter-rouge">bin</code> property value is <code class="language-plaintext highlighter-rouge">dist/cli.js</code>. You can run this module
+by executing this command in a terminal (in the folder where <code class="language-plaintext highlighter-rouge">package.json</code> resides).</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">exec</span> <span class="nt">-c</span> <span class="s1">'ink-cli-app --name=Grogu'</span>
+</code></pre></div>    </div>
+
+    <p>In the command above, <code class="language-plaintext highlighter-rouge">ink-cli-app</code> refers to the value of the <code class="language-plaintext highlighter-rouge">name</code> property. Please refer to
+the <a href="#nodejs-executable-modules-npm-link-and-npm-bin">npm link and bin</a> section for more
+information on executable modules.</p>
+
+    <blockquote>
+      <p>⚠ If you define your <code class="language-plaintext highlighter-rouge">bin</code> property value (in <code class="language-plaintext highlighter-rouge">package.json</code>) to be a JS file, eg: <code class="language-plaintext highlighter-rouge">dist/cli.js</code>
+then it is imperative that this file be marked executable on Linux or MacOS. Also this JS file
+needs to have a header that tells the OS that it can be run, eg: <code class="language-plaintext highlighter-rouge">#!/usr/bin/env node</code>.</p>
+    </blockquote>
+  </li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">scripts</code>:</p>
+
+<ul>
+  <li>
+    <p>You can run the <code class="language-plaintext highlighter-rouge">start</code> script in order to run the module. This script builds the module and then
+runs the same file path that’s specified in <code class="language-plaintext highlighter-rouge">bin</code> property (<code class="language-plaintext highlighter-rouge">dist/cli.js</code>). Here’s how you can
+pass <a href="https://stackoverflow.com/a/14404223/2085356">command line arguments to this script</a>.</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>npm run start <span class="nt">--</span> <span class="nt">--name</span><span class="o">=</span>Grogu
+</code></pre></div>    </div>
+  </li>
+  <li>You can run the <code class="language-plaintext highlighter-rouge">test</code> script in order to run the tests included in this module using <code class="language-plaintext highlighter-rouge">xo</code> and
+<code class="language-plaintext highlighter-rouge">ava</code>.</li>
+  <li>You can run the <code class="language-plaintext highlighter-rouge">build</code> script in order to run <code class="language-plaintext highlighter-rouge">tsc</code> and compile the TypeScript files to JS and
+dump them in the <code class="language-plaintext highlighter-rouge">dist</code> folder (as specified in <code class="language-plaintext highlighter-rouge">tsconfig.json</code>).</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">files</code>:</p>
+
+<ul>
+  <li>This property acts as a whitelist (and we don’t have an <code class="language-plaintext highlighter-rouge">.npmignore</code> file, which acts as a
+blacklist) which tells npm which classes to included when publishing this module. The value is the
+same as <code class="language-plaintext highlighter-rouge">bin</code> property, which just means that any dependent classes should be included as required
+source for this module to operate.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">engines</code>:</p>
+
+<ul>
+  <li>This just says that any Node.js v10.x or later runtime is acceptable.</li>
+</ul>
+      <h3 id="2--npm-link">
+        
+        
+          2. 🤖 npm link <a href="#2--npm-link">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">create-ink-app</code> runs <a href="#nodejs-executable-modules-npm-link-and-npm-bin"><code class="language-plaintext highlighter-rouge">npm link</code></a> in the
+folder that has <code class="language-plaintext highlighter-rouge">package.json</code> file, which allows you to run <code class="language-plaintext highlighter-rouge">ink-cli-app</code> from your terminal (in
+any folder). This does two <strong>“things”</strong>.</p>
+
+<ol>
+  <li>
+    <p><strong>“Thing” #1 🧙 - List of globally installed modules updated</strong></p>
+
+    <p>If you run <a href="#npm-install--g"><code class="language-plaintext highlighter-rouge">npm list -g</code></a> you will find a new entry for your module has been
+added to the list of modules that are globally installed via npm on your machine.</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="nv">$ </span>npm list <span class="nt">-g</span> | lolcat
+</code></pre></div>    </div>
+
+    <p>On my machine it looks like this.</p>
+
+    <pre class="pre-manual-highlight"><span style="color:#0E87E9">/</span><span style="color:#0C8CE7">h</span><span style="color:#0A90E4">o</span><span style="color:#0994E2">m</span><span style="color:#0798DF">e</span><span style="color:#069CDC">/</span><span style="color:#05A0D9">l</span><span style="color:#04A4D6">i</span><span style="color:#03A8D3">n</span><span style="color:#02ACD0">u</span><span style="color:#02B0CD">x</span><span style="color:#01B4C9">b</span><span style="color:#01B8C6">r</span><span style="color:#01BCC2">e</span><span style="color:#01C0BE">w</span><span style="color:#01C3BB">/</span><span style="color:#01C7B7">.</span><span style="color:#01CAB3">l</span><span style="color:#02CEAF">i</span><span style="color:#02D1AB">n</span><span style="color:#03D4A7">u</span><span style="color:#04D7A3">x</span><span style="color:#05DA9F">b</span><span style="color:#06DD9B">r</span><span style="color:#08E097">e</span><span style="color:#09E393">w</span><span style="color:#0BE58F">/</span><span style="color:#0CE88A">l</span><span style="color:#0EEA86">i</span><span style="color:#10EC82">b</span>
+<span style="color:#0994E2">├</span><span style="color:#0798DF">─</span><span style="color:#069CDC">─</span><span style="color:#05A0D9"> </span><span style="color:#04A4D6">a</span><span style="color:#03A8D3">l</span><span style="color:#02ACD0">l</span><span style="color:#02B0CD">-</span><span style="color:#01B4C9">t</span><span style="color:#01B8C6">h</span><span style="color:#01BCC2">e</span><span style="color:#01C0BE">-</span><span style="color:#01C3BB">p</span><span style="color:#01C7B7">a</span><span style="color:#01CAB3">c</span><span style="color:#02CEAF">k</span><span style="color:#02D1AB">a</span><span style="color:#03D4A7">g</span><span style="color:#04D7A3">e</span><span style="color:#05DA9F">-</span><span style="color:#06DD9B">n</span><span style="color:#08E097">a</span><span style="color:#09E393">m</span><span style="color:#0BE58F">e</span><span style="color:#0CE88A">s</span><span style="color:#0EEA86">@</span><span style="color:#10EC82">1</span><span style="color:#12EE7E">.</span><span style="color:#15F079">3</span><span style="color:#17F275">9</span><span style="color:#19F471">0</span><span style="color:#1CF66D">5</span><span style="color:#1FF769">.</span><span style="color:#22F864">0</span>
+<span style="color:#05A0D9">├</span><span style="color:#04A4D6">─</span><span style="color:#03A8D3">─</span><span style="color:#02ACD0"> </span><span style="color:#02B0CD">d</span><span style="color:#01B4C9">o</span><span style="color:#01B8C6">c</span><span style="color:#01BCC2">t</span><span style="color:#01C0BE">o</span><span style="color:#01C3BB">c</span><span style="color:#01C7B7">@</span><span style="color:#01CAB3">2</span><span style="color:#02CEAF">.</span><span style="color:#02D1AB">0</span><span style="color:#03D4A7">.</span><span style="color:#04D7A3">1</span>
+<span style="color:#02ACD0">├</span><span style="color:#02B0CD">─</span><span style="color:#01B4C9">─</span><span style="color:#01B8C6"> </span><span style="color:#01BCC2">i</span><span style="color:#01C0BE">n</span><span style="color:#01C3BB">k</span><span style="color:#01C7B7">-</span><span style="color:#01CAB3">c</span><span style="color:#02CEAF">l</span><span style="color:#02D1AB">i</span><span style="color:#03D4A7">-</span><span style="color:#04D7A3">a</span><span style="color:#05DA9F">p</span><span style="color:#06DD9B">p</span><span style="color:#08E097">@</span><span style="color:#09E393">0</span><span style="color:#0BE58F">.</span><span style="color:#0CE88A">0</span><span style="color:#0EEA86">.</span><span style="color:#10EC82">0</span><span style="color:#12EE7E"> </span><span style="color:#15F079">-</span><span style="color:#17F275">&gt;</span><span style="color:#19F471"> </span><span style="color:#1CF66D">.</span><span style="color:#1FF769">/</span><span style="color:#22F864">.</span><span style="color:#24FA60">.</span><span style="color:#27FB5C">/</span><span style="color:#2BFC58">.</span><span style="color:#2EFD54">.</span><span style="color:#31FD50">/</span><span style="color:#34FE4C">.</span><span style="color:#38FE49">.</span><span style="color:#3BFE45">/</span><span style="color:#3FFE41">n</span><span style="color:#43FE3D">a</span><span style="color:#46FE3A">z</span><span style="color:#4AFE36">m</span><span style="color:#4EFE33">u</span><span style="color:#52FD30">l</span><span style="color:#56FC2C">/</span><span style="color:#5AFB29">g</span><span style="color:#5EFA26">i</span><span style="color:#62F923">t</span><span style="color:#66F820">h</span><span style="color:#6BF61E">u</span><span style="color:#6FF51B">b</span><span style="color:#73F318">/</span><span style="color:#77F116">t</span><span style="color:#7BF014">s</span><span style="color:#80ED11">-</span><span style="color:#84EB0F">s</span><span style="color:#88E90D">c</span><span style="color:#8CE70C">r</span><span style="color:#90E40A">a</span><span style="color:#95E108">t</span><span style="color:#99DF07">c</span><span style="color:#9DDC06">h</span><span style="color:#A1D905">/</span><span style="color:#A5D604">i</span><span style="color:#A9D303">n</span><span style="color:#ADCF02">k</span><span style="color:#B1CC01">-</span><span style="color:#B5C901">c</span><span style="color:#B9C501">l</span><span style="color:#BCC201">i</span><span style="color:#C0BE01">-</span><span style="color:#C4BA01">a</span><span style="color:#C7B601">p</span><span style="color:#CBB301">p</span>
+<span style="color:#01B8C6">├</span><span style="color:#01BCC2">─</span><span style="color:#01C0BE">─</span><span style="color:#01C3BB"> </span><span style="color:#01C7B7">n</span><span style="color:#01CAB3">p</span><span style="color:#02CEAF">m</span><span style="color:#02D1AB">@</span><span style="color:#03D4A7">8</span><span style="color:#04D7A3">.</span><span style="color:#05DA9F">1</span><span style="color:#06DD9B">.</span><span style="color:#08E097">0</span>
+<span style="color:#01C3BB">├</span><span style="color:#01C7B7">─</span><span style="color:#01CAB3">─</span><span style="color:#02CEAF"> </span><span style="color:#02D1AB">p</span><span style="color:#03D4A7">r</span><span style="color:#04D7A3">e</span><span style="color:#05DA9F">t</span><span style="color:#06DD9B">t</span><span style="color:#08E097">i</span><span style="color:#09E393">e</span><span style="color:#0BE58F">r</span><span style="color:#0CE88A">@</span><span style="color:#0EEA86">2</span><span style="color:#10EC82">.</span><span style="color:#12EE7E">4</span><span style="color:#15F079">.</span><span style="color:#17F275">1</span>
+<span style="color:#02CEAF">├</span><span style="color:#02D1AB">─</span><span style="color:#03D4A7">─</span><span style="color:#04D7A3"> </span><span style="color:#05DA9F">t</span><span style="color:#06DD9B">s</span><span style="color:#08E097">-</span><span style="color:#09E393">n</span><span style="color:#0BE58F">o</span><span style="color:#0CE88A">d</span><span style="color:#0EEA86">e</span><span style="color:#10EC82">-</span><span style="color:#12EE7E">d</span><span style="color:#15F079">e</span><span style="color:#17F275">v</span><span style="color:#19F471">@</span><span style="color:#1CF66D">1</span><span style="color:#1FF769">.</span><span style="color:#22F864">1</span><span style="color:#24FA60">.</span><span style="color:#27FB5C">8</span>
+<span style="color:#04D7A3">├</span><span style="color:#05DA9F">─</span><span style="color:#06DD9B">─</span><span style="color:#08E097"> </span><span style="color:#09E393">t</span><span style="color:#0BE58F">s</span><span style="color:#0CE88A">-</span><span style="color:#0EEA86">n</span><span style="color:#10EC82">o</span><span style="color:#12EE7E">d</span><span style="color:#15F079">e</span><span style="color:#17F275">@</span><span style="color:#19F471">1</span><span style="color:#1CF66D">0</span><span style="color:#1FF769">.</span><span style="color:#22F864">2</span><span style="color:#24FA60">.</span><span style="color:#27FB5C">1</span>
+<span style="color:#08E097">└</span><span style="color:#09E393">─</span><span style="color:#0BE58F">─</span><span style="color:#0CE88A"> </span><span style="color:#0EEA86">t</span><span style="color:#10EC82">y</span><span style="color:#12EE7E">p</span><span style="color:#15F079">e</span><span style="color:#17F275">s</span><span style="color:#19F471">c</span><span style="color:#1CF66D">r</span><span style="color:#1FF769">i</span><span style="color:#22F864">p</span><span style="color:#24FA60">t</span><span style="color:#27FB5C">@</span><span style="color:#2BFC58">4</span><span style="color:#2EFD54">.</span><span style="color:#31FD50">4</span><span style="color:#34FE4C">.</span><span style="color:#38FE49">3</span>
+</pre>
+
+    <p>As you can see an entry has been created for <code class="language-plaintext highlighter-rouge">ink-cli-app</code> and added to the list of all the
+globally installed npm modules.</p>
+
+    <blockquote>
+      <p>Here are some notes on this.</p>
+
+      <ol>
+        <li>
+          <p>To remove this entry run <code class="language-plaintext highlighter-rouge">npm uninstall -g ink-cli-app</code> (which we aren’t going to do).</p>
+        </li>
+        <li>
+          <p>Each entry in this list has a corresponding folder in the global <code class="language-plaintext highlighter-rouge">node_modules</code> folder which
+we get into next.</p>
+        </li>
+      </ol>
+    </blockquote>
+  </li>
+  <li>
+    <p><strong>“Thing” #2 🧙 - Two symlinks created for your module</strong></p>
+
+    <p>The first symlink has been created <em>in</em> the global <code class="language-plaintext highlighter-rouge">node_modules</code> folder <em>pointing to</em> the folder
+in which our module resides.</p>
+
+    <p>We can find where this global <code class="language-plaintext highlighter-rouge">node_modules</code> folder is located by running
+<a href="#npm-install--g"><code class="language-plaintext highlighter-rouge">npm root -g</code></a>.</p>
+
+    <p>This is what it looks like on my machine.</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>npm root <span class="nt">-g</span>
+/home/linuxbrew/.linuxbrew/lib/node_modules
+</code></pre></div>    </div>
+
+    <p>I run the following command to see what the contents of this folder are.</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>lsd <span class="nt">-1</span> <span class="o">(</span>npm root <span class="nt">-g</span><span class="o">)</span> | lolcat
+</code></pre></div>    </div>
+
+    <p>The <code class="language-plaintext highlighter-rouge">ink-cli-app</code> symlink is pointing to the actual folder
+(<code class="language-plaintext highlighter-rouge">/home/nazmul/github/ts-scratch/ink-cli-app</code>) where the node module resides.</p>
+
+    <pre class="pre-manual-highlight"><span style="color:#9FDA05">a</span><span style="color:#A3D704">l</span><span style="color:#A7D403">l</span><span style="color:#ABD102">-</span><span style="color:#AFCE02">t</span><span style="color:#B3CA01">h</span><span style="color:#B7C701">e</span><span style="color:#BBC301">-</span><span style="color:#BEC001">p</span><span style="color:#C2BC01">a</span><span style="color:#C5B801">c</span><span style="color:#C9B401">k</span><span style="color:#CCB102">a</span><span style="color:#D0AD02">g</span><span style="color:#D3A903">e</span><span style="color:#D6A504">-</span><span style="color:#D9A105">n</span><span style="color:#DC9C06">a</span><span style="color:#DF9807">m</span><span style="color:#E29409">e</span><span style="color:#E4900A">s</span>
+<span style="color:#ABD102">d</span><span style="color:#AFCE02">o</span><span style="color:#B3CA01">c</span><span style="color:#B7C701">t</span><span style="color:#BBC301">o</span><span style="color:#BEC001">c</span>
+<span style="color:#B7C701">i</span><span style="color:#BBC301">n</span><span style="color:#BEC001">k</span><span style="color:#C2BC01">-</span><span style="color:#C5B801">c</span><span style="color:#C9B401">l</span><span style="color:#CCB102">i</span><span style="color:#D0AD02">-</span><span style="color:#D3A903">a</span><span style="color:#D6A504">p</span><span style="color:#D9A105">p</span><span style="color:#DC9C06"> </span><span style="color:#DF9807">⇒</span><span style="color:#E29409"> </span><span style="color:#E4900A">.</span><span style="color:#E78C0C">.</span><span style="color:#E9880E">/</span><span style="color:#EC8310">.</span><span style="color:#EE7F12">.</span><span style="color:#F07B14">/</span><span style="color:#F27716">.</span><span style="color:#F37219">.</span><span style="color:#F56E1B">/</span><span style="color:#F76A1E">.</span><span style="color:#F86621">.</span><span style="color:#F96223">/</span><span style="color:#FA5E26">n</span><span style="color:#FB5A29">a</span><span style="color:#FC562D">z</span><span style="color:#FD5230">m</span><span style="color:#FE4E33">u</span><span style="color:#FE4A37">l</span><span style="color:#FE463A">/</span><span style="color:#FE423E">g</span><span style="color:#FE3F41">i</span><span style="color:#FE3B45">t</span><span style="color:#FE3749">h</span><span style="color:#FE344D">u</span><span style="color:#FD3151">b</span><span style="color:#FC2D55">/</span><span style="color:#FC2A59">t</span><span style="color:#FB275D">s</span><span style="color:#FA2461">-</span><span style="color:#F82165">s</span><span style="color:#F71E69">c</span><span style="color:#F51C6D">r</span><span style="color:#F41971">a</span><span style="color:#F21776">t</span><span style="color:#F0147A">c</span><span style="color:#EE127E">h</span><span style="color:#EC1082">/</span><span style="color:#EA0E87">i</span><span style="color:#E70C8B">n</span><span style="color:#E50B8F">k</span><span style="color:#E20993">-</span><span style="color:#E00897">c</span><span style="color:#DD069C">l</span><span style="color:#DA05A0">i</span><span style="color:#D704A4">-</span><span style="color:#D403A8">a</span><span style="color:#D002AC">p</span><span style="color:#CD02B0">p</span>
+<span style="color:#C2BC01">n</span><span style="color:#C5B801">p</span><span style="color:#C9B401">m</span>
+<span style="color:#CCB102">p</span><span style="color:#D0AD02">r</span><span style="color:#D3A903">e</span><span style="color:#D6A504">t</span><span style="color:#D9A105">t</span><span style="color:#DC9C06">i</span><span style="color:#DF9807">e</span><span style="color:#E29409">r</span>
+<span style="color:#D6A504">t</span><span style="color:#D9A105">s</span><span style="color:#DC9C06">-</span><span style="color:#DF9807">n</span><span style="color:#E29409">o</span><span style="color:#E4900A">d</span><span style="color:#E78C0C">e</span>
+<span style="color:#DF9807">t</span><span style="color:#E29409">s</span><span style="color:#E4900A">-</span><span style="color:#E78C0C">n</span><span style="color:#E9880E">o</span><span style="color:#EC8310">d</span><span style="color:#EE7F12">e</span><span style="color:#F07B14">-</span><span style="color:#F27716">d</span><span style="color:#F37219">e</span><span style="color:#F56E1B">v</span>
+<span style="color:#E78C0C">t</span><span style="color:#E9880E">y</span><span style="color:#EC8310">p</span><span style="color:#EE7F12">e</span><span style="color:#F07B14">s</span><span style="color:#F27716">c</span><span style="color:#F37219">r</span><span style="color:#F56E1B">i</span><span style="color:#F76A1E">p</span><span style="color:#F86621">t</span></pre>
+
+    <p>One more symlink is created and this one has everything to do with being able to run
+<code class="language-plaintext highlighter-rouge">ink-cli-app</code> from any folder in a terminal (or a GUI app).</p>
+
+    <p><strong>How does Node.js know to execute <code class="language-plaintext highlighter-rouge">ink-cli-app</code> when run from a terminal or GUI app?</strong> 🤔 After
+all this global <code class="language-plaintext highlighter-rouge">node_modules</code> folder is not in my <code class="language-plaintext highlighter-rouge">$PATH</code>.</p>
+
+    <blockquote>
+      <p>The answer is a little tricky and before we begin our journey to answering this question,
+here’s what some Node.js and npm related folders look like on my machine.</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Path</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Node.js location in <code class="language-plaintext highlighter-rouge">$PATH</code></td>
+            <td><code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/bin/</code></td>
+          </tr>
+          <tr>
+            <td>Symlinks created by <code class="language-plaintext highlighter-rouge">npm link</code></td>
+            <td><code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/bin/</code></td>
+          </tr>
+          <tr>
+            <td>Global <code class="language-plaintext highlighter-rouge">node_modules</code></td>
+            <td><code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/lib/node_modules/</code></td>
+          </tr>
+          <tr>
+            <td>Actual <code class="language-plaintext highlighter-rouge">ink-cli-app</code> folder</td>
+            <td><code class="language-plaintext highlighter-rouge">/home/nazmul/github/ts-scratch/ink-cli-app/</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </blockquote>
+
+    <p>Here are two things that happen to allow <code class="language-plaintext highlighter-rouge">ink-cli-app</code> to be run from anywhere.</p>
+
+    <ol>
+      <li>
+        <p>When we install Node.js (via brew or nvm or apt or whatever) we have to add the folder
+containing the <code class="language-plaintext highlighter-rouge">node</code> and <code class="language-plaintext highlighter-rouge">npm</code> binary into the <code class="language-plaintext highlighter-rouge">$PATH</code> environment variable.</p>
+
+        <ul>
+          <li>
+            <p>For me this is <code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/bin/</code> since I’m using brew.</p>
+          </li>
+          <li>
+            <p>Since I’m using GNOME, I added this folder to my <code class="language-plaintext highlighter-rouge">$PATH</code> in my <code class="language-plaintext highlighter-rouge">$HOME/.profile</code> file, making
+it available to terminal and GUI apps after I log into my desktop GNOME session.</p>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">npm link</code> cleverly creates a symlink <em>in this folder</em> (which is accessible by <code class="language-plaintext highlighter-rouge">$PATH</code>) that
+<em>points to</em> the file specified by the <code class="language-plaintext highlighter-rouge">bin</code> property of the <code class="language-plaintext highlighter-rouge">package.json</code> for the
+<code class="language-plaintext highlighter-rouge">ink-cli-app</code> node module. Thus allowing us to be able to run this CLI app from any folder in
+a terminal, or any GUI app! 🎉</p>
+      </li>
+    </ol>
+
+    <p>When I look in my <code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/bin</code>, I find this <code class="language-plaintext highlighter-rouge">ink-cli-app</code> symlink.</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cd</span> /home/linuxbrew/.linuxbrew/bin
+<span class="nv">$ </span>lsd <span class="nt">-1</span> | <span class="nb">grep </span>ink | lolcat
+</code></pre></div>    </div>
+
+    <p>Which produces this output.</p>
+
+    <pre class="pre-manual-highlight"><span style="color:#0994E2">i</span><span style="color:#0798DF">n</span><span style="color:#069CDC">k</span><span style="color:#05A0D9">-</span><span style="color:#04A4D6">c</span><span style="color:#03A8D3">l</span><span style="color:#02ACD0">i</span><span style="color:#02B0CD">-</span><span style="color:#01B4C9">a</span><span style="color:#01B8C6">p</span><span style="color:#01BCC2">p</span><span style="color:#01C0BE"> </span><span style="color:#01C3BB">⇒</span><span style="color:#01C7B7"> </span><span style="color:#01CAB3">.</span><span style="color:#02CEAF">.</span><span style="color:#02D1AB">/</span><span style="color:#03D4A7">l</span><span style="color:#04D7A3">i</span><span style="color:#05DA9F">b</span><span style="color:#06DD9B">/</span><span style="color:#08E097">n</span><span style="color:#09E393">o</span><span style="color:#0BE58F">d</span><span style="color:#0CE88A">e</span><span style="color:#0EEA86">_</span><span style="color:#10EC82">m</span><span style="color:#12EE7E">o</span><span style="color:#15F079">d</span><span style="color:#17F275">u</span><span style="color:#19F471">l</span><span style="color:#1CF66D">e</span><span style="color:#1FF769">s</span><span style="color:#22F864">/</span><span style="color:#24FA60">i</span><span style="color:#27FB5C">n</span><span style="color:#2BFC58">k</span><span style="color:#2EFD54">-</span><span style="color:#31FD50">c</span><span style="color:#34FE4C">l</span><span style="color:#38FE49">i</span><span style="color:#3BFE45">-</span><span style="color:#3FFE41">a</span><span style="color:#43FE3D">p</span><span style="color:#46FE3A">p</span><span style="color:#4AFE36">/</span><span style="color:#4EFE33">d</span><span style="color:#52FD30">i</span><span style="color:#56FC2C">s</span><span style="color:#5AFB29">t</span><span style="color:#5EFA26">/</span><span style="color:#62F923">c</span><span style="color:#66F820">l</span><span style="color:#6BF61E">i</span><span style="color:#6FF51B">.</span><span style="color:#73F318">j</span><span style="color:#77F116">s</span></pre>
+
+    <p>This is how we read this: the <code class="language-plaintext highlighter-rouge">🔗 ink-cli-app</code> symlink in this folder (<code class="language-plaintext highlighter-rouge">📂 .linuxbrew/bin</code>) is 👉
+<em>pointing to</em> the symlink <code class="language-plaintext highlighter-rouge">🔗 ink-cli-app</code> in the global <code class="language-plaintext highlighter-rouge">📂 node_modules</code> folder, which itself
+is 👉 <em>pointing to</em> the actual module folder (<code class="language-plaintext highlighter-rouge">📂 github/ts-scratch/ink-cli-app</code>) which contains
+a <code class="language-plaintext highlighter-rouge">📄 dist/cli.js</code> file (which is specified in the <code class="language-plaintext highlighter-rouge">bin</code> property in <code class="language-plaintext highlighter-rouge">package.json</code>).</p>
+
+    <p>Whew! 😅</p>
+
+    <blockquote>
+      <p>💡 For more details on how <code class="language-plaintext highlighter-rouge">npm link</code> works along w/ executable modules in npm, please read
+<a href="#nodejs-executable-modules-npm-link-and-npm-bin"><code class="language-plaintext highlighter-rouge">this section</code></a>.</p>
+    </blockquote>
+  </li>
+</ol>
+      <h3 id="3--distclijs">
+        
+        
+          3. 📄 dist/cli.js <a href="#3--distclijs">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <a href="https://github.com/nazmulidris/ts-scratch/blob/main/ink-cli-app/source/cli.tsx"><code class="language-plaintext highlighter-rouge">📄 dist/cli.js</code></a> file is marked as executable. This is a really important step because
+this file is actually used in the <code class="language-plaintext highlighter-rouge">bin</code> entry in <code class="language-plaintext highlighter-rouge">package.json</code> and tells Node.js that this is a
+binary executable file that will launch this module when run from the command line. Also this JS
+file needs to have a header that tells the OS that it can be run, eg: <code class="language-plaintext highlighter-rouge">#!/usr/bin/env node</code>.</p>
+
+<blockquote>
+  <p>⚠ Note that the <code class="language-plaintext highlighter-rouge">dist/cli.js</code> file is compiled from the TypeScript file <code class="language-plaintext highlighter-rouge">source/cli.tsx</code>. The
+<code class="language-plaintext highlighter-rouge">build</code> script generates this file and its not checked into git.</p>
+</blockquote>
+      <h3 id="4--tsconfigjson">
+        
+        
+          4. 📄 tsconfig.json <a href="#4--tsconfigjson">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">📄 tsconfig.json</code> tells <code class="language-plaintext highlighter-rouge">tsc</code> to dump the compiled JS files to the <code class="language-plaintext highlighter-rouge">dist/</code> folder.</p>
+
+<ul>
+  <li>This is why we ignore <code class="language-plaintext highlighter-rouge">dist/</code> in our <code class="language-plaintext highlighter-rouge">.gitignore</code> file above.</li>
+  <li>You can run <code class="language-plaintext highlighter-rouge">tsc</code> directly or run <code class="language-plaintext highlighter-rouge">npm run build</code> to generate the JS files.</li>
+</ul>
+      <h3 id="5--source">
+        
+        
+          5. 📂 source/ <a href="#5--source">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">📂 source/</code> folder has three files, the main one being <code class="language-plaintext highlighter-rouge">cli.tsx</code>.</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">📄 cli.tsx</code> - This is the main entry point that launches our app from the command line using
+Node.js. If you run <code class="language-plaintext highlighter-rouge">npm run start</code> then this file is executed (after the <code class="language-plaintext highlighter-rouge">build</code> script runs).</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">📄 ui.tsx</code> - This is where you write your React code. <code class="language-plaintext highlighter-rouge">App</code> is defined here.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">📄 test.tsx</code> - This is what gets run when <code class="language-plaintext highlighter-rouge">npm run test</code> is executed (which runs <a href="https://blog.logrocket.com/code-testing-and-linting-using-ava-and-xo/"><code class="language-plaintext highlighter-rouge">xo</code> and
+<code class="language-plaintext highlighter-rouge">ava</code></a>).</p>
+  </li>
+</ul>
+      <h3 id="6--readmemd">
+        
+        
+          6. 📄 readme.md <a href="#6--readmemd">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">📄 readme.md</code> file is auto generated and has some information on how to launch your newly
+minted CLI app. It basically says that you run the following commands.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ink-cli-app <span class="nt">--help</span>
+ink-cli-app <span class="nt">--name</span><span class="o">=</span>Grogu
+</code></pre></div></div>
+
+<p>The following UML diagram that pulls all this together, and illustrates everything we have covered
+in the following sections: <a href="#what-is-ink">What is Ink</a>,
+<a href="#react-core-renderer-reconciler">React core, renderer, reconciler</a>, and
+<a href="#create-ink-project-with-typescript">Install Ink and create a project scaffold in TypeScript</a>.</p>
+
+<p><img src="/assets/cli.tsx.uml.svg" /></p>
+
+<ol>
+  <li>You can see the dependencies that <code class="language-plaintext highlighter-rouge">source/cli.tsx</code> (which is compiled into <code class="language-plaintext highlighter-rouge">cli.js</code>) pulls in.
+This is the main entry point of the module (the <code class="language-plaintext highlighter-rouge">bin</code> property in <code class="language-plaintext highlighter-rouge">package.json</code>).</li>
+  <li>The <code class="language-plaintext highlighter-rouge">render</code> function from <code class="language-plaintext highlighter-rouge">ink</code> is used, since we are using Ink to render the JSX and not
+<code class="language-plaintext highlighter-rouge">react-dom</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">meow</code> is used to parse the command line arguments.</li>
+</ol>
+      <h3 id="7--editorconfig">
+        
+        
+          7. 📄 .editorconfig <a href="#7--editorconfig">#</a>
+        
+        
+      </h3>
+    
+
+<p>This file sets the default indentation character to tab, and width to 4. I replace it w/ spaces
+and 2. Then I had to reformat the code in each of the files in <code class="language-plaintext highlighter-rouge">source</code>.</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+</code></pre></div></div>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end --><hr />
+      <h2 id="resolving-permissions-problems-on-linux">
+        
+        
+          Resolving permissions problems on Linux <a href="#resolving-permissions-problems-on-linux">#</a>
+        
+        
+      </h2>
+    
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end -->
+
+<p>When using <code class="language-plaintext highlighter-rouge">create-ink-app</code> on Pop_OS! 21.04 I experienced some very strange issues when trying to
+run the CLI app using <code class="language-plaintext highlighter-rouge">npm run start</code>, or even <code class="language-plaintext highlighter-rouge">ink-cli-app</code>. I got a
+<code class="language-plaintext highlighter-rouge">sh: 1: node: Permission denied</code> error when running either of these commands 🤔.</p>
+
+<p>This led to some wild goose chasing which resulted in a deeper understanding of executable Node.js
+modules, npm config, execution permissions, and such. So the
+<a href="#nodejs-executable-modules-npm-link-and-npm-bin">next section</a> is dedicated to background knowledge
+of all these things and might be useful for deeper understanding or debugging when you run into
+issues.</p>
+
+<p>Ultimately I solved it by re-running the <code class="language-plaintext highlighter-rouge">npx create-ink-app</code> command, which did the following
+things.</p>
+
+<ul>
+  <li>It regenerated the <code class="language-plaintext highlighter-rouge">dist</code>.</li>
+  <li>It marked the <code class="language-plaintext highlighter-rouge">cli.js</code> as executable (<strong>the original problem was that this wasn’t marked as
+executable</strong>).</li>
+  <li>Then it linked the module to npm via <code class="language-plaintext highlighter-rouge">npm link</code>, so that the <code class="language-plaintext highlighter-rouge">ink-cli-app</code> command would run on my
+terminal.</li>
+</ul><hr />
+      <h2 id="nodejs-executable-modules-npm-link-and-npm-bin">
+        
+        
+          Node.js executable modules, npm link, and npm bin <a href="#nodejs-executable-modules-npm-link-and-npm-bin">#</a>
+        
+        
+      </h2>
+    
+
+<p>This section goes into the details of how npm global modules work, what npm <code class="language-plaintext highlighter-rouge">bin</code> entry means in
+<code class="language-plaintext highlighter-rouge">package.json</code>, and what executable node modules actually are (you’re actually making one in this
+handbook).</p>
+
+<blockquote>
+  <p>💡 To learn more about installing and configuring Node.js itself, check out this section in the
+<a href="https://developerlife.com/2021/07/02/nodejs-typescript-handbook/#nodejs-installation-on-linux-using-brew">Node.js handbook</a>. This will walk you thru where Node.js stores its files and modules, etc.</p>
+</blockquote>
+
+<p>Let’s consider the high level uses cases that you’ve already used npm for.</p>
+
+<ol>
+  <li>Install dependencies (eg: <code class="language-plaintext highlighter-rouge">npm i react</code>).</li>
+  <li>Install applications and run them (eg <code class="language-plaintext highlighter-rouge">npm i -g prettier; prettier --help</code>) or just run them
+w/out installing first (eg: <code class="language-plaintext highlighter-rouge">npx create-react-app</code>).</li>
+</ol>
+
+<p>npm is powerful (and can be confusing) because it serves 2 roles:</p>
+
+<ol>
+  <li>Allowing you to manage (create, publish, export, and import) dependencies (modules) for code
+that you write (eg: <code class="language-plaintext highlighter-rouge">npm i react</code>). To learn more about publishing npm packages, check out this
+section in the <a href="https://developerlife.com/2021/07/02/nodejs-typescript-handbook/#publishing-npm-packages">Node.js handbook</a>.</li>
+  <li>Allowing you to create and use command line apps that are run from your terminal (eg:
+<code class="language-plaintext highlighter-rouge">npx create-react-app</code> or <code class="language-plaintext highlighter-rouge">prettier --write *md</code>). <strong>👈 We will focus on this use case and how
+it works</strong>.</li>
+</ol>
+      <h3 id="what-is-an-executable-module">
+        
+        
+          What is an executable module? <a href="#what-is-an-executable-module">#</a>
+        
+        
+      </h3>
+    
+
+<p>To make command line apps and distribute them via npm, so that our users can install them and run
+them via npm, we have to create not just any node module, but an executable one.</p>
+
+<blockquote>
+  <p>⚠ We are going to use the sample app we are working on started
+<a href="#create-ink-project-with-typescript">here</a> called <code class="language-plaintext highlighter-rouge">ink-cli-app</code>. Before reading further:</p>
+
+  <ol>
+    <li>Please read this <a href="#create-ink-project-with-typescript">section</a> to understand what
+<code class="language-plaintext highlighter-rouge">package.json</code> file does and what <code class="language-plaintext highlighter-rouge">npm link</code> does.</li>
+    <li>In order to understand how Node.js executes programs, please read this section in the <a href="https://developerlife.com/2021/07/02/nodejs-typescript-handbook/#child-process">Node.js
+handbook</a>.</li>
+  </ol>
+</blockquote>
+
+<p>So how does a module become executable?</p>
+
+<p>In <code class="language-plaintext highlighter-rouge">package.json</code> you can define a <a href="https://docs.npmjs.com/cli/v7/configuring-npm/package-json#bin"><code class="language-plaintext highlighter-rouge">bin</code> property</a>. When someone tries to “run” your node
+module from the terminal or GUI app, Node.js will attempt to execute the the file path in <code class="language-plaintext highlighter-rouge">bin</code>
+property. Here more details on this.</p>
+
+<ul>
+  <li>You can simply define a <code class="language-plaintext highlighter-rouge">string</code> value for <code class="language-plaintext highlighter-rouge">bin</code>, which is a file path where the executable of
+your node module resides (eg: <code class="language-plaintext highlighter-rouge">dist/cli.js</code>).</li>
+  <li>This file can be a JS file or some other kind of binary executable file. Think of marking a file
+executable in your terminal and then running it, whether it’s a JS file, .fish file, etc.
+    <ul>
+      <li>This file will also need to be marked as executable.</li>
+      <li>It must have a <a href="https://en.wikipedia.org/wiki/Shebang_(Unix)"><code class="language-plaintext highlighter-rouge">shebang</code></a> header like
+<code class="language-plaintext highlighter-rouge">#!/usr/bin/env node</code>, so that your OS knows how to execute this file.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Next, we are going to look at how to run this executable module! Here is a brief overview of what we
+will see next.</p>
+
+<ol>
+  <li>How <code class="language-plaintext highlighter-rouge">npm link</code> works to allow this module to be executed from anywhere on our machine.</li>
+  <li>How <code class="language-plaintext highlighter-rouge">npm exec -c</code> works to allow this module to only be executed from the folder in which it
+resides.</li>
+</ol>
+      <h3 id="my-nodejs-configuration">
+        
+        
+          My Node.js configuration <a href="#my-nodejs-configuration">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here are all the interesting folders on my machine that are related to the npm things we will dive
+into next. I used <a href="https://brew.sh/">brew</a> to get Node.js on
+<a href="https://pop.system76.com/">Pop_OS! 21.04</a> (based on Ubuntu).</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Type</th>
+      <th>Path</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Node.js location in <code class="language-plaintext highlighter-rouge">$PATH</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/bin/</code></td>
+    </tr>
+    <tr>
+      <td>Symlinks created by <code class="language-plaintext highlighter-rouge">npm link</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/bin/</code></td>
+    </tr>
+    <tr>
+      <td>Global <code class="language-plaintext highlighter-rouge">node_modules</code></td>
+      <td><code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/lib/node_modules/</code></td>
+    </tr>
+    <tr>
+      <td>Actual <code class="language-plaintext highlighter-rouge">ink-cli-app</code> folder</td>
+      <td><code class="language-plaintext highlighter-rouge">/home/nazmul/github/ts-scratch/ink-cli-app/</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p><strong>Node.js &amp; <code class="language-plaintext highlighter-rouge">$PATH</code></strong></p>
+
+  <ul>
+    <li>I installed Node.js via brew.
+      <ol>
+        <li>I manually added <code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/bin</code> to my <code class="language-plaintext highlighter-rouge">$PATH</code></li>
+        <li>I put this in <code class="language-plaintext highlighter-rouge">~/.profile</code> (for GNOME, so I can run npm modules from any terminal or GUI
+app).</li>
+      </ol>
+    </li>
+    <li><code class="language-plaintext highlighter-rouge">node</code> and <code class="language-plaintext highlighter-rouge">npm</code> binaries themselves are a <a href="https://linuxize.com/post/how-to-create-symbolic-links-in-linux-using-the-ln-command/">symlinked</a> in this folder which is how <code class="language-plaintext highlighter-rouge">node</code>
+is found along w/ <code class="language-plaintext highlighter-rouge">npm</code> binaries when I use them in the terminal.</li>
+  </ul>
+
+  <p><strong>Symlinks created by <code class="language-plaintext highlighter-rouge">npm link</code></strong></p>
+
+  <ul>
+    <li>All the symlinks <code class="language-plaintext highlighter-rouge">npm link</code> creates show up in this folder <code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/bin/</code>
+(which is also in the <code class="language-plaintext highlighter-rouge">$PATH</code>).</li>
+    <li>This is where symlinks for <code class="language-plaintext highlighter-rouge">prettier</code> and even <code class="language-plaintext highlighter-rouge">ink-cli-app</code> are stored.</li>
+  </ul>
+
+  <p><strong>Global <code class="language-plaintext highlighter-rouge">node_modules</code></strong></p>
+
+  <ul>
+    <li>Node.js stores globally installed modules in this this folder like <code class="language-plaintext highlighter-rouge">prettier</code>.</li>
+    <li>For me this is <code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/lib/node_modules</code>.</li>
+  </ul>
+</blockquote>
+      <h3 id="installing-a-module-globally-and-then-executing-it">
+        
+        
+          Installing a module globally and then executing it <a href="#installing-a-module-globally-and-then-executing-it">#</a>
+        
+        
+      </h3>
+    
+
+<p>Before going over our executable module (<code class="language-plaintext highlighter-rouge">ink-cli-app</code>), let’s use an existing example of
+<code class="language-plaintext highlighter-rouge">prettier</code>.</p>
+
+<p>To install it, you have to run <code class="language-plaintext highlighter-rouge">npm i -g prettier</code>. It downloads the module and creates a symlink
+<code class="language-plaintext highlighter-rouge">prettier</code> which you can use in the terminal and GUI apps.</p>
+
+<blockquote>
+  <p>💡 You can find what modules are installed globally by running <a href="#npm-install--g"><code class="language-plaintext highlighter-rouge">npm list -g</code></a>.
+You can uninstall the module by running <code class="language-plaintext highlighter-rouge">npm uninstall -g &lt;MODULE_NAME&gt;</code>.</p>
+</blockquote>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">prettier</code> is downloaded to the global <code class="language-plaintext highlighter-rouge">node_modules</code> folder. So in
+<code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/lib/node_modules/prettier/</code> the files are downloaded from npm.</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cd</span> /home/linuxbrew/.linuxbrew/lib/node_modules
+<span class="nv">$ </span><span class="nb">realpath </span>prettier | lolcat
+</code></pre></div>    </div>
+
+    <p>Which produces the following output.</p>
+
+    <pre class="pre-manual-highlight"><span style="color:#1E6AF7">/</span><span style="color:#1B6EF5">h</span><span style="color:#1972F4">o</span><span style="color:#1676F2">m</span><span style="color:#147BF0">e</span><span style="color:#127FEE">/</span><span style="color:#1083EC">l</span><span style="color:#0E87E9">i</span><span style="color:#0C8CE7">n</span><span style="color:#0A90E4">u</span><span style="color:#0994E2">x</span><span style="color:#0798DF">b</span><span style="color:#069CDC">r</span><span style="color:#05A0D9">e</span><span style="color:#04A4D6">w</span><span style="color:#03A8D3">/</span><span style="color:#02ACD0">.</span><span style="color:#02B0CD">l</span><span style="color:#01B4C9">i</span><span style="color:#01B8C6">n</span><span style="color:#01BCC2">u</span><span style="color:#01BFBF">x</span><span style="color:#01C3BB">b</span><span style="color:#01C7B7">r</span><span style="color:#01CAB3">e</span><span style="color:#02CEAF">w</span><span style="color:#02D1AB">/</span><span style="color:#03D4A7">l</span><span style="color:#04D7A3">i</span><span style="color:#05DA9F">b</span><span style="color:#06DD9B">/</span><span style="color:#08E097">n</span><span style="color:#09E393">o</span><span style="color:#0BE58F">d</span><span style="color:#0CE88A">e</span><span style="color:#0EEA86">_</span><span style="color:#10EC82">m</span><span style="color:#12EE7E">o</span><span style="color:#15F079">d</span><span style="color:#17F275">u</span><span style="color:#19F471">l</span><span style="color:#1CF66D">e</span><span style="color:#1FF769">s</span><span style="color:#22F865">/</span><span style="color:#24FA60">p</span><span style="color:#27FB5C">r</span><span style="color:#2BFC58">e</span><span style="color:#2EFD54">t</span><span style="color:#31FD50">t</span><span style="color:#34FE4C">i</span><span style="color:#38FE49">e</span><span style="color:#3BFE45">r</span></pre>
+  </li>
+  <li>
+    <p>A symlink is created for <code class="language-plaintext highlighter-rouge">prettier</code> in the <code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/bin/</code> folder which points
+to the file specified in the <code class="language-plaintext highlighter-rouge">bin</code> property in the global <code class="language-plaintext highlighter-rouge">node_modules/prettier/package.json</code>
+folder.</p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cd</span> /home/linuxbrew/.linuxbrew/bin
+<span class="nv">$ </span>lsd <span class="nt">-1</span> prettier | lolcat
+</code></pre></div>    </div>
+
+    <p>This produces the following output.</p>
+
+    <pre class="pre-manual-highlight"><span style="color:#01C8B5">p</span><span style="color:#01CCB1">r</span><span style="color:#02CFAD">e</span><span style="color:#03D2A9">t</span><span style="color:#04D6A5">t</span><span style="color:#05D9A1">i</span><span style="color:#06DC9D">e</span><span style="color:#07DE99">r</span><span style="color:#08E195"> </span><span style="color:#0AE491">⇒</span><span style="color:#0CE68D"> </span><span style="color:#0DE988">.</span><span style="color:#0FEB84">.</span><span style="color:#11ED80">/</span><span style="color:#14EF7C">l</span><span style="color:#16F177">i</span><span style="color:#18F373">b</span><span style="color:#1BF56F">/</span><span style="color:#1DF66B">n</span><span style="color:#20F867">o</span><span style="color:#23F962">d</span><span style="color:#26FA5E">e</span><span style="color:#29FB5A">_</span><span style="color:#2CFC56">m</span><span style="color:#2FFD52">o</span><span style="color:#33FD4E">d</span><span style="color:#36FE4A">u</span><span style="color:#3AFE47">l</span><span style="color:#3DFE43">e</span><span style="color:#41FE3F">s</span><span style="color:#44FE3C">/</span><span style="color:#48FE38">p</span><span style="color:#4CFE35">r</span><span style="color:#50FD31">e</span><span style="color:#54FD2E">t</span><span style="color:#58FC2B">t</span><span style="color:#5CFB28">i</span><span style="color:#60FA25">e</span><span style="color:#64F922">r</span><span style="color:#68F71F">/</span><span style="color:#6DF61C">b</span><span style="color:#71F41A">i</span><span style="color:#75F217">n</span><span style="color:#79F115">-</span><span style="color:#7DEF13">p</span><span style="color:#82EC10">r</span><span style="color:#86EA0E">e</span><span style="color:#8AE80D">t</span><span style="color:#8EE50B">t</span><span style="color:#92E309">i</span><span style="color:#97E008">e</span><span style="color:#9BDD06">r</span><span style="color:#9FDA05">.</span><span style="color:#A3D704">j</span><span style="color:#A7D403">s</span>
+</pre>
+  </li>
+</ol>
+      <h3 id="creating-your-own-executable-module">
+        
+        
+          Creating your own executable module <a href="#creating-your-own-executable-module">#</a>
+        
+        
+      </h3>
+    
+
+<p>We are going to use the sample app we are working on started
+<a href="#create-ink-project-with-typescript">here</a> called <code class="language-plaintext highlighter-rouge">ink-cli-app</code>.</p>
+
+<blockquote>
+  <p>⚠ Please read this <a href="#create-ink-project-with-typescript">section</a> before moving on to understand
+what <code class="language-plaintext highlighter-rouge">package.json</code> file does and what <code class="language-plaintext highlighter-rouge">npm link</code> does as well.</p>
+</blockquote>
+
+<p>To recap, <code class="language-plaintext highlighter-rouge">npm create-ink-app</code> does the following:</p>
+
+<ul>
+  <li>A <code class="language-plaintext highlighter-rouge">package.json</code> file is created here w/ a <code class="language-plaintext highlighter-rouge">bin</code> property defined, which is the <code class="language-plaintext highlighter-rouge">dist/cli.js</code>
+file. This JS file is also marked executable.</li>
+  <li><a href="https://newbedev.com/install-a-locally-developed-npm-package-globally"><code class="language-plaintext highlighter-rouge">npm link</code></a> is run in this module’s folder which creates a symlink <code class="language-plaintext highlighter-rouge">ink-cli-app</code>.</li>
+</ul>
+      <h4 id="running-this-module-using-the-symlink-generated-via-npm-link">
+        
+        
+          Running this module using the symlink generated via npm link <a href="#running-this-module-using-the-symlink-generated-via-npm-link">#</a>
+        
+        
+      </h4>
+    
+
+<p>Let’s take a closer look at the <code class="language-plaintext highlighter-rouge">ink-cli-app</code> symlink itself (which is generated by <code class="language-plaintext highlighter-rouge">npm link</code>)
+using the following commands. This symlink is in my <code class="language-plaintext highlighter-rouge">$PATH</code>.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cd</span> /home/linuxbrew/.linuxbrew/bin
+<span class="nv">$ </span>lsd <span class="nt">-1</span> ink-cli-app | lolcat
+</code></pre></div></div>
+
+<p>This produces the following output.</p>
+
+<pre class="pre-manual-highlight"><span style="color:#27FB5C">i</span><span style="color:#2BFC58">n</span><span style="color:#2EFD54">k</span><span style="color:#31FD50">-</span><span style="color:#34FE4C">c</span><span style="color:#38FE49">l</span><span style="color:#3BFE45">i</span><span style="color:#3FFE41">-</span><span style="color:#43FE3D">a</span><span style="color:#46FE3A">p</span><span style="color:#4AFE36">p</span><span style="color:#4EFE33"> </span><span style="color:#52FD30">⇒</span><span style="color:#56FC2C"> </span><span style="color:#5AFB29">.</span><span style="color:#5EFA26">.</span><span style="color:#62F923">/</span><span style="color:#66F820">l</span><span style="color:#6AF61E">i</span><span style="color:#6FF51B">b</span><span style="color:#73F318">/</span><span style="color:#77F116">n</span><span style="color:#7BF014">o</span><span style="color:#80ED11">d</span><span style="color:#84EB0F">e</span><span style="color:#88E90E">_</span><span style="color:#8CE70C">m</span><span style="color:#90E40A">o</span><span style="color:#95E108">d</span><span style="color:#99DF07">u</span><span style="color:#9DDC06">l</span><span style="color:#A1D905">e</span><span style="color:#A5D604">s</span><span style="color:#A9D303">/</span><span style="color:#ADCF02">i</span><span style="color:#B1CC01">n</span><span style="color:#B5C901">k</span><span style="color:#B9C501">-</span><span style="color:#BCC201">c</span><span style="color:#C0BE01">l</span><span style="color:#C4BA01">i</span><span style="color:#C7B601">-</span><span style="color:#CBB301">a</span><span style="color:#CEAF02">p</span><span style="color:#D1AB02">p</span><span style="color:#D5A703">/</span><span style="color:#D8A304">d</span><span style="color:#DB9F05">i</span><span style="color:#DE9A07">s</span><span style="color:#E09608">t</span><span style="color:#E39209">/</span><span style="color:#E68E0B">c</span><span style="color:#E88A0D">l</span><span style="color:#EA850F">i</span><span style="color:#ED8111">.</span><span style="color:#EF7D13">j</span><span style="color:#F17915">s</span>
+</pre>
+
+<p>We can simply run the CLI app by running <code class="language-plaintext highlighter-rouge">ink-cli-app</code> from the terminal as shown here.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>ink-cli-app <span class="nt">--name</span><span class="o">=</span>Grogu
+</code></pre></div></div>
+
+<p>Which results in the following output.</p>
+
+<pre class="pre-manual-highlight">Hello, <span style="color:#A3BE8C">Grogu</span></pre>
+
+<blockquote>
+  <p>⚡ This <a href="https://medium.com/@alexishevia/the-magic-behind-npm-link-d94dcb3a81af">tutorial</a> goes into the details of how Node.js symlinks work for globally installed
+modules and local ones using <code class="language-plaintext highlighter-rouge">npm link</code>.</p>
+</blockquote>
+      <h4 id="running-this-module-using-npm-exec--c-in-the-modules-folder">
+        
+        
+          Running this module using npm exec -c in the module’s folder <a href="#running-this-module-using-npm-exec--c-in-the-modules-folder">#</a>
+        
+        
+      </h4>
+    
+
+<p>However, we might also want to run it w/out using the symlink above. To do this we can use
+<code class="language-plaintext highlighter-rouge">npm exec -c</code> in the module folder itself.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span><span class="nb">cd</span> /home/nazmul/github/ts-scratch/ink-cli-app/
+<span class="nv">$ </span>npm <span class="nb">exec</span> <span class="nt">-c</span> <span class="s1">'ink-cli-app --name=Grogu'</span>
+</code></pre></div></div>
+
+<p>Which results in the following output.</p>
+
+<pre class="pre-manual-highlight">Hello, <span style="color:#A3BE8C">Grogu</span></pre>
+
+<blockquote>
+  <p>⚡ Here’s more information on <a href="https://docs.npmjs.com/cli/v7/commands/npm-exec#synopsis"><code class="language-plaintext highlighter-rouge">npm exec -c</code></a>.</p>
+</blockquote>
+
+<blockquote>
+  <p>💡 We can also run <a href="https://newbedev.com/install-a-locally-developed-npm-package-globally"><code class="language-plaintext highlighter-rouge">npm link</code></a> in this module’s folder in order to generate a symlink to the
+<code class="language-plaintext highlighter-rouge">bin</code> property value.</p>
+</blockquote>
+      <h3 id="specify-more-than-one-executable-in-bin-property">
+        
+        
+          Specify more than one executable in bin property <a href="#specify-more-than-one-executable-in-bin-property">#</a>
+        
+        
+      </h3>
+    
+
+<p>If you want to specify more than a single executable for your module, you can provide an object
+rather a <code class="language-plaintext highlighter-rouge">string</code> value for <code class="language-plaintext highlighter-rouge">bin</code>. Here’s an example.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"bin"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"myClientApp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./cli.js"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"myServerApp"</span><span class="p">:</span><span class="w"> </span><span class="s2">"./server.js"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>So if you wanted to run <code class="language-plaintext highlighter-rouge">myServerApp</code> you can call.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">exec</span> <span class="nt">-c</span> <span class="s1">'myServerApp --port=1234'</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>💡 When you run <a href="https://newbedev.com/install-a-locally-developed-npm-package-globally"><code class="language-plaintext highlighter-rouge">npm link</code></a> it will create multiple symlinks one for each key-value pair in
+<code class="language-plaintext highlighter-rouge">bin</code>. These symlinks are stored in <code class="language-plaintext highlighter-rouge">/home/linuxbrew/.linuxbrew/bin/</code> in my brew install of
+Node.js.</p>
+</blockquote>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end -->
+      <h3 id="meta-example">
+        
+        
+          Meta example <a href="#meta-example">#</a>
+        
+        
+      </h3>
+    
+
+<p>A “meta” example of all of the concepts above is the <a href="https://www.npmjs.com/package/create-ink-app"><code class="language-plaintext highlighter-rouge">create-ink-app</code></a> npm module itself.</p>
+
+<ol>
+  <li>You can run it via <a href="https://docs.npmjs.com/cli/v7/commands/npx"><code class="language-plaintext highlighter-rouge">npx</code></a> without installing it locally.</li>
+  <li>After you run it, it will globally install your CLI app via npm and mark the <code class="language-plaintext highlighter-rouge">dist/cli.js</code> file
+executable. This JS file is the main entry point for your newly minted CLI app.</li>
+</ol>
+      <h3 id="npm-install--g">
+        
+        
+          npm install -g <a href="#npm-install--g">#</a>
+        
+        
+      </h3>
+    
+
+<p>When you tell npm to install a module globally, it will actually install it in the global folder
+(which is different depending on how you installed Node.js in the first place). It will also create
+a <a href="#nodejs-executable-modules-npm-link-and-npm-bin">symlink for the <code class="language-plaintext highlighter-rouge">bin</code> entry</a> in <code class="language-plaintext highlighter-rouge">package.json</code>
+using the value of <code class="language-plaintext highlighter-rouge">name</code>. This will allow you to run this module from the terminal (for eg:
+<a href="https://www.npmjs.com/package/prettier"><code class="language-plaintext highlighter-rouge">prettier</code></a> or <a href="https://www.npmjs.com/package/doctoc"><code class="language-plaintext highlighter-rouge">doctoc</code></a>).</p>
+
+<p>To find out where npm actually installs global modules, run the following command.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm root <span class="nt">-g</span>
+</code></pre></div></div>
+
+<p>To list all the globally installed modules, you can run the following command.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm list <span class="nt">-g</span>
+</code></pre></div></div>
+
+<p>Conversely to uninstall a module globally, you can use the following command.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm uninstall <span class="nt">-g</span> &lt;PACKAGE_NAME&gt;
+</code></pre></div></div>
+      <h3 id="npm-files">
+        
+        
+          npm files <a href="#npm-files">#</a>
+        
+        
+      </h3>
+    
+
+<p>This isn’t really related to the <code class="language-plaintext highlighter-rouge">bin</code> property in <code class="language-plaintext highlighter-rouge">package.json</code>. The
+<a href="https://docs.npmjs.com/cli/v7/configuring-npm/package-json#files"><code class="language-plaintext highlighter-rouge">files</code> property</a> tells Node.js
+that all the files listed in this array should be whitelisted and included in the module. So provide
+at least one entry point into your code, typically, the same entry as the <code class="language-plaintext highlighter-rouge">bin</code> property. You can
+bypass using this property by using a
+<a href="https://stackoverflow.com/a/53381692/2085356"><code class="language-plaintext highlighter-rouge">.npmignore</code> blacklist file</a>.</p>
+      <h3 id="npm-config">
+        
+        
+          npm config <a href="#npm-config">#</a>
+        
+        
+      </h3>
+    
+
+<p>npm stores global configuration as well as user specific configuration settings. These are stored as
+key-value pairs using JSON. In order to show the list of npm config key-value pairs use the
+following.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm config <span class="nb">ls</span> <span class="nt">-l</span>
+</code></pre></div></div>
+
+<p>The user specific settings are stored in <code class="language-plaintext highlighter-rouge">$HOME/.npmrc</code>.</p>
+
+<p>Executing the following command will change a user default config key’s value and will update the
+<code class="language-plaintext highlighter-rouge">$HOME/.npmrc</code> file w/ this value (and create the file if it didn’t exist before).</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm config <span class="nb">set </span>unsafe-perm <span class="nb">true</span>
+</code></pre></div></div>
+
+<p>You can then check to see the value of this key using.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm config get unsafe-perm
+</code></pre></div></div>
+
+<p>If you delete the <code class="language-plaintext highlighter-rouge">$HOME/.npmrc</code> file, then this will remove all the key-value pairs that you have
+set using <code class="language-plaintext highlighter-rouge">npm config set &lt;KEY&gt; &lt;VALUE&gt;</code>.</p>
+
+<blockquote>
+  <p>The <code class="language-plaintext highlighter-rouge">unsafe-perm</code> setting actually affects which user is actually used by Node.js when running
+modules. You can read more about it in these links.</p>
+
+  <ul>
+    <li><a href="https://docs.npmjs.com/cli/v6/using-npm/config">npm docs on unsafe-perm</a>.</li>
+    <li><a href="https://geedew.com/What-does-unsafe-perm-in-npm-actually-do/">Tutorial explaining unsafe-perm</a>.</li>
+  </ul>
+</blockquote><hr />
+      <h2 id="make-major-changes-to-create-ink-app-v211-scaffolding">
+        
+        
+          Make major changes to create-ink-app v2.1.1 scaffolding <a href="#make-major-changes-to-create-ink-app-v211-scaffolding">#</a>
+        
+        
+      </h2>
+    
+
+<p>We are now going to majorly deviate from code that was generated by the scaffolding.</p>
+
+<ol>
+  <li>Notably, we are going to drop <code class="language-plaintext highlighter-rouge">ava</code> v4.x for testing and use RTL and Jest instead.</li>
+  <li>We are going to drop <code class="language-plaintext highlighter-rouge">xo</code> (no need for this linter package).</li>
+  <li>We are going to drop <code class="language-plaintext highlighter-rouge">meow</code> and use <code class="language-plaintext highlighter-rouge">commander</code> instead.</li>
+  <li>We are also going to change some folder names.</li>
+</ol>
+
+<p>The following are the details.</p>
+
+<blockquote>
+      <h3 id="-use-this-template-repo-instead-of-create-ink-app">
+        
+        
+          ⚡ Use this template repo instead of create-ink-app <a href="#-use-this-template-repo-instead-of-create-ink-app">#</a>
+        
+        
+      </h3>
+    
+
+  <p>I’ve created a <a href="https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-template-repository">GitHub template repo</a> that we are going use in future articles instead of
+<code class="language-plaintext highlighter-rouge">create-ink-app</code>. Here’s a link to <a href="https://github.com/nazmulidris/ts-ink-template">ts-ink-template</a> repo; all the changes shown in this
+section are reflected in this repo.</p>
+</blockquote>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end -->
+      <h3 id="rename-source-to-src">
+        
+        
+          Rename source to src <a href="#rename-source-to-src">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">create-ink-app</code> generates a <code class="language-plaintext highlighter-rouge">source</code> folder, but I prefer to use <code class="language-plaintext highlighter-rouge">src</code>. To make this change:</p>
+
+<ol>
+  <li>Rename the folder (<code class="language-plaintext highlighter-rouge">mv source src</code>).</li>
+  <li>Update references to <code class="language-plaintext highlighter-rouge">source</code> in <code class="language-plaintext highlighter-rouge">package.json</code> and <code class="language-plaintext highlighter-rouge">tsconfig.json</code>
+(<code class="language-plaintext highlighter-rouge">sed -i s/source/src/g *json</code>).</li>
+</ol>
+      <h3 id="update-a-few-dependencies">
+        
+        
+          Update a few dependencies <a href="#update-a-few-dependencies">#</a>
+        
+        
+      </h3>
+    
+
+<p>In <code class="language-plaintext highlighter-rouge">package.json</code> we are going to update the following dependency <code class="language-plaintext highlighter-rouge">meow</code> to <code class="language-plaintext highlighter-rouge">^10.0.0</code>.</p>
+
+<blockquote>
+  <p>💡 You can run <code class="language-plaintext highlighter-rouge">npm outdated</code> to see a what package in your <code class="language-plaintext highlighter-rouge">package.json</code> can be updated. Then
+you can update them by typing <code class="language-plaintext highlighter-rouge">npm i &lt;PACKAGE&gt;@latest</code>.</p>
+</blockquote>
+
+<p>Here’s the new <code class="language-plaintext highlighter-rouge">package.json</code>.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ink-cli-app"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.0.1"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"license"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Apache 2.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"bin"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dist/cli.js"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"engines"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"node"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&gt;=10"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"build"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tsc"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"build-watch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tsc --watch"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"start"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dist/cli.js"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"build-and-start"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm run build &amp;&amp; dist/cli.js"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"pretest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm run build"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"test"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jest"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"start-watch"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nodemon --exitcrash -e ts,tsx,js,jsx --exec 'node dist/cli.js || exit 1'"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"dev"</span><span class="p">:</span><span class="w"> </span><span class="s2">"npm-run-all -p -r build-watch start-watch"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"files"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"dist/cli.js"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">"dependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"chalk"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^4.1.2"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"commander"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^8.3.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ink"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^3.2.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"r3bl-ts-utils"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^1.0.5"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"react"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^17.0.2"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"tslib"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^2.3.1"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"devDependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"@sindresorhus/tsconfig"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^2.0.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"@types/jest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^27.0.2"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"@types/react"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^17.0.34"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"eslint-plugin-react"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^7.27.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"eslint-plugin-react-hooks"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^4.3.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ink-testing-library"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^2.1.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"jest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^27.3.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"nodemon"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^2.0.15"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"npm-run-all"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^4.1.5"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"prettier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^2.4.1"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ts-jest"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^27.0.7"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"ts-node"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^10.4.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"typescript"</span><span class="p">:</span><span class="w"> </span><span class="s2">"^4.4.4"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>A lot of scripts have been added, to make it easy to work w/ building, running, testing and
+watching. Here’s more
+<a href="https://github.com/nazmulidris/ts-ink-template/blob/main/README.md#npm-scripts">information on this</a>
+from the template repo which you should be using instead of <code class="language-plaintext highlighter-rouge">create-ink-app</code>.</p>
+      <h3 id="break-all-the-things----switch-ts-strict-mode--commander">
+        
+        
+          Break all the things 💣 - Switch TS strict mode &amp; commander <a href="#break-all-the-things----switch-ts-strict-mode--commander">#</a>
+        
+        
+      </h3>
+    
+
+<p>This is going to be a <strong>huge divergence</strong> to the configuration and code that’s generated by the
+scaffolding. We will use CommonJS as the module format for maximum backward compatibility (ESM isn’t
+there yet).</p>
+
+<ol>
+  <li>
+    <p>Here are the changes that need to be made to <code class="language-plaintext highlighter-rouge">tsconfig.json</code>.</p>
+
+    <div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"extends"</span><span class="p">:</span><span class="w"> </span><span class="s2">"@sindresorhus/tsconfig"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"compilerOptions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"esModuleInterop"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"outDir"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dist"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"sourceMap"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"target"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ESNext"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"//ESNext"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://stackoverflow.com/a/62837086/2085356"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"module"</span><span class="p">:</span><span class="w"> </span><span class="s2">"CommonJS"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"include"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"src"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Here are the changes that need to be made the <code class="language-plaintext highlighter-rouge">src/cli.tsx</code> file.</p>
+
+    <p>In <code class="language-plaintext highlighter-rouge">cli.tsx</code> the call to <code class="language-plaintext highlighter-rouge">meow()</code> has to be changed to use <code class="language-plaintext highlighter-rouge">commander</code>.</p>
+
+    <div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#!/usr/bin/env node
+</span>
+<span class="k">import</span> <span class="nx">React</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">render</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">ink</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">App</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./ui</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">_let</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">r3bl-ts-utils</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Command</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">commander</span><span class="dl">"</span>
+
+<span class="kd">const</span> <span class="nx">name</span><span class="p">:</span> <span class="kr">string</span> <span class="o">=</span> <span class="nf">_let</span><span class="p">(</span><span class="k">new</span> <span class="nc">Command</span><span class="p">(),</span> <span class="p">(</span><span class="nx">command</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">command</span><span class="p">.</span><span class="nf">option</span><span class="p">(</span><span class="dl">"</span><span class="s2">-n, --name &lt;name&gt;</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">name to display</span><span class="dl">"</span><span class="p">)</span>
+  <span class="nx">command</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">argv</span><span class="p">)</span>
+  <span class="kd">const</span> <span class="nx">options</span> <span class="o">=</span> <span class="nx">command</span><span class="p">.</span><span class="nf">opts</span><span class="p">()</span>
+  <span class="k">return</span> <span class="nx">options</span><span class="p">[</span><span class="dl">"</span><span class="s2">name</span><span class="dl">"</span><span class="p">]</span>
+<span class="p">})</span>
+
+<span class="nf">render</span><span class="p">(&lt;</span><span class="nc">App</span> <span class="na">name</span><span class="p">=</span><span class="si">{</span><span class="nx">name</span><span class="si">}</span> <span class="p">/&gt;)</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Here is a change that need to be made to the <code class="language-plaintext highlighter-rouge">src/ui.tsx</code> file.</p>
+
+    <p>There’s a <code class="language-plaintext highlighter-rouge">module.exports = App</code> line that needs to be deleted. We are now only using
+<code class="language-plaintext highlighter-rouge">export default App</code>.</p>
+  </li>
+</ol>
+      <h3 id="drop-support-for-xo">
+        
+        
+          Drop support for xo <a href="#drop-support-for-xo">#</a>
+        
+        
+      </h3>
+    
+
+<p>By running <code class="language-plaintext highlighter-rouge">npm uninstall -D xo</code> we drop the linter dependency.</p>
+      <h3 id="drop-support-for-ava">
+        
+        
+          Drop support for ava <a href="#drop-support-for-ava">#</a>
+        
+        
+      </h3>
+    
+
+<p>By running <code class="language-plaintext highlighter-rouge">npm uninstall -D ava @ava/typescript</code> we drop support for <code class="language-plaintext highlighter-rouge">ava</code> test runner. Delete
+the<code class="language-plaintext highlighter-rouge">src/test.tsx</code> file as well, since it will no longer compile.</p>
+      <h3 id="use-jest-for-testing">
+        
+        
+          Use Jest for testing <a href="#use-jest-for-testing">#</a>
+        
+        
+      </h3>
+    
+
+<p>We will use Jest to add tests to our node module. To start here are the packages that need to be
+installed.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>npm i <span class="nt">-D</span> jest ts-jest ts-node @types/jest
+</code></pre></div></div>
+
+<p>Then we need a new <code class="language-plaintext highlighter-rouge">jestconfig.json</code> file.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"#comments"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"https://jestjs.io/docs/configuration#projects-arraystring--projectconfig"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"https://jestjs.io/docs/configuration#testenvironment-string"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"https://gist.github.com/thebuilder/15a084f74b1c6a1f163fc6254ad5a5ba"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nl">"projects"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"displayName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node  (default project)"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"transform"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"^.+\\.(t|j)sx?$"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ts-jest"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"testEnvironment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"node"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"testMatch"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"**/__tests__/**/*.test.ts?(x)"</span><span class="p">]</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"displayName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jsdom (browser project)"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"transform"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"^.+\\.(t|j)sx?$"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ts-jest"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"testEnvironment"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jsdom"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"testMatch"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"**/__tests__/**/*.test.jsdom.ts?(x)"</span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p>💡 We have setup two projects in the <code class="language-plaintext highlighter-rouge">jestconfig.json</code> file above. Depending on the code we want
+to test, it might expect to run in a browser environment or in node. By default tests will run in
+the <code class="language-plaintext highlighter-rouge">node</code> test environment. If a test is named <code class="language-plaintext highlighter-rouge">*.test.jsdom.ts(x)</code> then it will be run in a
+<code class="language-plaintext highlighter-rouge">jsdom</code> test environment (which emulates a browser environment w/ a pure JS implementation of DOM
+and BOM that is headless).</p>
+</blockquote>
+
+<p>Finally, here’s a simple test <code class="language-plaintext highlighter-rouge">ui.test.ts</code> that uses
+<a href="https://github.com/vadimdemedes/ink-testing-library"><code class="language-plaintext highlighter-rouge">ink-testing-library</code></a> to create the UI test.</p>
+
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">React</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">chalk</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">chalk</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">render</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">ink-testing-library</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">App</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../ui</span><span class="dl">"</span>
+
+<span class="nf">describe</span><span class="p">(</span><span class="dl">"</span><span class="s2">ink test suite</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">greet unknown user</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="p">{</span> <span class="nx">lastFrame</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">render</span><span class="p">(</span><span class="nx">React</span><span class="p">.</span><span class="nf">createElement</span><span class="p">(</span><span class="nx">App</span><span class="p">,</span> <span class="kc">null</span><span class="p">))</span>
+    <span class="nf">expect</span><span class="p">(</span><span class="nf">lastFrame</span><span class="p">()).</span><span class="nf">toEqual</span><span class="p">(</span><span class="dl">"</span><span class="s2">Hello, </span><span class="se">\</span><span class="s2">u001b[32mStranger</span><span class="se">\</span><span class="s2">u001b[39m</span><span class="dl">"</span><span class="p">)</span>
+  <span class="p">})</span>
+
+  <span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">greet user with a name</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="p">{</span> <span class="nx">lastFrame</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">render</span><span class="p">(</span><span class="nx">React</span><span class="p">.</span><span class="nf">createElement</span><span class="p">(</span><span class="nx">App</span><span class="p">,</span> <span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Jane</span><span class="dl">"</span> <span class="p">}))</span>
+    <span class="nf">expect</span><span class="p">(</span><span class="nf">lastFrame</span><span class="p">()).</span><span class="nf">toEqual</span><span class="p">(</span><span class="nx">chalk</span><span class="s2">`Hello, {green Jane}`</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>⚡ Here’s a
+<a href="https://github.com/nazmulidris/ts-scratch/commit/2cf82a147dcb48bcfccbf899c35fff859336d466">commit</a>
+that adds all the testing stuff.</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Node">
+                #node</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/React">
+                #react</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TypeScript">
+                #typescript</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Web">
+                #web</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/react-hooks-redux-typescript-handbook/">
+                        React hooks (v17.0.3) and Redux handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/css-responsive-design-handbook/">
+                        CSS responsive design using Grid, Flexbox, and media queries handbook
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/22/vue-vueitfy-webpack/">
+                        Vue.js, Webpack, Vueitify, Electron, and vue-cli
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/15/introduction-to-vue/">
+                        Getting started with Vue.js
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/19/loading-csv-files-in-javascript-and-node/">
+                        Loading CSV files in Node
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2021/11/04/introduction-to-ink-v3/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Build a Chrome Extension using Manifest V3 | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Build a Chrome Extension using Manifest V3" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A guide on how to build a Chrome Extension using Manifest V3 that replaces the use of bookmarks (in a way) allowing you to create your own names for a URL or a set of URLs." />
+<meta property="og:description" content="A guide on how to build a Chrome Extension using Manifest V3 that replaces the use of bookmarks (in a way) allowing you to create your own names for a URL or a set of URLs." />
+<link rel="canonical" href="http://developerlife.com/2023/08/11/chrome-extension-shortlink/" />
+<meta property="og:url" content="http://developerlife.com/2023/08/11/chrome-extension-shortlink/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-08-11T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build a Chrome Extension using Manifest V3" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2023-08-11T10:00:00-05:00","datePublished":"2023-08-11T10:00:00-05:00","description":"A guide on how to build a Chrome Extension using Manifest V3 that replaces the use of bookmarks (in a way) allowing you to create your own names for a URL or a set of URLs.","headline":"Build a Chrome Extension using Manifest V3","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2023/08/11/chrome-extension-shortlink/"},"url":"http://developerlife.com/2023/08/11/chrome-extension-shortlink/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Build a Chrome Extension using Manifest V3&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Build a Chrome Extension using Manifest V3</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build a Chrome Extension using Manifest V3</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Aug 11, 2023
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/chrome-extension.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#step-1-create-a-new-chrome-extension">Step 1: Create a new Chrome Extension</a></li>
+  <li><a href="#step-2-build-and-load-the-chrome-extension">Step 2: Build and load the Chrome Extension</a></li>
+  <li><a href="#step-3-add-functionality">Step 3: Add functionality</a></li>
+  <li><a href="#step-4-publish-it">Step 4: Publish it</a></li>
+  <li><a href="#next-steps-contribute-to-the-shortlink-project">Next steps: Contribute to the Shortlink project</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>In this tutorial we will create a new Chrome Extension using Manifest V3 that allows us to create
+our own names for a URL or a set of URLs. This is useful when you have a set of URLs that you want
+to open at once, or you want to create a name for a URL that is hard to remember. Or if you just
+don’t want to use bookmarks. We will also save these shortlinks to the Chrome Sync key-value pair
+store. This extension will also allow the user to type commands when it is activated (in its popped
+up state). And we will use Typescript and React to build it.</p>
+
+<p>Before we get started, here are some good references to take a look at:</p>
+
+<ol>
+  <li><a href="https://developer.chrome.com/docs/extensions/mv3/intro/">Official Chrome docs on writing an extension</a></li>
+  <li><a href="https://github.com/r3bl-org/chrome-extension-typescript-react-template">Template to build a Chrome extension without having to configure Typescript and React</a></li>
+</ol>
+
+<blockquote>
+  <p>🚀 Please star and fork / clone the <a href="https://github.com/r3bl-org/shortlink">Shortlink repo</a> 🌟
+Install the
+<a href="https://chrome.google.com/webstore/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial?hl=en-US&amp;gl=US">Chrome Extension</a>
+🛠️</p>
+</blockquote>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h2 id="step-1-create-a-new-chrome-extension">
+        
+        
+          Step 1: Create a new Chrome Extension <a href="#step-1-create-a-new-chrome-extension">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-step-1%3A-create-a-new-chrome-extension" name="step-1%3A-create-a-new-chrome-extension"></a></p>
+
+<p>The first thing to is to create a new repo on GitHub using this
+<a href="https://github.com/r3bl-org/chrome-extension-typescript-react-template">template repo</a>.</p>
+
+<p>You can do this in two ways.</p>
+
+<ol>
+  <li>Using github.com and a web browser. Here are the
+<a href="https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template">instructions</a>
+on how to do this.</li>
+  <li>Using the GitHub CLI. You must have the <a href="https://cli.github.com/">GitHub CLI</a> installed and be
+logged in to github.com (using <code class="language-plaintext highlighter-rouge">gh auth login</code>).
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># More info: https://cli.github.com/manual/gh_repo_create</span>
+gh repo create shortlink <span class="nt">--public</span> <span class="nt">--template</span> r3bl-org/chrome-extension-typescript-react-template
+<span class="c"># More info: https://cli.github.com/manual/gh_repo_clone</span>
+gh repo clone shortlink
+</code></pre></div>    </div>
+  </li>
+</ol>
+      <h2 id="step-2-build-and-load-the-chrome-extension">
+        
+        
+          Step 2: Build and load the Chrome Extension <a href="#step-2-build-and-load-the-chrome-extension">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-step-2%3A-build-and-load-the-chrome-extension" name="step-2%3A-build-and-load-the-chrome-extension"></a></p>
+
+<p>At this point we have a <code class="language-plaintext highlighter-rouge">shortlink</code> git repo on our local machine that is setup to build a Chrome
+Extension. You can run the following command to build it.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install
+</span>npm run build
+</code></pre></div></div>
+
+<p>This will generate a <code class="language-plaintext highlighter-rouge">dist/</code> directory that contains the Chrome Extension. You can load this into
+Chrome by:</p>
+
+<ol>
+  <li>Type <code class="language-plaintext highlighter-rouge">chrome:extensions</code> in the URL bar.</li>
+  <li>Turn on “Developer Mode”.</li>
+  <li>Then click on “Load unpacked” and select the <code class="language-plaintext highlighter-rouge">dist/</code> directory. Your extension will be loaded
+into Chrome.</li>
+</ol>
+      <h2 id="step-3-add-functionality">
+        
+        
+          Step 3: Add functionality <a href="#step-3-add-functionality">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-step-3%3A-add-functionality" name="step-3%3A-add-functionality"></a></p>
+
+<p>In our extension we will ask for the minimum of
+<a href="https://developer.chrome.com/docs/extensions/reference/permissions/">permissions</a> from the user.
+This ensures that our extension doesn’t have access to anything more than it needs. All of this is
+specified in the <code class="language-plaintext highlighter-rouge">public/manifest.json</code> file. Here’s an example of what this file might look like
+when we are done building our extension.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">"manifest_version"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"R3BL Shortlink"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Make go links"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.0"</span><span class="p">,</span><span class="w">
+  </span><span class="nl">"icons"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"16"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon16.png"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"32"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon32.png"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"48"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon48.png"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"128"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon128.png"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"default_title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Click to make go link for URL"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"default_popup"</span><span class="p">:</span><span class="w"> </span><span class="s2">"popup.html"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"default_icon"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"16"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon16.png"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"32"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon32.png"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"48"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon48.png"</span><span class="p">,</span><span class="w">
+      </span><span class="nl">"128"</span><span class="p">:</span><span class="w"> </span><span class="s2">"icon128.png"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"omnibox"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"keyword"</span><span class="p">:</span><span class="w"> </span><span class="s2">"go"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"background"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"service_worker"</span><span class="p">:</span><span class="w"> </span><span class="s2">"js/background.js"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"commands"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">"_execute_action"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nl">"suggested_key"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"default"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alt+L"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"mac"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Alt+L"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Make a go link for URL in address bar"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nl">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"activeTab"</span><span class="p">,</span><span class="w"> </span><span class="s2">"tabs"</span><span class="p">,</span><span class="w"> </span><span class="s2">"storage"</span><span class="p">,</span><span class="w"> </span><span class="s2">"clipboardWrite"</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Now that we have our permissions sorted, we can start by adding functionality to the extension. When
+we activate the extension by clicking its icon in the Chrome toolbar or by pressing the shortcut
+<kbd>Alt+l</kbd> the <code class="language-plaintext highlighter-rouge">popup.tsx</code> file will be run which itself is loaded by <code class="language-plaintext highlighter-rouge">popup.html</code>.</p>
+
+<blockquote>
+  <p>You can learn more about activating the extension and the popup in the
+<a href="https://developer.chrome.com/docs/extensions/reference/browserAction/#popups"><code class="language-plaintext highlighter-rouge">chrome.browserAction</code> docs</a>.</p>
+</blockquote>
+
+<p>This <code class="language-plaintext highlighter-rouge">popup.tsx</code> file will be the entry point for our extension. It is the main function in a node
+program or the <code class="language-plaintext highlighter-rouge">App</code> top level component in a React app. It sets up the UI and handles the user
+input events (key presses).</p>
+
+<blockquote>
+  <p>This is what the UI looks like on Linux on my machine:
+<img src="/assets/shortlink-image.png" alt="Shortlink Screenshot" /></p>
+</blockquote>
+
+<p>This is what the file looks like in the real Shortcut extension:
+<a href="https://github.com/r3bl-org/shortlink-react-webpack/blob/main/src/popup.tsx"><code class="language-plaintext highlighter-rouge">popup.tsx</code></a>. If you
+go through this code, these are some of the things you will notice:</p>
+
+<ol>
+  <li>The <code class="language-plaintext highlighter-rouge">main()</code> function just sets up the main React component <code class="language-plaintext highlighter-rouge">Popup</code> and mounts it to the DOM
+(<code class="language-plaintext highlighter-rouge">div</code> with id <code class="language-plaintext highlighter-rouge">root</code>).</li>
+  <li>There are some <code class="language-plaintext highlighter-rouge">useEffect()</code> hooks which ensures that when <code class="language-plaintext highlighter-rouge">chrome.storage</code> changes, the global
+state is updated and the component is re-rendered. Learn more about <code class="language-plaintext highlighter-rouge">chrome.storage</code> in the API
+reference <a href="https://developer.chrome.com/docs/extensions/reference/storage/">here</a>. Another hook
+is responsible for painting the badge on the extension icon in the toolbar (when the
+<code class="language-plaintext highlighter-rouge">Shortlink[]</code> in the state changes).</li>
+  <li>The <code class="language-plaintext highlighter-rouge">Popup</code> function component returns some JSX that is used to render the global state, which
+are two things: <code class="language-plaintext highlighter-rouge">Shortlink[]</code> and <code class="language-plaintext highlighter-rouge">string</code>. The <code class="language-plaintext highlighter-rouge">Shortlink[]</code> is used to render the list of
+shortcuts and the <code class="language-plaintext highlighter-rouge">string</code> is used to render the input field.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">handleOnChange()</code> and <code class="language-plaintext highlighter-rouge">handleEnterKey()</code> function is where the user input that is typed is
+interpreted into a command and then executed.</li>
+</ol>
+
+<p>There are some other files of note. Please take a look at their linked source code.</p>
+
+<ol>
+  <li><a href="https://github.com/r3bl-org/shortlink-react-webpack/blob/main/src/command.ts"><code class="language-plaintext highlighter-rouge">command.ts</code></a>: The
+main logic for parsing a <code class="language-plaintext highlighter-rouge">string</code> into a command is handled by this file. The
+<code class="language-plaintext highlighter-rouge">parseUserInputTextIntoCommand()</code> function does all the work of converting a given <code class="language-plaintext highlighter-rouge">string</code> into
+a <code class="language-plaintext highlighter-rouge">Command</code>, and has a very Rust “vibe”. Please check out how this works. It makes it very easy
+to add or change commands in the future.</li>
+  <li><a href="https://github.com/r3bl-org/shortlink-react-webpack/blob/main/src/storage.ts"><code class="language-plaintext highlighter-rouge">storage.ts</code></a>:
+This is where all the functions to manipulate the storage that syncs w/ Chrome accounts is
+located. Functions that handle shortlinks to be deleted, or added, or updated can all be found
+here. The Chrome storage API is async which is why the code in this file is written in the way
+that it is.</li>
+  <li><a href="https://github.com/r3bl-org/shortlink-react-webpack/blob/main/src/omnibox.ts"><code class="language-plaintext highlighter-rouge">omnibox.ts</code></a>:
+This file works w/ <code class="language-plaintext highlighter-rouge">background.ts</code> to handle the omnibox functionality. The omnibox is the
+<a href="https://developer.chrome.com/docs/extensions/reference/omnibox/">address bar</a> in Chrome. When
+the user types <code class="language-plaintext highlighter-rouge">go</code> and then a space, the omnibox will be activated and the user can type in a
+shortcut. When the user presses <kbd>Enter</kbd>, the <code class="language-plaintext highlighter-rouge">background.ts</code> file will be run and the
+shortcut will be expanded to the full URL.</li>
+</ol>
+      <h2 id="step-4-publish-it">
+        
+        
+          Step 4: Publish it <a href="#step-4-publish-it">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-step-4%3A-publish-it" name="step-4%3A-publish-it"></a></p>
+
+<p>Please read this <a href="https://developer.chrome.com/docs/webstore/publish/">guide</a> on how to publish the
+extension. You will have to get a developer account, and then upload the extension binaries. There’s
+a <code class="language-plaintext highlighter-rouge">make-distro-zip.sh</code> script provided in this repo that will create a zip file that you can upload
+to the Chrome Web Store.</p>
+
+<p>As part of publishing a version you have to provide justification for why
+you are requesting the permissions that you are. The fewer the permissions that you use, the better
+for the end user, and also for the review process to take less time.</p>
+      <h2 id="next-steps-contribute-to-the-shortlink-project">
+        
+        
+          Next steps: Contribute to the Shortlink project <a href="#next-steps-contribute-to-the-shortlink-project">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-next-steps%3A-contribute-to-the-shortlink-project" name="next-steps%3A-contribute-to-the-shortlink-project"></a></p>
+
+<blockquote>
+  <p>🚀 Please star and fork / clone the <a href="https://github.com/r3bl-org/shortlink">Shortlink repo</a> 🌟
+Install the
+<a href="https://chrome.google.com/webstore/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial?hl=en-US&amp;gl=US">Chrome Extension</a>
+🛠️</p>
+</blockquote>
+
+<p>If you would like to get involved in an open source project and like Chrome extensions, please feel
+free to contribute to the <a href="https://github.com/r3bl-org/shortlink/issues">Shortlink repo</a>. There are
+a lot of small features that need to be added. And they can be a nice stepping stone into the world
+of open source contribution 🎉.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/React">
+                #react</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TS">
+                #ts</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Web">
+                #web</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/react-hooks-redux-typescript-handbook/">
+                        React hooks (v17.0.3) and Redux handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/css-responsive-design-handbook/">
+                        CSS responsive design using Grid, Flexbox, and media queries handbook
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/12/11/algo-ts-2/">
+                        Algorithms and data structures in TypeScript: non binary tree traversal
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/11/21/algo-ts-1/">
+                        Algorithms and data structures in TypeScript: string tokenizer, rate limiter
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/22/vue-vueitfy-webpack/">
+                        Vue.js, Webpack, Vueitify, Electron, and vue-cli
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/15/introduction-to-vue/">
+                        Getting started with Vue.js
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/19/loading-csv-files-in-javascript-and-node/">
+                        Loading CSV files in Node
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2023/08/11/chrome-extension-shortlink/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

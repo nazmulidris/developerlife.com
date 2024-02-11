@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>SwingX Tutorial - Task Pane (JXTaskPane, Container) | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="SwingX Tutorial - Task Pane (JXTaskPane, Container)" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial will walk you through the steps required to use JXTaskPane and JXTaskPaneContainer in SwingX. You will learn how to change the default color schemes of these components, and add components and actions to task panes." />
+<meta property="og:description" content="This tutorial will walk you through the steps required to use JXTaskPane and JXTaskPaneContainer in SwingX. You will learn how to change the default color schemes of these components, and add components and actions to task panes." />
+<link rel="canonical" href="http://developerlife.com/2008/01/28/swingx-tutorial-task-pane/" />
+<meta property="og:url" content="http://developerlife.com/2008/01/28/swingx-tutorial-task-pane/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2008-01-28T12:48:20-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="SwingX Tutorial - Task Pane (JXTaskPane, Container)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2008-01-28T12:48:20-06:00","datePublished":"2008-01-28T12:48:20-06:00","description":"This tutorial will walk you through the steps required to use JXTaskPane and JXTaskPaneContainer in SwingX. You will learn how to change the default color schemes of these components, and add components and actions to task panes.","headline":"SwingX Tutorial - Task Pane (JXTaskPane, Container)","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2008/01/28/swingx-tutorial-task-pane/"},"url":"http://developerlife.com/2008/01/28/swingx-tutorial-task-pane/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;SwingX Tutorial - Task Pane (JXTaskPane, Container)&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = SwingX Tutorial - Task Pane (JXTaskPane, Container)</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">SwingX Tutorial - Task Pane (JXTaskPane, Container)</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jan 28, 2008
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#what-is-a-task-pane">What is a task pane?</a></li>
+  <li><a href="#source-code-example">Source code example</a></li>
+  <li><a href="#download-project">Download project</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>SwingX introduces a lot of new components to Swing, and this tutorial will cover the task pane. You
+have seen task panes before if you’ve used Windows, they are used extensively in explorer and
+control panel. Here’s are examples:</p>
+
+<p><img src="/assets/swingx-1.png" alt="" /> <img src="/assets/swingx-2.png" alt="" /></p>
+      <h2 id="what-is-a-task-pane">
+        
+        
+          What is a task pane? <a href="#what-is-a-task-pane">#</a>
+        
+        
+      </h2>
+    
+
+<p>The SwingX implementation of the task pane is more like Windows XP rather than Windows Vista, but
+the idea is the same. In a
+<a href="http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/org/jdesktop/swingx/JXTaskPane.html">task pane</a>,
+you can add various actions and components that are displayed in a list, which can be collapsed. You
+are free to add more than 1 task pane to a
+<a href="http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/org/jdesktop/swingx/JXTaskPaneContainer.html">task pane container</a>.
+You can also set an icon and title for your task pane. You can also set formatting options to change
+the colors used by the task pane and the task pane container.</p>
+
+<p>You don’t have to use a task pane container to hold a task pane, you can add the task pane to any
+swing container. However, if you place the task pane in the task pane container, it will render
+better (SwingX changes the default colors of the task pane and container to match the OS it’s
+running on). You can override these default color schemes by adding key-value pairs in the UI
+Defaults yourself. This tutorial will cover all of this functionality.</p>
+      <h2 id="source-code-example">
+        
+        
+          Source code example <a href="#source-code-example">#</a>
+        
+        
+      </h2>
+    
+
+<p>In the following example, I’m going to create a JXTaskPane, with some components, that I will then
+place in a JXTaskPaneContainer. Here is what it looks like:</p>
+
+<p><img src="/assets/swingx-3.png" alt="" /></p>
+
+<p>The JXTaskPane called “My Tasks” has an icon and a title. It also contains a JXLabel with a
+background painter, and an Action object (which has a name, icon, and tooltip). When you click on
+the action, it simply changes the JXLabel’s text. Note that you can collapse the entire JXTaskPane
+by clicking anywhere on the title, or by pressing “Space” with your keyboard, when it’s in focus.
+You can change keyboard focus between the action and the JXTaskPane title by pressing the “Tab” key
+on your keyboard.</p>
+
+<p>The first step in coding up this example is creating the JXTaskPane and JXTaskPaneContainers. The
+JXTaskPane also needs to be populated with an Action and JXLabel. Here’s the code to do this:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// create a label</span>
+<span class="kd">final</span> <span class="nc">JXLabel</span> <span class="n">label</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JXLabel</span><span class="o">();</span>
+<span class="n">label</span><span class="o">.</span><span class="na">setFont</span><span class="o">(</span><span class="k">new</span> <span class="nc">Font</span><span class="o">(</span><span class="s">"Segoe UI"</span><span class="o">,</span> <span class="nc">Font</span><span class="o">.</span><span class="na">BOLD</span><span class="o">,</span> <span class="mi">14</span><span class="o">));</span>
+<span class="n">label</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">"task pane item 1 : a label"</span><span class="o">);</span>
+<span class="n">label</span><span class="o">.</span><span class="na">setIcon</span><span class="o">(</span><span class="nc">Images</span><span class="o">.</span><span class="na">NetworkDisconnected</span><span class="o">.</span><span class="na">getIcon</span><span class="o">(</span><span class="mi">32</span><span class="o">,</span> <span class="mi">32</span><span class="o">));</span>
+<span class="n">label</span><span class="o">.</span><span class="na">setHorizontalAlignment</span><span class="o">(</span><span class="nc">JXLabel</span><span class="o">.</span><span class="na">LEFT</span><span class="o">);</span>
+<span class="n">label</span><span class="o">.</span><span class="na">setBackgroundPainter</span><span class="o">(</span><span class="n">getPainter</span><span class="o">());</span>
+<span class="c1">// tweak with the UI defaults for the taskpane and taskpanecontainer</span>
+<span class="n">changeUIdefaults</span><span class="o">();</span>
+<span class="c1">// create a taskpanecontainer</span>
+<span class="nc">JXTaskPaneContainer</span> <span class="n">taskpanecontainer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JXTaskPaneContainer</span><span class="o">();</span>
+<span class="c1">// create a taskpane, and set it's title and icon</span>
+<span class="nc">JXTaskPane</span> <span class="n">taskpane</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JXTaskPane</span><span class="o">();</span>
+<span class="n">taskpane</span><span class="o">.</span><span class="na">setTitle</span><span class="o">(</span><span class="s">"My Tasks"</span><span class="o">);</span>
+<span class="n">taskpane</span><span class="o">.</span><span class="na">setIcon</span><span class="o">(</span><span class="nc">Images</span><span class="o">.</span><span class="na">Quit</span><span class="o">.</span><span class="na">getIcon</span><span class="o">(</span><span class="mi">24</span><span class="o">,</span> <span class="mi">24</span><span class="o">));</span>
+<span class="c1">// add various actions and components to the taskpane</span>
+<span class="n">taskpane</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">label</span><span class="o">);</span>
+<span class="n">taskpane</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">AbstractAction</span><span class="o">()</span> <span class="o">{</span>
+ <span class="o">{</span>
+ <span class="n">putValue</span><span class="o">(</span><span class="nc">Action</span><span class="o">.</span><span class="na">NAME</span><span class="o">,</span> <span class="s">"task pane item 2 : an action"</span><span class="o">);</span>
+ <span class="n">putValue</span><span class="o">(</span><span class="nc">Action</span><span class="o">.</span><span class="na">SHORT_DESCRIPTION</span><span class="o">,</span> <span class="s">"perform an action"</span><span class="o">);</span>
+ <span class="n">putValue</span><span class="o">(</span><span class="nc">Action</span><span class="o">.</span><span class="na">SMALL_ICON</span><span class="o">,</span> <span class="nc">Images</span><span class="o">.</span><span class="na">NetworkConnected</span><span class="o">.</span><span class="na">getIcon</span><span class="o">(</span><span class="mi">32</span><span class="o">,</span> <span class="mi">32</span><span class="o">));</span>
+ <span class="o">}</span>
+ <span class="kd">public</span> <span class="kt">void</span> <span class="nf">actionPerformed</span><span class="o">(</span><span class="nc">ActionEvent</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+ <span class="n">label</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">"an action performed"</span><span class="o">);</span>
+ <span class="o">}</span>
+<span class="o">});</span>
+<span class="c1">// add the task pane to the taskpanecontainer</span>
+<span class="n">taskpanecontainer</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">taskpane</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>There are a couple of things to note here:</p>
+
+<ol>
+  <li>There is an enumeration called Images, which is used to load some images that come with this
+example. I’ve added 3 PNG images to the icons.zip file that are included as part of the
+<a href="http://developerlife.com/tutorials/wp-content/uploads/2008/01/taskpane.zip">project download</a>
+(it’s in the lib folder of the zip file). The enumeration has code in it which allows me to
+quickly load the images from PNG format, and then resize them to the width/height that is needed
+for this example. I use the
+<a href="http://swinglabs.org/hudson/job/SwingX%20Continuous%20Build/javadoc/">GraphicsUtilities</a> class
+that’s provided with SwingX, that has lots of useful features that you can use to resize images,
+etc. I also use the <a href="http://java.sun.com/j2se/1.4.2/docs/api/javax/imageio/ImageIO.html">ImageIO</a>
+class to actually read in the PNG file and convert it to a BufferedImage.</li>
+</ol>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="nc">Images</span> <span class="o">{</span>
+<span class="c1">// images</span>
+ <span class="nc">NetworkConnected</span><span class="o">(</span><span class="s">"NetworkConnected.png"</span><span class="o">),</span>
+ <span class="nc">NetworkDisconnected</span><span class="o">(</span><span class="s">"NetworkDisconnected.png"</span><span class="o">),</span>
+ <span class="nc">Quit</span><span class="o">(</span><span class="s">"quit.png"</span><span class="o">);</span>
+<span class="c1">// data</span>
+<span class="nc">String</span> <span class="n">imagefilename</span><span class="o">;</span>
+<span class="c1">// constructor</span>
+<span class="nc">Images</span><span class="o">(</span><span class="nc">String</span> <span class="n">name</span><span class="o">)</span> <span class="o">{</span>
+ <span class="n">imagefilename</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="c1">// methods</span>
+<span class="nc">BufferedImage</span> <span class="nf">getImage</span><span class="o">()</span> <span class="o">{</span>
+ <span class="k">try</span> <span class="o">{</span>
+ <span class="k">return</span> <span class="nc">ImageIO</span><span class="o">.</span><span class="na">read</span><span class="o">(</span><span class="nc">ClassLoader</span>
+        <span class="o">.</span><span class="na">getSystemResourceAsStream</span><span class="o">(</span><span class="n">imagefilename</span><span class="o">));</span>
+ <span class="o">}</span>
+ <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+ <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+ <span class="o">}</span>
+<span class="o">}</span>
+<span class="nc">Icon</span> <span class="nf">getIcon</span><span class="o">()</span> <span class="o">{</span>
+ <span class="k">return</span> <span class="k">new</span> <span class="nf">ImageIcon</span><span class="o">(</span><span class="n">getImage</span><span class="o">());</span>
+<span class="o">}</span>
+<span class="nc">BufferedImage</span> <span class="nf">getImage</span><span class="o">(</span><span class="kt">int</span> <span class="n">width</span><span class="o">,</span> <span class="kt">int</span> <span class="n">height</span><span class="o">)</span> <span class="o">{</span>
+ <span class="k">return</span> <span class="nc">GraphicsUtilities</span><span class="o">.</span><span class="na">createThumbnail</span><span class="o">(</span>
+         <span class="n">getImage</span><span class="o">(),</span> <span class="n">width</span><span class="o">,</span> <span class="n">height</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="nc">Icon</span> <span class="nf">getIcon</span><span class="o">(</span><span class="kt">int</span> <span class="n">width</span><span class="o">,</span> <span class="kt">int</span> <span class="n">height</span><span class="o">)</span> <span class="o">{</span>
+ <span class="k">return</span> <span class="k">new</span> <span class="nf">ImageIcon</span><span class="o">(</span><span class="n">getImage</span><span class="o">(</span><span class="n">width</span><span class="o">,</span> <span class="n">height</span><span class="o">));</span>
+<span class="o">}</span>
+<span class="o">}</span><span class="c1">//end enum Images</span>
+</code></pre></div></div>
+
+<ol>
+  <li>There is a call to getPainter() which sets the background painter for the JXLabel. To learn more
+about Painters, and the Colors enumeration,
+<a href="http://developerlife.com/tutorials/?p=140">click here</a>. Here’s the code for getPainter():</li>
+</ol>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/** this painter draws a gradient fill */</span>
+<span class="kd">public</span> <span class="nc">Painter</span> <span class="nf">getPainter</span><span class="o">()</span> <span class="o">{</span>
+ <span class="kt">int</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">100</span><span class="o">;</span>
+ <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">100</span><span class="o">;</span>
+ <span class="nc">Color</span> <span class="n">color1</span> <span class="o">=</span> <span class="nc">Colors</span><span class="o">.</span><span class="na">White</span><span class="o">.</span><span class="na">color</span><span class="o">(</span><span class="mf">0.5f</span><span class="o">);</span>
+ <span class="nc">Color</span> <span class="n">color2</span> <span class="o">=</span> <span class="nc">Colors</span><span class="o">.</span><span class="na">Gray</span><span class="o">.</span><span class="na">color</span><span class="o">(</span><span class="mf">0.5f</span><span class="o">);</span>
+ <span class="nc">LinearGradientPaint</span> <span class="n">gradientPaint</span> <span class="o">=</span>
+ <span class="k">new</span> <span class="nf">LinearGradientPaint</span><span class="o">(</span><span class="mf">0.0f</span><span class="o">,</span> <span class="mf">0.0f</span><span class="o">,</span> <span class="n">width</span><span class="o">,</span> <span class="n">height</span><span class="o">,</span>
+ <span class="k">new</span> <span class="kt">float</span><span class="o">[]{</span><span class="mf">0.0f</span><span class="o">,</span> <span class="mf">1.0f</span><span class="o">},</span>
+ <span class="k">new</span> <span class="nc">Color</span><span class="o">[]{</span><span class="n">color1</span><span class="o">,</span> <span class="n">color2</span><span class="o">});</span>
+ <span class="nc">MattePainter</span> <span class="n">mattePainter</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MattePainter</span><span class="o">(</span><span class="n">gradientPaint</span><span class="o">);</span>
+ <span class="k">return</span> <span class="n">mattePainter</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<ol>
+  <li>
+    <p>There is a call to changeUIDefaults() which will be explained below.</p>
+  </li>
+  <li>
+    <p>You can add any component to the JXTaskPane. You can also add Actions. When using Actions, just
+make sure that the NAME key has a value. If you have a SHORT_DESCRIPTION value, then it will show
+up as a tooltip. If you have a SMALL_ICON or LARGE_ICON value, then it will show up as an icon in
+the JXTaskPane entry.</p>
+  </li>
+</ol>
+
+<p>If you want to change the look of the JXTaskPane and JXTaskPane container, then you have to change
+some UI Defaults that they use to figure out how they should render themselves. There are quite a
+lot of options that you can set. Here’s the implementation of changeUIDefaults():</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kt">void</span> <span class="nf">changeUIdefaults</span><span class="o">()</span> <span class="o">{</span>
+ <span class="c1">// JXTaskPaneContainer settings (developer defaults)</span>
+ <span class="cm">/* These are all the properties that can be set
+  * (may change with new version of SwingX)
+  * "TaskPaneContainer.useGradient",
+  * "TaskPaneContainer.background",
+  * "TaskPaneContainer.backgroundGradientStart",
+  * "TaskPaneContainer.backgroundGradientEnd",
+  * etc.
+  */</span>
+ <span class="c1">// setting taskpanecontainer defaults</span>
+ <span class="nc">UIManager</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"TaskPaneContainer.useGradient"</span><span class="o">,</span>
+               <span class="nc">Boolean</span><span class="o">.</span><span class="na">FALSE</span><span class="o">);</span>
+ <span class="nc">UIManager</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"TaskPaneContainer.background"</span><span class="o">,</span>
+               <span class="nc">Colors</span><span class="o">.</span><span class="na">LightGray</span><span class="o">.</span><span class="na">color</span><span class="o">(</span><span class="mf">0.5f</span><span class="o">));</span>
+ <span class="c1">// setting taskpane defaults</span>
+ <span class="nc">UIManager</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"TaskPane.font"</span><span class="o">,</span>
+               <span class="k">new</span> <span class="nf">FontUIResource</span><span class="o">(</span>
+                       <span class="k">new</span> <span class="nf">Font</span><span class="o">(</span><span class="s">"Verdana"</span><span class="o">,</span> <span class="nc">Font</span><span class="o">.</span><span class="na">BOLD</span><span class="o">,</span> <span class="mi">16</span><span class="o">)));</span>
+ <span class="nc">UIManager</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"TaskPane.titleBackgroundGradientStart"</span><span class="o">,</span>
+               <span class="nc">Colors</span><span class="o">.</span><span class="na">White</span><span class="o">.</span><span class="na">color</span><span class="o">());</span>
+ <span class="nc">UIManager</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"TaskPane.titleBackgroundGradientEnd"</span><span class="o">,</span>
+               <span class="nc">Colors</span><span class="o">.</span><span class="na">LightBlue</span><span class="o">.</span><span class="na">color</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>As you can see from this code, you can set 2 gradient colors for the JXTaskPane/JXTaskPaneContainer
+to paint the background. You have to set the “useGradient” value to “Boolean.TRUE”. and you have to
+specify the “backgroundGradientStart” and “backgroundGradientEnd” values, which are both colors.
+Alternatively, you can set “useGradient” to false, and just use a “background” color. The code
+example shows you both combinations:</p>
+
+<ol>
+  <li>
+    <p>The JXTaskPaneContainer doesn’t use a gradient fill, it uses a single background color (LightGray
+50% transparent).</p>
+  </li>
+  <li>
+    <p>The JXTaskPane uses a gradient fill (vertical fill), and it’s 2 stops are: White to LightBlue.</p>
+  </li>
+</ol>
+
+<p>Here’s the complete listing for the TaskPanelExample1.java:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jdesktop.swingx.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jdesktop.swingx.painter.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.swing.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.swing.plaf.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.awt.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.awt.event.*</span><span class="o">;</span>
+<span class="cm">/**
+ * TaskPaneExample1
+ *
+ * @author Nazmul Idris
+ * @version 1.0
+ * @since Jan 28, 2008, 12:49:01 PM
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">TaskPaneExample1</span> <span class="o">{</span>
+<span class="cm">/** simple main driver for this class */</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">SwingUtilities</span><span class="o">.</span><span class="na">invokeLater</span><span class="o">(</span><span class="k">new</span> <span class="nc">Runnable</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+      <span class="k">new</span> <span class="nf">TaskPaneExample1</span><span class="o">();</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+<span class="cm">/** creates a JFrame and calls {@link #doInit} to
+* create a JXPanel and adds the panel to this frame. */</span>
+<span class="kd">public</span> <span class="nf">TaskPaneExample1</span><span class="o">()</span> <span class="o">{</span>
+  <span class="nc">JFrame</span> <span class="n">frame</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JFrame</span><span class="o">(</span><span class="s">"TaskPane Example 1"</span><span class="o">);</span>
+  <span class="c1">// add the panel to this frame</span>
+  <span class="n">frame</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">doInit</span><span class="o">());</span>
+  <span class="c1">// when you close the frame, the app exits</span>
+  <span class="n">frame</span><span class="o">.</span><span class="na">setDefaultCloseOperation</span><span class="o">(</span><span class="nc">JFrame</span><span class="o">.</span><span class="na">EXIT_ON_CLOSE</span><span class="o">);</span>
+  <span class="c1">// center the frame and show it</span>
+  <span class="n">frame</span><span class="o">.</span><span class="na">setLocationRelativeTo</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+  <span class="n">frame</span><span class="o">.</span><span class="na">pack</span><span class="o">();</span>
+  <span class="n">frame</span><span class="o">.</span><span class="na">setVisible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="cm">/** creates a JXLabel and attaches a painter to it. */</span>
+<span class="kd">private</span> <span class="nc">Component</span> <span class="nf">doInit</span><span class="o">()</span> <span class="o">{</span>
+  <span class="nc">JXPanel</span> <span class="n">panel</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JXPanel</span><span class="o">();</span>
+  <span class="n">panel</span><span class="o">.</span><span class="na">setLayout</span><span class="o">(</span><span class="k">new</span> <span class="nc">BorderLayout</span><span class="o">());</span>
+  <span class="c1">// create a label</span>
+  <span class="kd">final</span> <span class="nc">JXLabel</span> <span class="n">label</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JXLabel</span><span class="o">();</span>
+  <span class="n">label</span><span class="o">.</span><span class="na">setFont</span><span class="o">(</span><span class="k">new</span> <span class="nc">Font</span><span class="o">(</span><span class="s">"Segoe UI"</span><span class="o">,</span> <span class="nc">Font</span><span class="o">.</span><span class="na">BOLD</span><span class="o">,</span> <span class="mi">14</span><span class="o">));</span>
+  <span class="n">label</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">"task pane item 1 : a label"</span><span class="o">);</span>
+  <span class="n">label</span><span class="o">.</span><span class="na">setIcon</span><span class="o">(</span>
+          <span class="nc">Images</span><span class="o">.</span><span class="na">NetworkDisconnected</span><span class="o">.</span><span class="na">getIcon</span><span class="o">(</span><span class="mi">32</span><span class="o">,</span> <span class="mi">32</span><span class="o">));</span>
+  <span class="n">label</span><span class="o">.</span><span class="na">setHorizontalAlignment</span><span class="o">(</span><span class="nc">JXLabel</span><span class="o">.</span><span class="na">LEFT</span><span class="o">);</span>
+  <span class="n">label</span><span class="o">.</span><span class="na">setBackgroundPainter</span><span class="o">(</span><span class="n">getPainter</span><span class="o">());</span>
+  <span class="c1">// tweak with the UI defaults for the taskpane and</span>
+  <span class="c1">// taskpanecontainer</span>
+  <span class="n">changeUIdefaults</span><span class="o">();</span>
+  <span class="c1">// create a taskpanecontainer</span>
+  <span class="nc">JXTaskPaneContainer</span> <span class="n">taskpanecontainer</span> <span class="o">=</span>
+        <span class="k">new</span> <span class="nf">JXTaskPaneContainer</span><span class="o">();</span>
+  <span class="c1">// create a taskpane, and set it's title and icon</span>
+  <span class="nc">JXTaskPane</span> <span class="n">taskpane</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">JXTaskPane</span><span class="o">();</span>
+  <span class="n">taskpane</span><span class="o">.</span><span class="na">setTitle</span><span class="o">(</span><span class="s">"My Tasks"</span><span class="o">);</span>
+  <span class="n">taskpane</span><span class="o">.</span><span class="na">setIcon</span><span class="o">(</span><span class="nc">Images</span><span class="o">.</span><span class="na">Quit</span><span class="o">.</span><span class="na">getIcon</span><span class="o">(</span><span class="mi">24</span><span class="o">,</span> <span class="mi">24</span><span class="o">));</span>
+  <span class="c1">// add various actions and components to the taskpane</span>
+  <span class="n">taskpane</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">label</span><span class="o">);</span>
+  <span class="n">taskpane</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="k">new</span> <span class="nc">AbstractAction</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">{</span>
+      <span class="n">putValue</span><span class="o">(</span><span class="nc">Action</span><span class="o">.</span><span class="na">NAME</span><span class="o">,</span>
+            <span class="s">"task pane item 2 : an action"</span><span class="o">);</span>
+      <span class="n">putValue</span><span class="o">(</span><span class="nc">Action</span><span class="o">.</span><span class="na">SHORT_DESCRIPTION</span><span class="o">,</span>
+            <span class="s">"perform an action"</span><span class="o">);</span>
+      <span class="n">putValue</span><span class="o">(</span><span class="nc">Action</span><span class="o">.</span><span class="na">SMALL_ICON</span><span class="o">,</span>
+            <span class="nc">Images</span><span class="o">.</span><span class="na">NetworkConnected</span><span class="o">.</span><span class="na">getIcon</span><span class="o">(</span><span class="mi">32</span><span class="o">,</span> <span class="mi">32</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">actionPerformed</span><span class="o">(</span><span class="nc">ActionEvent</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">label</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="s">"an action performed"</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+  <span class="c1">// add the task pane to the taskpanecontainer</span>
+  <span class="n">taskpanecontainer</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">taskpane</span><span class="o">);</span>
+  <span class="c1">// set the transparency of the JXPanel to</span>
+  <span class="c1">// 50% transparent</span>
+  <span class="n">panel</span><span class="o">.</span><span class="na">setAlpha</span><span class="o">(</span><span class="mf">0.7f</span><span class="o">);</span>
+  <span class="n">panel</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">taskpanecontainer</span><span class="o">,</span> <span class="nc">BorderLayout</span><span class="o">.</span><span class="na">CENTER</span><span class="o">);</span>
+  <span class="n">panel</span><span class="o">.</span><span class="na">setPreferredSize</span><span class="o">(</span><span class="k">new</span> <span class="nc">Dimension</span><span class="o">(</span><span class="mi">250</span><span class="o">,</span> <span class="mi">200</span><span class="o">));</span>
+  <span class="k">return</span> <span class="n">panel</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">changeUIdefaults</span><span class="o">()</span> <span class="o">{</span>
+  <span class="c1">// JXTaskPaneContainer settings (developer defaults)</span>
+  <span class="cm">/* These are all the properties that can be set
+   * (may change with new version of SwingX)
+   * "TaskPaneContainer.useGradient",
+   * "TaskPaneContainer.background",
+   * "TaskPaneContainer.backgroundGradientStart",
+   * "TaskPaneContainer.backgroundGradientEnd",
+   * etc.
+   */</span>
+  <span class="c1">// setting taskpanecontainer defaults</span>
+  <span class="nc">UIManager</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"TaskPaneContainer.useGradient"</span><span class="o">,</span>
+        <span class="nc">Boolean</span><span class="o">.</span><span class="na">FALSE</span><span class="o">);</span>
+  <span class="nc">UIManager</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"TaskPaneContainer.background"</span><span class="o">,</span>
+        <span class="nc">Colors</span><span class="o">.</span><span class="na">LightGray</span><span class="o">.</span><span class="na">color</span><span class="o">(</span><span class="mf">0.5f</span><span class="o">));</span>
+  <span class="c1">// setting taskpane defaults</span>
+  <span class="nc">UIManager</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"TaskPane.font"</span><span class="o">,</span>
+        <span class="k">new</span> <span class="nf">FontUIResource</span><span class="o">(</span><span class="k">new</span> <span class="nc">Font</span><span class="o">(</span><span class="s">"Verdana"</span><span class="o">,</span> <span class="nc">Font</span><span class="o">.</span><span class="na">BOLD</span><span class="o">,</span> <span class="mi">16</span><span class="o">)));</span>
+  <span class="nc">UIManager</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"TaskPane.titleBackgroundGradientStart"</span><span class="o">,</span>
+        <span class="nc">Colors</span><span class="o">.</span><span class="na">White</span><span class="o">.</span><span class="na">color</span><span class="o">());</span>
+  <span class="nc">UIManager</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="s">"TaskPane.titleBackgroundGradientEnd"</span><span class="o">,</span>
+        <span class="nc">Colors</span><span class="o">.</span><span class="na">LightBlue</span><span class="o">.</span><span class="na">color</span><span class="o">());</span>
+<span class="o">}</span>
+<span class="cm">/** this painter draws a gradient fill */</span>
+<span class="kd">public</span> <span class="nc">Painter</span> <span class="nf">getPainter</span><span class="o">()</span> <span class="o">{</span>
+  <span class="kt">int</span> <span class="n">width</span> <span class="o">=</span> <span class="mi">100</span><span class="o">;</span>
+  <span class="kt">int</span> <span class="n">height</span> <span class="o">=</span> <span class="mi">100</span><span class="o">;</span>
+  <span class="nc">Color</span> <span class="n">color1</span> <span class="o">=</span> <span class="nc">Colors</span><span class="o">.</span><span class="na">White</span><span class="o">.</span><span class="na">color</span><span class="o">(</span><span class="mf">0.5f</span><span class="o">);</span>
+  <span class="nc">Color</span> <span class="n">color2</span> <span class="o">=</span> <span class="nc">Colors</span><span class="o">.</span><span class="na">Gray</span><span class="o">.</span><span class="na">color</span><span class="o">(</span><span class="mf">0.5f</span><span class="o">);</span>
+  <span class="nc">LinearGradientPaint</span> <span class="n">gradientPaint</span> <span class="o">=</span>
+      <span class="k">new</span> <span class="nf">LinearGradientPaint</span><span class="o">(</span><span class="mf">0.0f</span><span class="o">,</span> <span class="mf">0.0f</span><span class="o">,</span> <span class="n">width</span><span class="o">,</span> <span class="n">height</span><span class="o">,</span>
+                              <span class="k">new</span> <span class="kt">float</span><span class="o">[]{</span><span class="mf">0.0f</span><span class="o">,</span> <span class="mf">1.0f</span><span class="o">},</span>
+                              <span class="k">new</span> <span class="nc">Color</span><span class="o">[]{</span><span class="n">color1</span><span class="o">,</span> <span class="n">color2</span><span class="o">});</span>
+  <span class="nc">MattePainter</span> <span class="n">mattePainter</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MattePainter</span><span class="o">(</span><span class="n">gradientPaint</span><span class="o">);</span>
+  <span class="k">return</span> <span class="n">mattePainter</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="o">}</span><span class="c1">//end class TaskPaneExample1</span>
+</code></pre></div></div>
+
+<p>Please note that I’ve assembled the JXTaskPaneContainer in a JXPanel and I set it’s opacity to 70%,
+making it 30% transparent. This is another cool feature of using SwingX JXPanel, and it’s
+transparency.</p>
+      <h2 id="download-project">
+        
+        
+          Download project <a href="#download-project">#</a>
+        
+        
+      </h2>
+    
+
+<p>To download the IDEA projects for this tutorial’s source code example, <a href="/assets/taskpane.zip">click
+here</a>.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/">
+                        How to use glass pane for animation (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2008/01/28/swingx-tutorial-task-pane/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

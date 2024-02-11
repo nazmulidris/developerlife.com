@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Kotlin Sealed Classes and State | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Kotlin Sealed Classes and State" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is an exploration of Kotlin sealed classes and how they can be used to represent state elegantly and robustly" />
+<meta property="og:description" content="This tutorial is an exploration of Kotlin sealed classes and how they can be used to represent state elegantly and robustly" />
+<link rel="canonical" href="http://developerlife.com/2018/10/21/kotlin-sealed-classes/" />
+<meta property="og:url" content="http://developerlife.com/2018/10/21/kotlin-sealed-classes/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-10-21T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Kotlin Sealed Classes and State" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2018-10-21T00:00:00-05:00","datePublished":"2018-10-21T00:00:00-05:00","description":"This tutorial is an exploration of Kotlin sealed classes and how they can be used to represent state elegantly and robustly","headline":"Kotlin Sealed Classes and State","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2018/10/21/kotlin-sealed-classes/"},"url":"http://developerlife.com/2018/10/21/kotlin-sealed-classes/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Kotlin Sealed Classes and State&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Kotlin Sealed Classes and State</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Kotlin Sealed Classes and State</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Oct 21, 2018
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/kotlin-awesomeness-hero.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#sealed-classes-and-state">Sealed classes and state</a></li>
+  <li><a href="#example-1---android-permissions">Example 1 - Android permissions</a></li>
+  <li><a href="#example-2---android-gms-tasks-api">Example 2 - Android GMS Tasks API</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="sealed-classes-and-state">
+        
+        
+          Sealed classes and state <a href="#sealed-classes-and-state">#</a>
+        
+        
+      </h2>
+    
+
+<p>Kotlin sealed classes are like enums with super powers. They can be used to concisely and elegantly
+represent state information. They can be use in finite state machines as well (eg via Redux) but
+this tutorial will only explore how they can be used to represent state in some common problems you
+encounter in Android development.</p>
+
+<p>Please watch <a href="https://www.youtube.com/watch?v=uGMm3StjqLI">this great video</a> on Kotlin sealed
+classes and state management by
+<a href="https://www.linkedin.com/in/patrick-cousins-530117127">Patrick Cousins</a> which was recorded during
+KotlinConf 2018.</p>
+      <h2 id="example-1---android-permissions">
+        
+        
+          Example 1 - Android permissions <a href="#example-1---android-permissions">#</a>
+        
+        
+      </h2>
+    
+
+<p>If an Android app requires
+<a href="https://developer.android.com/guide/topics/permissions/overview#dangerous-permission-prompt">dangerous permissions</a>
+then it becomes necessary to prompt the end user of the app to grant such permissions. This requires
+quite a bit of back and forth, and in most cases, an Activity has to be extended in order to provide
+an implementation of <code class="language-plaintext highlighter-rouge">onRequestPermissionsResult()</code>. Also, the Activity itself is needed to make the
+permission request.</p>
+
+<p>So here’s the overall flow of what has to happen.</p>
+
+<ol>
+  <li>
+    <p>The Activity’s <code class="language-plaintext highlighter-rouge">requestPermissions(Activity, Array&lt;String&gt;, Int)</code> method has to be called in
+order to display the permissions prompt to the end user.</p>
+  </li>
+  <li>
+    <p>The Activity’s <code class="language-plaintext highlighter-rouge">onRequestPermissionsResult(Int, Array&lt;String&gt;, IntArray)</code> method has to be
+overridden in order to determine if the user pressed pressed the “ALLOW” or “DENY” button when
+presented w/ the prompt to grant the permission at runtime.</p>
+
+    <ol>
+      <li>
+        <p>If the permission was granted, then the operation that required the permission can be
+performed.</p>
+      </li>
+      <li>
+        <p>If the permission was denied, then let the user know that the app requires this permission in
+order to function (or whatever makes sense for your app).</p>
+      </li>
+    </ol>
+  </li>
+</ol>
+
+<p>In order to determine whether the permission was granted or not, requires a lengthy if statement to
+interpret the meaning of the 3 parameters of the <code class="language-plaintext highlighter-rouge">onRequestPermissionsResult()</code>. And this is where
+sealed classes can make life much simpler by turning these 3 objects into a simple expression of
+what the state of the approval is. The following is an example of what this might look like.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">sealed</span> <span class="kd">class</span> <span class="nc">PermissionResult</span> <span class="p">{</span>
+    <span class="kd">class</span> <span class="nc">Granted</span><span class="p">(</span><span class="n">id</span><span class="p">:</span> <span class="nc">Int</span><span class="p">)</span> <span class="p">:</span> <span class="nc">PermissionResult</span><span class="p">()</span>
+    <span class="kd">class</span> <span class="nc">Revoked</span><span class="p">(</span><span class="n">id</span><span class="p">:</span> <span class="nc">Int</span><span class="p">)</span> <span class="p">:</span> <span class="nc">PermissionResult</span><span class="p">()</span>
+    <span class="kd">class</span> <span class="nc">Cancelled</span><span class="p">(</span><span class="n">id</span><span class="p">:</span> <span class="nc">Int</span><span class="p">)</span> <span class="p">:</span> <span class="nc">PermissionResult</span><span class="p">()</span>
+
+    <span class="k">companion</span> <span class="k">object</span> <span class="p">{</span>
+        <span class="k">fun</span> <span class="nf">convert</span><span class="p">(</span><span class="n">requestCode</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span>
+                    <span class="n">permissions</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;,</span>
+                    <span class="n">grantResults</span><span class="p">:</span> <span class="nc">IntArray</span><span class="p">):</span> <span class="nc">PermissionResult</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="k">when</span> <span class="p">{</span>
+                <span class="c1">// If request is cancelled, the result arrays are empty.</span>
+                <span class="n">grantResults</span><span class="p">.</span><span class="nf">isEmpty</span><span class="p">()</span> <span class="p">-&gt;</span> <span class="nc">Cancelled</span><span class="p">(</span><span class="n">requestCode</span><span class="p">)</span>
+                <span class="c1">// Permission was granted, 🎉. Run the pending task function.</span>
+                <span class="n">grantResults</span><span class="p">.</span><span class="nf">first</span><span class="p">()</span> <span class="p">==</span> <span class="nc">PERMISSION_GRANTED</span> <span class="p">-&gt;</span> <span class="nc">Granted</span><span class="p">(</span><span class="n">requestCode</span><span class="p">)</span>
+                <span class="c1">// Permission denied, ☹.</span>
+                <span class="k">else</span> <span class="p">-&gt;</span> <span class="nc">Revoked</span><span class="p">(</span><span class="n">requestCode</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And here’s an example of using this in the Activity.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">DriverActivity</span> <span class="p">:</span> <span class="nc">AppCompatActivity</span><span class="p">()</span> <span class="p">{</span>
+
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">onRequestPermissionsResult</span><span class="p">(</span><span class="n">requestCode</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span>
+                                            <span class="n">permissions</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;,</span>
+                                            <span class="n">grantResults</span><span class="p">:</span> <span class="nc">IntArray</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nc">PermissionsHandler</span><span class="p">.</span><span class="nf">onRequestPermissionsResult</span><span class="p">(</span>
+            <span class="n">requestCode</span><span class="p">,</span> <span class="n">permissions</span><span class="p">,</span> <span class="n">grantResults</span><span class="p">)</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the implementation of the method that the Activity calls to figure out what happened w/ the
+permission grant from the user.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">onRequestPermissionsResult</span><span class="p">(</span><span class="n">requestCode</span><span class="p">:</span> <span class="nc">Int</span><span class="p">,</span>
+                               <span class="n">permissions</span><span class="p">:</span> <span class="nc">Array</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;,</span>
+                               <span class="n">grantResults</span><span class="p">:</span> <span class="nc">IntArray</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">when</span> <span class="p">(</span><span class="n">requestCode</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nc">PERMISSION_ID</span> <span class="p">-&gt;</span> <span class="p">{</span>
+            <span class="k">when</span> <span class="p">(</span><span class="nc">PermissionResult</span><span class="p">.</span><span class="nf">convert</span><span class="p">(</span><span class="n">requestCode</span><span class="p">,</span> <span class="n">permissions</span><span class="p">,</span> <span class="n">grantResults</span><span class="p">))</span> <span class="p">{</span>
+                <span class="k">is</span> <span class="nc">PermissionsHandler</span><span class="p">.</span><span class="nc">PermissionResult</span><span class="p">.</span><span class="nc">Granted</span> <span class="p">-&gt;</span> <span class="p">{</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="n">pendingTask</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="s">"🔒 Permission is granted 🙌, Execute pendingTask"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+                        <span class="n">pendingTask</span><span class="o">?.</span><span class="nf">onPermissionGranted</span><span class="p">()</span>
+                        <span class="n">pendingTask</span> <span class="p">=</span> <span class="k">null</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+                <span class="k">is</span> <span class="nc">PermissionsHandler</span><span class="p">.</span><span class="nc">PermissionResult</span><span class="p">.</span><span class="nc">Revoked</span> <span class="p">-&gt;</span> <span class="p">{</span>
+                    <span class="n">pendingTask</span><span class="o">?.</span><span class="nf">onPermissionRevoked</span><span class="p">()</span>
+                <span class="p">}</span>
+                <span class="k">is</span> <span class="nc">PermissionsHandler</span><span class="p">.</span><span class="nc">PermissionResult</span><span class="p">.</span><span class="nc">Cancelled</span> <span class="p">-&gt;</span> <span class="p">{</span>
+
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="c1">// Add other 'when' lines to check for other permissions this app might request.</span>
+        <span class="k">else</span> <span class="p">-&gt;</span> <span class="p">{</span>
+            <span class="c1">// Ignore all other requests.</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Finally, here’s the code block that kicks it all off (when the Activity requests a permission).</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">executeTaskOnPermissionGranted</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="nc">AppCompatActivity</span><span class="p">,</span>
+                                   <span class="n">task</span><span class="p">:</span> <span class="nc">PermissionDependentTask</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nf">isPermissionDenied</span><span class="p">(</span><span class="n">context</span><span class="p">,</span>
+                           <span class="n">task</span><span class="p">.</span><span class="nf">getRequiredPermission</span><span class="p">()))</span> <span class="p">{</span>
+        <span class="c1">// Permission is not granted ☹. Ask the user for the run time permission 🙏.</span>
+        <span class="s">"🔒 ${task.getRequiredPermission()} not granted 🛑, request it 🙏️"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+        <span class="nf">requestPermission</span><span class="p">(</span><span class="n">context</span><span class="p">,</span>
+                          <span class="n">task</span><span class="p">.</span><span class="nf">getRequiredPermission</span><span class="p">(),</span>
+                          <span class="nc">PERMISSION_ID</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">pendingTask</span> <span class="p">==</span> <span class="k">null</span><span class="p">)</span> <span class="n">pendingTask</span> <span class="p">=</span> <span class="n">task</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// Permission is granted 🙌. Run the task function.</span>
+        <span class="s">"🔒 ${task.getRequiredPermission()} permission granted 🙌, run task "</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+        <span class="n">task</span><span class="p">.</span><span class="nf">onPermissionGranted</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And here’s where the call to <code class="language-plaintext highlighter-rouge">executeTaskOnPermissionGranted()</code> occurs in a part of the app that
+requires a permission in order to continue.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">executeTaskOnPermissionGranted</span><span class="p">(</span>
+    <span class="kd">object</span> <span class="err">: </span><span class="nc">PermissionDependentTask</span> <span class="p">{</span>
+        <span class="k">override</span> <span class="k">fun</span> <span class="nf">getRequiredPermission</span><span class="p">()</span> <span class="p">=</span>
+                <span class="n">android</span><span class="p">.</span><span class="nc">Manifest</span><span class="p">.</span><span class="n">permission</span><span class="p">.</span><span class="nc">ACCESS_FINE_LOCATION</span>
+
+        <span class="k">override</span> <span class="k">fun</span> <span class="nf">onPermissionGranted</span><span class="p">()</span> <span class="p">{</span>
+            <span class="n">serviceGetCurrentPlace</span><span class="p">.</span><span class="nf">execute</span><span class="p">()</span>
+            <span class="nf">snack</span><span class="p">(</span><span class="n">fragmentContainer</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nf">setText</span><span class="p">(</span><span class="nc">R</span><span class="p">.</span><span class="n">string</span><span class="p">.</span><span class="n">message_making_api_call_getCurrentPlace</span><span class="p">)</span>
+            <span class="p">}</span>
+
+        <span class="p">}</span>
+
+        <span class="k">override</span> <span class="k">fun</span> <span class="nf">onPermissionRevoked</span><span class="p">()</span> <span class="p">{</span>
+            <span class="nf">snack</span><span class="p">(</span><span class="n">fragmentContainer</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nf">setText</span><span class="p">(</span><span class="n">resources</span><span class="p">.</span><span class="nf">getString</span><span class="p">(</span>
+                        <span class="nc">R</span><span class="p">.</span><span class="n">string</span><span class="p">.</span><span class="n">message_permission_missing_for_api_call</span><span class="p">,</span>
+                        <span class="nf">getRequiredPermission</span><span class="p">()))</span>
+                <span class="n">duration</span> <span class="p">=</span> <span class="nc">Snackbar</span><span class="p">.</span><span class="nc">LENGTH_LONG</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">})</span>
+</code></pre></div></div>
+
+<p>For a complete listing of sources in a real world example that uses this please check out the
+following links.</p>
+
+<ol>
+  <li><a href="https://github.com/nazmulidris/places-api-poc/blob/main/app/src/main/kotlin/com/google/api/places/places_api_poc/misc/Permissions.kt">Permissions.kt</a></li>
+  <li><a href="https://github.com/nazmulidris/places-api-poc/blob/main/app/src/main/kotlin/com/google/api/places/places_api_poc/ui/DriverActivity.kt">DriverActivity.kt</a></li>
+</ol>
+
+<blockquote>
+  <p>Here’s a link to the <a href="https://github.com/nazmulidris/places-api-poc/">repo</a> for this project.</p>
+</blockquote>
+      <h2 id="example-2---android-gms-tasks-api">
+        
+        
+          Example 2 - Android GMS Tasks API <a href="#example-2---android-gms-tasks-api">#</a>
+        
+        
+      </h2>
+    
+
+<p>Google Play Services uses the <a href="https://developers.google.com/android/guides/tasks">Tasks API</a> in
+order to provide an implementation of “promises” for asynchronous operations. It can be quite
+tedious to wade through the generics, and interfaces, and ceremony that this API requires. While
+understandable, why it has such complexity, the use of sealed classes and <a href="/2018/10/20/kotlin-extension-function-expressions/">extension function
+expressions</a> can make
+using this API a breeze.</p>
+
+<p>Here’s the flow that occurs when using the Task API.</p>
+
+<ol>
+  <li>
+    <p>There’s a service that can be accessed via some client object. This client object is created and
+some arguments are passed to it, in order to get some results from it. This is the gist of the
+service request and response. However, the service might take some arbitrary amount of time to
+provide the result, and instead of awaiting the results, this is where Task API comes into play.
+The service client provides a Task object when the request is made. Also, keep in mind that the
+result might be an error.</p>
+  </li>
+  <li>
+    <p>In order to do something when the Task actually has results, a lambda / closure / higher order
+function has to be provided to the Task (that was created above) so that when it completes with a
+success or error, then this result can be used to do something that’s useful for the app.</p>
+  </li>
+</ol>
+
+<p>From the perspective of the code that uses the Task, what would really be nice is an error or a
+result back from the response. Please note that the request is created by the client w/ the
+arguments passed to the client. Here’s what this response might look like, using Kotlin sealed
+classes.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">sealed</span> <span class="kd">class</span> <span class="nc">ServiceResponse</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="p">{</span>
+    <span class="kd">data class</span> <span class="nc">Success</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;(</span><span class="kd">val</span> <span class="py">value</span><span class="p">:</span> <span class="nc">T</span><span class="p">)</span> <span class="p">:</span> <span class="nc">ServiceResponse</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;()</span>
+    <span class="kd">data class</span> <span class="nc">Error</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;(</span><span class="kd">val</span> <span class="py">exception</span><span class="p">:</span> <span class="nc">Exception</span><span class="p">)</span> <span class="p">:</span> <span class="nc">ServiceResponse</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Leveraging extension function expressions on the Task API, we get.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">Task</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;.</span><span class="nf">handleResponse</span><span class="p">(</span><span class="n">executorService</span><span class="p">:</span> <span class="nc">ExecutorService</span><span class="p">,</span>
+                               <span class="n">functor</span><span class="p">:</span> <span class="p">(</span><span class="nc">ServiceResponse</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;)</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">addOnCompleteListener</span><span class="p">(</span>
+            <span class="n">executorService</span><span class="p">,</span>
+            <span class="nc">OnCompleteListener</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="p">{</span>
+                <span class="c1">// This runs in a background thread (provided by the executor).</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">isSuccessful</span> <span class="p">&amp;&amp;</span> <span class="n">result</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nf">functor</span><span class="p">(</span><span class="nc">ServiceResponse</span><span class="p">.</span><span class="nc">Success</span><span class="p">(</span><span class="n">result</span><span class="o">!!</span><span class="p">))</span>
+                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="nf">functor</span><span class="p">(</span><span class="nc">ServiceResponse</span><span class="p">.</span><span class="nc">Error</span><span class="p">(</span><span class="n">exception</span><span class="o">!!</span><span class="p">))</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s an example of how this could be used.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">currentLocationClient</span><span class="p">.</span><span class="n">lastLocation</span>
+        <span class="p">.</span><span class="nf">handleResponse</span><span class="p">(</span><span class="n">executorWrapper</span><span class="p">.</span><span class="n">executor</span><span class="p">)</span> <span class="p">{</span> <span class="n">response</span> <span class="p">-&gt;</span>
+            <span class="k">when</span> <span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">is</span> <span class="nc">ServiceResponse</span><span class="p">.</span><span class="nc">Success</span> <span class="p">-&gt;</span> <span class="p">{</span>
+                    <span class="nf">processCurrentLocation</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="p">}</span>
+                <span class="k">is</span> <span class="nc">ServiceResponse</span><span class="p">.</span><span class="nc">Error</span> <span class="p">-&gt;</span> <span class="p">{</span>
+                    <span class="s">"⚠️ Task failed with exception ${response.exception}"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+        <span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s another example.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">currentPlaceClient</span><span class="p">.</span><span class="nf">getCurrentPlace</span><span class="p">(</span><span class="k">null</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">handleResponse</span><span class="p">(</span><span class="n">executorWrapper</span><span class="p">.</span><span class="n">executor</span><span class="p">)</span> <span class="p">{</span> <span class="n">response</span> <span class="p">-&gt;</span>
+            <span class="k">when</span> <span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">is</span> <span class="nc">ServiceResponse</span><span class="p">.</span><span class="nc">Success</span> <span class="p">-&gt;</span> <span class="p">{</span>
+                    <span class="nf">processPlacelikelihoodBuffer</span><span class="p">(</span><span class="n">response</span><span class="p">.</span><span class="n">value</span><span class="p">)</span>
+                    <span class="n">response</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="nf">release</span><span class="p">()</span>
+                <span class="p">}</span>
+                <span class="k">is</span> <span class="nc">ServiceResponse</span><span class="p">.</span><span class="nc">Error</span> <span class="p">-&gt;</span> <span class="p">{</span>
+                    <span class="s">"⚠️ Task failed with exception ${response.exception}"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>Here’s a link to the
+<a href="https://github.com/nazmulidris/places-api-poc/tree/main/app/src/main/kotlin/com/google/api/places/places_api_poc/service">repo</a>
+for this project where you can find all the classes in the <code class="language-plaintext highlighter-rouge">service</code> package that leverage this
+sealed class and this extension function expression.</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/KT">
+                #kt</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/State">
+                #state</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/02/06/publish-kotlin-library-as-gradle-dep/">
+                        Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/11/20/idea-plugin-example-intro/">
+                        Introduction to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/15/non-capturing-lambda-problems/">
+                        Potential problems of using non-capturing lambdas
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
+                        Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-testing-setup/">
+                        Kotlin and Test Driven Development
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-extension-function-expressions/">
+                        Kotlin Extension Function Expressions
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-and-kotlin/">
+                        Advanced Dagger 2 w/ Android and Kotlin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2018/10/21/kotlin-sealed-classes/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

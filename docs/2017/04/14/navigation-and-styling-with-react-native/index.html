@@ -1,0 +1,1516 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Navigation and Styling with React Native | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Navigation and Styling with React Native" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is a deep dive of React Navigation, which is the way to do in app navigation. It also goes into the best practices for styling your app and how to collaborate with designers for styling. The code for this tutorial is in GitHub." />
+<meta property="og:description" content="This tutorial is a deep dive of React Navigation, which is the way to do in app navigation. It also goes into the best practices for styling your app and how to collaborate with designers for styling. The code for this tutorial is in GitHub." />
+<link rel="canonical" href="http://developerlife.com/2017/04/14/navigation-and-styling-with-react-native/" />
+<meta property="og:url" content="http://developerlife.com/2017/04/14/navigation-and-styling-with-react-native/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-04-14T22:39:49-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Navigation and Styling with React Native" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2017-04-14T22:39:49-05:00","datePublished":"2017-04-14T22:39:49-05:00","description":"This tutorial is a deep dive of React Navigation, which is the way to do in app navigation. It also goes into the best practices for styling your app and how to collaborate with designers for styling. The code for this tutorial is in GitHub.","headline":"Navigation and Styling with React Native","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2017/04/14/navigation-and-styling-with-react-native/"},"url":"http://developerlife.com/2017/04/14/navigation-and-styling-with-react-native/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Navigation and Styling with React Native&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Navigation and Styling with React Native</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Navigation and Styling with React Native</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Apr 14, 2017
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+<img class="post-hero-image" src="/assets/rn-styling-hero.png"/>
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#what-you-will-learn-in-this-tutorial">What you will learn in this tutorial</a>
+    <ul>
+      <li><a href="#get-the-project-from-github">Get the project from GitHub</a></li>
+    </ul>
+  </li>
+  <li><a href="#using-react-native-elements">Using react-native-elements</a>
+    <ul>
+      <li><a href="#installation">Installation</a></li>
+    </ul>
+  </li>
+  <li><a href="#using-react-native-vector-icons">Using react-native-vector-icons</a></li>
+  <li><a href="#styling-best-practices">Styling best practices</a>
+    <ul>
+      <li><a href="#parameterize-the-value-literals">Parameterize the value literals</a></li>
+      <li><a href="#advantages-of-parameterizing-value-literals-and-encapsulating-all-styles-in-one-place">Advantages of parameterizing value literals and encapsulating all styles in one place</a>
+        <ul>
+          <li><a href="#working-with-designers">Working with designers</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#custom-fonts">Custom fonts</a></li>
+  <li><a href="#understanding-navigation">Understanding navigation</a>
+    <ul>
+      <li><a href="#implementation">Implementation</a></li>
+      <li><a href="#modeling-in-app-navigation-by-nesting-navigators">Modeling in-app navigation by nesting navigators</a></li>
+    </ul>
+  </li>
+  <li><a href="#react-native-resources">React Native resources</a></li>
+  <li><a href="#react-redux-and-native-android-resources">React, Redux, and native Android resources</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This tutorial is all about in app navigation in React Native. If you’ve read my
+<a href="http://developerlife.com/2017/03/31/getting-started-with-react-native/">getting started with React Native</a>
+tutorial, you will remember that I used the Navigator class. This is the old way of doing
+navigation. The new way is much better and more powerful, and it’s called
+<a href="https://reactnavigation.org/">React Navigation</a>. I will cover all the navigators in this tutorial -
+Drawer Navigator, Stack Navigator, and Tab Navigator. I won’t be covering React Native basics, for
+that please refer to my
+<a href="http://developerlife.com/2017/03/31/getting-started-with-react-native/">Getting Started with React Native tutorial</a>.</p>
+      <h2 id="what-you-will-learn-in-this-tutorial">
+        
+        
+          What you will learn in this tutorial <a href="#what-you-will-learn-in-this-tutorial">#</a>
+        
+        
+      </h2>
+    
+
+<p>This tutorial will walk you thru the creation of a demo app that works on Android and iOS. We will
+cover:</p>
+
+<ul>
+  <li>
+    <p>Best practices around styling your app (how to separate styling parameters / configuration in one
+place). There are benefits to doing this especially when you are working with designers.</p>
+  </li>
+  <li>
+    <p>Going deep into the aspects of in app navigation using
+<a href="https://reactnavigation.org/">React Navigation</a> (which as of this tutorial is very early in it’s
+evolution, but is the way to do navigation in React Native moving forwards). It’s a delightful
+library to use!</p>
+  </li>
+  <li>
+    <p>Using <a href="https://github.com/react-native-training/react-native-elements">react-native-elements</a> and
+<a href="https://github.com/oblador/react-native-vector-icons">react-native-vector-icons</a>. These are
+useful for getting really polished UI elements and font icons into your project quickly.</p>
+  </li>
+</ul>
+
+<p>Here’s what the app looks like on Android (it looks similar on iOS):</p>
+
+<p><a href="https://youtu.be/qy9B6z3P2Jk" title="Click to play video"><img src="https://img.youtube.com/vi/qy9B6z3P2Jk/0.jpg" alt="Click to play video" /></a></p>
+      <h3 id="get-the-project-from-github">
+        
+        
+          Get the project from GitHub <a href="#get-the-project-from-github">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s the GitHub link for this project</p>
+
+<ul>
+  <li><a href="https://github.com/nazmulidris//react-native-weather/tree/f877f53f8038295401d4934fa8e2d7db79a4625c">github.com/nazmulidris//react-native-weather</a>.</li>
+</ul>
+
+<ol>
+  <li>
+    <p>Once you get the project on your development machine, please make sure to run <code class="language-plaintext highlighter-rouge">npm install</code> in
+the root folder where you cloned this repo to.</p>
+  </li>
+  <li>
+    <p>Then open up the project in your favorite IDE.</p>
+  </li>
+  <li>
+    <p>To run the app, just type <code class="language-plaintext highlighter-rouge">react-native run-android</code> from the command line, in the root folder.</p>
+  </li>
+</ol>
+
+<p>With that out of the way, let’s begin!</p>
+      <h2 id="using-react-native-elements">
+        
+        
+          Using react-native-elements <a href="#using-react-native-elements">#</a>
+        
+        
+      </h2>
+    
+
+<p><a href="https://react-native-training.github.io/react-native-elements/">React Native Elements</a> library
+contains a set of really useful and powerful UI components that you can drop into your app and
+become productive immediately. That’s one of the biggest promises of React Native, to get you to be
+more productive than you would in either native Android or iOS.</p>
+
+<p><img src="/assets/rn-styling-1.png" alt="" /></p>
+
+<p>Here are some examples of components you will get from this library:</p>
+
+<ul>
+  <li>
+    <p><a href="https://react-native-training.github.io/react-native-elements/API/buttons/">Buttons</a> that you
+don’t have to style from scratch every time you use them. They work really nicely with
+<a href="https://react-native-training.github.io/react-native-elements/API/icons/">Icons</a> (that can use
+font icons and vector icons).</p>
+  </li>
+  <li>
+    <p><a href="https://react-native-training.github.io/react-native-elements/API/badge/">Badges</a> and
+<a href="https://react-native-training.github.io/react-native-elements/API/avatar/">Avatars</a> that you are
+used to from Material Design are available as well.</p>
+  </li>
+  <li>
+    <p>Commonly used
+<a href="https://react-native-training.github.io/react-native-elements/API/social_icons/">social media icons and buttons</a>.</p>
+  </li>
+  <li>
+    <p>For a complete list,
+<a href="https://github.com/react-native-training/react-native-elements#components-included">check this link out</a>.</p>
+  </li>
+</ul>
+
+<p>Here’s an example of how to use the a Button that’s supplied from this library:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;Button
+  onPress={() =&gt; navigate('DetailsRoute', {param1: msg2})}
+  backgroundColor={css.colors.button_bg}
+  color={css.colors.button_fg}
+  title='Detail Screen'
+  fontFamily={css.values.font_body}
+  fontsize={css.values.font_body_size}
+  icon={{
+    name: 'android',
+    color: css.colors.button_fg
+  }}
+  borderRadius={css.values.border_radius}
+/&gt;
+</code></pre></div></div>
+
+<p>Here’s an example of using an Icon that loads a font icon from FontAwesome.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">ToastAndroid</span><span class="p">.</span><span class="nf">show</span><span class="p">(</span><span class="dl">'</span><span class="s1">Heart button pressed</span><span class="dl">'</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)}</span>
+  <span class="nx">reverse</span>
+  <span class="nx">name</span><span class="o">=</span><span class="dl">'</span><span class="s1">heartbeat</span><span class="dl">'</span>
+  <span class="nx">type</span><span class="o">=</span><span class="dl">"</span><span class="s2">font-awesome</span><span class="dl">"</span>
+  <span class="nx">color</span><span class="o">=</span><span class="p">{</span><span class="nx">css</span><span class="p">.</span><span class="nx">colors</span><span class="p">.</span><span class="nx">button_bg</span><span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="installation">
+        
+        
+          Installation <a href="#installation">#</a>
+        
+        
+      </h3>
+    
+
+<p>First, you have to install the <code class="language-plaintext highlighter-rouge">react-native-vector</code> icons library, since that is used by
+react-native-elements, using this:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm i react-native-vector-icons <span class="nt">--save</span> <span class="o">&amp;&amp;</span>
+react-native <span class="nb">link </span>react-native-vector-icons
+</code></pre></div></div>
+
+<p>Then, you have to use <code class="language-plaintext highlighter-rouge">npm i react-native-elements --save</code> to install the library.</p>
+
+<p>Since the dependency on the <code class="language-plaintext highlighter-rouge">react-native-vector-icons</code> requires some fonts to be installed on your
+development environment, you have to run the <code class="language-plaintext highlighter-rouge">react-native link</code> command. For more information on
+loading custom fonts,
+<a href="https://medium.com/@danielskripnik/how-to-add-and-remove-custom-fonts-in-react-native-b2830084b0e4">check this article out</a>.</p>
+      <h2 id="using-react-native-vector-icons">
+        
+        
+          Using react-native-vector-icons <a href="#using-react-native-vector-icons">#</a>
+        
+        
+      </h2>
+    
+
+<p><del></del>Vector icons have many advantages over bitmap icons:</p>
+
+<ul>
+  <li>
+    <p>You can apply the tint color and background color to any vector icon asset and colorize it without
+having to generate multiple bitmap asset variations.</p>
+  </li>
+  <li>
+    <p>You can scale it without any loss of quality on any DPI screen at any size.</p>
+  </li>
+  <li>
+    <p>They consume very little space on device when compared to their bitmap counterparts.</p>
+  </li>
+  <li>
+    <p>Basically, what’s there not to like?</p>
+  </li>
+</ul>
+
+<p>Font icons are awesome as well, since you can just use a characters in a chosen font as icons. The
+<a href="https://github.com/oblador/react-native-vector-icons#bundled-icon-sets"><code class="language-plaintext highlighter-rouge">react-native-vector-icons</code></a>
+package gives you all of these things on a silver platter.</p>
+
+<p>There are a few font icon sets bundled with the library as well:</p>
+
+<ul>
+  <li>
+    <p><a href="http://entypo.com/"><code class="language-plaintext highlighter-rouge">Entypo</code></a> by Daniel Bruce (<strong>411</strong> icons)</p>
+  </li>
+  <li>
+    <p><a href="http://evil-icons.io/"><code class="language-plaintext highlighter-rouge">EvilIcons</code></a> by Alexander Madyankin &amp; Roman Shamin (v1.8.0, <strong>70</strong> icons)</p>
+  </li>
+  <li>
+    <p><a href="http://fortawesome.github.io/Font-Awesome/icons/"><code class="language-plaintext highlighter-rouge">FontAwesome</code></a> by Dave Gandy (v4.7.0, <strong>675</strong>
+icons)</p>
+  </li>
+  <li>
+    <p><a href="http://zurb.com/playground/foundation-icon-fonts-3"><code class="language-plaintext highlighter-rouge">Foundation</code></a> by ZURB, Inc. (v3.0, <strong>283</strong>
+icons)</p>
+  </li>
+  <li>
+    <p><a href="http://ionicframework.com/docs/v2/ionicons/"><code class="language-plaintext highlighter-rouge">Ionicons</code></a> by Ben Sperry (v3.0.0, <strong>859</strong> icons)</p>
+  </li>
+  <li>
+    <p><a href="https://www.google.com/design/icons/"><code class="language-plaintext highlighter-rouge">MaterialIcons</code></a> by Google, Inc. (v3.0.1, <strong>932</strong> icons)</p>
+  </li>
+  <li>
+    <p><a href="https://materialdesignicons.com/"><code class="language-plaintext highlighter-rouge">MaterialCommunityIcons</code></a> by MaterialDesignIcons.com (v1.7.22,
+<strong>1722</strong> icons)</p>
+  </li>
+  <li>
+    <p><a href="http://octicons.github.com/"><code class="language-plaintext highlighter-rouge">Octicons</code></a> by Github, Inc. (v5.0.1, <strong>176</strong> icons)</p>
+  </li>
+  <li>
+    <p><a href="http://zocial.smcllns.com/"><code class="language-plaintext highlighter-rouge">Zocial</code></a> by Sam Collins (v1.0, <strong>100</strong> icons)</p>
+  </li>
+  <li>
+    <p><a href="http://simplelineicons.com/"><code class="language-plaintext highlighter-rouge">SimpleLineIcons</code></a> by Sabbir &amp; Contributors (v2.4.1, <strong>189</strong> icons)</p>
+  </li>
+  <li>
+    <p>You can <a href="https://oblador.github.io/react-native-vector-icons/">browse them all here</a>.</p>
+  </li>
+</ul>
+
+<p>The installation instructions for the <code class="language-plaintext highlighter-rouge">react-native-elements</code> above also handles installing the
+<code class="language-plaintext highlighter-rouge">react-native-vector-icons</code> package.</p>
+      <h2 id="styling-best-practices">
+        
+        
+          Styling best practices <a href="#styling-best-practices">#</a>
+        
+        
+      </h2>
+    
+
+<p>A large part of this project on GitHub is dedicated to styling. Most React Native components take a
+StyleSheet object (passed in a style attribute) in which you can pass whatever CSS like formatting
+you like. Here’s an example:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">router_style</span> <span class="o">=</span> <span class="nx">StyleSheet</span><span class="p">.</span><span class="nf">create</span><span class="p">({</span>
+  <span class="na">container</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="na">backgroundColor</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#c1e1c5</span><span class="dl">"</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="na">text1</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="na">color</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#1273de</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">backgroundColor</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#d4c4fb</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">fontSize</span><span class="p">:</span> <span class="mi">18</span><span class="p">,</span>
+    <span class="na">fontWeight</span><span class="p">:</span> <span class="dl">"</span><span class="s2">200</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">fontFamily</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Rubik-Regular</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">padding</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>However, there are some UI packages that you can install using <code class="language-plaintext highlighter-rouge">npm</code> that do not use StyleSheet
+objects. Regardless, there are situations when you might want to provide variables instead of
+literal values in your styles. You can parameterize your styles, instead of constructing them out of
+literal values.</p>
+      <h3 id="parameterize-the-value-literals">
+        
+        
+          Parameterize the value literals <a href="#parameterize-the-value-literals">#</a>
+        
+        
+      </h3>
+    
+
+<p>What am I talking about? Let’s say that you have a style for a Text component that has a fontFamily.
+And there’s another component for a Button that uses the same fontFamily. One way to do this this is
+to create a style encapsulating only this fontFamily and then apply multiple styles to both of these
+components.</p>
+
+<p>Another way is to extract the fontFamily literal, eg <code class="language-plaintext highlighter-rouge">Rubik-Regular</code> and then put it in a variable
+called <code class="language-plaintext highlighter-rouge">bodyFont</code>, and then you can reference this variable in other places where you need to set
+this font. The advantage of this approach of creating this variable, or parameterizing the literal
+value is that it allows you to make broad and sweeping changes to your UI with very little effort.
+The cost is that it takes a little bit of planning up front and maintaining discipline to organize
+your styling code so that doesn’t violate this pattern.</p>
+
+<p>Let’s look at some code examples that show this in action. Here I’ve defined an object called colors
+that holds key-value pairs for named colors.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">colors</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">background_dark</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#455a64</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">background_medium</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#b3c4cb</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">background_light</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#d9e3f0</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">button_bg</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#0693e3</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">button_fg</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#d9e3f0</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">text_light</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#d9d9d9</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">text_medium</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#455a64</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">text_dark</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#263238</span><span class="dl">"</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And here I’ve defined a values object that holds key-value pairs for named fonts families, sizes,
+and even border radius.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">values</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">font_title</span><span class="p">:</span> <span class="dl">"</span><span class="s2">NotoSans-Bold</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">font_body</span><span class="p">:</span> <span class="dl">"</span><span class="s2">NotoSans-Regular</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">font_body_size</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+  <span class="na">font_title_size</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+  <span class="na">border_radius</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Now that we have created variables that hold actual values for these underlying styling value
+literals, we can use them in our StyleSheet objects and other objects. Here’s an example of a
+StyleSheet object that’s built using this.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nb">global</span> <span class="o">=</span> <span class="nx">StyleSheet</span><span class="p">.</span><span class="nf">create</span><span class="p">({</span>
+  <span class="na">v_container</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="na">padding</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">flexDirection</span><span class="p">:</span> <span class="dl">"</span><span class="s2">column</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// main axis</span>
+    <span class="na">justifyContent</span><span class="p">:</span> <span class="dl">"</span><span class="s2">center</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// main axis</span>
+    <span class="na">alignItems</span><span class="p">:</span> <span class="dl">"</span><span class="s2">center</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// cross axis</span>
+    <span class="na">backgroundColor</span><span class="p">:</span> <span class="nx">colors</span><span class="p">.</span><span class="nx">text_light</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="na">title</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1">// shrink to min height &amp; width if needed</span>
+    <span class="na">marginTop</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">marginLeft</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">marginRight</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">marginBottom</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="na">fontSize</span><span class="p">:</span> <span class="nx">values</span><span class="p">.</span><span class="nx">font_title_size</span><span class="p">,</span>
+    <span class="na">color</span><span class="p">:</span> <span class="nx">colors</span><span class="p">.</span><span class="nx">text_dark</span><span class="p">,</span>
+    <span class="na">fontFamily</span><span class="p">:</span> <span class="nx">values</span><span class="p">.</span><span class="nx">font_title</span><span class="p">,</span> <span class="c1">// more info https://goo.gl/7wYazn</span>
+  <span class="p">},</span>
+  <span class="na">body1</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="na">marginTop</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="na">marginLeft</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">marginRight</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">marginBottom</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">fontFamily</span><span class="p">:</span> <span class="nx">values</span><span class="p">.</span><span class="nx">font_body</span><span class="p">,</span> <span class="c1">// more info https://goo.gl/7wYazn</span>
+    <span class="na">fontSize</span><span class="p">:</span> <span class="nx">values</span><span class="p">.</span><span class="nx">font_body_size</span><span class="p">,</span>
+    <span class="na">color</span><span class="p">:</span> <span class="nx">colors</span><span class="p">.</span><span class="nx">text_medium</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="na">h_container</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="na">flexDirection</span><span class="p">:</span> <span class="dl">"</span><span class="s2">row</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">justifyContent</span><span class="p">:</span> <span class="dl">"</span><span class="s2">space-around</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">alignSelf</span><span class="p">:</span> <span class="dl">"</span><span class="s2">stretch</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// overrides container alignItems</span>
+    <span class="na">backgroundColor</span><span class="p">:</span> <span class="nx">colors</span><span class="p">.</span><span class="nx">background_medium</span><span class="p">,</span>
+    <span class="na">padding</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="na">icon</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="na">margin</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">height</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="na">width</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+    <span class="na">resizeMode</span><span class="p">:</span> <span class="dl">"</span><span class="s2">contain</span><span class="dl">"</span><span class="p">,</span> <span class="c1">//'cover' | 'contain'</span>
+  <span class="p">},</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Here’s an example of a styling object that isn’t a StyleSheet which is required by
+<code class="language-plaintext highlighter-rouge">react-navigation</code> package components.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">header</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="c1">// background</span>
+  <span class="na">headerStyle</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">backgroundColor</span><span class="p">:</span> <span class="nx">colors</span><span class="p">.</span><span class="nx">background_dark</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="c1">// arrows</span>
+  <span class="na">headerTintColor</span><span class="p">:</span> <span class="nx">colors</span><span class="p">.</span><span class="nx">text_light</span><span class="p">,</span>
+  <span class="c1">// my own styles for titleAndIcon</span>
+  <span class="na">container</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="na">flexDirection</span><span class="p">:</span> <span class="dl">"</span><span class="s2">row</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">justifyContent</span><span class="p">:</span> <span class="dl">"</span><span class="s2">flex-start</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">alignItems</span><span class="p">:</span> <span class="dl">"</span><span class="s2">center</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">paddingLeft</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="c1">// my own styles for titleAndIcon</span>
+  <span class="na">text</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">paddingLeft</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">color</span><span class="p">:</span> <span class="nx">colors</span><span class="p">.</span><span class="nx">text_light</span><span class="p">,</span>
+    <span class="na">fontFamily</span><span class="p">:</span> <span class="nx">values</span><span class="p">.</span><span class="nx">font_body</span><span class="p">,</span>
+    <span class="na">fontSize</span><span class="p">:</span> <span class="nx">values</span><span class="p">.</span><span class="nx">font_title_size</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>As you can see from these examples, the styling objects are all kept in one place -
+<a href="https://github.com/nazmulidris//react-native-weather/blob/f877f53f8038295401d4934fa8e2d7db79a4625c/app/Styles.js">Styles.js</a>,
+and they are are built on top of these variables that actually hold all the literal values, giving
+us extreme flexibility in changing the UI very very quickly.</p>
+      <h3 id="advantages-of-parameterizing-value-literals-and-encapsulating-all-styles-in-one-place">
+        
+        
+          Advantages of parameterizing value literals and encapsulating all styles in one place <a href="#advantages-of-parameterizing-value-literals-and-encapsulating-all-styles-in-one-place">#</a>
+        
+        
+      </h3>
+    
+
+<p>By keeping all the styling in one place (in one file, or folder), and separating it from the
+components, it allows people on your team to change the styling without having to understand what
+your components are composed of or how they work internally.</p>
+
+<p>Also, keeping separating the values from the places where they are used introduces another layer of
+abstraction that can allow you to make far reaching changes and achieve a level of consistency and
+flexibility in your codebase that you wouldn’t be able to otherwise.</p>
+      <h4 id="working-with-designers">
+        
+        
+          Working with designers <a href="#working-with-designers">#</a>
+        
+        
+      </h4>
+    
+
+<p>If you’re working with a UX designer on your project then keeping the styling in one place and using
+the abstracting all the literal values has some huge benefits. If your designer(s) have CSS and
+Flexbox skills then they can understand the styling portion of your code and can provide valuable
+feedback that ensures that what is built is closest to what they’ve designed in Sketch, Photoshop,
+Illustrator, and InVision. Often, designers create wireframes and interactions, and even navigation
+hierarchies which don’t accurately match what is built (or what actually runs on the phone).</p>
+
+<p>By keeping styling in one place, it opens the door for your designers to be able to have a greater
+hand in influencing the product that’s ending up on phones, rather than pictures of products that
+they’re used to creating. I’m not proposing that designers learn how to code and start building out
+functionality in your app. I am proposing that they get engaged in the development process, and one
+way to open the door for them is to provide a friendly and understandable way for them to see how
+their styling input is reflected directly in the shipping product.</p>
+
+<p>For designers who are more adventurous, they might install the react-native tools,
+<a href="https://www.sourcetreeapp.com/">SourceTree</a> (git client with a nice GUI), and get Sublime Text, and
+actually have a copy of the product running on their machines. And given that they only have 1 file
+that they need to become familiar with, they would be able to change things in that one file that
+changes how the app looks and feels totally, without actually having to engage development
+resources. They can make their changes and then propose them to the team and that might be
+implemented in an iteration. React Native is magical in the way Hot Loading and Live Reloading work.
+And a designer can actually see the changes they’re making instantly if they’re using emulators or a
+real device. This is a huge feature that React Native has which isn’t something people expect in
+native development environments!</p>
+
+<p>The possibilities are endless. But greater collaboration between teams is definitely a good thing!
+Too often developers and designers end up speaking different languages. And designers end up
+creating pictures of things, rather than having a direct hand at building the thing itself. React
+Native and the practice I’m proposing aims to change that.</p>
+      <h2 id="custom-fonts">
+        
+        
+          Custom fonts <a href="#custom-fonts">#</a>
+        
+        
+      </h2>
+    
+
+<p>This project uses Noto Sans font family. You can get the fonts
+<a href="https://fonts.google.com/specimen/Noto+Sans">here</a>. I created a
+<code class="language-plaintext highlighter-rouge">[fonts](https://github.com/nazmulidris//react-native-weather/tree/f877f53f8038295401d4934fa8e2d7db79a4625c/fonts)</code>
+folder in which I placed the 4 Noto Sans TTF files. Then I added the following lines to the
+<a href="https://github.com/nazmulidris//react-native-weather/blob/f877f53f8038295401d4934fa8e2d7db79a4625c/package.json">package.json</a>
+file.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"rnpm"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="nl">"assets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"./fonts"</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>Finally, I ran <code class="language-plaintext highlighter-rouge">react-native link</code> and it copied the fonts to the right places in the <code class="language-plaintext highlighter-rouge">android</code> and
+<code class="language-plaintext highlighter-rouge">ios</code> folders! A similar thing happens with the installation of the <code class="language-plaintext highlighter-rouge">react-native-vector-icons</code>
+package. For more info, please refer to
+<a href="https://medium.com/@danielskripnik/how-to-add-and-remove-custom-fonts-in-react-native-b2830084b0e4">this article</a>.</p>
+      <h2 id="understanding-navigation">
+        
+        
+          Understanding navigation <a href="#understanding-navigation">#</a>
+        
+        
+      </h2>
+    
+
+<p>In app navigation is a really important thing to get right for the UX of an app. A user should never
+feel lost and helpless in the app, and navigation is a great way for them to know where they are in
+the app. For you developers out there who want to get more design savvy, check out my old show in
+the Google Android developers channel - <a href="http://bit.ly/uxdplaylist">http://bit.ly/uxdplaylist</a>. And
+you can also check out a Udacity class I did for mobile developers to get into mobile design here -
+<a href="http://bit.ly/uxdclass">http://bit.ly/uxdclass</a>.</p>
+
+<p>Our sample app is supposed to be a weather app with 4 screens. To keep things simple, I’ve left out
+what goes inside of these screens for this tutorial (that will come in another tutorial later with
+Firebase, SignIn and a whole host of other goodies). If you look at the diagram below you will see
+the navigation hierarchy that I’m creating in the app.</p>
+
+<p><img src="/assets/rn-styling-2.png" alt="" /></p>
+
+<p>The user is started off with the Home screen, but they are free to go down one of two paths at any
+time.</p>
+
+<p><strong>Path 1</strong> - They can start at the <code class="language-plaintext highlighter-rouge">Home screen</code> flow and then click on the <code class="language-plaintext highlighter-rouge">Detail Screen</code> button
+and be taken down the path where they can switch between <code class="language-plaintext highlighter-rouge">Details 1 screen</code> and <code class="language-plaintext highlighter-rouge">Details 2 screen1</code>.</p>
+
+<p><strong>Path 2</strong> - They can just go to the <code class="language-plaintext highlighter-rouge">Settings</code> screen where they can change whatever app settings.</p>
+
+<p>In the real app, these screens will have real UI and data in them. Here is what they will have:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Home</code> screen will have a list of locations that are saved.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Details 1</code> screen will have current conditions and today’s forecast, for the location selected in
+the Home screen.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Details 2</code> screen will have the week’s forecast for the current location, for the location
+selected in the Home screen.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">Settings</code> screen will allow the user to change the app’s settings.</p>
+  </li>
+</ul>
+
+<p>The user should be allowed to go back and forth between the <code class="language-plaintext highlighter-rouge">Settings</code> screen and the
+<code class="language-plaintext highlighter-rouge">Home -&gt; Details1 / Details2</code> flows at any time. And this can be achieved with a
+<a href="https://reactnavigation.org/docs/navigators/drawer">Drawer Navigator</a>.</p>
+
+<p>The user should be able to switch between <code class="language-plaintext highlighter-rouge">Details1</code> and <code class="language-plaintext highlighter-rouge">Details2</code> screens at any time. And this
+can be achieved with a <a href="https://reactnavigation.org/docs/navigators/tab">Tab Navigator</a>.</p>
+
+<p>Finally, the user should be able to switch between <code class="language-plaintext highlighter-rouge">Home</code> screen and the <code class="language-plaintext highlighter-rouge">Details1</code> / <code class="language-plaintext highlighter-rouge">Details2</code>
+screens at any time. And this can be accomplished with a
+<a href="https://reactnavigation.org/docs/navigators/stack">Stack Navigator</a>.</p>
+
+<p>The following diagram shows these flows along with the app’s current UI.</p>
+
+<p><img src="/assets/rn-styling-3.png" alt="" /></p>
+      <h3 id="implementation">
+        
+        
+          Implementation <a href="#implementation">#</a>
+        
+        
+      </h3>
+    
+
+<p>The
+<a href="https://github.com/nazmulidris//react-native-weather/tree/f877f53f8038295401d4934fa8e2d7db79a4625c/app">app</a>
+folder in the source code has all the files for the UI and navigation code.</p>
+
+<p>The main class to start with is the
+<a href="https://github.com/nazmulidris//react-native-weather/blob/f877f53f8038295401d4934fa8e2d7db79a4625c/app/Router.js"><code class="language-plaintext highlighter-rouge">Router.js</code></a>
+class. This makes a call to AppRegistry.registerComponent() so that the UI will be loaded.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">AppRegistry</span><span class="p">.</span><span class="nf">registerComponent</span><span class="p">(</span><span class="dl">"</span><span class="s2">WeatherApp</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">nav_drawer</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>What is <code class="language-plaintext highlighter-rouge">nav_drawer</code>? It’s a Navigation Drawer. If you look at the diagram above the colored
+rectangles in the background correspond directly to the Navigator objects that are created. And
+there is a direct mapping between the navigation hierarchy and the code, which is the beauty of
+using React Navigation. It’s incredibly powerful and elegant and simple to use.</p>
+
+<p>If you’re not familiar with React Native navigators, please
+<a href="https://developerlife.com/2017/03/31/getting-started-with-react-native/">check out my tutorial on getting started with React Native</a>
+where I talk about routes, and using the navigation object to push and pop routes. Just like
+<a href="https://developerlife.com/2017/03/31/getting-started-with-react-native/">OG Navigator</a>, you have to
+define all the Routes in your application. So regardless of what type of navigator you are using
+(drawer, tab, or stack) you will have to construct it with a set of routes. Each route has a name
+and it loads a screen. Here’s an example using TabNavigator. And just like the OG Navigator you get
+a navigation object that you can use to push, and pop different routes. It’s called
+<a href="https://reactnavigation.org/docs/navigators/navigation-prop">props.navigation</a>. The <code class="language-plaintext highlighter-rouge">Button</code> code
+snippet at the very top of this tutorial uses this.</p>
+
+<p>Please read the
+<a href="https://reactnavigation.org/docs/navigators/navigation-actions">Navigation Actions documentation</a>
+on the React Navigation site to get a clearer idea of how to pass data between routes. There’s even
+information on Redux integration. In future tutorials I will go even deeper into navigation, and add
+Redux, and Firebase to the mix, along with external web services, so stay tuned for these.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//</span>
+<span class="c1">// tabs</span>
+<span class="c1">//</span>
+
+<span class="kd">const</span> <span class="nx">nav_tab</span> <span class="o">=</span> <span class="nc">TabNavigator</span><span class="p">(</span>
+  <span class="c1">// route config</span>
+  <span class="p">{</span>
+    <span class="na">DetailsRoute1</span><span class="p">:</span> <span class="p">{</span> <span class="na">screen</span><span class="p">:</span> <span class="nx">DetailsScreen1</span> <span class="p">},</span>
+    <span class="na">DetailsRoute2</span><span class="p">:</span> <span class="p">{</span> <span class="na">screen</span><span class="p">:</span> <span class="nx">DetailsScreen2</span> <span class="p">},</span>
+  <span class="p">},</span>
+  <span class="c1">// navigator config</span>
+  <span class="p">{</span>
+    <span class="na">lazyLoad</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span> <span class="c1">// render the tabs lazily</span>
+    <span class="na">tabBarPosition</span><span class="p">:</span> <span class="dl">"</span><span class="s2">bottom</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// where are the tabs shown</span>
+    <span class="na">backBehavior</span><span class="p">:</span> <span class="dl">"</span><span class="s2">none</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// back button doesn't take you to the initial tab</span>
+    <span class="na">tabBarOptions</span><span class="p">:</span> <span class="nx">css</span><span class="p">.</span><span class="nx">tabs</span><span class="p">,</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>Navigators can also take other navigators as <code class="language-plaintext highlighter-rouge">screen</code> values, they don’t have to be
+<code class="language-plaintext highlighter-rouge">React.Component</code>s, which is awesome. The 2nd parameter you can supply any of the navigators is a
+config object to setup that navigator. This can be styling for the header of a StackNavigator or tab
+styling for a TabNavigator.</p>
+
+<p>The following is an example of a StackNavigator that takes a React.Component as the title of the
+header component. Instead of just showing text, this component shows an icon as well. This is all
+put together and assembled as a navigator config for the StackNavigator object.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//</span>
+<span class="c1">// stack</span>
+<span class="c1">//</span>
+
+<span class="kd">const</span> <span class="nx">titleAndIcon</span> <span class="o">=</span> <span class="p">(</span>
+  <span class="o">&lt;</span><span class="nx">View</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">css</span><span class="p">.</span><span class="nx">header</span><span class="p">.</span><span class="nx">container</span><span class="p">}</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nx">Icon</span> <span class="nx">name</span><span class="o">=</span><span class="dl">"</span><span class="s2">favorite</span><span class="dl">"</span> <span class="nx">color</span><span class="o">=</span><span class="dl">"</span><span class="s2">white</span><span class="dl">"</span> <span class="o">/&gt;</span>
+    <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">css</span><span class="p">.</span><span class="nx">header</span><span class="p">.</span><span class="nx">text</span><span class="p">}</span><span class="o">&gt;</span><span class="nx">Weather</span> <span class="nx">App</span><span class="o">&lt;</span><span class="sr">/Text</span><span class="err">&gt;
+</span>  <span class="o">&lt;</span><span class="sr">/View</span><span class="err">&gt;
+</span><span class="p">)</span>
+
+<span class="kd">const</span> <span class="nx">nav_stack</span> <span class="o">=</span> <span class="nc">StackNavigator</span><span class="p">(</span>
+  <span class="c1">// route config</span>
+  <span class="p">{</span>
+    <span class="na">HomeRoute</span><span class="p">:</span> <span class="p">{</span> <span class="na">screen</span><span class="p">:</span> <span class="nx">HomeScreen</span> <span class="p">},</span> <span class="c1">// this is displayed first</span>
+    <span class="na">DetailsRoute</span><span class="p">:</span> <span class="p">{</span> <span class="na">screen</span><span class="p">:</span> <span class="nx">nav_tab</span> <span class="p">},</span>
+  <span class="p">},</span>
+  <span class="c1">// navigator config</span>
+  <span class="p">{</span>
+    <span class="c1">//headerMode: 'none', // this removes the navigation header</span>
+    <span class="na">navigationOptions</span><span class="p">:</span> <span class="p">{</span>
+      <span class="c1">// label text</span>
+      <span class="na">headerTitle</span><span class="p">:</span> <span class="nx">titleAndIcon</span><span class="p">,</span>
+      <span class="c1">// other styling</span>
+      <span class="p">...</span><span class="nx">css</span><span class="p">.</span><span class="nx">header</span><span class="p">,</span>
+    <span class="p">},</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>Finally, here’s an example of a DrawerNavigator that accepts a custom component that paints the
+DrawerItems in a custom way (by using a ScrollView and setting a custom background color).</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//</span>
+<span class="c1">// drawer ... more info https://goo.gl/2Dnmtl</span>
+<span class="c1">//</span>
+
+<span class="kd">const</span> <span class="nx">customComponent</span> <span class="o">=</span> <span class="p">(</span><span class="nx">props</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">(</span>
+  <span class="o">&lt;</span><span class="nx">ScrollView</span>
+    <span class="nx">style</span><span class="o">=</span><span class="p">{{</span>
+      <span class="na">flex</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="na">backgroundColor</span><span class="p">:</span> <span class="nx">css</span><span class="p">.</span><span class="nx">drawer</span><span class="p">.</span><span class="nx">style</span><span class="p">.</span><span class="nx">backgroundColor</span><span class="p">,</span>
+    <span class="p">}}</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nx">DrawerView</span><span class="p">.</span><span class="nx">Items</span> <span class="p">{...</span><span class="nx">props</span><span class="p">}</span> <span class="sr">/</span><span class="err">&gt;
+</span>  <span class="o">&lt;</span><span class="sr">/ScrollView</span><span class="err">&gt;
+</span><span class="p">);</span>
+
+<span class="kd">const</span> <span class="nx">nav_drawer</span> <span class="o">=</span> <span class="nc">DrawerNavigator</span><span class="p">(</span>
+  <span class="c1">// route config</span>
+  <span class="p">{</span>
+    <span class="na">HomeRoute</span><span class="p">:</span> <span class="p">{</span>
+      <span class="na">screen</span><span class="p">:</span> <span class="nx">nav_stack</span><span class="p">,</span>
+      <span class="na">navigationOptions</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">drawerLabel</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Main App</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">drawerIcon</span><span class="p">:</span> <span class="p">({</span><span class="nx">tintColor</span><span class="p">})</span> <span class="o">=&gt;</span> <span class="p">,</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="na">SettingsRoute</span><span class="p">:</span> <span class="p">{</span>
+      <span class="na">screen</span><span class="p">:</span> <span class="nx">SettingsScreen</span><span class="p">,</span>
+      <span class="na">navigationOptions</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">drawerLabel</span><span class="p">:</span> <span class="dl">'</span><span class="s1">Settings</span><span class="dl">'</span><span class="p">,</span>
+        <span class="na">drawerIcon</span><span class="p">:</span> <span class="p">({</span><span class="nx">tintColor</span><span class="p">})</span> <span class="o">=&gt;</span> <span class="p">,</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+  <span class="p">},</span>
+  <span class="c1">// navigator config</span>
+  <span class="p">{</span>
+    <span class="na">contentComponent</span><span class="p">:</span> <span class="nx">customComponent</span><span class="p">,</span>
+    <span class="na">drawerPosition</span><span class="p">:</span> <span class="dl">'</span><span class="s1">left</span><span class="dl">'</span><span class="p">,</span>
+    <span class="c1">// styling for for DrawerView.Items in contentOptions</span>
+    <span class="na">contentOptions</span><span class="p">:</span> <span class="nx">css</span><span class="p">.</span><span class="nx">drawer</span>
+  <span class="p">}</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<p>Note that a lot of the params that are needed are stored in a <code class="language-plaintext highlighter-rouge">css</code> object. This object is imported
+from
+<a href="https://github.com/nazmulidris//react-native-weather/blob/f877f53f8038295401d4934fa8e2d7db79a4625c/app/Styles.js">Styles.js</a>,
+and it’s an attempt at encapsulating the look and feel away from the functionality of the
+components.</p>
+      <h3 id="modeling-in-app-navigation-by-nesting-navigators">
+        
+        
+          Modeling in-app navigation by nesting navigators <a href="#modeling-in-app-navigation-by-nesting-navigators">#</a>
+        
+        
+      </h3>
+    
+
+<p>Once you have designed the flow by collaborating with your designers, you should have a clearly
+mapped out idea of what the navigation flow should be. This is a good time to then use the
+navigators to model these navigation flows. By nesting navigators in each other, you have incredible
+amounts of power and flexibility to do things that would otherwise take a lot of time and effort to
+do!</p>
+
+<p>When you compare the new React Navigation framework to the OG Navigators, it’s incredible how much
+you can express with such little code. And the API surface is elegantly designed so that the way you
+use these navigators are really consistent.</p>
+
+<p>Finally, when compared to native Android code, it’s hard to digest how much easier it is to use
+React Native with React Navigation when compared to coding up Java in Android. To do the
+TabNavigator you would need to do SO MUCH MORE work in Android! You have to use ViewPagers, and
+create a ViewPagerAdapter, and then create Fragments for each of the screens, and then you have to
+create XML layouts for each of these Fragments! You can look at the code in the
+<a href="https://github.com/nazmulidris//starterproject_todolist_react_redux_firebase_ts_md/blob/main/mobile_android_native/app/src/main/java/com/r3bl/todo_app/ui/MainActivity.java">MainActivity.java</a>
+of the
+<a href="https://developerlife.com/2017/01/27/native-android-redux-and-firebase/">native Android + Redux tutorial</a>
+I have on this site.</p>
+      <h2 id="react-native-resources">
+        
+        
+          React Native resources <a href="#react-native-resources">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li>
+    <p>This is a good resource that you can follow for keeping up to date with changes in RN –
+<a href="http://reactnative.cc/">http://reactnative.cc/</a></p>
+  </li>
+  <li>
+    <p>This a
+<a href="https://www.facebook.com/groups/react.native.community/?hc_ref=NEWSFEED">great facebook community</a>
+on React Native.</p>
+  </li>
+</ul>
+      <h2 id="react-redux-and-native-android-resources">
+        
+        
+          React, Redux, and native Android resources <a href="#react-redux-and-native-android-resources">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li>How to integrate Redux into native Android development. I have tutorials on
+<a href="https://developerlife.com/2017/01/27/native-android-redux-and-firebase/">native Android and Redux here</a>.</li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Android">
+                #android</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/RN">
+                #rn</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-in-depth/">
+                        In-depth exploration of Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/07/introduction-to-android-architecture-components/">
+                        Introduction to Android Architecture Components
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/29/getting-started-with-mediaplayer-on-android/">
+                        Getting started with MediaPlayer on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/20/gps/">
+                        Android Location Providers (gps, network, passive)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/05/android-animation-framework/">
+                        Android Animation Framework Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-listview/">
+                        Android ListView and custom adapter Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-linearlayout/">
+                        Android LinearLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/31/android-ui-themes/">
+                        Android UI Themes Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/29/android-tablelayout/">
+                        Android TableLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/option-and-context-menu/">
+                        Android Option and Context menu Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/android-xml-view-inflation/">
+                        Android XML View inflation Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/14/android-app-lifecycle-activity-intent-and-service-draft/">
+                        Android Activity and sub-Activity Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/">
+                        Android - How to build a service-enabled Android app - Part 1/3 UI
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-23-networking/">
+                        Android - How to build a service-enabled Android App - Part 2/3 Networking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/01/28/swingx-tutorial-task-pane/">
+                        SwingX Tutorial - Task Pane (JXTaskPane, Container)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/">
+                        How to use glass pane for animation (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2017/04/14/navigation-and-styling-with-react-native/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

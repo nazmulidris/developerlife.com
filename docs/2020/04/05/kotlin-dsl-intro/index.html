@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Kotlin DSL Introduction | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Kotlin DSL Introduction" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is an introduction to Kotlin internal DSLs using examples" />
+<meta property="og:description" content="This tutorial is an introduction to Kotlin internal DSLs using examples" />
+<link rel="canonical" href="http://developerlife.com/2020/04/05/kotlin-dsl-intro/" />
+<meta property="og:url" content="http://developerlife.com/2020/04/05/kotlin-dsl-intro/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-04-05T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Kotlin DSL Introduction" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2020-04-05T00:00:00-05:00","datePublished":"2020-04-05T00:00:00-05:00","description":"This tutorial is an introduction to Kotlin internal DSLs using examples","headline":"Kotlin DSL Introduction","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2020/04/05/kotlin-dsl-intro/"},"url":"http://developerlife.com/2020/04/05/kotlin-dsl-intro/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Kotlin DSL Introduction&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Kotlin DSL Introduction</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Kotlin DSL Introduction</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Apr 5, 2020
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/kotlin-awesomeness-hero.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#kotlin-internal-dsls">Kotlin internal DSLs</a></li>
+  <li><a href="#fluency">Fluency</a></li>
+  <li><a href="#context-and-rebinding-this">Context, and rebinding this</a>
+    <ul>
+      <li><a href="#summary">Summary</a></li>
+    </ul>
+  </li>
+  <li><a href="#example-of-a-dsl-that-allows-console-output-to-be-colored">Example of a DSL that allows console output to be colored</a></li>
+  <li><a href="#example-of-a-dsl-that-executes-a-list-of-lambdas-while-a-condition-is-met">Example of a DSL that executes a list of lambdas while a condition is met</a></li>
+  <li><a href="#further-reading">Further reading</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="kotlin-internal-dsls">
+        
+        
+          Kotlin internal DSLs <a href="#kotlin-internal-dsls">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are many useful DSLs out there that make specific programming tasks easier. CSS and
+HTML are good examples that come to mind. They both make it easier to create content for
+web pages that would otherwise be tedious to create if we had to use the DOM API to create
+them. However, they both require the creation of a parser for the DSL.</p>
+
+<p>Kotlin internal DSLs are a way to work within the boundaries of the Kotlin language and
+leverage the Kotlin compiler itself to generate DSLs using Kotlin itself. Kotlin does not
+use VM byte code injection, and instead the DSL syntax is syntactic sugar that gets
+compiled down to bytecode by the Kotlin compiler itself.</p>
+
+<p>Please watch this great video -
+<a href="https://www.youtube.com/watch?v=JzTeAM8N1-o">KotlinConf 2018 - Creating Internal DSLs in Kotlin by Venkat Subramaniam</a>
+to learn more about Kotlin DSLs before getting started with this tutorial. It’s a very
+easy to follow video and sets up really important background information for understanding
+DSLs.</p>
+      <h2 id="fluency">
+        
+        
+          Fluency <a href="#fluency">#</a>
+        
+        
+      </h2>
+    
+
+<p>Kotlin allows many things in code to be removed from the syntax, like semicolons, too many
+parentheses, etc. It also allows for lambdas that are the last parameter of a function to
+have a special syntax when calling them. Additionally operators can be overloaded, and
+infix functions can be created (which make the <code class="language-plaintext highlighter-rouge">.</code> unncessary when making a method call on
+an object). And there’s support for extension functions and implicit recievers which
+provide a rich set of tools that we can leverage in order to create DSLs. Keep in mind
+though that we have to work within the constraints of the Kotlin language and compiler
+itself in order to be able to express our DSL.</p>
+
+<p>Here’s a simple example of the <code class="language-plaintext highlighter-rouge">infix</code> keyword which allows us to drop the <code class="language-plaintext highlighter-rouge">.</code> and
+parentheses for the argument.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">val</span> <span class="py">car</span> <span class="p">=</span> <span class="nc">Car</span><span class="p">()</span>
+  <span class="n">car</span><span class="p">.</span><span class="nf">drive</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="c1">// Regular method call.</span>
+  <span class="n">car</span> <span class="n">drive</span> <span class="mi">10</span> <span class="c1">// Infix method call.</span>
+<span class="p">}</span>
+<span class="kd">class</span> <span class="nc">Car</span> <span class="p">{</span>
+  <span class="k">infix</span> <span class="k">fun</span> <span class="nf">drive</span><span class="p">(</span><span class="n">dist</span><span class="p">:</span> <span class="nc">Int</span><span class="p">){</span>
+     <span class="nf">println</span><span class="p">(</span><span class="s">"Driving $dist miles"</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="context-and-rebinding-this">
+        
+        
+          Context, and rebinding this <a href="#context-and-rebinding-this">#</a>
+        
+        
+      </h2>
+    
+
+<p>If you have JavaScript experience, then you know that you can bind <code class="language-plaintext highlighter-rouge">this</code> to any object
+that you would like when you are calling a function using the
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call"><code class="language-plaintext highlighter-rouge">call()</code></a>
+function. For people coming from the Java world, this is a very strange concept indeed.
+Kotlin allows you to pass different contexts into function calls (when creating DSLs)
+which is actually one of the major language capabilities that make internal DSLs possible.</p>
+
+<p>Here’s some JavaScript code that shows how <code class="language-plaintext highlighter-rouge">this</code> can be bound to any object that you
+desire.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">greet</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nf">toUpperCase</span><span class="p">()}</span><span class="s2"> </span><span class="p">${</span><span class="nx">name</span><span class="p">}</span><span class="s2">!`</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nx">greet</span><span class="p">.</span><span class="nf">call</span><span class="p">(</span><span class="dl">"</span><span class="s2">hello</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">Nora</span><span class="dl">"</span><span class="p">)</span> <span class="c1">// The first argument is bound to `this` in the call to `greet()`.</span>
+</code></pre></div></div>
+
+<p>Here’s a Kotlin equivalent of this code in action.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">call</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;.(</span><span class="nc">String</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">val</span> <span class="py">context</span> <span class="p">=</span> <span class="nf">mutableListOf</span><span class="p">(</span><span class="s">"Hello"</span><span class="p">)</span>
+  <span class="kd">val</span> <span class="py">argument</span> <span class="p">=</span> <span class="s">"Nora"</span>
+  <span class="nf">block</span><span class="p">(</span><span class="cm">/* context aka `this`= */ context, /* argument aka `it`= */</span> <span class="n">argument</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nf">call</span> <span class="p">{</span>
+  <span class="c1">// `context` argument binds to `this`, so `this: MutableList&lt;String&gt;`.</span>
+  <span class="c1">// `it` parameter holds the argument passed, so `it: String`.</span>
+  <span class="nf">println</span><span class="p">(</span><span class="s">"${this.joinToString { it.toUpperCase() }} $it"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>If you look at the <code class="language-plaintext highlighter-rouge">call</code> function, the <code class="language-plaintext highlighter-rouge">block</code> parameter has this signature:
+<code class="language-plaintext highlighter-rouge">MutableList&lt;String&gt;.(String) -&gt; Unit</code>. Let’s break this down.</p>
+
+<ol>
+  <li>Right side <code class="language-plaintext highlighter-rouge">(String) -&gt; Unit</code> - this simply says that the lambda will accept a single
+argument of type <code class="language-plaintext highlighter-rouge">String</code>.</li>
+  <li>Left side <code class="language-plaintext highlighter-rouge">Mutable&lt;String&gt;.</code> - this is more interesting, this says that the lambda
+above will have <code class="language-plaintext highlighter-rouge">this</code> bound to an object of type <code class="language-plaintext highlighter-rouge">MutableList&lt;String&gt;</code>. In other
+words, the context passed to the lambda will be of type <code class="language-plaintext highlighter-rouge">MutableList&lt;String&gt;</code>.</li>
+</ol>
+
+<p>Now, let’s take a look at the code at the call site of this <code class="language-plaintext highlighter-rouge">call</code> function.</p>
+
+<p>The lambda that is passed to <code class="language-plaintext highlighter-rouge">call</code> has the following things.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">it</code> is of type <code class="language-plaintext highlighter-rouge">String</code> and is bound to the argument that is passed to it in the
+<code class="language-plaintext highlighter-rouge">call</code> function (<code class="language-plaintext highlighter-rouge">"Nora"</code>).</li>
+  <li><code class="language-plaintext highlighter-rouge">this</code> is of type <code class="language-plaintext highlighter-rouge">MutableList&lt;String&gt;</code> and is bound to the context argument that is
+passed in the <code class="language-plaintext highlighter-rouge">call</code> function implementation (<code class="language-plaintext highlighter-rouge">mutableListOf("Hello")</code>).</li>
+</ol>
+      <h3 id="summary">
+        
+        
+          Summary <a href="#summary">#</a>
+        
+        
+      </h3>
+    
+
+<p>This takes a little getting used to, but once you get the hang of it, you know that:</p>
+
+<ol>
+  <li>The thing on the left side of the <code class="language-plaintext highlighter-rouge">.</code> in the method signature is the context.</li>
+  <li>The thing on the right side is the lambda’s function signature. And that you can
+potentially pass an argument to this lambda.</li>
+</ol>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>fun call(block: MutableList&lt;String&gt;.(String) -&gt; Unit) {}
+                ^                   ^
+                1. the context      2. the lambda function signature
+                                       (and possible argument)
+</code></pre></div></div>
+
+<p>And on the flip side, when you’re writing the lambda passed to this <code class="language-plaintext highlighter-rouge">call</code> function, you
+can expect:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">this</code> will be of type <code class="language-plaintext highlighter-rouge">MutableList&lt;String&gt;</code> (the thing on the left).</li>
+  <li><code class="language-plaintext highlighter-rouge">it</code> will be of type <code class="language-plaintext highlighter-rouge">(String)</code> (the parameter to the thing on the right).</li>
+</ol>
+      <h2 id="example-of-a-dsl-that-allows-console-output-to-be-colored">
+        
+        
+          Example of a DSL that allows console output to be colored <a href="#example-of-a-dsl-that-allows-console-output-to-be-colored">#</a>
+        
+        
+      </h2>
+    
+
+<p>Let’s say that you want to create console log output with colors, instead of boring old
+black and white. When we come up with a DSL, one of the first things we have to do is come
+up with some idea of what our DSL will look like (assuming it has already been
+implemented).</p>
+
+<p>So here’s some code I came up with that I would like to generate console log output in
+color.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nf">colorConsole</span> <span class="p">{</span><span class="c1">//this: ColorConsoleContext</span>
+    <span class="nf">printLine</span> <span class="p">{</span><span class="c1">//this: MutableList&lt;String&gt;</span>
+      <span class="nf">span</span><span class="p">(</span><span class="nc">Colors</span><span class="p">.</span><span class="nc">Purple</span><span class="p">,</span> <span class="s">"word1"</span><span class="p">)</span>
+      <span class="nf">span</span><span class="p">(</span><span class="s">"word2"</span><span class="p">)</span>
+      <span class="nf">span</span><span class="p">(</span><span class="nc">Colors</span><span class="p">.</span><span class="nc">Blue</span><span class="p">,</span> <span class="s">"word3"</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nf">printLine</span> <span class="p">{</span><span class="c1">//this: MutableList&lt;String&gt;</span>
+      <span class="nf">span</span><span class="p">(</span><span class="nc">Colors</span><span class="p">.</span><span class="nc">Green</span><span class="p">,</span> <span class="s">"word1"</span><span class="p">)</span>
+      <span class="nf">span</span><span class="p">(</span><span class="nc">Colors</span><span class="p">.</span><span class="nc">Purple</span><span class="p">,</span> <span class="s">"word2"</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="nf">println</span><span class="p">(</span>
+        <span class="nf">line</span> <span class="p">{</span><span class="c1">//this: MutableList&lt;String&gt;, it: ColorConsoleContext</span>
+          <span class="nf">add</span><span class="p">(</span><span class="nc">Colors</span><span class="p">.</span><span class="nc">Green</span><span class="p">(</span><span class="s">"word1"</span><span class="p">))</span>
+          <span class="nf">add</span><span class="p">(</span><span class="nc">Colors</span><span class="p">.</span><span class="nc">Blue</span><span class="p">(</span><span class="s">"word2"</span><span class="p">))</span>
+        <span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>For this DSL, the main enclosing function is <code class="language-plaintext highlighter-rouge">console</code>, to which we pass a lambda. Inside
+the lambda, we can use <code class="language-plaintext highlighter-rouge">printLine</code> function or <code class="language-plaintext highlighter-rouge">line</code> function to express what to log
+exactly. We can pass lambdas to each of these functions, and note that when using <code class="language-plaintext highlighter-rouge">line</code>,
+<code class="language-plaintext highlighter-rouge">it</code> is available for use in the lambda, and when using <code class="language-plaintext highlighter-rouge">printLine</code> <code class="language-plaintext highlighter-rouge">it</code> isn’t available.</p>
+
+<p>Here’s the code that makes this DSL possible.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">ColorConsoleContext</span> <span class="p">{</span>
+  <span class="k">companion</span> <span class="k">object</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">colorConsole</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="nc">ColorConsoleContext</span><span class="p">.()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nc">ColorConsoleContext</span><span class="p">().</span><span class="nf">apply</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">fun</span> <span class="nf">printLine</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;.()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">println</span><span class="p">(</span><span class="nf">line</span> <span class="p">{</span>
+      <span class="nf">block</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
+    <span class="p">})</span>
+  <span class="p">}</span>
+
+  <span class="k">fun</span> <span class="nf">line</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;.(</span><span class="nc">ColorConsoleContext</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">):</span> <span class="nc">String</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">messageFragments</span> <span class="p">=</span> <span class="n">mutableListOf</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;()</span>
+    <span class="nf">block</span><span class="p">(</span><span class="n">messageFragments</span><span class="p">,</span> <span class="k">this</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">timestamp</span> <span class="p">=</span> <span class="nc">SimpleDateFormat</span><span class="p">(</span><span class="s">"hh:mm:sa"</span><span class="p">).</span><span class="nf">format</span><span class="p">(</span><span class="nc">Date</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">messageFragments</span><span class="p">.</span><span class="nf">joinToString</span><span class="p">(</span><span class="n">separator</span> <span class="p">=</span> <span class="s">", "</span><span class="p">,</span> <span class="n">prefix</span> <span class="p">=</span> <span class="s">"$timestamp: "</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="cm">/**
+   * Appends all arguments to the given [MutableList].
+   */</span>
+  <span class="k">fun</span> <span class="nf">MutableList</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;.</span><span class="nf">span</span><span class="p">(</span><span class="n">color</span><span class="p">:</span> <span class="nc">Colors</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nc">String</span><span class="p">):</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;</span> <span class="p">{</span>
+    <span class="nf">add</span><span class="p">(</span><span class="n">color</span><span class="p">.</span><span class="n">ansiCode</span> <span class="p">+</span> <span class="n">text</span> <span class="p">+</span> <span class="nc">Colors</span><span class="p">.</span><span class="nc">ANSI_RESET</span><span class="p">.</span><span class="n">ansiCode</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">this</span>
+  <span class="p">}</span>
+
+  <span class="cm">/**
+   * Appends all arguments to the given [MutableList].
+   */</span>
+  <span class="k">fun</span> <span class="nf">MutableList</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;.</span><span class="nf">span</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nc">String</span><span class="p">):</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;</span> <span class="p">{</span>
+    <span class="nf">add</span><span class="p">(</span><span class="n">text</span> <span class="p">+</span> <span class="nc">Colors</span><span class="p">.</span><span class="nc">ANSI_RESET</span><span class="p">.</span><span class="n">ansiCode</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">this</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">enum</span> <span class="kd">class</span> <span class="nc">Colors</span><span class="p">(</span><span class="kd">val</span> <span class="py">ansiCode</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nc">ANSI_RESET</span><span class="p">(</span><span class="s">"\u001B[0m"</span><span class="p">),</span>
+  <span class="nc">Black</span><span class="p">(</span><span class="s">"\u001B[30m"</span><span class="p">),</span>
+  <span class="nc">Red</span><span class="p">(</span><span class="s">"\u001B[31m"</span><span class="p">),</span>
+  <span class="nc">Green</span><span class="p">(</span><span class="s">"\u001B[32m"</span><span class="p">),</span>
+  <span class="nc">Yellow</span><span class="p">(</span><span class="s">"\u001B[33m"</span><span class="p">),</span>
+  <span class="nc">Blue</span><span class="p">(</span><span class="s">"\u001B[34m"</span><span class="p">),</span>
+  <span class="nc">Purple</span><span class="p">(</span><span class="s">"\u001B[35m"</span><span class="p">),</span>
+  <span class="nc">Cyan</span><span class="p">(</span><span class="s">"\u001B[36m"</span><span class="p">),</span>
+  <span class="nc">White</span><span class="p">(</span><span class="s">"\u001B[37m"</span><span class="p">);</span>
+
+  <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nc">String</span><span class="p">):</span> <span class="nc">String</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s">"${ansiCode}$content${ANSI_RESET.ansiCode}"</span>
+  <span class="p">}</span>
+
+  <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nc">StringBuilder</span><span class="p">):</span> <span class="nc">StringBuilder</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nc">StringBuilder</span><span class="p">(</span><span class="s">"${ansiCode}$content${ANSI_RESET.ansiCode}"</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>I’ve open sourced this as a gradle dependency named <code class="language-plaintext highlighter-rouge">color-console</code>. You can get it on
+<a href="https://github.com/nazmulidris/color-console">GitHub</a>.</p>
+</blockquote>
+      <h2 id="example-of-a-dsl-that-executes-a-list-of-lambdas-while-a-condition-is-met">
+        
+        
+          Example of a DSL that executes a list of lambdas while a condition is met <a href="#example-of-a-dsl-that-executes-a-list-of-lambdas-while-a-condition-is-met">#</a>
+        
+        
+      </h2>
+    
+
+<p>Let’s say that you have a list of lambdas. And that you want to execute them in sequence,
+as long as a condition is met (is true). Here’s an example of what DSL for this use case
+may look like.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nn">actions.createConditionalRunnerScope</span>
+<span class="k">import</span> <span class="nn">org.assertj.core.api.Assertions</span>
+<span class="k">import</span> <span class="nn">org.junit.Test</span>
+
+<span class="kd">class</span> <span class="nc">ConditionalRunnerDslTest</span> <span class="p">{</span>
+  <span class="nd">@Test</span>
+  <span class="k">fun</span> <span class="nf">testCreateConditionalRunnerScope</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="py">count</span> <span class="p">=</span> <span class="mi">1</span>
+    <span class="kd">var</span> <span class="py">executionCount</span> <span class="p">=</span> <span class="mi">1</span>
+    <span class="nf">createConditionalRunnerScope</span> <span class="p">{</span>
+      <span class="nf">condition</span> <span class="p">{</span> <span class="n">count</span> <span class="p">&lt;</span> <span class="mi">4</span> <span class="p">}</span>
+      <span class="nf">addLambda</span> <span class="p">{</span> <span class="n">count</span><span class="p">++;</span> <span class="n">executionCount</span><span class="p">++</span> <span class="p">}</span>
+      <span class="nf">addLambda</span> <span class="p">{</span> <span class="n">count</span><span class="p">++;</span> <span class="n">executionCount</span><span class="p">++</span> <span class="p">}</span>
+      <span class="nf">addLambda</span> <span class="p">{</span> <span class="n">count</span><span class="p">++;</span> <span class="n">executionCount</span><span class="p">++</span> <span class="p">}</span>
+      <span class="nf">addLambda</span> <span class="p">{</span> <span class="n">count</span><span class="p">++;</span> <span class="n">executionCount</span><span class="p">++</span> <span class="p">}</span>
+      <span class="nf">addLambda</span> <span class="p">{</span> <span class="n">count</span><span class="p">++;</span> <span class="n">executionCount</span><span class="p">++</span> <span class="p">}</span>
+      <span class="nf">addLambda</span> <span class="p">{</span> <span class="n">count</span><span class="p">++;</span> <span class="n">executionCount</span><span class="p">++</span> <span class="p">}</span>
+      <span class="nf">runEachLambdaUntilConditionNotMet</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="nc">Assertions</span><span class="p">.</span><span class="nf">assertThat</span><span class="p">(</span><span class="n">count</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="nc">Assertions</span><span class="p">.</span><span class="nf">assertThat</span><span class="p">(</span><span class="n">executionCount</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>To implement this DSL, here’s the code.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="nn">actions</span>
+
+<span class="cm">/**
+ * DSL to run a sequence of lambdas as long as the condition is met. As soon as the condition is not met, execution
+ * stops.
+ */</span>
+<span class="k">fun</span> <span class="nf">createConditionalRunnerScope</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="nc">FunctionCollector</span><span class="p">.()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">val</span> <span class="py">myFunctionCollector</span> <span class="p">=</span> <span class="nc">FunctionCollector</span><span class="p">()</span>
+  <span class="nf">block</span><span class="p">(</span><span class="n">myFunctionCollector</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">FunctionCollector</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">conditionBlock</span><span class="p">:</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nc">Boolean</span>
+  <span class="kd">val</span> <span class="py">lambdaList</span><span class="p">:</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="err">()</span> <span class="err">-</span><span class="p">&gt;</span> <span class="nc">Unit</span><span class="p">&gt;</span> <span class="p">=</span> <span class="nf">mutableListOf</span><span class="p">()</span>
+
+  <span class="k">fun</span> <span class="nf">condition</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nc">Boolean</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">conditionBlock</span> <span class="p">=</span> <span class="n">block</span>
+  <span class="p">}</span>
+
+  <span class="k">fun</span> <span class="nf">addLambda</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="p">()</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">lambdaList</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="k">fun</span> <span class="nf">runEachLambdaUntilConditionNotMet</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">function</span> <span class="k">in</span> <span class="n">lambdaList</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nf">colorConsole</span> <span class="p">{</span>
+        <span class="nf">printLine</span> <span class="p">{</span>
+          <span class="k">if</span> <span class="p">(</span><span class="nf">conditionBlock</span><span class="p">())</span> <span class="nf">span</span><span class="p">(</span><span class="nc">Colors</span><span class="p">.</span><span class="nc">Green</span><span class="p">,</span> <span class="s">"Condition == true"</span><span class="p">)</span>
+          <span class="k">else</span> <span class="nf">span</span><span class="p">(</span><span class="nc">Colors</span><span class="p">.</span><span class="nc">Red</span><span class="p">,</span> <span class="s">"Condition == false"</span><span class="p">)</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nf">conditionBlock</span><span class="p">())</span> <span class="p">{</span>
+        <span class="nf">colorConsole</span> <span class="p">{</span>
+          <span class="nf">printLine</span> <span class="p">{</span>
+            <span class="nf">span</span><span class="p">(</span><span class="nc">Colors</span><span class="p">.</span><span class="nc">Green</span><span class="p">,</span> <span class="s">"invoking function"</span><span class="p">)</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="nf">function</span><span class="p">()</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="nf">colorConsole</span> <span class="p">{</span>
+          <span class="nf">printLine</span> <span class="p">{</span>
+            <span class="nf">span</span><span class="p">(</span><span class="nc">Colors</span><span class="p">.</span><span class="nc">Red</span><span class="p">,</span> <span class="s">"breaking out of runEachUntilConditionNotMet()"</span><span class="p">)</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="further-reading">
+        
+        
+          Further reading <a href="#further-reading">#</a>
+        
+        
+      </h2>
+    
+
+<p>I’ve got a GitHub repo
+<a href="https://github.com/nazmulidris/kt-scratch/tree/main/src/main/kotlin/dsl">here</a>, where you
+can find many more examples (including the <code class="language-plaintext highlighter-rouge">console</code> example shown above).</p>
+
+<p>Please clone the repo, and take a look at the sources, and run the code to try it out for
+yourself. The best way to get good with DSLs is to spend a lot of time tinkering with this
+stuff and making your own.</p>
+
+<p>As Venkat Subramaniam says in his <a href="https://www.youtube.com/watch?v=JzTeAM8N1-o">video</a>,
+you will need 2 things:</p>
+
+<ol>
+  <li>Patience,</li>
+  <li>Coffee. 🤣</li>
+</ol>
+
+<p>Enjoy! 😃</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/KT">
+                #kt</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/MP">
+                #mp</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/02/06/publish-kotlin-library-as-gradle-dep/">
+                        Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/11/20/idea-plugin-example-intro/">
+                        Introduction to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/15/non-capturing-lambda-problems/">
+                        Potential problems of using non-capturing lambdas
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-testing-setup/">
+                        Kotlin and Test Driven Development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-extension-function-expressions/">
+                        Kotlin Extension Function Expressions
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-and-kotlin/">
+                        Advanced Dagger 2 w/ Android and Kotlin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2020/04/05/kotlin-dsl-intro/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

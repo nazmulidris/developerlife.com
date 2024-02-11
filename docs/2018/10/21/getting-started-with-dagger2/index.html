@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Introduction to Dagger 2 | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Introduction to Dagger 2" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is an introduction to Dagger 2 with a simple example of using it in Java" />
+<meta property="og:description" content="This tutorial is an introduction to Dagger 2 with a simple example of using it in Java" />
+<link rel="canonical" href="http://developerlife.com/2018/10/21/getting-started-with-dagger2/" />
+<meta property="og:url" content="http://developerlife.com/2018/10/21/getting-started-with-dagger2/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-10-21T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Introduction to Dagger 2" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2018-10-21T00:00:00-05:00","datePublished":"2018-10-21T00:00:00-05:00","description":"This tutorial is an introduction to Dagger 2 with a simple example of using it in Java","headline":"Introduction to Dagger 2","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2018/10/21/getting-started-with-dagger2/"},"url":"http://developerlife.com/2018/10/21/getting-started-with-dagger2/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Introduction to Dagger 2&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Introduction to Dagger 2</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Introduction to Dagger 2</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Oct 21, 2018
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/di-java-hero.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#about-dagger-2">About Dagger 2</a>
+    <ul>
+      <li><a href="#annotations">Annotations</a></li>
+      <li><a href="#dependency-providers">Dependency providers</a></li>
+      <li><a href="#dependency-consumers">Dependency consumers</a></li>
+      <li><a href="#connecting-consumers-and-providers">Connecting consumers and providers</a></li>
+      <li><a href="#special-treatment-of-fields">Special treatment of fields</a></li>
+      <li><a href="#scope-annotations">Scope annotations</a></li>
+    </ul>
+  </li>
+  <li><a href="#simplest-java-example">Simplest Java Example</a>
+    <ul>
+      <li><a href="#object-that-does-not-require-module">Object that does not require @Module</a></li>
+      <li><a href="#object-that-requires-module">Object that requires @Module</a></li>
+      <li><a href="#bind-shortcut">@Bind shortcut</a></li>
+      <li><a href="#summary">Summary</a></li>
+    </ul>
+  </li>
+  <li><a href="#references">References</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="about-dagger-2">
+        
+        
+          About Dagger 2 <a href="#about-dagger-2">#</a>
+        
+        
+      </h2>
+    
+
+<p>Dagger 2 is dependency injection framework. It is based on the Java Specification Request (JSR) 330.
+It uses code generation and is based on annotations. The generated code is very relatively easy to
+read and debug.</p>
+
+<p>To learn more about Dagger 2, here are some excellent resources.</p>
+
+<ol>
+  <li><a href="https://www.youtube.com/watch?v=IKD2-MAkXyQ">Excellent video on Dependency Injection</a></li>
+  <li><a href="https://www.youtube.com/watch?v=plK0zyRLIP8">Excellent video on Dagger 2 by Jake Wharton</a></li>
+  <li><a href="https://github.com/codepath/android_guides/wiki/Dependency-Injection-with-Dagger-2">Excellent tutorial on Dagger 2 and Android tutorial</a></li>
+  <li><a href="https://stackoverflow.com/questions/45080227/dagger2-where-inject-named-provides-in-dependent-module">SO - @Named</a></li>
+  <li><a href="https://stackoverflow.com/questions/32076244/dagger-2-injecting-parameters-of-constructor">SO - @Inject constructor params</a></li>
+</ol>
+      <h3 id="annotations">
+        
+        
+          Annotations <a href="#annotations">#</a>
+        
+        
+      </h3>
+    
+
+<p>Dagger 2 uses the following annotations:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">@Module</code> and <code class="language-plaintext highlighter-rouge">@Provides</code>: define classes and methods which provide dependencies.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">@Inject</code>: request dependencies. Can be used on a <em>constructor</em>, a <em>field</em>, or a <em>method</em>.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">@Component</code>: enable selected modules and used for performing dependency injection.</p>
+  </li>
+</ul>
+
+<p>Dagger 2 uses generated code to access the fields and not reflection. Therefore it is not allowed to
+use private fields for field injection.</p>
+      <h3 id="dependency-providers">
+        
+        
+          Dependency providers <a href="#dependency-providers">#</a>
+        
+        
+      </h3>
+    
+
+<p>The term <em>dependency injection context</em> is typically used to describe the set of objects which can
+be injected.</p>
+
+<ul>
+  <li>In Dagger 2, <em>classes</em> annotated with <code class="language-plaintext highlighter-rouge">@Module</code> are responsible for providing objects which can be
+injected.</li>
+  <li>Such classes can define methods annotated with <code class="language-plaintext highlighter-rouge">@Provides</code>. The returned objects from these
+methods are available for dependency injection.</li>
+  <li>Methods annotated with <code class="language-plaintext highlighter-rouge">@Provides</code> can also express dependencies via method parameters. These
+dependencies are fulfilled by Dagger 2, if possible.</li>
+</ul>
+      <h3 id="dependency-consumers">
+        
+        
+          Dependency consumers <a href="#dependency-consumers">#</a>
+        
+        
+      </h3>
+    
+
+<p>You use the <code class="language-plaintext highlighter-rouge">@Inject</code> annotation to define a dependency.</p>
+
+<p>Note that if you annotate a constructor with <code class="language-plaintext highlighter-rouge">@Inject</code>, Dagger 2 can also use an instance of this
+object to fulfill dependencies. This was done to avoid the definition of lots of <code class="language-plaintext highlighter-rouge">@Provides</code> methods
+for these objects.</p>
+      <h3 id="connecting-consumers-and-providers">
+        
+        
+          Connecting consumers and providers <a href="#connecting-consumers-and-providers">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">@Component</code> is used on an interface. Such an interface is used by Dagger 2 to generate code.
+This interface defines the connection between the provider of objects (modules) and the objects
+which express a dependency (consumers).</p>
+
+<ul>
+  <li>The name of the the generated class is <code class="language-plaintext highlighter-rouge">Dagger</code> + the name of the interface.</li>
+  <li>This generated class has a <code class="language-plaintext highlighter-rouge">create()</code> method which allows configuring the objects based on the
+given configuration. Or you can use the <code class="language-plaintext highlighter-rouge">builder()</code> to get more sophisticated about providing
+modules.</li>
+  <li>The methods defined on the interface are available to access the generated objects.</li>
+</ul>
+      <h3 id="special-treatment-of-fields">
+        
+        
+          Special treatment of fields <a href="#special-treatment-of-fields">#</a>
+        
+        
+      </h3>
+    
+
+<p>Dagger 2 does not inject fields automatically. It can also not inject private fields. If you want to
+use field injection you have to define a method in your <code class="language-plaintext highlighter-rouge">@Component</code> interface which takes the
+instance into which you would like Dagger 2 to inject an object into this field.</p>
+      <h3 id="scope-annotations">
+        
+        
+          Scope annotations <a href="#scope-annotations">#</a>
+        
+        
+      </h3>
+    
+
+<p>You can use the <code class="language-plaintext highlighter-rouge">@Singleton</code> annotation to indicate that there should be only one instance of the
+object.</p>
+      <h2 id="simplest-java-example">
+        
+        
+          Simplest Java Example <a href="#simplest-java-example">#</a>
+        
+        
+      </h2>
+    
+
+<p>This is the most basic example of using Dagger 2 without component dependencies, subcomponents,
+complex modules, or custom scopes. The main Dagger 2 features used are:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">@Component</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">@Inject</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">@Module</code> and <code class="language-plaintext highlighter-rouge">@Provider</code>.</li>
+</ul>
+
+<p>There’s a <code class="language-plaintext highlighter-rouge">Log</code> interface that is that allows a message to be logged. And an implementation of this
+interface <code class="language-plaintext highlighter-rouge">ConsoleLogger</code> that just dumps it to the console. The goal is to leave creation of
+objects to Dagger 2 (along w/ providing a concrete implementation of the <code class="language-plaintext highlighter-rouge">Log</code> interface).</p>
+
+<p>Dagger 2 will be providing this application w/ 2 objects:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">Main</code> object.</li>
+  <li><code class="language-plaintext highlighter-rouge">Log</code> object.</li>
+</ol>
+
+<p>Here are the basic classes.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">interface</span> <span class="nc">Log</span> <span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">log</span><span class="o">(</span><span class="nc">String</span> <span class="n">msg</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">ConsoleLogger</span> <span class="kd">implements</span> <span class="nc">Log</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">log</span><span class="o">(</span><span class="nc">String</span> <span class="n">msg</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">msg</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>Here’s a link to the
+<a href="https://github.com/nazmulidris/dagger2/tree/main/java/src/main/java/example0">repo</a>.</p>
+</blockquote>
+      <h3 id="object-that-does-not-require-module">
+        
+        
+          Object that does not require @Module <a href="#object-that-does-not-require-module">#</a>
+        
+        
+      </h3>
+    
+
+<p>Let’s look at the simplest case first. We don’t want to create a new <code class="language-plaintext highlighter-rouge">Main</code> object using
+<code class="language-plaintext highlighter-rouge">new Main()</code> in the <code class="language-plaintext highlighter-rouge">main()</code> method of the <code class="language-plaintext highlighter-rouge">Main</code> class. We want Dagger 2 to generate this, since
+the whole point of dependency injection is not having to use <code class="language-plaintext highlighter-rouge">new</code>.</p>
+
+<p>There’s only one <code class="language-plaintext highlighter-rouge">Main</code> class, there’s no interface that has to be implemented by this class. So it
+is pretty straightforward to tell Dagger 2 to create this object and expose it as a dependency.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Inject</span>
+<span class="nc">Main</span><span class="o">()</span> <span class="o">{}</span>
+</code></pre></div></div>
+
+<p>The way in which to do this is to annotate the no arg constructor of <code class="language-plaintext highlighter-rouge">Main</code> with <code class="language-plaintext highlighter-rouge">@Inject</code>. This
+tells Dagger 2 that it should create an instance of this class when it’s needed by any of the
+objects in the object graph that it generates.</p>
+
+<p>This requires the creation of a <code class="language-plaintext highlighter-rouge">@Component</code> since that’s the entry point for Dagger 2 to start
+creating all the objects that are required by the application. This is what the interface looks
+like.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Component</span>
+<span class="nd">@Singleton</span>
+<span class="kd">interface</span> <span class="nc">LogComponent</span> <span class="o">{</span>
+    <span class="nc">Main</span> <span class="nf">providesMain</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Please note that it’s called in the <code class="language-plaintext highlighter-rouge">main()</code> method of the <code class="language-plaintext highlighter-rouge">Main</code> class. So we don’t actually create
+an instance of <code class="language-plaintext highlighter-rouge">Main</code>. It’s done for us by Dagger 2.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">DaggerLogComponent</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">().</span><span class="na">providesMain</span><span class="o">().</span><span class="na">run</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>How did this work? Dagger 2 knows how it can create a <code class="language-plaintext highlighter-rouge">Main</code> class, since the no-arg constructor
+annotated w/ <code class="language-plaintext highlighter-rouge">@Inject</code> in <code class="language-plaintext highlighter-rouge">Main</code> is a way to tell Dagger 2 that when it needs to, it can use this
+constructor to create an instance. The <code class="language-plaintext highlighter-rouge">@Singleton</code> annotation on the component also ensures that it
+keeps this instance around for the lifetime of this component (once the instance has been created).</p>
+
+<p>By using <code class="language-plaintext highlighter-rouge">@Inject</code> you can bypass the need to create a <code class="language-plaintext highlighter-rouge">@Module</code> and have a <code class="language-plaintext highlighter-rouge">@Provide</code> annotated
+method, which is what is usually required. Dagger 2 is smart enough to figure out that for this
+simple class (that it doesn’t have to worry about mapping to some interface) it can just create a
+singleton if needed and pass it around the object graph of dependencies.</p>
+
+<p>The situation will get more complex when we have to deal with generating a <code class="language-plaintext highlighter-rouge">Log</code> implementation
+object and make it available to the object graph.</p>
+      <h3 id="object-that-requires-module">
+        
+        
+          Object that requires @Module <a href="#object-that-requires-module">#</a>
+        
+        
+      </h3>
+    
+
+<p>The key difference between providing a <code class="language-plaintext highlighter-rouge">Main</code> object and a <code class="language-plaintext highlighter-rouge">Log</code> object is that <code class="language-plaintext highlighter-rouge">Log</code> is an
+interface, and many different implementations may be available for this interface, and Dagger 2
+doesn’t know (without being told) how to provide the desired implementation for this interface.</p>
+
+<p>This is where <code class="language-plaintext highlighter-rouge">@Module</code> and <code class="language-plaintext highlighter-rouge">@Provides</code> come into play.</p>
+
+<p>So we add some more complexity to our component.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Component</span><span class="o">(</span><span class="n">modules</span> <span class="o">=</span> <span class="o">{</span><span class="nc">LogModule</span><span class="o">.</span><span class="na">class</span><span class="o">})</span>
+<span class="nd">@Singleton</span>
+<span class="kd">interface</span> <span class="nc">LogComponent</span> <span class="o">{</span>
+    <span class="nc">Main</span> <span class="nf">providesMain</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="nd">@Module</span>
+<span class="kd">class</span> <span class="nc">LogModule</span> <span class="o">{</span>
+    <span class="nd">@Provides</span>
+    <span class="nd">@Singleton</span>
+    <span class="nc">Log</span> <span class="nf">providesLogger</span><span class="o">(</span><span class="nc">ConsoleLogger</span> <span class="n">logger</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">logger</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Note that the <code class="language-plaintext highlighter-rouge">providesLogger()</code> method is declared, but an object is <strong>NOT</strong> created here! We could
+simply do the following in this method and it would work.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Log</span> <span class="nf">providesLogger</span><span class="o">()</span> <span class="o">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">ConsoleLogger</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>However, by adding a parameter to this <code class="language-plaintext highlighter-rouge">providesLog()</code> method, we are telling Dagger 2 to figure out
+how to get an <strong>instance</strong> of <code class="language-plaintext highlighter-rouge">ConsoleLogger</code> on its own, but then return it <strong>as</strong> a <code class="language-plaintext highlighter-rouge">Log</code>
+interface. That’s pretty slick!</p>
+
+<p>In order to make this happen, we have to make the <code class="language-plaintext highlighter-rouge">ConsoleLogger</code> class more complex though.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Singleton</span>
+<span class="kd">class</span> <span class="nc">ConsoleLogger</span> <span class="kd">implements</span> <span class="nc">Log</span> <span class="o">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="nc">ConsoleLogger</span><span class="o">(){}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">log</span><span class="o">(</span><span class="nc">String</span> <span class="n">msg</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">msg</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>By simply adding a no-arg constructor and marking it w/ <code class="language-plaintext highlighter-rouge">@Inject</code> we are able to tell Dagger 2 how
+to provide an instance of <code class="language-plaintext highlighter-rouge">ConsoleLogger</code> that it can provide! How awesome is that!</p>
+
+<p>Also note that the <code class="language-plaintext highlighter-rouge">@Singleton</code> annotation is applied to the class and not the method, since we are
+using a <code class="language-plaintext highlighter-rouge">@Inject</code>. If we were using a provider and module then the <code class="language-plaintext highlighter-rouge">@Singleton</code> annotation would not
+be at the class level; this is only for <code class="language-plaintext highlighter-rouge">@Inject</code>.</p>
+
+<p>Finally we have to change the <code class="language-plaintext highlighter-rouge">Main</code> class so that it knows how to work w/ the <code class="language-plaintext highlighter-rouge">LogModule</code> that we
+just added.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">DaggerLogComponent</span><span class="o">.</span><span class="na">builder</span><span class="o">().</span><span class="na">build</span><span class="o">().</span><span class="na">providesMain</span><span class="o">().</span><span class="na">run</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Inject</span>
+    <span class="nc">Main</span><span class="o">()</span> <span class="o">{}</span>
+
+    <span class="nd">@Inject</span>
+    <span class="nc">Log</span> <span class="n">logger</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+        <span class="n">logger</span><span class="o">.</span><span class="na">log</span><span class="o">(</span><span class="s">"Hello world!!! Simple Dagger"</span><span class="o">);</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+      <h3 id="bind-shortcut">
+        
+        
+          @Bind shortcut <a href="#bind-shortcut">#</a>
+        
+        
+      </h3>
+    
+
+<p>Instead of this:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Provides</span> <span class="nd">@Singleton</span>
+<span class="nc">Log</span> <span class="nf">providesLogger</span><span class="o">(</span><span class="nc">ConsoleLogger</span> <span class="n">logger</span><span class="o">)</span> <span class="o">{</span> <span class="k">return</span> <span class="n">logger</span><span class="o">;</span> <span class="o">}</span>
+</code></pre></div></div>
+
+<p>We could write:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Binds</span> <span class="nd">@Singleton</span>
+<span class="kd">abstract</span> <span class="nc">Log</span> <span class="nf">providesLogger</span><span class="o">(</span><span class="nc">ConsoleLogger</span> <span class="n">logger</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>It is possible to have arguments in the constructor that are annotated w/ <code class="language-plaintext highlighter-rouge">@Inject</code> as long as the
+parameters in the constructor are objects that Dagger 2 knows how to create. In order to use this:</p>
+
+<ol>
+  <li>Simply make the <code class="language-plaintext highlighter-rouge">Module</code> class abstract</li>
+  <li>Make the non-<code class="language-plaintext highlighter-rouge">@Binds</code> methods, ie the <code class="language-plaintext highlighter-rouge">@Provides</code> methods static.</li>
+</ol>
+      <h3 id="summary">
+        
+        
+          Summary <a href="#summary">#</a>
+        
+        
+      </h3>
+    
+
+<p>There you have it! This is the simplest way in which you can use Dagger 2.</p>
+
+<ol>
+  <li>
+    <p>It was super easy to make <code class="language-plaintext highlighter-rouge">Main</code> objects w/ a no arg constructor that’s annotated w/ <code class="language-plaintext highlighter-rouge">@Inject</code>.
+But it was harder when we have an interface that may be implemented by many different classes,
+and so a provider and module was needed to tell Dagger 2 how to bind an implementation to the
+interface.</p>
+  </li>
+  <li>
+    <p>However it was not necessary to tell Dagger 2 how to explicitly create an instance of the class
+implementing the interface (this was achieved w/ <code class="language-plaintext highlighter-rouge">@Inject</code> annotation again, on the no arg
+constructor of the implementation class).</p>
+  </li>
+  <li>
+    <p>The Module and Provider method simply was a way to Dagger 2 how to make that association or
+binding between the implementation of our choice and the interface.</p>
+  </li>
+</ol>
+      <h2 id="references">
+        
+        
+          References <a href="#references">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li><a href="https://stackoverflow.com/a/52324748/2085356">Configuring Idea, Gradle, and Dagger2</a></li>
+  <li><a href="https://www.youtube.com/watch?v=IKD2-MAkXyQ">Excellent video on Dependency Injection</a></li>
+  <li><a href="https://www.youtube.com/watch?v=plK0zyRLIP8">Jake Wharton’s video on Dagger2</a></li>
+  <li><a href="https://www.raywenderlich.com/262-dependency-injection-in-android-with-dagger-2-and-kotlin">Tutorial - Kotlin, Android, Dagger2</a></li>
+  <li><a href="http://www.vogella.com/tutorials/Dagger/article.html">Tutorial - Vogella</a></li>
+  <li><a href="https://www.ricston.com/blog/dependency-injection-dagger-2/">Tutorial - Blood example</a></li>
+  <li><a href="https://medium.com/@Zhuinden/that-missing-guide-how-to-use-dagger2-ef116fbea97">Tutorial - Missing Guide</a></li>
+  <li><a href="https://github.com/codepath/android_guides/wiki/Dependency-Injection-with-Dagger-2">Tutorial - Codepath Dagger2 and Android</a></li>
+  <li><a href="https://stackoverflow.com/questions/45080227/dagger2-where-inject-named-provides-in-dependent-module">SO - question about @Named</a></li>
+  <li><a href="https://stackoverflow.com/questions/32076244/dagger-2-injecting-parameters-of-constructor">SO - question about constructor param</a></li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/DI">
+                #di</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-in-depth/">
+                        In-depth exploration of Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-and-kotlin/">
+                        Advanced Dagger 2 w/ Android and Kotlin
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2018/10/21/getting-started-with-dagger2/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

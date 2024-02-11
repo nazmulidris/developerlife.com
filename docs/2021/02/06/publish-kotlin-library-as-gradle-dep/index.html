@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Learn how to publish a Kotlin library as a gradle dependency to JitPack or GitHub Package Registry" />
+<meta property="og:description" content="Learn how to publish a Kotlin library as a gradle dependency to JitPack or GitHub Package Registry" />
+<link rel="canonical" href="http://developerlife.com/2021/02/06/publish-kotlin-library-as-gradle-dep/" />
+<meta property="og:url" content="http://developerlife.com/2021/02/06/publish-kotlin-library-as-gradle-dep/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-02-06T04:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2021-02-06T04:00:00-06:00","datePublished":"2021-02-06T04:00:00-06:00","description":"Learn how to publish a Kotlin library as a gradle dependency to JitPack or GitHub Package Registry","headline":"Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2021/02/06/publish-kotlin-library-as-gradle-dep/"},"url":"http://developerlife.com/2021/02/06/publish-kotlin-library-as-gradle-dep/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Feb 6, 2021
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/gradle-dep.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#using-jitpack-">Using JitPack 👍</a>
+    <ul>
+      <li><a href="#publish-a-dependency-to-jitpack">Publish a dependency to JitPack</a></li>
+      <li><a href="#maven-publish-plugin">maven-publish plugin</a></li>
+      <li><a href="#publishing-groupid-artifactid-version">publishing, groupId, artifactId, version</a></li>
+      <li><a href="#build--publish-locally-first">Build &amp; publish locally first</a></li>
+      <li><a href="#prepare-a-release--publish">Prepare a release &amp; publish</a></li>
+      <li><a href="#import-and-use-it">Import and use it</a></li>
+    </ul>
+  </li>
+  <li><a href="#using-github-package-registry-gpr-">Using GitHub Package Registry (GPR) 👎</a>
+    <ul>
+      <li><a href="#create-a-new-github-repo-for-the-actual-code-of-the-library">Create a new GitHub repo for the actual code of the library</a></li>
+      <li><a href="#generate-the-personal-access-tokens-that-will-be-needed-to-publish-and-import">Generate the personal access tokens that will be needed to publish and import</a></li>
+      <li><a href="#add-github-package-registry-support-to-the-build-script-so-that-the-package-can-be-published">Add GitHub Package Registry support to the build script so that the package can be published</a></li>
+      <li><a href="#import-this-dependency-into-another-gradle-project">Import this dependency into another gradle project</a></li>
+      <li><a href="#references">References</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>I’m used to importing libraries that I need in gradle by simply adding them as a dependency for
+implementation or testing in <code class="language-plaintext highlighter-rouge">build.gradle</code> or <code class="language-plaintext highlighter-rouge">build.gradle.kts</code>.</p>
+
+<p>However, I’ve always been curious about how to publish my own dependency that can easily be used by
+other projects.</p>
+
+<p>This tutorial shows how to take a Kotlin library and publish it to the
+<a href="https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages">GitHub Package Registry</a>
+and JitPack, as a dependency that can be used in gradle projects. I used to use JFrog Bintray but
+both
+<a href="https://www.infoq.com/news/2021/02/jfrog-jcenter-bintray-closure/">Bintray and JCenter are going to be shut down</a>
+in May 2021.</p>
+
+<p>In this tutorial I will create the <code class="language-plaintext highlighter-rouge">color-console</code> library that allows console messages to be
+colorized using ANSI color codes. Here is the end result snippet that we are looking to enable for
+our <code class="language-plaintext highlighter-rouge">color-console</code> library.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h2 id="using-jitpack-">
+        
+        
+          Using JitPack 👍 <a href="#using-jitpack-">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <p>✨ This is much simpler than <a href="#using-github-package-registry-gpr-">GPR</a> and the way to go for
+public dependencies.</p>
+</blockquote>
+
+<p>This could not be any easier. It’s really a 2 step process, once you have your library built with
+gradle and its git repo pushed into GitHub. Let’s use the following Kotlin library that’s published
+via JitPack as an example for this article:
+<a href="https://github.com/nazmulidris/color-console/"><code class="language-plaintext highlighter-rouge">color-console</code></a>.</p>
+      <h3 id="publish-a-dependency-to-jitpack">
+        
+        
+          Publish a dependency to JitPack <a href="#publish-a-dependency-to-jitpack">#</a>
+        
+        
+      </h3>
+    
+      <h3 id="maven-publish-plugin">
+        
+        
+          maven-publish plugin <a href="#maven-publish-plugin">#</a>
+        
+        
+      </h3>
+    
+
+<p>Ensure that the <code class="language-plaintext highlighter-rouge">maven-publish</code> plugin is imported in <code class="language-plaintext highlighter-rouge">build.gradle.kts</code>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">plugins</span> <span class="p">{</span>
+  <span class="n">java</span>
+  <span class="nf">kotlin</span><span class="p">(</span><span class="s">"jvm"</span><span class="p">)</span> <span class="n">version</span> <span class="s">"1.6.0"</span>
+  <span class="n">`maven-publish`</span>
+<span class="p">}</span>
+
+<span class="nf">repositories</span> <span class="p">{</span>
+  <span class="nf">mavenCentral</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="nf">dependencies</span> <span class="p">{</span>
+  <span class="nf">implementation</span><span class="p">(</span><span class="nf">kotlin</span><span class="p">(</span><span class="s">"stdlib-jdk8"</span><span class="p">))</span>
+  <span class="nf">testImplementation</span><span class="p">(</span><span class="s">"junit"</span><span class="p">,</span> <span class="s">"junit"</span><span class="p">,</span> <span class="s">"4.12"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nf">tasks</span> <span class="p">{</span>
+  <span class="nf">compileKotlin</span> <span class="p">{</span>
+    <span class="n">kotlinOptions</span><span class="p">.</span><span class="n">jvmTarget</span> <span class="p">=</span> <span class="s">"1.8"</span>
+  <span class="p">}</span>
+  <span class="nf">compileTestKotlin</span> <span class="p">{</span>
+    <span class="n">kotlinOptions</span><span class="p">.</span><span class="n">jvmTarget</span> <span class="p">=</span> <span class="s">"1.8"</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nf">publishing</span> <span class="p">{</span>
+  <span class="nf">publications</span> <span class="p">{</span>
+    <span class="n">create</span><span class="p">&lt;</span><span class="nc">MavenPublication</span><span class="p">&gt;(</span><span class="s">"maven"</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">groupId</span> <span class="p">=</span> <span class="s">"com.developerlife"</span>
+      <span class="n">artifactId</span> <span class="p">=</span> <span class="s">"color-console"</span>
+      <span class="n">version</span> <span class="p">=</span> <span class="s">"1.0.1"</span>
+
+      <span class="nf">from</span><span class="p">(</span><span class="n">components</span><span class="p">[</span><span class="s">"java"</span><span class="p">])</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="publishing-groupid-artifactid-version">
+        
+        
+          publishing, groupId, artifactId, version <a href="#publishing-groupid-artifactid-version">#</a>
+        
+        
+      </h3>
+    
+
+<p>Without the <code class="language-plaintext highlighter-rouge">publishing</code> rule of <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> you will get an error from JitPack even though
+the <code class="language-plaintext highlighter-rouge">./gradlew build publishToMavenLocal</code> will work. This error will say
+<code class="language-plaintext highlighter-rouge">ERROR: No build artifacts found</code>. Check out <a href="https://sami.eljabali.org/how-to-publish-a-kotlin-library-to-jitpack/#:~:text=without%20the%20above%2C%20jitpack%20will%20down%20the%20line%20show%20in%20your%20build%20log%20error%3A%20no%20build%20artifacts%20found%2C%20while%20building%20fine">this tutorial</a> for more info on this.</p>
+
+<p>Even though the <code class="language-plaintext highlighter-rouge">groupId</code>, <code class="language-plaintext highlighter-rouge">artifactId</code>, <code class="language-plaintext highlighter-rouge">version</code> are specified inside the <code class="language-plaintext highlighter-rouge">publishing</code> rule above
+it doesn’t really get applied to the final artifact served up by JitPack. JitPack renames these
+artifacts to something that reflects that they originated from <code class="language-plaintext highlighter-rouge">github.com</code> and the user
+<code class="language-plaintext highlighter-rouge">nazmulidris</code>.</p>
+
+<p>So the <code class="language-plaintext highlighter-rouge">dependencies</code> statement you find in a project’s Gradle build file that depends on this
+library doesn’t match the identifiers specified in this rule:
+<code class="language-plaintext highlighter-rouge">dependencies { implementation 'com.github.nazmulidris:color-console:Tag' }</code>. The following is
+sanitized snippet from the <a href="https://jitpack.io/com/github/nazmulidris/color-console/1.0.1/build.log">build log</a> that JitPack generates that shows this
+happening.</p>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end -->
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>------------------------------------------------------------
+Gradle 7.0
+------------------------------------------------------------
+Build time:   2021-04-09 22:27:31 UTC
+Revision:     d5661e3f0e07a8caff705f1badf79fb5df8022c4
+
+Kotlin:       1.4.31
+Groovy:       3.0.7
+Ant:          Apache Ant(TM) version 1.10.9 compiled on September 27 2020
+JVM:          1.8.0_252 (Private Build 25.252-b09)
+OS:           Linux 4.18.0-25-generic amd64
+
+Getting tasks: ./gradlew tasks --all
+&gt; Task :clean UP-TO-DATE
+&gt; Task :compileKotlin
+&gt; Task :compileJava NO-SOURCE
+&gt; Task :processResources NO-SOURCE
+&gt; Task :classes UP-TO-DATE
+&gt; Task :inspectClassesForKotlinIC
+&gt; Task :jar
+&gt; Task :assemble
+&gt; Task :check
+&gt; Task :build
+&gt; Task :generateMetadataFileForMavenPublication
+&gt; Task :generatePomFileForMavenPublication
+&gt; Task :publishMavenPublicationToMavenLocal
+&gt; Task :publishToMavenLocal
+
+BUILD SUCCESSFUL in 7s
+7 actionable tasks: 6 executed, 1 up-to-date
+Looking for artifacts...
+Looking for pom.xml in build directory and ~/.m2
+Found artifact: com.developerlife:color-console:1.0.1
+
+Build artifacts:
+com.github.nazmulidris:color-console:1.0.1
+
+Files:
+com/github/nazmulidris/color-console/1.0.1
+com/github/nazmulidris/color-console/1.0.1/build.log
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1-sources.jar
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1.jar
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1.module
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1.pom
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1.pom.md5
+com/github/nazmulidris/color-console/1.0.1/color-console-1.0.1.pom.sha1
+</code></pre></div></div>
+      <h3 id="build--publish-locally-first">
+        
+        
+          Build &amp; publish locally first <a href="#build--publish-locally-first">#</a>
+        
+        
+      </h3>
+    
+
+<p>Before you can publish this library, make sure that you can run the following commands, that ensure
+that JitPack can build this repo using gradle.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./gradlew clean
+./gradlew build
+./gradlew build publishToMavenLocal
+</code></pre></div></div>
+      <h3 id="prepare-a-release--publish">
+        
+        
+          Prepare a release &amp; publish <a href="#prepare-a-release--publish">#</a>
+        
+        
+      </h3>
+    
+
+<p>In order to publish this repo to JitPack you have to do the following things.</p>
+
+<ol>
+  <li>Make the changes that you want the repo, and commit and push it. Also, make sure that the library
+can be built by JitPack using the command shown above.</li>
+  <li>Update the <code class="language-plaintext highlighter-rouge">version</code> value in <code class="language-plaintext highlighter-rouge">build.gradle.kts</code>, this affects the JAR file that is built by
+JitPack. For consistency, the value here should match the release and tag value as well.</li>
+  <li>Get all the tags for this repo from GitHub using <code class="language-plaintext highlighter-rouge">git pull origin</code>. Then you can list the
+available tags using <code class="language-plaintext highlighter-rouge">git tag -l</code>.</li>
+  <li>Create a new tag. To create a new tag run this command <code class="language-plaintext highlighter-rouge">git tag &lt;TAG_NAME&gt;</code>, where <code class="language-plaintext highlighter-rouge">&lt;TAG_NAME&gt;</code>
+could be something like <code class="language-plaintext highlighter-rouge">1.0.1</code>. Just make sure not to clobber any existing tag name.</li>
+  <li>Publish the tag to GitHub using the following command <code class="language-plaintext highlighter-rouge">git push --tags</code>.</li>
+  <li>Finally create a new Release for this tag using
+<a href="https://github.com/nazmulidris/color-console/releases">GitHub web interface</a>.</li>
+</ol>
+
+<blockquote>
+  <p>⚡ Note, to delete a tag from GitHub you can run this command
+<code class="language-plaintext highlighter-rouge">git push --delete origin &lt;TAG_NAME&gt; ; git pull origin</code>. You can delete a tag from your local repo
+using <code class="language-plaintext highlighter-rouge">git tag -d &lt;TAG_NAME&gt;; git push origin --tags</code>. You can’t manage releases though, which
+require the use of the GitHub web UI. Here’s
+<a href="https://git-scm.com/book/en/v2/Git-Basics-Tagging">more info</a> on git tagging.</p>
+</blockquote>
+      <h3 id="import-and-use-it">
+        
+        
+          Import and use it <a href="#import-and-use-it">#</a>
+        
+        
+      </h3>
+    
+
+<p>Then, in the project where you want to add this library as a dependency, eg:
+<a href="https://github.com/nazmulidris/idea-plugin-example"><code class="language-plaintext highlighter-rouge">idea-plugin-example</code></a> you have to do the
+following. You can import this dependency into your gradle projects by making the following changes
+to your <code class="language-plaintext highlighter-rouge">build.gradle</code> or <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> file.</p>
+
+<ol>
+  <li>
+    <p>Add this at the end of your <code class="language-plaintext highlighter-rouge">repositories</code> section.</p>
+
+    <p>For <code class="language-plaintext highlighter-rouge">build.gradle</code>:</p>
+
+    <div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">repositories</span> <span class="o">{</span>
+  <span class="n">repositories</span> <span class="o">{</span><span class="n">maven</span> <span class="o">{</span> <span class="n">url</span> <span class="s1">'https://jitpack.io'</span> <span class="o">}}</span>
+<span class="o">}</span>
+</code></pre></div>    </div>
+
+    <p>For <code class="language-plaintext highlighter-rouge">build.gradle.kts</code>:</p>
+
+    <div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">repositories</span> <span class="p">{</span>
+  <span class="nf">maven</span><span class="p">{</span>
+    <span class="n">url</span> <span class="p">=</span> <span class="nf">uri</span><span class="p">(</span><span class="s">"https://jitpack.io"</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Add the dependency.</p>
+
+    <p>For <code class="language-plaintext highlighter-rouge">build.gradle</code>:</p>
+
+    <div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dependencies</span> <span class="o">{</span> <span class="n">implementation</span> <span class="s1">'com.github.nazmulidris:color-console:1.0.0'</span> <span class="o">}</span>
+</code></pre></div>    </div>
+
+    <p>For <code class="language-plaintext highlighter-rouge">build.gradle.kts</code>:</p>
+
+    <div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">dependencies</span> <span class="p">{</span> <span class="nf">implementation</span> <span class="p">(</span><span class="s">"com.github.nazmulidris:color-console:1.0.0"</span><span class="p">)</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>Information about this dependency on JitPack:</p>
+
+<ul>
+  <li>You can find this dependency on JitPack
+<a href="https://jitpack.io/#nazmulidris/color-console/1.0.0">here</a></li>
+  <li>You can find the JitPack build logs
+<a href="https://jitpack.io/com/github/nazmulidris/color-console/1.0.0/build.log">here</a></li>
+</ul>
+      <h2 id="using-github-package-registry-gpr-">
+        
+        
+          Using GitHub Package Registry (GPR) 👎 <a href="#using-github-package-registry-gpr-">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <p>⚠ GPR is complex and has authentication issues for public dependencies. People are <a href="https://github.community/t/download-from-github-package-registry-without-authentication/14407">really
+unhappy</a> about this.</p>
+</blockquote>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end -->
+
+<p>Desired snippet for <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> (using Kotlin DSL):</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">repositories</span> <span class="p">{</span>
+  <span class="nf">maven</span> <span class="p">{</span>
+    <span class="n">name</span> <span class="p">=</span> <span class="s">"GitHubPackages"</span>
+    <span class="n">url</span> <span class="p">=</span> <span class="nf">uri</span><span class="p">(</span><span class="s">"https://maven.pkg.github.com/nazmulidris/color-console"</span><span class="p">)</span>
+    <span class="nf">credentials</span> <span class="p">{</span>
+      <span class="n">username</span> <span class="p">=</span> <span class="nc">System</span><span class="p">.</span><span class="nf">getenv</span><span class="p">(</span><span class="s">"GITHUB_PACKAGES_USERID"</span><span class="p">)</span> <span class="o">?:</span> <span class="s">"nazmulidris"</span>
+      <span class="c1">// Safe to share the password since it is a `read:package` scoped token.</span>
+      <span class="n">password</span> <span class="p">=</span> <span class="nc">System</span><span class="p">.</span><span class="nf">getenv</span><span class="p">(</span><span class="s">"GITHUB_PACKAGES_IMPORT_TOKEN"</span><span class="p">)</span> <span class="o">?:</span> <span class="s">"22e9ba0d47c3e9116a2f1023867a1985beebfb60"</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nf">dependencies</span> <span class="p">{</span>
+  <span class="nf">implementation</span><span class="p">(</span><span class="s">"com.developerlife:color-console:1.0"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Desired snippet for <code class="language-plaintext highlighter-rouge">build.gradle</code> (using Groovy):</p>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">repositories</span> <span class="o">{</span>
+  <span class="n">maven</span> <span class="o">{</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">"GitHubPackages"</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">uri</span><span class="o">(</span><span class="s2">"https://maven.pkg.github.com/OWNER/REPOSITORY"</span><span class="o">)</span>
+    <span class="n">credentials</span> <span class="o">{</span>
+      <span class="n">username</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">getenv</span><span class="o">(</span><span class="s2">"GITHUB_PACKAGES_USERID"</span><span class="o">)</span> <span class="o">?:</span> <span class="s2">"nazmulidris"</span>
+      <span class="c1">// Safe to share the password since it is a `read:package` scoped token.</span>
+      <span class="n">password</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">getenv</span><span class="o">(</span><span class="s2">"GITHUB_PACKAGES_IMPORT_TOKEN"</span><span class="o">)</span> <span class="o">?:</span> <span class="s2">"22e9ba0d47c3e9116a2f1023867a1985beebfb60"</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">dependencies</span> <span class="o">{</span>
+  <span class="n">implementation</span> <span class="s1">'com.developerlife:color-console:1.0'</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h3 id="create-a-new-github-repo-for-the-actual-code-of-the-library">
+        
+        
+          Create a new GitHub repo for the actual code of the library <a href="#create-a-new-github-repo-for-the-actual-code-of-the-library">#</a>
+        
+        
+      </h3>
+    
+
+<p>The code that comprises the library, that will be built is in this
+<a href="http://github.com/nazmulidris/color-console">GitHub repo</a> for <code class="language-plaintext highlighter-rouge">color-console</code>.</p>
+
+<p>Using IDEA create a Gradle + Java + Kotlin (JVM) project. Make sure it uses Kotlin and not Groovy
+for the Gradle build script (I only got this working w/ the Kotlin DSL and not Groovy). It’s a very
+simple Kotlin and Gradle that has a single source file. Add the source code there and the following
+steps are where things get interesting.</p>
+      <h3 id="generate-the-personal-access-tokens-that-will-be-needed-to-publish-and-import">
+        
+        
+          Generate the personal access tokens that will be needed to publish and import <a href="#generate-the-personal-access-tokens-that-will-be-needed-to-publish-and-import">#</a>
+        
+        
+      </h3>
+    
+
+<p>The first step is to create some <a href="https://github.com/settings/tokens">GitHub personal access tokens</a>
+that will do 2 things. You might consider saving them to global environment variables using whatever
+shell you use.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">GITHUB_PACKAGES_PUBLISH_TOKEN</code> - this token has <code class="language-plaintext highlighter-rouge">repo, write:packages</code> scope. Do <strong>NOT</strong> share
+this!</li>
+  <li><code class="language-plaintext highlighter-rouge">GITHUB_PACKAGES_IMPORT_TOKEN</code> - this token has <code class="language-plaintext highlighter-rouge">read:packages</code> scope. This is ok to share.</li>
+</ol>
+
+<p>You might also consider saving the following environment variable too.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">GITHUB_PACKAGES_USERID</code> - this is the GitHub username for the token. This is ok to share.</li>
+</ol>
+      <h3 id="add-github-package-registry-support-to-the-build-script-so-that-the-package-can-be-published">
+        
+        
+          Add GitHub Package Registry support to the build script so that the package can be published <a href="#add-github-package-registry-support-to-the-build-script-so-that-the-package-can-be-published">#</a>
+        
+        
+      </h3>
+    
+
+<p>Edit the <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> file to allow this library to be published to
+<a href="https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages">GitHub Packages</a>.
+Here are the high level steps.</p>
+
+<ol>
+  <li>Add some plugins so that we can publish this project to GitHub Packages.</li>
+  <li>Configure the maven publishing plugin.
+<a href="https://docs.gradle.org/current/userguide/publishing_maven.html">More info</a>.</li>
+  <li>To publish, you have to run the gradle task named <code class="language-plaintext highlighter-rouge">publish</code>. This will generate a release package
+for <code class="language-plaintext highlighter-rouge">color-console</code>.</li>
+  <li>Before publishing you might want to test that this works locally by using the
+<code class="language-plaintext highlighter-rouge">publishToMavenLocal</code> task which will generate the artifacts locally and save them to the
+<code class="language-plaintext highlighter-rouge">$HOME/.m2/repository/com/developerlife/color-console/</code> folder.</li>
+</ol>
+
+<p>Here is what you need to add to your <code class="language-plaintext highlighter-rouge">build.gradle.kts</code>:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">publishing</span> <span class="p">{</span>
+  <span class="nf">repositories</span> <span class="p">{</span>
+    <span class="nf">maven</span> <span class="p">{</span>
+      <span class="n">name</span> <span class="p">=</span> <span class="s">"GitHubPackages"</span>
+      <span class="n">url</span> <span class="p">=</span> <span class="nf">uri</span><span class="p">(</span><span class="s">"https://maven.pkg.github.com/${myGithubUsername}/${myArtifactId}"</span><span class="p">)</span>
+      <span class="nf">credentials</span> <span class="p">{</span>
+        <span class="n">username</span> <span class="p">=</span> <span class="nc">System</span><span class="p">.</span><span class="nf">getenv</span><span class="p">(</span><span class="s">"GITHUB_PACKAGES_USERID"</span><span class="p">)</span>
+        <span class="n">password</span> <span class="p">=</span> <span class="nc">System</span><span class="p">.</span><span class="nf">getenv</span><span class="p">(</span><span class="s">"GITHUB_PACKAGES_PUBLISH_TOKEN"</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nf">publishing</span> <span class="p">{</span>
+  <span class="nf">publications</span> <span class="p">{</span>
+    <span class="nf">register</span><span class="p">(</span><span class="s">"gprRelease"</span><span class="p">,</span> <span class="nc">MavenPublication</span><span class="o">::</span><span class="k">class</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">groupId</span> <span class="p">=</span> <span class="n">myArtifactGroup</span>
+      <span class="n">artifactId</span> <span class="p">=</span> <span class="n">myArtifactId</span>
+      <span class="n">version</span> <span class="p">=</span> <span class="n">myArtifactVersion</span>
+
+      <span class="nf">from</span><span class="p">(</span><span class="n">components</span><span class="p">[</span><span class="s">"java"</span><span class="p">])</span>
+
+      <span class="nf">artifact</span><span class="p">(</span><span class="n">sourcesJar</span><span class="p">)</span>
+      <span class="nf">artifact</span><span class="p">(</span><span class="n">dokkaJavadocJar</span><span class="p">)</span>
+
+      <span class="nf">pom</span> <span class="p">{</span>
+        <span class="n">packaging</span> <span class="p">=</span> <span class="s">"jar"</span>
+        <span class="n">name</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">myArtifactId</span><span class="p">)</span>
+        <span class="n">description</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">myGithubDescription</span><span class="p">)</span>
+        <span class="n">url</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">myGithubHttpUrl</span><span class="p">)</span>
+        <span class="nf">scm</span> <span class="p">{</span>
+          <span class="n">url</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">myGithubHttpUrl</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="nf">issueManagement</span> <span class="p">{</span>
+          <span class="n">url</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">myGithubIssueTrackerUrl</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="nf">licenses</span> <span class="p">{</span>
+          <span class="nf">license</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">myLicense</span><span class="p">)</span>
+            <span class="n">url</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">myLicenseUrl</span><span class="p">)</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="nf">developers</span> <span class="p">{</span>
+          <span class="nf">developer</span> <span class="p">{</span>
+            <span class="n">id</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">myGithubUsername</span><span class="p">)</span>
+            <span class="n">name</span><span class="p">.</span><span class="k">set</span><span class="p">(</span><span class="n">myDeveloperName</span><span class="p">)</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here is a
+<a href="https://github.com/nazmulidris/color-console/blob/main/build.gradle.kts">link to the entire source file</a>
+so that you can see where these variables are defined and what the other functions are that generate
+the docs and the JAR files using the <code class="language-plaintext highlighter-rouge">pom</code> function.</p>
+      <h3 id="import-this-dependency-into-another-gradle-project">
+        
+        
+          Import this dependency into another gradle project <a href="#import-this-dependency-into-another-gradle-project">#</a>
+        
+        
+      </h3>
+    
+
+<p>In order to load the package for the library from GitHub Packages Registry, the
+<a href="https://docs.github.com/en/packages/guides/configuring-gradle-for-use-with-github-packages">official docs</a>
+provide some detailed examples of the provider side of things. And you can extrapolate what the
+consumer side of things might look like. The biggest thing to keep in mind is that a <code class="language-plaintext highlighter-rouge">read:packages</code>
+scoped GitHub personal access token will be required by the consumer of the package (and has to be
+accessible their <code class="language-plaintext highlighter-rouge">build.gradle</code> or <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> file).</p>
+
+<p>Make sure to provide the following environment variables before you import this package.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">GITHUB_PACKAGES_IMPORT_TOKEN</code> - this token has <code class="language-plaintext highlighter-rouge">read:packages</code> scope. This is ok to share.</li>
+  <li><code class="language-plaintext highlighter-rouge">GITHUB_PACKAGES_USERID</code> - this is the GitHub username for the token. This is ok to share.</li>
+</ol>
+
+<p>Here is more information on
+<a href="https://docs.gradle.org/current/userguide/declaring_repositories.html">how to declare your own maven repositories</a>
+using gradle.</p>
+
+<p>To import this library into your Gradle project, please add the following lines in your
+<code class="language-plaintext highlighter-rouge">build.gradle</code> file in order to use this library (in Groovy).</p>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">repositories</span> <span class="o">{</span>
+  <span class="n">maven</span> <span class="o">{</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">"GitHubPackages"</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="n">uri</span><span class="o">(</span><span class="s2">"https://maven.pkg.github.com/nazmulidris/color-console"</span><span class="o">)</span>
+    <span class="n">credentials</span> <span class="o">{</span>
+      <span class="n">username</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">getenv</span><span class="o">(</span><span class="s2">"GITHUB_PACKAGES_USERID"</span><span class="o">)</span> <span class="o">?:</span> <span class="s2">"nazmulidris"</span>
+      <span class="c1">// Safe to share the password since it is a `read:package` scoped token.</span>
+      <span class="n">password</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">getenv</span><span class="o">(</span><span class="s2">"GITHUB_PACKAGES_IMPORT_TOKEN"</span><span class="o">)</span> <span class="o">?:</span> <span class="s2">"22e9ba0d47c3e9116a2f1023867a1985beebfb60"</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">dependencies</span> <span class="o">{</span>
+    <span class="n">implementation</span> <span class="s1">'com.developerlife:color-console:1.0'</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Here’s the Kotlin DSL version for <code class="language-plaintext highlighter-rouge">build.gradle.kts</code>:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">repositories</span> <span class="p">{</span>
+  <span class="nf">maven</span> <span class="p">{</span>
+    <span class="n">name</span> <span class="p">=</span> <span class="s">"GitHubPackages"</span>
+    <span class="n">url</span> <span class="p">=</span> <span class="nf">uri</span><span class="p">(</span><span class="s">"https://maven.pkg.github.com/nazmulidris/color-console"</span><span class="p">)</span>
+    <span class="nf">credentials</span> <span class="p">{</span>
+      <span class="n">username</span> <span class="p">=</span> <span class="nc">System</span><span class="p">.</span><span class="nf">getenv</span><span class="p">(</span><span class="s">"GITHUB_PACKAGES_USERID"</span><span class="p">)</span> <span class="o">?:</span> <span class="s">"nazmulidris"</span>
+      <span class="c1">// Safe to share the password since it is a `read:package` scoped token.</span>
+      <span class="n">password</span> <span class="p">=</span> <span class="nc">System</span><span class="p">.</span><span class="nf">getenv</span><span class="p">(</span><span class="s">"GITHUB_PACKAGES_IMPORT_TOKEN"</span><span class="p">)</span> <span class="o">?:</span> <span class="s">"22e9ba0d47c3e9116a2f1023867a1985beebfb60"</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nf">dependencies</span> <span class="p">{</span>
+  <span class="nf">implementation</span><span class="p">(</span><span class="s">"com.developerlife:color-console:1.0"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h3 id="references">
+        
+        
+          References <a href="#references">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><a href="https://medium.com/@stpatrck/publish-an-android-library-to-github-packages-8dfff3ececcb">Tutorial on using GitHub Package Registry to publish and import Android Kotlin library</a></li>
+  <li><a href="https://ppulikal.medium.com/publishing-android-libraries-to-the-github-package-registry-part-2-3c5aab31f477">Tutorial on using GitHub Package Registry to import something from GitHub Package Registry</a></li>
+  <li><a href="https://gist.github.com/prasad79/523cfea10a3748992c8d1cb3fc04eda5">Full <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> example for tutorial above</a></li>
+  <li><a href="https://github.community/t/download-from-github-package-registry-without-authentication/14407/44">Discussion about why it is bad to need a token to import packages</a></li>
+  <li>[Discussion about Kotlin versions and the DSL to publish
+packages](https://github.community/t/how-to-configure-gradle-github-package-registry-maven/14247/9</li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/KT">
+                #kt</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/11/20/idea-plugin-example-intro/">
+                        Introduction to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/15/non-capturing-lambda-problems/">
+                        Potential problems of using non-capturing lambdas
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
+                        Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-testing-setup/">
+                        Kotlin and Test Driven Development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-extension-function-expressions/">
+                        Kotlin Extension Function Expressions
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-and-kotlin/">
+                        Advanced Dagger 2 w/ Android and Kotlin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2021/02/06/publish-kotlin-library-as-gradle-dep/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

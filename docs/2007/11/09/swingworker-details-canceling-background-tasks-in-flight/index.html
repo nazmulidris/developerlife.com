@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>SwingWorker details - canceling background tasks in flight | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="SwingWorker details - canceling background tasks in flight" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial outlines some of the interesting behaviors exhibited by SwingWorker when running background tasks are canceled in flight" />
+<meta property="og:description" content="This tutorial outlines some of the interesting behaviors exhibited by SwingWorker when running background tasks are canceled in flight" />
+<link rel="canonical" href="http://developerlife.com/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/" />
+<meta property="og:url" content="http://developerlife.com/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2007-11-09T12:29:38-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="SwingWorker details - canceling background tasks in flight" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2007-11-09T12:29:38-06:00","datePublished":"2007-11-09T12:29:38-06:00","description":"This tutorial outlines some of the interesting behaviors exhibited by SwingWorker when running background tasks are canceled in flight","headline":"SwingWorker details - canceling background tasks in flight","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/"},"url":"http://developerlife.com/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;SwingWorker details - canceling background tasks in flight&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = SwingWorker details - canceling background tasks in flight</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">SwingWorker details - canceling background tasks in flight</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Nov 9, 2007
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#the-setup">The setup</a></li>
+  <li><a href="#the-tale-of-two-threads">The tale of two threads</a></li>
+  <li><a href="#closing-thoughts">Closing thoughts</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>If you use the SwingWorker class to run background tasks that don’t freeze up the EDT (Event
+Dispatch Thread) in your Swing apps, this may be of interest. What happens when you cancel a long
+running operation that’s running the background? For eg, a user might generate an event that causes
+a SwingWorker to be created that starts running some code in the background. What happens when the
+user wants to cancel this long running background operation? This is what we will delve into in this
+tutorial and get the answer to this question.</p>
+      <h2 id="the-setup">
+        
+        
+          The setup <a href="#the-setup">#</a>
+        
+        
+      </h2>
+    
+
+<p>Let’s say you have some code that you want to run in the background (on a thread that is not the
+EDT). So this is what you would do. You would subclass SwingWorker and put your code in the
+doInBackground() method. Here’s an example:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">SwingWorker</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Void</span><span class="o">&gt;</span> <span class="n">myWorker</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SwingWorker</span><span class="o">&lt;</span><span class="nc">String</span><span class="o">,</span> <span class="nc">Void</span><span class="o">&gt;()</span> <span class="o">{</span>
+   <span class="kd">protected</span> <span class="nc">String</span> <span class="nf">doInBackground</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+     <span class="k">while</span> <span class="o">(!</span><span class="n">isCancelled</span><span class="o">())</span> <span class="o">{</span>
+       <span class="c1">//run some code in the background...</span>
+     <span class="o">}</span>
+     <span class="k">return</span> <span class="s">"something"</span><span class="o">;</span>
+   <span class="o">}</span>
+   <span class="nd">@Override</span> <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">done</span><span class="o">()</span> <span class="o">{</span>
+     <span class="k">try</span> <span class="o">{</span>
+      <span class="nc">String</span> <span class="n">value</span> <span class="o">=</span> <span class="n">get</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="nc">ExecutionException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="nc">CancellationException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{}</span>
+  <span class="o">}</span>
+<span class="o">};</span>
+</code></pre></div></div>
+
+<ol>
+  <li>
+    <p>The first type parameter for our SwingWorker subclass is String, and this defines the type of
+object that is returned when done() is called… which happens when the background thread
+completes it’s execution.</p>
+  </li>
+  <li>
+    <p>The second parameter is just Void, since I’m not going to use this SwingWorker to post
+intermediate results to the EDT for processing (while the background thread is running).</p>
+  </li>
+  <li>
+    <p>Note the use of isCancelled() in the while loop… we will cover this in more detail in the
+sections that follow. The results of this background processing are retrieved on the EDT in the
+done() method - also note the exceptions, we will cover this in the next sections as well.</p>
+  </li>
+</ol>
+
+<p><a href="http://java.sun.com/javase/6/docs/api/javax/swing/SwingWorker.html">Click here</a> for more details on
+this. Sun’s <a href="http://java.sun.com/docs/books/tutorial/uiswing/misc/threads.html">Java Tutorial</a> has
+more information on SwingWorker if you need more background information.</p>
+
+<p>To run this snippet, all you have to do is:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">myWorker</span><span class="o">.</span><span class="na">execute</span><span class="o">()</span>
+</code></pre></div></div>
+
+<p>To cancel it, all you have to do is:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">myWorker</span><span class="o">.</span><span class="na">cancel</span><span class="o">()</span>
+</code></pre></div></div>
+      <h2 id="the-tale-of-two-threads">
+        
+        
+          The tale of two threads <a href="#the-tale-of-two-threads">#</a>
+        
+        
+      </h2>
+    
+
+<p>When you call execute() on myWorker, from the EDT or whatever thread the execute() call is running
+in, two things happen:</p>
+
+<ol>
+  <li>
+    <p>a thread is created that runs the SwingWorker (let’s call this Thread1).</p>
+  </li>
+  <li>
+    <p>another thread is created by this SwingWorker instance which runs your code in the background
+(let’s call this Thread2).</p>
+  </li>
+</ol>
+
+<p>Let’s say that you want to cancel the background task because it is taking too long. You would then
+call cancel() on myWorker. When you call cancel() on the SwingWorker instance myWorker, the
+following things happen concurrently:</p>
+
+<ol>
+  <li>
+    <p>CancellationException gets raised on Thread1 (the SwingWorker thread). So the SwingWorker thread
+itself jumps out of waiting for doInBackground() method to end, and goes straight into done().
+When the get() method is called, this causes a CancellationException to be thrown on the
+SwingWorker thread itself, and you can catch this in the CancellationException handler. So the
+SwingWorker thread ends its lifecyle at this point.</p>
+  </li>
+  <li>
+    <p>InterruptedException gets raised on Thread 2 (the thread that’s actually running your code in the
+background). If your code is not interruptible, or if you catch the InterruptedException and just
+keep going, then this thread will not die, and will continue doing it’s background processing!
+This is why it’s necessary to check to see if isCancelled() is true. This is the only way
+(outside of responding to an InterruptedException) that can cause the background thread to stop
+running your code. Also, when your background task completes execution and it returns the String,
+nothing will happen, since the SwingWorker (Thread1) that was supposed to respond to this (in
+it’s done() method) is already dead. If you use call sleep() or wait(), then these methods will
+respond to an InterruptedException being raised, otherwise, the only way to tell is by checking
+isCancelled(). So it’s pretty easy, if you’re not careful, for the underlying thread executing
+your background code and the SwingWorker thread itself to get out of “sync”. Also, if you have
+code that’s doing some network IO, you have to use an InputStream or OutputStream that can check
+the isCancelled() method to break the IO operation. If you can’t do this, then you can try
+closing the underlying IO streams and causing an IOException to occur when isCancelled() is
+detected.</p>
+  </li>
+</ol>
+      <h2 id="closing-thoughts">
+        
+        
+          Closing thoughts <a href="#closing-thoughts">#</a>
+        
+        
+      </h2>
+    
+
+<p>In your Swing apps that use SwingWorker to perform lengthy background tasks, it’s necessary to keep
+in mind that just because you called cancel() on the SwingWorker doing your task in the background
+that it’s been “canceled”. Java does
+<a href="https://docs.oracle.com/javase/1.5.0/docs/guide/misc/threadPrimitiveDeprecation.html">not allow you to stop() a Thread</a>,
+even though
+<a href="https://medium.com/traveloka-engineering/cooperative-vs-preemptive-a-quest-to-maximize-concurrency-power-3b10c5a920fe">Java supports preemptive mutithreading</a>.
+So it’s your onus to check the isCancelled() method in your doInBackground() code, and do the proper
+exception handling in the done() method of the SwingWoker to make sure that you don’t have a thread
+leak. Also, it’s important to process results from your background operation in the done() method -
+this will ensure that the 2 threads won’t go out of “sync”. Since the SwingWorker thread can be
+canceled without the underlying execution thread knowing, it’s important to perform any changes to
+your system in the done() method - if the SwingWorker get’s canceled, then these changes won’t show
+up in your system.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CC">
+                #cc</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/05/27/task-api-3-of-5-monitoring-http-post-operations/">
+                        Task API (3 of 3) - Monitoring HTTP POST operations
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/08/task-api-2-of-5-task-api-in-depth/">
+                        Task API (2 of 3) - Task API in-depth
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/05/task-api-quick-start-guide/">
+                        Task API (1 of 3) - Quick Start Guide
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/">
+                        Creating multi-threaded Swing apps that consume web services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2006/06/09/introduction-to-java-50-javautilconcurrent-api/">
+                        Introduction to Java 5 java.util.concurrent API
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/introduction-to-threads/">
+                        Introduction to Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/01/28/swingx-tutorial-task-pane/">
+                        SwingX Tutorial - Task Pane (JXTaskPane, Container)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/">
+                        How to use glass pane for animation (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Android TableLayout Tutorial | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Android TableLayout Tutorial" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial will show you how to use the TableLayout container, which is like an HTML table. The UI layout code is done in Java, not XML. A class (LayoutUtils) is provided to make it easier to attach layout params to View objects." />
+<meta property="og:description" content="This tutorial will show you how to use the TableLayout container, which is like an HTML table. The UI layout code is done in Java, not XML. A class (LayoutUtils) is provided to make it easier to attach layout params to View objects." />
+<link rel="canonical" href="http://developerlife.com/2008/07/29/android-tablelayout/" />
+<meta property="og:url" content="http://developerlife.com/2008/07/29/android-tablelayout/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2008-07-29T16:11:53-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Android TableLayout Tutorial" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2008-07-29T16:11:53-05:00","datePublished":"2008-07-29T16:11:53-05:00","description":"This tutorial will show you how to use the TableLayout container, which is like an HTML table. The UI layout code is done in Java, not XML. A class (LayoutUtils) is provided to make it easier to attach layout params to View objects.","headline":"Android TableLayout Tutorial","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2008/07/29/android-tablelayout/"},"url":"http://developerlife.com/2008/07/29/android-tablelayout/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Android TableLayout Tutorial&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Android TableLayout Tutorial</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Android TableLayout Tutorial</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jul 29, 2008
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#what-does-stretchable-shrinkable-and-collapsible-even-mean">What does stretchable, shrinkable, and collapsible even mean?</a></li>
+  <li><a href="#behavior-of-rows-and-columns">Behavior of rows and columns</a></li>
+  <li><a href="#what-can-i-do-with-a-tablelayout">What can I do with a TableLayout?</a></li>
+  <li><a href="#example-with-source-code">Example with source code</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This tutorial covers the
+<a href="http://code.google.com/android/reference/android/widget/TableLayout.html">TableLayout</a> container,
+which is like an HTML table. A table can have multiple rows, and each row is a subclass of a
+<a href="http://developerlife.com/tutorials/?p=312">LinearLayout</a>. Rows can span columns, just like HTML.
+Each cell may contain only 1 View object. The width of a column by default is the width of the
+widest component in that column. Note that you aren’t able to select any rows/columns/cells in the
+TableLayout view; in order to do this you have to use a ListView.</p>
+      <h2 id="what-does-stretchable-shrinkable-and-collapsible-even-mean">
+        
+        
+          What does stretchable, shrinkable, and collapsible even mean? <a href="#what-does-stretchable-shrinkable-and-collapsible-even-mean">#</a>
+        
+        
+      </h2>
+    
+
+<p>In the API docs you will find the terms “shrinkable”, ‘stretchable”, and “collapsible”. I scratched
+my head for a long time before coming to understand what the API designers were trying to express.
+In my mind, “stretchable” means that something can be collapsed and/or expanded, but they they have
+“collapsible” columns, so that doesn’t make sense. So here goes:</p>
+
+<ul>
+  <li>
+    <p>Stretchable column means that a column can be expanded to fill extra space left by other columns.
+So stretchable = EXPANDABLE.</p>
+  </li>
+  <li>
+    <p>Shrinkable column means that a column can be wrapped to take up less space, so that other columns
+can be displayed in a TableLayout. So shrinkable = WRAPPABLE.</p>
+  </li>
+  <li>
+    <p>Collapsed column means that a column is hidden or invisible. So collapsible = INVISIBILITY.</p>
+  </li>
+</ul>
+
+<p>After you translate these strange terms to something that’s more Sun Java API friendly, it all
+starts to make more sense. The Android SDK is replete with examples of such bizarre naming schemes
+(eg, Intent is Event). If Android is a Java API, then why not leverage the API naming conventions
+that we are used to from various Java desktop, graphics, and server APIs? Why create new
+nomenclatures when there’s no need to do so? Similarly, the Android API designers went off the deep
+end creating their UI toolkit, which is alien if you’re used to any contemporary Java UI toolkits.</p>
+      <h2 id="behavior-of-rows-and-columns">
+        
+        
+          Behavior of rows and columns <a href="#behavior-of-rows-and-columns">#</a>
+        
+        
+      </h2>
+    
+
+<p>Columns can shrink or stretch to accommodate the width of the TableLayout. Shrinkable means that if
+a cell in the column takes up a lot of space, then it can be wrapped to make it fit, so that the
+other columns show. Stretchable means that if a cell is really narrow, then it can be expanded to
+take up enough column width to make it fill the entire table that it’s in.</p>
+
+<p>Please note that the children of a TableLayout cannot specify their width - which is always
+FILL_PARENT. However, the height can be defined by a child, which defaults to WRAP_CONTENT. If the
+child is a <a href="http://code.google.com/android/reference/android/widget/TableRow.html">TableRow</a>, then
+the height is always WRAP_CONTENT. So if you use TableLayout with TableRows you can’t really can’t
+set the width/height (width=FILL_PARENT, and height=WRAP_CONTENT). By the way, a TableRow is just a
+subclass of LinearLayout. What you can do is specify the behavior of the column to shrink and/or
+stretch or not. You can also hide a column by calling setColumnCollapsed on a TableLayout, and
+passing it the column index. All column indices start at 0, and you can have empty columns.</p>
+
+<p>Here’s the
+<a href="http://code.google.com/android/reference/android/widget/TableLayout.html">API docs on TableLayout</a>
+from the Android SDK.</p>
+      <h2 id="what-can-i-do-with-a-tablelayout">
+        
+        
+          What can I do with a TableLayout? <a href="#what-can-i-do-with-a-tablelayout">#</a>
+        
+        
+      </h2>
+    
+
+<p>Here’s a list of things that you can do:</p>
+
+<ol>
+  <li>
+    <p>You can insert a View object into a TableLayout (not a TableRow) and set it’s bgcolor and height,
+and it acts as a spacer that spans the row. The attributes are layout_height and background.</p>
+  </li>
+  <li>
+    <p>You can insert a TextView object into a TableLayout (not a TableRow) and it will span the row.</p>
+  </li>
+  <li>
+    <p>To make a column expandable (to fill up any existing empty space from other columns), use
+setColumnStretchable to mark it stretchable.</p>
+  </li>
+  <li>
+    <p>To make a column wrappable (to reduce it’s width and wrap it’s content if other columns in the
+table are taking too much space and pushing some columns off the screen), use setColumnShrinkable
+to mark it shrinkable.</p>
+  </li>
+  <li>
+    <p>To put a View in a specific cell, use
+<a href="http://code.google.com/android/reference/android/widget/TableRow.LayoutParams.html">TableRow.LayoutParams</a>
+and specify a column id (they start at 0).</p>
+  </li>
+  <li>
+    <p>To span a View across a bunch of columns, there’s is no programmatic way to do this! Google left
+out a public constructor for
+<a href="http://code.google.com/android/reference/android/widget/TableRow.LayoutParams.html">TableRow.LayoutParams</a>
+that allows you to specify the column span attribute
+(<a href="http://code.google.com/android/reference/android/widget/TableRow.LayoutParams.html#attr_android:layout_span">layout_span</a>).
+It might be possible to directly set the span field (which is a public int) in the layout object.
+Just specify the number of columns that you want this View object to span.</p>
+  </li>
+  <li>
+    <p>To hide a column, you can collapse it any time. You can also make some columns start up as
+collapsed.</p>
+  </li>
+  <li>
+    <p>Since a TableRow is essentially a LinearLayout, you can set it’s gravity attribute with
+setGravity(Gravity.*). You can also set the gravity of the Views objects inside the row.</p>
+  </li>
+</ol>
+      <h2 id="example-with-source-code">
+        
+        
+          Example with source code <a href="#example-with-source-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>In the following example, I will show you how to create a table with 2 columns (1 of which is
+expandable). I will add a spacer row after each row that has content. These spacers will span the 2
+columns. Finally, I will add a button that spans 2 columns at the very end. I will then wrap all of
+this into a scroll pane (ScrollView) so that you can scroll up/down if the table is longer than the
+displayable screen.</p>
+
+<p>Here’s the code for an Activity that simply creates a TableLayout, adds it to a ScrollView and
+displays it:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span> <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="nc">Bundle</span> <span class="n">bundle</span><span class="o">)</span> <span class="o">{</span>
+  <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">bundle</span><span class="o">);</span>
+
+  <span class="n">setTheme</span><span class="o">(</span><span class="no">R</span><span class="o">.</span><span class="na">style</span><span class="o">.</span><span class="na">Theme_Translucent</span><span class="o">);</span>
+
+  <span class="c1">// wrap the table in a scrollpane</span>
+  <span class="n">scrollPane</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ScrollView</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+  <span class="nc">LayoutUtils</span><span class="o">.</span><span class="na">Layout</span><span class="o">.</span><span class="na">WidthFill_HeightWrap</span><span class="o">.</span><span class="na">applyViewGroupParams</span><span class="o">(</span><span class="n">scrollPane</span><span class="o">);</span>
+
+  <span class="n">scrollPane</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="nc">PanelBuilder</span><span class="o">.</span><span class="na">createWidgetPanel</span><span class="o">(</span><span class="k">this</span><span class="o">));</span>
+  <span class="n">setContentView</span><span class="o">(</span><span class="n">scrollPane</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>One thing you should note in all the code is that any time you create a View, you have to add layout
+params to it, to let it’s container know how to lay it out. So you have to know which container you
+are adding View objects to, and create the layout params appropriately. This can be a little
+confusing at first, but think about Java SE layout managers, and defining constraints to layout a
+JComponent, in line in the method call used to add that JComponent to the Container. If the API
+allowed the constraint to be passed as a parameter to the method used to add the View to the
+ViewGroup, then it would be easier to keep everything straight. More criticism of the Android API
+from me :) .</p>
+
+<p>I got so sick and tired of typing out the code to attach layout parameters to each View, that I
+created a class to make it simple to do this. It’s called LayoutoUtils, and it has an enum (Layout)
+that represent width and height layout constraints - there are a total of 4 combinations of
+height/width settings that are listed. Methods are provided that attach layout params for
+TableLayout, LinearLayout, and ViewGroup. Here’s a listing of this class (you can see how to use it
+above):</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LayoutUtils</span> <span class="o">{</span>
+
+<span class="kd">public</span> <span class="kd">enum</span> <span class="nc">Layout</span> <span class="o">{</span>
+  <span class="n">WidthFill_HeightFill</span><span class="o">,</span>
+  <span class="n">WidthWrap_HeightWrap</span><span class="o">,</span>
+  <span class="n">WidthWrap_HeightFill</span><span class="o">,</span>
+  <span class="n">WidthFill_HeightWrap</span><span class="o">;</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">applyViewGroupParams</span><span class="o">(</span><span class="nc">View</span> <span class="n">component</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">applyViewGroupLayoutParamsTo</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">component</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">applyLinearLayoutParams</span><span class="o">(</span><span class="nc">View</span> <span class="n">linearlayout</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">applyLinearLayoutParamsTo</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">linearlayout</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">applyTableRowParams</span><span class="o">(</span><span class="nc">View</span> <span class="n">cell</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">applyTableRowLayoutParamsTo</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">cell</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">applyTableLayoutParams</span><span class="o">(</span><span class="nc">View</span> <span class="n">row</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">applyTableLayoutParamsTo</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">row</span><span class="o">);</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">applyLinearLayoutParamsTo</span><span class="o">(</span>
+        <span class="nc">Layout</span> <span class="n">layout</span><span class="o">,</span> <span class="nc">View</span> <span class="n">view</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="k">switch</span> <span class="o">(</span><span class="n">layout</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="nl">WidthFill_HeightFill:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span><span class="o">,</span>
+          <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthFill_HeightWrap:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span><span class="o">,</span>
+          <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthWrap_HeightFill:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span>
+          <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthWrap_HeightWrap:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span>
+          <span class="nc">LinearLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">applyViewGroupLayoutParamsTo</span><span class="o">(</span>
+        <span class="nc">Layout</span> <span class="n">layout</span><span class="o">,</span> <span class="nc">View</span> <span class="n">view</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="k">switch</span> <span class="o">(</span><span class="n">layout</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="nl">WidthFill_HeightFill:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span><span class="o">,</span>
+          <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthFill_HeightWrap:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span><span class="o">,</span>
+          <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthWrap_HeightFill:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span>
+          <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthWrap_HeightWrap:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span>
+          <span class="nc">ViewGroup</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">applyTableRowLayoutParamsTo</span><span class="o">(</span>
+        <span class="nc">Layout</span> <span class="n">layout</span><span class="o">,</span> <span class="nc">View</span> <span class="n">view</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="k">switch</span> <span class="o">(</span><span class="n">layout</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="nl">WidthFill_HeightFill:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span><span class="o">,</span>
+          <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthFill_HeightWrap:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span><span class="o">,</span>
+          <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthWrap_HeightFill:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span>
+          <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthWrap_HeightWrap:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span>
+          <span class="nc">TableRow</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">applyTableLayoutParamsTo</span><span class="o">(</span>
+        <span class="nc">Layout</span> <span class="n">layout</span><span class="o">,</span> <span class="nc">View</span> <span class="n">view</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="k">switch</span> <span class="o">(</span><span class="n">layout</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">case</span> <span class="nl">WidthFill_HeightFill:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span><span class="o">,</span>
+          <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthFill_HeightWrap:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span><span class="o">,</span>
+          <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthWrap_HeightFill:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span>
+          <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">FILL_PARENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+    <span class="k">case</span> <span class="nl">WidthWrap_HeightWrap:</span>
+      <span class="n">view</span><span class="o">.</span><span class="na">setLayoutParams</span><span class="o">(</span><span class="k">new</span> <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">(</span>
+          <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span><span class="o">,</span>
+          <span class="nc">TableLayout</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">WRAP_CONTENT</span>
+      <span class="o">));</span>
+      <span class="k">break</span><span class="o">;</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="o">}</span><span class="c1">//end class LayoutUtils</span>
+</code></pre></div></div>
+
+<p>You can use the LayoutUtils class in any project where you have to attach layout params to a View
+object.</p>
+
+<p>Here’s the code that creates the TableLayout object:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="nc">View</span> <span class="nf">createWidgetPanel</span><span class="o">(</span><span class="nc">TableActivity</span> <span class="n">activity</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="nc">TableLayout</span> <span class="n">table</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TableLayout</span><span class="o">(</span><span class="n">activity</span><span class="o">);</span>
+  <span class="nc">LayoutUtils</span><span class="o">.</span><span class="na">Layout</span><span class="o">.</span><span class="na">WidthFill_HeightFill</span><span class="o">.</span><span class="na">applyViewGroupParams</span><span class="o">(</span><span class="n">table</span><span class="o">);</span>
+
+  <span class="c1">// set which column is expandable/can grow</span>
+  <span class="n">table</span><span class="o">.</span><span class="na">setColumnStretchable</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+
+  <span class="c1">// apply layout animation</span>
+  <span class="nc">AnimUtils</span><span class="o">.</span><span class="na">setLayoutAnim_slideupfrombottom</span><span class="o">(</span><span class="n">table</span><span class="o">,</span> <span class="n">activity</span><span class="o">);</span>
+
+  <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">View</span><span class="o">&gt;</span> <span class="n">rowList</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">&lt;</span><span class="nc">View</span><span class="o">&gt;();</span>
+
+  <span class="c1">// create a row with icon/text</span>
+  <span class="n">rowList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+          <span class="n">createRow</span><span class="o">(</span><span class="n">com</span><span class="o">.</span><span class="na">sonar</span><span class="o">.</span><span class="na">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">tagflag1</span><span class="o">,</span>
+                    <span class="s">"Row 1, some text"</span><span class="o">,</span>
+                    <span class="n">activity</span><span class="o">));</span>
+
+  <span class="c1">// create a spacer</span>
+  <span class="n">rowList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">createSpacer</span><span class="o">(</span><span class="n">activity</span><span class="o">));</span>
+
+  <span class="c1">// create a row with icon/text</span>
+  <span class="n">rowList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+          <span class="n">createRow</span><span class="o">(</span><span class="n">com</span><span class="o">.</span><span class="na">sonar</span><span class="o">.</span><span class="na">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">tagflag2</span><span class="o">,</span>
+                    <span class="s">"Row 2, some more text"</span><span class="o">,</span>
+                    <span class="n">activity</span><span class="o">));</span>
+
+  <span class="c1">// create a spacer</span>
+  <span class="n">rowList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">createSpacer</span><span class="o">(</span><span class="n">activity</span><span class="o">));</span>
+
+  <span class="c1">// create a row with icon/text</span>
+  <span class="n">rowList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+          <span class="n">createRow</span><span class="o">(</span><span class="n">com</span><span class="o">.</span><span class="na">sonar</span><span class="o">.</span><span class="na">R</span><span class="o">.</span><span class="na">drawable</span><span class="o">.</span><span class="na">tagflagbutton</span><span class="o">,</span>
+                    <span class="s">"Row 3, even more text"</span><span class="o">,</span>
+                    <span class="n">activity</span><span class="o">));</span>
+
+  <span class="c1">// create a spacer</span>
+  <span class="n">rowList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">createSpacer</span><span class="o">(</span><span class="n">activity</span><span class="o">));</span>
+
+  <span class="c1">// create a buttom on the bottom</span>
+  <span class="n">rowList</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">createButton</span><span class="o">(</span><span class="n">activity</span><span class="o">));</span>
+
+  <span class="c1">// add all the rows to the table</span>
+  <span class="o">{</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">View</span> <span class="n">row</span> <span class="o">:</span> <span class="n">rowList</span><span class="o">)</span> <span class="o">{</span>
+      <span class="nc">LayoutUtils</span><span class="o">.</span><span class="na">Layout</span><span class="o">.</span><span class="na">WidthWrap_HeightWrap</span>
+            <span class="o">.</span><span class="na">applyTableLayoutParams</span><span class="o">(</span><span class="n">row</span><span class="o">);</span>
+      <span class="n">row</span><span class="o">.</span><span class="na">setPadding</span><span class="o">(</span><span class="nc">RowPadding</span><span class="o">,</span> <span class="nc">RowPadding</span><span class="o">,</span> <span class="nc">RowPadding</span><span class="o">,</span> <span class="nc">RowPadding</span><span class="o">);</span>
+<span class="c1">//      row.setBackgroundColor(Color.argb(200, 51, 51, 51));</span>
+      <span class="n">table</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">row</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+  <span class="k">return</span> <span class="n">table</span><span class="o">;</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The R.drawable.* items are just PNG files that I put in my /res/drawable/ folder of my Android
+project.</p>
+
+<p>Finally, here are the methods that are used to create the spacer, a button, and table rows (with 2
+cells, an image and some text):</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">static</span> <span class="nc">View</span> <span class="nf">createButton</span><span class="o">(</span><span class="kd">final</span> <span class="nc">TableActivity</span> <span class="n">activity</span><span class="o">)</span> <span class="o">{</span>
+
+<span class="c1">//  Button b = new Button(activity);</span>
+
+<span class="c1">//  this code doesnt use the id to load the button</span>
+<span class="c1">//  (since there's only one)</span>
+<span class="c1">//  Button b = (Button) activity.getViewInflate().inflate(</span>
+<span class="c1">//          R.layout.buttons, null, null);</span>
+
+  <span class="c1">// this code uses the id to find the button</span>
+  <span class="nc">View</span> <span class="n">v</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="na">getViewInflate</span><span class="o">().</span><span class="na">inflate</span><span class="o">(</span>
+          <span class="no">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">buttons</span><span class="o">,</span> <span class="kc">null</span><span class="o">,</span> <span class="kc">null</span><span class="o">);</span>
+  <span class="nc">Button</span> <span class="n">b</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Button</span><span class="o">)</span> <span class="n">v</span><span class="o">.</span><span class="na">findViewById</span><span class="o">(</span><span class="no">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">button_small_left</span><span class="o">);</span>
+
+<span class="c1">//  the following doesnt work since the layout wasnt</span>
+<span class="c1">//  loaded in onCreate by setContentView(id)</span>
+<span class="c1">//  Button b = (Button) activity.findViewById(</span>
+<span class="c1">//          R.id.button_small_left);</span>
+
+<span class="c1">//  b.setText("Press to close");</span>
+
+  <span class="n">b</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="nc">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="nc">View</span> <span class="n">view</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">activity</span><span class="o">.</span><span class="na">runFadeOutAnimationAndFinish</span><span class="o">();</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+
+  <span class="k">return</span> <span class="n">b</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">private</span> <span class="kd">static</span> <span class="nc">View</span> <span class="nf">createSpacer</span><span class="o">(</span><span class="nc">Context</span> <span class="n">activity</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">View</span> <span class="n">spacer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">View</span><span class="o">(</span><span class="n">activity</span><span class="o">);</span>
+
+  <span class="n">spacer</span><span class="o">.</span><span class="na">setPreferredHeight</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span>
+  <span class="n">spacer</span><span class="o">.</span><span class="na">setBackgroundColor</span><span class="o">(</span><span class="nc">Color</span><span class="o">.</span><span class="na">argb</span><span class="o">(</span><span class="mi">200</span><span class="o">,</span> <span class="mi">226</span><span class="o">,</span> <span class="mi">226</span><span class="o">,</span> <span class="mi">226</span><span class="o">));</span>
+
+  <span class="k">return</span> <span class="n">spacer</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">TableRow</span> <span class="nf">createRow</span><span class="o">(</span><span class="kt">int</span> <span class="n">image</span><span class="o">,</span>
+                                 <span class="nc">String</span> <span class="n">txt</span><span class="o">,</span>
+                                 <span class="nc">Context</span> <span class="n">activity</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">TableRow</span> <span class="n">row</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TableRow</span><span class="o">(</span><span class="n">activity</span><span class="o">);</span>
+
+  <span class="nc">ImageView</span> <span class="n">icon</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ImageView</span><span class="o">(</span><span class="n">activity</span><span class="o">);</span>
+  <span class="n">icon</span><span class="o">.</span><span class="na">setAdjustViewBounds</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+  <span class="n">icon</span><span class="o">.</span><span class="na">setScaleType</span><span class="o">(</span><span class="nc">ImageView</span><span class="o">.</span><span class="na">ScaleType</span><span class="o">.</span><span class="na">FIT_CENTER</span><span class="o">);</span>
+  <span class="n">icon</span><span class="o">.</span><span class="na">setMaxHeight</span><span class="o">(</span><span class="nc">IconSize</span><span class="o">);</span>
+  <span class="n">icon</span><span class="o">.</span><span class="na">setMaxWidth</span><span class="o">(</span><span class="nc">IconSize</span><span class="o">);</span>
+  <span class="n">icon</span><span class="o">.</span><span class="na">setImageResource</span><span class="o">(</span><span class="n">image</span><span class="o">);</span>
+  <span class="n">icon</span><span class="o">.</span><span class="na">setPadding</span><span class="o">(</span>
+          <span class="nc">RowPadding</span><span class="o">,</span> <span class="nc">RowPadding</span><span class="o">,</span> <span class="nc">RowPadding</span><span class="o">,</span> <span class="nc">RowPadding</span><span class="o">);</span>
+  <span class="nc">LayoutUtils</span><span class="o">.</span><span class="na">Layout</span><span class="o">.</span><span class="na">WidthWrap_HeightWrap</span>
+          <span class="o">.</span><span class="na">applyTableRowParams</span><span class="o">(</span><span class="n">icon</span><span class="o">);</span>
+
+  <span class="nc">TextView</span> <span class="n">text</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">TextView</span><span class="o">(</span><span class="n">activity</span><span class="o">);</span>
+  <span class="n">text</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">txt</span><span class="o">);</span>
+  <span class="n">text</span><span class="o">.</span><span class="na">setPadding</span><span class="o">(</span>
+          <span class="nc">RowPadding</span><span class="o">,</span> <span class="nc">RowPadding</span><span class="o">,</span> <span class="nc">RowPadding</span><span class="o">,</span> <span class="nc">RowPadding</span><span class="o">);</span>
+  <span class="nc">LayoutUtils</span><span class="o">.</span><span class="na">Layout</span><span class="o">.</span><span class="na">WidthWrap_HeightWrap</span>
+          <span class="o">.</span><span class="na">applyTableRowParams</span><span class="o">(</span><span class="n">text</span><span class="o">);</span>
+
+  <span class="n">row</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">icon</span><span class="o">);</span>
+  <span class="n">row</span><span class="o">.</span><span class="na">addView</span><span class="o">(</span><span class="n">text</span><span class="o">);</span>
+
+  <span class="k">return</span> <span class="n">row</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>You can download LayoutUtils and other helpful classes from
+<a href="/assets/androidutils.zip">AndroidUtils</a>.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Android">
+                #android</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-in-depth/">
+                        In-depth exploration of Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/07/introduction-to-android-architecture-components/">
+                        Introduction to Android Architecture Components
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/29/getting-started-with-mediaplayer-on-android/">
+                        Getting started with MediaPlayer on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/20/gps/">
+                        Android Location Providers (gps, network, passive)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/05/android-animation-framework/">
+                        Android Animation Framework Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-listview/">
+                        Android ListView and custom adapter Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-linearlayout/">
+                        Android LinearLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/31/android-ui-themes/">
+                        Android UI Themes Tutorial
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/option-and-context-menu/">
+                        Android Option and Context menu Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/android-xml-view-inflation/">
+                        Android XML View inflation Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/14/android-app-lifecycle-activity-intent-and-service-draft/">
+                        Android Activity and sub-Activity Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/">
+                        Android - How to build a service-enabled Android app - Part 1/3 UI
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-23-networking/">
+                        Android - How to build a service-enabled Android App - Part 2/3 Networking
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2008/07/29/android-tablelayout/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

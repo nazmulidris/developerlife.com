@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Algorithms and data structures in TypeScript: non binary tree traversal | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Algorithms and data structures in TypeScript: non binary tree traversal" />
+<meta name="author" content="Nadia Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles." />
+<meta property="og:description" content="This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles." />
+<link rel="canonical" href="http://developerlife.com/2022/12/11/algo-ts-2/" />
+<meta property="og:url" content="http://developerlife.com/2022/12/11/algo-ts-2/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-12-11T09:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Algorithms and data structures in TypeScript: non binary tree traversal" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nadia Idris"},"dateModified":"2022-12-11T09:00:00-06:00","datePublished":"2022-12-11T09:00:00-06:00","description":"This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles.","headline":"Algorithms and data structures in TypeScript: non binary tree traversal","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2022/12/11/algo-ts-2/"},"url":"http://developerlife.com/2022/12/11/algo-ts-2/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Algorithms and data structures in TypeScript: non binary tree traversal&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Algorithms and data structures in TypeScript: non binary tree traversal</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Algorithms and data structures in TypeScript: non binary tree traversal</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Dec 11, 2022
+
+            <!--Author-->
+            ∙ <a href="https://nadiaidris.com">Nadia Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="https://nadiaidris.com">Nadia</a>,
+            a frontend SWE in Silicon Valley.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            <i class="fas fa-terminal"></i> &&
+            <i class="fas fa-code"></i> &&
+            <i class="fas fa-coffee"></i> 😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nadiaidris1"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nadiaidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://dribbble.com/nadiaidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#dribbble"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/algo-ts-2-images/pretty-print-html.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#pretty-print-and-traverse-an-html-tree">Pretty print and traverse an HTML tree</a>
+    <ul>
+      <li><a href="#clone-the-repo-and-install-dependencies">Clone the repo and install dependencies</a></li>
+      <li><a href="#run-tests">Run tests</a></li>
+    </ul>
+  </li>
+  <li><a href="#problem-statement">Problem statement</a></li>
+  <li><a href="#coming-up-with-a-solution">Coming up with a solution</a>
+    <ul>
+      <li><a href="#data-modeling">Data modeling</a></li>
+      <li><a href="#what-data-structures-could-we-use-to-represent-this">What data structures could we use to represent this?</a></li>
+      <li><a href="#create-an-element">Create an element</a></li>
+      <li><a href="#pretty-print-the-html-tree">Pretty print the HTML tree</a></li>
+      <li><a href="#traversing-the-tree">Traversing the tree</a></li>
+      <li><a href="#queue">Queue</a></li>
+      <li><a href="#stack">Stack</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>This tutorial is part of a collection of tutorials on basic data structures and algorithms that are
+created using TypeScript. Information is depicted visually using diagrams and code snippets. This
+article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do
+interview prep for software engineering roles.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h2 id="pretty-print-and-traverse-an-html-tree">
+        
+        
+          Pretty print and traverse an HTML tree <a href="#pretty-print-and-traverse-an-html-tree">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-pretty-print-and-traverse-an-html-tree" name="pretty-print-and-traverse-an-html-tree"></a></p>
+
+<p><img src="/assets/algo-ts-2-images/pretty-print-html.svg" alt="" /></p>
+      <h3 id="clone-the-repo-and-install-dependencies">
+        
+        
+          Clone the repo and install dependencies <a href="#clone-the-repo-and-install-dependencies">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-clone-the-repo-and-install-dependencies" name="clone-the-repo-and-install-dependencies"></a></p>
+
+<ul>
+  <li>
+    <p>The source for this tutorial can be found on
+<a href="https://github.com/NadiaIdris/ts-make-html-document-tree">GitHub</a>. Please clone it to your
+computer.</p>
+  </li>
+  <li>
+    <p>In your terminal, go to the root directory of the cloned repo and run the following command
+<code class="language-plaintext highlighter-rouge">npm install</code> to install dependencies.</p>
+  </li>
+</ul>
+      <h3 id="run-tests">
+        
+        
+          Run tests <a href="#run-tests">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-run-tests" name="run-tests"></a></p>
+
+<p>All the tests are in the <code class="language-plaintext highlighter-rouge">main.test.ts</code> file. To run jest tests continuously, run
+<code class="language-plaintext highlighter-rouge">npx jest --watchAll</code>.</p>
+      <h2 id="problem-statement">
+        
+        
+          Problem statement <a href="#problem-statement">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-problem-statement" name="problem-statement"></a></p>
+
+<p>Design and implement a class that can represent a single HTML element and its children. The class
+should have the following methods for tree construction and pretty printing:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">addClass</code> - takes a class name and adds it to the element’s list of classes</li>
+  <li><code class="language-plaintext highlighter-rouge">appendChild</code> - takes an HTML element and adds it to the element’s list of children</li>
+  <li><code class="language-plaintext highlighter-rouge">printTree</code> - returns a string representation of the element and its children in HTML format</li>
+</ul>
+
+<p>The class should also have the following methods for tree traversal:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">findFirstChildBFS</code> - a method that takes an array of two elements (tuple). The first element is a
+parent element selector to start searching the child selector. The second element is the child
+selector. If we find the first child element that has the selector, we return the child element.
+The BFS stands for breadth-first search. This simply defines the order we traverse the tree.</li>
+  <li><code class="language-plaintext highlighter-rouge">findFirstChildDFS</code> - the same as the <code class="language-plaintext highlighter-rouge">findFirstChildBFS</code> method, but the DFS stands for
+depth-first search. We traverse the tree using a depth-first search algorithm. If you are not
+familiar with the difference between BFS and DFS, I have added two images below this section.</li>
+  <li><code class="language-plaintext highlighter-rouge">findDescendantBFS</code> - this method also takes a tuple, except the first element is the ancestor
+selector and the second element is the descendant selector. We traverse the tree using a
+breadth-first search algorithm. If we find the first descendant element that has the selector, we
+return the descendant element. We traverse the tree using BFS.</li>
+  <li><code class="language-plaintext highlighter-rouge">findDescendantDFS</code> - same as the <code class="language-plaintext highlighter-rouge">findDescendantBFS</code> method, except we traverse the tree using
+DFS.</li>
+</ul>
+
+<p>The following image shows the difference between finding the first child vs finding a descendant
+element.</p>
+
+<p><img src="/assets/algo-ts-2-images/find-first-child-find-first-descendant.svg" alt="" /></p>
+
+<p>The following image shows the depth-first search (HTML tree)
+<img src="/assets/algo-ts-2-images/html-tree-depth-first-search.svg" alt="" /></p>
+
+<p>The following image shows the depth-first search
+<img src="/assets/algo-ts-2-images/depth-first-search.svg" alt="" /></p>
+
+<p>The following image shows the breadth-first search
+<img src="/assets/algo-ts-2-images/breadth-first-search.svg" alt="" /></p>
+      <h2 id="coming-up-with-a-solution">
+        
+        
+          Coming up with a solution <a href="#coming-up-with-a-solution">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-coming-up-with-a-solution" name="coming-up-with-a-solution"></a></p>
+
+<p>Let’s walk through our thought process on the journey to solving the problem statement.</p>
+      <h3 id="data-modeling">
+        
+        
+          Data modeling <a href="#data-modeling">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-data-modeling" name="data-modeling"></a></p>
+
+<p>Let’s start w/ the output first. Our program should produce the following output (which is a
+string):</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"
+<span class="nt">&lt;html&gt;</span>
+  <span class="nt">&lt;head&gt;&lt;/head&gt;</span>
+  <span class="nt">&lt;body&gt;</span>
+    <span class="nt">&lt;h1</span> <span class="na">class=</span><span class="s">"blue-theme"</span><span class="nt">&gt;&lt;/h1&gt;</span>
+    <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"blue-theme bold-text"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;li&gt;&lt;/li&gt;</span>
+      <span class="nt">&lt;li&gt;&lt;/li&gt;</span>
+    <span class="nt">&lt;/ul&gt;</span>
+  <span class="nt">&lt;/body&gt;</span>
+<span class="nt">&lt;/html&gt;</span>
+"
+</code></pre></div></div>
+      <h3 id="what-data-structures-could-we-use-to-represent-this">
+        
+        
+          What data structures could we use to represent this? <a href="#what-data-structures-could-we-use-to-represent-this">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-what-data-structures-could-we-use-to-represent-this%3F" name="what-data-structures-could-we-use-to-represent-this%3F"></a></p>
+
+<p>Data is all the pieces of information that we need to represent the element. For example each
+element needs:</p>
+
+<ul>
+  <li>Tag name: each element only has one tag name, so we can use a string as type.</li>
+  <li>Classes: each element can have one or more classes. We want to maintain the order of classes, so
+we can use an array as a container to store all the classes. Each class is a type string.</li>
+  <li>Children: each element can have one or more children. We want to maintain the insertion order of
+children, so we can use an array as a container to store all the children. Each child is an
+element, so we can use <code class="language-plaintext highlighter-rouge">MyElement</code> as a type.</li>
+</ul>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"blue-theme bold-text"</span><span class="nt">&gt;</span>
+  <span class="c">&lt;!-- Tag name is "ul". It is an element --&gt;</span>
+  <span class="c">&lt;!-- with two classes and two child elements ("li") --&gt;</span>
+  <span class="nt">&lt;li&gt;</span>item 1<span class="nt">&lt;/li&gt;</span>
+  //
+  <span class="c">&lt;!-- child 1: "li" is an element and a child of "ul" --&gt;</span>
+  <span class="nt">&lt;li&gt;</span>item 2<span class="nt">&lt;/li&gt;</span>
+  //
+  <span class="c">&lt;!-- child 2 (same as the above) --&gt;</span>
+<span class="nt">&lt;/ul&gt;</span>
+</code></pre></div></div>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">MyElement</span> <span class="k">implements</span> <span class="nx">MyElementInterface</span> <span class="nx">t</span><span class="p">{</span>
+  <span class="nl">tagName</span><span class="p">:</span> <span class="kr">string</span>
+  <span class="k">private</span> <span class="nx">_children</span><span class="p">:</span> <span class="nx">MyElement</span><span class="p">[]</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">private</span> <span class="nx">_classList</span><span class="p">:</span> <span class="kr">string</span><span class="p">[]</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="c1">// For formatting, we need a "depth" property. For each when adding a child to a parent,</span>
+  <span class="c1">// we need to increment the dept of the child by 1. This is how we will know how many</span>
+  <span class="c1">// spaces to add before the child element.</span>
+  <span class="k">private</span> <span class="nx">_depth</span><span class="p">:</span> <span class="kr">number</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Note: when using classes, one doesn’t have to create an interface. I like to do that, so it’s easy
+to read which properties and methods are public and which are private.</p>
+      <h3 id="create-an-element">
+        
+        
+          Create an element <a href="#create-an-element">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-create-an-element" name="create-an-element"></a></p>
+
+<ul>
+  <li>Instantiate the <code class="language-plaintext highlighter-rouge">MyElement</code> class using a constructor function:
+<code class="language-plaintext highlighter-rouge">new Element(element: string) =&gt; Element</code></li>
+</ul>
+      <h3 id="pretty-print-the-html-tree">
+        
+        
+          Pretty print the HTML tree <a href="#pretty-print-the-html-tree">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-pretty-print-the-html-tree" name="pretty-print-the-html-tree"></a></p>
+
+<p>To pretty print the HTML tree, we need to add a certain amount of spaces in front of each element.
+To know how many spaces, we need to track the depth of each element.</p>
+
+<p>Every time a child element is nested inside the parent element (via the <code class="language-plaintext highlighter-rouge">appendChild</code> method), we
+take the parent element’s depth and increment the child element’s depth by one.</p>
+
+<p>E.g. when we pretty print the HTML tree, each element will have depth * 2 spaces in front of it.
+This means the first level element will have 0 spaces in front of it, the second level element will
+have 2 spaces in front of it, the third level element will have 4 spaces in front of it, etc.</p>
+
+<p><img src="/assets/algo-ts-2-images/calculate-depth.svg" alt="" /></p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">appendChild</span> <span class="o">=</span> <span class="p">(</span><span class="nx">child</span><span class="p">:</span> <span class="nx">MyElement</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// Increment the dept of the child by taking the current</span>
+  <span class="c1">// element's depth and adding 1 to it.</span>
+  <span class="nx">child</span><span class="p">.</span><span class="nx">depth</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">depth</span> <span class="o">+</span> <span class="mi">1</span>
+  <span class="c1">// We are also tracking the parent element of each element.</span>
+  <span class="c1">// This will help us to traverse to the root element.</span>
+  <span class="nx">child</span><span class="p">.</span><span class="nx">_parentElement</span> <span class="o">=</span> <span class="k">this</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">_children</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="nx">child</span><span class="p">)</span>
+  <span class="k">return</span> <span class="k">this</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Method to print the HTML tree:</p>
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">printTree</span> <span class="o">=</span> <span class="p">():</span> <span class="kr">string</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">spaces</span> <span class="o">=</span> <span class="dl">"</span><span class="s2"> </span><span class="dl">"</span><span class="p">.</span><span class="nf">repeat</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">depth</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+  <span class="kd">const</span> <span class="nx">elementHasChildren</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_children</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
+  <span class="kd">const</span> <span class="nx">hasClasses</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_classList</span><span class="p">.</span><span class="nx">size</span> <span class="o">&gt;</span> <span class="mi">0</span>
+  <span class="kd">const</span> <span class="nx">classes</span> <span class="o">=</span> <span class="nx">hasClasses</span> <span class="p">?</span> <span class="s2">` class="</span><span class="p">${[...</span><span class="k">this</span><span class="p">.</span><span class="nx">_classList</span><span class="p">].</span><span class="nf">join</span><span class="p">(</span><span class="dl">"</span><span class="s2"> </span><span class="dl">"</span><span class="p">)}</span><span class="s2">"`</span> <span class="p">:</span> <span class="dl">""</span>
+  <span class="kd">let</span> <span class="na">string</span><span class="p">:</span> <span class="kr">string</span> <span class="o">=</span> <span class="dl">""</span>
+
+  <span class="k">if </span><span class="p">(</span><span class="nx">elementHasChildren</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="nx">children</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_children</span><span class="p">.</span><span class="nf">map</span><span class="p">((</span><span class="nx">child</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">child</span><span class="p">.</span><span class="nf">printTree</span><span class="p">()).</span><span class="nf">join</span><span class="p">(</span><span class="dl">""</span><span class="p">)</span>
+    <span class="c1">// Print start and end tags to different lines.</span>
+    <span class="kr">string</span> <span class="o">=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">spaces</span><span class="p">}</span><span class="s2">&lt;</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">tagName</span><span class="p">}${</span><span class="nx">classes</span><span class="p">}</span><span class="s2">&gt;\n</span><span class="p">${</span><span class="nx">children</span><span class="p">}${</span><span class="nx">spaces</span><span class="p">}</span><span class="s2">&lt;/</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">tagName</span><span class="p">}</span><span class="s2">&gt;\n`</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// Print the start and end tags to the same line.</span>
+    <span class="kr">string</span> <span class="o">=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">spaces</span><span class="p">}</span><span class="s2">&lt;</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">tagName</span><span class="p">}${</span><span class="nx">classes</span><span class="p">}</span><span class="s2">&gt;&lt;/</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">tagName</span><span class="p">}</span><span class="s2">&gt;\n`</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="kr">string</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="traversing-the-tree">
+        
+        
+          Traversing the tree <a href="#traversing-the-tree">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-traversing-the-tree" name="traversing-the-tree"></a></p>
+
+<p>Implement</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">findFirstChildBFS</code></li>
+  <li><code class="language-plaintext highlighter-rouge">findFirstChildDFS</code></li>
+  <li><code class="language-plaintext highlighter-rouge">findDescendantBFS</code></li>
+  <li><code class="language-plaintext highlighter-rouge">findDescendantDFS</code></li>
+</ul>
+
+<p>Check out
+<a href="https://github.com/NadiaIdris/ts-make-html-document-tree/blob/main/src/main.ts#L74"><code class="language-plaintext highlighter-rouge">main.ts</code></a> for
+how to implement those methods.</p>
+      <h3 id="queue">
+        
+        
+          Queue <a href="#queue">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-queue" name="queue"></a></p>
+
+<p>All BFS methods use a queue data structure. In JavaScript queue is an array where we add items, one
+after another, and then remove them from the start of the array. It’s called first-in-first-out
+(FIFO). You could think of it as a line of people waiting in the checkout line at the grocery store.
+The first person in line is the first person to be served.</p>
+      <h3 id="stack">
+        
+        
+          Stack <a href="#stack">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-stack" name="stack"></a></p>
+
+<p>All DFS methods use stack data structure. In JavaScript stack is an array where we add items one
+after another and then remove them from the end of the array. It’s called last-in-first-out (LIFO).
+You could think of it as a stack of papers. The last paper you put on the stack is the first paper
+you take off the stack.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CS">
+                #cs</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TS">
+                #ts</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/11/21/algo-ts-1/">
+                        Algorithms and data structures in TypeScript: string tokenizer, rate limiter
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2022/12/11/algo-ts-2/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

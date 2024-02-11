@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Experimenting w/ Fibers in Project Loom preview | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Experimenting w/ Fibers in Project Loom preview" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is an early exploration into Java Project Loom (preview technology)" />
+<meta property="og:description" content="This tutorial is an early exploration into Java Project Loom (preview technology)" />
+<link rel="canonical" href="http://developerlife.com/2019/12/02/project-loom-experiment/" />
+<meta property="og:url" content="http://developerlife.com/2019/12/02/project-loom-experiment/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2019-12-02T11:59:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Experimenting w/ Fibers in Project Loom preview" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2019-12-02T11:59:00-06:00","datePublished":"2019-12-02T11:59:00-06:00","description":"This tutorial is an early exploration into Java Project Loom (preview technology)","headline":"Experimenting w/ Fibers in Project Loom preview","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2019/12/02/project-loom-experiment/"},"url":"http://developerlife.com/2019/12/02/project-loom-experiment/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Experimenting w/ Fibers in Project Loom preview&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Experimenting w/ Fibers in Project Loom preview</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Experimenting w/ Fibers in Project Loom preview</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Dec 2, 2019
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/project-loom-hero-image.png" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#overview-of-the-code-in-this-project">Overview of the code in this project</a></li>
+  <li><a href="#runtime-performance-stats">Runtime performance stats</a>
+    <ul>
+      <li><a href="#normal-jvm-version">Normal JVM version</a></li>
+      <li><a href="#project-loom-jvm-version">Project Loom JVM version</a></li>
+    </ul>
+  </li>
+  <li><a href="#building-project-loom-jvm">Building Project Loom JVM</a></li>
+  <li><a href="#running-the-server-on-project-loom-jvm-using-fibers">Running the server on Project Loom JVM using Fibers</a>
+    <ul>
+      <li><a href="#structured-concurrency">Structured concurrency</a></li>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#fibers">Fibers</a></li>
+      <li><a href="#continuation">Continuation</a></li>
+      <li><a href="#backwards-compatibility">Backwards compatibility</a></li>
+      <li><a href="#non-blocking-io">Non-blocking IO</a></li>
+      <li><a href="#changes-that-need-to-be-made-to-the-bio-project">Changes that need to be made to the BIO project</a></li>
+    </ul>
+  </li>
+  <li><a href="#references">References</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>Managing concurrent blocking IO w/ threads in the JDK is a great way to throttle performance and
+throughput for many server side apps.</p>
+
+<p>I was personally affected by this (around 2008) when I built the backend server infrastructure for
+ScreamingToaster. I put the JVM and MySQL processes on the same machine. And what ended up happening
+was that even though I used Servlet 3.0 in order to use async servlets (that use non-blocking NIO
+and that don’t block a dedicated thread for each network connection), the JDBC connection to MySQL
+was the bottleneck, since there were many threads connection to the database that were just idling
+due to IO constraints when accessing data from the database which was on a slow disk (not SSD)!</p>
+
+<p>Project Loom would have helped w/ this throughput issue! However, it didn’t exist back then. Project
+Loom proposes the creation of new lightweight threads inside the JVM that are not peers to OS
+threads. They are sometimes referred to as green threads (from the old JDK days).</p>
+
+<blockquote>
+  <p>✨ Here are some great resources on Project Loom (as of Dec 2021).</p>
+
+  <ol>
+    <li><a href="https://inside.java/2021/11/30/on-parallelism-and-concurrency/">On Parallelism &amp; Concurrency</a></li>
+    <li><a href="https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/">Structured Concurrency</a></li>
+    <li><a href="https://openjdk.java.net/jeps/8277129">Structured Concurrency for Java</a></li>
+  </ol>
+</blockquote>
+      <h2 id="overview-of-the-code-in-this-project">
+        
+        
+          Overview of the code in this project <a href="#overview-of-the-code-in-this-project">#</a>
+        
+        
+      </h2>
+    
+
+<p>The project implements a simple multithreaded server and client. The server simply waits for a
+connection, and when a client makes a connection, it accepts it, and simply sends a string over to
+the client. The client simply displays this string. The server also dumps console logs on all kinds
+of timing information, and so does the client. When you run the server, and then the client, they
+will spawn 100_000 threads and take a few minutes to complete.</p>
+
+<p>This example is written using BIO (blocking IO), and not NIO. The Project Loom example is only
+changed by using Fibers. The idea is to showcase how Loom can have a great impact on existing code
+that does not use NIO. We can of course use NIO today for this example (and Async Servlets which
+also use NIO) in order to scale this today (w/out using Loom). Here’s an example of a project
+similar to this
+<a href="https://medium.com/coderscorner/tale-of-client-server-and-socket-a6ef54a74763">written in NIO</a>.</p>
+
+<p>Here’s a fantastic information on why the BIO code is so slow and consumes so much RAM and CPU!
+Here’s an excerpt from a stackexchange discussion on this:</p>
+
+<blockquote>
+  <p>“Why does this happen?” is kind of easy to answer. Imagine you have two swimming pools, one full
+and one empty. You want to move all the water from one to the other, and have 4 buckets. The most
+efficient number of people is 4.</p>
+
+  <p>If you have 1-3 people then you’re missing out on using some buckets. If you have 5 or more
+people, then at least one of those people is stuck waiting for a bucket. Adding more and more
+people … doesn’t speed up the activity.</p>
+
+  <p>So you want to have as many people as can do some work (use a bucket) simultaneously.</p>
+
+  <p>A person here is a thread, and a bucket represents whichever execution resource is the bottleneck.
+Adding more threads doesn’t help if they can’t do anything. Additionally, we should stress that
+passing a bucket from one person to another is typically slower than a single person just carrying
+the bucket the same distance. That is, two threads taking turns on a core typically accomplish
+less work than a single thread running twice as long: this is because of the extra work done to
+switch between the two threads.</p>
+
+  <p>Whether the limiting execution resource (bucket) is a CPU, or a core, or a hyper-threaded
+instruction pipeline for your purposes depends on which part of the architecture is your limiting
+factor. Note also we’re assuming the threads are entirely independent. This is only the case if
+they share no data (and avoid any cache collisions).</p>
+
+  <p>As a couple of people have suggested, for I/O the limiting resource might be the number of
+usefully queueable I/O operations: this could depend on a whole host of hardware and kernel
+factors, but could easily be much larger than the number of cores. Here, the context switch which
+is so costly compared to execute-bound code, is pretty cheap compared to I/O bound code. Sadly I
+think the metaphor will get completely out of control if I try to justify this with buckets.</p>
+
+  <p>Note that the optimal behaviour with I/O bound code is typically still to have at most one thread
+per pipeline/core/CPU. However, you have to write asynchronous or synchronous/non-blocking I/O
+code, and the relatively small performance improvement won’t always justify the extra complexity.</p>
+</blockquote>
+      <h2 id="runtime-performance-stats">
+        
+        
+          Runtime performance stats <a href="#runtime-performance-stats">#</a>
+        
+        
+      </h2>
+    
+
+<p>The <a href="https://github.com/nazmulidris/loomexample">github repo</a> for this project has instructions on
+how to get this going on your machine.</p>
+      <h3 id="normal-jvm-version">
+        
+        
+          Normal JVM version <a href="#normal-jvm-version">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here are some performance numbers for this simple project on hardware (w/out using Loom JVM and
+using BIO (Java blocking IO). With a new Apple 16” MacBook Pro laptop w/ 64GB RAM and 8 core 5GHz
+Intel CPU:</p>
+
+<ol>
+  <li>With about 10_000 client threads, the entire program can run in about 17 sec, and the server may
+wait a few ms at most to accept a connection.</li>
+  <li>100_000 client threads connecting to a simple socket server, the JVM experiences some serious
+performance issues, w/ threads causing the socket server to wait around for a very long time to
+be able to accept a new socket connection, max of about 22 sec 😱, and not a few ms! The average
+time to accept a socket connection increased to about 3 ms. And the entire program takes about 5
+minutes to run 😨. The server process only consumed about 4.9 % of CPU. BTW,
+<a href="https://plugins.jetbrains.com/plugin/7125-grep-console">“Grep Console”</a> is a great plugin to
+monitor output from the client and server println statements.</li>
+</ol>
+      <h3 id="project-loom-jvm-version">
+        
+        
+          Project Loom JVM version <a href="#project-loom-jvm-version">#</a>
+        
+        
+      </h3>
+    
+
+<p>With a similar machine above, the Project Loom JVM version of the Server using Fibers get the
+following stats.</p>
+
+<ol>
+  <li>With 100_000 clients, the total time it took for the program to complete is 3.9 min (22% less
+than the BIO JVM version). On the server, the average time to accept a socket dropped to 2.3 ms
+(23% less). The max time wait time to accept a socket increased to 19 sec (15% less). The server
+process only consumed about 2.5 % of CPU.</li>
+</ol>
+
+<p>This is clearly very badly needed! NodeJS is so popular for server applications for this reason,
+despite being single threaded, since it supports non-blocking IO!</p>
+      <h2 id="building-project-loom-jvm">
+        
+        
+          Building Project Loom JVM <a href="#building-project-loom-jvm">#</a>
+        
+        
+      </h2>
+    
+
+<p>On MacOS, make sure to have XCode installed on your system, and make sure that the command line
+tools are also available. Then you can follow these instructions.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd ~/github/
+hg clone http://hg.openjdk.java.net/loom/loom
+cd loom
+hg update -r fibers
+sh configure
+make images
+</code></pre></div></div>
+
+<ul>
+  <li>You might need to install some packages during the process, but <code class="language-plaintext highlighter-rouge">sh configure</code> should tell you
+which commands to run.</li>
+  <li>Here’s <a href="http://mail.openjdk.java.net/pipermail/loom-dev/2018-July/000061.html">more info</a> on this
+preview release of the Project Loom JVM.</li>
+  <li>There’s a great doc to help w/ this in <code class="language-plaintext highlighter-rouge">./doc/building.html</code></li>
+</ul>
+
+<p>You will find the built JDK here:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd ~/github/loom/
+cd build/*/images/jdk/bin/java -version
+./java -version
+</code></pre></div></div>
+
+<p>On my computer, they are here: <code class="language-plaintext highlighter-rouge">~/github/loom/build/macosx-x86_64-server-release/images/jdk/bin</code></p>
+      <h2 id="running-the-server-on-project-loom-jvm-using-fibers">
+        
+        
+          Running the server on Project Loom JVM using Fibers <a href="#running-the-server-on-project-loom-jvm-using-fibers">#</a>
+        
+        
+      </h2>
+    
+
+<p>Instead of allocating one OS thread per Java thread (current JVM model), Project Loom provides
+additional schedulers that schedule the multiple lightweight threads on the same OS thread. This
+approach provides better usage (OS threads are always working and not waiting) and much less context
+switching.</p>
+
+<p>The following is a great image that depicts the choice that developers have to make today, between
+simple blocking / synchronous code (using threads) and complex but scalable (asynchronous) code.</p>
+
+<p><img src="/assets/why-fibers.png" alt="" /></p>
+      <h3 id="structured-concurrency">
+        
+        
+          Structured concurrency <a href="#structured-concurrency">#</a>
+        
+        
+      </h3>
+    
+
+<p>Loom implements
+<a href="https://wiki.openjdk.java.net/display/loom/Structured+Concurrency">structured concurrency</a> in the
+JVM. The core concept of structured concurrency is that when control splits into concurrent tasks
+that they join up again. If a “main task” splits into several concurrent sub-tasks scheduled to be
+executed in fibers then those fibers must terminate before the main task can complete. This
+<a href="https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/">paper on nurseries</a>
+explains the conceptual model behind doing concurrency in this way. This maps nicely when using Loom
+(using the Fork Join executor as the scheduler) or even Kotlin coroutines. Here are more links on
+this:</p>
+
+<ul>
+  <li><a href="https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/">Structured concurrency</a></li>
+  <li><a href="https://vorpus.org/blog/timeouts-and-cancellation-for-humans">Timeouts and cancellations for humans</a></li>
+  <li><a href="http://250bpm.com/blog:71">Structured concurrency</a></li>
+</ul>
+      <h3 id="overview">
+        
+        
+          Overview <a href="#overview">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li>Here are the <a href="http://cr.openjdk.java.net/~alanb/loom/Devoxx2018.pdf">slides (PDF)</a> of a 2018 video
+on Loom.</li>
+  <li>This
+<a href="https://developers.redhat.com/blog/2019/06/19/project-loom-lightweight-java-threads/">tutorial</a>
+does a decent job comparing conventional use of BIO + threads to Fibers.</li>
+</ul>
+      <h3 id="fibers">
+        
+        
+          Fibers <a href="#fibers">#</a>
+        
+        
+      </h3>
+    
+
+<p>Fibers are lightweight, user-mode threads, scheduled by the Java virtual machine, not the operating
+system. Fibers are low footprint and have negligible task-switching overhead. You can have millions
+of them!</p>
+      <h3 id="continuation">
+        
+        
+          Continuation <a href="#continuation">#</a>
+        
+        
+      </h3>
+    
+
+<p>A Continuation (precisely: delimited continuation) is a program object representing a computation
+that may be suspended and resumed (also, possibly, cloned or even serialized).</p>
+
+<p>Here’s an excerpt from the <code class="language-plaintext highlighter-rouge">Continuation</code> class:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">java.lang</span><span class="o">;</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Continuation</span> <span class="kd">implements</span> <span class="nc">Runnable</span> <span class="o">{</span>
+ <span class="kd">public</span> <span class="nf">Continuation</span><span class="o">(</span><span class="nc">ContinuationScope</span> <span class="n">scope</span><span class="o">,</span> <span class="nc">Runnable</span> <span class="n">target</span><span class="o">);</span>
+ <span class="kd">public</span> <span class="kd">final</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">();</span>
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">yield</span><span class="o">(</span><span class="nc">ContinuationScope</span> <span class="n">scope</span><span class="o">);</span>
+ <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isDone</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>In essence, most of us will never use Continuation in application code. Most of us will use Fibers
+to enhance our code. A simple definition would be:</p>
+
+<p><code class="language-plaintext highlighter-rouge">Fiber = Continuation + Scheduler</code></p>
+
+<ul>
+  <li>A fiber wraps a task in a continuation
+    <ul>
+      <li>The continuation yields when the task needs to block</li>
+      <li>The continuation is continued when the task is ready to continue</li>
+    </ul>
+  </li>
+  <li>Scheduler executes tasks on a pool of carrier threads
+    <ul>
+      <li>java.util.concurrent.Executor in the current prototype</li>
+      <li>Default/built-in scheduler is a ForkJoinPool</li>
+    </ul>
+  </li>
+</ul>
+      <h3 id="backwards-compatibility">
+        
+        
+          Backwards compatibility <a href="#backwards-compatibility">#</a>
+        
+        
+      </h3>
+    
+
+<p>One of the challenges of any new approach is how compatible it will be with existing code. Project
+Loom team has done a great job on this front, and Fiber can take the Runnable interface. To be
+complete, note that Continuation also implements Runnable.</p>
+      <h3 id="non-blocking-io">
+        
+        
+          Non-blocking IO <a href="#non-blocking-io">#</a>
+        
+        
+      </h3>
+    
+
+<p>The Project Loom JDK has also reimplemented portions of the Java networking API to be non blocking
+and fiber friendly. Here’s <a href="https://wiki.openjdk.java.net/display/loom/Networking+IO">more info</a> on
+this.</p>
+      <h3 id="changes-that-need-to-be-made-to-the-bio-project">
+        
+        
+          Changes that need to be made to the BIO project <a href="#changes-that-need-to-be-made-to-the-bio-project">#</a>
+        
+        
+      </h3>
+    
+
+<p>The only part of our current server that will change is the thread scheduling part; the logic inside
+the thread remains the same.</p>
+
+<p>Here’s the old school code using BIO + threads (written in Kotlin).</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">val</span> <span class="py">server</span> <span class="p">=</span> <span class="nc">ServerSocket</span><span class="p">(</span><span class="nc">PORT</span><span class="p">)</span>
+  <span class="k">while</span> <span class="p">(</span><span class="k">true</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// Blocking code.</span>
+      <span class="kd">val</span> <span class="py">socket</span> <span class="p">=</span> <span class="n">server</span><span class="p">.</span><span class="nf">accept</span><span class="p">()</span>
+      <span class="n">connectionCount</span><span class="p">++</span>
+      <span class="c1">// Create a new thread and start it (does not block).</span>
+      <span class="kd">val</span> <span class="py">socketHandlerThread</span> <span class="p">=</span> <span class="nc">SocketHandlerThread</span><span class="p">(</span><span class="n">socket</span><span class="p">)</span>
+      <span class="n">socketHandlerThread</span><span class="p">.</span><span class="nf">start</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the Project Loom code using Fibers.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">try</span> <span class="o">{</span>
+    <span class="nc">ServerSocket</span> <span class="n">server</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ServerSocket</span><span class="o">(</span><span class="mi">10_000</span><span class="o">);</span>
+    <span class="k">while</span> <span class="o">(</span><span class="kc">true</span><span class="o">)</span> <span class="o">{</span>
+      <span class="nc">Socket</span> <span class="n">client</span> <span class="o">=</span> <span class="n">server</span><span class="o">.</span><span class="na">accept</span><span class="o">();</span>
+      <span class="nc">EchoHandlerLoom</span> <span class="n">handler</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">EchoHandlerLoom</span><span class="o">(</span><span class="n">client</span><span class="o">);</span>
+      <span class="nc">FiberScope</span><span class="o">.</span><span class="na">background</span><span class="o">().</span><span class="na">schedule</span><span class="o">(</span><span class="n">handler</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>For completeness, here’s the client side code (in Kotlin) which remains unchanged for both the old
+school example, and the one w/ Fibers.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="kd">val</span> <span class="py">THREAD_COUNT</span> <span class="p">=</span> <span class="mi">100_000</span>
+<span class="k">fun</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kd">val</span> <span class="py">elapsedTimeSec</span> <span class="p">=</span> <span class="nf">measureTimeSec</span> <span class="p">{</span>
+    <span class="p">(</span><span class="mi">1</span><span class="o">..</span><span class="nc">THREAD_COUNT</span><span class="p">).</span><span class="nf">forEach</span> <span class="p">{</span>
+      <span class="kd">val</span> <span class="py">thread</span> <span class="p">=</span> <span class="nc">Thread</span> <span class="p">{</span> <span class="nf">doWork</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="p">}</span>
+      <span class="n">thread</span><span class="p">.</span><span class="nf">start</span><span class="p">()</span>
+      <span class="n">thread</span><span class="p">.</span><span class="nf">join</span><span class="p">()</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="k">fun</span> <span class="nf">doWork</span><span class="p">(</span><span class="n">count</span><span class="p">:</span> <span class="nc">Int</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">socket</span> <span class="p">=</span> <span class="nc">Socket</span><span class="p">(</span><span class="s">"localhost"</span><span class="p">,</span> <span class="nc">PORT</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">inputStream</span> <span class="p">=</span> <span class="n">socket</span><span class="p">.</span><span class="nf">getInputStream</span><span class="p">()</span>
+    <span class="kd">val</span> <span class="py">reader</span> <span class="p">=</span> <span class="nc">BufferedReader</span><span class="p">(</span><span class="nc">InputStreamReader</span><span class="p">(</span><span class="n">inputStream</span><span class="p">))</span>
+    <span class="kd">val</span> <span class="py">line</span> <span class="p">=</span> <span class="n">reader</span><span class="p">.</span><span class="nf">readLine</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="references">
+        
+        
+          References <a href="#references">#</a>
+        
+        
+      </h2>
+    
+
+<p>Great baseline information related to JDK threading issues</p>
+
+<ul>
+  <li><a href="https://medium.com/coderscorner/tale-of-client-server-and-socket-a6ef54a74763">Excellent tutorial examining the differences, which sets up this project</a></li>
+  <li><a href="https://unix.stackexchange.com/questions/80424/why-using-more-threads-makes-it-slower-than-using-less-threads">Why many threads can slow down programs</a></li>
+  <li><a href="http://tutorials.jenkov.com/java-nio/nio-vs-io.html">IO vs NIO</a></li>
+  <li><a href="https://dzone.com/articles/understanding-spring-reactive-servlet-async">Java Servlet 3.0 going to async using NIO</a></li>
+</ul>
+
+<p>Project Loom deep dive</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/watch?v=lIq-x_iI-kc&amp;feature=youtu.be">Video</a></li>
+  <li><a href="http://cr.openjdk.java.net/~alanb/loom/Devoxx2018.pdf">Slides from 2018 video</a></li>
+  <li><a href="https://dzone.com/articles/a-new-java-with-a-stronger-fiber">Tutorial</a></li>
+  <li><a href="https://wiki.openjdk.java.net/display/loom/Structured+Concurrency">Fiber docs: Structured concurrency</a></li>
+  <li><a href="https://wiki.openjdk.java.net/display/loom/Networking+IO">Fiber docs: Network IO</a></li>
+</ul>
+
+<p>Build Project Loom JDK</p>
+
+<ul>
+  <li><a href="http://mail.openjdk.java.net/pipermail/loom-dev/2018-July/000061.html">Instructions</a></li>
+</ul>
+
+<p>Fork Join Pool (scheduler for Loom’s lightweight threads)</p>
+
+<ul>
+  <li><a href="https://docs.oracle.com/javase/10/docs/api/java/util/concurrent/ForkJoinPool.html">ForkJoinPool javadocs</a></li>
+  <li><a href="http://tutorials.jenkov.com/java-util-concurrent/java-fork-and-join-forkjoinpool.html">ForkJoinPool tutorial</a></li>
+</ul>
+
+<p>OS thread scheduling and resource consumption</p>
+
+<ul>
+  <li><a href="https://www.javaworld.com/article/2071214/java-101--understanding-java-threads--part-3--thread-scheduling-and-wait-notify.html">Java thread scheduling</a></li>
+  <li><a href="https://web.stanford.edu/~ouster/cgi-bin/cs140-winter12/lecture.php?topic=scheduling">OS thread scheduling and resources</a></li>
+  <li><a href="https://stackoverflow.com/a/53353743/2085356">Preemption and sleep</a></li>
+  <li><a href="http://tutorials.jenkov.com/java-concurrency/costs.html">Multithreading cost, context switch, memory</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Context_switch">Context switching</a></li>
+</ul>
+
+<p>Other examples that may be useful</p>
+
+<ul>
+  <li><a href="https://developers.redhat.com/blog/2019/06/19/project-loom-lightweight-java-threads/">Tutorial to get started w/ code example</a></li>
+  <li><a href="https://www.codejava.net/java-se/networking/java-socket-client-examples-tcp-ip">Java socket client code examples</a></li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CC">
+                #cc</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/KT">
+                #kt</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/05/27/task-api-3-of-5-monitoring-http-post-operations/">
+                        Task API (3 of 3) - Monitoring HTTP POST operations
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/08/task-api-2-of-5-task-api-in-depth/">
+                        Task API (2 of 3) - Task API in-depth
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/05/task-api-quick-start-guide/">
+                        Task API (1 of 3) - Quick Start Guide
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/">
+                        Creating multi-threaded Swing apps that consume web services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2006/06/09/introduction-to-java-50-javautilconcurrent-api/">
+                        Introduction to Java 5 java.util.concurrent API
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/introduction-to-threads/">
+                        Introduction to Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/02/06/publish-kotlin-library-as-gradle-dep/">
+                        Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/11/20/idea-plugin-example-intro/">
+                        Introduction to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/15/non-capturing-lambda-problems/">
+                        Potential problems of using non-capturing lambdas
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
+                        Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-testing-setup/">
+                        Kotlin and Test Driven Development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-extension-function-expressions/">
+                        Kotlin Extension Function Expressions
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-and-kotlin/">
+                        Advanced Dagger 2 w/ Android and Kotlin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2019/12/02/project-loom-experiment/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

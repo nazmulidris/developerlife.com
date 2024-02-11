@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Creating multi-threaded Swing apps that consume web services | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Creating multi-threaded Swing apps that consume web services" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="If you’ve ever want to incorporate web services into your graphical applications / applets / widgets written in Java, then there are some threading issues that you have to be mindful of, and design around. This tutorial will guide you though some of the important threading issues you have to keep in mind when building such applications. The strategies outlined in this tutorial apply to accessing more than just web services from Swing apps; it also applies to loading information from databases, and performing any other kind of time consuming process that has to happen in the desktop app and interact with it, but can’t make the user interface unresponsive." />
+<meta property="og:description" content="If you’ve ever want to incorporate web services into your graphical applications / applets / widgets written in Java, then there are some threading issues that you have to be mindful of, and design around. This tutorial will guide you though some of the important threading issues you have to keep in mind when building such applications. The strategies outlined in this tutorial apply to accessing more than just web services from Swing apps; it also applies to loading information from databases, and performing any other kind of time consuming process that has to happen in the desktop app and interact with it, but can’t make the user interface unresponsive." />
+<link rel="canonical" href="http://developerlife.com/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/" />
+<meta property="og:url" content="http://developerlife.com/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2007-01-08T09:00:02-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Creating multi-threaded Swing apps that consume web services" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2007-01-08T09:00:02-06:00","datePublished":"2007-01-08T09:00:02-06:00","description":"If you’ve ever want to incorporate web services into your graphical applications / applets / widgets written in Java, then there are some threading issues that you have to be mindful of, and design around. This tutorial will guide you though some of the important threading issues you have to keep in mind when building such applications. The strategies outlined in this tutorial apply to accessing more than just web services from Swing apps; it also applies to loading information from databases, and performing any other kind of time consuming process that has to happen in the desktop app and interact with it, but can’t make the user interface unresponsive.","headline":"Creating multi-threaded Swing apps that consume web services","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/"},"url":"http://developerlife.com/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Creating multi-threaded Swing apps that consume web services&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Creating multi-threaded Swing apps that consume web services</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Creating multi-threaded Swing apps that consume web services</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jan 8, 2007
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#background">Background</a></li>
+  <li><a href="#strategy-1-leverage-swing-provided-background-threads-swingworker-tasks-only">Strategy #1: Leverage Swing provided background threads (SwingWorker tasks) only</a></li>
+  <li><a href="#strategy-2-create-your-own-threads-to-perform-one-shot-tasks-and-coordinate-with-swingworker-tasks">Strategy #2: Create your own threads to perform one-shot tasks, and coordinate with SwingWorker tasks</a></li>
+  <li><a href="#strategy-3-create-your-own-threads-to-perform-recurringlong-running-tasks-and-coordinate-with-swingworker-tasks">Strategy #3: Create your own threads to perform recurring/long running tasks, and coordinate with SwingWorker tasks</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="overview">
+        
+        
+          Overview <a href="#overview">#</a>
+        
+        
+      </h2>
+    
+
+<p>If you’ve ever want to incorporate web services into your graphical applications/applets/widgets
+written in Java, then there are some threading issues that you have to be mindful of, and design
+around. This tutorial will guide you though some of the important threading issues you have to keep
+in mind when building such applications. The strategies outlined in this tutorial apply to accessing
+more than just web services from Swing apps; it also applies to loading information from databases,
+and performing any other kind of time consuming process that has to happen in the desktop app and
+interact with it, but can’t make the user interface unresponsive.</p>
+      <h2 id="background">
+        
+        
+          Background <a href="#background">#</a>
+        
+        
+      </h2>
+    
+
+<p>For some more background information on Swing applications and threading, read this article -
+<a href="http://java.sun.com/docs/books/tutorial/uiswing/concurrency/">Lesson: Concurrency in Swing</a>. The
+Swing framework is essentially single threaded, as are most GUI toolkits. The main thread which
+updates the UI is called the Event Dispatch Thread (EDT). All the graphical components are created
+by this thread, all the action, event, etc. listeners run in this thread. So if your code performs a
+long running/time consuming or blocking task in the EDT, then the Swing UI will become frozen until
+your code is done. In order to prevent this situation, there are other threads that your tasks can
+use:</p>
+
+<ul>
+  <li>
+    <p>You can leverage some worker threads that Swing itself creates so that background tasks can be
+performed outside of the EDT for long running/time consuming/blocking operations that your task
+must perform, or</p>
+  </li>
+  <li>
+    <p>You can use threads that you explicitly create and then coordinate the output from these threads
+with the EDT, or</p>
+  </li>
+  <li>
+    <p>You can take a blended approach and do both of the things suggested above.</p>
+  </li>
+</ul>
+
+<p>In this tutorial, I will cover all three strategies for making your Swing apps multithreaded, with
+code examples, and things to keep in mind when designing such systems.</p>
+      <h2 id="strategy-1-leverage-swing-provided-background-threads-swingworker-tasks-only">
+        
+        
+          Strategy #1: Leverage Swing provided background threads (SwingWorker tasks) only <a href="#strategy-1-leverage-swing-provided-background-threads-swingworker-tasks-only">#</a>
+        
+        
+      </h2>
+    
+
+<p><strong>Use case:</strong></p>
+
+<blockquote>Perform a one-shot task, started from the user interface, that only needs to update the UI with the final result of the task. Use a Swing threadpool executor to perform this task (not the EDT).</blockquote>
+
+<p><strong>Diagram:</strong></p>
+
+<p><img src="/assets/swing-apps-threaded-1.png" alt="" /></p>
+
+<p><strong>Notes:</strong></p>
+
+<ul>
+  <li>
+    <p>You have to create a subclass of SwingWorker and launch it by calling
+<a href="http://java.sun.com/javase/6/docs/api/javax/swing/SwingWorker.html#execute()">execute()</a>; this
+will probably happen in an ActionListener in your Swing code. Calling execute() submits this
+SwingWorker task to the threadpool that Swing keeps for running background tasks. The execute()
+method returns immediately; so your calling thread (which may be the EDT itself) will continue.</p>
+
+    <ul>
+      <li>
+        <p>Put the code for the background task in
+<a href="http://java.sun.com/javase/6/docs/api/javax/swing/SwingWorker.html#doInBackground()">T doInBackground()</a>.
+This is the code that performs the time consuming one-shot task. If exceptions are generated
+here, they can be caught by a call to
+<a href="http://java.sun.com/javase/6/docs/api/javax/swing/SwingWorker.html#get()">T get()</a>, so can
+the return value. Once this method completes (on the background thread), done() will be called
+<strong>on the EDT</strong>. The return value is of type “” - this is whatever class you decide to make the
+doInBackground() method return. “” is the result type returned by this SwingWorker’s
+doInBackground and get methods. You can either implement this time consuming task in this
+method, or you can call an external web service, or other gateway or proxy class to request
+something.</p>
+      </li>
+      <li>
+        <p>The <a href="http://java.sun.com/javase/6/docs/api/javax/swing/SwingWorker.html#done()">done()</a> method
+is called <strong>on the EDT</strong> when your doInBackground() method exits (by returning a value or
+throwing an exception). In the done() method, you can retrieve the thrown exception or return
+value by calling get(). In this method, you have to perform whatever GUI updates, or
+interactions that are necessary with the return value or exceptions generated by the call to
+get().</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>In this case the thread is started by calling execute() on the SwingWorker task itself. This
+submits the task to a threadpool of background threads that Swing manages, and the task will be
+executed in one of these threads.</p>
+  </li>
+  <li>
+    <p>Please make sure that the task is easily interruptible - there is no way to preemptively
+interrupt/stop a thread in Java, only cooperative cancellation is possible.</p>
+
+    <ul>
+      <li>
+        <p>So, if you are performing any wait operations (waiting on a lock or monitor) make sure to catch
+the InterruptedException and cancel out of the task.</p>
+      </li>
+      <li>
+        <p>If you are performing blocking IO, make sure to catch IOException, to cancel out of it. The
+underlying stream that this task is blocking on has to be closed. Presumably, the object calling
+<a href="http://java.sun.com/javase/6/docs/api/javax/swing/SwingWorker.html#cancel(boolean)">cancel(true)</a>
+on your SwingWorker task will also have to call
+<a href="http://java.sun.com/javase/6/docs/api/java/io/Closeable.html#close()">close()</a> on the
+underlying Input/OutputStream in order for this to work. If you are unblocked due to to an
+IOException, you can always check for isCancelled() on the SwingWorker to see if it’s been
+cancelled.</p>
+      </li>
+      <li>
+        <p>Also, make sure to check
+<a href="http://java.sun.com/javase/6/docs/api/javax/swing/SwingWorker.html#isCancelled()">isCancelled()</a>
+on the SwingWorker thread to see if the task has been cancelled, to end your task.</p>
+      </li>
+      <li>
+        <p>If you don’t know what to do with the InterruptedException (if one is thrown), and if you catch
+it, make sure to call
+<a href="http://java.sun.com/javase/6/docs/api/java/lang/Thread.html#interrupt()">Thread.currentThread().interrupt()</a>
+to maintain the interrupted flag, so that the
+<a href="http://java.sun.com/docs/books/tutorial/essential/concurrency/executors.html">executor</a> running
+this thread will know what to do with the interruption. More on preserving thread interrupted
+state (if you don’t know what to do with the caught InterruptedException is explained
+<a href="http://java.sun.com/docs/books/tutorial/essential/concurrency/interrupt.html">here</a>).</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+      <h2 id="strategy-2-create-your-own-threads-to-perform-one-shot-tasks-and-coordinate-with-swingworker-tasks">
+        
+        
+          Strategy #2: Create your own threads to perform one-shot tasks, and coordinate with SwingWorker tasks <a href="#strategy-2-create-your-own-threads-to-perform-one-shot-tasks-and-coordinate-with-swingworker-tasks">#</a>
+        
+        
+      </h2>
+    
+
+<p><strong>Use case:</strong></p>
+
+<blockquote>Perform a one-shot task, started from the user interface (or not), that only needs to update the UI with the final result of the task. Use your own executor to perform the task (not the EDT, or a Swing threadpool executor).</blockquote>
+
+<p><strong>Diagram:</strong></p>
+
+<p><img src="/assets/swing-apps-threaded-2.png" alt="" /></p>
+
+<p><strong>Notes:</strong></p>
+
+<ul>
+  <li>
+    <p>The only differences between Strategy 1 and 2 are the following:</p>
+
+    <ul>
+      <li>
+        <p>In Strategy 2, instead of performing the time consuming task in the doInBackground(), you simply
+delegate this responsibility to another task being executed in a different executor (which has
+it’s own thread(s)). The reason for doing this is that you may have some multithreaded
+components/libraries/objects that you’ve created that are not tied to Swing. You may have a
+proxy class that acts as a gateway to an external web service. Instead of having to link this
+code to Swing’s SwingWorker, you can use a generic Executor or Callable or Runnable to implement
+this. Then you have the task of tying this underlying threaded component to a SwingWorker,
+basically by creating an SwingWorker adapter for your underlying threaded component. All the
+processing happens in your underlying component, and the results are trasmitted to the
+SwingWorker task. So how do you pass a return value in case your underlying component implements
+Runnable? If the underlying component implements Callable, and you have a reference to a Future,
+it’s easy - you can just call get() and wait in the doInBackground method of your adapter.
+However, if you don’t have an reference to a Future, and you are dealing with Runnable
+implementation, then you will have pass the results back to doInBackground’s thread via a
+BlockingQueue. So your SwingWorker adapter will have to get a reference to this BlockingQueue
+when it’s created, and then in the doInBackground method, it will wait until it gets an object
+of type from this queue. Your underlying threaded component will have to pass the results of its
+computation via this BlockingQueue as well. This is a contract that **must **be honored by both
+your SwingWorker adapter class, and the underlying threaded component, in order for this
+strategy to work.</p>
+      </li>
+      <li>
+        <p>If your underlying component uses Callable, instead of Runnable, then there’s no need to use a
+BlockingQueue. The doInBackground method of your SwingWorker adapter can simply call the get()
+method on the Future returned by the execution of the Callable. In this case, the
+blocking/waiting still happens in the doInBackground method, so that when everything is
+completed, done() is called on the EDT. In this scenario, Strategy 2 is very similar to Strategy
+1, the only difference being that the doInBackground method doesn’t really implement anything,
+it just uses a Future to get a return value back from your underlying component (which is
+treaded).</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>The similarities between Strategy 1 and 2 are the following:</p>
+
+    <ul>
+      <li>
+        <p>You don’t really use publish or process methods (which you will in Strategy 3).</p>
+      </li>
+      <li>
+        <p>The SwingWorker subclass is very similar, you have to declare a subclass in both cases like
+this: MySwingWorkerTask &lt;T, Void&gt; extends SwingWorker…</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+      <h2 id="strategy-3-create-your-own-threads-to-perform-recurringlong-running-tasks-and-coordinate-with-swingworker-tasks">
+        
+        
+          Strategy #3: Create your own threads to perform recurring/long running tasks, and coordinate with SwingWorker tasks <a href="#strategy-3-create-your-own-threads-to-perform-recurringlong-running-tasks-and-coordinate-with-swingworker-tasks">#</a>
+        
+        
+      </h2>
+    
+
+<p><strong>Use case:</strong></p>
+
+<blockquote>Perform a long running or recurring task, started from the user interface (or not), that needs to update the UI with intermediate/periodic results from the task. No final result has to be returned by the task (this is optional). Use your own executor to perform this long running/recurring task (not the EDT, or a Swing threadpool executor).</blockquote>
+
+<p><strong>Diagram:</strong></p>
+
+<p><img src="/assets/swing-apps-threaded-3.png" alt="" /></p>
+
+<p><strong>Notes:</strong></p>
+
+<ul>
+  <li>
+    <p>The SwingWorker subclass is defined as SwingWorker&lt;Void, V&gt; : The reason the first parameter type
+is Void, is due to the fact that the final result returned by doInBackground is not important.
+However, unlike the previous strategies, the 2nd type parameters is - this is the type of the
+intermediate values that are passed from the background thread to the EDT via publish -&gt; process.</p>
+  </li>
+  <li>
+    <p>Once this SwingWorker task is started, it continually blocks on the BlockingQueue object that the
+underlying threaded component uses to pass intermediate objects back to the SwingWorker adapter.
+The done() method isn’t used, and neither is get(); instead the publish() and process() methods
+are used in this strategy. As soon as an object is available on the BlockingQueue, the SwingWorker
+task simply publishes that object. When objects are published, the EDT is notified of this, and it
+calls process() to get the objects that were published. Multiple calls to publish() are coalesed
+into one call to process() which is why the process method takes a List chunks object as a
+parameter.</p>
+  </li>
+  <li>
+    <p>The EDT actually runs the process method, so this is where you want to update your GUI and return.</p>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CC">
+                #cc</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/05/27/task-api-3-of-5-monitoring-http-post-operations/">
+                        Task API (3 of 3) - Monitoring HTTP POST operations
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/08/task-api-2-of-5-task-api-in-depth/">
+                        Task API (2 of 3) - Task API in-depth
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/05/task-api-quick-start-guide/">
+                        Task API (1 of 3) - Quick Start Guide
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2006/06/09/introduction-to-java-50-javautilconcurrent-api/">
+                        Introduction to Java 5 java.util.concurrent API
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/introduction-to-threads/">
+                        Introduction to Threads
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

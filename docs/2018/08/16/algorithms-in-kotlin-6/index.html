@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Algorithms in Kotlin, Binary Trees, Part 6/7 | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Algorithms in Kotlin, Binary Trees, Part 6/7" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using Kotlin. This project is useful if you are trying to get more fluency in Kotlin or need a refresher to do interview prep for software engineering roles." />
+<meta property="og:description" content="This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using Kotlin. This project is useful if you are trying to get more fluency in Kotlin or need a refresher to do interview prep for software engineering roles." />
+<link rel="canonical" href="http://developerlife.com/2018/08/16/algorithms-in-kotlin-6/" />
+<meta property="og:url" content="http://developerlife.com/2018/08/16/algorithms-in-kotlin-6/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-08-16T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Algorithms in Kotlin, Binary Trees, Part 6/7" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2018-08-16T10:00:00-05:00","datePublished":"2018-08-16T10:00:00-05:00","description":"This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using Kotlin. This project is useful if you are trying to get more fluency in Kotlin or need a refresher to do interview prep for software engineering roles.","headline":"Algorithms in Kotlin, Binary Trees, Part 6/7","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2018/08/16/algorithms-in-kotlin-6/"},"url":"http://developerlife.com/2018/08/16/algorithms-in-kotlin-6/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Algorithms in Kotlin, Binary Trees, Part 6/7&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Algorithms in Kotlin, Binary Trees, Part 6/7</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Algorithms in Kotlin, Binary Trees, Part 6/7</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Aug 16, 2018
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/algo-hero.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a>
+    <ul>
+      <li><a href="#how-to-run-this-project">How to run this project</a>
+        <ul>
+          <li><a href="#importing-this-project-into-jetbrains-intellij-idea">Importing this project into JetBrains IntelliJ IDEA</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#binary-trees">Binary Trees</a></li>
+  <li><a href="#node-data-structure">Node data structure</a></li>
+  <li><a href="#building-the-tree">Building the tree</a></li>
+  <li><a href="#pre-order-in-order-and-post-order-recursive-traversal">Pre-order, in-order, and post-order recursive traversal</a></li>
+  <li><a href="#bfs-breadth-first-search-using-a-queue">BFS (breadth first search) using a Queue</a>
+    <ul>
+      <li><a href="#notes-on-the-implementation">Notes on the implementation</a></li>
+    </ul>
+  </li>
+  <li><a href="#bfs-pretty-print">BFS (pretty print)</a>
+    <ul>
+      <li><a href="#notes-on-implementation">Notes on implementation</a></li>
+    </ul>
+  </li>
+  <li><a href="#dfs-depth-first-search-using-a-stack">DFS (depth first search) using a Stack</a>
+    <ul>
+      <li><a href="#notes-on-the-implementation-1">Notes on the implementation</a></li>
+    </ul>
+  </li>
+  <li><a href="#console-output-from-running-the-code">Console output from running the code</a></li>
+  <li><a href="#resources">Resources</a>
+    <ul>
+      <li><a href="#cs-fundamentals">CS Fundamentals</a></li>
+      <li><a href="#data-structures">Data Structures</a></li>
+      <li><a href="#math">Math</a></li>
+      <li><a href="#big-o-notation">Big-O Notation</a></li>
+      <li><a href="#kotlin">Kotlin</a></li>
+      <li><a href="#markdown-utilities">Markdown utilities</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This tutorial is part of a collection tutorials on basic data structures and algorithms that are
+created using Kotlin. This project is useful if you are trying to get more fluency in Kotlin or need
+a refresher to do interview prep for software engineering roles.</p>
+      <h3 id="how-to-run-this-project">
+        
+        
+          How to run this project <a href="#how-to-run-this-project">#</a>
+        
+        
+      </h3>
+    
+
+<p>You can get the code for this and all the other tutorials in this collection from
+<a href="https://github.com/nazmulidris/algorithms-in-kotlin">this github repo</a>. Here’s a screen capture of
+project in this repo in action.</p>
+
+<p><img src="/assets/algo-app-anim.gif" alt="" /></p>
+
+<p>Once you’ve cloned the repo, type <code class="language-plaintext highlighter-rouge">./gradlew run</code> in order to build and run this project from the
+command line.</p>
+      <h4 id="importing-this-project-into-jetbrains-intellij-idea">
+        
+        
+          Importing this project into JetBrains IntelliJ IDEA <a href="#importing-this-project-into-jetbrains-intellij-idea">#</a>
+        
+        
+      </h4>
+    
+
+<ul>
+  <li>This project was created using JetBrains Idea as a Gradle and Kotlin project
+(<a href="https://www.jetbrains.com/help/idea/getting-started-with-gradle.html">more info</a>). - When you
+import this project into Idea as a Gradle project, make sure not to check “Offline work” (which if
+checked, won’t allow the gradle dependencies to be downloaded). - As of Jun 24 2018,
+<a href="https://github.com/gradle/gradle/issues/4503">Java 10 doesn’t work w/ this gradle distribution</a>
+(v4.4.x), so you can use Java 9 or 8, or upgrade to a newer version of gradle (4.8+).</li>
+</ul>
+      <h2 id="binary-trees">
+        
+        
+          Binary Trees <a href="#binary-trees">#</a>
+        
+        
+      </h2>
+    
+
+<p><img src="/assets/algo-5.png" alt="" /></p>
+      <h2 id="node-data-structure">
+        
+        
+          Node data structure <a href="#node-data-structure">#</a>
+        
+        
+      </h2>
+    
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">data class</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;(</span><span class="kd">val</span> <span class="py">value</span><span class="p">:</span> <span class="nc">T</span><span class="p">,</span>
+                   <span class="kd">var</span> <span class="py">leftNode</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;?,</span>
+                   <span class="kd">var</span> <span class="py">rightNode</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;?,</span>
+                   <span class="kd">var</span> <span class="py">depth</span><span class="p">:</span> <span class="nc">Int</span> <span class="p">=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">link</span><span class="p">(</span><span class="n">left</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;?,</span> <span class="n">right</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;?)</span> <span class="p">=</span> <span class="k">this</span><span class="p">.</span><span class="nf">apply</span> <span class="p">{</span>
+        <span class="nf">linkLeft</span><span class="p">(</span><span class="n">left</span><span class="p">).</span><span class="nf">linkRight</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">fun</span> <span class="nf">linkLeft</span><span class="p">(</span><span class="n">left</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;?)</span> <span class="p">=</span> <span class="k">this</span><span class="p">.</span><span class="nf">apply</span> <span class="p">{</span> <span class="n">leftNode</span> <span class="p">=</span> <span class="n">left</span> <span class="p">}</span>
+
+    <span class="k">fun</span> <span class="nf">linkRight</span><span class="p">(</span><span class="n">right</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;?)</span> <span class="p">=</span> <span class="k">this</span><span class="p">.</span><span class="nf">apply</span> <span class="p">{</span> <span class="n">rightNode</span> <span class="p">=</span> <span class="n">right</span> <span class="p">}</span>
+
+    <span class="k">fun</span> <span class="nf">depth</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nc">Int</span><span class="p">)</span> <span class="p">=</span> <span class="k">this</span><span class="p">.</span><span class="nf">apply</span> <span class="p">{</span> <span class="n">depth</span> <span class="p">=</span> <span class="n">value</span> <span class="p">}</span>
+
+    <span class="cm">/**
+     * Nodes on the left are in yellow, and those on the right are blue.
+     */</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">toString</span><span class="p">():</span> <span class="nc">String</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">StringBuffer</span><span class="p">().</span><span class="nf">apply</span> <span class="p">{</span>
+            <span class="nf">append</span><span class="p">(</span><span class="s">"{${value.toString().green()}"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">leftNode</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+                <span class="nf">append</span><span class="p">(</span><span class="s">", ${leftNode.toString().yellow()}"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">rightNode</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+                <span class="nf">append</span><span class="p">(</span><span class="s">", ${rightNode.toString().blue()}}"</span><span class="p">)</span>
+        <span class="p">}.</span><span class="nf">toString</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="building-the-tree">
+        
+        
+          Building the tree <a href="#building-the-tree">#</a>
+        
+        
+      </h2>
+    
+
+<p>The tree shown in the diagram above is built in code as follows.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * [Image of the generated tree](http://tinyurl.com/yckmlfkt)
+ *        [A]
+ *       /   \
+ *     [B]    [C]
+ *     / \    /  \
+ *  [D]  [E] [F] [G]
+ *               / \
+ *             [H] [I]
+ */</span>
+<span class="k">fun</span> <span class="nf">buildTree</span><span class="p">():</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">Char</span><span class="p">&gt;</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">a</span> <span class="p">=</span> <span class="nc">Node</span><span class="p">(</span><span class="sc">'a'</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="k">null</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">b</span> <span class="p">=</span> <span class="nc">Node</span><span class="p">(</span><span class="sc">'b'</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="k">null</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">c</span> <span class="p">=</span> <span class="nc">Node</span><span class="p">(</span><span class="sc">'c'</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="k">null</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">d</span> <span class="p">=</span> <span class="nc">Node</span><span class="p">(</span><span class="sc">'d'</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="k">null</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">e</span> <span class="p">=</span> <span class="nc">Node</span><span class="p">(</span><span class="sc">'e'</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="k">null</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">f</span> <span class="p">=</span> <span class="nc">Node</span><span class="p">(</span><span class="sc">'f'</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="k">null</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">g</span> <span class="p">=</span> <span class="nc">Node</span><span class="p">(</span><span class="sc">'g'</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="k">null</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">h</span> <span class="p">=</span> <span class="nc">Node</span><span class="p">(</span><span class="sc">'h'</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="k">null</span><span class="p">)</span>
+    <span class="kd">val</span> <span class="py">i</span> <span class="p">=</span> <span class="nc">Node</span><span class="p">(</span><span class="sc">'i'</span><span class="p">,</span> <span class="k">null</span><span class="p">,</span> <span class="k">null</span><span class="p">)</span>
+
+    <span class="n">a</span><span class="p">.</span><span class="nf">link</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+    <span class="n">b</span><span class="p">.</span><span class="nf">link</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+    <span class="n">c</span><span class="p">.</span><span class="nf">link</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">g</span><span class="p">)</span>
+    <span class="n">g</span><span class="p">.</span><span class="nf">link</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">a</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="pre-order-in-order-and-post-order-recursive-traversal">
+        
+        
+          Pre-order, in-order, and post-order recursive traversal <a href="#pre-order-in-order-and-post-order-recursive-traversal">#</a>
+        
+        
+      </h2>
+    
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * A neat trick for pre-order traversals: starting from the root,
+ * go around the tree counterclockwise. Print each node when you
+ * pass its left side.
+ */</span>
+<span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">traversalPreOrder</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;?,</span> <span class="n">list</span><span class="p">:</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">list</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="nf">traversalPreOrder</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">leftNode</span><span class="p">,</span> <span class="n">list</span><span class="p">)</span>
+        <span class="nf">traversalPreOrder</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">rightNode</span><span class="p">,</span> <span class="n">list</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**
+ * A neat trick for in-order traversals: starting from the root,
+ * go around the tree counterclockwise. Print each node when you
+ * pass its bottom side.
+ */</span>
+<span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">traversalInOrder</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;?,</span> <span class="n">list</span><span class="p">:</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nf">traversalInOrder</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">leftNode</span><span class="p">,</span> <span class="n">list</span><span class="p">)</span>
+        <span class="n">list</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="nf">traversalInOrder</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">rightNode</span><span class="p">,</span> <span class="n">list</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cm">/**
+ * A neat trick for post-order traversals: starting from the root,
+ * go around the tree counterclockwise. Print each node when you
+ * pass its right side.
+ */</span>
+<span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">traversalPostOrder</span><span class="p">(</span><span class="n">node</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;?,</span> <span class="n">list</span><span class="p">:</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">node</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nf">traversalPostOrder</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">leftNode</span><span class="p">,</span> <span class="n">list</span><span class="p">)</span>
+        <span class="nf">traversalPostOrder</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">rightNode</span><span class="p">,</span> <span class="n">list</span><span class="p">)</span>
+        <span class="n">list</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">node</span><span class="p">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="bfs-breadth-first-search-using-a-queue">
+        
+        
+          BFS (breadth first search) using a Queue <a href="#bfs-breadth-first-search-using-a-queue">#</a>
+        
+        
+      </h2>
+    
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Traverses the binary tree nodes in a sorted order.
+ */</span>
+<span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">breadthFirstTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;):</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;&gt;</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">queue</span> <span class="p">=</span> <span class="nc">LinkedList</span><span class="p">&lt;</span><span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;&gt;()</span>
+    <span class="kd">val</span> <span class="py">traversalList</span> <span class="p">=</span> <span class="n">mutableListOf</span><span class="p">&lt;</span><span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;&gt;()</span>
+
+    <span class="c1">// Add first node.</span>
+    <span class="n">queue</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="c1">// Use queue to create breadth first traversal.</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="nf">isNotEmpty</span><span class="p">())</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">currentNode</span> <span class="p">=</span> <span class="n">queue</span><span class="p">.</span><span class="nf">poll</span><span class="p">()</span>
+        <span class="kd">val</span> <span class="py">depth</span> <span class="p">=</span> <span class="n">currentNode</span><span class="p">.</span><span class="n">depth</span>
+
+        <span class="c1">// Add left node first.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">leftNode</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+            <span class="n">queue</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">leftNode</span><span class="o">!!</span><span class="p">.</span><span class="nf">depth</span><span class="p">(</span><span class="n">depth</span> <span class="p">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1">// Add right node next.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">rightNode</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+            <span class="n">queue</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">rightNode</span><span class="o">!!</span><span class="p">.</span><span class="nf">depth</span><span class="p">(</span><span class="n">depth</span> <span class="p">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1">// Add the node to the traversal list.</span>
+        <span class="n">traversalList</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">currentNode</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">traversalList</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="notes-on-the-implementation">
+        
+        
+          Notes on the implementation <a href="#notes-on-the-implementation">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li>BFS traversal of a binary tree results in a the nodes being visited in their sorted order.</li>
+  <li>The trick in the <code class="language-plaintext highlighter-rouge">while</code> loop is leveraging the FIFO nature of the queue and allow the traversal
+of the tree from left node to right node, which results in a breadth first traversal.</li>
+  <li>A <code class="language-plaintext highlighter-rouge">depth</code> field in the <code class="language-plaintext highlighter-rouge">Node</code> class is what keeps track of the number of branches from the root to
+this <code class="language-plaintext highlighter-rouge">Node</code>.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">Deque</code> interface supports both Stack and Queue ADTs (abstract data types).</li>
+  <li>There is no need to track if a node is unvisited, or visited, as you would expected when
+traversing a graph, due to the nature of the binary tree.</li>
+</ul>
+      <h2 id="bfs-pretty-print">
+        
+        
+          BFS (pretty print) <a href="#bfs-pretty-print">#</a>
+        
+        
+      </h2>
+    
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Traverses the binary tree nodes in a sorted order.
+ */</span>
+<span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">printBFSTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;):</span> <span class="nc">String</span> <span class="p">{</span>
+
+    <span class="kd">val</span> <span class="py">queue</span> <span class="p">=</span> <span class="nc">LinkedList</span><span class="p">&lt;</span><span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;&gt;()</span>
+    <span class="c1">// Add first node.</span>
+    <span class="n">queue</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="kd">val</span> <span class="py">mapVisitedDepth</span> <span class="p">=</span> <span class="n">mutableMapOf</span><span class="p">&lt;</span><span class="nc">Int</span><span class="p">,</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;&gt;()</span>
+    <span class="c1">// Use queue to create breadth first traversal.</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">queue</span><span class="p">.</span><span class="nf">isNotEmpty</span><span class="p">())</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">currentNode</span> <span class="p">=</span> <span class="n">queue</span><span class="p">.</span><span class="nf">poll</span><span class="p">()</span>
+        <span class="kd">val</span> <span class="py">depth</span> <span class="p">=</span> <span class="n">currentNode</span><span class="p">.</span><span class="n">depth</span>
+
+        <span class="c1">// Add left node first.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">leftNode</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+            <span class="n">queue</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">leftNode</span><span class="o">!!</span><span class="p">.</span><span class="nf">depth</span><span class="p">(</span><span class="n">depth</span> <span class="p">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1">// Add right node next.</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">rightNode</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+            <span class="n">queue</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">rightNode</span><span class="o">!!</span><span class="p">.</span><span class="nf">depth</span><span class="p">(</span><span class="n">depth</span> <span class="p">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1">// Decide whether to print crlf or not.</span>
+        <span class="n">mapVisitedDepth</span><span class="p">.</span><span class="nf">computeIfAbsent</span><span class="p">(</span><span class="n">depth</span><span class="p">){</span> <span class="nf">mutableListOf</span><span class="p">()}</span>
+            <span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="kd">val</span> <span class="py">outputString</span> <span class="p">=</span> <span class="nc">StringBuilder</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="p">(</span><span class="n">entry</span> <span class="k">in</span> <span class="n">mapVisitedDepth</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">outputString</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">entry</span><span class="p">.</span><span class="n">value</span><span class="p">.</span><span class="nf">joinToString</span><span class="p">(</span><span class="s">", "</span><span class="p">,</span> <span class="n">postfix</span> <span class="p">=</span> <span class="s">"\n"</span><span class="p">))</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">outputString</span><span class="p">.</span><span class="nf">toString</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="notes-on-implementation">
+        
+        
+          Notes on implementation <a href="#notes-on-implementation">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li>This is almost identical to the code above. The main difference here is that a <code class="language-plaintext highlighter-rouge">mapVisitedDepth</code>
+<code class="language-plaintext highlighter-rouge">Map</code> is used in order to keep track of the depth of each traversed node, which can then be used
+to pretty print the output where a CRLF is added at the start of each new depth.</li>
+</ul>
+      <h2 id="dfs-depth-first-search-using-a-stack">
+        
+        
+          DFS (depth first search) using a Stack <a href="#dfs-depth-first-search-using-a-stack">#</a>
+        
+        
+      </h2>
+    
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;</span> <span class="nf">depthFirstTraversal</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;):</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;&gt;</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">stack</span> <span class="p">=</span> <span class="nc">LinkedList</span><span class="p">&lt;</span><span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;&gt;()</span>
+    <span class="kd">val</span> <span class="py">traversalList</span> <span class="p">=</span> <span class="n">mutableListOf</span><span class="p">&lt;</span><span class="nc">Node</span><span class="p">&lt;</span><span class="nc">T</span><span class="p">&gt;&gt;()</span>
+
+    <span class="c1">// Add first node.</span>
+    <span class="n">stack</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="c1">// Use stack to create breadth first traversal.</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">stack</span><span class="p">.</span><span class="nf">isNotEmpty</span><span class="p">())</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">currentNode</span> <span class="p">=</span> <span class="n">stack</span><span class="p">.</span><span class="nf">pop</span><span class="p">()</span>
+        <span class="kd">val</span> <span class="py">depth</span> <span class="p">=</span> <span class="n">currentNode</span><span class="p">.</span><span class="n">depth</span>
+
+        <span class="c1">// Push right child to stack FIRST (so this will be processed LAST).</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">rightNode</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+            <span class="n">stack</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">rightNode</span><span class="o">!!</span><span class="p">.</span><span class="nf">depth</span><span class="p">(</span><span class="n">depth</span> <span class="p">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1">// Push left child to stack LAST (so this will be processed FIRST).</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">leftNode</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+            <span class="n">stack</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="n">currentNode</span><span class="p">.</span><span class="n">leftNode</span><span class="o">!!</span><span class="p">.</span><span class="nf">depth</span><span class="p">(</span><span class="n">depth</span> <span class="p">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="c1">// Add to traversal list.</span>
+        <span class="n">traversalList</span><span class="p">.</span><span class="nf">add</span><span class="p">(</span><span class="n">currentNode</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">traversalList</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="notes-on-the-implementation-1">
+        
+        
+          Notes on the implementation <a href="#notes-on-the-implementation-1">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li>The trick in the <code class="language-plaintext highlighter-rouge">while</code> loop is to leverage the LIFO nature of stack, in order to push the
+children on the right on top of the stack first, before the children on the left. Since the
+algorithm pops these items off the top of the stack, whatever was pushed last will get processed
+sooner (that what was pushed first). And this is what results in a depth first search.</li>
+  <li>A <code class="language-plaintext highlighter-rouge">depth</code> field in the <code class="language-plaintext highlighter-rouge">Node</code> class is what keeps track of the number of branches from the root to
+this <code class="language-plaintext highlighter-rouge">Node</code>.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">Deque</code> interface supports both Stack and Queue ADTs (abstract data types).</li>
+</ul>
+      <h2 id="console-output-from-running-the-code">
+        
+        
+          Console output from running the code <a href="#console-output-from-running-the-code">#</a>
+        
+        
+      </h2>
+    
+
+<p><img src="/assets/algo-6.png" alt="" /></p>
+      <h2 id="resources">
+        
+        
+          Resources <a href="#resources">#</a>
+        
+        
+      </h2>
+    
+      <h3 id="cs-fundamentals">
+        
+        
+          CS Fundamentals <a href="#cs-fundamentals">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><a href="http://mishadoff.com/blog/dfs-on-binary-tree-array/">DFS and BFS for Binary Tree Arrays</a></li>
+  <li><a href="https://brilliant.org/courses/#computer-science-foundational">Brilliant.org CS Foundations</a></li>
+  <li><a href="https://brilliant.org/wiki/radix-sort/">Radix sort</a></li>
+  <li><a href="https://brilliant.org/wiki/hash-tables/">Hash tables</a></li>
+  <li><a href="https://algs4.cs.princeton.edu/34hash/">Hash functions</a></li>
+  <li><a href="https://brilliant.org/wiki/counting-sort/">Counting sort</a></li>
+  <li><a href="https://courses.csail.mit.edu/6.006/spring11/rec/rec11.pdf">Radix and Counting sort MIT</a></li>
+</ul>
+      <h3 id="data-structures">
+        
+        
+          Data Structures <a href="#data-structures">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><a href="https://www.geeksforgeeks.org/graph-and-its-representations/">Graphs, DFS, BFS in Java</a></li>
+  <li><a href="https://www.geeksforgeeks.org/iterative-depth-first-traversal/">Graphs - DFS in Java</a></li>
+  <li><a href="https://www.geeksforgeeks.org/breadth-first-search-or-bfs-for-a-graph/">Graphs - BFS in Java</a></li>
+  <li><a href="https://stackoverflow.com/a/35031174/2085356">Stack vs Queue visualized</a></li>
+</ul>
+      <h3 id="math">
+        
+        
+          Math <a href="#math">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><a href="https://www.khanacademy.org/computing/computer-science/algorithms/recursive-algorithms/a/the-factorial-function">Khan Academy Recursive functions</a></li>
+  <li><a href="https://www.rapidtables.com/calc/math/Log_Calculator.html">Logarithmic calculator</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Logarithm">Logarithm wikipedia</a></li>
+  <li><a href="https://www.geeksforgeeks.org/program-for-nth-fibonacci-number/">Fibonacci number algorithm optimizations</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Modulo_operation">Modulo function</a></li>
+</ul>
+      <h3 id="big-o-notation">
+        
+        
+          Big-O Notation <a href="#big-o-notation">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><a href="https://brilliant.org/wiki/big-o-notation/">Asymptotic complexity / Big O Notation</a></li>
+  <li><a href="https://rob-bell.net/2009/06/a-beginners-guide-to-big-o-notation/">Big O notation overview</a></li>
+  <li><a href="http://bigocheatsheet.com/">Big O cheat sheet for data structures and algorithms</a></li>
+</ul>
+      <h3 id="kotlin">
+        
+        
+          Kotlin <a href="#kotlin">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><a href="https://www.jetbrains.com/help/idea/getting-started-with-gradle.html">Using JetBrains Idea to create Kotlin and gradle projects, such as this one</a></li>
+  <li><a href="https://stackoverflow.com/questions/39576170/proper-way-to-run-kotlin-application-from-gradle-task">How to run Kotlin class in Gradle task</a></li>
+  <li><a href="https://kotlinlang.org/docs/reference/ranges.html">Kotlin <code class="language-plaintext highlighter-rouge">until</code> vs <code class="language-plaintext highlighter-rouge">..</code></a></li>
+  <li><a href="https://stackoverflow.com/questions/44772937/how-can-i-convert-chararray-arraychar-to-a-string">CharArray and String</a></li>
+</ul>
+      <h3 id="markdown-utilities">
+        
+        
+          Markdown utilities <a href="#markdown-utilities">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><a href="https://github.com/thlorenz/doctoc/blob/master/README.md">Generate TOCs for MD docs easily</a></li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CS">
+                #cs</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/KT">
+                #kt</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/12/11/algo-ts-2/">
+                        Algorithms and data structures in TypeScript: non binary tree traversal
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/11/21/algo-ts-1/">
+                        Algorithms and data structures in TypeScript: string tokenizer, rate limiter
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/02/06/publish-kotlin-library-as-gradle-dep/">
+                        Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/11/20/idea-plugin-example-intro/">
+                        Introduction to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/15/non-capturing-lambda-problems/">
+                        Potential problems of using non-capturing lambdas
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
+                        Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-testing-setup/">
+                        Kotlin and Test Driven Development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-extension-function-expressions/">
+                        Kotlin Extension Function Expressions
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-and-kotlin/">
+                        Advanced Dagger 2 w/ Android and Kotlin
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2018/08/16/algorithms-in-kotlin-6/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

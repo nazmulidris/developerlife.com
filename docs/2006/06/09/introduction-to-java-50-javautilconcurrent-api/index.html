@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Introduction to Java 5 java.util.concurrent API | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Introduction to Java 5 java.util.concurrent API" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Introduction to the Java5 Concurrency API. Java 50 introduces the java.util.concurrency API, which leverages hardware level constructs to allow Java programs to use lock-free, and wait-free thread-safety mechanisms, without having to use native code." />
+<meta property="og:description" content="Introduction to the Java5 Concurrency API. Java 50 introduces the java.util.concurrency API, which leverages hardware level constructs to allow Java programs to use lock-free, and wait-free thread-safety mechanisms, without having to use native code." />
+<link rel="canonical" href="http://developerlife.com/2006/06/09/introduction-to-java-50-javautilconcurrent-api/" />
+<meta property="og:url" content="http://developerlife.com/2006/06/09/introduction-to-java-50-javautilconcurrent-api/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2006-06-09T14:02:16-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Introduction to Java 5 java.util.concurrent API" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2006-06-09T14:02:16-05:00","datePublished":"2006-06-09T14:02:16-05:00","description":"Introduction to the Java5 Concurrency API. Java 50 introduces the java.util.concurrency API, which leverages hardware level constructs to allow Java programs to use lock-free, and wait-free thread-safety mechanisms, without having to use native code.","headline":"Introduction to Java 5 java.util.concurrent API","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2006/06/09/introduction-to-java-50-javautilconcurrent-api/"},"url":"http://developerlife.com/2006/06/09/introduction-to-java-50-javautilconcurrent-api/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Introduction to Java 5 java.util.concurrent API&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Introduction to Java 5 java.util.concurrent API</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Introduction to Java 5 java.util.concurrent API</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jun 9, 2006
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#why-should-i-use-this">Why should I use this?</a></li>
+  <li><a href="#how-did-they-do-it">How did they do it?</a></li>
+  <li><a href="#how-do-i-code-using-this-new-api-comparison-with-synchronized">How do I code using this new API (comparison with synchronized)?</a></li>
+  <li><a href="#what-is-the-volatile-keyword">What is the volatile keyword?</a></li>
+  <li><a href="#code-example">Code example</a>
+    <ul>
+      <li><a href="#notes-on-the-code">Notes on the code:</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h3 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h3>
+    
+
+<p>Java 50 introduces the java.util.concurrency API, which leverages hardware level constructs to allow
+Java programs to use lock-free, and wait-free thread-safety mechanisms, without having to use native
+code. The performance of these lock and wait free algorithms used to implement thread-safety makes
+them more efficient than using Object level monitors (using the synchronized keyword). In addition
+to introducing lock and wait free concurrency algorithms, a slew of other classes and interfaces
+have been introduced for locks and queues, and much more.</p>
+      <h3 id="why-should-i-use-this">
+        
+        
+          Why should I use this? <a href="#why-should-i-use-this">#</a>
+        
+        
+      </h3>
+    
+
+<p>If you are comfortable with using Object level monitors and synchronization mechanisms of prior Java
+versions, then it makes sense to continue using those techniques. However, there are some advantages
+of using the new atomic concurrency APIs:</p>
+
+<ul>
+  <li>
+    <p>There is considerable overhead to using Object level monitors and the synchronization mechanism.
+In contrast to this, using the atomic concurrency API has very little runtime overhead, when
+compared to the use of Object level monitors/synchronization.</p>
+  </li>
+  <li>
+    <p>It’s not easy to create really fine grained object-level synchronization or locking. Along with
+less overhead, it’s possible to create really fine grained critical sections with the use of this
+atomic concurrency API.</p>
+  </li>
+  <li>
+    <p>When lots of threads are running through your code that uses these atomic concurrency API, they
+will scale much better than code which uses Object level monitors/synchronization. Since, Java’s
+synchronization mechanisms makes code wait, when there are lots of threads running through your
+critical sections, a substantial amount of CPU time is spent in managing the synchronization
+mechanism itself (waiting, notifying, etc). Since the new API uses hardware level constructs
+(atomic variables) and wait and lock free algorithms to implement thread-safety, a lot more of CPU
+time is spent “doing stuff” rather than in managing synchronization.</p>
+  </li>
+  <li>
+    <p>These new APIs not only offer better throughput, but they also provide greater resistance to
+liveness problems such as deadlock and priority inversion.</p>
+  </li>
+</ul>
+
+<p>There are some clear advantages of using the new Java 50 atomic concurrency API. However there are a
+few caveats:</p>
+
+<ul>
+  <li>
+    <p>Make sure that you understand the new API before using it. If you are an expert using the
+synchronized keyword, then don’t just rewrite all your code before understanding the new stuff,
+just to the runtime advantages. It’s better to have slower safer code, than faster less stable
+code :).</p>
+  </li>
+  <li>
+    <p>Make sure that there’s no requirement for backward compatibility with older VMs in the code that
+you generate. These new APIs only run on Java 50 and beyond.</p>
+  </li>
+</ul>
+
+<p>If you are not bound by any of the constraints above, then the new APIs are a joy to use! They are
+fast at runtime, and easy to program with. There is also a tremendous amount of new and useful
+constructs to make your life easy when solving concurrency problems in your code! It’s a great
+addition to Java, and makes it an even more useful platform!</p>
+      <h3 id="how-did-they-do-it">
+        
+        
+          How did they do it? <a href="#how-did-they-do-it">#</a>
+        
+        
+      </h3>
+    
+
+<p>I will just provide a simple overview of how the new concurrency APIs provide thread-safety without
+using the Object-level synchronization mechanism of Java, but for a more in-depth discussion of this
+topic, read the book:
+<a href="http://www.amazon.com/gp/product/0321349601/sr=8-1/qid=1152479794/ref=pd_bbs_1/102-1201016-2359362?ie=UTF8">Java Concurrency in Practice</a>.</p>
+
+<p>Modern CPUs support multiprocessing, and they provide provide support for multiple processes to
+share memory, attached peripherals, etc. This <a href="https://en.wikipedia.org/wiki/Compare-and-swap">CAS</a>
+instruction allows processes to update shared variables in a way that they can detect or prevent
+concurrent access from other processes (running on the same processor, or on multiple processors).</p>
+
+<p>Essentially, CAS instructions allow an algorithm to execute a read-modify-write sequence on a
+variable, without fear of another thread modifying the variable in the meantime, because if another
+thread did modify the variable, the CAS would detect it (and fail) and the algorithm could retry the
+operation. CAS operations are very lightweight, so they don’t have a big performance penalty. These
+algorithms leverage the CAS hardware construct to provide wait, and lock free synchronization
+functionality to your Java code.</p>
+
+<p>A CAS operation includes three operands – a memory location (V), the expected old value (A), and a
+new value (B). The processor will atomically update the location to the new value if the value that
+is there matches the expected old value, otherwise it will do nothing. In either case, it returns
+the value that was at that location prior to the CAS instruction. (Some flavors of CAS will instead
+simply return whether or not the CAS succeeded, rather than fetching the current value.) CAS
+effectively says “I think location V should have the value A; if it does, put B in it, otherwise,
+don’t change it but tell me what value is there now.”</p>
+
+<p>The natural way to use CAS for synchronization is to read a value A from an address V, perform a
+multi step computation to derive a new value B, and then use CAS to change the value of V from A to
+B. The CAS succeeds if the value at V has not been changed in the meantime.</p>
+
+<p>Instructions like CAS allow an algorithm to execute a read-modify-write sequence without fear of
+another thread modifying the variable in the meantime, because if another thread did modify the
+variable, the CAS would detect it (and fail) and the algorithm could retry the operation.</p>
+
+<p>Also, for a quick overview of how wait and lock free algorithms are implemented, you can find more
+information about the Compare and Swap (CAS) hardware instruction and atomic variables
+<a href="https://en.wikipedia.org/wiki/Compare-and-swap">here</a>.</p>
+      <h3 id="how-do-i-code-using-this-new-api-comparison-with-synchronized">
+        
+        
+          How do I code using this new API (comparison with synchronized)? <a href="#how-do-i-code-using-this-new-api-comparison-with-synchronized">#</a>
+        
+        
+      </h3>
+    
+
+<p>So how do you use this new API in practice. If you are familiar with Java’s synchronized keyword,
+and object level monitors, how do you leverage that knowledge to quickly get up to speed with these
+new APIs? Fortunately, the Java creators made the new APIs very natural for people who are familiar
+with the existing object level monitor knowledge. Here are some rules to guide you in writing code
+that uses the new API:</p>
+
+<table style="width:100%;text-align:left;" border="1">
+
+<tbody>
+
+<tr>
+
+<td colspan="2">Rule 1: Instead of using <code>synchronized</code> keyword, use <code>Lock.lock
+()</code> and <code>Lock.unlock()</code>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="50%" style="font-weight:bold;vertical-align:top;">Existing API
+
+</td>
+
+<td width="50%" style="font-weight:bold;vertical-align:top;">New API
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="50%" style="vertical-align:top;">
+<pre>
+Object monitorObject;
+synchronized(monitorObject){
+  <span style="color:#008000;">//critical section</span>
+}
+</pre>
+</td>
+
+<td width="50%" style="vertical-align:top;">
+<pre>
+Lock lockObject;
+<span style="color:#0000ff;">try</span>{
+  lockObject.<span style="color:#0000ff;">lock</span>();
+  <span style="color:#008000;">//critical section</span>
+}
+<span style="color:#0000ff;">finally</span>{
+  lockObject.unlock();
+}
+</pre>
+</td>
+
+</tr>
+
+</tbody></table>
+
+<p>Instead of using Java’s object level monitors, via the synchronized keyword, you have to now
+surround your critical sections of code (the parts that need thread-safety) with calls to
+Lock.lock() and Lock.unlock(). So, instead of relying on acquiring an object level monitor, the new
+API relies on acquiring a lock to a java.util.concurrent.locks.Lock object.
+<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/concurrent/locks/Lock.html">Lock</a> is an
+interface, and a few implementations are provided - ReentrantLock, ReentrantReadWriteLock.ReadLock,
+ReentrantReadWriteLock.WriteLock. In your code, for every call you make to Lock.lock(), you must
+remember to make a corresponding call to Lock.unlock(). This is why the call to Lock.unlock() is
+made in the finally block of the try-catch block. The code that would go in your critical section,
+protected by synchronized, now goes inside the try-catch-finally block.</p>
+
+<table style="width:100%;text-align:left;" border="1">
+
+<tbody>
+
+<tr>
+
+<td colspan="2">Rule 2: Instead of using `wait()` and `notify()` in the critical section use `await()` and `signal()` on condition variables
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="50%" style="font-weight:bold;vertical-align:top;">Existing API
+
+</td>
+
+<td width="50%" style="font-weight:bold;vertical-align:top;">New API
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="50%" style="vertical-align: top;">
+<pre>
+<span style="color:#008000;">/////////////////////////////////</span>
+<span style="color:#008000;">//Inside your critical section://</span>
+<span style="color:#008000;">/////////////////////////////////</span>
+<span style="color:#008000;">//evaluate your wait criteria</span>
+boolean somecondition;
+<span style="color:#0000ff;">while</span>(somecondition){
+  wait();
+  <span style="color:#008000;">//re-evaluate somecondition</span>
+}
+</pre>
+</td>
+
+<td width="50%" style="vertical-align: top;">
+<pre>
+<span style="color:#008000;">//////////////////////////////////</span>
+<span style="color:#008000;">//Outside your critical section://</span>
+<span style="color:#008000;">//////////////////////////////////</span>
+Condition conditionVariable =
+  lockObject.newCondition();
+<span style="color:#008000;">/////////////////////////////////</span>
+<span style="color:#008000;">//Inside your critical section://</span>
+<span style="color:#008000;">/////////////////////////////////</span>
+<span style="color:#008000;">//evaluate your wait criteria</span>
+boolean somecondition;
+<span style="color:#0000ff;">while</span>(somecondition){
+  conditionVariable.await();
+  <span style="color:#008000;">//re-evaluate somecondition</span>
+}
+</pre>
+</td>
+
+</tr>
+
+<tr>
+
+<td width="50%" style="vertical-align: top;">
+<pre>
+<span style="color:#008000;">////////////////////////////////////</span>
+<span style="color:#008000;">//Inside of your critical section://</span>
+<span style="color:#008000;">////////////////////////////////////</span>
+<span style="color:#008000;">//evaluate your notify criteria</span>
+boolean someothercondition;
+<span style="color:#0000ff;">if</span>(someothercondition) {
+  notify();
+}
+</pre>
+</td>
+
+<td width="50%" style="vertical-align: top;">
+<pre>
+<span style="color:#008000;">/////////////////////////////////</span>
+<span style="color:#008000;">//Inside your critical section://</span>
+<span style="color:#008000;">/////////////////////////////////</span>
+<span style="color:#008000;">//evaluate your signal criteria</span>
+boolean someothercondition;
+<span style="color:#0000ff;">if</span>(someothercondition) {
+  conditionVariable.signal();
+}
+</pre>
+</td>
+
+</tr>
+
+</tbody></table>
+
+<p>In sections of your code which require use of wait() and notify()/notifyAll(), you have to use
+condition variables. Using object level monitors, threads are able to wait() in queues, until they
+are signaled by notify()/notifyAll(). Since you are no longer using object level monitors, you have
+to use a condition variable (of type
+<a href="http://java.sun.com/j2se/1.5.0/docs/api/java/util/concurrent/locks/Condition.html">java.util.concurrent.locks.Condition</a>).
+Condition is an interface, and before you can use a condition variable, you have to request one from
+the Lock object that you’ve acquired to enter the critical section. You can generate as many
+condition variables as you wish from a Lock object. Once you have the desired condition variable,
+you can call await() on it, and get the same functionality as Object.wait(). Typically, you would
+evaluate a condition in a while loop, and depending on the outcome of this evaluation, you would
+wait(). Similarly, with Condition.await(), you have to evaluate this condition in a while loop, and
+if it’s necessary to wait, then you can call Condition.await(). Similarly, if you want to call
+notify()/notifyAll() on a thread that’s wait()ing on a monitor, you can use signal()/signalAll()
+instead.</p>
+
+<p>If you want to interrupt() your threads to terminate them gracefully, the behavior is the same as it
+was before. The concurrency API doesn’t affect this behavior of Java threads - you can’t really
+preempt the execution of a thread, you can only cooperatively signal it that things are interrupted
+(and it an InterruptedException is thrown, that can be caught by the thread that’s waiting). The
+only issue with using interrupt() to stop threads is when threads are waiting on blocking I/O. In
+these cases, you have to close the Input or OutputStream that the thread is blocking in, and catch
+the IOException and use it to terminate the thread that was blocked in an IO operation.</p>
+
+<p>The code example provided below will use the concurrency API to demonstrate the classic
+<a href="http://cs.gmu.edu/cne/modules/ipc/aqua/producer.html">Producer-Consumer synchronization problem</a>,
+using Rule 1 and 2, and it will show you how terminate threads gracefully using interrupt().</p>
+      <h3 id="what-is-the-volatile-keyword">
+        
+        
+          What is the volatile keyword? <a href="#what-is-the-volatile-keyword">#</a>
+        
+        
+      </h3>
+    
+
+<p>In the Java VM, when multiple threads are running through sections of your code, each one of these
+threads may not have the same copy of the value of a variable in this critical section. There’s the
+value of the variable that’s in “main memory” vs. the “thread copy” of the value of the same
+variable. To avoid this kind of confusion, when you have multiple threads running through a section
+of your code, and you want them to have the same value for a particular variable, you must declare
+that variable as “volatile”. In the code example below, a volatile boolean variable is used to act
+as a flag to shutdown threads. For more details on the volatile keyword, “main memory” and “thread
+copy of a variable”, please visit this
+<a href="http://www.javaperformancetuning.com/news/qotm030.shtml">link</a>.</p>
+      <h3 id="code-example">
+        
+        
+          Code example <a href="#code-example">#</a>
+        
+        
+      </h3>
+    
+
+<p>The ReentrantLockTest.java class file provided below illustrates the use of the new concurrency API
+to implement a bounded buffer for use by multiple producer and consumer threads. Please note that
+classes are provided in the new concurrency API which implement this functionality already, but the
+purpose of the tutorial is to show what you can do with Locks and Condition variables. Parts 2 and 3
+of the tutorial will show more examples of classes that are already provided for your convenience,
+to make you really productive when writing code to tackle common concurrency issues.</p>
+
+<p>The ReentrantLockTest class creates a set of Producer threads and Consumer threads. The Producer
+threads add objects to a bounded buffer, that Consumer threads consume. Since Producer threads
+produce at a different rate than Consumer threads, and since there are different numbers of each,
+threads have to wait before they can put objects in the bounded buffer, or remove objects from the
+bounded buffer. Also, to illustrate interrupt(), the ReentrantLockTest class tries to terminate all
+the threads after it runs them for a while (all these parameters are configurable in the code).</p>
+
+<p>Here’s a listing of <code class="language-plaintext highlighter-rouge">ReentrantLockTest.java</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">concurrency</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.locks.Condition</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.locks.ReentrantLock</span><span class="o">;</span>
+<span class="cm">/*
+ * ReentrantLockTest uses non blocking, wait free ReentrantLock instead
+ * of the synchronized keyword.
+ *
+ * Use the lock to implement a bounded buffer that 2 types of threads
+ * work on:
+ * 1. ones that write to it
+ * 2. ones that read from it
+ *
+ * You can tweak all kinds of parameters in this program to determine
+ * how many threads run, and how quickly they process things, etc.
+ * You can also see how to cleanly shut these threads down, and you
+ * can see parts of the JDK that do not work - ThreadGroup.
+ *
+ * Originally, I didn't use the volatile keyword on variables that
+ * were going to be shared amongst different threads - this is a big
+ * NO NO. Here's why -
+ * http://www.javaperformancetuning.com/news/qotm030.shtml
+ *
+ * Also, for threads that just go on executing for a long time, in
+ * addition to checking for a shutdown flag, it's necessary to check
+ * if the thread was interrupted. If the thread is not sleeping,
+ * or waiting, then there's no way for it to know that it
+ * was interrupted, except for it to check
+ * Thread.currentThread.isInterrupted() method. The code has been
+ * updated to reflect this. The only real use for interruption in
+ * Java is to signal a thread to exit. When you are doing blocking
+ * IO, you have to close the socket, which throws an IOException
+ * and breaks the blocking operation, but in this IOException
+ * handler you then have to check for the shutdown flag.
+ *
+ * It's complicated 😃. There is no thread preemption in java.
+ * Only cooperation. So in order to effectively shut down threads
+ * you have to do the following:
+ * 1.    use a volatile shutdown Boolean flag
+ * 2.    make sure to check isInterrupted() to ensure that
+ *       the thread wasn't interrupted while it wasn't waiting or
+ *       sleeping
+ * 3.    make sure to use InputStream.close() in order to preempt
+ *       blocking IO operations, and then check the status
+ *       of the shutdown flag or the isInterrupted() status.
+ *
+ * By the way, if you call interrupted() on a Thread, it CLEARS
+ * the interrupt flag, and the thread goes about it's business
+ * merrily. This is a NO NO as well. And you wonder why the hell
+ * this method even exists, and why it's called interrupted()
+ * and not clearInterruptedFlag()?!?!?!?
+ *
+ * @author Nazmul Idris
+ * @since Jun 22, 2006, 1:53:09 PM
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ReentrantLockTest</span> <span class="o">{</span>
+  <span class="c1">//</span>
+  <span class="c1">// shared data members</span>
+  <span class="c1">//</span>
+  <span class="kt">int</span> <span class="n">maxSize</span> <span class="o">=</span> <span class="mi">10</span><span class="o">;</span>
+  <span class="nc">ArrayList</span> <span class="n">boundedBuffer</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">(</span> <span class="n">maxSize</span> <span class="o">);</span>
+  <span class="cm">/*
+    size:   1  2  3  4  5
+    array: [ ][ ][ ][ ][ ]
+    index:  0  1  2  3  4
+  */</span>
+  <span class="kt">int</span> <span class="n">currentIndex</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+  <span class="nc">ReentrantLock</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ReentrantLock</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+  <span class="nc">Condition</span> <span class="n">waiting_on_full_buffer</span> <span class="o">=</span> <span class="n">lock</span><span class="o">.</span><span class="na">newCondition</span><span class="o">(),</span>
+            <span class="n">waiting_on_empty_buffer</span> <span class="o">=</span> <span class="n">lock</span><span class="o">.</span><span class="na">newCondition</span><span class="o">();</span>
+  <span class="cm">/*
+    http://www.javaperformancetuning.com/news/qotm030.shtml
+    it's important that this boolean be volatile, as it's used by
+    many threads
+  */</span>
+  <span class="kd">volatile</span> <span class="kt">boolean</span> <span class="n">shutdown</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+  <span class="kt">int</span> <span class="n">totalInserts</span> <span class="o">=</span> <span class="mi">0</span><span class="o">,</span> <span class="n">totalDeletes</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+  <span class="kt">int</span> <span class="n">producerSleepTime</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+  <span class="kt">int</span> <span class="n">consumerSleepTime</span> <span class="o">=</span> <span class="mi">2</span><span class="o">;</span>
+  <span class="kt">int</span> <span class="n">mainDriverWaitTime</span> <span class="o">=</span> <span class="mi">100</span><span class="o">;</span>
+  <span class="kt">int</span> <span class="n">totalConsumerThreads</span> <span class="o">=</span> <span class="mi">4</span><span class="o">,</span> <span class="n">totalProduerThreads</span> <span class="o">=</span> <span class="mi">4</span><span class="o">;</span>
+  <span class="kt">int</span> <span class="n">criticalSectionDelay</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+  <span class="c1">//</span>
+  <span class="c1">// methods</span>
+  <span class="c1">//</span>
+  <span class="cm">/**
+   * Constructor that starts the ReentrantLockTest program off...
+   *
+   */</span>
+  <span class="kd">public</span> <span class="nf">ReentrantLockTest</span> <span class="o">()</span> <span class="o">{</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"::::::::::::::::::::::::::::::::"</span><span class="o">);</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: Starting ReentrantLockTest ::"</span><span class="o">);</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"::::::::::::::::::::::::::::::::"</span><span class="o">);</span>
+    <span class="nc">ArrayList</span> <span class="n">threads</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">();</span>
+    <span class="nc">ThreadGroup</span> <span class="n">tg</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ThreadGroup</span><span class="o">(</span><span class="s">"ReentrantLockTest Thread Group"</span><span class="o">);</span>
+    <span class="c1">//create the producer thread(s)</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">totalConsumerThreads</span><span class="o">;</span> <span class="n">i</span><span class="o">++){</span>
+      <span class="n">threads</span><span class="o">.</span><span class="na">add</span><span class="o">(</span> <span class="k">new</span> <span class="nc">Thread</span><span class="o">(</span> <span class="n">tg</span> <span class="o">,</span>  <span class="k">new</span> <span class="nc">Producer</span><span class="o">()</span> <span class="o">,</span>
+                   <span class="s">"producer_thread_"</span><span class="o">+</span><span class="n">i</span><span class="o">)</span> <span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">//create the consumer thread(s)</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">totalProduerThreads</span><span class="o">;</span> <span class="n">i</span><span class="o">++){</span>
+      <span class="n">threads</span><span class="o">.</span><span class="na">add</span><span class="o">(</span> <span class="k">new</span> <span class="nc">Thread</span><span class="o">(</span> <span class="n">tg</span> <span class="o">,</span> <span class="k">new</span> <span class="nc">Consumer</span><span class="o">()</span> <span class="o">,</span>
+                   <span class="s">"consumer_thread_"</span><span class="o">+</span><span class="n">i</span><span class="o">)</span> <span class="o">);</span>
+    <span class="o">}</span>
+    <span class="c1">//start the threads</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">Thread</span> <span class="n">t</span> <span class="o">:</span> <span class="n">threads</span><span class="o">)</span> <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+    <span class="c1">//wait for 1 minute and then shutdown</span>
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">sleep</span><span class="o">(</span><span class="n">mainDriverWaitTime</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="k">finally</span><span class="o">{</span>
+      <span class="n">shutdown</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+              <span class="s">":: ReentrantLockTest - setting shutdown to false ::"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+            <span class="s">":: ReentrantLockTest - signalling interrupt and waiting "</span>
+            <span class="o">+</span> <span class="s">"for "</span><span class="o">+</span><span class="n">tg</span><span class="o">.</span><span class="na">activeCount</span><span class="o">()+</span><span class="s">" threads to die ::"</span><span class="o">);</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">Thread</span> <span class="n">t</span> <span class="o">:</span> <span class="n">threads</span><span class="o">){</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: Interrupting "</span><span class="o">+</span><span class="n">t</span><span class="o">.</span><span class="na">getName</span><span class="o">()+</span><span class="s">" ::"</span><span class="o">);</span>
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="n">t</span><span class="o">.</span><span class="na">interrupt</span><span class="o">();</span>
+      <span class="o">}</span>
+      <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="k">for</span> <span class="o">(</span><span class="nc">Thread</span> <span class="n">t</span> <span class="o">:</span> <span class="n">threads</span><span class="o">){</span>
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="nc">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StringBuilder</span><span class="o">(</span> <span class="n">t</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">);</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: Waiting for "</span><span class="o">+</span><span class="n">sb</span><span class="o">+</span><span class="s">" to die ::"</span><span class="o">);</span>
+        <span class="n">t</span><span class="o">.</span><span class="na">join</span><span class="o">();</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="n">sb</span><span class="o">+</span><span class="s">" is dead ::"</span> <span class="o">);</span>
+      <span class="o">}</span>
+      <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":::::::::::::::::::::::::::::"</span><span class="o">);</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: ReentrantLockTest Ended ::"</span><span class="o">);</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":::::::::::::::::::::::::::::"</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="c1">//ProducerTask class</span>
+  <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Producer</span> <span class="kd">implements</span> <span class="nc">Runnable</span><span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+            <span class="s">" has been started ::"</span><span class="o">);</span>
+      <span class="c1">//its important to check to see if the thread was interrupted</span>
+      <span class="c1">//while sleeping... if it was then its the same as a shutdown</span>
+      <span class="nl">main_while_loop:</span> <span class="k">while</span><span class="o">(</span> <span class="n">shutdown</span> <span class="o">==</span> <span class="kc">false</span> <span class="o">&amp;&amp;</span>
+                              <span class="o">!</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">isInterrupted</span><span class="o">()</span> <span class="o">){</span>
+        <span class="c1">//acquire the lock and then put something in the buffer</span>
+        <span class="k">try</span><span class="o">{</span>
+          <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" acquired the lock ::"</span><span class="o">);</span>
+          <span class="c1">//</span>
+          <span class="c1">//check to see if the buffer is full - wait if it is.</span>
+          <span class="c1">//</span>
+          <span class="k">while</span><span class="o">(</span><span class="n">currentIndex</span> <span class="o">==</span> <span class="n">maxSize</span><span class="o">-</span><span class="mi">1</span><span class="o">){</span>
+              <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: buffer is full - "</span><span class="o">+</span>
+                  <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                  <span class="s">" is going to wait ::"</span><span class="o">);</span>
+              <span class="n">waiting_on_full_buffer</span><span class="o">.</span><span class="na">await</span><span class="o">();</span>
+          <span class="o">}</span><span class="c1">//while condition waiting_on_full_buffer</span>
+          <span class="c1">//arbitrary delay - while holding the lock</span>
+          <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">sleep</span><span class="o">(</span><span class="n">criticalSectionDelay</span><span class="o">);</span>
+          <span class="c1">//</span>
+          <span class="c1">//buffer is not full - add something to the array</span>
+          <span class="c1">//</span>
+          <span class="n">boundedBuffer</span><span class="o">.</span><span class="na">add</span><span class="o">(</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">toString</span><span class="o">(++</span><span class="n">totalInserts</span><span class="o">)</span> <span class="o">);</span>
+          <span class="n">currentIndex</span><span class="o">++;</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+                  <span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                  <span class="s">" just added item, totalInserts = "</span><span class="o">+</span><span class="n">totalInserts</span><span class="o">+</span><span class="s">" ::"</span><span class="o">);</span>
+          <span class="c1">//</span>
+          <span class="c1">//signal threads who may be waiting due to the buffer</span>
+          <span class="c1">//being empty (it no longer is as I just added something)</span>
+          <span class="c1">//</span>
+          <span class="n">waiting_on_empty_buffer</span><span class="o">.</span><span class="na">signal</span><span class="o">();</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" signalling waiting_on_empty_buffer ::"</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">e</span><span class="o">){</span>
+          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" was interrupted ::"</span><span class="o">);</span>
+          <span class="c1">//continue main_while_loop;</span>
+          <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">interrupt</span><span class="o">();</span><span class="c1">//restores the interrupt</span>
+                                             <span class="c1">// flag of this thread</span>
+                                             <span class="c1">// (in case shutdown is</span>
+                                             <span class="c1">// not set, this will</span>
+                                             <span class="c1">// cause the main loop</span>
+                                             <span class="c1">// to stop)</span>
+          <span class="k">break</span> <span class="n">main_while_loop</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">finally</span><span class="o">{</span>
+          <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" released the lock ::"</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="c1">//dont need the lock to sleep, so this code is outside</span>
+        <span class="c1">//critical section above sleep before producing again...</span>
+        <span class="k">try</span> <span class="o">{</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" is sleeping for "</span><span class="o">+</span><span class="n">producerSleepTime</span><span class="o">+</span><span class="s">" ms ::"</span><span class="o">);</span>
+          <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">sleep</span><span class="o">(</span><span class="n">producerSleepTime</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" was interrupted ::"</span><span class="o">);</span>
+          <span class="c1">//continue main_while_loop;</span>
+          <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">interrupt</span><span class="o">();</span><span class="c1">//restores the interrupt</span>
+                                             <span class="c1">// flag of this thread</span>
+                                             <span class="c1">// (in case shutdown is</span>
+                                             <span class="c1">// not set, this will</span>
+                                             <span class="c1">// cause the main loop</span>
+                                             <span class="c1">// to stop)</span>
+          <span class="k">break</span> <span class="n">main_while_loop</span><span class="o">;</span>
+        <span class="o">}</span>
+      <span class="o">}</span><span class="c1">//end while: main_while_loop</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+            <span class="s">" has been shutdown ::"</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+  <span class="c1">//ConsumerTask class</span>
+  <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Consumer</span> <span class="kd">implements</span> <span class="nc">Runnable</span><span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+        <span class="s">" has been started ::"</span><span class="o">);</span>
+      <span class="c1">//its important to check to see if the thread was</span>
+      <span class="c1">//interrupted while sleeping... if it was then its</span>
+      <span class="c1">//the same as a shutdown</span>
+      <span class="nl">main_while_loop:</span> <span class="k">while</span><span class="o">(</span> <span class="n">shutdown</span> <span class="o">==</span> <span class="kc">false</span> <span class="o">&amp;&amp;</span>
+                              <span class="o">!</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">isInterrupted</span><span class="o">()</span> <span class="o">){</span>
+        <span class="c1">//acquire the lock and then gets omething from the buffer</span>
+        <span class="k">try</span> <span class="o">{</span>
+          <span class="n">lock</span><span class="o">.</span><span class="na">lock</span><span class="o">();</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" acquired the lock ::"</span><span class="o">);</span>
+          <span class="c1">//arbitrary delay - while holding the lock</span>
+          <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">sleep</span><span class="o">(</span><span class="n">criticalSectionDelay</span><span class="o">);</span>
+          <span class="c1">//</span>
+          <span class="c1">//check to see if the buffer is empty - wait if it is.</span>
+          <span class="c1">//</span>
+          <span class="k">while</span><span class="o">(</span><span class="n">currentIndex</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="o">){</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: buffer is empty - "</span><span class="o">+</span>
+                <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span><span class="s">" is going to wait ::"</span><span class="o">);</span>
+            <span class="n">waiting_on_empty_buffer</span><span class="o">.</span><span class="na">await</span><span class="o">();</span>
+          <span class="o">}</span><span class="c1">//while condition waiting_on_empty_buffer</span>
+          <span class="c1">//</span>
+          <span class="c1">//buffer is not empty - consume something from the array</span>
+          <span class="c1">//</span>
+          <span class="n">boundedBuffer</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">currentIndex</span><span class="o">);</span>
+          <span class="n">currentIndex</span><span class="o">--;</span>
+          <span class="n">totalDeletes</span><span class="o">++;</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+              <span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+              <span class="s">" just removed item, totalDeletes = "</span><span class="o">+</span><span class="n">totalDeletes</span><span class="o">+</span><span class="s">" ::"</span><span class="o">);</span>
+          <span class="c1">//</span>
+          <span class="c1">//signal threads that may have been waiting on the</span>
+          <span class="c1">//buffer being full (it no longer is as I just</span>
+          <span class="c1">//removed something)</span>
+          <span class="c1">//</span>
+          <span class="n">waiting_on_full_buffer</span><span class="o">.</span><span class="na">signal</span><span class="o">();</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" signalling waiting_on_full_buffer ::"</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" was interrupted ::"</span><span class="o">);</span>
+          <span class="c1">//continue main_while_loop;</span>
+          <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">interrupt</span><span class="o">();</span><span class="c1">//restores the interrupt</span>
+                                             <span class="c1">// flag of this thread</span>
+                                             <span class="c1">// (in case shutdown is</span>
+                                             <span class="c1">// not set, this will</span>
+                                             <span class="c1">// cause the main loop</span>
+                                             <span class="c1">// to stop)</span>
+          <span class="k">break</span> <span class="n">main_while_loop</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">finally</span> <span class="o">{</span>
+          <span class="n">lock</span><span class="o">.</span><span class="na">unlock</span><span class="o">();</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" released the lock ::"</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="c1">//don't need the lock to sleep, so this code is outside</span>
+        <span class="c1">//critical section above sleep before consuming again...</span>
+        <span class="k">try</span> <span class="o">{</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" is sleeping for "</span><span class="o">+</span><span class="n">consumerSleepTime</span><span class="o">+</span><span class="s">" ms ::"</span><span class="o">);</span>
+          <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">sleep</span><span class="o">(</span><span class="n">consumerSleepTime</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+          <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+          <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+                <span class="s">" was interrupted ::"</span><span class="o">);</span>
+          <span class="c1">//continue main_while_loop;</span>
+          <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">interrupt</span><span class="o">();</span><span class="c1">//restores the interrupt</span>
+                                             <span class="c1">// flag of this thread</span>
+                                             <span class="c1">// (in case shutdown is</span>
+                                             <span class="c1">// not set, this will cause</span>
+                                             <span class="c1">// the main loop to stop)</span>
+          <span class="k">break</span> <span class="n">main_while_loop</span><span class="o">;</span>
+        <span class="o">}</span>
+      <span class="o">}</span><span class="c1">//end while: main_while_loop</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">":: "</span><span class="o">+</span><span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getName</span><span class="o">()+</span>
+            <span class="s">" has been shutdown ::"</span><span class="o">);</span>
+    <span class="o">}</span><span class="c1">//end run</span>
+  <span class="o">}</span>
+<span class="o">}</span><span class="c1">//end class</span>
+</code></pre></div></div>
+
+<p>The following class <code class="language-plaintext highlighter-rouge">Test.java</code> runs the class above.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * Simple driver class to run examples.
+ *
+ * @author Nazmul Idris
+ * @since Jun 22, 2006, 1:44:20 PM
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Test</span> <span class="o">{</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">new</span> <span class="nf">ReentrantLockTest</span><span class="o">();</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h4 id="notes-on-the-code">
+        
+        
+          Notes on the code: <a href="#notes-on-the-code">#</a>
+        
+        
+      </h4>
+    
+
+<p>ReentrantLockTest constructor:</p>
+
+<ol>
+  <li>
+    <p>The constructor of this class is responsible for creating many consumer and producer threads and
+starting them off. It’s also responsible for terminating these threads gracefully after a certain
+period of time. The interesting section of code is where the threads are shutdown by setting the
+volatile boolean variable “shutdown” to true. This volatile boolean variable is shared amongst
+all the treads that are running, and they check to see if this flag is set to true in order to
+terminate gracefully (and cooperatively, not preemptively). However, at the time when the
+shutdown flag is set to true, some of the producer or consumer threads may be waiting or
+sleeping, and they will not check the status of the shutdown flag. Since you can’t preempt
+threads in Java, the interrupt() method is very useful. The main thread (of the
+ReentrantLockTest) calls interrupt() on every single consumer and producer thread. If any of
+these threads are wait()ing or sleep()ing, then they are woken up, and the InterruptedException
+is thrown, which they have to catch. In the catch() block for InterruptedException, these threads
+check to see if the shutdown flag is set to true.</p>
+  </li>
+  <li>
+    <p>Another thing to note is the use of the join() method. Once the main thread interrupt()s all the
+producer and consumer threads, it then join()s each of those threads to ensure that all those
+threads die before the main thread moves forwards past the join() method. This is important to do
+if you want to wait until all your threads have cleanly terminated before proceeding with the
+remainder of the shutdown sequence.</p>
+  </li>
+</ol>
+
+<p>ProducerTask, ConsumerTask inner classes: (the two condition variables are shared between
+ProducerTask and ConsumerTask threads, since there is only one shared buffer)</p>
+
+<ol>
+  <li>
+    <p>Condition variable <code class="language-plaintext highlighter-rouge">waiting_on_full_buffer</code>: The ProducerTask thread creates objects that it puts
+in a shared bounded buffer. So, when this bounded buffer is full, it has to wait until another
+thread removes an object from the shared buffer, before it can produce again. This condition
+variable is used to wait on this “buffer is full” condition. The await() method is used on the
+waiting_on_full_buffer when the buffer is full. There is some complementary code in the
+ConsumerTask inner class that calls signal() on this condition variable, when a consumer thread
+has removed an object from the shared bounded buffer (and the producer can create another object
+to put in this bounded buffer).</p>
+  </li>
+  <li>
+    <p>Condition variable <code class="language-plaintext highlighter-rouge">waiting_on_empty_buffer</code>: The ConsumerTask thread removes objects from the
+shared bounded buffer. So, when this bounded buffer is empty, it has to wait until another thread
+puts an object into the shared buffer, before it can consume again. This condition variable is
+used to wait on this “buffer is empty” condition. The await() method is used on the
+waiting_on_empty_buffer when the buffer is empty. There is some complementary code in the
+ProducerTask inner class that calls signal() on this condition variable, when a producer thread
+has added an object to the shared bounded buffer (and the consumer can remove another object from
+the bounded buffer).</p>
+  </li>
+</ol>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CC">
+                #cc</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/05/27/task-api-3-of-5-monitoring-http-post-operations/">
+                        Task API (3 of 3) - Monitoring HTTP POST operations
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/08/task-api-2-of-5-task-api-in-depth/">
+                        Task API (2 of 3) - Task API in-depth
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/05/task-api-quick-start-guide/">
+                        Task API (1 of 3) - Quick Start Guide
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/">
+                        Creating multi-threaded Swing apps that consume web services
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/introduction-to-threads/">
+                        Introduction to Threads
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2006/06/09/introduction-to-java-50-javautilconcurrent-api/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

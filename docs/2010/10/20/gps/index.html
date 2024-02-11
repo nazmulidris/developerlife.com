@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Android Location Providers (gps, network, passive) | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Android Location Providers (gps, network, passive)" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The best way to handle GPS is to use the “network” or “passive” provider first, and then fallback on “gps”, and depending on the task, switch between providers. This covers all cases, and provides a lowest common denominator service (in the worst case) and great service (in the best case)." />
+<meta property="og:description" content="The best way to handle GPS is to use the “network” or “passive” provider first, and then fallback on “gps”, and depending on the task, switch between providers. This covers all cases, and provides a lowest common denominator service (in the worst case) and great service (in the best case)." />
+<link rel="canonical" href="http://developerlife.com/2010/10/20/gps/" />
+<meta property="og:url" content="http://developerlife.com/2010/10/20/gps/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2010-10-20T17:33:49-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Android Location Providers (gps, network, passive)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2010-10-20T17:33:49-05:00","datePublished":"2010-10-20T17:33:49-05:00","description":"The best way to handle GPS is to use the “network” or “passive” provider first, and then fallback on “gps”, and depending on the task, switch between providers. This covers all cases, and provides a lowest common denominator service (in the worst case) and great service (in the best case).","headline":"Android Location Providers (gps, network, passive)","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2010/10/20/gps/"},"url":"http://developerlife.com/2010/10/20/gps/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Android Location Providers (gps, network, passive)&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Android Location Providers (gps, network, passive)</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Android Location Providers (gps, network, passive)</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Oct 20, 2010
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a>
+    <ul>
+      <li><a href="#gps--gps-agps">gps –&gt; (GPS, AGPS)</a></li>
+      <li><a href="#network--agps-cellid-wifi-macid">network –&gt; (AGPS, CellID, WiFi MACID)</a></li>
+      <li><a href="#passive--cellid-wifi-macid">passive –&gt; (CellID, WiFi MACID)</a></li>
+      <li><a href="#how-to-think-about-it">How to think about it</a></li>
+      <li><a href="#what-it-looks-like-on-a-real-device">What it looks like on a real device</a></li>
+    </ul>
+  </li>
+  <li><a href="#code-samples">Code samples</a></li>
+  <li><a href="#implementation-notes">Implementation notes</a>
+    <ul>
+      <li><a href="#summary">Summary</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are 3 network providers in Android (ranging from 1.5 to 2.2). They are:</p>
+      <h3 id="gps--gps-agps">
+        
+        
+          gps –&gt; (GPS, AGPS) <a href="#gps--gps-agps">#</a>
+        
+        
+      </h3>
+    
+
+<p>Name of the GPS location provider. This provider determines location using satellites. Depending on
+conditions, this provider may take a while to return a location fix. Requires the permission
+android.permission.ACCESS_FINE_LOCATION.</p>
+      <h3 id="network--agps-cellid-wifi-macid">
+        
+        
+          network –&gt; (AGPS, CellID, WiFi MACID) <a href="#network--agps-cellid-wifi-macid">#</a>
+        
+        
+      </h3>
+    
+
+<p>Name of the network location provider. This provider determines location based on availability of
+cell tower and WiFi access points. Results are retrieved by means of a network lookup. Requires
+either of the permissions android.permission.ACCESS_COARSE_LOCATION or
+android.permission.ACCESS_FINE_LOCATION.</p>
+      <h3 id="passive--cellid-wifi-macid">
+        
+        
+          passive –&gt; (CellID, WiFi MACID) <a href="#passive--cellid-wifi-macid">#</a>
+        
+        
+      </h3>
+    
+
+<p>A special location provider for receiving locations without actually initiating a location fix. This
+provider can be used to passively receive location updates when other applications or services
+request them without actually requesting the locations yourself. This provider will return locations
+generated by other providers. Requires the permission android.permission.ACCESS_FINE_LOCATION,
+although if the GPS is not enabled this provider might only return coarse fixes.</p>
+
+<p>This is what Android calls these location providers, however, the underlying technologies to make
+this stuff work is mapped to the specific set of hardware and telco provided capabilities (network
+service).</p>
+
+<p>Here is a table that maps/lists the underlying technologies in a different way:</p>
+
+<table cellpadding="2" cellspacing="0" style="width:700px;" border="0">
+
+<tbody>
+
+<tr>
+
+<td width="64" valign="top"><strong>Accuracy</strong>
+
+</td>
+
+<td width="85" valign="top"><strong>Power Usage</strong>
+
+</td>
+
+<td width="550" valign="top"><strong>Technology</strong>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td width="64" valign="top">20ft
+
+</td>
+
+<td width="85" valign="top">High
+
+</td>
+
+<td width="550" valign="top">
+    Autonomous GPS, Provider: gps
+    <ol>
+      <li>uses GPS chip on the device</li>
+      <li>line of sight to the satellites</li>
+      <li>need about 7 to get a fix</li>
+      <li>takes a long time to get a fix</li>
+      <li>doesn’t work around tall buildings</li>
+    </ol>
+</td>
+
+</tr>
+
+<tr>
+
+<td width="64" valign="top">200ft
+
+</td>
+
+<td width="85" valign="top">Medium - Low
+
+</td>
+
+<td width="550" valign="top">
+    Assisted GPS (AGPS), Provider: network
+    <ol>    
+      <li>uses GPS chip on device, as well as assistance from the network (cellular network) to 
+      provide a fast initial fix</li>
+      <li>very low power consumption</li>
+      <li>very accurate</li>
+      <li>works without any line of sight to the sky</li>
+      <li>depends on carrier and phone supporting this (even if phone supports it, and network 
+      does not then this does not work)</li>
+    </ol>
+</td>
+
+</tr>
+
+<tr>
+
+<td width="64" valign="top">5300ft / 1mile
+
+</td>
+
+<td width="85" valign="top">Low
+
+</td>
+
+<td width="550" valign="top">
+    CellID lookup/WiFi MACID lookup, Provider: network or passive
+    <ol>
+      <li>very fast lock, and does not require GPS chip on device to be active</li>
+      <li>requires no extra power at all</li>
+      <li>has very low accuracy; sometimes can have better accuracy in populated and well mapped 
+      areas that have a lot of WiFi access points, and people who share their location with 
+      Google</li>
+    </ol>
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<p>Android layers these underlying techniques and technologies into the 3 network providers listed
+above. There is no good way know exactly what Android will use, since all phones are different. Eg,
+on VZW network, the LG Ally does NOT have AGPS! The Droid 2 has all providers (AGPS, GPS, CellID,
+etc). On ATT network, almost all phones tend to have AGPS enabled by default, etc. Varies by
+network, by coverage area, and by country, and by device. Also, on VZW, the passive provider ends up
+using Verizon Location Services, which are very inaccurate (less accurate than 1 mile).</p>
+      <h3 id="how-to-think-about-it">
+        
+        
+          How to think about it <a href="#how-to-think-about-it">#</a>
+        
+        
+      </h3>
+    
+
+<p>The most important thing to keep in mind is to provide some level of service, even in a situation
+where a user has the worst device, and the worst network service. It’s great that you can get low
+battery consumption and 20ft accuracy, when conditions are great. However, you can’t plan on that,
+and you can’t rely on that. Not in 2010 anyway :).</p>
+
+<p>The following is a screenshot of RainOrShine, showing the “network” provider accuracy. Our dynamic
+movement algorithm takes care of switching back and forth between different providers during a
+single session, and also it takes care of accuracy’s changing all the time, in a single session. In
+fact, network providers can be switched from fine to coarse grain and back depending on the task
+being collected.</p>
+
+<p><img src="/assets/gps-1.png" alt="" /></p>
+      <h3 id="what-it-looks-like-on-a-real-device">
+        
+        
+          What it looks like on a real device <a href="#what-it-looks-like-on-a-real-device">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here is a screenshot from the Droid 2, that shows the location provider settings:</p>
+
+<p><img src="/assets/gps-2.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p>When only “use wireless networks” is checked, then CellID/MACID lookups are used first, and the
+“network” provider uses this, and gets about 200ft-1mile accuracy.</p>
+  </li>
+  <li>
+    <p>When only “enable assisted GPS” is checked, then AGPS is used first, and the “gps” provider uses
+this, and gets about 10ft-20ft accuracy.</p>
+  </li>
+  <li>
+    <p>When only “use GPS satellites” is checked, then, GPS is used, and the “gps’ provider uses this,
+and gets less than 10ft accuracy.</p>
+  </li>
+</ul>
+
+<p>In all our code (for ScreamingToaster products), we first try and use the “network” provider,
+because it will always work on anyone’s device, and the location fix will be acquired immediately.
+And the accuracy is quite good – 200ft or so. You can also try “passive” first. Just keep in mind
+that not all providers are available on all devices, carriers, and user configurations.</p>
+
+<p>If a user disables “use wireless networks” in their settings, then “network” or “passive” is not
+available. Then “gps” is the only option (assuming it is turned on).</p>
+      <h2 id="code-samples">
+        
+        
+          Code samples <a href="#code-samples">#</a>
+        
+        
+      </h2>
+    
+
+<p>Here is the code that you have to run in order to create a GPS enabled app, using an Android
+Activity or Service:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/** this criteria will settle for less accuracy, high power, and cost */</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">Criteria</span> <span class="nf">createCoarseCriteria</span><span class="o">()</span> <span class="o">{</span>
+
+  <span class="nc">Criteria</span> <span class="n">c</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Criteria</span><span class="o">();</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setAccuracy</span><span class="o">(</span><span class="nc">Criteria</span><span class="o">.</span><span class="na">ACCURACY_COARSE</span><span class="o">);</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setAltitudeRequired</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setBearingRequired</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setSpeedRequired</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setCostAllowed</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setPowerRequirement</span><span class="o">(</span><span class="nc">Criteria</span><span class="o">.</span><span class="na">POWER_HIGH</span><span class="o">);</span>
+  <span class="k">return</span> <span class="n">c</span><span class="o">;</span>
+
+<span class="o">}</span>
+
+<span class="cm">/** this criteria needs high accuracy, high power, and cost */</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">Criteria</span> <span class="nf">createFineCriteria</span><span class="o">()</span> <span class="o">{</span>
+
+  <span class="nc">Criteria</span> <span class="n">c</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Criteria</span><span class="o">();</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setAccuracy</span><span class="o">(</span><span class="nc">Criteria</span><span class="o">.</span><span class="na">ACCURACY_FINE</span><span class="o">);</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setAltitudeRequired</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setBearingRequired</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setSpeedRequired</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setCostAllowed</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+  <span class="n">c</span><span class="o">.</span><span class="na">setPowerRequirement</span><span class="o">(</span><span class="nc">Criteria</span><span class="o">.</span><span class="na">POWER_HIGH</span><span class="o">);</span>
+  <span class="k">return</span> <span class="n">c</span><span class="o">;</span>
+
+<span class="o">}</span>
+
+<span class="cm">/**
+ make sure to call this in the main thread, not a background thread
+ make sure to call locMgr.removeUpdates(...) when you are done
+*/</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(){</span>
+
+  <span class="nc">LocationManager</span> <span class="n">locMgr</span> <span class="o">=</span>
+    <span class="nc">LocationUtils</span><span class="o">.</span><span class="na">getLocationManager</span><span class="o">(</span><span class="n">ctx</span><span class="o">.</span><span class="na">getMyContext</span><span class="o">());</span>
+
+  <span class="c1">// get low accuracy provider</span>
+  <span class="nc">LocationProvider</span> <span class="n">low</span><span class="o">=</span>
+    <span class="n">locMgr</span><span class="o">.</span><span class="na">getProvider</span><span class="o">(</span><span class="n">locMgr</span><span class="o">.</span><span class="na">getBestProvider</span><span class="o">(</span><span class="n">createCoarseCriteria</span><span class="o">()));</span>
+
+  <span class="c1">// get high accuracy provider</span>
+  <span class="nc">LocationProvider</span> <span class="n">high</span><span class="o">=</span>
+    <span class="n">locMgr</span><span class="o">.</span><span class="na">getProvider</span><span class="o">(</span><span class="n">locMgr</span><span class="o">.</span><span class="na">getBestProvider</span><span class="o">(</span><span class="n">createFineCriteria</span><span class="o">()));</span>
+
+  <span class="c1">// using low accuracy provider... to listen for updates</span>
+  <span class="n">locMgr</span><span class="o">.</span><span class="na">requestLocationUpdates</span><span class="o">(</span><span class="n">low</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="n">f</span><span class="o">,</span>
+        <span class="k">new</span> <span class="nf">LocationListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onLocationChanged</span><span class="o">(</span><span class="nc">Location</span> <span class="n">location</span><span class="o">)</span> <span class="o">{</span>
+          <span class="c1">// do something here to save this new location</span>
+        <span class="o">}</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onStatusChanged</span><span class="o">(</span><span class="nc">String</span> <span class="n">s</span><span class="o">,</span> <span class="kt">int</span> <span class="n">i</span><span class="o">,</span> <span class="nc">Bundle</span> <span class="n">bundle</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="o">}</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onProviderEnabled</span><span class="o">(</span><span class="nc">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+           <span class="c1">// try switching to a different provider</span>
+        <span class="o">}</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onProviderDisabled</span><span class="o">(</span><span class="nc">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+           <span class="c1">// try switching to a different provider</span>
+        <span class="o">}</span>
+      <span class="o">});</span>
+
+  <span class="c1">// using high accuracy provider... to listen for updates</span>
+  <span class="n">locMgr</span><span class="o">.</span><span class="na">requestLocationUpdates</span><span class="o">(</span><span class="n">high</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="mi">0</span><span class="o">,</span> <span class="mi">0</span><span class="n">f</span><span class="o">,</span>
+        <span class="k">new</span> <span class="nf">LocationListener</span><span class="o">()</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onLocationChanged</span><span class="o">(</span><span class="nc">Location</span> <span class="n">location</span><span class="o">)</span> <span class="o">{</span>
+          <span class="c1">// do something here to save this new location</span>
+        <span class="o">}</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onStatusChanged</span><span class="o">(</span><span class="nc">String</span> <span class="n">s</span><span class="o">,</span> <span class="kt">int</span> <span class="n">i</span><span class="o">,</span> <span class="nc">Bundle</span> <span class="n">bundle</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="o">}</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onProviderEnabled</span><span class="o">(</span><span class="nc">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+          <span class="c1">// try switching to a different provider</span>
+        <span class="o">}</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onProviderDisabled</span><span class="o">(</span><span class="nc">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+          <span class="c1">// try switching to a different provider</span>
+        <span class="o">}</span>
+      <span class="o">});</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h2 id="implementation-notes">
+        
+        
+          Implementation notes <a href="#implementation-notes">#</a>
+        
+        
+      </h2>
+    
+
+<ol>
+  <li>
+    <p>When attaching a location listener to a location provider (regardless of the exact kind of
+provider), it is important to execute this listener code in the main thread of your activity or
+service. If you run this in any background thread (like using an executor) then this will not
+work. The listener code itself has to be on the main thread. You can kick of a task in an
+executor in the listener, but the listener itself must run in the main thread of the app.</p>
+  </li>
+  <li>
+    <p>Some devices will require you to detach the listener and then reattach it periodically. This is
+not a bad idea, since it eliminates the possibility of the listener going stale.</p>
+  </li>
+  <li>
+    <p>You can switch providers at any time, and switch out a fine provider with a coarse one to save
+battery life, for example. There is really no limit to how often you can switch out providers.
+You can also do this when you discover that a provider is unavailable, via a call to the
+registered location listener.</p>
+  </li>
+  <li>
+    <p>Finally, the parameters you pass to the location provider, when you attach your location listener
+are totally optional. The device you are running on will decide whether to respect those
+parameters or not. So it’s best never to rely on them. Also, different devices behave differently
+with reporting location movements. Eg, the Droid X and Droid 2 are very zippy about providing
+location updates, they will do it every second and provide you with a very high level of
+accuracy. The Samsung Galaxy S is less zippy with the location updates. The HTC Incredible is
+better than the Galaxy S, but not as zippy with the frequent updates as the Droid X and Droid 2.
+Finally, the LG Ally is one of the worst with location updates, providing very infrequent
+updates, and very poor accuracy (even on autonomous GPS). So don’t make any assumptions about the
+accuracy and frequency of updates – you have to test it on real devices on real networks in real
+life situations.</p>
+  </li>
+</ol>
+      <h3 id="summary">
+        
+        
+          Summary <a href="#summary">#</a>
+        
+        
+      </h3>
+    
+
+<p>The best way to handle GPS is to use the “network” or “passive” provider first, and then fallback on
+“gps”, and depending on the task, switch between providers. This covers all cases, and provides a
+lowest common denominator service (in the worst case) and great service (in the best case).</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Android">
+                #android</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-in-depth/">
+                        In-depth exploration of Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/07/introduction-to-android-architecture-components/">
+                        Introduction to Android Architecture Components
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/29/getting-started-with-mediaplayer-on-android/">
+                        Getting started with MediaPlayer on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/05/android-animation-framework/">
+                        Android Animation Framework Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-listview/">
+                        Android ListView and custom adapter Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-linearlayout/">
+                        Android LinearLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/31/android-ui-themes/">
+                        Android UI Themes Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/29/android-tablelayout/">
+                        Android TableLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/option-and-context-menu/">
+                        Android Option and Context menu Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/android-xml-view-inflation/">
+                        Android XML View inflation Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/14/android-app-lifecycle-activity-intent-and-service-draft/">
+                        Android Activity and sub-Activity Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/">
+                        Android - How to build a service-enabled Android app - Part 1/3 UI
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-23-networking/">
+                        Android - How to build a service-enabled Android App - Part 2/3 Networking
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2010/10/20/gps/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

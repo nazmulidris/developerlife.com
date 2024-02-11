@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Write a simple netcat client and server in Rust | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Write a simple netcat client and server in Rust" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A guide on how to a simple Rust netcat client and server" />
+<meta property="og:description" content="A guide on how to a simple Rust netcat client and server" />
+<link rel="canonical" href="http://developerlife.com/2024/01/13/write-simple-netcat-in-rust/" />
+<meta property="og:url" content="http://developerlife.com/2024/01/13/write-simple-netcat-in-rust/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-01-13T09:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Write a simple netcat client and server in Rust" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-01-13T09:00:00-06:00","datePublished":"2024-01-13T09:00:00-06:00","description":"A guide on how to a simple Rust netcat client and server","headline":"Write a simple netcat client and server in Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/01/13/write-simple-netcat-in-rust/"},"url":"http://developerlife.com/2024/01/13/write-simple-netcat-in-rust/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Write a simple netcat client and server in Rust&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Write a simple netcat client and server in Rust</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Write a simple netcat client and server in Rust</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jan 13, 2024
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/netcat-hero.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#build-a-swiss-army-knife-for-networking">Build a Swiss Army knife for networking</a></li>
+  <li><a href="#add-dependencies-to-cargotoml">Add dependencies to Cargo.toml</a></li>
+  <li><a href="#configure-clap-to-parse-command-line-arguments">Configure clap to parse command line arguments</a></li>
+  <li><a href="#create-the-client">Create the client</a></li>
+  <li><a href="#create-the-server">Create the server</a></li>
+  <li><a href="#next-steps">Next steps</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="build-a-swiss-army-knife-for-networking">
+        
+        
+          Build a Swiss Army knife for networking <a href="#build-a-swiss-army-knife-for-networking">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-build-a-swiss-army-knife-for-networking" name="build-a-swiss-army-knife-for-networking"></a></p>
+
+<p>In this tutorial we will learn how to use Rust to write a simple netcat client and server
+using the standard library only. A netcat client is like a Swiss Army knife for
+networking. It is similar to PuTTY and telnet. You can use it to connect to a server and
+send and receive data. We will create an app that can behave both as a client and server.</p>
+
+<ol>
+  <li>Our client will allow the user to type a message and send it to any TCP socket server,
+and display the response from the server, in an endless loop.</li>
+  <li>Our server will listen for incoming TCP connections from clients, and display the
+message from the client, and send a response back to the client.</li>
+</ol>
+
+<!--
+simple-netcat-in-rust video
+Source: https://github.com/nazmulidris/developerlife.com/issues/3
+-->
+<blockquote>
+  <p>Here’s a video of the app that we are going to build in action.</p>
+  <video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/ffe83b3e-6997-4afc-bdf3-5d867f995611" type="video/mp4" />
+</video>
+</blockquote>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+<blockquote>
+  <p>You can find the finished source code for this tutorial
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/rtelnet">here</a>.</p>
+</blockquote>
+      <h2 id="add-dependencies-to-cargotoml">
+        
+        
+          Add dependencies to Cargo.toml <a href="#add-dependencies-to-cargotoml">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-add-dependencies-to-cargo.toml" name="add-dependencies-to-cargo.toml"></a></p>
+
+<p>Let’s create a new project by running <code class="language-plaintext highlighter-rouge">cargo create --bin rtelnet</code>. Then we will add the
+following dependencies to our <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file.</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Command line argument parsing.</span>
+<span class="nn">clap</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"4.4.13"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"derive"</span><span class="p">]</span> <span class="p">}</span>
+
+<span class="c"># Pretty logging.</span>
+<span class="nn">femme</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"2.2.1"</span> <span class="p">}</span>
+<span class="nn">log</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.4.20"</span> <span class="p">}</span>
+
+<span class="c"># Colorization and ANSI escape sequence codes.</span>
+<span class="nn">r3bl_tui</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.5.1"</span> <span class="p">}</span>
+<span class="nn">r3bl_ansi_color</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.6.9"</span> <span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="configure-clap-to-parse-command-line-arguments">
+        
+        
+          Configure clap to parse command line arguments <a href="#configure-clap-to-parse-command-line-arguments">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-configure-clap-to-parse-command-line-arguments" name="configure-clap-to-parse-command-line-arguments"></a></p>
+
+<p>This Rust app has a single binary, and depending on the command line arguments, it will behave
+either as a client or server. We will use the <code class="language-plaintext highlighter-rouge">clap</code> crate to parse the command line arguments.</p>
+
+<p>We will configure <code class="language-plaintext highlighter-rouge">clap</code> so that the following commands will work:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run server
+cargo run client
+</code></pre></div></div>
+
+<p>We want to allow the user to specify the following options and chose their own address and
+port. If the user does not specify any options, we will use the default values. The
+default value for <code class="language-plaintext highlighter-rouge">--address</code> is <code class="language-plaintext highlighter-rouge">127.0.0.1</code>, and the default value for <code class="language-plaintext highlighter-rouge">--port</code> is
+<code class="language-plaintext highlighter-rouge">3000</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run server <span class="nt">--address</span> 127.0.0.1 <span class="nt">--port</span> 8080
+cargo run server <span class="nt">--address</span> 127.0.0.1
+cargo run server <span class="nt">--port</span> 8080
+
+cargo run client <span class="nt">--address</span> 127.0.0.1 <span class="nt">--port</span> 8080
+cargo run client <span class="nt">--address</span> 127.0.0.1
+cargo run client <span class="nt">--port</span> 8080
+</code></pre></div></div>
+
+<p>Let’s also add an option that we can use to disable log output to stdout. By default, we
+will log to stdout. But if the user specifies the <code class="language-plaintext highlighter-rouge">--log-disable</code> flag, then we disable
+all log output.</p>
+
+<p>Here’s the clap configuration that gives us this behavior.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">clap</span><span class="p">::{</span><span class="n">Parser</span><span class="p">,</span> <span class="n">Subcommand</span><span class="p">};</span>
+
+<span class="k">pub</span> <span class="k">use</span> <span class="nn">defaults</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+<span class="k">mod</span> <span class="n">defaults</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="k">pub</span> <span class="k">const</span> <span class="n">DEFAULT_PORT</span><span class="p">:</span> <span class="nb">u16</span> <span class="o">=</span> <span class="mi">3000</span><span class="p">;</span>
+    <span class="k">pub</span> <span class="k">const</span> <span class="n">DEFAULT_ADDRESS</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"127.0.0.1"</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">use</span> <span class="nn">clap_config</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+<span class="k">mod</span> <span class="n">clap_config</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="nd">#[derive(Parser,</span> <span class="nd">Debug)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">CLIArg</span> <span class="p">{</span>
+        <span class="cd">/// IP Address to connect to or start a server on</span>
+        <span class="nd">#[clap(long,</span> <span class="nd">short,</span> <span class="nd">default_value</span> <span class="nd">=</span> <span class="nd">DEFAULT_ADDRESS,</span> <span class="nd">global</span> <span class="nd">=</span> <span class="kc">true</span><span class="nd">)]</span>
+        <span class="k">pub</span> <span class="n">address</span><span class="p">:</span> <span class="n">IpAddr</span><span class="p">,</span>
+
+        <span class="cd">/// TCP Port to connect to or start a server on</span>
+        <span class="nd">#[clap(long,</span> <span class="nd">short,</span> <span class="nd">default_value_t</span> <span class="nd">=</span> <span class="nd">DEFAULT_PORT,</span> <span class="nd">global</span> <span class="nd">=</span> <span class="kc">true</span><span class="nd">)]</span>
+        <span class="k">pub</span> <span class="n">port</span><span class="p">:</span> <span class="nb">u16</span><span class="p">,</span>
+
+        <span class="cd">/// Logs to stdout by default, set this flag to disable it</span>
+        <span class="nd">#[clap(long,</span> <span class="nd">short</span> <span class="nd">=</span> <span class="sc">'d'</span><span class="nd">,</span> <span class="nd">global</span> <span class="nd">=</span> <span class="kc">true</span><span class="nd">)]</span>
+        <span class="k">pub</span> <span class="n">log_disable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+
+        <span class="cd">/// The subcommand to run</span>
+        <span class="nd">#[clap(subcommand)]</span>
+        <span class="k">pub</span> <span class="n">subcommand</span><span class="p">:</span> <span class="n">CLISubcommand</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[derive(Subcommand,</span> <span class="nd">Debug)]</span>
+    <span class="k">pub</span> <span class="k">enum</span> <span class="n">CLISubcommand</span> <span class="p">{</span>
+        <span class="cd">/// Start a server on the given address and port</span>
+        <span class="n">Server</span><span class="p">,</span>
+        <span class="cd">/// Connect to a server running on the given address and port</span>
+        <span class="n">Client</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="create-the-client">
+        
+        
+          Create the client <a href="#create-the-client">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-create-the-client" name="create-the-client"></a></p>
+
+<p>Let’s start with the simpler of the two, the client. We will use <code class="language-plaintext highlighter-rouge">std::net::TcpStream</code> to
+create a TCP socket client. We will need an IP address and port in order to make a TCP
+connection. And to run the client we will need to run the following command:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run client
+</code></pre></div></div>
+
+<p>Here’s what the main function of our app looks like:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"Welcome to rtelnet"</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">cli_arg</span> <span class="o">=</span> <span class="nn">CLIArg</span><span class="p">::</span><span class="nf">parse</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">address</span> <span class="o">=</span> <span class="n">cli_arg</span><span class="py">.address</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">port</span> <span class="o">=</span> <span class="n">cli_arg</span><span class="py">.port</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">socket_address</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}:{}"</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">port</span><span class="p">);</span>
+
+    <span class="k">if</span> <span class="o">!</span><span class="n">cli_arg</span><span class="py">.log_disable</span> <span class="p">{</span>
+        <span class="nn">femme</span><span class="p">::</span><span class="nf">start</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="k">match</span> <span class="k">match</span> <span class="n">cli_arg</span><span class="py">.subcommand</span> <span class="p">{</span>
+        <span class="nn">CLISubcommand</span><span class="p">::</span><span class="n">Server</span> <span class="k">=&gt;</span> <span class="nf">start_server</span><span class="p">(</span><span class="n">socket_address</span><span class="p">),</span>
+        <span class="nn">CLISubcommand</span><span class="p">::</span><span class="n">Client</span> <span class="k">=&gt;</span> <span class="nf">start_client</span><span class="p">(</span><span class="n">socket_address</span><span class="p">),</span>
+    <span class="p">}</span> <span class="p">{</span>
+        <span class="nf">Ok</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Program exited successfully"</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="nf">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Program exited with an error: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The function that performs the client logic looks like this.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">start_client</span><span class="p">(</span><span class="n">socket_address</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Start client connection"</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">tcp_stream</span> <span class="o">=</span> <span class="nn">TcpStream</span><span class="p">::</span><span class="nf">connect</span><span class="p">(</span><span class="n">socket_address</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">let</span> <span class="p">(</span><span class="k">mut</span> <span class="n">reader</span><span class="p">,</span> <span class="k">mut</span> <span class="n">writer</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="nn">BufReader</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tcp_stream</span><span class="p">),</span> <span class="nn">BufWriter</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tcp_stream</span><span class="p">));</span>
+
+    <span class="c1">// Client loop.</span>
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="c1">// Read user input.</span>
+        <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">it</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+            <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="nf">stdin</span><span class="p">()</span><span class="nf">.read_line</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">it</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+            <span class="n">it</span><span class="nf">.as_bytes</span><span class="p">()</span><span class="nf">.to_vec</span><span class="p">()</span>
+        <span class="p">};</span>
+
+        <span class="c1">// Tx user input to writer.</span>
+        <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">writer</span><span class="nf">.write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outgoing</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+        <span class="n">writer</span><span class="nf">.flush</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// Rx response from reader.</span>
+        <span class="k">let</span> <span class="n">incoming</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">it</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
+            <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">reader</span><span class="nf">.read_until</span><span class="p">(</span><span class="sc">b'\n'</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">it</span><span class="p">);</span>
+            <span class="n">it</span>
+        <span class="p">};</span>
+
+        <span class="k">let</span> <span class="n">display_msg</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming</span><span class="p">);</span>
+        <span class="k">let</span> <span class="n">display_msg</span> <span class="o">=</span> <span class="n">display_msg</span><span class="nf">.trim</span><span class="p">();</span>
+
+        <span class="k">let</span> <span class="n">reset</span> <span class="o">=</span> <span class="nn">SgrCode</span><span class="p">::</span><span class="n">Reset</span><span class="nf">.to_string</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">display_msg</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}{}"</span><span class="p">,</span> <span class="n">display_msg</span><span class="p">,</span> <span class="n">reset</span><span class="p">);</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">display_msg</span><span class="p">);</span>
+
+        <span class="c1">// Print debug.</span>
+        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
+            <span class="s">"-&gt; Tx: '{}', size: {} bytes{}"</span><span class="p">,</span>
+            <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outgoing</span><span class="p">)</span><span class="nf">.trim</span><span class="p">(),</span>
+            <span class="n">outgoing</span><span class="nf">.len</span><span class="p">(),</span>
+            <span class="n">reset</span><span class="p">,</span>
+        <span class="p">);</span>
+        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
+            <span class="s">"&lt;- Rx: '{}', size: {} bytes{}"</span><span class="p">,</span>
+            <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming</span><span class="p">)</span><span class="nf">.trim</span><span class="p">(),</span>
+            <span class="n">incoming</span><span class="nf">.len</span><span class="p">(),</span>
+            <span class="n">reset</span><span class="p">,</span>
+        <span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here are a few things to note about the client code:</p>
+<ul>
+  <li>We create a <code class="language-plaintext highlighter-rouge">BufReader</code> and <code class="language-plaintext highlighter-rouge">BufWriter</code> for the <code class="language-plaintext highlighter-rouge">TcpStream</code> that we get from
+<code class="language-plaintext highlighter-rouge">TcpStream::connect()</code>. This is because we want to read and write data in chunks, and
+not one byte at a time, for performance reasons, and to simplify the logic. These two
+structs allow us to read and write data very easily in chunks that are delimited by new
+lines (<code class="language-plaintext highlighter-rouge">\n</code>).</li>
+  <li>There’s a client loop that runs forever. This is because we want to keep the client
+running forever, so that the user can type a message and send it to the server, and
+receive a response from the server.</li>
+  <li>How do we exit this infinite client loop? Only when the user presses <code class="language-plaintext highlighter-rouge">Ctrl+C</code> will the
+client exit. The <a href="https://g.co/bard/share/ac5d3480eb37">default behavior</a> for Rust is to
+exit the process when this happens. This drops the TCP connection causing the server to exit as
+well.</li>
+  <li>When we read data from user input, it too uses a stream, not a <code class="language-plaintext highlighter-rouge">TcpStream</code>, but the
+<code class="language-plaintext highlighter-rouge">stdin()</code> stream. This behaves very similarly to the <code class="language-plaintext highlighter-rouge">TcpStream</code> stream. We can read
+data from it in chunks delimited by new lines (<code class="language-plaintext highlighter-rouge">\n</code>). Once the user types a message and
+presses enter that message, eg: <code class="language-plaintext highlighter-rouge">"hi"</code>, and the new line are stored in the <code class="language-plaintext highlighter-rouge">it</code>
+variable, eg: <code class="language-plaintext highlighter-rouge">"hi\n"</code>. We then convert the String into a byte array, eg: <code class="language-plaintext highlighter-rouge">[104, 105,
+10]</code>, and then convert it into a <code class="language-plaintext highlighter-rouge">Vec&lt;u8&gt;</code>. We then send it to the server. We must call
+<code class="language-plaintext highlighter-rouge">flush()</code> since <code class="language-plaintext highlighter-rouge">BufWriter</code> buffers the data and does not send it to the server until we
+call <code class="language-plaintext highlighter-rouge">flush()</code> for IO performance reasons. It queue’s up the data and sends it in
+chunks, instead of sending it one byte at a time.</li>
+  <li>Reading there response from the server is similar to reading it from <code class="language-plaintext highlighter-rouge">stdin()</code> as we
+have already seen. The main thread blocks until there is some data that can be read from
+the server. Or if the TCP connection errors out in any way (timeout or closed by various
+means). If there is an error, then this function returns an error, and the main thread
+exits. Note that the <code class="language-plaintext highlighter-rouge">start_client()</code> function itself returns an <code class="language-plaintext highlighter-rouge">IOResult</code>, which is
+just a type alias for <code class="language-plaintext highlighter-rouge">pub type IOResult&lt;T&gt; = std::io::Result&lt;T&gt;;</code>. The error handling
+is quite simple. If there is an error, we print it out and exit the program.</li>
+  <li>We read the data from the server into the <code class="language-plaintext highlighter-rouge">incoming</code> variable using
+<code class="language-plaintext highlighter-rouge">reader.read_until(b'\n', &amp;mut it);)</code>. This is because we expect the server to send us
+data that is terminated by a new line (<code class="language-plaintext highlighter-rouge">\n</code>). So we read the data until we encounter a
+new line. This is a blocking call, so the main thread blocks until there is some data
+that can be read from the server. Note that the <code class="language-plaintext highlighter-rouge">\n</code> is included in <code class="language-plaintext highlighter-rouge">incoming</code> variable,
+much like it is in <code class="language-plaintext highlighter-rouge">stdin()</code>.
+    <ul>
+      <li>We use this function <code class="language-plaintext highlighter-rouge">String::from_utf8_lossy(&amp;incoming);</code> to convert this <code class="language-plaintext highlighter-rouge">incoming:
+Vec&lt;u8&gt;</code> into a <code class="language-plaintext highlighter-rouge">String</code>. We call <code class="language-plaintext highlighter-rouge">.trim()</code> on the String, so that the trailing <code class="language-plaintext highlighter-rouge">\n</code>
+is removed.</li>
+      <li>Note that <code class="language-plaintext highlighter-rouge">trim()</code> returns a <code class="language-plaintext highlighter-rouge">&amp;str</code>, so if you want to turn it into a String, you have
+to run in through this expression <code class="language-plaintext highlighter-rouge">format!("{}",
+String::from_utf8_lossy(&amp;incoming).trim())</code> function.</li>
+    </ul>
+  </li>
+  <li>This is a pedagogical example and this algorithm is somewhat contrived to demonstrate
+how to send bytes back and forth between client and server and have them interpret the
+bytes in a certain way. A more formalized version of this “dance” is called a
+“protocol”, eg: HTTP, SMTP, etc.</li>
+  <li>In the final step of the <code class="language-plaintext highlighter-rouge">loop</code>, after the incoming data has been read from the server,
+we print it out to the terminal. Since the server will send us ANSI escape sequence
+codes that colorize the text that we print to the terminal, we want to reset the color
+after we print the text, so it does not pollute our <code class="language-plaintext highlighter-rouge">stdout()</code> output stream. We use the
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/ansi_color/src/ansi_escape_codes.rs#L23"><code class="language-plaintext highlighter-rouge">SgrCode::Reset</code> code to reset the
+color</a>
+of the text that we print to the terminal.</li>
+</ul>
+      <h2 id="create-the-server">
+        
+        
+          Create the server <a href="#create-the-server">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-create-the-server" name="create-the-server"></a></p>
+
+<p>Now let’s create the server. We will use <code class="language-plaintext highlighter-rouge">std::net::TcpListener</code> to create a TCP socket
+server. We will need an IP address and port in order to make a TCP connection. To run the
+server we will need to run the following command:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run server
+</code></pre></div></div>
+
+<p>The server code is very similar to the client code. We need a server loop that runs
+forever, and we need to first read (blocking until there is any data available) and then
+write data in chunks delimited by new lines (<code class="language-plaintext highlighter-rouge">\n</code>). When there is no data available to
+read <code class="language-plaintext highlighter-rouge">EOF</code> is reached on the reader (aka, input TCP stream) then we break out of this loop
+and exit. When data comes in (delimited by <code class="language-plaintext highlighter-rouge">\n</code>) we process it and send a response back to
+the client. We process this data by applying a <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/color_wheel/color_wheel_struct.rs#L457">lolcat
+effect</a>
+on it, so the client will get a very colorful version of whatever text message that they
+sent to the server.</p>
+
+<p>One more thing we will see when implementing the server is having to spawn multiple
+threads to handle each incoming client connection. While the client is a single threaded
+app, the server is a multi-threaded app. The client is only concerned w/ a single TCP
+connection, but the server is concerned with multiple TCP connections, each connection
+emanating from a different client process running the <code class="language-plaintext highlighter-rouge">cargo run client</code> and creating a
+new OS process. Fortunately Rust is built for fearless concurrency and parallelism from
+the ground up.</p>
+
+<p>Here’s the main function of our server app:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">fn</span> <span class="nf">start_server</span><span class="p">(</span><span class="n">socket_address</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">tcp_listener</span> <span class="o">=</span> <span class="nn">TcpListener</span><span class="p">::</span><span class="nf">bind</span><span class="p">(</span><span class="n">socket_address</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+    <span class="c1">// Server connection accept loop.</span>
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Waiting for a incoming connection..."</span><span class="p">);</span>
+        <span class="k">let</span> <span class="p">(</span><span class="n">tcp_stream</span><span class="p">,</span> <span class="o">..</span><span class="p">)</span> <span class="o">=</span> <span class="n">tcp_listener</span><span class="nf">.accept</span><span class="p">()</span><span class="o">?</span><span class="p">;</span> <span class="c1">// This is a blocking call.</span>
+
+        <span class="c1">// Spawn a new thread to handle this connection.</span>
+        <span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(||</span> <span class="k">match</span> <span class="nf">handle_connection</span><span class="p">(</span><span class="n">tcp_stream</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nf">Ok</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Successfully closed connection to client..."</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="nf">Err</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">log</span><span class="p">::</span><span class="nd">error!</span><span class="p">(</span><span class="s">"Problem with client connection..."</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">});</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here are a few things to note about the server code:</p>
+<ul>
+  <li>We are using <code class="language-plaintext highlighter-rouge">IOResult</code> just like the client code. There are frequent calls to the <code class="language-plaintext highlighter-rouge">?</code>
+operator, which is shorthand for matching on the <code class="language-plaintext highlighter-rouge">Result</code> and returning early if there’s
+an error. This is rudimentary error handling, and its good enough for this pedagogical
+example. Note that even in this pedagogical example, we don’t use the <code class="language-plaintext highlighter-rouge">unwrap()</code> method
+which will induce a panic if there’s an error. We always use the <code class="language-plaintext highlighter-rouge">?</code> operator, which
+will return early if there’s an error. It isn’t a good idea to get into the habit of
+using <code class="language-plaintext highlighter-rouge">unwrap()</code> outside of tests. These habits are hard to break once they’re formed.
+You can even add the following
+<a href="https://rust-lang.github.io/rust-clippy/master/index.html#/unwrap_used"><code class="language-plaintext highlighter-rouge">#![warn(clippy::unwrap_in_result)]</code></a>
+in the top level module of your project to have the compiler warn you if you use
+<code class="language-plaintext highlighter-rouge">unwrap()</code> outside of tests. Here’s an
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/ansi_color/src/lib.rs#L171">example</a>.</li>
+  <li>The first thing the server has to do is reserve a port on the given address. This is called
+binding, and we do it using <code class="language-plaintext highlighter-rouge">TcpListener::bind(socket_address)?;</code>. This does not start a server
+yet. It just reserves a port on the given address, assuming that it is available. If some other
+process has already bound to that port, then this will return an error.</li>
+  <li>Once we have a <code class="language-plaintext highlighter-rouge">TcpListener</code> instance, we can call <code class="language-plaintext highlighter-rouge">accept()</code> on it to start listening
+for incoming connections. This is a blocking call, so the main thread blocks until there
+is an incoming connection. Once there is an incoming connection, we get a <code class="language-plaintext highlighter-rouge">TcpStream</code>
+instance, which we can use to read and write data to the client. This is a blocking
+call. Which means that the main thread won’t be able to do anything else, like process
+other incoming connections, while it is waiting here, for a connection to come in.</li>
+  <li>This is why we use <code class="language-plaintext highlighter-rouge">thread::spawn()</code> to create a new thread and have it handle the
+incoming connection. We spawn a new thread for each incoming connection. This is <a href="https://g.co/bard/share/74f433bad400">not a
+scalable solution</a>, but it is good enough for this
+pedagogical example. We will learn about more scalable solutions in a the <a href="/2024/01/13/write-simple-chat-server-in-rust/">Write a
+simple TCP chat server in Rust</a> tutorial.</li>
+</ul>
+
+<p>Now, let’s look at the <code class="language-plaintext highlighter-rouge">handle_connection()</code> function that is called by the spawned
+thread. This is the function that handles the incoming connection from the client. And it
+defines our “protocol”, along with the client code. We aren’t using any formalized
+protocol like HTTP or SMTP. We are just sending bytes back and forth between the client
+and server, and interpreting them in a certain way, which is our informal protocol. This
+code is very similar to the client side code, including the <code class="language-plaintext highlighter-rouge">loop</code> and the <code class="language-plaintext highlighter-rouge">BufReader</code> and
+<code class="language-plaintext highlighter-rouge">BufWriter</code> structs. And even looking for <code class="language-plaintext highlighter-rouge">EOF</code> to break out of the loop. Except that we
+don’t block on <code class="language-plaintext highlighter-rouge">stdin()</code> for input here.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">handle_connection</span><span class="p">(</span><span class="n">tcp_stream</span><span class="p">:</span> <span class="n">TcpStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Start handle connection"</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">reader</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">BufReader</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tcp_stream</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">write</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">BufWriter</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tcp_stream</span><span class="p">);</span>
+
+    <span class="c1">// Process client connection loop.</span>
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">incoming</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">u8</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
+
+        <span class="c1">// Read from reader.</span>
+        <span class="k">let</span> <span class="n">num_bytes_read</span> <span class="o">=</span> <span class="n">reader</span><span class="nf">.read_until</span><span class="p">(</span><span class="sc">b'\n'</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">incoming</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// Check for EOF. The stream is closed.</span>
+        <span class="k">if</span> <span class="n">num_bytes_read</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// Process.</span>
+        <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="nf">process</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming</span><span class="p">);</span>
+
+        <span class="c1">// Write to writer.</span>
+        <span class="n">write</span><span class="nf">.write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outgoing</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">write</span><span class="nf">.flush</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// Print debug.</span>
+        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"-&gt; Rx(bytes) : {:?}"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">incoming</span><span class="p">);</span>
+        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
+            <span class="s">"-&gt; Rx(string): '{}', size: {} bytes"</span><span class="p">,</span>
+            <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming</span><span class="p">)</span><span class="nf">.trim</span><span class="p">(),</span>
+            <span class="n">incoming</span><span class="nf">.len</span><span class="p">(),</span>
+        <span class="p">);</span>
+        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
+            <span class="s">"&lt;- Tx(string): '{}', size: {} bytes"</span><span class="p">,</span>
+            <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outgoing</span><span class="p">)</span><span class="nf">.trim</span><span class="p">(),</span>
+            <span class="n">outgoing</span><span class="nf">.len</span><span class="p">()</span>
+        <span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"End handle connection - connection closed"</span><span class="p">);</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Finally, let’s look at the <code class="language-plaintext highlighter-rouge">process()</code> function that takes the incoming bytes to the
+outgoing bytes. This is where we add some fun and color and flair to our app. We colorize
+the incoming bytes using a lolcat effect and send it back to the client.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">r3bl_tui</span><span class="p">::</span><span class="n">ColorWheel</span><span class="p">;</span>
+
+<span class="k">fn</span> <span class="nf">process</span><span class="p">(</span><span class="n">incoming</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">u8</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">u8</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c1">// Convert incoming to String, and remove any trailing whitespace (includes newline).</span>
+    <span class="k">let</span> <span class="n">incoming</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="n">incoming</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">incoming</span> <span class="o">=</span> <span class="n">incoming</span><span class="nf">.trim</span><span class="p">();</span>
+
+    <span class="c1">// Prepare outgoing payload.</span>
+    <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="n">incoming</span><span class="nf">.to_string</span><span class="p">();</span>
+
+    <span class="c1">// Colorize it w/ a gradient.</span>
+    <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="nn">ColorWheel</span><span class="p">::</span><span class="nf">lolcat_into_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outgoing</span><span class="p">);</span>
+
+    <span class="c1">// Generate outgoing response. Add newline to the end of output (so client can process it).</span>
+    <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">outgoing</span><span class="p">);</span>
+
+    <span class="c1">// Return outgoing payload.</span>
+    <span class="n">outgoing</span><span class="nf">.as_bytes</span><span class="p">()</span><span class="nf">.to_vec</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="next-steps">
+        
+        
+          Next steps <a href="#next-steps">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-next-steps" name="next-steps"></a></p>
+
+<p>Now that you have a handle on the basics of writing a simple netcat client and server, you
+can read <a href="/2024/01/13/write-simple-chat-server-in-rust/">this tutorial</a> to learn more about creating a more advanced TCP server that netcat,
+telnet, or PuTTY clients can connect to, in order to have multiple client apps chat with
+each other.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/04/ockam-routing-building-end-to-end-channels/">
+                        Create End-to-End Channels in Rust with Ockam Routing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2024/01/13/write-simple-netcat-in-rust/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

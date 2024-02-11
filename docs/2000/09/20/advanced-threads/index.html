@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Advanced Threads | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Advanced Threads" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is devoted to showing you advanced techniques of using threads to perform event driven tasks, without using polling, and usually with the use of queues. Along with techniques of managing life cycles of server objects (that are multithreaded) and runtime activation and deactivation of these objects." />
+<meta property="og:description" content="This tutorial is devoted to showing you advanced techniques of using threads to perform event driven tasks, without using polling, and usually with the use of queues. Along with techniques of managing life cycles of server objects (that are multithreaded) and runtime activation and deactivation of these objects." />
+<link rel="canonical" href="http://developerlife.com/2000/09/20/advanced-threads/" />
+<meta property="og:url" content="http://developerlife.com/2000/09/20/advanced-threads/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2000-09-20T13:32:56-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Advanced Threads" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2000-09-20T13:32:56-05:00","datePublished":"2000-09-20T13:32:56-05:00","description":"This tutorial is devoted to showing you advanced techniques of using threads to perform event driven tasks, without using polling, and usually with the use of queues. Along with techniques of managing life cycles of server objects (that are multithreaded) and runtime activation and deactivation of these objects.","headline":"Advanced Threads","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2000/09/20/advanced-threads/"},"url":"http://developerlife.com/2000/09/20/advanced-threads/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Advanced Threads&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Advanced Threads</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Advanced Threads</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Sep 20, 2000
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#uses-for-advanced-threads">Uses for advanced threads</a></li>
+  <li><a href="#example-problem">Example problem</a>
+    <ul>
+      <li><a href="#producers-consumers-and-queues">Producers, consumers and queues</a></li>
+      <li><a href="#where-not-to-use-queues">Where not to use queues</a></li>
+    </ul>
+  </li>
+  <li><a href="#solution-design">Solution (design)</a>
+    <ul>
+      <li><a href="#monitors">Monitors</a></li>
+      <li><a href="#monitors-and-internal-queues">Monitors and internal queues</a></li>
+      <li><a href="#wait">wait()</a></li>
+      <li><a href="#notify-and-notifyall">notify() and notifyAll()</a></li>
+      <li><a href="#interrupt-interruptedexception-and-other-thread-exceptions">interrupt(), InterruptedException and other thread exceptions</a></li>
+    </ul>
+  </li>
+  <li><a href="#thread-management-strategies-for-server-side-component-threads">Thread management strategies for server-side component threads</a>
+    <ul>
+      <li><a href="#serviceif">ServiceIF</a></li>
+      <li><a href="#serviceif-implementation-in-a-server-framework">ServiceIF implementation in a server framework</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="uses-for-advanced-threads">
+        
+        
+          Uses for advanced threads <a href="#uses-for-advanced-threads">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are many uses for threads. Sometimes, you need a thread to spawn a new task, other times you
+have make sure that your code will not break if many threads are trampling through it, and yet in
+other times, you need threads to listen to events as they become available and notify some other
+object. These are just a few ways of using threads in your programs.</p>
+
+<p>This tutorial is devoted to showing you:</p>
+
+<ol>
+  <li>
+    <p>advanced techniques of using threads to perform event driven tasks, without using polling, and
+usually with the use of queues.</p>
+  </li>
+  <li>
+    <p>techniques of managing life cycles of server objects (that are multithreaded) and runtime
+activation and deactivation of these objects.</p>
+  </li>
+</ol>
+
+<p>In the real world, there are many practical applications where polling is unacceptable. For example,
+in event driven GUIs (like Swing, AWT, Win32, Motif, etc.) a threaded architecture is necessary
+because polling would yield unacceptable performance. In networked programming, there are many
+instances where threads have to wait for data coming from streams (over sockets), and it would be
+too resource intensive to poll these streams to see if they have new data. Now, these are all very
+low level software components, like a GUI toolkit, and networking toolkit, and most programmers
+won’t have to write these toolkits from scratch. However, it is sometimes necessary to create these
+toolkits from scratch, for experience or for deployment, and the insights and skills that you take
+away from doing such tasks will only make you a more accomplished programmer, and take you closer to
+a system architect type role, rather than just being a developer. These skills are also necessary if
+want to create a server architecture or framework of your own.</p>
+      <h2 id="example-problem">
+        
+        
+          Example problem <a href="#example-problem">#</a>
+        
+        
+      </h2>
+    
+
+<p>Lets say that you have an object that has to perform a task when an event occurs, and this object
+does not know when this event will occur. In such a case you can use threads (without having a
+thread poll on this event having occurred all the time). The classical example is that of a producer
+and consumer that share some kind of buffer or queue.</p>
+
+<p>In the real world, this scenario might pop up if you have to create a server framework, that has to
+integrate your objects with some kind of pre-existing protocol based server. For example, if you
+have to use the services of some legacy server that “speaks” a protocol, then you will have to use
+Sockets and queues to “talk” with the server, and “translate” what it says to your “object-speak”.</p>
+      <h3 id="producers-consumers-and-queues">
+        
+        
+          Producers, consumers and queues <a href="#producers-consumers-and-queues">#</a>
+        
+        
+      </h3>
+    
+
+<p>A producer object is one that produces data (objects), a consumer object uses this data (objects),
+and a queue is an object that is used to transmit this data. In other words, a queue is a thread
+safe container of (data) objects that is directly shared between the producer object and the
+consumer object. The producer object generates data objects and places them in the queue, and the
+consumer object gets this data (from the queue) and does some work with it. The producer and
+consumer objects also have different threads running through them, ie, the consumer object has its
+own thread, and the producer object has its own different thread. The queue object does not have a
+thread running through it, as it is merely a shared object, rather than one that is “alive”.</p>
+
+<p>This queue (or buffer) could be an ArrayList or Vector. Now, the whole idea is that the consumer
+thread is always consuming, but, it can’t consume if the queue is empty. The producer creates
+objects and puts them in the queue at anytime (ie, the consumer has no idea when the producer will
+create objects to put in the queue). You can think of the producer as something that generates (or
+creates) an event, and a consumer as an event dispatcher for all events. The queue where these
+events are placed (by the producer) is like an event queue. The dispatcher has to route the event to
+the appropriate handler in order for the handler to do some meaningful task, but the handler is
+probably some other object. So the the consumer thread usually gets data objects out of the queue,
+and then runs through some event handler object. The producer thread is concerned with generating
+data objects (at anytime) and putting them in the shared queue.</p>
+
+<p>If the problem you are trying to solve fits this profile, then you can use threads to avoid polling
+on the (event) queue to figure out if something just “happened” or if some data objects “just
+arrived”. An example of this is where you need data from a socket to fire an event into your system.
+You don’t know when data is going to be sent from the server, but as soon as it is sent, your system
+will have to be notified of this (the data from the server can be wrapped in an event object).
+Another example of this is where you need to write data asynchronously, without having to wait for
+the write to be completed; you just want to issue a write and pass the data without waiting for the
+potentially lengthy write operation to complete (for example you could be sending data over a
+socket, or writing something to a database, or saving a file in the background). In this case, you
+simply put the data that needs to be written into the right queue object, and another thread will
+take care of actually performing the write operation. Yet another example of this is a GUI toolkit,
+where a user input event can occur at anytime, and the GUI has to route the event to its correct
+event handler.</p>
+      <h3 id="where-not-to-use-queues">
+        
+        
+          Where not to use queues <a href="#where-not-to-use-queues">#</a>
+        
+        
+      </h3>
+    
+
+<p>So this producer, consumer and queue can be used for a variety of tasks, that include, asynchronous
+reading, writing as well event dispatching and generation. The addition of the queue to disconnect
+the producer from the consumer is a very powerful thing; it allows these tasks to happen
+asynchronously. You could even persist the queue to disk and have a fault tolerant queue that
+resumes operation if your program crashes. However, if you need to block on certain operations (ie,
+you need synchronous messaging) then there is no need for the queue as it adds unnecessary
+overhead).</p>
+
+<p>You can also have many different kinds of queues, depending on your needs you can have grow-able
+ones or fixed length ones.</p>
+      <h2 id="solution-design">
+        
+        
+          Solution (design) <a href="#solution-design">#</a>
+        
+        
+      </h2>
+    
+
+<p>Java has the synchronized keyword to provide mutually exclusive access to a critical section (code
+that is in a synchronized code block) of code. The JVM performs this magic by using object level
+monitors.</p>
+      <h3 id="monitors">
+        
+        
+          Monitors <a href="#monitors">#</a>
+        
+        
+      </h3>
+    
+
+<p>There are two ways of providing mutually exclusive access to code sections, semaphores and
+<a href="https://en.wikipedia.org/wiki/Monitor_(synchronization)">Hoare’s monitors</a>. The Java Virtual
+Machine (JVM) uses object level monitors to provide a mutex mechanism in Java, however you can write
+your own semaphore classes if you wish. This tutorial deals with object level monitors exclusively.</p>
+
+<p>Each object in the VM has a monitor associated with it, and when a thread enters a critical section
+it has to acquire a lock to this monitor. Once the thread finishes executing the code in the
+critical section, it releases the lock to this monitor. Now, once the lock for the monitor has been
+acquired, it can’t be acquired by any other thread that is trying to go through the same critical
+section as the first thread that “got in”. Now, the second, third, and all threads after the first
+are suspended until the first one gets done. This is the essence of mutual exclusion. Now, the JVM
+assigns one and only one monitor per object. The syntax for declaring a section of code as a
+critical section is the following: synchronized (object) { .. }. Now, the object in the parentheses
+has to be a reference to an already instantiated object, of any class. All these behaviors are
+embedded in the Object superclass (which is a special class which exists in the JVM). Now, the code
+in the ellipsis is the “critical section”, mutual exclusive access (by multiple threads) is
+guaranteed by the JVM in this code section. Now, you can declare entire methods synchronized; in
+this case, you are doing the equivalent of the following: void someMethod(){ synchronized( this ){
+.. } }. The code in equivalent to: synchronized void someMethod(){ .. }.</p>
+
+<p>However, you don’t always have to use the current object’s montior, in your classes. You can create
+dummy objects, whose only purpose is to act as locks for your objects. You can create an object of
+any class (like String) and then synchronized on that object. For example:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="mi">1</span><span class="o">:</span> <span class="kd">public</span> <span class="kd">class</span> <span class="nc">SomeClass</span><span class="o">{</span>
+   <span class="mi">2</span><span class="o">:</span>   <span class="kd">private</span> <span class="nc">String</span> <span class="n">lockObject</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">String</span><span class="o">();</span>
+   <span class="mi">3</span><span class="o">:</span>
+   <span class="mi">4</span><span class="o">:</span>   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">someMethod</span><span class="o">(){</span>
+   <span class="mi">5</span><span class="o">:</span>     <span class="kd">synchronized</span><span class="o">(</span> <span class="n">lockObject</span> <span class="o">){</span> <span class="o">..</span> <span class="o">}</span>
+   <span class="mi">6</span><span class="o">:</span>   <span class="o">}</span>
+   <span class="mi">7</span><span class="o">:</span>
+   <span class="mi">8</span><span class="o">:</span>   <span class="kd">public</span> <span class="kt">void</span> <span class="nf">someOtherMethod</span><span class="o">(){</span>
+   <span class="mi">9</span><span class="o">:</span>     <span class="kd">synchronized</span><span class="o">(</span> <span class="k">this</span> <span class="o">){</span> <span class="o">..</span> <span class="o">}</span>
+  <span class="mi">10</span><span class="o">:</span>   <span class="o">}</span>
+  <span class="mi">11</span><span class="o">:</span> <span class="o">}</span>
+</code></pre></div></div>
+
+<p>In this example, someMethod() has a critical section that uses the lock of the lockObject. Now,
+while a thread is running through someMethod(), another thread could concurrently run through
+someOtherMethod(), since it uses the lock of “this”, which is a different object from lockObject.
+You can make different parts of your code become mutually exclusive based on different object
+monitors. This is quite powerful and flexible when your object might have to allow certain
+operations to occur mutually exclusively, while others to happen concurrently.</p>
+
+<p>If you have a completely static class, there is one monitor object associated with that class
+object. Normally, a monitor is attached (by the JVM) to each instance of a class.</p>
+      <h3 id="monitors-and-internal-queues">
+        
+        
+          Monitors and internal queues <a href="#monitors-and-internal-queues">#</a>
+        
+        
+      </h3>
+    
+
+<p>Now, what exactly happens to a thread once it tries to acquire a lock and enter a critical section
+of code, but it finds that the lock has already been acquired by some other thread? Well, the first
+thread is already executing the code in the critical section, when the second thread tries to enter
+that same section. The JVM puts this (second) thread in a special queue associated with the monitor
+object on which the critical section was synchronized. These are properties of the object monitor
+(supplied by the JVM implementation). These properties are specified in the Java language
+definition, and a JVM has to implement all this functionality in order to be Java compliant.</p>
+
+<p>Now, while the first thread is still executing code in the critical section, and the second thread
+is waiting (inside the monitor’s queue), if a third or fourth thread try to run the code in the
+synchronized block, they will be suspended and placed in this queue as well. Once a thread is placed
+in this queue, it is no longer “alive”, its liveness gets taken away by the JVM. These threads are
+placed in this queue in the order in which they try to acquire the monitor. Now, once the first
+thread completes execution of the critical section, it release the monitor’s lock. At this point,
+the JVM picks the second thread and restores its “liveness” and makes it run the code in the
+synchronized block. Once the second one is done, the third one is revived and allowed in, and so on.
+Let’s call this queue the synchronized queue.</p>
+
+<p>This seems pretty automatic, and for most people this is all it takes to make code threadsafe.
+However, in order to do more advanced things, like not polling to be notified of some event, you
+have to learn how to use wait() and notify() to manipulate this internal monitor queue.</p>
+      <h3 id="wait">
+        
+        
+          wait() <a href="#wait">#</a>
+        
+        
+      </h3>
+    
+
+<p>When a thread enters a critical section, all other threads trying to get into this block of code are
+automatically suspended by the JVM. Now, what if you want to control this mechanism, so its no
+longer automatic. In that case, you have to use the two methods: wait() and notify(). These methods
+are defined and implemented in the Object class. Let’s say, you don’t want this first thread to
+complete its run through the critical section, but you want it to give up its monitor lock. You can
+“suspend” this thread, and put it in that monitor’s waiting queue, by executing the wait(). Once a
+thread acquires a monitor lock, and it executes the wait() method, it is put in the wait() queue,
+and the thread relinquishes its monitor lock! At this point, the second or third thread that was
+waiting to acquire this monitor lock gets its chance to do so, and enters the critical section. Now,
+the wait() queue is different from the internal monitor queue that was discussed in the previous
+paragraph. So there are two queues that are in a monitor object:</p>
+
+<ol>
+  <li>
+    <p>one queue that holds all the threads that are trying to acquire the monitor lock required to
+enter a critical section; let’s call this queue the synchronized queue</p>
+  </li>
+  <li>
+    <p>another queue that holds all the threads that have executed the wait() method and are currently
+suspended; let’s call this queue the wait() queue.</p>
+  </li>
+</ol>
+
+<p>Please be careful not to confuse these queues. In order for a thread to even execute the wait() it
+has to first acquire the monitor lock. So if the thread is waiting to acquire this lock, there is no
+way it will even get to execute wait(), or be put in the wait() queue.</p>
+
+<p>Here is how you can use the wait() method:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="mi">1</span><span class="o">:</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">someMethod</span><span class="o">(){</span>
+   <span class="mi">2</span><span class="o">:</span>   <span class="kd">synchronized</span><span class="o">(</span><span class="k">this</span><span class="o">){</span>
+   <span class="mi">3</span><span class="o">:</span>     <span class="k">try</span><span class="o">{</span>
+   <span class="mi">4</span><span class="o">:</span>       <span class="n">wait</span><span class="o">();</span>
+   <span class="mi">5</span><span class="o">:</span>     <span class="o">}</span>
+   <span class="mi">6</span><span class="o">:</span>     <span class="k">catch</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">){</span>
+   <span class="mi">7</span><span class="o">:</span>     <span class="o">}</span>
+   <span class="mi">8</span><span class="o">:</span>   <span class="o">}</span>
+   <span class="mi">9</span><span class="o">:</span> <span class="o">}</span>
+</code></pre></div></div>
+
+<p>I will explain what the exceptions are for in the following sections of this tutorial. For now, just
+focus on the wait() method suspending the current thread and releasing the monitor lock.</p>
+
+<p>Once a thread is put in this queue, it loses its “liveness”, and at some point it has to be “woken
+up”, otherwise, it effectively “dies”. You have to be very careful when using wait() on threads,
+because if you forget to “wake” them, they don’t come back to life. How do you wake them up? By
+using notify() or notifyAll() of course :). Now, in order to use wait() and notify(), you have to
+use what is traditionally called a “condition variable”. This is a pattern that you must use when
+working with monitors and wait() and notify(); you have to use a different design pattern when
+working with semaphores.</p>
+
+<p>Here is an illustration of this pattern: a thread evaluates a condition to determine if it should
+execute wait(). Now, this evaluation must be done in a while( condition ) loop, not an if( condition
+) statement. Also, in some other method, there has to be an invocation to notify() or notifyAll()
+made. In fact, there should be a call to notify() or notifyAll() for each invocation of wait(); this
+is just a simple check to remind you not to take away liveness from your threads inadvertently.</p>
+
+<p>A source code example to illustrate this condition-variable pattern can be seen in the following
+Queue class:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="mi">1</span><span class="o">:</span> <span class="kn">import</span> <span class="nn">java.lang.reflect.*</span><span class="o">;</span>         <span class="c1">//Array, etc.</span>
+   <span class="mi">2</span><span class="o">:</span> <span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>                 <span class="c1">//Vectors, etc</span>
+   <span class="mi">3</span><span class="o">:</span> <span class="kn">import</span> <span class="nn">java.io.*</span><span class="o">;</span>                   <span class="c1">//Serializable, etc</span>
+   <span class="mi">4</span><span class="o">:</span>
+   <span class="mi">5</span><span class="o">:</span> <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Queue</span> <span class="o">{</span>
+   <span class="mi">6</span><span class="o">:</span>
+   <span class="mi">7</span><span class="o">:</span> <span class="kd">protected</span> <span class="nc">List</span> <span class="n">list</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">ArrayList</span><span class="o">();</span>
+   <span class="mi">8</span><span class="o">:</span>
+   <span class="mi">9</span><span class="o">:</span> <span class="cm">/**
+  10:  * This method returns an object from the front of the queue and
+  11:  * suspends the active thread if the queue is empty.
+  12:  *
+  13:  * Report all exceptions that happen to the wait()ing thread
+  14:  * to other objects that have called this method (because it
+  15:  * is their thread which is waiting).
+  16:  */</span>
+  <span class="mi">17</span><span class="o">:</span> <span class="kd">public</span> <span class="nc">Object</span> <span class="nf">get</span><span class="o">(){</span>
+  <span class="mi">18</span><span class="o">:</span>   <span class="kd">synchronized</span><span class="o">(</span> <span class="k">this</span> <span class="o">){</span>
+  <span class="mi">19</span><span class="o">:</span>
+  <span class="mi">20</span><span class="o">:</span>     <span class="c1">//if the list is empty then freeze the current thread</span>
+  <span class="mi">21</span><span class="o">:</span>     <span class="k">while</span><span class="o">(</span> <span class="n">list</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()</span> <span class="o">)</span> <span class="o">{</span>
+  <span class="mi">22</span><span class="o">:</span>       <span class="k">try</span><span class="o">{</span>
+  <span class="mi">23</span><span class="o">:</span>         <span class="n">wait</span><span class="o">();</span>
+  <span class="mi">24</span><span class="o">:</span>       <span class="o">}</span>
+  <span class="mi">25</span><span class="o">:</span>       <span class="k">catch</span><span class="o">(</span><span class="nc">InterruptedException</span> <span class="n">e</span><span class="o">){</span>
+  <span class="mi">26</span><span class="o">:</span>         <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+  <span class="mi">27</span><span class="o">:</span>       <span class="o">}</span>
+  <span class="mi">28</span><span class="o">:</span>       <span class="k">catch</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">){</span>
+  <span class="mi">29</span><span class="o">:</span>         <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+  <span class="mi">30</span><span class="o">:</span>       <span class="o">}</span>
+  <span class="mi">31</span><span class="o">:</span>     <span class="o">}</span><span class="c1">//end while( list.isEmpty() )</span>
+  <span class="mi">32</span><span class="o">:</span>
+  <span class="mi">33</span><span class="o">:</span>     <span class="c1">//return the first element in the list, and remove it from list</span>
+  <span class="mi">34</span><span class="o">:</span>     <span class="k">return</span> <span class="n">list</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span> <span class="mi">0</span> <span class="o">);</span>
+  <span class="mi">35</span><span class="o">:</span>   <span class="o">}</span><span class="c1">//end critical section</span>
+  <span class="mi">36</span><span class="o">:</span>
+  <span class="mi">37</span><span class="o">:</span> <span class="o">}</span>
+  <span class="mi">38</span><span class="o">:</span>
+  <span class="mi">39</span><span class="o">:</span>
+  <span class="mi">40</span><span class="o">:</span> <span class="cm">/**
+  41:  * This method inserts object into the list. If an Array is
+  42:  * passed to this method, then each object in the Array is
+  43:  * inserted in the list one at a time (using reflection).
+  44:  */</span>
+  <span class="mi">45</span><span class="o">:</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">put</span><span class="o">(</span> <span class="nc">Object</span> <span class="n">o</span> <span class="o">){</span>
+  <span class="mi">46</span><span class="o">:</span>   <span class="kd">synchronized</span><span class="o">(</span> <span class="k">this</span> <span class="o">){</span>
+  <span class="mi">47</span><span class="o">:</span>
+  <span class="mi">48</span><span class="o">:</span>     <span class="k">if</span><span class="o">(</span><span class="n">o</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">isArray</span><span class="o">())</span> <span class="o">{</span>
+  <span class="mi">49</span><span class="o">:</span>       <span class="c1">//add each object in the array to the list</span>
+  <span class="mi">50</span><span class="o">:</span>       <span class="k">for</span><span class="o">(</span> <span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="nc">Array</span><span class="o">.</span><span class="na">getLength</span><span class="o">(</span><span class="n">o</span><span class="o">);</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+  <span class="mi">51</span><span class="o">:</span>       <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span> <span class="nc">Array</span><span class="o">.</span><span class="na">get</span><span class="o">(</span> <span class="n">o</span> <span class="o">,</span> <span class="n">i</span> <span class="o">)</span> <span class="o">);</span>
+  <span class="mi">52</span><span class="o">:</span>       <span class="o">}</span>
+  <span class="mi">53</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">54</span><span class="o">:</span>     <span class="k">else</span><span class="o">{</span>
+  <span class="mi">55</span><span class="o">:</span>       <span class="c1">//add the object to the list</span>
+  <span class="mi">56</span><span class="o">:</span>       <span class="n">list</span><span class="o">.</span><span class="na">add</span><span class="o">(</span> <span class="n">o</span> <span class="o">);</span>
+  <span class="mi">57</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">58</span><span class="o">:</span>
+  <span class="mi">59</span><span class="o">:</span>     <span class="c1">//notify any threads waiting for the q to be non-empty</span>
+  <span class="mi">60</span><span class="o">:</span>     <span class="n">notify</span><span class="o">();</span>
+  <span class="mi">61</span><span class="o">:</span>   <span class="o">}</span><span class="c1">//end critical section</span>
+  <span class="mi">62</span><span class="o">:</span> <span class="o">}</span>
+  <span class="mi">63</span><span class="o">:</span>
+  <span class="mi">64</span><span class="o">:</span> <span class="o">}</span>
+</code></pre></div></div>
+
+<p>The Queue object is a grow-able FIFO queue that holds objects (built on top of a java.util.List). It
+has two methods, get() and put(). The get() method can be used to get objects from the Queue, while
+the put() method is used to insert objects into the Queue. The way this Queue can be used is that a
+Consumer thread can get() objects from the Queue, and do some work on it; and concurrently a
+Producer thread can put objects into the Queue (for the Consumer to work on). Now, the Queue is the
+shared object (or data channel) between the Producer and Consumer. Because of the way in which the
+Queue has been designed, there is no need for the Consumer to poll the Queue to see if there are any
+new objects in it. This makes it very efficient for use at runtime.</p>
+
+<p>The Producer thread inserts objects into the Queue at any time, asynchronously with the Consumer.
+Now, the Consumer thread can’t consume objects if the Queue is empty. In order to avoid polling the
+Queue to see if it is not empty, wait() is used by the Queue, to suspend the Consumer thread. The
+Producer thread (that calls put()) causes notify() to be invoked, which ends up reviving the waiting
+threads.</p>
+      <h3 id="notify-and-notifyall">
+        
+        
+          notify() and notifyAll() <a href="#notify-and-notifyall">#</a>
+        
+        
+      </h3>
+    
+
+<p>If you look at the get() method, there is a while loop that determines if the currently executing
+thread should wait(). This fits the pattern of the condition variable. In this case, the condition
+is: is the queue empty?. If the queue is empty, then the Consumer thread (which calls get()) can’t
+do anything, so the Queue makes it wait(). Once, a Producer thread put()s an object into the Queue,
+it notifies this waiting thread that it should reevaluate its waiting condition. Please note that
+notify() must be called in a synchronized block. As soon as a Producer inserts an object into the
+Queue, and notify() gets called, one (or all) Consumer thread(s) that are waiting for it to become
+non-empty get notified to re-evaluate their condition variable. If notify() gets called, only one
+waiting thread is revived and it immediately re-evaluates its condition variable, to determine
+whether it should wait() again or do something. Now, if there is more than one thread waiting on
+this condition, notify() causes one and only one thread to be randomly picked to be notified.
+However, if notifyAll() is used, all threads that are waiting are notified and asked to re-evaluate
+their condition variable. In the case of the Queue, there is no need to use notifyAll() as it would
+just be wasteful, as it would notify a lot of threads for nothing, just wasting CPU cycles. In some
+applications, it becomes necessary to use notifyAll(). Even when notifyAll() is used, not all
+wait()ing threads get to trample through the Queue object, the restrictions of synchronization are
+still in effect, and the JVM notifies all threads at once, but they don’t all get to evaluate their
+condition variable at once, they have to wait to acquire their monitor lock. However, all the
+wait()ing threads do re-evaluate their condition variable, whereas with notify() only one thread
+gets to re-evaluate its condition variable.</p>
+
+<p>This condition-variable pattern must be used when using wait() and notify() with object level
+monitors. The Queue class demonstrates the classic Computer Science Consumer Producer problem.</p>
+      <h3 id="interrupt-interruptedexception-and-other-thread-exceptions">
+        
+        
+          interrupt(), InterruptedException and other thread exceptions <a href="#interrupt-interruptedexception-and-other-thread-exceptions">#</a>
+        
+        
+      </h3>
+    
+
+<p>If you look at the get() method, there is some exception handling code, due to the wait() method.
+When a thread is put in the wait() queue, conditions can occur that remove it from this queue. For
+example, there might be a situation where a thread is wait()ing, and another thread comes along and
+interrupt()s it. This can happen if a reference to the wait()ing thread is held in an object, and
+another thread runs through this object. This kind of behavior is useful when creating server side
+objects whose lifecycles you have to control. I will give examples of this in the next section. Now,
+the strange thing to remember is that when the wait()ing thread gets interrupt()ed, it resumes
+execution by throwing an exception in the code block of the wait() method. Once the
+InterruptedException is dealt with, the wait()ing thread is alive again, and if the exception is
+dealt with properly, should resume execution as it was intended, rather than just throwing an
+unhandled exception and freezing the thread. An example of this can be seen in the following
+example. This might be confusing if you are not that familiar with threads; things can get very
+confusing in your code, when a thread, which was created in one object, runs through other objects.</p>
+
+<p>Let’s say that the Consumer object has its own thread, and the Producer object has its own thread,
+and that they both share the Queue object. Now, after they are running for sometime, let’s say that
+you want to shut down the Consumer, which might happen in a server side environment, where you might
+have to replace the Consumer with a different object (for example, if the class gets updated in a
+Servlet environment, or a new version of an object is deployed). In order to shut and take down this
+Consumer object at runtime, its thread has to be taken off of the wait()ing queue (if it is
+currently waiting). The best way to do this, is to have the server thread invoke a shutdown method
+of some sort on the Consumer object. The shutdown method should then invoke the interrupt() method
+on the Consumer’s thread. Once this happens, an exception gets generated in the Queue’s get() method
+(where the Consumer’s thread was waiting). Phew! So, the Consumer’s thread was interrupted in the
+Queue’s get() method, and it returns null. The Consumer thread’s run() method should have logic in
+it to determine when this has happened, and it should self terminate. Please note that complicated
+logic occurs because every thread has to have a run() method in which it all happens. This will be
+illustrated in the next section.</p>
+      <h2 id="thread-management-strategies-for-server-side-component-threads">
+        
+        
+          Thread management strategies for server-side component threads <a href="#thread-management-strategies-for-server-side-component-threads">#</a>
+        
+        
+      </h2>
+    
+
+<p>A big way in which multithreaded objects differ from single threaded ones, is that threaded objects
+start with the run() method. This means that “liveness” in a threaded object begins in the run()
+method, and this imposes certain design patterns on threaded class designs. For these threaded
+objects, life begins in the run() method, but the threads run through many other objects. This is
+sort of like the main() in self starting classes. However, the JVM takes care of the lifecycle for
+this class. Once you return from the main(), if there are no daemon threads running, the JVM self
+terminates, and you can always call System.exit(int) which terminates the JVM. However, for your
+autonomous, asynchronous, threaded objects, you can’t shutdown the JVM just to terminate them. This
+kind of thinking is unacceptable in the real-world, especially in the server-side environment, where
+you have to deal with components going online and offline, new versions being deployed, and changes
+being made to the system (swapping out implementation classes, while keeping interfaces the same,
+working with the same underlying data). There are many constraints in the real-world (especially in
+the server-side world), and you have to use a rich framework to make elegant, and efficient use of
+threads.</p>
+
+<p>When implementing the run() method of these threaded classes, you usually have to have a big while
+loop which keeps going until the object is signalled to shutdown; its like an infinite loop in which
+certain sequence of operations keep happening. Now, you might have a threaded class that is used on
+a one-time basis only, and in this case you don’t need to loop. This is necessary when you have to
+perform some concurrent task that has nothing to do with anything else.</p>
+
+<p>This is especially important if you create your own server side frameworks. EJB only helps in
+certain types of situations, it is not always the server-side framework of choice, neither is the
+Servlet framework. They are good frameworks, but by the nature of computing, with new things
+happening all the time, you might have to come up with the next framework. For example, you might
+have to create an instant messaging (server side) component framework, or online presence tracking,
+or GPS location framework, or real time driving directions framework, and so on. In these cases, you
+have to dig into your system architect toolbox (which is in your head, and experience, success, and
+ability are the tools) and create extensible, simple, and efficient frameworks to do the job, and do
+it well.</p>
+      <h3 id="serviceif">
+        
+        
+          ServiceIF <a href="#serviceif">#</a>
+        
+        
+      </h3>
+    
+
+<p>You should make your threads self-terminating, and they should expose lifecycle control and resource
+management methods. This means that you should be able to start your threaded objects, as well as
+shut them down. When you start them, they allocate certain resources (like memory, threads, sockets,
+etc.), so when you shut them down, they should give back these resources, so that these expensive
+resources are not wasted. If you do this, you can start and shutdown your threads, without any loss
+of resources. Here is an interface (called ServiceIF) that embodies these ideas:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="mi">1</span><span class="o">:</span> <span class="cm">/**
+   2:  * ServiceIF encapsulates a few methods that can be
+   3:  * invoked on a threaded object, to control the lifecycle of
+   4:  * this object. This includes:
+   5:  *   startup
+   6:  *   shutdown
+   7:  *   check the current liveness state (is it shutdown already?)
+   8:  *   a thread accessor method.
+   9:  */</span>
+  <span class="mi">10</span><span class="o">:</span> <span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ServiceIF</span>
+  <span class="mi">11</span><span class="o">:</span> <span class="o">{</span>
+  <span class="mi">12</span><span class="o">:</span>     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">start</span><span class="o">();</span>
+  <span class="mi">13</span><span class="o">:</span>     <span class="kd">public</span> <span class="kt">void</span> <span class="nf">shutdown</span><span class="o">();</span>
+  <span class="mi">14</span><span class="o">:</span>     <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isShutdownCompleted</span><span class="o">();</span>
+  <span class="mi">15</span><span class="o">:</span>     <span class="kd">public</span> <span class="nc">Thread</span><span class="o">[]</span> <span class="nf">getThreads</span><span class="o">();</span>
+  <span class="mi">16</span><span class="o">:</span>     <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isMultipleThreads</span><span class="o">();</span>
+  <span class="mi">17</span><span class="o">:</span> <span class="o">}</span>
+</code></pre></div></div>
+
+<p>A threaded class that properly implements this class can fit into most server side frameworks, where
+server side components are created (and terminated) by the framework at runtime. The getThreads()
+method might be useful in the worst case scenario, where the framework can cause the thread to
+self-terminate, and has to perform some low-level operations on it.</p>
+      <h3 id="serviceif-implementation-in-a-server-framework">
+        
+        
+          ServiceIF implementation in a server framework <a href="#serviceif-implementation-in-a-server-framework">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here is an implementation of this interface that uses the Queue class. The EventDispatcher processes
+objects that are placed in the Queue, by event object sources. You can plug in event handlers into
+this EventDispatcher class, but none are provided. This class can be used in the real world to do
+threaded queue processing, which is why it is so generic. However, it does have its own thread,
+which can be started and shutdown, and this is where the ServiceIF comes in. The way the
+EventDispatcher can be used in the real world, is by plugging some kind of event handler in there,
+which delegates events to different listeners. This is left as an exercise to the reader.</p>
+
+<p>Here is the EventDispatcher code:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   <span class="mi">1</span><span class="o">:</span> <span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>                 <span class="c1">//Vectors, etc</span>
+   <span class="mi">2</span><span class="o">:</span> <span class="kn">import</span> <span class="nn">java.io.*</span><span class="o">;</span>                   <span class="c1">//Serializable, etc</span>
+   <span class="mi">3</span><span class="o">:</span>
+   <span class="mi">4</span><span class="o">:</span> <span class="cm">/**
+   5:  * process():
+   6:  * This is a threaded class (it implements ServiceIF). Most of the
+   7:  * methods in this class are for thread management, except for
+   8:  * the process() method. If you are interested in adding more
+   9:  * event processing functionality to this class, you simply need
+  10:  * to modify this method alone.
+  11:  *
+  12:  * threads:
+  13:  * This class has its own thread (t), which simply calls the get()
+  14:  * method on the queue, and potentially wait()s for a long time.
+  15:  * As soon as it receives something from the queue (ie, the get()
+  16:  * method unblocks, and notify() is called) the thread runs the
+  17:  * process() method. This method looks at all the information that
+  18:  * comes in, and determines what to do (and where to route all this
+  19:  * information to). Rules processing basically, done on a thread
+  20:  * which is used to block on a get() from the queue. Now, once
+  21:  * processing happens, the right objects (possibly shared) in the
+  22:  * right places are updated with this new information. For example
+  23:  * events can be cast over sockets, and get turned back into
+  24:  * events on the listening side. Its like layering event dispatching
+  25:  * and processing over sockets.
+  26:  *
+  27:  */</span>
+  <span class="mi">28</span><span class="o">:</span> <span class="kd">public</span> <span class="kd">class</span> <span class="nc">EventDispatcher</span>
+  <span class="mi">29</span><span class="o">:</span> <span class="kd">implements</span> <span class="nc">ServiceIF</span><span class="o">,</span> <span class="nc">Runnable</span>
+  <span class="mi">30</span><span class="o">:</span> <span class="o">{</span>
+  <span class="mi">31</span><span class="o">:</span> <span class="c1">//</span>
+  <span class="mi">32</span><span class="o">:</span> <span class="c1">// Data Members</span>
+  <span class="mi">33</span><span class="o">:</span> <span class="c1">//</span>
+  <span class="mi">34</span><span class="o">:</span> <span class="kd">protected</span> <span class="nc">Queue</span> <span class="n">q</span><span class="o">;</span>
+  <span class="mi">35</span><span class="o">:</span>
+  <span class="mi">36</span><span class="o">:</span> <span class="cm">/** ServiceIF and DebugIF data */</span>
+  <span class="mi">37</span><span class="o">:</span> <span class="kd">protected</span> <span class="nc">Thread</span> <span class="n">t</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+  <span class="mi">38</span><span class="o">:</span> <span class="kd">protected</span> <span class="kt">boolean</span> <span class="n">shutdownCompletedFlag</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+  <span class="mi">39</span><span class="o">:</span> <span class="kd">protected</span> <span class="kt">boolean</span> <span class="n">shutdownFlag</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+  <span class="mi">40</span><span class="o">:</span>
+  <span class="mi">41</span><span class="o">:</span> <span class="cm">/** shutdown synch objects */</span>
+  <span class="mi">42</span><span class="o">:</span> <span class="kd">private</span> <span class="kt">boolean</span> <span class="n">isWaitingToGet</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+  <span class="mi">43</span><span class="o">:</span> <span class="kd">private</span> <span class="kd">final</span> <span class="nc">Object</span> <span class="n">lock</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StringBuffer</span><span class="o">();</span>
+  <span class="mi">44</span><span class="o">:</span>
+  <span class="mi">45</span><span class="o">:</span>
+  <span class="mi">46</span><span class="o">:</span> <span class="c1">//</span>
+  <span class="mi">47</span><span class="o">:</span> <span class="c1">// constructor</span>
+  <span class="mi">48</span><span class="o">:</span> <span class="c1">//</span>
+  <span class="mi">49</span><span class="o">:</span> <span class="kd">public</span> <span class="nf">EventDispatcher</span><span class="o">(</span> <span class="nc">Queue</span> <span class="n">q</span> <span class="o">){</span>
+  <span class="mi">50</span><span class="o">:</span>   <span class="k">this</span><span class="o">.</span><span class="na">q</span> <span class="o">=</span> <span class="n">q</span><span class="o">;</span>
+  <span class="mi">51</span><span class="o">:</span> <span class="o">}</span>
+  <span class="mi">52</span><span class="o">:</span>
+  <span class="mi">53</span><span class="o">:</span>
+  <span class="mi">54</span><span class="o">:</span> <span class="c1">//</span>
+  <span class="mi">55</span><span class="o">:</span> <span class="c1">// actual event processing method</span>
+  <span class="mi">56</span><span class="o">:</span> <span class="c1">//</span>
+  <span class="mi">57</span><span class="o">:</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">process</span><span class="o">(</span> <span class="nc">Object</span> <span class="n">o</span> <span class="o">){</span>
+  <span class="mi">58</span><span class="o">:</span>   <span class="c1">//insert your code here</span>
+  <span class="mi">59</span><span class="o">:</span> <span class="o">}</span>
+  <span class="mi">60</span><span class="o">:</span>
+  <span class="mi">61</span><span class="o">:</span>
+  <span class="mi">62</span><span class="o">:</span> <span class="c1">//</span>
+  <span class="mi">63</span><span class="o">:</span> <span class="c1">// Runnable impl</span>
+  <span class="mi">64</span><span class="o">:</span> <span class="c1">//</span>
+  <span class="mi">65</span><span class="o">:</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">(){</span>
+  <span class="mi">66</span><span class="o">:</span>   <span class="k">while</span><span class="o">(</span> <span class="n">shutdownFlag</span> <span class="o">==</span> <span class="kc">false</span> <span class="o">)</span> <span class="o">{</span>
+  <span class="mi">67</span><span class="o">:</span>     <span class="k">try</span><span class="o">{</span>
+  <span class="mi">68</span><span class="o">:</span>       <span class="c1">//try and get something from the q, this thread will wait()</span>
+  <span class="mi">69</span><span class="o">:</span>       <span class="c1">//if the queue is empty!</span>
+  <span class="mi">70</span><span class="o">:</span>       <span class="kd">synchronized</span><span class="o">(</span> <span class="n">lock</span> <span class="o">){</span>
+  <span class="mi">71</span><span class="o">:</span>         <span class="n">isWaitingToGet</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+  <span class="mi">72</span><span class="o">:</span>       <span class="o">}</span>
+  <span class="mi">73</span><span class="o">:</span>
+  <span class="mi">74</span><span class="o">:</span>       <span class="nc">Object</span> <span class="n">o</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">get</span><span class="o">();</span>
+  <span class="mi">75</span><span class="o">:</span>
+  <span class="mi">76</span><span class="o">:</span>       <span class="kd">synchronized</span><span class="o">(</span> <span class="n">lock</span> <span class="o">){</span>
+  <span class="mi">77</span><span class="o">:</span>         <span class="n">isWaitingToGet</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+  <span class="mi">78</span><span class="o">:</span>       <span class="o">}</span>
+  <span class="mi">79</span><span class="o">:</span>
+  <span class="mi">80</span><span class="o">:</span>       <span class="k">if</span><span class="o">(</span> <span class="n">o</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">)</span> <span class="o">{</span>
+  <span class="mi">81</span><span class="o">:</span>         <span class="c1">//someone interrupted thread (t) wait()ing on q.get()</span>
+  <span class="mi">82</span><span class="o">:</span>         <span class="c1">//someone must have asked for a shutdown;</span>
+  <span class="mi">83</span><span class="o">:</span>         <span class="c1">//in either case, break out of while loop, as the thread</span>
+  <span class="mi">84</span><span class="o">:</span>         <span class="c1">//cant continue in any meaningful manner.</span>
+  <span class="mi">85</span><span class="o">:</span>         <span class="k">break</span><span class="o">;</span>
+  <span class="mi">86</span><span class="o">:</span>       <span class="o">}</span>
+  <span class="mi">87</span><span class="o">:</span>
+  <span class="mi">88</span><span class="o">:</span>       <span class="c1">//perform some processing task on this object from the queue</span>
+  <span class="mi">89</span><span class="o">:</span>       <span class="k">try</span><span class="o">{</span>
+  <span class="mi">90</span><span class="o">:</span>         <span class="n">process</span><span class="o">(</span> <span class="n">o</span> <span class="o">);</span>
+  <span class="mi">91</span><span class="o">:</span>       <span class="o">}</span>
+  <span class="mi">92</span><span class="o">:</span>       <span class="k">catch</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">){</span>
+  <span class="mi">93</span><span class="o">:</span>         <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span> <span class="n">e</span> <span class="o">);</span>
+  <span class="mi">94</span><span class="o">:</span>         <span class="c1">//put the object back into the queue, as it could not be</span>
+  <span class="mi">95</span><span class="o">:</span>         <span class="c1">//processed</span>
+  <span class="mi">96</span><span class="o">:</span>         <span class="n">q</span><span class="o">.</span><span class="na">put</span><span class="o">(</span> <span class="n">o</span> <span class="o">);</span>
+  <span class="mi">97</span><span class="o">:</span>       <span class="o">}</span>
+  <span class="mi">98</span><span class="o">:</span>     <span class="o">}</span>
+  <span class="mi">99</span><span class="o">:</span>     <span class="k">catch</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">){</span>
+ <span class="mi">100</span><span class="o">:</span>       <span class="c1">//something bad happened period, shutdown!</span>
+ <span class="mi">101</span><span class="o">:</span>       <span class="n">shutdownFlag</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+ <span class="mi">102</span><span class="o">:</span>     <span class="o">}</span>
+ <span class="mi">103</span><span class="o">:</span>
+ <span class="mi">104</span><span class="o">:</span>     <span class="o">}</span><span class="c1">//end while (...)</span>
+ <span class="mi">105</span><span class="o">:</span>
+ <span class="mi">106</span><span class="o">:</span>
+ <span class="mi">107</span><span class="o">:</span>     <span class="c1">//</span>
+ <span class="mi">108</span><span class="o">:</span>     <span class="c1">//shutdown everything (release all open resources)</span>
+ <span class="mi">109</span><span class="o">:</span>     <span class="c1">//</span>
+ <span class="mi">110</span><span class="o">:</span>
+ <span class="mi">111</span><span class="o">:</span>     <span class="n">shutdownCompletedFlag</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+ <span class="mi">112</span><span class="o">:</span> <span class="o">}</span>
+ <span class="mi">113</span><span class="o">:</span>
+ <span class="mi">114</span><span class="o">:</span>
+ <span class="mi">115</span><span class="o">:</span> <span class="c1">//</span>
+ <span class="mi">116</span><span class="o">:</span> <span class="c1">// ServiceIF impl</span>
+ <span class="mi">117</span><span class="o">:</span> <span class="c1">//</span>
+ <span class="mi">118</span><span class="o">:</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">start</span><span class="o">(){</span>
+ <span class="mi">119</span><span class="o">:</span>   <span class="k">if</span><span class="o">(</span> <span class="n">t</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">)</span> <span class="o">{</span>
+ <span class="mi">120</span><span class="o">:</span>     <span class="n">t</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Thread</span><span class="o">(</span> <span class="k">this</span> <span class="o">);</span>
+ <span class="mi">121</span><span class="o">:</span>     <span class="n">t</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+ <span class="mi">122</span><span class="o">:</span>   <span class="o">}</span>
+ <span class="mi">123</span><span class="o">:</span>
+ <span class="mi">124</span><span class="o">:</span> <span class="o">}</span>
+ <span class="mi">125</span><span class="o">:</span>
+ <span class="mi">126</span><span class="o">:</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">shutdown</span><span class="o">(){</span>
+ <span class="mi">127</span><span class="o">:</span>
+ <span class="mi">128</span><span class="o">:</span>   <span class="kd">synchronized</span><span class="o">(</span> <span class="n">lock</span> <span class="o">){</span>
+ <span class="mi">129</span><span class="o">:</span>     <span class="k">if</span><span class="o">(</span> <span class="n">isWaitingToGet</span> <span class="o">==</span> <span class="kc">true</span> <span class="o">)</span> <span class="o">{</span>
+ <span class="mi">130</span><span class="o">:</span>       <span class="c1">//the thread (t) is currently wait()ing in the q.get() method</span>
+ <span class="mi">131</span><span class="o">:</span>       <span class="c1">//interrupt it!</span>
+ <span class="mi">132</span><span class="o">:</span>       <span class="c1">//shutdown imminent, InterruptedException handler should take</span>
+ <span class="mi">133</span><span class="o">:</span>       <span class="c1">//care of everything.</span>
+ <span class="mi">134</span><span class="o">:</span>       <span class="k">if</span><span class="o">(</span> <span class="o">!</span><span class="n">t</span><span class="o">.</span><span class="na">isInterrupted</span><span class="o">()</span> <span class="o">)</span> <span class="o">{</span>
+ <span class="mi">135</span><span class="o">:</span>         <span class="n">t</span><span class="o">.</span><span class="na">interrupt</span><span class="o">();</span>
+ <span class="mi">136</span><span class="o">:</span>       <span class="o">}</span>
+ <span class="mi">137</span><span class="o">:</span>     <span class="o">}</span>
+ <span class="mi">138</span><span class="o">:</span>   <span class="o">}</span><span class="c1">//end critical section</span>
+ <span class="mi">139</span><span class="o">:</span>
+ <span class="mi">140</span><span class="o">:</span>   <span class="n">shutdownFlag</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+ <span class="mi">141</span><span class="o">:</span>
+ <span class="mi">142</span><span class="o">:</span> <span class="o">}</span>
+ <span class="mi">143</span><span class="o">:</span>
+ <span class="mi">144</span><span class="o">:</span> <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isShutdownCompleted</span><span class="o">(){</span>
+ <span class="mi">145</span><span class="o">:</span>   <span class="k">return</span> <span class="n">shutdownCompletedFlag</span><span class="o">;</span>
+ <span class="mi">146</span><span class="o">:</span> <span class="o">}</span>
+ <span class="mi">147</span><span class="o">:</span>
+ <span class="mi">148</span><span class="o">:</span> <span class="kd">public</span> <span class="nc">Thread</span><span class="o">[]</span> <span class="nf">getThreads</span><span class="o">(){</span>
+ <span class="mi">149</span><span class="o">:</span>   <span class="nc">Thread</span><span class="o">[]</span> <span class="n">tRay</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Thread</span><span class="o">[</span> <span class="mi">1</span> <span class="o">];</span>
+ <span class="mi">150</span><span class="o">:</span>   <span class="n">tRay</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="n">t</span><span class="o">;</span>
+ <span class="mi">151</span><span class="o">:</span>   <span class="k">return</span> <span class="n">tRay</span><span class="o">;</span>
+ <span class="mi">152</span><span class="o">:</span> <span class="o">}</span>
+ <span class="mi">153</span><span class="o">:</span>
+ <span class="mi">154</span><span class="o">:</span> <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">isMultipleThreads</span><span class="o">(){</span>
+ <span class="mi">155</span><span class="o">:</span>   <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+ <span class="mi">156</span><span class="o">:</span> <span class="o">}</span>
+ <span class="mi">157</span><span class="o">:</span>
+ <span class="mi">158</span><span class="o">:</span>
+ <span class="mi">159</span><span class="o">:</span> <span class="o">}</span><span class="c1">//end of EventDispatcher class</span>
+</code></pre></div></div>
+
+<p>Study the code to see how each of the ServiceIF methods are implemented. There are quite a few flags
+that are used to determine the state of this object while it’s thread does what it needs to. The
+server framework thread is also understood to exist in this environment and it is the one that
+invokes all of the ServiceIF methods. The run() method contains all the operations that belong to
+the ServiceIF implementation’s own thread, which really does all the work. The server framework
+thread just controls the lifecycle.</p>
+
+<p>What are real world examples of a server framework? A really simple and effective one is the Servlet
+API framework. You can draw parallels in how the Servlet API controls the lifecycle of Servlet
+objects. Most server frameworks are similar in lifecycle management strategies/techniques.
+Studying/working with one at a low-level will give you insights on how to work in such an intimate
+level with these systems.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CC">
+                #cc</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/05/27/task-api-3-of-5-monitoring-http-post-operations/">
+                        Task API (3 of 3) - Monitoring HTTP POST operations
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/08/task-api-2-of-5-task-api-in-depth/">
+                        Task API (2 of 3) - Task API in-depth
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/05/task-api-quick-start-guide/">
+                        Task API (1 of 3) - Quick Start Guide
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/">
+                        Creating multi-threaded Swing apps that consume web services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2006/06/09/introduction-to-java-50-javautilconcurrent-api/">
+                        Introduction to Java 5 java.util.concurrent API
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/introduction-to-threads/">
+                        Introduction to Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2000/09/20/advanced-threads/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

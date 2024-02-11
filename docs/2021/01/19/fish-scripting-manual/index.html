@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>fish shell scripting manual | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="fish shell scripting manual" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Short manual on how to program using fish shell’s scripting language using lots of useful examples ranging from simple to complex" />
+<meta property="og:description" content="Short manual on how to program using fish shell’s scripting language using lots of useful examples ranging from simple to complex" />
+<link rel="canonical" href="http://developerlife.com/2021/01/19/fish-scripting-manual/" />
+<meta property="og:url" content="http://developerlife.com/2021/01/19/fish-scripting-manual/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-01-19T11:43:35-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="fish shell scripting manual" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2021-01-19T11:43:35-06:00","datePublished":"2021-01-19T11:43:35-06:00","description":"Short manual on how to program using fish shell’s scripting language using lots of useful examples ranging from simple to complex","headline":"fish shell scripting manual","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2021/01/19/fish-scripting-manual/"},"url":"http://developerlife.com/2021/01/19/fish-scripting-manual/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;fish shell scripting manual&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = fish shell scripting manual</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">fish shell scripting manual</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jan 19, 2021
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/fish-shell.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#shebang-line-at-the-top-of-your-scripts">Shebang line at the top of your scripts</a></li>
+  <li><a href="#how-to-set-variables">How to set variables</a>
+    <ul>
+      <li><a href="#variable-scopes-local-global-global-export">Variable scopes: local, global, global-export</a></li>
+      <li><a href="#lists">Lists</a></li>
+      <li><a href="#storing-return-values-from-running-a-command">Storing return values from running a command</a></li>
+      <li><a href="#ranges">Ranges</a></li>
+    </ul>
+  </li>
+  <li><a href="#how-to-write-for-loops">How to write for loops</a></li>
+  <li><a href="#how-to-write-if-statements">How to write if statements</a>
+    <ul>
+      <li><a href="#commonly-used-conditions">Commonly used conditions</a></li>
+      <li><a href="#program-script-or-function-exit-code">Program, script, or function exit code</a></li>
+      <li><a href="#difference-between-set--q-and-test--z">Difference between set -q and test -z</a></li>
+      <li><a href="#multiple-conditions-with-operators-and-or">Multiple conditions with operators: and, or</a></li>
+      <li><a href="#another-common-operator-not">Another common operator: not</a></li>
+      <li><a href="#references">References</a></li>
+    </ul>
+  </li>
+  <li><a href="#how-to-split-strings-by-a-delimiter">How to split strings by a delimiter</a></li>
+  <li><a href="#how-to-perform-string-comparisons">How to perform string comparisons</a></li>
+  <li><a href="#how-to-write-switch-statements-for-strings">How to write switch statements for strings</a></li>
+  <li><a href="#how-to-execute-strings">How to execute strings</a></li>
+  <li><a href="#how-to-write-functions">How to write functions</a>
+    <ul>
+      <li><a href="#pass-arguments-to-a-function">Pass arguments to a function</a></li>
+      <li><a href="#return-values-from-a-function">Return values from a function</a></li>
+    </ul>
+  </li>
+  <li><a href="#how-to-handle-file-and-folder-paths-for-dependencies">How to handle file and folder paths for dependencies</a></li>
+  <li><a href="#how-to-write-multi-line-strings-to-files">How to write multi line strings to files</a></li>
+  <li><a href="#how-to-create-colorized-echo-output">How to create colorized echo output</a></li>
+  <li><a href="#how-to-get-user-input">How to get user input</a></li>
+  <li><a href="#how-to-use-sed">How to use sed</a></li>
+  <li><a href="#how-to-use-xargs">How to use xargs</a></li>
+  <li><a href="#how-to-use-cut-to-split-strings">How to use cut to split strings</a></li>
+  <li><a href="#how-to-calculate-how-long-the-script-took-to-run">How to calculate how long the script took to run</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h2 id="shebang-line-at-the-top-of-your-scripts">
+        
+        
+          Shebang line at the top of your scripts <a href="#shebang-line-at-the-top-of-your-scripts">#</a>
+        
+        
+      </h2>
+    
+
+<p>To be able to run fish scripts from your terminal, you have to do two things.</p>
+
+<ol>
+  <li>Add the following shebang line to the top of your script file: <code class="language-plaintext highlighter-rouge">#!/usr/bin/env fish</code>.</li>
+  <li>Mark the file as executable using the following command: <code class="language-plaintext highlighter-rouge">chmod +x &lt;YOUR_FISH_SCRIPT_FILENAME&gt;</code>.</li>
+</ol>
+      <h2 id="how-to-set-variables">
+        
+        
+          How to set variables <a href="#how-to-set-variables">#</a>
+        
+        
+      </h2>
+    
+
+<p>Keep in mind that all types of values that can be assigned to variables in fish are strings. There
+is no such thing as boolean or integer or float, etc. Here’s a simple example of assigning a value
+to a variable. Here is
+<a href="https://stackoverflow.com/a/47762934/2085356">more information on stackoverflow</a> on this.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>MY_VAR <span class="s2">"some value"</span>
+</code></pre></div></div>
+
+<p>One of the most useful things that you can do is save the output of a command that you run in the
+shell in a variable. This is useful when you are testing to see if some program or command returned
+some values that mean that you should perform some other command (using string comparisons, if
+statements, and switch statements). Here’s are examples of doing this.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>CONFIG_FILE_DIFF_OUTPUT <span class="o">(</span>diff ~/Downloads/config.fish ~/.config/fish/config.fish<span class="o">)</span>
+<span class="nb">set </span>GIT_STATUS_OUTPUT <span class="o">(</span>git status <span class="nt">--porcelain</span><span class="o">)</span>
+</code></pre></div></div>
+      <h3 id="variable-scopes-local-global-global-export">
+        
+        
+          Variable scopes: local, global, global-export <a href="#variable-scopes-local-global-global-export">#</a>
+        
+        
+      </h3>
+    
+
+<p>There are times when you have to export variables to child processes and also times when you have to
+export variables to global scope. There are also times when you want this variable to be limited to
+local scope of the function you are writing. The fish documentation on the
+<a href="https://fishshell.com/docs/current/cmds/set.html"><code class="language-plaintext highlighter-rouge">set</code></a> function has more information on this.</p>
+
+<ul>
+  <li>To limit variables to local scope of the function (even if there is a global variable of the same
+name) use <code class="language-plaintext highlighter-rouge">set -l</code>. This type of variable is not available to the entire fish shell. An example of
+this is a local variable that is used to hold some value just for the scope of a function, such as
+<code class="language-plaintext highlighter-rouge">set -l fname (realpath .)</code></li>
+  <li>Export variable using <code class="language-plaintext highlighter-rouge">set -x</code> (this is only available inside the current fish shell). An example
+of this is setting the <code class="language-plaintext highlighter-rouge">DISPLAY</code> environment variable for X11 session in a fish function that is
+running in a <code class="language-plaintext highlighter-rouge">crontab</code> headless environment.</li>
+  <li>Export variable globally using <code class="language-plaintext highlighter-rouge">set -gx</code> (this is available to any programs in your OS, not just
+the currently running fish shell process). An example of this is setting the <code class="language-plaintext highlighter-rouge">JAVA_HOME</code>
+environment variable for all programs running on the machine.</li>
+</ul>
+      <h3 id="lists">
+        
+        
+          Lists <a href="#lists">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s an example of appending values to a variable. By default fish variables are lists.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>MY_VAR <span class="nv">$MY_VAR</span> <span class="s2">"another value"</span>
+</code></pre></div></div>
+
+<p>This is how you can create lists.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>MY_LIST <span class="s2">"value1"</span> <span class="s2">"value2"</span> <span class="s2">"value3"</span>
+</code></pre></div></div>
+      <h3 id="storing-return-values-from-running-a-command">
+        
+        
+          Storing return values from running a command <a href="#storing-return-values-from-running-a-command">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s an example of storing value returned from the execution of a command to a variable.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>OUR_VAR <span class="o">(</span>math 1+2<span class="o">)</span>
+<span class="nb">set </span>OUR_VAR <span class="o">(</span><span class="nb">date</span> +%s<span class="o">)</span>
+<span class="nb">set </span>OUR_VAR <span class="o">(</span>math <span class="nv">$OUR_VAR</span> / 60<span class="o">)</span>
+</code></pre></div></div>
+
+<p>Since all fish variables are lists, you can access individual elements using <code class="language-plaintext highlighter-rouge">[n]</code> operator, where
+<code class="language-plaintext highlighter-rouge">n=1</code> for the first element (not 0 index). Here’s an example. And negative numbers access elements
+from the end.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>LIST one two three
+<span class="nb">echo</span> <span class="nv">$LIST</span><span class="o">[</span>1]  <span class="c"># one</span>
+<span class="nb">echo</span> <span class="nv">$LIST</span><span class="o">[</span>2]  <span class="c"># two</span>
+<span class="nb">echo</span> <span class="nv">$LIST</span><span class="o">[</span>3]  <span class="c"># three</span>
+<span class="nb">echo</span> <span class="nv">$LIST</span><span class="o">[</span><span class="nt">-1</span><span class="o">]</span> <span class="c"># This is the same element as above</span>
+</code></pre></div></div>
+      <h3 id="ranges">
+        
+        
+          Ranges <a href="#ranges">#</a>
+        
+        
+      </h3>
+    
+
+<p>You can also use ranges from the variable / list, continuing the example above.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>LIST one two three
+<span class="nb">echo</span> <span class="nv">$LIST</span><span class="o">[</span>1..2]  <span class="c"># one two</span>
+<span class="nb">echo</span> <span class="nv">$LIST</span><span class="o">[</span>2..3]  <span class="c"># two three</span>
+<span class="nb">echo</span> <span class="nv">$LIST</span><span class="o">[</span><span class="nt">-1</span>..2] <span class="c"># three two</span>
+</code></pre></div></div>
+
+<ul>
+  <li><a href="https://fishshell.com/docs/current/tutorial.html#tut_lists">Here’s the doc for lists</a></li>
+</ul>
+      <h2 id="how-to-write-for-loops">
+        
+        
+          How to write for loops <a href="#how-to-write-for-loops">#</a>
+        
+        
+      </h2>
+    
+
+<p>Since variables contain lists by default, it is very easy to iterate thru them. Here’s an example.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>FOLDERS bin
+<span class="nb">set </span>FOLDERS <span class="nv">$FOLDERS</span> .atom
+<span class="nb">set </span>FOLDERS <span class="nv">$FOLDERS</span> <span class="s2">"my foldername"</span>
+<span class="k">for </span>FOLDER <span class="k">in</span> <span class="nv">$FOLDERS</span>
+  <span class="nb">echo</span> <span class="s2">"item: </span><span class="nv">$FOLDER</span><span class="s2">"</span>
+end
+</code></pre></div></div>
+
+<p>You can also simplify the code above by putting all the <code class="language-plaintext highlighter-rouge">set</code> commands in a single line like this.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>FOLDERS bin .atom <span class="s2">"my foldername"</span>
+<span class="k">for </span>FOLDER <span class="k">in</span> <span class="nv">$FOLDERS</span>
+  <span class="nb">echo</span> <span class="s2">"item: </span><span class="nv">$FOLDER</span><span class="s2">"</span>
+end
+</code></pre></div></div>
+
+<p>You can also put the entire for statement in a single line like this.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>FOLDERS bin .atom <span class="s2">"my foldername"</span>
+<span class="k">for </span>FOLDER <span class="k">in</span> <span class="nv">$FOLDERS</span> <span class="p">;</span> <span class="nb">echo</span> <span class="s2">"item: </span><span class="nv">$FOLDER</span><span class="s2">"</span> <span class="p">;</span> end
+</code></pre></div></div>
+      <h2 id="how-to-write-if-statements">
+        
+        
+          How to write if statements <a href="#how-to-write-if-statements">#</a>
+        
+        
+      </h2>
+    
+
+<p>The key to writing if statements is using the <code class="language-plaintext highlighter-rouge">test</code> command to evaluate some expression to a
+boolean. This can be string comparisons or even testing the existence of files and folders. Here are
+some examples. You can also use the <code class="language-plaintext highlighter-rouge">not</code> operator to prefix the test to check for the inverse
+condition.</p>
+      <h3 id="commonly-used-conditions">
+        
+        
+          Commonly used conditions <a href="#commonly-used-conditions">#</a>
+        
+        
+      </h3>
+    
+
+<p>Checking the size of an array. <code class="language-plaintext highlighter-rouge">$argv</code> contains the list of arguments passed to a script from the
+command line.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">test</span> <span class="o">(</span>count <span class="nv">$argv</span><span class="o">)</span> <span class="nt">-lt</span> 2
+  <span class="nb">echo</span> <span class="s2">"Usage: my-script &lt;arg1&gt; &lt;arg2&gt;"</span>
+  <span class="nb">echo</span> <span class="s2">"Eg: &lt;arg1&gt; can be 'foo', &lt;arg2&gt; can be 'bar'"</span>
+<span class="k">else
+  </span><span class="nb">echo</span> <span class="s2">"👋 Do something with </span><span class="nv">$arg1</span><span class="s2"> </span><span class="nv">$arg2</span><span class="s2">"</span>
+end
+</code></pre></div></div>
+
+<p>String comparison in variable.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">test</span> <span class="nv">$hostname</span> <span class="o">=</span> <span class="s2">"mymachine"</span>
+  <span class="nb">echo</span> <span class="s2">"hostname is mymachine"</span>
+end
+</code></pre></div></div>
+
+<p>Checking for file existence.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">test</span> <span class="nt">-e</span> <span class="s2">"somefile"</span>
+  <span class="nb">echo</span> <span class="s2">"somefile exists"</span>
+end
+</code></pre></div></div>
+
+<p>Checking for folder existence.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">test</span> <span class="nt">-d</span> <span class="s2">"somefolder"</span>
+  <span class="nb">echo</span> <span class="s2">"somefolder exists"</span>
+end
+</code></pre></div></div>
+
+<p>Checking for file wildcard existence is a little different than both file and folder checks. The
+reason for this is how fish handles wildcards - they are expanded by fish before it performs
+whatever command on them.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set</span> <span class="nt">-l</span> files ~/Downloads/<span class="k">*</span>.mp4 <span class="c"># This wildcard expression is expanded to include the actual files</span>
+<span class="k">if </span><span class="nb">test</span> <span class="o">(</span>count <span class="nv">$files</span><span class="o">)</span> <span class="nt">-gt</span> 0
+  <span class="nb">mv</span> ~/Downloads/<span class="k">*</span>.mp4 ~/Videos/
+  <span class="nb">echo</span> <span class="s2">"📹 Moved '</span><span class="nv">$files</span><span class="s2">' to ~/Videos/"</span>
+<span class="k">else
+  </span><span class="nb">echo</span> <span class="s2">"⛔ No mp4 files found in Downloads"</span>
+end
+</code></pre></div></div>
+
+<p>Here’s an example of how to use the <code class="language-plaintext highlighter-rouge">not</code> operator in the previous example.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span>not <span class="nb">test</span> <span class="nt">-d</span> <span class="s2">"somefolder"</span>
+  <span class="nb">echo</span> <span class="s2">"somefolder does not exist"</span>
+end
+</code></pre></div></div>
+      <h3 id="program-script-or-function-exit-code">
+        
+        
+          Program, script, or function exit code <a href="#program-script-or-function-exit-code">#</a>
+        
+        
+      </h3>
+    
+
+<p>The idea with exit codes is that your function or entire fish script could be used by some other
+program that understands exit codes. In other words there could be an if statement that is going to
+use the exit code to determine some condition. This is a very common pattern that is used with other
+command line programs. Exit codes are different than <a href="#return-values-from-a-function">return values</a>
+from a function.</p>
+
+<p>Here’s an example of using the exit code of some <code class="language-plaintext highlighter-rouge">git</code> command:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="o">(</span>git pull <span class="nt">-f</span> <span class="nt">--rebase</span><span class="o">)</span>
+  <span class="nb">echo</span> <span class="s2">"git pull with rebase worked without any issues"</span>
+<span class="k">else
+  </span><span class="nb">echo</span> <span class="s2">"Something went wrong that requires manual intervention, like a merge conflict"</span>
+end
+</code></pre></div></div>
+
+<p>Here’s an example of how to test whether a command executed without errors.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">sudo </span>umount /media/user/mountpoint
+  <span class="nb">echo</span> <span class="s2">"Successfully unmounted /media/user/mountpoint"</span>
+end
+</code></pre></div></div>
+
+<p>You can also check the value of the <code class="language-plaintext highlighter-rouge">$status</code> variable. Fish stores the return value in this
+variable, just after a command is executed. Here’s
+<a href="https://fishshell.com/docs/2.3/faq.html">more info</a> on this.</p>
+
+<p>When you are writing functions you can use the following keyword to exit functions or loops:
+<code class="language-plaintext highlighter-rouge">return</code>. This may be followed by a number. So here’s what it means.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">return</code> or <code class="language-plaintext highlighter-rouge">return 0</code> - This means that the function exited normally.</li>
+  <li><code class="language-plaintext highlighter-rouge">return 1</code> or some other number &gt; 0 - This means that the function had some problem.</li>
+</ol>
+
+<p>You can exit the fish shell itself using <code class="language-plaintext highlighter-rouge">exit</code>. And the integer exit codes have the same meaning as
+above.</p>
+      <h3 id="difference-between-set--q-and-test--z">
+        
+        
+          Difference between set -q and test -z <a href="#difference-between-set--q-and-test--z">#</a>
+        
+        
+      </h3>
+    
+
+<p>There is a subtle difference between using <code class="language-plaintext highlighter-rouge">set -q</code> and <code class="language-plaintext highlighter-rouge">test -z</code> in if statements when checking to
+see if a variable is empty.</p>
+
+<ol>
+  <li>In the case of <code class="language-plaintext highlighter-rouge">test -z</code> make sure to wrap the variable in quotes, since it might just break in
+some edge cases if it isn’t wrapped in quotes.</li>
+  <li>However, you can use <code class="language-plaintext highlighter-rouge">set -q</code> to test if a variable has been set without wrapping it in quotes.</li>
+</ol>
+
+<p>Here’s an example.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>GIT_STATUS <span class="o">(</span>git status <span class="nt">--porcelain</span><span class="o">)</span>
+<span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> <span class="nv">$GIT_STATUS</span> <span class="p">;</span> <span class="nb">echo</span> <span class="s2">"No changes in repo"</span> <span class="p">;</span> end
+<span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$GIT_STATUS</span><span class="s2">"</span> <span class="p">;</span> <span class="nb">echo</span> <span class="s2">"No changes in repo"</span> <span class="p">;</span> end
+</code></pre></div></div>
+      <h3 id="multiple-conditions-with-operators-and-or">
+        
+        
+          Multiple conditions with operators: and, or <a href="#multiple-conditions-with-operators-and-or">#</a>
+        
+        
+      </h3>
+    
+
+<p>If you want to combine multiple conditions into a single statement, then you can use <code class="language-plaintext highlighter-rouge">or</code> and <code class="language-plaintext highlighter-rouge">and</code>
+operators. Also if you want to check the inverse of a condition, you can use <code class="language-plaintext highlighter-rouge">!</code>. Here’s an example
+of a function that checks for 2 arguments to be passed via the command line. Here’s the logic we
+will describe.</p>
+
+<ol>
+  <li>If both the arguments are missing, then usage information should be displayed to the CLI, and
+perform an early return.</li>
+  <li>If either one of the arguments is missing, then display a prompt stating that one of the
+arguments is missing, and perform an early return.</li>
+</ol>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>requires-two-arguments
+  <span class="c"># No arguments are passed.</span>
+  <span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> <span class="s2">"</span><span class="nv">$argv</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"Usage: requires-two-arguments arg1 arg2"</span>
+    <span class="k">return </span>1
+  end
+  <span class="c"># Only 1 argument is passed.</span>
+  <span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$argv</span><span class="s2">[1]"</span><span class="p">;</span> or <span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$argv</span><span class="s2">[2]"</span>
+    <span class="nb">echo</span> <span class="s2">"arg1 or arg2 can not be empty"</span>
+    <span class="k">return </span>1
+  end
+  <span class="nb">echo</span> <span class="s2">"Thank you, got 1) </span><span class="nv">$argv</span><span class="s2">[1] and 2) </span><span class="nv">$argv</span><span class="s2">[2]"</span>
+end
+</code></pre></div></div>
+
+<p>Here are some notes on the code.</p>
+
+<ol>
+  <li>What does the <a href="https://fishshell.com/docs/current/cmds/set.html"><code class="language-plaintext highlighter-rouge">set -q $variable</code></a> function do?
+It returns true if <code class="language-plaintext highlighter-rouge">$variable</code> is empty.</li>
+  <li>Instead of <code class="language-plaintext highlighter-rouge">set -q</code>, if you wanted to use
+<a href="https://fishshell.com/docs/current/cmds/test.html"><code class="language-plaintext highlighter-rouge">test</code></a> function in order to determine if a
+variable is empty, you can use:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">if test -z "$variable"</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">if test ! -n "$variable"</code> or <code class="language-plaintext highlighter-rouge">if not test -n "$variable"</code>.</li>
+    </ul>
+  </li>
+  <li>If you wanted to replace the <code class="language-plaintext highlighter-rouge">or</code> check above w/ <code class="language-plaintext highlighter-rouge">test</code>, this is what it would look like
+<code class="language-plaintext highlighter-rouge">if test -z "$argv[1]"; or test -z "$argv[2]"</code>.</li>
+  <li>When you use <code class="language-plaintext highlighter-rouge">or</code>, <code class="language-plaintext highlighter-rouge">and</code> operators that you have to terminate the condition expression w/ a <code class="language-plaintext highlighter-rouge">;</code>.</li>
+  <li>Make sure to wrap the variable in empty quotes. If an empty string is contained inside the
+variable, then without these quotes, the statements will cause errors.</li>
+</ol>
+
+<p>Here’s another example of this to test if <code class="language-plaintext highlighter-rouge">$variable</code> is empty or not.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$variable</span><span class="s2">"</span> <span class="p">;</span> <span class="nb">echo</span> <span class="s2">"empty"</span> <span class="p">;</span> <span class="k">else</span> <span class="p">;</span> <span class="nb">echo</span> <span class="s2">"non-empty"</span> <span class="p">;</span> end
+</code></pre></div></div>
+
+<p>Here’s another example of this to test if <code class="language-plaintext highlighter-rouge">$variable</code> contains a string or not.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">test</span> <span class="nt">-n</span> <span class="s2">"</span><span class="nv">$variable</span><span class="s2">"</span> <span class="p">;</span> <span class="nb">echo</span> <span class="s2">"non-empty"</span> <span class="p">;</span> <span class="k">else</span> <span class="p">;</span> <span class="nb">echo</span> <span class="s2">"empty"</span> <span class="p">;</span> end
+</code></pre></div></div>
+      <h3 id="another-common-operator-not">
+        
+        
+          Another common operator: not <a href="#another-common-operator-not">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s an example of using the <code class="language-plaintext highlighter-rouge">not</code> operator to test whether a string contains a string fragment or
+not.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span>not string match <span class="nt">-q</span> <span class="s2">"*md"</span> <span class="nv">$argv</span><span class="o">[</span>1]
+  <span class="nb">echo</span> <span class="s2">"The argument passed does not end in md"</span>
+<span class="k">else
+  </span><span class="nb">echo</span> <span class="s2">"The argument passed ends in md"</span>
+end
+</code></pre></div></div>
+      <h3 id="references">
+        
+        
+          References <a href="#references">#</a>
+        
+        
+      </h3>
+    
+
+<ol>
+  <li><a href="https://fishshell.com/docs/current/cmds/test.html">test command</a></li>
+  <li><a href="https://fishshell.com/docs/current/cmds/set.html">set command</a></li>
+  <li><a href="https://fishshell.com/docs/current/cmds/if.html">if command</a></li>
+  <li><a href="https://stackoverflow.com/questions/47743015/fish-shell-how-to-check-if-a-variable-is-set-empty">stackoverflow answer: how to check if fish variable is empty</a></li>
+  <li><a href="https://stackoverflow.com/questions/17900078/in-fish-shell-how-can-i-put-two-conditions-in-an-if-statement">stackoverflow answer: how to put multiple conditions in fish if statement</a></li>
+</ol>
+      <h2 id="how-to-split-strings-by-a-delimiter">
+        
+        
+          How to split strings by a delimiter <a href="#how-to-split-strings-by-a-delimiter">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are situations when you want to take the output of a command, which is a string, and then
+split it by some delimiter, to use just a portion of the output string. An example of getting the
+SHA checksum of a given file. The command <code class="language-plaintext highlighter-rouge">shasum &lt;filename&gt;</code> produces something like
+<code class="language-plaintext highlighter-rouge">df..d8 &lt;filename&gt;</code>. Let’s say that we just wanted the first portion of this string (the SHA),
+knowing that the delimiter is two space characters, we can do the following to get just the checksum
+portion and store it in <code class="language-plaintext highlighter-rouge">$CHECKSUM</code>. Here’s more info on the
+<a href="https://fishshell.com/docs/current/cmds/string-split.html"><code class="language-plaintext highlighter-rouge">string split</code> command</a>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>CHECKSUM_ARRAY_STRING <span class="o">(</span>shasum <span class="nv">$FILENAME</span><span class="o">)</span>
+<span class="nb">set </span>CHECKSUM_ARRAY <span class="o">(</span>string <span class="nb">split</span> <span class="s2">"  "</span> <span class="nv">$SOURCE_CHECKSUM_ARRAY</span><span class="o">)</span>
+<span class="nb">set </span>CHECKSUM <span class="nv">$CHECKSUM_ARRAY</span><span class="o">[</span>1]
+</code></pre></div></div>
+      <h2 id="how-to-perform-string-comparisons">
+        
+        
+          How to perform string comparisons <a href="#how-to-perform-string-comparisons">#</a>
+        
+        
+      </h2>
+    
+
+<p>In order to test substring matches in strings you can use the <code class="language-plaintext highlighter-rouge">string match</code> command. Here is more
+information on the command:</p>
+
+<ol>
+  <li><a href="https://fishshell.com/docs/current/cmds/string-match.html">Official docs on string match</a>.</li>
+  <li><a href="https://unix.stackexchange.com/a/504931/302646">Stackoverflow answer on how to use it</a>.</li>
+</ol>
+
+<p>Here’s an example of this in action. Note the use of <code class="language-plaintext highlighter-rouge">-q</code> or <code class="language-plaintext highlighter-rouge">--quiet</code> which does not echo the
+output of the string if the match condition was met (succeeded).</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span>string match <span class="nt">-q</span> <span class="s2">"*myname*"</span> <span class="nv">$hostname</span>
+  <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$hostname</span><span class="s2"> contains myname"</span>
+<span class="k">else
+  </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$hostname</span><span class="s2"> does not contain myname"</span>
+end
+</code></pre></div></div>
+
+<p>Here’s an example of checking for an exact string match.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">test</span> <span class="nv">$hostname</span> <span class="o">=</span> <span class="s2">"machine-name"</span>
+  <span class="nb">echo</span> <span class="s2">"Exact match"</span>
+<span class="k">else
+  </span><span class="nb">echo</span> <span class="s2">"Not exact match"</span>
+end
+</code></pre></div></div>
+
+<p>Here’s an example of testing whether a string is empty or not.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> <span class="nv">$my_variable</span>
+  <span class="nb">echo</span> <span class="s2">"my_variable is empty"</span>
+end
+</code></pre></div></div>
+
+<p>Here’s a sophisticated example that tests to see if the packages <code class="language-plaintext highlighter-rouge">ruby-dev</code> and <code class="language-plaintext highlighter-rouge">ruby-bundler</code> are
+installed. If they are then <code class="language-plaintext highlighter-rouge">jekyll</code> gets run, and if not, then these packages are installed.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Return "true" if $packageName is installed, and "false" otherwise.</span>
+<span class="c"># Use it in an if statement like this:</span>
+<span class="c">#</span>
+<span class="c"># if string match -q "false" (isPackageInstalled my-package-name)</span>
+<span class="c">#   echo "my-package-name is not installed"</span>
+<span class="c"># else</span>
+<span class="c">#   echo "my-package-name is installed"</span>
+<span class="c"># end</span>
+<span class="k">function </span>isPackageInstalled <span class="nt">-a</span> packageName
+  <span class="nb">set </span>packageIsInstalled <span class="o">(</span>dpkg <span class="nt">-l</span> <span class="s2">"</span><span class="nv">$packageName</span><span class="s2">"</span><span class="o">)</span>
+  <span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$packageIsInstalled</span><span class="s2">"</span>
+    <span class="nb">set </span>packageIsInstalled <span class="nb">false
+  </span><span class="k">else
+    </span><span class="nb">set </span>packageIsInstalled <span class="nb">true
+  </span>end
+  <span class="nb">echo</span> <span class="nv">$packageIsInstalled</span>
+end
+
+<span class="c"># More info to find if a package is installed: https://askubuntu.com/a/823630/872482</span>
+<span class="k">if </span><span class="nb">test</span> <span class="o">(</span><span class="nb">uname</span><span class="o">)</span> <span class="o">=</span> <span class="s2">"Linux"</span>
+
+  <span class="nb">echo</span> <span class="s2">"🐒isPackageInstalled does-not-exist:"</span> <span class="o">(</span>isPackageInstalled does-not-exist<span class="o">)</span>
+
+  <span class="k">if </span>string match <span class="nt">-q</span> <span class="s2">"false"</span> <span class="o">(</span>isPackageInstalled ruby-dev<span class="o">)</span> <span class="p">;</span>
+    or string match <span class="nt">-q</span> <span class="s2">"false"</span> <span class="o">(</span>isPackageInstalled ruby-bundler<span class="o">)</span>
+    <span class="c"># Install ruby</span>
+    <span class="nb">echo</span> <span class="s2">"ruby-bundler or ruby-dev are not installed; installing now..."</span>
+    <span class="nb">echo sudo </span>apt <span class="nb">install</span> <span class="nt">-y</span> ruby-bundler ruby-dev
+  <span class="k">else
+    </span>bundle <span class="nb">install
+    </span>bundle update
+    bundle <span class="nb">exec </span>jekyll serve
+  end
+
+end
+</code></pre></div></div>
+      <h2 id="how-to-write-switch-statements-for-strings">
+        
+        
+          How to write switch statements for strings <a href="#how-to-write-switch-statements-for-strings">#</a>
+        
+        
+      </h2>
+    
+
+<p>In order to create switch statements for strings, the <code class="language-plaintext highlighter-rouge">test</code> command is used here as well (just like
+it was for <a href="#how-to-write-if-statements">if statements</a>). The <code class="language-plaintext highlighter-rouge">case</code> statements need to match
+substrings, which can be expressed using a combination of wildcard chars and the substring you want
+to match. Here’s an example.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>switch <span class="nv">$hostname</span>
+<span class="k">case</span> <span class="s2">"*substring1*"</span>
+  <span class="nb">echo</span> <span class="s2">"Matches </span><span class="nv">$hostname</span><span class="s2"> containing substring1"</span>
+<span class="k">case</span> <span class="s2">"*substring2*"</span>
+  <span class="nb">echo</span> <span class="s2">"Matches </span><span class="nv">$hostname</span><span class="s2"> containing substring2"</span>
+end
+</code></pre></div></div>
+
+<p>You can combine this w/ if statements as well, and end up w/ something like this.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">test</span> <span class="o">(</span><span class="nb">uname</span><span class="o">)</span> <span class="o">=</span> <span class="s2">"Darwin"</span>
+  <span class="nb">echo</span> <span class="s2">"Machine is running macOS"</span>
+  switch <span class="nv">$hostname</span>
+  <span class="k">case</span> <span class="s2">"*MacBook-Pro*"</span>
+    <span class="nb">echo</span> <span class="s2">"hostname has MacBook-Pro in it"</span>
+  <span class="k">case</span> <span class="s2">"*MacBook-Air*"</span>
+    <span class="nb">echo</span> <span class="s2">"hostname has MacBook-Air in it"</span>
+  end
+<span class="k">else
+  </span><span class="nb">echo</span> <span class="s2">"Machine is not running macOS"</span>
+end
+</code></pre></div></div>
+      <h2 id="how-to-execute-strings">
+        
+        
+          How to execute strings <a href="#how-to-execute-strings">#</a>
+        
+        
+      </h2>
+    
+
+<p>The safest way to execute strings that are generated in the script is to use the following pattern.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"ls </span><span class="se">\</span><span class="s2">
+  -la"</span> | sh
+</code></pre></div></div>
+
+<p>This not only makes it easier to debug, but also avoids strange errors when doing multi-line breaks
+using <code class="language-plaintext highlighter-rouge">\</code>.</p>
+      <h2 id="how-to-write-functions">
+        
+        
+          How to write functions <a href="#how-to-write-functions">#</a>
+        
+        
+      </h2>
+    
+
+<p>A fish function is just a list of commands that may optionally take arguments. These arguments are
+just passed in as a list (since all variables in fish are lists).</p>
+
+<p>Here’s an example.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>say_hi
+  <span class="nb">echo</span> <span class="s2">"Hi </span><span class="nv">$argv</span><span class="s2">"</span>
+end
+say_hi
+say_hi everbody!
+say_hi you and you and you
+</code></pre></div></div>
+
+<p>Once you have written a function you can see what it is by using <code class="language-plaintext highlighter-rouge">type</code>, eg: <code class="language-plaintext highlighter-rouge">type say_hi</code> will show
+you the function that you just created above.</p>
+
+<ul>
+  <li><a href="https://fishshell.com/docs/current/tutorial.html#tut_functions">Here’s the doc for functions</a></li>
+</ul>
+      <h3 id="pass-arguments-to-a-function">
+        
+        
+          Pass arguments to a function <a href="#pass-arguments-to-a-function">#</a>
+        
+        
+      </h3>
+    
+
+<p>In addition to using <code class="language-plaintext highlighter-rouge">$argv</code> to figure out what parameters were passed to a function, you can
+provide a list of named parameters that a function expects. Here is more information on this
+<a href="https://fishshell.com/docs/current/cmds/function.html">from the official docs</a>.</p>
+
+<p>Some key things to keep in mind:</p>
+
+<ol>
+  <li>Parameter names can not have <code class="language-plaintext highlighter-rouge">-</code> characters in them, so use <code class="language-plaintext highlighter-rouge">_</code> instead.</li>
+  <li>Do not use the <code class="language-plaintext highlighter-rouge">(</code> and <code class="language-plaintext highlighter-rouge">)</code> to pass arguments to a function, simply pass the arguments in a single
+line w/ spaces.</li>
+</ol>
+
+<p>Here’s an example.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>testFunction <span class="nt">-a</span> param1 param2
+  <span class="nb">echo</span> <span class="s2">"arg1 = </span><span class="nv">$param1</span><span class="s2">"</span>
+  <span class="nb">echo</span> <span class="s2">"arg2 = </span><span class="nv">$param2</span><span class="s2">"</span>
+end
+testFunction A B
+</code></pre></div></div>
+
+<p>Here’s another example that tests for the existence of a certain number of arguments that are passed
+to a function.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Note parameter names can't have dashes in them, only underscores.</span>
+<span class="k">function </span>my-function <span class="nt">-a</span> extension search_term
+  <span class="k">if </span><span class="nb">test</span> <span class="o">(</span>count <span class="nv">$argv</span><span class="o">)</span> <span class="nt">-lt</span> 2
+    <span class="nb">echo</span> <span class="s2">"Usage: my-function &lt;extension&gt; &lt;search_term&gt;"</span>
+    <span class="nb">echo</span> <span class="s2">"Eg: &lt;extension&gt; can be 'fish', &lt;search_term&gt; can be 'test'"</span>
+  <span class="k">else
+    </span><span class="nb">echo</span> <span class="s2">"✋ Do something with </span><span class="nv">$extension</span><span class="s2"> </span><span class="nv">$search_term</span><span class="s2">"</span>
+  end
+end
+</code></pre></div></div>
+      <h3 id="return-values-from-a-function">
+        
+        
+          Return values from a function <a href="#return-values-from-a-function">#</a>
+        
+        
+      </h3>
+    
+
+<p>You might want to return a value from a function (typically just a string). You can also return many
+strings delimited by new lines. Regardless, the mechanism for doing this is the same. You simply
+have to use <code class="language-plaintext highlighter-rouge">echo</code> to dump the return value(s) to stdout.</p>
+
+<p>Here’s an example.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>getSHAForFilePath <span class="nt">-a</span> filepath
+  <span class="nb">set </span>NULL_VALUE <span class="s2">""</span>
+  <span class="c"># No $filepath provided, or $filepath does not exist -&gt; early return w/ $NULL_VALUE.</span>
+  <span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> <span class="nv">$filepath</span><span class="p">;</span> or not <span class="nb">test</span> <span class="nt">-e</span> <span class="nv">$filepath</span>
+    <span class="nb">echo</span> <span class="nv">$NULL_VALUE</span>
+    <span class="k">return </span>0
+  <span class="k">else
+    </span><span class="nb">set </span>SHASUM_ARRAY_STRING <span class="o">(</span>shasum <span class="nv">$filepath</span><span class="o">)</span>
+    <span class="nb">set </span>SHASUM_ARRAY <span class="o">(</span>string <span class="nb">split</span> <span class="s2">"  "</span> <span class="nv">$SHASUM_ARRAY_STRING</span><span class="o">)</span>
+    <span class="nb">echo</span> <span class="nv">$SHASUM_ARRAY</span><span class="o">[</span>1]
+  end
+end
+
+<span class="k">function </span>testTheFunction
+  <span class="nb">echo</span> <span class="o">(</span>getSHAForFilePath ~/local-backup-restore/does-not-exist.fish<span class="o">)</span>
+  <span class="nb">echo</span> <span class="o">(</span>getSHAForFilePath<span class="o">)</span>
+  <span class="nb">set </span>mySha <span class="o">(</span>getSHAForFilePath ~/local-backup-restore/test.fish<span class="o">)</span>
+  <span class="nb">echo</span> <span class="nv">$mySha</span>
+end
+
+testTheFunction
+</code></pre></div></div>
+      <h2 id="how-to-handle-file-and-folder-paths-for-dependencies">
+        
+        
+          How to handle file and folder paths for dependencies <a href="#how-to-handle-file-and-folder-paths-for-dependencies">#</a>
+        
+        
+      </h2>
+    
+
+<p>As your scripts become more complex, you might need to handle loading multiple scripts. In this case
+you can just pull other scripts in from your current script by using <code class="language-plaintext highlighter-rouge">source my-script.fish</code>.
+However fish looks for this <code class="language-plaintext highlighter-rouge">my-script.fish</code> file in the current directory, from which you started
+executing the script. And this current directory might not match where you need to load this
+dependency from. This can happen if your main script is on the <code class="language-plaintext highlighter-rouge">$PATH</code> but the dependencies are not.
+In this case, you can do something like the following in your main script.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>MY_FOLDER_PATH <span class="o">(</span><span class="nb">dirname</span> <span class="o">(</span>status <span class="nt">--current-filename</span><span class="o">))</span>
+<span class="nb">source</span> <span class="nv">$MY_FOLDER_PATH</span>/my-script.fish
+</code></pre></div></div>
+
+<p>So what this snippet actually does is get the folder in which the main script is running, and stores
+it in <code class="language-plaintext highlighter-rouge">MY_FOLDER_PATH</code> and then it become possible for any dependencies to be loaded using the
+<code class="language-plaintext highlighter-rouge">source</code> command. There is one limitation to this approach, which is that the path stored in
+<code class="language-plaintext highlighter-rouge">MY_FOLDER_PATH</code> is relative to the directory from which the main script is actually executed. This
+is a subtle detail that you may not care about, unless you need to have absolute path names. In this
+case you can do the following.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>MY_FOLDER_PATH <span class="o">(</span><span class="nb">realpath</span> <span class="o">(</span><span class="nb">dirname</span> <span class="o">(</span>status <span class="nt">--current-filename</span><span class="o">)))</span>
+<span class="nb">source</span> <span class="nv">$MY_FOLDER_PATH</span>/my-script.fish
+</code></pre></div></div>
+
+<p>Using <a href="https://man7.org/linux/man-pages/man1/realpath.1.html"><code class="language-plaintext highlighter-rouge">realpath</code></a> gives you the fully
+qualified path name for your folder for the uses cases where you need this capability.</p>
+      <h2 id="how-to-write-multi-line-strings-to-files">
+        
+        
+          How to write multi line strings to files <a href="#how-to-write-multi-line-strings-to-files">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are many situations where you need to write strings and multi line strings to new or existing
+files in your scripts.</p>
+
+<p>Here’s an example of writing single strings to a file.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># echo "echo 'ClientAliveInterval 60' &gt;&gt; recurring-tasks.log" | xargs -I% sudo sh -c %</span>
+<span class="nb">set </span>linesToAdd <span class="s2">"TCPKeepAlive yes"</span> <span class="s2">"ClientAliveInterval 60"</span> <span class="s2">"ClientAliveCountMax 120"</span>
+<span class="k">for </span>line <span class="k">in</span> <span class="nv">$linesToAdd</span>
+  <span class="nb">set command</span> <span class="s2">"echo '</span><span class="nv">$line</span><span class="s2">' &gt;&gt; /etc/ssh/sshd_config"</span>
+  executeString <span class="s2">"</span><span class="nv">$command</span><span class="s2"> | xargs -I% sudo sh -c %"</span>
+end
+</code></pre></div></div>
+
+<p>Here’s an example of writing multi line strings to a file.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># More info on writing multiline strings: https://stackoverflow.com/a/35628657/2085356</span>
+<span class="k">function </span>_workflowWriteEmptyMarkdownContentToFile <span class="nt">--argument</span> datestr filename
+  <span class="nb">echo</span> <span class="o">&gt;</span> <span class="nv">$filename</span> <span class="s2">"</span><span class="se">\</span><span class="s2">
+---
+Title: About </span><span class="nv">$filename</span><span class="s2">
+Date: </span><span class="nv">$datestr</span><span class="s2">
+---
+&lt;!-- START doctoc generated TOC please keep comment here to allow auto update --&gt;
+&lt;!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE --&gt;
+
+&lt;!-- END doctoc generated TOC please keep comment here to allow auto update --&gt;
+
+# Your heading
+"</span>
+end
+</code></pre></div></div>
+      <h2 id="how-to-create-colorized-echo-output">
+        
+        
+          How to create colorized echo output <a href="#how-to-create-colorized-echo-output">#</a>
+        
+        
+      </h2>
+    
+
+<p>The <a href="https://fishshell.com/docs/current/cmds/set_color.html"><code class="language-plaintext highlighter-rouge">set_color</code></a> function allows fish to
+colorize and format text content that is printed to <code class="language-plaintext highlighter-rouge">stdout</code> using <code class="language-plaintext highlighter-rouge">echo</code>. This is great when
+creating text output that needs to have different foreground, background colors, and bold, italic,
+or underlined output. There are many ways to use this command, and here are two examples of how to
+use it (inline of <code class="language-plaintext highlighter-rouge">echo</code> statements, and just by itself).</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>myFunction
+  <span class="k">if </span><span class="nb">test</span> <span class="o">(</span>count <span class="nv">$argv</span><span class="o">)</span> <span class="nt">-lt</span> 2
+    <span class="nb">set</span> <span class="nt">-l</span> currentFunctionName <span class="o">(</span>status <span class="k">function</span><span class="o">)</span>
+    <span class="nb">echo</span> <span class="s2">"Usage: "</span><span class="o">(</span>set_color <span class="nt">-o</span> <span class="nt">-u</span><span class="o">)</span><span class="s2">"</span><span class="nv">$currentFunctionName</span><span class="s2">"</span><span class="o">(</span>set_color normal<span class="o">)</span><span class="se">\</span>
+      <span class="o">(</span>set_color blue<span class="o">)</span><span class="s2">" &lt;arg1&gt; "</span><span class="se">\</span>
+      <span class="o">(</span>set_color yellow<span class="o">)</span><span class="s2">"&lt;arg2&gt;"</span><span class="o">(</span>set_color normal<span class="o">)</span>
+    set_color blue
+    <span class="nb">echo</span> <span class="s2">"- &lt;arg1&gt;: Something about arg1."</span>
+    set_color yellow
+    <span class="nb">echo</span> <span class="s2">"- &lt;arg2&gt;: Something about arg2"</span>
+    set_color normal
+    <span class="k">return </span>1
+  end
+end
+</code></pre></div></div>
+
+<p>Notes:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">set_color normal</code> has to be called to reset whatever formatting options were set in previous
+statements.</li>
+  <li><code class="language-plaintext highlighter-rouge">set_color -u</code> does underline, and <code class="language-plaintext highlighter-rouge">set_color -o</code> does bold.</li>
+</ol>
+      <h2 id="how-to-get-user-input">
+        
+        
+          How to get user input <a href="#how-to-get-user-input">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are situations where you need to ask a user for confirmation before performing some
+potentially destructive operation or you might need user input for some argument to a function (that
+isn’t passed via the command line). In these cases it is possible to get user input from the user by
+reading <code class="language-plaintext highlighter-rouge">stdin</code> using the <a href="https://fishshell.com/docs/current/cmds/read.html"><code class="language-plaintext highlighter-rouge">read</code></a> function.</p>
+
+<p>The following function simply returns a <code class="language-plaintext highlighter-rouge">0</code> for “Y”/”y”, and <code class="language-plaintext highlighter-rouge">1</code> for “N”/”n”.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># More info on prompting a user for confirmation using fish read function: https://stackoverflow.com/a/16673745/2085356</span>
+<span class="c"># More info about fish `read` function: https://fishshell.com/docs/current/cmds/read.html</span>
+<span class="k">function </span>_promptUserForConfirmation <span class="nt">-a</span> message
+  <span class="k">if </span>not <span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$message</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="o">(</span>set_color brmagenta<span class="o">)</span><span class="s2">"🤔 </span><span class="nv">$message</span><span class="s2">?"</span>
+  end
+
+  <span class="k">while </span><span class="nb">true</span>
+    <span class="c"># read -l -P '🔴 Do you want to continue? [y/N] ' confirm</span>
+    <span class="nb">read</span> <span class="nt">-l</span> <span class="nt">-p</span> <span class="s2">"set_color brcyan; echo '🔴 Do you want to continue? [y/N] ' ; set_color normal; echo '&gt; '"</span> confirm
+    switch <span class="nv">$confirm</span>
+      <span class="k">case</span> Y y
+        <span class="k">return </span>0
+      <span class="k">case</span> <span class="s1">''</span> N n
+        <span class="k">return </span>1
+    end
+  end
+end
+</code></pre></div></div>
+
+<p>And here is an example of using the <code class="language-plaintext highlighter-rouge">_promptUserForConfirmation</code> function.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span>_promptUserForConfirmation <span class="s2">"Delete branch </span><span class="nv">$featureBranchName</span><span class="s2">"</span>
+  git branch <span class="nt">-D</span> <span class="nv">$featureBranchName</span>
+  <span class="nb">echo</span> <span class="s2">"👍 Successfully deleted </span><span class="nv">$featureBranchName</span><span class="s2">"</span>
+<span class="k">else
+  </span><span class="nb">echo</span> <span class="s2">"⛔ Did not delete </span><span class="nv">$featureBranchName</span><span class="s2">"</span>
+end
+</code></pre></div></div>
+      <h2 id="how-to-use-sed">
+        
+        
+          How to use sed <a href="#how-to-use-sed">#</a>
+        
+        
+      </h2>
+    
+
+<p>This is useful for removing fragments of files that are not needed, especially when <code class="language-plaintext highlighter-rouge">xargs</code> is used
+to pipe the result of <code class="language-plaintext highlighter-rouge">find</code>.</p>
+
+<p>Here’s an example that removes <code class="language-plaintext highlighter-rouge">./</code> from the start of each file that’s found.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"./.Android"</span> | <span class="nb">sed</span> <span class="s1">'s/.\///g'</span>
+</code></pre></div></div>
+
+<p>Here’s a more complex example of using <code class="language-plaintext highlighter-rouge">sed</code>, <code class="language-plaintext highlighter-rouge">find</code>, and <code class="language-plaintext highlighter-rouge">xargs</code> together.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>folder .Android<span class="k">*</span>
+find ~ <span class="nt">-maxdepth</span> 1 <span class="nt">-name</span> <span class="nv">$folder</span> | <span class="nb">sed</span> <span class="s1">'s/.\///g'</span> | <span class="se">\</span>
+  xargs <span class="nt">-I</span> % <span class="nb">echo</span> <span class="s2">"cleaned up name: %"</span>
+</code></pre></div></div>
+      <h2 id="how-to-use-xargs">
+        
+        
+          How to use xargs <a href="#how-to-use-xargs">#</a>
+        
+        
+      </h2>
+    
+
+<p>This is useful for piping the output of some commands as arguments for more commands.</p>
+
+<p>Here’s a simple example: <code class="language-plaintext highlighter-rouge">ls | xargs echo "folders: "</code>.</p>
+
+<ul>
+  <li>Which produces this: <code class="language-plaintext highlighter-rouge">folders: idea-http-proxy-settings images tmp</code>.</li>
+  <li>Note how the arguments are concatenated in the output.</li>
+</ul>
+
+<p>Here’s a slightly different example using <code class="language-plaintext highlighter-rouge">-I %</code> which allows arguments to be placed anywhere (not
+just at the end).</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">ls</span> | xargs <span class="nt">-I</span> % <span class="nb">echo</span> <span class="s2">"folder: %"</span>
+</code></pre></div></div>
+
+<p>Which produces this output:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>folder: idea-http-proxy-settings
+folder: images
+folder: tmp
+</code></pre></div></div>
+
+<p>Note how the arguments are each in a separate line.</p>
+      <h2 id="how-to-use-cut-to-split-strings">
+        
+        
+          How to use cut to split strings <a href="#how-to-use-cut-to-split-strings">#</a>
+        
+        
+      </h2>
+    
+
+<p>Let’s say you have a string <code class="language-plaintext highlighter-rouge">"token1:token2"</code> and you want to split the string and only keep the
+first part of it. This can be done using the following cut command.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"token1:token2"</span> | <span class="nb">cut</span> <span class="nt">-d</span> <span class="s1">':'</span> <span class="nt">-f</span> 1
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">-d ':'</code> - this splits the string by the <code class="language-plaintext highlighter-rouge">:</code> delimiter</li>
+  <li><code class="language-plaintext highlighter-rouge">-f 1</code> - this keeps the first field in the tokenized string</li>
+</ul>
+
+<p>Here’s a real example of finding all the HTML files in <code class="language-plaintext highlighter-rouge">~/github/developerlife.com</code> with the string
+<code class="language-plaintext highlighter-rouge">"fonts.googleapis"</code> in it and then opening them up in <code class="language-plaintext highlighter-rouge">subl</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ~/github/developerlife.com
+<span class="nb">echo</span> <span class="se">\</span>
+<span class="s2">"find . -name '*html' | </span><span class="se">\</span><span class="s2">
+ xargs grep fonts.googleapis | </span><span class="se">\</span><span class="s2">
+ cut -d ':' -f 1 | </span><span class="se">\</span><span class="s2">
+ xargs subl"</span> <span class="se">\</span>
+ | sh
+</code></pre></div></div>
+
+<ul>
+  <li><a href="https://www.geeksforgeeks.org/cut-command-linux-examples/">More info on the <code class="language-plaintext highlighter-rouge">cut</code> command</a></li>
+</ul>
+      <h2 id="how-to-calculate-how-long-the-script-took-to-run">
+        
+        
+          How to calculate how long the script took to run <a href="#how-to-calculate-how-long-the-script-took-to-run">#</a>
+        
+        
+      </h2>
+    
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>timed <span class="nt">-d</span> Pass the program or <span class="k">function </span>that you want to execute as an argument
+  <span class="nb">set </span>START_TS <span class="o">(</span><span class="nb">date</span> +%s<span class="o">)</span>
+
+  <span class="c"># This is where your code would go.</span>
+  <span class="nv">$argv</span>
+
+  <span class="nb">sleep </span>5
+
+  <span class="nb">set </span>END_TS <span class="o">(</span><span class="nb">date</span> +%s<span class="o">)</span>
+  <span class="nb">set </span>RUNTIME <span class="o">(</span>math <span class="nv">$END_TS</span> - <span class="nv">$START_TS</span><span class="o">)</span>
+  <span class="nb">set </span>RUNTIME <span class="o">(</span>math <span class="nv">$RUNTIME</span> / 60<span class="o">)</span>
+  <span class="nb">echo</span> <span class="s2">"⏲ Total runtime: </span><span class="nv">$RUNTIME</span><span class="s2"> min ⏲"</span>
+end
+</code></pre></div></div>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Linux">
+                #linux</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Misc">
+                #misc</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/04/06/mechanical-keyboard-dygma-raise-review/">
+                        Mechanical keyboard review - Dygma Raise
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/09/mechanical-keyboard-review/">
+                        Mechanical keyboard review - UHK v1, Mistel BAROCCO MD770, Drop Alt Captain
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/09/linux-hardware-review/">
+                        Linux (Ubuntu) desktop and laptop hardware review for software engineers (early 2021)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/04/customize-ubuntu/">
+                        Customizing Ubuntu UI
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/12/automatically-updating-copyright-messages-in-jetbrains-ides/">
+                        Automatically updating copyright messages in JetBrains IDEs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/12/setting-environment-variables-on-macos/">
+                        Setting environment variables on macOS
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2021/01/19/fish-scripting-manual/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Create a simple DSL for CSS like syntax for TUIs | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Create a simple DSL for CSS like syntax for TUIs" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Procedural macros are a way for you to extend the Rust compiler and provide plugins that you can use to extend the language. They allow to create your own DSL (domain specific language). This article goes into the details of creating a simple DSL to mimic CSS syntax but in Rust, for a TUI app framework." />
+<meta property="og:description" content="Procedural macros are a way for you to extend the Rust compiler and provide plugins that you can use to extend the language. They allow to create your own DSL (domain specific language). This article goes into the details of creating a simple DSL to mimic CSS syntax but in Rust, for a TUI app framework." />
+<link rel="canonical" href="http://developerlife.com/2022/08/04/rust-dsl-part-1/" />
+<meta property="og:url" content="http://developerlife.com/2022/08/04/rust-dsl-part-1/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-08-04T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Create a simple DSL for CSS like syntax for TUIs" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2022-08-04T10:00:00-05:00","datePublished":"2022-08-04T10:00:00-05:00","description":"Procedural macros are a way for you to extend the Rust compiler and provide plugins that you can use to extend the language. They allow to create your own DSL (domain specific language). This article goes into the details of creating a simple DSL to mimic CSS syntax but in Rust, for a TUI app framework.","headline":"Create a simple DSL for CSS like syntax for TUIs","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2022/08/04/rust-dsl-part-1/"},"url":"http://developerlife.com/2022/08/04/rust-dsl-part-1/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Create a simple DSL for CSS like syntax for TUIs&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Create a simple DSL for CSS like syntax for TUIs</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Create a simple DSL for CSS like syntax for TUIs</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Aug 4, 2022
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/rust-dsl.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#create-a-dsl-for-css-like-syntax-for-tuis">Create a DSL for CSS like syntax for TUIs</a>
+    <ul>
+      <li><a href="#a-tui-brings-gui-features-to-terminal-apps">A TUI brings GUI features to terminal apps</a></li>
+      <li><a href="#what-is-a-style-and-how-is-it-used">What is a style, and how is it used?</a></li>
+      <li><a href="#life-of-a-style">Life of a style</a></li>
+      <li><a href="#going-from-imperative-to-declarative-style-declaration">Going from imperative to declarative style declaration</a></li>
+    </ul>
+  </li>
+  <li><a href="#what-are-procedural-macros">What are procedural macros</a></li>
+  <li><a href="#define-the-syntax">Define the syntax</a></li>
+  <li><a href="#parse-the-syntax">Parse the syntax</a></li>
+  <li><a href="#generate-the-code">Generate the code</a></li>
+  <li><a href="#exporting-it">Exporting it</a></li>
+  <li><a href="#wrapping-up">Wrapping up</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="create-a-dsl-for-css-like-syntax-for-tuis">
+        
+        
+          Create a DSL for CSS like syntax for TUIs <a href="#create-a-dsl-for-css-like-syntax-for-tuis">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-create-a-dsl-for-css-like-syntax-for-tuis" name="create-a-dsl-for-css-like-syntax-for-tuis"></a></p>
+
+<p>In this article, we will create a simple DSL
+(<a href="https://docs.microsoft.com/en-us/visualstudio/modeling/about-domain-specific-languages?view=vs-2022">domain specific language</a>)
+for CSS like syntax to declaratively create styling for TUI apps. You might be thinking, but why? 🤔</p>
+
+<p>The motivation for doing this comes from having built a TUI library in the
+<a href="https://crates.io/crates/r3bl_rs_utils/"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate and wanting to make it more
+ergonomic for developers, so that it is easier to use and familiar to declarative styling from CSS,
+etc.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h3 id="a-tui-brings-gui-features-to-terminal-apps">
+        
+        
+          A TUI brings GUI features to terminal apps <a href="#a-tui-brings-gui-features-to-terminal-apps">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-a-tui-brings-gui-features-to-terminal-apps" name="a-tui-brings-gui-features-to-terminal-apps"></a></p>
+
+<p>The best way to grok what a TUI is, is to see one in action.</p>
+
+<p><img src="https://user-images.githubusercontent.com/2966499/234949476-98ad595a-3b72-497f-8056-84b6acda80e2.gif" /></p>
+
+<ol>
+  <li><kbd>TUI library crate</kbd>: Clone <a href="https://github.com/r3bl-org/r3bl-open-core/">this TUI library
+repo</a> for the <a href="https://crates.io/crates/r3bl_tui"><code class="language-plaintext highlighter-rouge">r3bl_tui</code>
+crate</a> to your local or remote machine. You can run
+the examples in the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui#examples-to-get-you-started">README</a>.</li>
+  <li><kbd>TUI apps crate</kbd>: Clone <a href="https://github.com/r3bl-org/r3bl-open-core">this TUI apps
+repo</a> for the <a href="https://crates.io/crates/r3bl-cmdr"><code class="language-plaintext highlighter-rouge">r3bl-cmdr</code>
+crate</a> to your local or remote machine. Run <code class="language-plaintext highlighter-rouge">cargo
+run</code> (in <code class="language-plaintext highlighter-rouge">r3bl-cmdr</code> folder) to see it doing its thing. Works great over
+<a href="https://en.wikipedia.org/wiki/Secure_Shell">SSH</a> too! Or you can just run <code class="language-plaintext highlighter-rouge">cargo
+install r3bl-cmdr</code>. And then run <code class="language-plaintext highlighter-rouge">edi</code> or <code class="language-plaintext highlighter-rouge">giti</code>.</li>
+</ol>
+
+<p>The TUI library allows developers to build “rich” text user interface apps in Rust, which
+are fully async, and loosely leverages architectural ideas from CSS, React, web app
+development paradigm, and Elm. Once we built the library, we wanted to make it easier for
+developer to declaratively create styling and even layouts, rather than having to do it
+imperatively.</p>
+
+<blockquote>
+  <p>💭 In frontend web development, we take it for granted that we can describe things
+<a href="https://www.educative.io/blog/declarative-vs-imperative-programming">declaratively rather than imperatively</a>.
+Anytime we use CSS, JSX, or HTML we are doing this. We are used to telling the computer <strong>what</strong>
+we would like it to produce, and it figures out <strong>how</strong> to go about making this happen. There are
+similar declarative technologies in desktop and mobile GUI toolkits as well.</p>
+</blockquote>
+
+<blockquote>
+  <p>For more information on general Rust type system design (functional approach rather than
+object oriented), please take a look at this <a href="https://arxiv.org/pdf/2307.07069.pdf">paper</a>
+by Will Crichton demonstrating Typed Design Patterns with Rust.</p>
+</blockquote>
+      <h3 id="what-is-a-style-and-how-is-it-used">
+        
+        
+          What is a style, and how is it used? <a href="#what-is-a-style-and-how-is-it-used">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-what-is-a-style%2C-and-how-is-it-used%3F" name="what-is-a-style%2C-and-how-is-it-used%3F"></a></p>
+
+<p>What exactly is a style? It is used to format some text that is painted to the terminal. This is
+done by specifying the text’s color, background color, and other attributes (bold, underline, etc).</p>
+
+<p>In this article, we will create a simple DSL just to describe a single style. But this next section
+gives you context around where this style is used in the <code class="language-plaintext highlighter-rouge">r3bl_rs_utils::tui</code> library.</p>
+      <h3 id="life-of-a-style">
+        
+        
+          Life of a style <a href="#life-of-a-style">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-life-of-a-style" name="life-of-a-style"></a></p>
+
+<p>As an aside, before getting into making the syntax declarative, let’s look at how a style is
+actually used in the <code class="language-plaintext highlighter-rouge">r3bl_rs_utils::tui</code> library. The following is a whirlwind overview of how the
+<code class="language-plaintext highlighter-rouge">r3bl_rs_utils::tui</code> engine itself works. It is not meant to be an in depth examination or
+explanation, so hold on for the blast of information that is about to follow 💨.</p>
+
+<p>First we have to make a stylesheet. This stylesheet holds 2 styles <code class="language-plaintext highlighter-rouge">style1</code> and <code class="language-plaintext highlighter-rouge">style2</code>. We will
+track <code class="language-plaintext highlighter-rouge">style1</code>’s journey in this section.</p>
+
+<p>We currently have to make the stylesheet imperatively, but will be converted to declarative in the
+near future 😃. More articles about DSLs are on the horizon.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">create_stylesheet</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">CommonResult</span><span class="o">&lt;</span><span class="n">Stylesheet</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="c1">// Turquoise:  Color::Rgb { r: 51, g: 255, b: 255 }</span>
+  <span class="c1">// Pink:       Color::Rgb { r: 252, g: 157, b: 248 }</span>
+  <span class="c1">// Blue:       Color::Rgb { r: 55, g: 55, b: 248 }</span>
+  <span class="c1">// Faded blue: Color::Rgb { r: 85, g: 85, b: 255 }</span>
+  <span class="nd">throws_with_return!</span><span class="p">({</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">stylesheet</span> <span class="o">=</span> <span class="nn">Stylesheet</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+
+    <span class="n">stylesheet</span><span class="nf">.add_styles</span><span class="p">(</span><span class="nd">vec!</span><span class="p">[</span>
+      <span class="nd">style!</span> <span class="p">{</span>
+        <span class="n">id</span><span class="p">:</span> <span class="n">style1</span>
+        <span class="n">margin</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="n">color_bg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Rgb</span> <span class="p">{</span> <span class="n">r</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="mi">248</span> <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="nd">style!</span> <span class="p">{</span>
+        <span class="n">id</span><span class="p">:</span> <span class="n">style2</span>
+        <span class="n">margin</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="n">color_bg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Rgb</span> <span class="p">{</span> <span class="n">r</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="mi">255</span> <span class="p">}</span>
+      <span class="p">},</span>
+    <span class="p">])</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="n">stylesheet</span>
+  <span class="p">})</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Then we have to use this style in a few different places. Let’s first use in to create a (flexbox
+like) layout. This is currently done imperatively. We intend to create a JSX like declarative syntax
+for this layout engine in the near future 😃. Even more articles about DSLs are on the horizon.</p>
+
+<p>The following snippet is a layout being created (imperatively right now). And the stylesheet is
+attached into the layout engine, which is a <code class="language-plaintext highlighter-rouge">struct</code> called <code class="language-plaintext highlighter-rouge">TWSurface</code> or terminal window surface.
+It stores some information about the terminal “window” (like available rows and columns, and it is
+manages when window resize events happen, and even manages user input events); it also has the
+stylesheet attached to it.</p>
+
+<p>And then <code class="language-plaintext highlighter-rouge">create_main_container()</code> is called. This seems important too, so let’s look at that next.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="k">mut</span> <span class="n">tw_surface</span> <span class="o">=</span> <span class="n">TWSurface</span> <span class="p">{</span>
+  <span class="n">stylesheet</span><span class="p">:</span> <span class="k">self</span><span class="nf">.create_stylesheet</span><span class="p">()</span><span class="o">?</span><span class="p">,</span>
+  <span class="o">..</span><span class="nn">TWSurface</span><span class="p">::</span><span class="nf">default</span><span class="p">()</span>
+<span class="p">};</span>
+<span class="n">tw_surface</span><span class="nf">.surface_start</span><span class="p">(</span><span class="n">TWSurfaceProps</span> <span class="p">{</span>
+  <span class="n">pos</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="nf">.into</span><span class="p">(),</span>
+  <span class="n">size</span><span class="p">:</span> <span class="n">window_size</span><span class="p">,</span>
+<span class="p">})</span><span class="o">?</span><span class="p">;</span>
+<span class="k">self</span>
+  <span class="nf">.create_main_container</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">tw_surface</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">shared_store</span><span class="p">)</span>
+  <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+<span class="n">tw_surface</span><span class="nf">.surface_end</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>You can think of creating a layout using flexbox containers or boxes (<code class="language-plaintext highlighter-rouge">TWBox</code>).</p>
+
+<ol>
+  <li>You first create the surface that holds all the boxes. This surface takes up the full width and
+height of the terminal’s window (<code class="language-plaintext highlighter-rouge">TerminalWindow</code>).</li>
+  <li>Then inside of this surface (<code class="language-plaintext highlighter-rouge">TWSurface</code>), you can add a “main container” box (<code class="language-plaintext highlighter-rouge">TWBox</code>) which
+takes up the full space of the terminal window.</li>
+  <li>You can then add two other boxes (<code class="language-plaintext highlighter-rouge">TWBox</code>) which will be columns that are 50% width each.</li>
+  <li>They will be arranged from left to right (horizontal direction, or <code class="language-plaintext highlighter-rouge">Direction::Horizontal</code>).</li>
+  <li>Inside of each column box, you can provide a <code class="language-plaintext highlighter-rouge">Component</code> to actually paint the content &amp; even
+handle user input events.</li>
+  <li>And ll of this happening asynchronously.</li>
+</ol>
+
+<p>Here’s the snippet that creates this “main container” box. No mention of styles here. But they are
+attached to the <code class="language-plaintext highlighter-rouge">tw_surface</code> which is passed into <code class="language-plaintext highlighter-rouge">create_left_col()</code> &amp; <code class="language-plaintext highlighter-rouge">create_right_col()</code>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="n">create_main_container</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">tw_surface</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">TWSurface</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">AppWithLayoutState</span><span class="p">,</span>
+  <span class="n">shared_store</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">SharedStore</span><span class="o">&lt;</span><span class="n">AppWithLayoutState</span><span class="p">,</span> <span class="n">AppWithLayoutAction</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">CommonResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="nd">throws!</span><span class="p">({</span>
+    <span class="n">tw_surface</span><span class="nf">.box_start</span><span class="p">(</span><span class="n">TWBoxProps</span> <span class="p">{</span>
+      <span class="n">id</span><span class="p">:</span> <span class="n">CONTAINER_ID</span><span class="nf">.into</span><span class="p">(),</span>
+      <span class="n">dir</span><span class="p">:</span> <span class="nn">Direction</span><span class="p">::</span><span class="n">Horizontal</span><span class="p">,</span>
+      <span class="n">req_size</span><span class="p">:</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span><span class="nf">.try_into</span><span class="p">()</span><span class="o">?</span><span class="p">,</span>
+      <span class="o">..</span><span class="nn">Default</span><span class="p">::</span><span class="nf">default</span><span class="p">()</span>
+    <span class="p">})</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">self</span>
+      <span class="nf">.create_left_col</span><span class="p">(</span><span class="n">tw_surface</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">shared_store</span><span class="p">)</span>
+      <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">self</span>
+      <span class="nf">.create_right_col</span><span class="p">(</span><span class="n">tw_surface</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">shared_store</span><span class="p">)</span>
+      <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">tw_surface</span><span class="nf">.box_end</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>For now, we will just look at one of the columns - <code class="language-plaintext highlighter-rouge">create_left_col()</code>. After all this article is
+about DSL to build a single style and not about how to build TUIs. Here’s the snippet to create this
+column, and it does use a style from the stylesheet (<code class="language-plaintext highlighter-rouge">style1</code>) that we made earlier.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="n">create_left_col</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">tw_surface</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">TWSurface</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">AppWithLayoutState</span><span class="p">,</span>
+  <span class="n">shared_state</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">SharedStore</span><span class="o">&lt;</span><span class="n">AppWithLayoutState</span><span class="p">,</span> <span class="n">AppWithLayoutAction</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">CommonResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="nd">throws!</span><span class="p">({</span>
+    <span class="n">tw_surface</span><span class="nf">.box_start</span><span class="p">(</span><span class="n">TWBoxProps</span> <span class="p">{</span>
+      <span class="n">styles</span><span class="p">:</span> <span class="n">tw_surface</span><span class="py">.stylesheet</span><span class="nf">.find_styles_by_ids</span><span class="p">(</span><span class="nd">vec!</span><span class="p">[</span><span class="s">"style1"</span><span class="p">]),</span>
+      <span class="n">id</span><span class="p">:</span> <span class="n">COL_1_ID</span><span class="nf">.into</span><span class="p">(),</span>
+      <span class="n">dir</span><span class="p">:</span> <span class="nn">Direction</span><span class="p">::</span><span class="n">Vertical</span><span class="p">,</span>
+      <span class="n">req_size</span><span class="p">:</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span><span class="nf">.try_into</span><span class="p">()</span><span class="o">?</span><span class="p">,</span>
+    <span class="p">})</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">shared_component</span><span class="p">)</span> <span class="o">=</span> <span class="k">self</span><span class="py">.component_registry</span><span class="nf">.get</span><span class="p">(</span><span class="n">COL_1_ID</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">let</span> <span class="n">current_box</span> <span class="o">=</span> <span class="n">tw_surface</span><span class="nf">.current_box</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+      <span class="k">let</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">shared_component</span>
+        <span class="nf">.write</span><span class="p">()</span>
+        <span class="k">.await</span>
+        <span class="nf">.render</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="py">.has_focus</span><span class="p">,</span> <span class="n">current_box</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">shared_state</span><span class="p">)</span>
+        <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+      <span class="n">tw_surface</span><span class="py">.render_buffer</span> <span class="o">+=</span> <span class="n">queue</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">tw_surface</span><span class="nf">.box_end</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="going-from-imperative-to-declarative-style-declaration">
+        
+        
+          Going from imperative to declarative style declaration <a href="#going-from-imperative-to-declarative-style-declaration">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-going-from-imperative-to-declarative-style-declaration" name="going-from-imperative-to-declarative-style-declaration"></a></p>
+
+<p>Now that we have that context out of the way, let’s look at a single style in more detail.</p>
+
+<p>This is how we can imperatively create a style using the
+<a href="https://docs.rs/r3bl_rs_utils/latest/r3bl_rs_utils/tui/index.html"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils::tui</code> module</a>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">r3bl_rs_utils</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+<span class="k">fn</span> <span class="nf">make_a_style_imperatively</span><span class="p">(</span><span class="n">id</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Style</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">black</span> <span class="o">=</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Rgb</span> <span class="p">{</span> <span class="n">r</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="mi">0</span> <span class="p">};</span>
+  <span class="n">Style</span> <span class="p">{</span>
+    <span class="n">id</span><span class="p">:</span> <span class="n">id</span><span class="nf">.to_string</span><span class="p">(),</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>
+    <span class="n">bold</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>
+    <span class="n">color_fg</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span><span class="n">black</span><span class="nf">.into</span><span class="p">()),</span>
+    <span class="n">color_bg</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span><span class="n">black</span><span class="nf">.into</span><span class="p">()),</span>
+    <span class="o">..</span><span class="nn">Style</span><span class="p">::</span><span class="nf">default</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Once created in this manner, it can be added to a stylesheet, which can then be attached to a
+<code class="language-plaintext highlighter-rouge">TWSurface</code>. And then it can be used to style things in boxes (<code class="language-plaintext highlighter-rouge">TWBox</code>).</p>
+
+<p>We would like to express this declaratively, like so.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">r3bl_rs_utils</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+<span class="k">fn</span> <span class="nf">make_a_style_declaratively</span><span class="p">(</span><span class="n">id</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Style</span> <span class="p">{</span>
+  <span class="nd">style!</span> <span class="p">{</span>
+    <span class="n">id</span><span class="p">:</span> <span class="n">style2</span>
+    <span class="n">attrib</span><span class="p">:</span> <span class="p">[</span><span class="n">dim</span><span class="p">,</span> <span class="n">bold</span><span class="p">]</span>
+    <span class="n">margin</span><span class="p">:</span> <span class="mi">1</span>
+    <span class="n">color_fg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Red</span>
+    <span class="n">color_bg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Rgb</span> <span class="p">{</span> <span class="n">r</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="mi">0</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The rest of this article will be devoted to making this happen using procedural macros (function
+like).</p>
+      <h2 id="what-are-procedural-macros">
+        
+        
+          What are procedural macros <a href="#what-are-procedural-macros">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-what-are-procedural-macros" name="what-are-procedural-macros"></a></p>
+
+<p>For an introduction to procedural macros, please read our article on
+<a href="https://developerlife.com/2022/03/30/rust-proc-macro/">Procedural Macros</a>. Here are some snippets
+from that article.</p>
+
+<blockquote>
+  <p>🔮 <strong>Procedural macros</strong> are a way for you to extend the Rust compiler and provide plugins that
+you can use to extend the language. They are really powerful and require some more work to setup
+in an existing project (you have to create a new library create just for them and they all have to
+be declared in the <code class="language-plaintext highlighter-rouge">lib.rs</code> file). Here are the key benefits of procedural macros:</p>
+
+  <ul>
+    <li>Minimize the amount of manual work you have to do in order to generate boilerplate code 🎉. This
+is similar to
+<a href="https://developerlife.com/2020/07/11/annotation-processing-kotlin-android/">annotation processing</a>
+in Java and Kotlin.</li>
+    <li>You can create your own domain specific language like React JSX in Rust 🎉. Create your own
+<a href="https://developerlife.com/2020/04/04/kotlin-dsl-intro/">DSL (domain spe <a id="markdown-define-the-syntax" name="define-the-syntax"></a>cific language)</a>
+like in Kotlin and babel and JavaScript.</li>
+  </ul>
+</blockquote>
+
+<blockquote>
+  <p>🪄 <strong>Declarative macros</strong> have many limitations (eg: they can’t work with generics) but are easier
+to use. If you have simple use cases they work great, since they are so easy to write. Here are
+some resources to help you w/ learning declarative macros.</p>
+
+  <ol>
+    <li><a href="https://github.com/nazmulidris/rust_scratch/blob/main/macros/tests/decl/main.rs">Declarative macros included in this article’s repo (but not covered in this article)</a></li>
+    <li><a href="https://veykril.github.io/tlborm/introduction.html">Little book of Rust macros</a></li>
+    <li><a href="https://youtu.be/q6paRBbLgNw">Great YT video on declarative macros</a></li>
+  </ol>
+</blockquote>
+
+<blockquote>
+  <p>Here’s a summary:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Macro type</th>
+        <th>Capabilities &amp; limitations</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Declarative</td>
+        <td>Can’t handle generics, patterns capture items as <em>wholes</em> and can’t be broken down in the macro body</td>
+      </tr>
+      <tr>
+        <td>Procedural - function like</td>
+        <td>Operates on the code passed inside parenthesis of invocation to produce new token stream.</td>
+      </tr>
+      <tr>
+        <td>Procedural - derive</td>
+        <td>Can’t touch token stream of annotated <code class="language-plaintext highlighter-rouge">struct</code> or <code class="language-plaintext highlighter-rouge">enum</code>, only add new token stream below; can declare helper attributes</td>
+      </tr>
+      <tr>
+        <td>Procedural - attribute</td>
+        <td>Like function-like, replaces token stream of annotated item (not just <code class="language-plaintext highlighter-rouge">struct</code> or <code class="language-plaintext highlighter-rouge">enum</code>)</td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+      <h2 id="define-the-syntax">
+        
+        
+          Define the syntax <a href="#define-the-syntax">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-define-the-syntax" name="define-the-syntax"></a></p>
+
+<p>The fun part of creating a DSL is coming up w/ whatever syntax you want to allow developers to use.
+This is a very liberating, empowering, and creative exercise. You don’t have to accept the language
+keywords as they are. You are free to make your own! Rust is awesome!</p>
+
+<p>To meet the goal of being an ergonomic API, the <code class="language-plaintext highlighter-rouge">tui</code> library leverages the mental model that people
+already possess coming from web, or Android, etc. of declaratively creating styling. And then
+specifying that some component uses that style. We will do the same while taking the unique
+constraints of a text user interface (that only renders to the terminal) into account. Fun times!</p>
+
+<p>A style is made up of the following things, and is intended to style text that is going to be
+painted to the terminal.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">style!</span> <span class="p">{</span>
+  <span class="n">id</span><span class="p">:</span>       <span class="n">style1</span>                   <span class="c1">// (req) unique id of the style</span>
+  <span class="n">attrib</span><span class="p">:</span>   <span class="p">[</span><span class="n">dim</span><span class="p">,</span> <span class="n">bold</span><span class="p">]</span>              <span class="c1">// (opt) array of attributes for styling text</span>
+  <span class="n">margin</span><span class="p">:</span>   <span class="mi">1</span>                        <span class="c1">// (opt) top, bottom, left, right margin</span>
+  <span class="n">color_fg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Red</span>               <span class="c1">// (opt) Foreground color (specified via enum)</span>
+  <span class="n">color_bg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Rgb</span> <span class="p">{</span><span class="n">r</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="n">g</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="n">b</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span> <span class="c1">// (opt) Background color (specified via struct)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Let’s break this down into more specifics, so that we can build the parser for the syntax next.</p>
+
+<ol>
+  <li>The <code class="language-plaintext highlighter-rouge">id</code> is required. The value is going to be turned into a string. So the value is a literal
+which can be anything that can be turned into a string.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">attrib</code> field is optional. When you do provide a value for it, this looks like an array of
+attributes. Here’s the full list of these attributes: <code class="language-plaintext highlighter-rouge">dim</code>, <code class="language-plaintext highlighter-rouge">bold</code>, <code class="language-plaintext highlighter-rouge">underline</code>, <code class="language-plaintext highlighter-rouge">reverse</code>,
+<code class="language-plaintext highlighter-rouge">hidden</code>, <code class="language-plaintext highlighter-rouge">strikethrough</code>.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">margin</code> field is optional. When you do provide a value for it, this looks like an integer.
+The value is the number of spaces to add to the top, down, left, and right of the text.</li>
+  <li>The foreground color is optional. It can take an enum (<code class="language-plaintext highlighter-rouge">Color::Red</code>) or a struct
+(<code class="language-plaintext highlighter-rouge">Color::Rgb {r:0,g:0,b:0}</code>).</li>
+  <li>The background color is optional. It can take an enum (<code class="language-plaintext highlighter-rouge">Color::Red</code>) or a struct
+(<code class="language-plaintext highlighter-rouge">Color::Rgb {r:0,g:0,b:0}</code>).</li>
+</ol>
+
+<blockquote>
+  <p>📜 Here’s the production version of the <code class="language-plaintext highlighter-rouge">style!</code> procedural macro:
+<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/macro/src/make_style"><code class="language-plaintext highlighter-rouge">make_style()</code></a></p>
+</blockquote>
+
+<p>You can play around w/ the syntax that you want to be able to parse. It takes some iterating in
+order to be ergonomic. It helps to just write out a lot of different ways to express this
+information and see what feels the best.</p>
+
+<p>A lot of what feels the best will be biased by whatever style that you might be used to, based on
+your background. This is another reason why the ability to create your own DSLs in Rust is so
+awesome! You can just extend the language in ways that you would like code to be expressed
+regardless of whatever keywords come “out of the box” w/ Rust.</p>
+
+<p>Even if you change it later, it is good to start w/ something to aim for. If we aim for nothing, we
+won’t hit anything 🎯.</p>
+      <h2 id="parse-the-syntax">
+        
+        
+          Parse the syntax <a href="#parse-the-syntax">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-parse-the-syntax" name="parse-the-syntax"></a></p>
+
+<p>Now that we have an idea of what the thing we want to parse looks like, let’s parse it. The rough
+approach that we can take to parsing this is just go ahead and try and read things that we expect to
+see one after another. If it fails, then the compiler will generate a warning letting us know that
+something has gone wrong. In this sense, it is fairly straightforward to parse the syntax. However,
+there are a lot of details we need to take care of while we are attempting to read the next token in
+the stream, since things can be optional, they can be nested, etc.</p>
+
+<p>Let’s start w/ a few things to get us going. First we will need a <code class="language-plaintext highlighter-rouge">struct</code> in which we can store the
+things that we have parsed from the token stream. This struct basically holds all the meta data that
+we will need to generate the code (which is just auto generating the imperative code we’ve already
+seen above).</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Docs: https://docs.rs/syn/1.0.98/syn/parse/struct.ParseBuffer.html</span>
+<span class="nd">#[derive(Debug,</span> <span class="nd">Clone)]</span>
+<span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">struct</span> <span class="n">StyleMetadata</span> <span class="p">{</span>
+  <span class="k">pub</span> <span class="n">id</span><span class="p">:</span> <span class="n">Ident</span><span class="p">,</span>                <span class="cm">/* Only required field. */</span>
+  <span class="k">pub</span> <span class="n">attrib_vec</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Attrib</span><span class="o">&gt;</span><span class="p">,</span>  <span class="cm">/* Attributes are optional. */</span>
+  <span class="k">pub</span> <span class="n">margin</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">UnitType</span><span class="o">&gt;</span><span class="p">,</span> <span class="cm">/* Optional. */</span>
+  <span class="k">pub</span> <span class="n">color_fg</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Expr</span><span class="o">&gt;</span><span class="p">,</span>   <span class="cm">/* Optional. */</span>
+  <span class="k">pub</span> <span class="n">color_bg</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Expr</span><span class="o">&gt;</span><span class="p">,</span>   <span class="cm">/* Optional. */</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s an <code class="language-plaintext highlighter-rouge">enum</code> that we use to represent the various attributes that we can have.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">PartialEq,</span> <span class="nd">Eq)]</span>
+<span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">enum</span> <span class="n">Attrib</span> <span class="p">{</span>
+  <span class="n">Bold</span><span class="p">,</span>
+  <span class="n">Dim</span><span class="p">,</span>
+  <span class="n">Underline</span><span class="p">,</span>
+  <span class="n">Reverse</span><span class="p">,</span>
+  <span class="n">Hidden</span><span class="p">,</span>
+  <span class="n">Strikethrough</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>So far so good. Now we can implement the <code class="language-plaintext highlighter-rouge">Parse</code> trait for this <code class="language-plaintext highlighter-rouge">struct</code> so that we can have <code class="language-plaintext highlighter-rouge">syn</code>
+take the token stream and turn it into a <code class="language-plaintext highlighter-rouge">StyleMetadata</code> struct.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span> <span class="n">Parse</span> <span class="k">for</span> <span class="n">StyleMetadata</span> <span class="p">{</span>
+  <span class="k">fn</span> <span class="nf">parse</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="n">ParseStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="k">Self</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">StyleMetadata</span> <span class="p">{</span>
+      <span class="n">id</span><span class="p">:</span> <span class="nn">Ident</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"tbd"</span><span class="p">,</span> <span class="nn">Span</span><span class="p">::</span><span class="nf">call_site</span><span class="p">()),</span>
+      <span class="n">attrib_vec</span><span class="p">:</span> <span class="nn">Vec</span><span class="p">::</span><span class="nf">new</span><span class="p">(),</span>
+      <span class="n">margin</span><span class="p">:</span> <span class="nb">None</span><span class="p">,</span>
+      <span class="n">color_fg</span><span class="p">:</span> <span class="nb">None</span><span class="p">,</span>
+      <span class="n">color_bg</span><span class="p">:</span> <span class="nb">None</span><span class="p">,</span>
+    <span class="p">};</span>
+
+    <span class="c1">// TODO: implement these functions below.</span>
+    <span class="nf">parse_id</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">metadata</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+    <span class="nf">parse_optional_attrib</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">metadata</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+    <span class="nf">parse_optional_margin</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">metadata</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+    <span class="nf">parse_optional_color_fg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">metadata</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+    <span class="nf">parse_optional_color_bg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">metadata</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="nf">Ok</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>With this stubbed out, we can have <code class="language-plaintext highlighter-rouge">syn</code> do something like this in our procedural macro.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">fn</span> <span class="nf">fn_proc_macro_impl</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">style_metadata</span><span class="p">:</span> <span class="n">StyleMetadata</span> <span class="o">=</span> <span class="nn">syn</span><span class="p">::</span><span class="nd">parse_macro_input!</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+  <span class="c1">// TODO: implement the function below.</span>
+  <span class="nf">code_gen</span><span class="p">(</span><span class="n">style_metadata</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>To implement those <code class="language-plaintext highlighter-rouge">parse_*</code> methods we saw above, we need to create a set of custom keywords for
+our syntax.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// [syn custom keywords docs](https://docs.rs/syn/latest/syn/macro.custom_keyword.html)</span>
+<span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">mod</span> <span class="n">kw</span> <span class="p">{</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">bold</span><span class="p">);</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">attrib</span><span class="p">);</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">dim</span><span class="p">);</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">underline</span><span class="p">);</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">reverse</span><span class="p">);</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">hidden</span><span class="p">);</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">strikethrough</span><span class="p">);</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">margin</span><span class="p">);</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">color_fg</span><span class="p">);</span>
+  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">color_bg</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>With that out of the way, we can implement each of the functions. Here’s the simplest one. Since the
+<code class="language-plaintext highlighter-rouge">id</code> is required, we can just go for it. If it fails, then the compiler will complain that <code class="language-plaintext highlighter-rouge">id</code> is
+missing.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Parse id (required).</span>
+<span class="k">fn</span> <span class="nf">parse_id</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ParseStream</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">StyleMetadata</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">lookahead</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.lookahead1</span><span class="p">();</span>
+  <span class="k">if</span> <span class="n">lookahead</span><span class="nf">.peek</span><span class="p">(</span><span class="nn">kw</span><span class="p">::</span><span class="n">id</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nn">kw</span><span class="p">::</span><span class="n">id</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nd">Token!</span><span class="p">[:]</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">id</span> <span class="o">=</span> <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="n">Ident</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">metadata</span><span class="py">.id</span> <span class="o">=</span> <span class="n">id</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="nd">call_if_true!</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"🚀 id: {:?}"</span><span class="p">,</span> <span class="n">metadata</span><span class="py">.id</span><span class="p">));</span>
+  <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The next one is more difficult, since we are dealing w/ optional attributes that can be parsed. Also
+the things being parsed come in an array and there can be a bunch of different ones.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Parse attrib (optional).</span>
+<span class="k">fn</span> <span class="nf">parse_optional_attrib</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ParseStream</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">StyleMetadata</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">lookahead</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.lookahead1</span><span class="p">();</span>
+  <span class="k">if</span> <span class="n">lookahead</span><span class="nf">.peek</span><span class="p">(</span><span class="nn">kw</span><span class="p">::</span><span class="n">attrib</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nn">kw</span><span class="p">::</span><span class="n">attrib</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nd">Token!</span><span class="p">[:]</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="n">expr_array</span><span class="p">:</span> <span class="n">ExprArray</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.parse</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="k">in</span> <span class="n">expr_array</span><span class="py">.elems</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="k">let</span> <span class="nn">Expr</span><span class="p">::</span><span class="nf">Path</span><span class="p">(</span><span class="n">ExprPath</span> <span class="p">{</span>
+        <span class="n">attrs</span><span class="p">:</span> <span class="n">_</span><span class="p">,</span>
+        <span class="n">qself</span><span class="p">:</span> <span class="n">_</span><span class="p">,</span>
+        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="p">{</span> <span class="n">segments</span><span class="p">,</span> <span class="o">..</span> <span class="p">},</span>
+      <span class="p">})</span> <span class="o">=</span> <span class="n">item</span>
+      <span class="p">{</span>
+        <span class="k">let</span> <span class="n">PathSegment</span> <span class="p">{</span>
+          <span class="n">ident</span><span class="p">,</span>
+          <span class="n">arguments</span><span class="p">:</span> <span class="n">_</span><span class="p">,</span>
+        <span class="p">}</span> <span class="o">=</span> <span class="n">segments</span><span class="nf">.first</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+        <span class="k">match</span> <span class="n">ident</span><span class="nf">.as_str</span><span class="p">()</span><span class="nf">.as_ref</span><span class="p">()</span> <span class="p">{</span>
+          <span class="s">"bold"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Bold</span><span class="p">),</span>
+          <span class="s">"dim"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Dim</span><span class="p">),</span>
+          <span class="s">"underline"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Underline</span><span class="p">),</span>
+          <span class="s">"reverse"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Reverse</span><span class="p">),</span>
+          <span class="s">"hidden"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Hidden</span><span class="p">),</span>
+          <span class="s">"strikethrough"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Strikethrough</span><span class="p">),</span>
+          <span class="n">_</span> <span class="k">=&gt;</span> <span class="nd">panic!</span><span class="p">(</span><span class="s">"🚀 unknown attrib: {}"</span><span class="p">,</span> <span class="n">ident</span><span class="p">),</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nd">call_if_true!</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"🚀 attrib_vec: {:?}"</span><span class="p">,</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="p">));</span>
+  <span class="p">}</span>
+  <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Finally, the following are fairly naive implementations of the rest of the required functions. And I
+say naive, because we don’t really support handling colors that are passed in a variable. We
+currently only support <code class="language-plaintext highlighter-rouge">Color</code> <code class="language-plaintext highlighter-rouge">enum</code> and <code class="language-plaintext highlighter-rouge">Rgb</code> <code class="language-plaintext highlighter-rouge">struct</code>. But it is feasible that a variable can be
+passed in which holds either. We will leave this implementation for another article.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Parse margin (optional).</span>
+<span class="k">fn</span> <span class="nf">parse_optional_margin</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ParseStream</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">StyleMetadata</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">lookahead</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.lookahead1</span><span class="p">();</span>
+  <span class="k">if</span> <span class="n">lookahead</span><span class="nf">.peek</span><span class="p">(</span><span class="nn">kw</span><span class="p">::</span><span class="n">margin</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nn">kw</span><span class="p">::</span><span class="n">margin</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nd">Token!</span><span class="p">[:]</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">lit_int</span> <span class="o">=</span> <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="n">LitInt</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">margin_int</span><span class="p">:</span> <span class="n">UnitType</span> <span class="o">=</span> <span class="n">lit_int</span><span class="nf">.base10_parse</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="n">metadata</span><span class="py">.margin</span> <span class="o">=</span> <span class="nf">Some</span><span class="p">(</span><span class="n">margin_int</span><span class="p">);</span>
+    <span class="nd">call_if_true!</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"🚀 margin: {:?}"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">metadata</span><span class="py">.margin</span><span class="p">));</span>
+  <span class="p">}</span>
+  <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+
+<span class="c1">// Parse color_fg (optional).</span>
+<span class="k">fn</span> <span class="nf">parse_optional_color_fg</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ParseStream</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">StyleMetadata</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">lookahead</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.lookahead1</span><span class="p">();</span>
+  <span class="k">if</span> <span class="n">lookahead</span><span class="nf">.peek</span><span class="p">(</span><span class="nn">kw</span><span class="p">::</span><span class="n">color_fg</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nn">kw</span><span class="p">::</span><span class="n">color_fg</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nd">Token!</span><span class="p">[:]</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">color_expr</span> <span class="o">=</span> <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="n">Expr</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">metadata</span><span class="py">.color_fg</span> <span class="o">=</span> <span class="nf">Some</span><span class="p">(</span><span class="n">color_expr</span><span class="p">);</span>
+    <span class="nd">call_if_true!</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"🚀 color_fg: {:#?}"</span><span class="p">,</span> <span class="n">metadata</span><span class="py">.color_fg</span><span class="p">));</span>
+  <span class="p">}</span>
+
+  <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+
+<span class="c1">// Parse color_bg (optional).</span>
+<span class="k">fn</span> <span class="nf">parse_optional_color_bg</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ParseStream</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">StyleMetadata</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">lookahead</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.lookahead1</span><span class="p">();</span>
+  <span class="k">if</span> <span class="n">lookahead</span><span class="nf">.peek</span><span class="p">(</span><span class="nn">kw</span><span class="p">::</span><span class="n">color_bg</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nn">kw</span><span class="p">::</span><span class="n">color_bg</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nd">Token!</span><span class="p">[:]</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">color_expr</span> <span class="o">=</span> <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="n">Expr</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">metadata</span><span class="py">.color_bg</span> <span class="o">=</span> <span class="nf">Some</span><span class="p">(</span><span class="n">color_expr</span><span class="p">);</span>
+    <span class="nd">call_if_true!</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"🚀 color_bg: {:#?}"</span><span class="p">,</span> <span class="n">metadata</span><span class="py">.color_bg</span><span class="p">));</span>
+  <span class="p">}</span>
+
+  <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>With the parsing out of the way, we can now proceed to the code generation.</p>
+      <h2 id="generate-the-code">
+        
+        
+          Generate the code <a href="#generate-the-code">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-generate-the-code" name="generate-the-code"></a></p>
+
+<p>Revisiting our procedural macro function, we can now generate the code.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">fn</span> <span class="nf">fn_proc_macro_impl</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">style_metadata</span><span class="p">:</span> <span class="n">StyleMetadata</span> <span class="o">=</span> <span class="nd">parse_macro_input!</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
+  <span class="nf">code_gen</span><span class="p">(</span><span class="n">style_metadata</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This is much more straightforward than parsing the syntax, thanks to <code class="language-plaintext highlighter-rouge">quote!</code>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">fn</span> <span class="nf">code_gen</span><span class="p">(</span>
+  <span class="n">StyleMetadata</span> <span class="p">{</span><span class="n">id</span><span class="p">,</span> <span class="n">attrib_vec</span><span class="p">,</span> <span class="n">margin</span><span class="p">,</span> <span class="n">color_fg</span><span class="p">,</span> <span class="n">color_bg</span><span class="p">}:</span> <span class="n">StyleMetadata</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">has_attrib_bold</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Bold</span><span class="p">);</span>
+  <span class="k">let</span> <span class="n">has_attrib_dim</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Dim</span><span class="p">);</span>
+  <span class="k">let</span> <span class="n">has_attrib_underline</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Underline</span><span class="p">);</span>
+  <span class="k">let</span> <span class="n">has_attrib_reverse</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Reverse</span><span class="p">);</span>
+  <span class="k">let</span> <span class="n">has_attrib_hidden</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Hidden</span><span class="p">);</span>
+  <span class="k">let</span> <span class="n">has_attrib_strikethrough</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Strikethrough</span><span class="p">);</span>
+
+  <span class="k">let</span> <span class="n">id_str</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">id</span><span class="p">);</span>
+
+  <span class="k">let</span> <span class="n">maybe_margin_expr</span> <span class="o">=</span> <span class="k">match</span> <span class="n">margin</span> <span class="p">{</span>
+    <span class="nf">Some</span><span class="p">(</span><span class="n">margin_int</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+      <span class="nd">quote!</span> <span class="p">{</span>
+        <span class="n">margin</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span>#<span class="n">margin_int</span><span class="p">),</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nb">None</span> <span class="k">=&gt;</span> <span class="nd">quote!</span> <span class="p">{},</span>
+  <span class="p">};</span>
+
+  <span class="k">let</span> <span class="n">maybe_color_fg_expr</span> <span class="o">=</span> <span class="k">match</span> <span class="n">color_fg</span> <span class="p">{</span>
+    <span class="nf">Some</span><span class="p">(</span><span class="n">color_expr</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+      <span class="nd">quote!</span> <span class="p">{</span>
+        <span class="n">color_fg</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span>#<span class="n">color_expr</span><span class="nf">.into</span><span class="p">()),</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nb">None</span> <span class="k">=&gt;</span> <span class="nd">quote!</span> <span class="p">{},</span>
+  <span class="p">};</span>
+
+  <span class="k">let</span> <span class="n">maybe_color_bg_expr</span> <span class="o">=</span> <span class="k">match</span> <span class="n">color_bg</span> <span class="p">{</span>
+    <span class="nf">Some</span><span class="p">(</span><span class="n">color_expr</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+      <span class="nd">quote!</span> <span class="p">{</span>
+        <span class="n">color_bg</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span>#<span class="n">color_expr</span><span class="nf">.into</span><span class="p">()),</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nb">None</span> <span class="k">=&gt;</span> <span class="nd">quote!</span> <span class="p">{},</span>
+  <span class="p">};</span>
+
+  <span class="nd">quote!</span> <span class="p">{</span>
+    <span class="nn">r3bl_rs_utils</span><span class="p">::</span><span class="n">Style</span> <span class="p">{</span>
+      <span class="n">id</span><span class="p">:</span> #<span class="n">id_str</span><span class="nf">.to_string</span><span class="p">(),</span>
+      <span class="n">bold</span><span class="p">:</span> #<span class="n">has_attrib_bold</span><span class="p">,</span>
+      <span class="n">dim</span><span class="p">:</span> #<span class="n">has_attrib_dim</span><span class="p">,</span>
+      <span class="n">underline</span><span class="p">:</span> #<span class="n">has_attrib_underline</span><span class="p">,</span>
+      <span class="n">reverse</span><span class="p">:</span> #<span class="n">has_attrib_reverse</span><span class="p">,</span>
+      <span class="n">hidden</span><span class="p">:</span> #<span class="n">has_attrib_hidden</span><span class="p">,</span>
+      <span class="n">strikethrough</span><span class="p">:</span> #<span class="n">has_attrib_strikethrough</span><span class="p">,</span>
+      #<span class="n">maybe_margin_expr</span>
+      #<span class="n">maybe_color_fg_expr</span>
+      #<span class="n">maybe_color_bg_expr</span>
+      <span class="o">..</span> <span class="nn">Default</span><span class="p">::</span><span class="nf">default</span><span class="p">()</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="nf">.into</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="exporting-it">
+        
+        
+          Exporting it <a href="#exporting-it">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-exporting-it" name="exporting-it"></a></p>
+
+<p>This is the simplest part of our journey. In our procedural macro crate, we have do something like
+this.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">extern</span> <span class="k">crate</span> <span class="n">proc_macro</span><span class="p">;</span>
+<span class="k">mod</span> <span class="n">make_style</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span><span class="p">;</span>
+
+<span class="nd">#[proc_macro]</span>
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">style</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="n">TokenStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">TokenStream</span> <span class="p">{</span> <span class="nn">make_style</span><span class="p">::</span><span class="nf">fn_proc_macro_impl</span><span class="p">(</span><span class="n">input</span><span class="p">)</span> <span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>📜 Here’s the production version of the <code class="language-plaintext highlighter-rouge">style!</code> procedural macro:
+<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/macro/src/make_style"><code class="language-plaintext highlighter-rouge">make_style()</code></a></p>
+</blockquote>
+      <h2 id="wrapping-up">
+        
+        
+          Wrapping up <a href="#wrapping-up">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-wrapping-up" name="wrapping-up"></a></p>
+
+<p>This article just shows how to handle a single style. And it has room for improvement (being able to
+handle variables that hold color values in them).</p>
+
+<p>In the future we will expand this DSL to include more features like generating the entire stylesheet
+declaratively. And then move on to creating JSX like syntax in Rust for layout stuff in the <code class="language-plaintext highlighter-rouge">tui</code>
+module as well. More articles to follow based on this work.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/MP">
+                #mp</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TUI">
+                #tui</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
+                        Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/04/ockam-routing-building-end-to-end-channels/">
+                        Create End-to-End Channels in Rust with Ockam Routing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2022/08/04/rust-dsl-part-1/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

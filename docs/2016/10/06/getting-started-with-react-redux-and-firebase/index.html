@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Building a real world app using React, Redux, Firebase, and Typescript | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Building a real world app using React, Redux, Firebase, and Typescript" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The purpose of this tutorial is to serve as a starting point for a real world React, Redux, and Firebase example. The starter project is on GitHub." />
+<meta property="og:description" content="The purpose of this tutorial is to serve as a starting point for a real world React, Redux, and Firebase example. The starter project is on GitHub." />
+<link rel="canonical" href="http://developerlife.com/2016/10/06/getting-started-with-react-redux-and-firebase/" />
+<meta property="og:url" content="http://developerlife.com/2016/10/06/getting-started-with-react-redux-and-firebase/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-10-06T21:45:24-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Building a real world app using React, Redux, Firebase, and Typescript" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2016-10-06T21:45:24-05:00","datePublished":"2016-10-06T21:45:24-05:00","description":"The purpose of this tutorial is to serve as a starting point for a real world React, Redux, and Firebase example. The starter project is on GitHub.","headline":"Building a real world app using React, Redux, Firebase, and Typescript","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2016/10/06/getting-started-with-react-redux-and-firebase/"},"url":"http://developerlife.com/2016/10/06/getting-started-with-react-redux-and-firebase/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Building a real world app using React, Redux, Firebase, and Typescript&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Building a real world app using React, Redux, Firebase, and Typescript</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Building a real world app using React, Redux, Firebase, and Typescript</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Oct 6, 2016
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+<img class="post-hero-image" src="/assets/react-redux-firebase-hero.png"/>
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#setting-up-your-environment">Setting up your environment</a></li>
+  <li><a href="#your-map-of-the-code">Your map of the code</a></li>
+  <li><a href="#redux">Redux</a></li>
+  <li><a href="#misc">Misc</a></li>
+  <li><a href="#getting-the-code">Getting the code</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This tutorial is mostly about Redux. And it’s based on
+<a href="https://developerlife.com/2016/10/02/getting-started-with-react-and-firebase/">this tutorial</a> which
+goes into details around the starter project that I created to tie together React, Firebase, and
+Material Design to create a lightweight but real world starter project.</p>
+
+<p>Here’s the code on
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md">GitHub</a> for this
+project. The core technologies used in this starter project are:</p>
+
+<ul>
+  <li><a href="http://redux.js.org/docs/basics/UsageWithReact.html">Redux</a></li>
+  <li><a href="https://facebook.github.io/react/">React</a></li>
+  <li><a href="https://www.firebase.com/">Firebase</a></li>
+  <li><a href="http://es6-features.org/#Constants">ES6</a></li>
+  <li><a href="https://www.typescriptlang.org/">Typescript</a>,
+<a href="https://basarat.gitbooks.io/typescript/content/docs/quick/nodejs.html">Typescript with NodeJS</a></li>
+  <li><a href="http://www.material-ui.com/#/">Material UI for React</a></li>
+  <li><a href="http://flexboxfroggy.com/">Flexbox layout</a></li>
+  <li><a href="http://socket.io/">Socket.IO</a></li>
+</ul>
+
+<p>Please note that is not for beginners, but is more for someone who knows these technologies and
+wants to put them together into real world applications. If you want to get started with the basics,
+here are some goodresources:</p>
+
+<ul>
+  <li><a href="https://goo.gl/UkHggE">React JS Essentials book</a></li>
+  <li><a href="https://www.udemy.com/react-redux/">Udemy React Course</a></li>
+  <li><a href="https://github.com/r-park/todo-react-redux">Basic code example for (redux/react/firebase)</a></li>
+</ul>
+
+<p>What does this project actually do?</p>
+
+<p>To see it in action, see it deployed on
+<a href="https://todolist-redux-r3bl-alliance.herokuapp.com/">heroku</a>. This project is a simple todo list
+app that stores its data in Firebase. It uses Redux to manage the internal state of the application.
+And it uses Material Design and Flexbox layout for the UI, along with React. Additionally, it
+supports signed in users, so that all the data is stored on the user’s behalf based on their social
+identity (anonymous auth and Google sign in is supported via Firebase).</p>
+
+<p>When the app first starts up, you will be able to create todo list items. These are saved for the
+anonymous user that’s automatically created when the app launches. This is explained in more detail
+below in the Firebase Auth section. When you click on the user icon on the top right hand corner of
+the app, you will be asked to connect the app using your Google profile (via OAuth 2.0), which is
+handled by Firebase Auth as well. Once you provide your authorization, it will copy the todo data to
+a new account that is permanent and tied to your social identity. If you then sign in to this app
+from any number of machines, the same todo data will be available everywhere. As you make changes to
+this data (in real time) you will see these changes appear everywhere that you have the app running
+(as long as you are online on those machines).</p>
+
+<p><img src="/assets/react-redux-firebase-1.png" alt="UXD React #1.001.png" /></p>
+      <h2 id="setting-up-your-environment">
+        
+        
+          Setting up your environment <a href="#setting-up-your-environment">#</a>
+        
+        
+      </h2>
+    
+
+<p>Please refer to this
+non-Redux<a href="https://developerlife.com/2016/10/02/getting-started-with-react-and-firebase/">tutorial</a>
+to get your environment setup. The biggest change in the Redux version of the project compared to
+the non-Redux version
+<a href="https://developerlife.com/2016/10/02/getting-started-with-react-and-firebase/">here</a> is that I’ve
+changed webpack settings to make Typescript work in all the source files in the <code class="language-plaintext highlighter-rouge">/client</code> folder.</p>
+      <h2 id="your-map-of-the-code">
+        
+        
+          Your map of the code <a href="#your-map-of-the-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>You will find the following packages in the <code class="language-plaintext highlighter-rouge">src</code> folder:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">client</code> – this folder holds all the code related to the web app</p>
+
+    <ul>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">container</code> – this folder holds all the related to the internal state and lifecycles of the web
+app itself.</p>
+      </li>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">ui</code> – this folder holds all the React UI code.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">global</code> – this folder holds the code that is shared between the web client app and the web server
+app.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">server</code> – this folder holds all the server code (spawns Websocket, HTTP server, etc).</p>
+  </li>
+</ul>
+
+<p>Note that Typescript now works in any of the <code class="language-plaintext highlighter-rouge">client/</code> folders. So you can create TSX files (React
+Files that use Typescript). An example is provided in <code class="language-plaintext highlighter-rouge">test.tsx</code> that you can check out for yourself
+in the code.</p>
+      <h2 id="redux">
+        
+        
+          Redux <a href="#redux">#</a>
+        
+        
+      </h2>
+    
+
+<p>In the non-Redux version of this project, we used Node event emitters and the observer-observable
+pattern to connect components of the application together (loosely). This pattern is still used in
+this Redux version of the project, however, it’s restricted to Socket.IO and Firebase. For internal
+state management of the application, we use Redux.</p>
+
+<p>There are some key concepts that are important to grok when using Redux. The idea is to manage the
+entire state of your application in a single place. This means that the entire object model that
+comprises the representational state (in its entirety) of your application at any given moment in
+time is in one place. And it’s immutable.</p>
+
+<p>You might be thinking, if it’s immutable, then how do I change it? In order to discretely change
+state from one point to another, you have to apply actions to your object model or Redux state
+(which is kept in a Redux store). What is an action? An action simply has a name and a payload.
+These actions are dispatched to the Redux store, in order to make changes to the state. Every time
+an action is applied, an entirely new state is created and stored in the Redux store. This new state
+is then propagated by Redux to all the objects that are interested in these state changes (which in
+this case are Redux components).</p>
+
+<p>There is another thing that Redux introduces, and that is the reducer. It’s more like a state
+mutator. The way reducers work is that you give them the current state and the action, and they will
+do some work to mutate this state and give you an entirely new state! There are a few constraints in
+what these reducers can’t do (eg: they can’t call network operations or do anything outside the
+bounds of the local execution environment).</p>
+
+<p>There are many advantages to using Redux, the most important of which is greater reliability of your
+application’s runtime behavior. It helps you create more stable apps and allows you to track changes
+that are being made to the application state in a single place. This makes it easier to see what is
+happening to your app. The notion of immutable state is something that takes a little getting used
+to.</p>
+
+<p>Think of it this way, you don’t just change the state of your application. Instead,</p>
+
+<ol>
+  <li>
+    <p>You request that a change be made by dispatching an action (which contains the type/name of your
+action and the payload object that has data for this change) to the Redux store.</p>
+  </li>
+  <li>
+    <p>Then Redux applies the appropriate reducer to mutate this state and produce a new state.</p>
+  </li>
+  <li>
+    <p>This new state is then propagated by Redux to all the interested parties that have registered
+interest in state changes (these are typically Redux components).</p>
+  </li>
+</ol>
+
+<p>So in order to setup Redux, you have to do the following:</p>
+
+<ol>
+  <li>
+    <p>Create a Redux store</p>
+  </li>
+  <li>
+    <p>Initialize it with an init state object</p>
+  </li>
+  <li>
+    <p>Initialize it with a main reducer</p>
+  </li>
+</ol>
+
+<p>Here’s code from
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md/blob/main/web/src/client/container/context.ts">context.js</a>
+that does just this:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">initReduxStore</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">reduxStore</span> <span class="o">=</span> <span class="nf">createStore</span><span class="p">(</span>
+      <span class="nx">reducers</span><span class="p">.</span><span class="nx">reducer_main</span><span class="p">,</span>
+      <span class="kc">null</span><span class="p">,</span>
+      <span class="nb">window</span><span class="p">.</span><span class="nx">devToolsExtension</span> <span class="o">&amp;&amp;</span> <span class="nb">window</span><span class="p">.</span><span class="nf">devToolsExtension</span><span class="p">()</span>
+    <span class="p">);</span>
+  <span class="p">}</span> <span class="k">catch </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">reduxStore</span> <span class="o">=</span> <span class="nf">createStore</span><span class="p">(</span>
+      <span class="nx">reducers</span><span class="p">.</span><span class="nx">reducer_main</span><span class="p">,</span>
+      <span class="kc">null</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+
+  <span class="c1">// explicitly INIT Redux!</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">reduxStore</span><span class="p">.</span><span class="nf">dispatch</span><span class="p">(</span><span class="nx">actions</span><span class="p">.</span><span class="nf">action_init</span><span class="p">());</span>
+</code></pre></div></div>
+
+<p>This is what the code for the
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md/blob/main/web/src/client/container/actions.ts">actions</a>
+looks like:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">TYPES</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">SET_STATE_USER</span><span class="p">:</span> <span class="dl">"</span><span class="s2">SET_STATE_USER</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">SET_STATE_DATA</span><span class="p">:</span> <span class="dl">"</span><span class="s2">SET_STATE_DATA</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">ADD_TODO</span><span class="p">:</span> <span class="dl">"</span><span class="s2">ADD_TODO</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">TOGGLE_TODO</span><span class="p">:</span> <span class="dl">"</span><span class="s2">TOGGLE_TODO</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">REDUX_INIT</span><span class="p">:</span> <span class="dl">"</span><span class="s2">REDUX_INIT</span><span class="dl">"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nf">action_init</span><span class="p">():</span> <span class="nx">ReduxActionIF</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="na">type</span><span class="p">:</span> <span class="nx">TYPES</span><span class="p">.</span><span class="nx">REDUX_INIT</span><span class="p">,</span>
+    <span class="na">payload</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This is what the code for the
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md/blob/main/web/src/client/container/reducers.ts">reducer</a>
+looks like:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">reducer_main</span><span class="p">(</span><span class="nx">state</span><span class="p">:</span> <span class="nx">ReduxStateIF</span><span class="p">,</span> <span class="nx">action</span><span class="p">:</span> <span class="nx">ReduxActionIF</span><span class="p">):</span> <span class="nx">ReduxStateIF</span> <span class="p">{</span>
+  <span class="k">switch </span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="nx">REDUX_INIT</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nx">initialState</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="nx">ADD_TODO</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nf">add_todo</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">action</span><span class="p">)</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="nx">TOGGLE_TODO</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nf">toggle_todo</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">action</span><span class="p">)</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="nx">SET_STATE_DATA</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nf">set_data</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">action</span><span class="p">)</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="nx">SET_STATE_USER</span><span class="p">:</span>
+      <span class="k">return</span> <span class="nf">set_user</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">action</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s an example of a reducer that toggles a selected todo list item’s done state:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">toggle_todo</span><span class="p">(</span><span class="nx">state</span><span class="p">:</span> <span class="nx">ReduxStateIF</span><span class="p">,</span> <span class="nx">action</span><span class="p">:</span> <span class="nx">ReduxActionIF</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="na">index</span><span class="p">:</span> <span class="nx">number</span> <span class="o">=</span> <span class="nx">action</span><span class="p">.</span><span class="nx">payload</span>
+    <span class="kd">let</span> <span class="na">data_copy</span><span class="p">:</span> <span class="nx">DataIF</span> <span class="o">=</span> <span class="nx">lodash</span><span class="p">.</span><span class="nf">cloneDeep</span><span class="p">(</span><span class="nx">applicationContext</span><span class="p">.</span><span class="nf">getData</span><span class="p">())</span>
+    <span class="kd">let</span> <span class="na">todoObject</span><span class="p">:</span> <span class="nx">TodoIF</span> <span class="o">=</span> <span class="nx">data_copy</span><span class="p">.</span><span class="nx">todoArray</span><span class="p">[</span><span class="nx">index</span><span class="p">]</span>
+    <span class="nx">todoObject</span><span class="p">.</span><span class="nx">done</span> <span class="o">=</span> <span class="o">!</span><span class="nx">todoObject</span><span class="p">.</span><span class="nx">done</span>
+
+    <span class="kd">const</span> <span class="nx">retval</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">user</span><span class="p">:</span> <span class="nx">state</span><span class="p">.</span><span class="nx">user</span><span class="p">,</span>
+      <span class="na">data</span><span class="p">:</span> <span class="nx">data_copy</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">retval</span>
+  <span class="p">}</span> <span class="k">catch </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">_modifyTodoItem had a problem ...</span><span class="dl">"</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nf">dir</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="k">return</span> <span class="nx">state</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When you want to use it in React, you have to:</p>
+
+<ol>
+  <li>
+    <p>Connect the Redux store to the React component hierarchy using a Provider tag.</p>
+  </li>
+  <li>
+    <p>Bind the React component to the state or portions of the state that your React components are
+driven by (this is done using the @connect annotation for ease of use).</p>
+  </li>
+  <li>
+    <p>You have to make all the actions that can be applied by your React components available to
+@connect as well. This makes it so that you don’t have to do the heavy lifting of accessing the
+Redux store and then manually dispatching an action. This binding is done for you so that you can
+just call the action object with the desired payload and it automatically dispatches it to the
+Redux store.</p>
+  </li>
+</ol>
+
+<p>Here’s code to connect React to Redux. The following snippet is from
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md/blob/main/web/src/client/main.js">main.js</a>.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">ReactDOM</span><span class="p">.</span><span class="nf">render</span><span class="p">(</span>
+  <span class="o">&lt;</span><span class="nx">Provider</span> <span class="nx">store</span><span class="o">=</span><span class="p">{</span><span class="nx">applicationContext</span><span class="p">.</span><span class="nf">getReduxStore</span><span class="p">()}</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nx">App</span> <span class="o">/&gt;</span>
+  <span class="o">&lt;</span><span class="sr">/Provider&gt;</span><span class="err">,
+</span>  <span class="nb">document</span><span class="p">.</span><span class="nf">getElementById</span><span class="p">(</span><span class="dl">"</span><span class="s2">app</span><span class="dl">"</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>The following snippet is from
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md/blob/main/web/src/client/ui/app.js">app.js</a>.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">connect</span><span class="p">(</span>
+  <span class="p">(</span><span class="nx">state</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">if </span><span class="p">(</span><span class="nx">lodash</span><span class="p">.</span><span class="nf">isNil</span><span class="p">(</span><span class="nx">state</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{</span>
+        <span class="na">data</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="na">user</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="k">else</span>
+      <span class="k">return</span> <span class="p">{</span>
+        <span class="na">data</span><span class="p">:</span> <span class="nx">state</span><span class="p">.</span><span class="nx">data</span><span class="p">,</span>
+        <span class="na">user</span><span class="p">:</span> <span class="nx">state</span><span class="p">.</span><span class="nx">user</span>
+      <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="p">(</span><span class="nx">dispatch</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nf">bindActionCreators</span><span class="p">(</span><span class="nx">actions</span><span class="p">,</span> <span class="nx">dispatch</span><span class="p">,</span> <span class="nx">applicationContext</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>This code will bind the actions to the redux store’s dispatcher. You can learn more about how this
+works by looking at the bindActionCreators implementation in
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md/blob/main/web/src/client/container/context.ts">context.ts</a>.
+Here is how you use these actions in React, by simply getting them out of props.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">render</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="kd">const</span> <span class="p">{</span>
+    <span class="nx">data</span><span class="p">,</span>
+    <span class="nx">user</span><span class="p">,</span>
+    <span class="nx">action_add_todo_text</span><span class="p">,</span>
+    <span class="nx">action_toggle_todo_index</span>
+  <span class="p">}</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">;</span>
+
+  <span class="kd">const</span> <span class="nx">todoArray</span> <span class="o">=</span> <span class="nx">lodash</span><span class="p">.</span><span class="nf">isNil</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">?</span> <span class="kc">null</span> <span class="p">:</span> <span class="nx">data</span><span class="p">.</span><span class="nx">todoArray</span><span class="p">;</span>
+
+  <span class="p">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Whew! This probably sounds really complicated, and it is at first. However, this boilerplate stuff
+is handled on your behalf and it’s not really verbose. In the case of using Event emitters to manage
+application state, one disadvantage is that we would have to create listeners when a React component
+mounts and then detach them when it unmounts. We don’t have to do any such wiring. Since it’s all
+handled by Redux. Also, in the Event emitter example, we had to explicitly create React state
+objects to handle the data that we get via event emitters. In Redux, we don’t have to do this, since
+that is what the Redux state does for us!</p>
+
+<p>I encourage you to review the
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_firebase_ts_md">non-Redux</a> and
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md">Redux</a> versions
+side by side so that you get a sense for how things are different in the Redux example. In fact, if
+you go back in version history in the Redux example, it actually starts off without Redux and with
+every new check-in, the project is Redux-ified. Please review this
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md/commits/main">commit history</a>
+to see this.</p>
+
+<p><img src="/assets/react-redux-firebase-2.png" alt="" /></p>
+      <h2 id="misc">
+        
+        
+          Misc <a href="#misc">#</a>
+        
+        
+      </h2>
+    
+
+<p>Lodash is pretty awesome. It’s used in this project, learn more about it
+<a href="http://colintoh.com/blog/lodash-10-javascript-utility-functions-stop-rewriting">here</a>.</p>
+
+<p>If you use Chrome, the React and Redux Dev Tool extensions are very useful:</p>
+
+<ul>
+  <li>Install the React DevTools for Chrome <a href="https://goo.gl/1XNSjY">here</a>.</li>
+  <li>Install the Redux DevTools for Chrome <a href="https://goo.gl/HTKf5g">here</a>.</li>
+</ul>
+
+<p>The following is what the Redux chrome dev tools extension looks like. It is invaluable in debugging
+and it walks you thru all the state changes that happen and the actions that caused them. And it
+gives you Diff views or absolute State views of things, which is very useful for debugging and
+understanding how your application changes it’s internal state!</p>
+
+<p><img src="/assets/react-redux-firebase-3.png" alt="" /></p>
+      <h2 id="getting-the-code">
+        
+        
+          Getting the code <a href="#getting-the-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>You can get the
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md">code on GitHub</a>.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/DB">
+                #db</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/React">
+                #react</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/State">
+                #state</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TypeScript">
+                #typescript</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Web">
+                #web</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/01/28/swingx-tutorial-task-pane/">
+                        SwingX Tutorial - Task Pane (JXTaskPane, Container)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/">
+                        How to use glass pane for animation (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/react-hooks-redux-typescript-handbook/">
+                        React hooks (v17.0.3) and Redux handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/css-responsive-design-handbook/">
+                        CSS responsive design using Grid, Flexbox, and media queries handbook
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/22/vue-vueitfy-webpack/">
+                        Vue.js, Webpack, Vueitify, Electron, and vue-cli
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/15/introduction-to-vue/">
+                        Getting started with Vue.js
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/19/loading-csv-files-in-javascript-and-node/">
+                        Loading CSV files in Node
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2016/10/06/getting-started-with-react-redux-and-firebase/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

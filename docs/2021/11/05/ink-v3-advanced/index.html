@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript) | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This article is an advanced guide to using Ink v3.2.0 (with TypeScript and React) to create CLI apps. IDEA Ultimate / Webstorm project files are provided." />
+<meta property="og:description" content="This article is an advanced guide to using Ink v3.2.0 (with TypeScript and React) to create CLI apps. IDEA Ultimate / Webstorm project files are provided." />
+<link rel="canonical" href="http://developerlife.com/2021/11/05/ink-v3-advanced/" />
+<meta property="og:url" content="http://developerlife.com/2021/11/05/ink-v3-advanced/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-11-05T09:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2021-11-05T09:00:00-05:00","datePublished":"2021-11-05T09:00:00-05:00","description":"This article is an advanced guide to using Ink v3.2.0 (with TypeScript and React) to create CLI apps. IDEA Ultimate / Webstorm project files are provided.","headline":"Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2021/11/05/ink-v3-advanced/"},"url":"http://developerlife.com/2021/11/05/ink-v3-advanced/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Nov 5, 2021
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/ink-intro.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#what-is-ink">What is Ink</a></li>
+  <li><a href="#use-the-template-to-get-a-bare-bones-cli-app">Use the template to get a bare-bones CLI app</a></li>
+  <li><a href="#build-a-cli-app-using-ink-and-flexbox-w-redux">Build a CLI app using Ink and flexbox w/ Redux</a>
+    <ul>
+      <li><a href="#the-main-app-flexbox-and-redux-store">The main app, Flexbox, and Redux store</a></li>
+      <li><a href="#flexbox">Flexbox</a></li>
+      <li><a href="#redux-store-and-effect-function">Redux store and effect function</a></li>
+      <li><a href="#underlying--managed-timer-and-redux-store-connector">Underlying / managed Timer and Redux store connector</a></li>
+      <li><a href="#reducer-state-actions">Reducer, state, actions</a></li>
+      <li><a href="#tests">Tests</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This article is an advanced guide to using Ink v3.2.0 (with TypeScript and React) to create CLI
+apps. IDEA Ultimate / Webstorm project files are provided.</p>
+
+<p>To get started w/ Ink v3 please check out this <a href="https://developerlife.com/2021/11/04/introduction-to-ink-v3/">introductory article</a>.</p>
+
+<blockquote>
+      <h3 id="️-this-isnt-a-reference-for-react-nodejs-typescript-or-css">
+        
+        
+          ⚠️ This isn’t a reference for React, Node.js, TypeScript, or CSS <a href="#️-this-isnt-a-reference-for-react-nodejs-typescript-or-css">#</a>
+        
+        
+      </h3>
+    
+
+  <p>Learn more about these topics on <a href="https://developerlife.com/category/Web/">developerlife.com</a>:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Resource</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://developerlife.com/2021/07/02/nodejs-typescript-handbook/">Node.js handbook</a></td>
+        <td>Learn Node.js w/ TypeScript</td>
+      </tr>
+      <tr>
+        <td><a href="https://developerlife.com/2021/10/19/react-hooks-redux-typescript-handbook/">React Hooks handbook</a></td>
+        <td>Learn React, Redux, and Testing w/ TypeScript</td>
+      </tr>
+      <tr>
+        <td><a href="https://developerlife.com/2021/10/19/css-responsive-design-handbook/">CSS handbook</a></td>
+        <td>Learn CSS, grid, flexbox, to implement responsive design</td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end --><hr />
+      <h2 id="what-is-ink">
+        
+        
+          What is Ink <a href="#what-is-ink">#</a>
+        
+        
+      </h2>
+    
+
+<p>Ink is a React renderer written in TypeScript using the <a href="https://github.com/facebook/react/tree/master/packages/react-reconciler"><code class="language-plaintext highlighter-rouge">react-reconciler</code></a> package. So
+instead of rendering React components to the DOM Ink actually renders them to a terminal based UI.</p>
+
+<p>With it, you can make CLI apps that look like this:</p>
+
+<p><img src="/assets/ink-demo.svg" /></p>
+
+<p>Ink supplies its own <a href="https://developerlife.com/2021/11/04/introduction-to-ink-v3/#react-core-renderer-reconciler">host</a> UI components (eg: <code class="language-plaintext highlighter-rouge">&lt;Text&gt;</code>) which has nothing to do w/
+<a href="https://github.com/facebook/react/tree/main/packages/react-dom">react-dom</a> host components that come out of the box (eg: <code class="language-plaintext highlighter-rouge">&lt;img&gt;</code>) w/ React.</p>
+
+<p>Ink supplied host UI components are rendered to a terminal based UI by using:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">console</code> streams to manipulate the <a href="https://github.com/r3bl-org/r3bl-ts-utils/blob/3251cdf13f029da641c9e467dad513f9a27abc47/src/color-console-utils.ts#L99">output to the console</a>, and <a href="https://developerlife.com/2021/07/02/nodejs-typescript-handbook/#user-input-and-output-via-stdin-stdout">input from the
+console</a>.</li>
+  <li><a href="https://github.com/facebook/yoga">Yoga</a> to implement CSS flexbox layout and positioning. Yoga is written in C++ that allows
+flexbox layout itself to be implemented in various platforms (like <a href="https://github.com/facebook/litho">Lithio on Android</a>,
+Node.js, .Net, etc).</li>
+  <li>You can take a look at the dependencies that Ink has in its <a href="https://github.com/vadimdemedes/ink/blob/master/package.json"><code class="language-plaintext highlighter-rouge">package.json</code></a>. It relies on
+packages like: <code class="language-plaintext highlighter-rouge">chalk</code>, <code class="language-plaintext highlighter-rouge">cli-boxes</code>, <code class="language-plaintext highlighter-rouge">cli-cursor</code>, <code class="language-plaintext highlighter-rouge">yoga-layout-prebuilt</code>, <code class="language-plaintext highlighter-rouge">react-reconciler</code>,
+<code class="language-plaintext highlighter-rouge">react-devtools-core</code>.</li>
+</ol>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end --><hr />
+      <h2 id="use-the-template-to-get-a-bare-bones-cli-app">
+        
+        
+          Use the template to get a bare-bones CLI app <a href="#use-the-template-to-get-a-bare-bones-cli-app">#</a>
+        
+        
+      </h2>
+    
+
+<p>The <a href="https://developerlife.com/2021/11/04/introduction-to-ink-v3/#react-core-renderer-reconciler">first tutorial</a> was all about the mechanics of setting up an Ink CLI app, and
+understanding executable modules in Node.js, configuring Jest, etc. Now we can get into Ink itself
+and the CLI apps we can build w/ it.</p>
+
+<p>The first thing we must do is clone the <a href="https://github.com/nazmulidris/ts-ink-template/blob/main/README.md"><code class="language-plaintext highlighter-rouge">ts-ink-template</code></a> repo. This will get our project
+bootstrapped w/ all the configuration settings in <code class="language-plaintext highlighter-rouge">package.json</code>, <code class="language-plaintext highlighter-rouge">tsconfig.json</code>, and
+<code class="language-plaintext highlighter-rouge">jest.config.js</code> sorted for us! It also sets up Eslint for TypeScript. And provide npm scripts,
+along w/ run configurations for IDEA, and even settings for VSCode.</p>
+
+<blockquote>
+  <p>💡 In IDEA, you can simply run the <code class="language-plaintext highlighter-rouge">Run all tests (watch)</code> run configuration to continuously run
+Jest and execute all your tests when any file changes. This is a great way to see if the code that
+you’re writing is breaking anything that you’ve already written.</p>
+</blockquote>
+
+<blockquote>
+  <p>💡 If you install the
+<a href="https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest">Jest extension</a> in VSCode,
+you can do the same thing as well (<code class="language-plaintext highlighter-rouge">settings.json</code> is provided in this template for VSCode, so
+this extension is automatically configured for you).</p>
+</blockquote>
+
+<p>Here are the 2 main TSX files we need to look at to get started.</p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">source/cli.tsx</code> - This uses <code class="language-plaintext highlighter-rouge">commander</code> to parse the command line arguments that may be passed
+to the CLI app. So if we want to change the arguments that the app takes, we have to change the
+<code class="language-plaintext highlighter-rouge">commander</code> options. The values that we pass via the command line are actually passed as props to
+the <code class="language-plaintext highlighter-rouge">App</code> component described next.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">source/ui.tsx</code> - We use React and Ink host components in this file to define the <code class="language-plaintext highlighter-rouge">App</code> component
+which takes props that correspond to the values which are passed into the command line above.</p>
+  </li>
+</ol>
+
+<p>Also, we can customize the name of our app. Currently it’s called <code class="language-plaintext highlighter-rouge">"name": "ts-ink-template-app"</code> in
+<code class="language-plaintext highlighter-rouge">package.json</code> and we can change it to <code class="language-plaintext highlighter-rouge">ink-cli-app2</code>. If we want to be able to run this app from
+anywhere on your computer, we have to run <code class="language-plaintext highlighter-rouge">npm link</code>. In this tutorial, we are just going to use the
+<code class="language-plaintext highlighter-rouge">npm start</code> script that is provided w/ the template.</p>
+
+<p>To see the app in action we can simply run the following.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>npm start <span class="nt">--</span> <span class="nt">-h</span>
+</code></pre></div></div>
+
+<p>And it will display the help screen.</p>
+
+<pre class="pre-manual-highlight"><span style="color:#069CDC;">&gt;</span><span style="color:#05A0D9;"> </span><span style="color:#04A4D6;">i</span><span style="color:#03A8D3;">n</span><span style="color:#02ACD0;">k</span><span style="color:#02B0CD;">-</span><span style="color:#01B4C9;">c</span><span style="color:#01B8C6;">l</span><span style="color:#01BCC2;">i</span><span style="color:#01BFBF;">-</span><span style="color:#01C3BB;">a</span><span style="color:#01C7B7;">p</span><span style="color:#01CAB3;">p</span><span style="color:#02CEAF;">2</span><span style="color:#02D1AB;">@</span><span style="color:#03D4A7;">0</span><span style="color:#04D7A3;">.</span><span style="color:#05DA9F;">0</span><span style="color:#06DD9B;">.</span><span style="color:#08E097;">0</span><span style="color:#09E393;"> </span><span style="color:#0BE58F;">s</span><span style="color:#0CE88A;">t</span><span style="color:#0EEA86;">a</span><span style="color:#10EC82;">r</span><span style="color:#12EE7E;">t</span>
+<span style="color:#03A8D3;">&gt;</span><span style="color:#02ACD0;"> </span><span style="color:#02B0CD;">d</span><span style="color:#01B4C9;">i</span><span style="color:#01B8C6;">s</span><span style="color:#01BCC2;">t</span><span style="color:#01BFBF;">/</span><span style="color:#01C3BB;">c</span><span style="color:#01C7B7;">l</span><span style="color:#01CAB3;">i</span><span style="color:#02CEAF;">.</span><span style="color:#02D1AB;">j</span><span style="color:#03D4A7;">s</span><span style="color:#04D7A3;"> </span><span style="color:#05DA9F;">&quot;</span><span style="color:#06DD9B;">-</span><span style="color:#08E097;">h</span><span style="color:#09E393;">&quot;</span>
+
+<span style="color:#01BFBF;">U</span><span style="color:#01C3BB;">s</span><span style="color:#01C7B7;">a</span><span style="color:#01CAB3;">g</span><span style="color:#02CEAF;">e</span><span style="color:#02D1AB;">:</span><span style="color:#03D4A7;"> </span><span style="color:#04D7A3;">c</span><span style="color:#05DA9F;">l</span><span style="color:#06DD9B;">i</span><span style="color:#08E097;"> </span><span style="color:#09E393;">[</span><span style="color:#0BE58F;">o</span><span style="color:#0CE88A;">p</span><span style="color:#0EEA86;">t</span><span style="color:#10EC82;">i</span><span style="color:#12EE7E;">o</span><span style="color:#15F079;">n</span><span style="color:#17F275;">s</span><span style="color:#19F471;">]</span>
+
+<span style="color:#03D4A7;">O</span><span style="color:#04D7A3;">p</span><span style="color:#05DA9F;">t</span><span style="color:#06DD9B;">i</span><span style="color:#08E097;">o</span><span style="color:#09E393;">n</span><span style="color:#0BE58F;">s</span><span style="color:#0CE88A;">:</span>
+<span style="color:#06DD9B;"> </span><span style="color:#08E097;"> </span><span style="color:#09E393;">-</span><span style="color:#0BE58F;">n</span><span style="color:#0CE88A;">,</span><span style="color:#0EEA86;"> </span><span style="color:#10EC82;">-</span><span style="color:#12EE7E;">-</span><span style="color:#15F079;">n</span><span style="color:#17F275;">a</span><span style="color:#19F471;">m</span><span style="color:#1CF66D;">e</span><span style="color:#1FF769;"> </span><span style="color:#22F865;">&lt;</span><span style="color:#24FA60;">n</span><span style="color:#27FB5C;">a</span><span style="color:#2BFC58;">m</span><span style="color:#2EFD54;">e</span><span style="color:#31FD50;">&gt;</span><span style="color:#34FE4C;"> </span><span style="color:#38FE49;"> </span><span style="color:#3BFE45;">n</span><span style="color:#3FFE41;">a</span><span style="color:#43FE3D;">m</span><span style="color:#46FE3A;">e</span><span style="color:#4AFE36;"> </span><span style="color:#4EFE33;">t</span><span style="color:#52FD30;">o</span><span style="color:#56FC2C;"> </span><span style="color:#5AFB29;">d</span><span style="color:#5EFA26;">i</span><span style="color:#62F923;">s</span><span style="color:#66F820;">p</span><span style="color:#6AF61E;">l</span><span style="color:#6FF51B;">a</span><span style="color:#73F318;">y</span>
+<span style="color:#0BE58F;"> </span><span style="color:#0CE88A;"> </span><span style="color:#0EEA86;">-</span><span style="color:#10EC82;">h</span><span style="color:#12EE7E;">,</span><span style="color:#15F079;"> </span><span style="color:#17F275;">-</span><span style="color:#19F471;">-</span><span style="color:#1CF66D;">h</span><span style="color:#1FF769;">e</span><span style="color:#22F865;">l</span><span style="color:#24FA60;">p</span><span style="color:#27FB5C;"> </span><span style="color:#2BFC58;"> </span><span style="color:#2EFD54;"> </span><span style="color:#31FD50;"> </span><span style="color:#34FE4C;"> </span><span style="color:#38FE49;"> </span><span style="color:#3BFE45;"> </span><span style="color:#3FFE41;"> </span><span style="color:#43FE3D;"> </span><span style="color:#46FE3A;">d</span><span style="color:#4AFE36;">i</span><span style="color:#4EFE33;">s</span><span style="color:#52FD30;">p</span><span style="color:#56FC2C;">l</span><span style="color:#5AFB29;">a</span><span style="color:#5EFA26;">y</span><span style="color:#62F923;"> </span><span style="color:#66F820;">h</span><span style="color:#6AF61E;">e</span><span style="color:#6FF51B;">l</span><span style="color:#73F318;">p</span><span style="color:#77F116;"> </span><span style="color:#7BF014;">f</span><span style="color:#80ED11;">o</span><span style="color:#84EB0F;">r</span><span style="color:#88E90E;"> </span><span style="color:#8CE70C;">c</span><span style="color:#90E40A;">o</span><span style="color:#95E108;">m</span><span style="color:#99DF07;">m</span><span style="color:#9DDC06;">a</span><span style="color:#A1D905;">n</span><span style="color:#A5D604;">d</span></pre>
+
+<p>If we don’t pass any arguments in and run the following.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>npm run start
+</code></pre></div></div>
+
+<p>We get this output.</p>
+
+<pre class="pre-manual-highlight">&gt; ts-ink-template-app@0.0.1 start
+&amp;gt dist/cli.js
+
+Hello, <span style="color:#A3BE8C">Stranger</span>
+</pre>
+
+<p>And if we pass it a name argument, like so.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>npm run start <span class="nt">--</span> <span class="nt">-n</span> Grogu
+</code></pre></div></div>
+
+<p>We get this output.</p>
+
+<pre class="pre-manual-highlight">&gt; ts-ink-template-app@0.0.1 start
+&gt; dist/cli.js &quot;-n&quot; &quot;Grogu&quot;
+
+Hello, <span style="color:#A3BE8C">Grogu</span>
+</pre>
+
+<p>There are a lot of great <a href="https://github.com/nazmulidris/ts-ink-template/blob/main/README.md#npm-scripts">scripts</a> that we can use, such as:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">npm run test-watch</code> - This will run Jest and watch your source code for changes and re-run all
+the tests.</li>
+  <li>An IDEA run configuration is also provided so you run and watch all the Jest tests in IDEA!</li>
+  <li><code class="language-plaintext highlighter-rouge">npm run dev</code> - This will wat your source code for changes and run <code class="language-plaintext highlighter-rouge">tsc</code> to compile all the TS to
+JS and also run the app so you can see the changes in a terminal. Hot reloading 🌶 for CLI apps 🎉.</li>
+</ul>
+      <h2 id="build-a-cli-app-using-ink-and-flexbox-w-redux">
+        
+        
+          Build a CLI app using Ink and flexbox w/ Redux <a href="#build-a-cli-app-using-ink-and-flexbox-w-redux">#</a>
+        
+        
+      </h2>
+    
+
+<p>Starting w/ this simple and functional base we can now start adding some interesting Ink host
+components and React hooks into the mix! In this section we will build a React component that uses
+hooks (<code class="language-plaintext highlighter-rouge">useEffect</code>), Redux (<code class="language-plaintext highlighter-rouge">useSelector</code>), timers (<code class="language-plaintext highlighter-rouge">setInterval</code>), and even flexbox!</p>
+      <h3 id="the-main-app-flexbox-and-redux-store">
+        
+        
+          The main app, Flexbox, and Redux store <a href="#the-main-app-flexbox-and-redux-store">#</a>
+        
+        
+      </h3>
+    
+
+<p>Let’s rename <code class="language-plaintext highlighter-rouge">ui.tsx</code> to <code class="language-plaintext highlighter-rouge">app.tsx</code> and update it w/ the following code.</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">React</span><span class="p">,</span> <span class="p">{</span> <span class="nx">FC</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Box</span><span class="p">,</span> <span class="nx">Text</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">ink</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">TimerDisplayComponent</span><span class="p">,</span> <span class="nx">effectFn</span><span class="p">,</span> <span class="nx">store</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./timer-component</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Provider</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react-redux</span><span class="dl">"</span>
+
+<span class="c1">// App functional component.</span>
+<span class="kd">const</span> <span class="nx">Style</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">backgroundColor</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#161b22</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">textColor</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#e6e6e6</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">brandColor</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#2f9ece</span><span class="dl">"</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="kd">type</span> <span class="nx">PropTypes</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">name</span><span class="p">?:</span> <span class="kr">string</span>
+<span class="p">}</span>
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">App</span><span class="p">:</span> <span class="nx">FC</span><span class="o">&lt;</span><span class="nx">PropTypes</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">({</span> <span class="nx">name</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">Stranger</span><span class="dl">"</span> <span class="p">})</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">return </span><span class="p">(</span>
+    <span class="p">&lt;</span><span class="nc">Box</span>
+      <span class="na">borderStyle</span><span class="p">=</span><span class="s">"round"</span>
+      <span class="na">borderColor</span><span class="p">=</span><span class="si">{</span><span class="nx">Style</span><span class="p">.</span><span class="nx">brandColor</span><span class="si">}</span>
+      <span class="na">flexDirection</span><span class="p">=</span><span class="s">"column"</span>
+      <span class="na">alignItems</span><span class="p">=</span><span class="s">"center"</span>
+    <span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">color</span><span class="p">=</span><span class="si">{</span><span class="nx">Style</span><span class="p">.</span><span class="nx">textColor</span><span class="si">}</span> <span class="na">backgroundColor</span><span class="p">=</span><span class="si">{</span><span class="nx">Style</span><span class="p">.</span><span class="nx">backgroundColor</span><span class="si">}</span><span class="p">&gt;</span>
+        <span class="si">{</span><span class="s2">`👋 Hello 👋`</span><span class="si">}</span>
+      <span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">bold</span> <span class="na">color</span><span class="p">=</span><span class="si">{</span><span class="nx">Style</span><span class="p">.</span><span class="nx">textColor</span><span class="si">}</span> <span class="na">backgroundColor</span><span class="p">=</span><span class="si">{</span><span class="nx">Style</span><span class="p">.</span><span class="nx">brandColor</span><span class="si">}</span><span class="p">&gt;</span>
+        <span class="si">{</span><span class="nx">name</span><span class="si">}</span>
+      <span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nc">Provider</span> <span class="na">store</span><span class="p">=</span><span class="si">{</span><span class="nx">store</span><span class="si">}</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nc">TimerDisplayComponent</span> <span class="na">onComponentMountEffect</span><span class="p">=</span><span class="si">{</span><span class="nx">effectFn</span><span class="si">}</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;/</span><span class="nc">Provider</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nc">Box</span><span class="p">&gt;</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="flexbox">
+        
+        
+          Flexbox <a href="#flexbox">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">Box</code> host component is our Flexbox container. It is used to wrap other nested host components
+(<code class="language-plaintext highlighter-rouge">Text</code>) and composite components (<code class="language-plaintext highlighter-rouge">TimerDisplayComponent</code>) w/ <a href="https://developerlife.com/2021/10/19/css-responsive-design-handbook/">flexbox directives</a> that you
+expect.</p>
+
+<p>There’s no CSS styling since this isn’t a web app and there’s no browser. The declarative styling
+that we would normally express in the CSS now has to be expressed in JSX (thankfully also
+declaratively). If you’ve ever used <a href="https://github.com/nazmulidris/ts-ink-template/blob/main/README.md">React Native</a>, this should seem familiar.</p>
+
+<p>And here’s the <code class="language-plaintext highlighter-rouge">TimerDisplayComponent</code> composite component which is a functional component that uses
+React hooks (<code class="language-plaintext highlighter-rouge">useEffect</code>, <code class="language-plaintext highlighter-rouge">useSelector</code>), and a is passed a function via <code class="language-plaintext highlighter-rouge">onComponentMountEffect</code>
+props to start the timer that will update the Redux store 5 times w/ a delay of 100 ms.</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">React</span><span class="p">,</span> <span class="p">{</span> <span class="nx">EffectCallback</span><span class="p">,</span> <span class="nx">FC</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Text</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">ink</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">useSelector</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react-redux</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">State</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./reducer</span><span class="dl">"</span>
+
+<span class="kd">type</span> <span class="nx">PropType</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">onComponentMountEffect</span><span class="p">:</span> <span class="nx">EffectCallback</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">TimerDisplayComponent</span><span class="p">:</span> <span class="nx">FC</span><span class="o">&lt;</span><span class="nx">PropType</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">({</span> <span class="nx">onComponentMountEffect</span> <span class="p">})</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">state</span> <span class="o">=</span> <span class="nf">useSelector</span><span class="p">((</span><span class="nx">state</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">state</span><span class="p">)</span> <span class="k">as</span> <span class="nx">State</span>
+
+  <span class="nx">React</span><span class="p">.</span><span class="nf">useEffect</span><span class="p">(</span><span class="nx">onComponentMountEffect</span><span class="p">,</span> <span class="p">[]</span> <span class="cm">/* componentDidMount */</span><span class="p">)</span>
+
+  <span class="k">return</span> <span class="nf">render</span><span class="p">()</span>
+
+  <span class="kd">function</span> <span class="nf">render</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return </span><span class="p">(</span>
+      <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">color</span><span class="p">=</span><span class="si">{</span><span class="dl">"</span><span class="s2">green</span><span class="dl">"</span><span class="si">}</span><span class="p">&gt;</span>
+        [<span class="si">{</span><span class="nx">state</span><span class="p">.</span><span class="nx">count</span><span class="si">}</span> tests passed]
+        <span class="si">{</span><span class="nf">showSkullIfTimerIsStopped</span><span class="p">()</span><span class="si">}</span>
+      <span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+    <span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="kd">function</span> <span class="nf">showSkullIfTimerIsStopped</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="o">!</span><span class="nx">state</span><span class="p">.</span><span class="nx">run</span> <span class="p">?</span> <span class="dl">"</span><span class="s2">💀</span><span class="dl">"</span> <span class="p">:</span> <span class="kc">null</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="redux-store-and-effect-function">
+        
+        
+          Redux store and effect function <a href="#redux-store-and-effect-function">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s the code that creates the Redux store and calls the function that generates the effect
+function (that is passed to the component).</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">EffectCallback</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">configureStore</span><span class="p">,</span> <span class="nx">EnhancedStore</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@reduxjs/toolkit</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Action</span><span class="p">,</span> <span class="nx">reducerFn</span><span class="p">,</span> <span class="nx">ReducerType</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./reducer</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">createAndManageTimer</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./timer-store-connector</span><span class="dl">"</span>
+
+<span class="c1">// Create Redux store.</span>
+<span class="k">export</span> <span class="kd">type</span> <span class="nx">TimerStore</span> <span class="o">=</span> <span class="nx">EnhancedStore</span><span class="o">&lt;</span><span class="nx">ReducerType</span><span class="p">,</span> <span class="nx">Action</span><span class="p">,</span> <span class="kr">any</span><span class="o">&gt;</span>
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">store</span> <span class="o">=</span> <span class="nx">configureStore</span><span class="o">&lt;</span><span class="nx">ReducerType</span><span class="o">&gt;</span><span class="p">({</span>
+  <span class="na">reducer</span><span class="p">:</span> <span class="nx">reducerFn</span><span class="p">,</span>
+<span class="p">})</span> <span class="k">as</span> <span class="nx">TimerStore</span>
+
+<span class="c1">// Create Timer and connect it to the Redux store.</span>
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">effectFn</span><span class="p">:</span> <span class="nx">EffectCallback</span> <span class="o">=</span> <span class="nf">createAndManageTimer</span><span class="p">(</span><span class="nx">store</span><span class="p">)</span>
+</code></pre></div></div>
+      <h3 id="underlying--managed-timer-and-redux-store-connector">
+        
+        
+          Underlying / managed Timer and Redux store connector <a href="#underlying--managed-timer-and-redux-store-connector">#</a>
+        
+        
+      </h3>
+    
+
+<p>This functional component is very simple and it relies on the Redux store’s state in order to render
+itself. It does use 1 effect - this is run <code class="language-plaintext highlighter-rouge">onComponentDidMount</code> and kicks of the <code class="language-plaintext highlighter-rouge">Timer</code>. Here’s
+the code that generates the function which is passed to the effect (in <code class="language-plaintext highlighter-rouge">timer-store-connector.tsx</code>).</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">EffectCallback</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">_also</span><span class="p">,</span> <span class="nx">createTimer</span><span class="p">,</span> <span class="nx">Timer</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">r3bl-ts-utils</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">TimerStore</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./store</span><span class="dl">"</span>
+
+<span class="cm">/**
+ * Create a Timer and manage it by connecting it to the Redux store (dispatch the right actions to
+ * it based on the Timer's lifecycle).
+ */</span>
+<span class="k">export</span> <span class="kd">function</span> <span class="nf">createAndManageTimer</span><span class="p">(</span><span class="nx">store</span><span class="p">:</span> <span class="nx">TimerStore</span><span class="p">):</span> <span class="nx">EffectCallback</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">maxCount</span> <span class="o">=</span> <span class="mi">4</span>
+  <span class="kd">const</span> <span class="nx">timer</span><span class="p">:</span> <span class="nx">Timer</span> <span class="o">=</span> <span class="nf">_also</span><span class="p">(</span>
+    <span class="nf">createTimer</span><span class="p">(</span><span class="dl">"</span><span class="s2">Timer in App, count from 0 to 5, at 1s interval</span><span class="dl">"</span><span class="p">,</span> <span class="mi">1000</span><span class="p">),</span>
+    <span class="p">(</span><span class="nx">it</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="nx">it</span><span class="p">.</span><span class="nx">onStart</span> <span class="o">=</span> <span class="nf">getOnStartFn</span><span class="p">()</span>
+      <span class="nx">it</span><span class="p">.</span><span class="nx">onTick</span> <span class="o">=</span> <span class="nf">getOnTickFn</span><span class="p">()</span>
+      <span class="nx">it</span><span class="p">.</span><span class="nx">onStop</span> <span class="o">=</span> <span class="nf">getOnStopFn</span><span class="p">()</span>
+    <span class="p">}</span>
+  <span class="p">)</span>
+  <span class="k">return</span> <span class="nx">effectFn</span>
+
+  <span class="cm">/* Function that is passed to useEffect. */</span>
+  <span class="kd">function</span> <span class="nf">effectFn</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">timer</span><span class="p">.</span><span class="nx">isRunning</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">timer</span><span class="p">.</span><span class="nf">startTicking</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="k">return </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">if </span><span class="p">(</span><span class="nx">timer</span><span class="p">.</span><span class="nx">isRunning</span><span class="p">)</span> <span class="nx">timer</span><span class="p">.</span><span class="nf">stopTicking</span><span class="p">()</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="kd">function</span> <span class="nf">getOnStartFn</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">store</span><span class="p">.</span><span class="nf">dispatch</span><span class="p">({</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">startTimer</span><span class="dl">"</span> <span class="p">})</span>
+  <span class="p">}</span>
+
+  <span class="kd">function</span> <span class="nf">getOnTickFn</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="c1">// Update count in UI.</span>
+      <span class="nx">store</span><span class="p">.</span><span class="nf">dispatch</span><span class="p">({</span>
+        <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">setCount</span><span class="dl">"</span><span class="p">,</span>
+        <span class="na">payload</span><span class="p">:</span> <span class="nx">timer</span><span class="p">.</span><span class="nx">counter</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span>
+      <span class="p">})</span>
+
+      <span class="c1">// Stop timer when maxCount is reached.</span>
+      <span class="k">if </span><span class="p">(</span><span class="nx">timer</span><span class="p">.</span><span class="nx">counter</span><span class="p">.</span><span class="nx">value</span> <span class="o">&gt;=</span> <span class="nx">maxCount</span> <span class="o">&amp;&amp;</span> <span class="nx">timer</span><span class="p">.</span><span class="nx">isRunning</span><span class="p">)</span> <span class="nx">timer</span><span class="p">.</span><span class="nf">stopTicking</span><span class="p">()</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="kd">function</span> <span class="nf">getOnStopFn</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return </span><span class="p">()</span> <span class="o">=&gt;</span> <span class="nx">store</span><span class="p">.</span><span class="nf">dispatch</span><span class="p">({</span> <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">stopTimer</span><span class="dl">"</span> <span class="p">})</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This function does quite a bit of heavy lifting. It connects the lifecycle of the underlying <code class="language-plaintext highlighter-rouge">Timer</code>
+which it creates to the Redux store’s state (by dispatching actions) that it is passed as an
+argument. Here are some other notes on this code.</p>
+
+<ol>
+  <li>There’s a <code class="language-plaintext highlighter-rouge">Timer</code> (imported from <code class="language-plaintext highlighter-rouge">r3bl-ts-utils</code>) that actually manages a <code class="language-plaintext highlighter-rouge">setInterval()</code>
+underlying timer. This timer must be started and stopped, and once started, it calls the tick
+function at the given interval until the timer is stopped. The tick function also terminates the
+timer after its been called a few times.</li>
+  <li>The lifecycles of the state and timer objects are separate, one doesn’t know about the other. For
+this reason, some glue has to be added in order to tie the lifecycle of the <code class="language-plaintext highlighter-rouge">Timer</code> to the Redux
+store’s state.</li>
+</ol>
+      <h3 id="reducer-state-actions">
+        
+        
+          Reducer, state, actions <a href="#reducer-state-actions">#</a>
+        
+        
+      </h3>
+    
+
+<p>Finally, here’s the reducer function, actions, and state, which constitute all the Redux code.</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Reducer</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">_</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">lodash</span><span class="dl">"</span>
+
+<span class="k">export</span> <span class="kd">type</span> <span class="nx">State</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">count</span><span class="p">:</span> <span class="kr">number</span>
+  <span class="na">run</span><span class="p">:</span> <span class="nx">boolean</span>
+<span class="p">}</span>
+
+<span class="kr">interface</span> <span class="nx">ActionStartTimer</span> <span class="p">{</span>
+  <span class="nl">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">startTimer</span><span class="dl">"</span>
+<span class="p">}</span>
+<span class="kr">interface</span> <span class="nx">ActionStopTimer</span> <span class="p">{</span>
+  <span class="nl">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">stopTimer</span><span class="dl">"</span>
+<span class="p">}</span>
+<span class="kr">interface</span> <span class="nx">ActionSetCount</span> <span class="p">{</span>
+  <span class="nl">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">setCount</span><span class="dl">"</span>
+  <span class="nx">payload</span><span class="p">:</span> <span class="kr">number</span>
+<span class="p">}</span>
+<span class="k">export</span> <span class="kd">type</span> <span class="nx">Action</span> <span class="o">=</span> <span class="nx">ActionStartTimer</span> <span class="o">|</span> <span class="nx">ActionStopTimer</span> <span class="o">|</span> <span class="nx">ActionSetCount</span>
+
+<span class="k">export</span> <span class="kd">type</span> <span class="nx">ReducerType</span> <span class="o">=</span> <span class="nx">Reducer</span><span class="o">&lt;</span><span class="nx">State</span> <span class="o">|</span> <span class="kc">undefined</span><span class="p">,</span> <span class="nx">Action</span><span class="o">&gt;</span>
+
+<span class="k">export</span> <span class="kd">function</span> <span class="nf">reducerFn</span><span class="p">(</span><span class="nx">current</span><span class="p">:</span> <span class="nx">State</span> <span class="o">|</span> <span class="kc">undefined</span><span class="p">,</span> <span class="nx">action</span><span class="p">:</span> <span class="nx">Action</span><span class="p">):</span> <span class="nx">State</span> <span class="p">{</span>
+  <span class="c1">// Initial state.</span>
+  <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">current</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span>
+      <span class="na">count</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="na">run</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="kd">const</span> <span class="nx">currentCopy</span><span class="p">:</span> <span class="nx">State</span> <span class="o">=</span> <span class="nx">_</span><span class="p">.</span><span class="nf">clone</span><span class="p">(</span><span class="nx">current</span><span class="p">)</span>
+  <span class="k">switch </span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="kd">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="dl">"</span><span class="s2">setCount</span><span class="dl">"</span><span class="p">:</span>
+      <span class="nx">currentCopy</span><span class="p">.</span><span class="nx">count</span> <span class="o">=</span> <span class="nx">action</span><span class="p">.</span><span class="nx">payload</span>
+      <span class="k">break</span>
+    <span class="k">case</span> <span class="dl">"</span><span class="s2">startTimer</span><span class="dl">"</span><span class="p">:</span>
+      <span class="nx">currentCopy</span><span class="p">.</span><span class="nx">run</span> <span class="o">=</span> <span class="kc">true</span>
+      <span class="k">break</span>
+    <span class="k">case</span> <span class="dl">"</span><span class="s2">stopTimer</span><span class="dl">"</span><span class="p">:</span>
+      <span class="nx">currentCopy</span><span class="p">.</span><span class="nx">run</span> <span class="o">=</span> <span class="kc">false</span>
+      <span class="k">break</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nx">currentCopy</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When you run the following command in the terminal.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>npm run start <span class="nt">--</span> <span class="nt">-n</span> Grogu
+</code></pre></div></div>
+
+<p>It will produce the following output 🎉.</p>
+
+<pre>&gt; ink-cli-app2@0.0.0 start
+&gt; dist/cli.js &quot;-n&quot; &quot;Grogu&quot;
+
+<span style="color:#2F9ECE">╭─────────────────────────────────────────────────╮</span>
+<span style="color:#2F9ECE">│</span>                   <span style="background-color:#161B22"><span style="color:#E6E6E6">👋 Hello 👋</span></span>                   <span style="color:#2F9ECE">│</span>
+<span style="color:#2F9ECE">│</span>                      <span style="background-color:#2F9ECE"><span style="color:#E6E6E6"><b>Grogu</b></span></span>                      <span style="color:#2F9ECE">│</span>
+<span style="color:#2F9ECE">│</span>               <span style="color:#A3BE8C">[4 tests passed]💀</span>                <span style="color:#2F9ECE">│</span>
+<span style="color:#2F9ECE">╰─────────────────────────────────────────────────╯</span>
+</pre><hr />
+      <h3 id="tests">
+        
+        
+          Tests <a href="#tests">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s a UI test that exercises all the classes that we have created so far.</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Provider</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react-redux</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span>
+  <span class="nx">Action</span><span class="p">,</span>
+  <span class="nx">TimerDisplayComponent</span><span class="p">,</span>
+  <span class="nx">reducerFn</span><span class="p">,</span>
+  <span class="nx">ReducerType</span><span class="p">,</span>
+  <span class="nx">TimerStore</span><span class="p">,</span>
+<span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">../timer-component</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">React</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">render</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">ink-testing-library</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">configureStore</span><span class="p">,</span> <span class="nx">EnhancedStore</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">@reduxjs/toolkit</span><span class="dl">"</span>
+
+<span class="kd">let</span> <span class="nx">store</span><span class="p">:</span> <span class="nx">TimerStore</span>
+
+<span class="nf">beforeEach</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// Create Redux store.</span>
+  <span class="nx">store</span> <span class="o">=</span> <span class="nx">configureStore</span><span class="o">&lt;</span><span class="nx">ReducerType</span><span class="o">&gt;</span><span class="p">({</span>
+    <span class="na">reducer</span><span class="p">:</span> <span class="nx">reducerFn</span><span class="p">,</span>
+  <span class="p">})</span> <span class="k">as</span> <span class="nx">EnhancedStore</span><span class="o">&lt;</span><span class="nx">ReducerType</span><span class="p">,</span> <span class="nx">Action</span><span class="p">,</span> <span class="kr">any</span><span class="o">&gt;</span>
+<span class="p">})</span>
+
+<span class="nf">describe</span><span class="p">(</span><span class="dl">"</span><span class="s2">ComponentToDisplayTimer</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">renders correctly when timer is not started</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="p">{</span> <span class="nx">lastFrame</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">render</span><span class="p">(</span><span class="nx">React</span><span class="p">.</span><span class="nf">createElement</span><span class="p">(</span><span class="nx">TestFC</span><span class="p">,</span> <span class="kc">null</span><span class="p">))</span>
+    <span class="nf">expect</span><span class="p">(</span><span class="nf">lastFrame</span><span class="p">()).</span><span class="nf">toContain</span><span class="p">(</span><span class="dl">"</span><span class="s2">[0 tests passed]💀</span><span class="dl">"</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+
+<span class="nf">describe</span><span class="p">(</span><span class="dl">"</span><span class="s2">ComponentToDisplayTimer</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nf">test</span><span class="p">(</span><span class="dl">"</span><span class="s2">renders correctly when timer is started (which calls the tickFn)</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// Simulate a timer that is started, and then a tickFn is executed.</span>
+    <span class="nx">store</span><span class="p">.</span><span class="nf">dispatch</span><span class="p">({</span>
+      <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">startTimer</span><span class="dl">"</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="nx">store</span><span class="p">.</span><span class="nf">dispatch</span><span class="p">({</span>
+      <span class="na">type</span><span class="p">:</span> <span class="dl">"</span><span class="s2">setCount</span><span class="dl">"</span><span class="p">,</span>
+      <span class="na">payload</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="kd">const</span> <span class="p">{</span> <span class="nx">lastFrame</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">render</span><span class="p">(</span><span class="nx">React</span><span class="p">.</span><span class="nf">createElement</span><span class="p">(</span><span class="nx">TestFC</span><span class="p">,</span> <span class="kc">null</span><span class="p">))</span>
+    <span class="nf">expect</span><span class="p">(</span><span class="nf">lastFrame</span><span class="p">()).</span><span class="nf">toContain</span><span class="p">(</span><span class="dl">"</span><span class="s2">[10 tests passed]</span><span class="dl">"</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+
+<span class="kd">const</span> <span class="nx">TestFC</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">(</span>
+  <span class="p">&lt;</span><span class="nc">Provider</span> <span class="na">store</span><span class="p">=</span><span class="si">{</span><span class="nx">store</span><span class="si">}</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nc">TimerDisplayComponent</span> <span class="na">onComponentMountEffect</span><span class="p">=</span><span class="si">{</span><span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{}</span><span class="si">}</span> <span class="p">/&gt;</span>
+  <span class="p">&lt;/</span><span class="nc">Provider</span><span class="p">&gt;</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Node">
+                #node</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/React">
+                #react</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TypeScript">
+                #typescript</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Web">
+                #web</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/react-hooks-redux-typescript-handbook/">
+                        React hooks (v17.0.3) and Redux handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/css-responsive-design-handbook/">
+                        CSS responsive design using Grid, Flexbox, and media queries handbook
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/22/vue-vueitfy-webpack/">
+                        Vue.js, Webpack, Vueitify, Electron, and vue-cli
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/15/introduction-to-vue/">
+                        Getting started with Vue.js
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/19/loading-csv-files-in-javascript-and-node/">
+                        Loading CSV files in Node
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2021/11/05/ink-v3-advanced/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

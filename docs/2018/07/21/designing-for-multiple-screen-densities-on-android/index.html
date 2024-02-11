@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Designing for multiple screen densities on Android | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Designing for multiple screen densities on Android" />
+<meta name="author" content="Nadia Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In this article, I am going to do a deep dive into Android screen density and provide some guidance on how to design for such a huge diversity of screen densities. Having a firm grasp of this is critical in being able to create wireframes and designs in Sketch that can be implemented on actual devices (phones, tablets, laptops, TVs, wearables)." />
+<meta property="og:description" content="In this article, I am going to do a deep dive into Android screen density and provide some guidance on how to design for such a huge diversity of screen densities. Having a firm grasp of this is critical in being able to create wireframes and designs in Sketch that can be implemented on actual devices (phones, tablets, laptops, TVs, wearables)." />
+<link rel="canonical" href="http://developerlife.com/2018/07/21/designing-for-multiple-screen-densities-on-android/" />
+<meta property="og:url" content="http://developerlife.com/2018/07/21/designing-for-multiple-screen-densities-on-android/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-07-21T13:41:26-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Designing for multiple screen densities on Android" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nadia Idris"},"dateModified":"2018-07-21T13:41:26-05:00","datePublished":"2018-07-21T13:41:26-05:00","description":"In this article, I am going to do a deep dive into Android screen density and provide some guidance on how to design for such a huge diversity of screen densities. Having a firm grasp of this is critical in being able to create wireframes and designs in Sketch that can be implemented on actual devices (phones, tablets, laptops, TVs, wearables).","headline":"Designing for multiple screen densities on Android","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2018/07/21/designing-for-multiple-screen-densities-on-android/"},"url":"http://developerlife.com/2018/07/21/designing-for-multiple-screen-densities-on-android/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Designing for multiple screen densities on Android&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Designing for multiple screen densities on Android</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Designing for multiple screen densities on Android</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jul 21, 2018
+
+            <!--Author-->
+            ∙ <a href="https://nadiaidris.com">Nadia Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="https://nadiaidris.com">Nadia</a>,
+            a frontend SWE in Silicon Valley.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            <i class="fas fa-terminal"></i> &&
+            <i class="fas fa-code"></i> &&
+            <i class="fas fa-coffee"></i> 😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nadiaidris1"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nadiaidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://dribbble.com/nadiaidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#dribbble"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/density-hero.png" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#density">Density</a></li>
+  <li><a href="#density-matters">Density matters</a></li>
+  <li><a href="#images--vector-vs-bitmap">Images — Vector vs Bitmap</a></li>
+  <li><a href="#logical-density-buckets">Logical Density Buckets</a></li>
+  <li><a href="#ppi-vs-dpi">PPI vs DPI</a></li>
+  <li><a href="#density-independent-pixels-dp-or-dip">Density-Independent-Pixels (DP or DIP)</a></li>
+  <li><a href="#width-and-height-in-dp">Width and height in DP</a></li>
+  <li><a href="#designing-for-1x-vs-other-densities">Designing for 1x vs other densities</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+<p>There were over
+<a href="https://opensignal.com/reports/2015/08/android-fragmentation/">24,000 different types of devices running the Android OS</a>
+in 2015, and this number has grown since then 😲. There are over 2B devices on the market
+according to Google.</p>
+
+<p>Many companies like Samsung, Lenovo, Huawei, LG, and Google make phones, tablets, and
+laptops that run on the Android operating system. All these devices have different screen
+densities, sizes, resolutions, and aspect ratios.</p>
+
+<p>In this article, I am going to do a deep dive into Android screen density and provide some
+guidance on how to design for such a huge diversity of screen densities. Having a firm
+grasp of this is critical in being able to create wireframes and designs in Sketch that
+can be implemented on actual devices (phones, tablets, laptops, TVs, wearables).</p>
+
+<p>We are only going to look at phone screen densities, but the same concepts apply to
+tablets, TVs, and wearables running the Android OS.</p>
+      <h3 id="density">
+        
+        
+          Density <a href="#density">#</a>
+        
+        
+      </h3>
+    
+
+<p>Density refers to how many pixels have been physically squeezed into a 1 inch x 1 inch
+area. In digital displays / screens like monitors, phones, and tablets, density
+measurement unit is <strong>PPI **(pixels-per-inch). For print (posters, magazines, and books)
+the unit of measurement is **DPI</strong> (dots-per-inch). However, in Android, PPI and DPI are
+used interchangeably, and the APIs and docs refer to density in DPI (not PPI).</p>
+
+<p><img src="/assets/density-1.png" alt="" /></p>
+
+<p>If a screen has <em>n</em> PPI (or DPI) density then it means it contains that <em>n</em> pixels in a
+row and <em>n</em> pixels a column, for a 1 inch x 1 inch size of that screen.</p>
+
+<p><img src="/assets/density-2.png" alt="" /></p>
+
+<p>The image above has 4 different densities: 20 PPI, 60 PPI, 120 PPI and 240 PPI. It’s easy
+to see that the more pixels per inch, the sharper the image 👍.</p>
+      <h3 id="density-matters">
+        
+        
+          Density matters <a href="#density-matters">#</a>
+        
+        
+      </h3>
+    
+
+<p>It is important to understand how density works in order to to be able to:</p>
+
+<ul>
+  <li>Design your wireframes in 1x density in Sketch to make your life (and your developer’s
+life 😀) easier.</li>
+  <li>Export bitmap images (icons, photos) in 5 different sizes. This ensures that they appear
+as sharp as possible devices with different screen densities. And to ensure that memory
+and CPU is used efficiently on phones (especially low-end hardware).</li>
+</ul>
+      <h3 id="images--vector-vs-bitmap">
+        
+        
+          Images — Vector vs Bitmap <a href="#images--vector-vs-bitmap">#</a>
+        
+        
+      </h3>
+    
+
+<p>Bitmap images are often used for app icons, notification icons, backgrounds of components
+in the app, etc. This means that if you want to use bitmaps in your designs (which are
+going to be displayed on phone screens of various densities) that you would try and
+provide the highest resolution bitmap possible right? Unfortunately, it is not that
+simple. 😔</p>
+
+<p>Ideally, you would want to create assets as SVGs in Sketch, and that will ensure that they
+are “density independent”. Unlike bitmap images, SVGs can “scale” to fit any size screen
+of any density.</p>
+
+<ul>
+  <li>SVGs files actually contain a set of instructions that tell Android how to accurately
+paint an image on a screen of any size or density.</li>
+  <li>Bitmaps are “fixed” size and resolution, meaning that the number of pixels are fixed in
+every bitmap.</li>
+</ul>
+
+<p>If you create vector graphics assets in Sketch this means that the developer will be able
+to take them and use
+<a href="https://developer.android.com/studio/write/vector-asset-studio">Android Studio</a> to
+generate vector drawables (in XML) that they can use in their code. Vector graphics can
+scale to any size without losing image sharpness and they tend to be very compact in size
+as well.</p>
+
+<p>Let’s say you have a 100x100 px bitmap. This image will appear much smaller on a
+high-density screen than on a low-density screen. SVG images, on the other hand, will look
+“right” no matter what the screen size / density. Bitmaps lose quality when you upsample
+them, but they don’t when you downsample them.</p>
+
+<p>If you provided bitmap assets in the highest resolution, then the Android device would
+have to do a lot of work to downsample or upsample it and make it look “right” on whatever
+screen size the app is running on. This can lead to apps that consume more network, CPU,
+and memory than they should, and this results in a poor UX for the user (and has a
+negative impact on battery life).</p>
+
+<p>In order to understand what these 5 different sizes in which you need to export your
+images are, and to understand what is a 1x density screen is, we need to first look at
+“<a href="https://developer.android.com/guide/practices/screens_support.html#range">logical density buckets</a>”
+that have been created for Android.</p>
+      <h3 id="logical-density-buckets">
+        
+        
+          Logical Density Buckets <a href="#logical-density-buckets">#</a>
+        
+        
+      </h3>
+    
+
+<p>Logical density buckets are created by Android to help you and me to stay sane while
+exporting images 😛. As I mentioned at the start of this article, many companies use
+Android OS to make phones. These phones screens have different physical sizes, densities,
+aspect ratios and resolutions. If you had to export images to match each screen size
+exactly, then you would have to export a ridiculous number of versions of each asset.
+Also, the multitude of those assets would increase the size of the app’s APK.</p>
+
+<p>What Android team did is that they looked at the different screens available and created 6
+logical density buckets to group the different screen densities. I am going to show you
+only 5, because 1 one of them, the low-density bucket (~120 DPI) is not very common
+anymore.</p>
+
+<p><img src="/assets/density-3.png" alt="" /></p>
+
+<p>There are 5 different buckets:</p>
+
+<ul>
+  <li>Medium density bucket = ~160 DPI = 1x or 100%</li>
+  <li>High density bucket = ~240 DPI = 1.5x or 150%</li>
+  <li>Extra-high density bucket = ~320 DPI = 2x or 200%</li>
+  <li>Extra-extra-high density bucket = ~480 DPI = 3x or 300%</li>
+  <li>Extra-extra-extra-high density bucket = ~640 DPI = 4x or 400%</li>
+</ul>
+
+<p>Medium density bucket is the baseline density, the 1x density, and all the other densities
+are calculated using it’s ~160 DPI as a baseline.</p>
+
+<p>For example, if a device has a 577 DPI screen, then it would belong to XXXHDPI bucket,
+which is ~640 DPI. Which means when your bitmap asset is rendered in 577 DPI screen, it
+will be scaled down a little bit to 577 DPI from 640 DPI exported asset. Again, this
+doesn’t apply to vector graphics.</p>
+
+<p>Currently, the best place where you can go to find out the screen density is
+<a href="https://material.io/devices/">Material Design device metrics website</a>. Check out the last
+column for density. This website should have most of the devices, but definitely has some
+important ones missing like Pixel 2 and Pixel 2XL.</p>
+
+<p><img src="/assets/density-4.png" alt="" /></p>
+
+<p><strong>Note:</strong> If you design 1x, you need to know the density of your phone screen to
+understand how much you need to scale your design up in
+<a href="https://bjango.com/help/skalapreview/sketch/">Sketch Preview plugin</a> to see a sharp image
+on your
+<a href="https://play.google.com/store/apps/details?id=com.bjango.skalaview&amp;hl=en_US">Skala app on your Android phone</a>.</p>
+      <h3 id="ppi-vs-dpi">
+        
+        
+          PPI vs DPI <a href="#ppi-vs-dpi">#</a>
+        
+        
+      </h3>
+    
+
+<p>I used PPI (pixels-per-inch) earlier in this article, but Android uses DPI
+(dots-per-inch), to describe logical density buckets. This might be confusing, and I’m not
+really sure why the Android team chose to use DPI instead of PPI. Because Android uses
+DPI, then we end up with names like MDPI, HDPI, XHDPI, XXHDPI, and XXXHDPI, rather than
+MPPI, HPPI, XHPPI, XXHPPI and XXXHPPI 😄.</p>
+      <h3 id="density-independent-pixels-dp-or-dip">
+        
+        
+          Density-Independent-Pixels (DP or DIP) <a href="#density-independent-pixels-dp-or-dip">#</a>
+        
+        
+      </h3>
+    
+
+<p>Density-independent-pixels also known as device-independent-pixels help to keep UI
+elements the same physical size across the different density devices while maintaining the
+element’s sharpness. The denser the screen, the more pixels are required to keep the same
+physical size. DPs are only used in Android. In iOS, you need to use Points.</p>
+
+<p><img src="/assets/density-5.png" alt="" /></p>
+
+<p>If you look at the image above, all of the “buy” buttons appear the same physical size in
+different density screens. Even though the amount of DPs (88 x 36 DP) stays the same on
+all screens, the amount of pixels it takes to fill that space on each screen increases
+according to each screen density.</p>
+
+<ul>
+  <li>In 1x screen (~160 DPI) 88 x 36 pixels button is equivalent to 88 x 36
+density-independent-pixels, because 160 DPI is a baseline density where 1 DP = 1 PX.</li>
+  <li>In 1.5x screen (~240 DPI) it takes 1.5 times as many pixels (132 x 54 PX) to fill the
+area of 88 x 36 density-independent-pixels.</li>
+  <li>In 2x screen (~320 DPI) it takes twice as many pixels (176 x 72 PX) to fill the area of
+88 x 36 density-independent-pixels.</li>
+  <li>In 3x screen (~480 DPI) it takes three times as many pixels (264 x 108 PX) to fill the
+area of 88 x 36 density-independent-pixels.</li>
+  <li>In 4x screen (~640 DPI) it takes four times as many pixels (352 x 144 PX) to fill the
+area of 88 x 36 density-independent-pixels.</li>
+</ul>
+
+<p>If you are using bitmaps, rather than vectors, then you need to export each bitmap in all
+sizes (1x, 1.5x, 2x, 3x, 4x). If you are using Sketch, then you most likely will have
+vector graphics and you don’t need to worry about it.</p>
+
+<p>DPs are great if we don’t want to specify in each individual density what the sizes of our
+UI elements should be. For example, if a button needs to be 88 x 36 PX in 1x design and
+also 132 x 54 PX in 1.5x design and so on until the 4x design, it’s easier to use DPs and
+note that button needs to be 88 x 36 DP and this measurement applies to all density
+screens.</p>
+      <h3 id="width-and-height-in-dp">
+        
+        
+          Width and height in DP <a href="#width-and-height-in-dp">#</a>
+        
+        
+      </h3>
+    
+
+<p>In order to create 1x design, you need to know your test device width and height in DP.</p>
+
+<p>If you are using one of the popular Android phones as your test device, then you will find
+its width and height in DP from the
+<a href="https://material.io/devices/">Material Design device metrics website</a>. Pixel 2’s width
+and height in dp is 411 x 731 dp, the same as Pixel.</p>
+
+<p>Whatever these numbers are in DP, that is the size your artboard in pixels in Sketch. If
+you are designing for Pixel, then your artboard size is 411 x 731 px.</p>
+
+<p><img src="/assets/density-6.png" alt="" /></p>
+
+<p>If you want to see an example of this,
+<a href="https://nadiaidris.com/uamp.html#sketch">here’s a 1x design</a> I created using Sketch for
+an Android app called UAMP (Universal Android Music Player). if you download the Sketch
+file (from the <a href="https://nadiaidris.com/uamp.html#sketch">high fidelity mockup section</a>),
+you will find that the size of each artboard is 411 x 731 px.</p>
+      <h3 id="designing-for-1x-vs-other-densities">
+        
+        
+          Designing for 1x vs other densities <a href="#designing-for-1x-vs-other-densities">#</a>
+        
+        
+      </h3>
+    
+
+<p>I recommend that you design in 1x, but you can design for 1.5x, 2x, 3x, 3.5x, or 4x if you
+choose. The following are some benefits of designing in 1x:</p>
+
+<ul>
+  <li>You can use Material Design guidelines 1 to 1. By that I mean,
+<a href="https://material.io/design/layout/spacing-methods.html#baseline">8dp in your grid</a> will
+be 8 pixels in Sketch.</li>
+  <li>Your developer will be building the app using DPs. If you design 1x, they don’t have to
+calculate 1x design measurements from the larger design you created. They can simply
+take measurements in pixels and the value is the same in DPs in their code. However, if
+you designed 3.5x, then the developer will have to divide all values by 3.5. Don’t make
+your developer have to calculate DP values 😃.</li>
+</ul>
+
+<p><em>P.S. Big thanks to _<a href="https://developerlife.com/about-me/">Nazmul Idris</a></em> (Software
+Engineer at Google) for his help in editing this article._</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Android">
+                #android</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-in-depth/">
+                        In-depth exploration of Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/07/introduction-to-android-architecture-components/">
+                        Introduction to Android Architecture Components
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/29/getting-started-with-mediaplayer-on-android/">
+                        Getting started with MediaPlayer on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/20/gps/">
+                        Android Location Providers (gps, network, passive)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/05/android-animation-framework/">
+                        Android Animation Framework Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-listview/">
+                        Android ListView and custom adapter Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-linearlayout/">
+                        Android LinearLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/31/android-ui-themes/">
+                        Android UI Themes Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/29/android-tablelayout/">
+                        Android TableLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/option-and-context-menu/">
+                        Android Option and Context menu Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/android-xml-view-inflation/">
+                        Android XML View inflation Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/14/android-app-lifecycle-activity-intent-and-service-draft/">
+                        Android Activity and sub-Activity Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/">
+                        Android - How to build a service-enabled Android app - Part 1/3 UI
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-23-networking/">
+                        Android - How to build a service-enabled Android App - Part 2/3 Networking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/01/28/swingx-tutorial-task-pane/">
+                        SwingX Tutorial - Task Pane (JXTaskPane, Container)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/">
+                        How to use glass pane for animation (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>XML and Java Tutorial, Part 1 | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="XML and Java Tutorial, Part 1" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In this tutorial, we will create an XML document, the contents of which can be accessed using a JFC/Swing application and from a web browser (via a Servlet). The XML document is a very simplistic representation of an address book which stores the name, email and company name of people. The XML document is written manually, and its structure is known by the Swing application and the Servlet." />
+<meta property="og:description" content="In this tutorial, we will create an XML document, the contents of which can be accessed using a JFC/Swing application and from a web browser (via a Servlet). The XML document is a very simplistic representation of an address book which stores the name, email and company name of people. The XML document is written manually, and its structure is known by the Swing application and the Servlet." />
+<link rel="canonical" href="http://developerlife.com/1998/12/01/xml-and-java-tutorial-part-1/" />
+<meta property="og:url" content="http://developerlife.com/1998/12/01/xml-and-java-tutorial-part-1/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="1998-12-01T10:20:56-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="XML and Java Tutorial, Part 1" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"1998-12-01T10:20:56-06:00","datePublished":"1998-12-01T10:20:56-06:00","description":"In this tutorial, we will create an XML document, the contents of which can be accessed using a JFC/Swing application and from a web browser (via a Servlet). The XML document is a very simplistic representation of an address book which stores the name, email and company name of people. The XML document is written manually, and its structure is known by the Swing application and the Servlet.","headline":"XML and Java Tutorial, Part 1","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/1998/12/01/xml-and-java-tutorial-part-1/"},"url":"http://developerlife.com/1998/12/01/xml-and-java-tutorial-part-1/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;XML and Java Tutorial, Part 1&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = XML and Java Tutorial, Part 1</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">XML and Java Tutorial, Part 1</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Dec 1, 1998
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#about-the-tutorial"><strong>About the</strong> <strong>tutorial</strong></a></li>
+  <li><a href="#about-developerlifecom"><strong>About developerlife.com</strong></a></li>
+  <li><a href="#before-you-begin"><strong>Before you begin</strong></a></li>
+  <li><a href="#short-introduction-to-xml"><strong>Short Introduction to XML</strong></a>
+    <ul>
+      <li><a href="#_what-is-xml_"><em>What is XML?</em></a></li>
+      <li><a href="#_what-is-dom_"><em>What is DOM?</em></a></li>
+    </ul>
+  </li>
+  <li><a href="#using-a-java-xml-parser-to-parse-xml"><strong>Using a Java XML Parser to parse XML</strong></a>
+    <ul>
+      <li><a href="#_how-to-create-a-dom-object-from-an-xml-document_"><em>How to create a DOM object from an XML document</em></a></li>
+    </ul>
+  </li>
+  <li><a href="#using-the-swing-api-with-xml"><strong>Using the Swing API with XML</strong></a></li>
+  <li><a href="#using-the-servlet-api-with-xml"><strong>Using the Servlet API with XML</strong></a></li>
+  <li><a href="#downloading-the-source-code-and-running-the-programs"><strong>Downloading the source code and running the programs</strong></a></li>
+  <li><a href="#references"><strong>References</strong></a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="about-the-tutorial">
+        
+        
+          <strong>About the</strong> <strong>tutorial</strong> <a href="#about-the-tutorial">#</a>
+        
+        
+      </h2>
+    
+
+<p>In this tutorial, we will create an XML document, the contents of which can be accessed using a
+JFC/Swing application and from a web browser (via a Servlet). The XML document is a very simplistic
+representation of an address book which stores the name, email and company name of people. The XML
+document is written manually, and its structure is known by the Swing application and the Servlet.</p>
+
+<p>This tutorial shows how Java can be used to display information in XML documents using a graphical
+Swing interface and an HTML based interface.</p>
+
+<p>This tutorial demonstrates the simple power of XML, the information is the most important element of
+the equation. Information rendering engines (user interfaces) can be swapped out as is appropriate
+for the display device. All these rendering engines all work on the same XML document. Also, XML
+Parsers from different vendors can be used without making any major changes to the source code,
+which is another feature of using a standards based information storage format.</p>
+      <h2 id="about-developerlifecom">
+        
+        
+          <strong>About developerlife.com</strong> <a href="#about-developerlifecom">#</a>
+        
+        
+      </h2>
+    
+
+<p>The applications created in this tutorial are very simple, too simple for any use in the real world.
+<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?p=26">Part 2</a> and
+<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?p=27">Part 3</a> of the
+tutorial will introduce more real world examples. developerlife hosts tutorials on lots of XML
+technologies – SAX, DOM, Using Java to manipulate XML, database access using XML, parsing XML from
+web services, etc. You can find
+<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?cat=13">them all here</a>.
+We have tutorials on
+<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?cat=4">Swing and graphics programming</a>,
+<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?cat=11">multithreading in Java</a>,
+as well as
+<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?cat=8">SOA related topics</a>,
+<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?cat=41">JavaME/J2ME</a>,
+and <a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?cat=27">GWT</a>
+content as well.</p>
+      <h2 id="before-you-begin">
+        
+        
+          <strong>Before you begin</strong> <a href="#before-you-begin">#</a>
+        
+        
+      </h2>
+    
+
+<p>While you are reading the tutorial and trying out the examples, please use the links in the
+<a href="#refs">references section</a> to understand terms that you are unfamiliar with. I am assuming that you
+are
+<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?p=73">familiar with XML</a>
+(and all its related terminology) before you start this tutorial.</p>
+      <h2 id="short-introduction-to-xml">
+        
+        
+          <strong>Short Introduction to XML</strong> <a href="#short-introduction-to-xml">#</a>
+        
+        
+      </h2>
+    
+      <h3 id="what-is-xml">
+        
+        
+          <em>What is XML?</em> <a href="#what-is-xml">#</a>
+        
+        
+      </h3>
+    
+
+<p>XML is described very well in the following tutorial –
+“<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?p=73">What is XML? An introduction</a>”.
+XML uses markup tags as well, but, unlike HTML, XML tags describe the content, rather than the
+presentation of that content. By avoiding formatting tags in the data, but marking the meaning of
+the data itself with custom user definable tags, we actually make it easier to search various
+documents for a tag and view documents tailored to the preferences of the user. Using XML tags to
+define what your data means using the natural vocabulary of your data’s domain is the key motivation
+for XML’s invention and the basis of its usefulness. XML data can be rendered differently, depending
+on the destination device. The XML processor can exist on the server, the client, or both.</p>
+      <h3 id="what-is-dom">
+        
+        
+          <em>What is DOM?</em> <a href="#what-is-dom">#</a>
+        
+        
+      </h3>
+    
+
+<p>This tutorial explains what Document Object Model (DOM) is –
+“<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?p=30">Introduction to DOM 1.0 API</a>”.
+DOM is a set of platform and language neutral interfaces that allow programs to access and modify
+the content and structure of XML documents. This specification defines a minimal set of interfaces
+for accessing and manipulating XML document objects. The Document Object Model is language neutral
+and platform independent. A DOM object is used to extract information from an XML document in a Java
+program (using a Java XML Parser). You can learn more about DOM in
+<a href="https://web.archive.org/web/20100126170627/http://www.amazon.com/gp/product/059610149X/104-3314020-2041557?ie=UTF8&amp;tag=developerlife-20&amp;linkCode=xm2&amp;camp=1789&amp;creativeASIN=059610149X">the Java and XML book</a>.</p>
+      <h2 id="using-a-java-xml-parser-to-parse-xml">
+        
+        
+          <strong>Using a Java XML Parser to parse XML</strong> <a href="#using-a-java-xml-parser-to-parse-xml">#</a>
+        
+        
+      </h2>
+    
+
+<p>You first need a well formed XML document and a validating XML parser in order to read information
+into your programs. JDOM is a good parser to use Java – you can download it
+<a href="https://web.archive.org/web/20100126170627/http://www.jdom.org/downloads/docs.html">here</a>. You
+<a href="https://web.archive.org/web/20100126170627/http://developerlife.com/tutorials/?p=29">can use SAX to retrieve information from XML documents</a>
+as well, but SAX is not used in this tutorial.</p>
+      <h3 id="how-to-create-a-dom-object-from-an-xml-document">
+        
+        
+          <em>How to create a DOM object from an XML document</em> <a href="#how-to-create-a-dom-object-from-an-xml-document">#</a>
+        
+        
+      </h3>
+    
+
+<p>Java interfaces for DOM have been defined by the W3C and these are available in the org.w3c.dom
+package. The code that is required to instantiate a DOM object is different depending on which
+parser you use. Details on instantiating DOM objects using JDOM are provided
+<a href="https://web.archive.org/web/20100126170627/http://www.jdom.org/docs/oracle/jdom-part1.pdf">here</a>.
+You can learn more about JDOM in
+<a href="https://web.archive.org/web/20100126170627/http://www.amazon.com/gp/product/059610149X/104-3314020-2041557?ie=UTF8&amp;tag=developerlife-20&amp;linkCode=xm2&amp;camp=1789&amp;creativeASIN=059610149X">the Java and XML book</a>.</p>
+
+<p>You must have the a String URL of the XML document before you can instantiate a DOM object from it.
+Assume that an XML file called AddressBook.xml is at the following
+<a href="/assets/AddressBook.xml">URL</a>. Here is the code to create a DOM object from
+this URL:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">org.jdom.JDOMException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.jdom.input.SAXBuilder</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+
+<span class="k">try</span><span class="o">{</span>
+   <span class="nc">SAXBuilder</span> <span class="n">parser</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">SAXBuilder</span><span class="o">();</span>
+   <span class="nc">Document</span> <span class="n">doc</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="na">build</span><span class="o">(</span>
+        <span class="s">"http//developerlife.com/xmljavatutorial1/AddressBook.xml"</span><span class="o">);</span>
+  <span class="c1">// work with the document...</span>
+<span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">){}</span>
+</code></pre></div></div>
+
+<p><em>How to use DOM to extract information from XML documents</em></p>
+
+<p>Now that the DOM (org.w3c.dom.Document) object has been creating using either parser, it is time to
+extract information from the document. Lets talk about the AddressBook.xml file. Here is the DTD for
+this XML file:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0??&gt;</span>
+<span class="cp">&lt;!DOCTYPE ADDRESSBOOK [
+&lt;!ELEMENT ADDRESSBOOK (PERSON)*&gt;</span>
+<span class="cp">&lt;!ELEMENT PERSON (LASTNAME, FIRSTNAME, COMPANY, EMAIL)&gt;</span>
+<span class="cp">&lt;!ELEMENT LASTNAME (#PCDATA)&gt;</span>
+<span class="cp">&lt;!ELEMENT FIRSTNAME (#PCDATA)&gt;</span>
+<span class="cp">&lt;!ELEMENT COMPANY (#PCDATA)&gt;</span>
+<span class="cp">&lt;!ELEMENT EMAIL (#PCDATA)&gt;</span>
+]&gt;
+</code></pre></div></div>
+
+<p>Here is an illustration of this DTD:
+<img src="/assets/xmljava-1.gif" alt="DTD for AddressBook.xml" /></p>
+
+<p>DOM creates a tree based (or hierarchical) object model from the XML document. The Document (created
+from an XML file) contains a tree of Nodes. Methods in the Node interface allow you to find out
+whether a Node has children or not, and also what the type of the Node is and what its value is (if
+any). There are many types of Nodes, but we are interested in the following types: TEXT_NODE (=3),
+ELEMENT_NODE(=1). These types are static int values which are defined in the
+<a href="https://web.archive.org/web/20100126170627/http://www.w3.org/TR/REC-DOM-Level-1/java-language-binding.html">org.w3c.dom.Node.java</a>
+interface created by the W3C. So a Document object is a simple container of Nodes. But, in our DTD,
+we have Elements, not Nodes. It just so happens that there is an interface called Element (which
+extends Node). It also turns out that a Node which is of type ELEMENT_NODE is also an Element. Nodes
+of type ELEMENT_NODE (or Elements) can also have children. How do you access these children? Through
+the NodeList interface of course; the NodeList interface defines 2 methods to allow the iteration of
+a list of Nodes. These NodeList objects are generated by Node objects of type ELEMENT_NODE (or
+Element objects). The Document interface has a method called getElementsByTagName(String tagname )
+which returns a NodeList of all the Elements with that tag name.</p>
+
+<p>So here is how we can extract information from our Document object. We first ask the document object
+for all the Element objects that have the tag name “PERSON”. This should return all the Element
+objects that are PERSONs; all the Element objects with this tag name are returned in a NodeList
+object. We can use the getLength() method on this NodeList to determine how many PERSON elements are
+in the NodeList. Here is some code to do this:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Document</span> <span class="n">doc</span> <span class="o">=</span> <span class="o">...</span> <span class="c1">//create DOM from AddressBook.xml</span>
+<span class="nc">NodeList</span> <span class="n">listOfPersons</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="na">getElementsByTagName</span><span class="o">(</span> <span class="s">"PERSON"</span> <span class="o">);</span>
+<span class="kt">int</span> <span class="n">numberOfPersons</span> <span class="o">=</span> <span class="n">listOfPersons</span><span class="o">.</span><span class="na">getLength</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>Now that we have the NodeList object containing all the PERSON Elements (which are also Nodes), we
+can iterate it to extract information from each PERSON Element (Node). The method item(int index) in
+NodeList returns a Node object. Remember that when the type of a Node is ELEMENT_TYPE, it is
+actually an Element. So here is the code to get the first person from our NodeList (assuming there
+is at least one person in the AddressBook.xml file):</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if</span> <span class="o">(</span><span class="n">numberOfPersons</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">){</span>
+    <span class="nc">Node</span> <span class="n">firstPersonNode</span> <span class="o">=</span> <span class="n">listOfPersons</span><span class="o">.</span><span class="na">item</span><span class="o">(</span> <span class="mi">0</span> <span class="o">);</span>
+    <span class="k">if</span><span class="o">(</span> <span class="n">firstPersonNode</span><span class="o">.</span><span class="na">getNodeType</span><span class="o">()</span> <span class="o">==</span> <span class="nc">Node</span><span class="o">.</span><span class="na">ELEMENT_NODE</span> <span class="o">){</span>
+       <span class="nc">Element</span> <span class="n">firstPersonElement</span> <span class="o">=</span> <span class="o">(</span><span class="nc">Element</span><span class="o">)</span><span class="n">firstPersonNode</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Now we have a reference to the firstPersonElement, which we can use to find out the FIRSTNAME,
+LASTNAME, COMPANY and EMAIL information of this PERSON element. Since the firstPersonElement is an
+Element, we can use getElementsByTagName(String) again to get the FIRSTNAME, LASTNAME, COMPANY and
+EMAIL elements in it. Here is the code to do get the FIRSTNAME element of the firstPersonElement:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">NodeList</span> <span class="n">firstNameList</span> <span class="o">=</span>
+    <span class="n">firstPersonElement</span><span class="o">.</span><span class="na">getElementsByTagName</span><span class="o">(</span> <span class="s">"FIRSTNAME"</span> <span class="o">);</span>
+<span class="nc">Element</span> <span class="n">firstNameElement</span> <span class="o">=</span>
+    <span class="n">firstNameList</span><span class="o">.</span><span class="na">item</span><span class="o">(</span> <span class="mi">0</span> <span class="o">);</span>
+</code></pre></div></div>
+
+<p>The firstNameElement contains a list of TEXT_NODEs (one of which is the value of the first name of
+this person). So the firstNameElement must be asked to return a list of TEXT_NODEs that it contains
+(in order to get the text which is the first name of this person). Here is the code to get a list of
+TEXT_NODEs contained in this firstNameElement:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">NodeList</span> <span class="n">list</span> <span class="o">=</span> <span class="n">firstNameElement</span><span class="o">.</span><span class="na">getChildNodes</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>Along with the text (which is the first name of the person), this NodeList (list) may contain other
+Nodes (of type TEXT_NODE); this text is useless to us, because it consists of whitespace and
+carriage return and line feeds (crlf). This is NOT intuitive, because we expect only the name of the
+person to be in the NodeList, instead there are a bunch of nodes in this NodeList which contain a
+whitespace, crlfs and the String that we really want. So how do we extract the first name from this
+mess? We have to iterate the NodeList, and ask each Node in it for its value by using the
+getNodeValue() method. Then we have to trim() the String value and make sure that it is not “” or
+“\r”. When we have found a value that is not whitespace or crlf, then we can assume that it is the
+first name of the person. Here is the code to do this parsing:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">String</span> <span class="n">firstName</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+<span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">list</span><span class="o">.</span><span class="na">getLength</span><span class="o">()</span> <span class="o">;</span> <span class="n">i</span> <span class="o">++</span> <span class="o">){</span>
+    <span class="nc">String</span> <span class="n">value</span> <span class="o">=</span>
+        <span class="o">((</span><span class="nc">Node</span><span class="o">)</span><span class="n">list</span><span class="o">.</span><span class="na">item</span><span class="o">(</span> <span class="n">i</span> <span class="o">)).</span><span class="na">getNodeValue</span><span class="o">().</span><span class="na">trim</span><span class="o">();</span>
+    <span class="k">if</span><span class="o">(</span> <span class="n">value</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">""</span><span class="o">)</span> <span class="o">||</span> <span class="n">value</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">"\r"</span><span class="o">)</span> <span class="o">){</span>
+        <span class="k">continue</span><span class="o">;</span> <span class="c1">//keep iterating</span>
+    <span class="o">}</span>
+    <span class="k">else</span><span class="o">{</span>
+        <span class="n">firstName</span> <span class="o">=</span> <span class="n">value</span><span class="o">;</span>
+       <span class="k">break</span><span class="o">;</span> <span class="c1">//found the firstName!</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Now, this procedure must be repeated on firstPersonElement for the LASTNAME, COMPANY and EMAIL
+elements. You might consider putting this parsing of the NodeList to get a text value in a utility
+method (in an XML utility class that you can write).</p>
+
+<p>The diagram below presents a visual representation of all the code that we have gone over so far to
+get information out of a Document:</p>
+
+<p><img src="/assets/xmljava-2.jpg" alt="" /></p>
+
+<p>This was the hard part, integrating this information with a TableModel and making it available to a
+Servlet is relatively easy!</p>
+      <h2 id="using-the-swing-api-with-xml">
+        
+        
+          <strong>Using the Swing API with XML</strong> <a href="#using-the-swing-api-with-xml">#</a>
+        
+        
+      </h2>
+    
+
+<p>In order to render information in an XML document to a Swing JComponent, it is necessary to build a
+custom model which accesses the underlying information in a Document. It is important to remember
+that in Swing, the models are interfaces which allow access to the underlying data, they dont have
+to contain the data themselves. This is why all the models are Java interfaces, like TableModel,
+TreeModel and ListModel.</p>
+
+<p>In this tutorial, we will create a custom TreeModel around the AddressBook.xml and then display the
+data in a JTable. This information will not be editable right now (that’s in the next part of the
+tutorial). You can learn more about Swing tables in
+<a href="https://web.archive.org/web/20100126170627/http://www.amazon.com/gp/product/0596004087/104-3314020-2041557?ie=UTF8&amp;tag=developerlife-20&amp;linkCode=xm2&amp;camp=1789&amp;creativeASIN=0596004087">the Java Swing book</a>.</p>
+
+<p><em>How to make Swing models wrap around DOM objects</em></p>
+
+<p>The first step is to create the XML file, then write some code to create a Document object and parse
+it to get information out of it. Then, a custom TableModel must be created around this code, to
+allow a JTable access this information. Below is a partial listing of AddressBookMode.java class
+which implements the TableModel interface and allows access to data in the AddressBook.xml file:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AddressBookModel</span> <span class="kd">implements</span> <span class="nc">TableModel</span><span class="o">{</span>
+
+ <span class="o">...</span>
+
+<span class="c1">//CONSTANTS</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">String</span> <span class="no">URL</span> <span class="o">=</span>
+    <span class="s">"http//beanfactory.com/xml/AddressBook.xml"</span><span class="o">;</span>
+
+<span class="c1">//TABLE META DATA</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">String</span> <span class="no">ROOT_ELEMENT_TAG</span> <span class="o">=</span> <span class="s">"PERSON"</span><span class="o">;</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">String</span><span class="o">[]</span> <span class="n">colNames</span> <span class="o">={</span>
+   <span class="s">"LASTNAME"</span><span class="o">,</span>
+   <span class="s">"FIRSTNAME"</span><span class="o">,</span>
+   <span class="s">"COMPANY"</span><span class="o">,</span>
+   <span class="s">"EMAIL"</span>
+<span class="o">};</span>
+
+<span class="o">...</span>
+
+<span class="c1">//DATA</span>
+<span class="kd">protected</span> <span class="nc">Document</span> <span class="n">doc</span><span class="o">;</span>
+
+<span class="o">...</span>
+
+<span class="c1">//TableModel Implementation</span>
+<span class="cm">/**
+Return the number of persons in an XML document
+*/</span>
+<span class="kd">public</span> <span class="kt">int</span> <span class="nf">getRowCount</span><span class="o">()</span> <span class="o">{</span>
+   <span class="k">return</span> <span class="nc">XmlUtils</span><span class="o">.</span><span class="na">getSize</span><span class="o">(</span> <span class="n">doc</span> <span class="o">,</span> <span class="no">ROOT_ELEMENT_TAG</span> <span class="o">);</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+Return the value of text at the specified r (row) and
+c (col) location in the table. The row and col information
+is translated in the Document, to get the rth person from
+the Document, and then get the element value of the tag
+that by the name of colNames[ c ]. This is the main "trick"
+in this entire class.
+*/</span>
+<span class="kd">public</span> <span class="nc">Object</span> <span class="nf">getValueAt</span><span class="o">(</span><span class="kt">int</span> <span class="n">r</span><span class="o">,</span> <span class="kt">int</span> <span class="n">c</span><span class="o">)</span> <span class="o">{</span>
+    <span class="c1">//must get row first</span>
+    <span class="nc">Element</span> <span class="n">row</span> <span class="o">=</span>
+       <span class="nc">XmlUtils</span><span class="o">.</span><span class="na">getElement</span><span class="o">(</span> <span class="n">doc</span> <span class="o">,</span> <span class="no">ROOT_ELEMENT_TAG</span> <span class="o">,</span> <span class="n">r</span> <span class="o">);</span>
+    <span class="c1">//must get value for column in this row</span>
+    <span class="k">return</span> <span class="nc">XmlUtils</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span> <span class="n">row</span> <span class="o">,</span> <span class="n">colNames</span><span class="o">[</span><span class="n">c</span><span class="o">]</span> <span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The two interesting methods in this TableModel are shown above. Note that a static String array is
+used to hold all the column names for this TableModel, which just happen to be the names of the
+Elements in a PERSON Element. This is by design, since the structure of the AddressBook.xml document
+is basically a 2 dimensional array, with rows and columns. The column names are known already since
+we made the DTD. This is why all the column names are stored in a static array called colNames. In
+order to access each cell in the TableModel a row and column identifier is needed. But, information
+in the Document is not stored by rows and columns, so we have to write a simple translation code.
+Every row in the TableModel is actually a PERSON Element in the Document. Now, every PERSON element
+has a FIRSTNAME, LASTNAME, COMPANY and EMAIL information, which is represented by the column
+identifier for the given row (or PERSON). In the getValue( int r, int c ) method above, this trick
+is used to information from the Document. Notice that before accessing Elements inside a PERSON, the
+column integer is converted to a column name (by using the colNames[]). The XmlUtils.java class is
+very simple and is written to work only for this example, you can write a generic one for different
+types of data, 1D array, 2D array, etc.</p>
+
+<p>Here is a partial listing of the XmlUtils.java class:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">XmlUtils</span><span class="o">{</span>
+
+ <span class="o">...</span>
+
+<span class="cm">/**
+ Return an Element given a Document, tag name, and index
+ */</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">Element</span> <span class="nf">getElement</span><span class="o">(</span><span class="nc">Document</span> <span class="n">doc</span> <span class="o">,</span> <span class="nc">String</span> <span class="n">tagName</span> <span class="o">,</span> <span class="kt">int</span> <span class="n">index</span> <span class="o">){</span>
+    <span class="c1">//given an XML document and a tag</span>
+   <span class="c1">//return an Element at a given index</span>
+   <span class="nc">NodeList</span> <span class="n">rows</span> <span class="o">=</span>
+       <span class="n">doc</span><span class="o">.</span><span class="na">getDocumentElement</span><span class="o">().</span><span class="na">getElementsByTagName</span><span class="o">(</span><span class="n">tagName</span><span class="o">);</span>
+   <span class="k">return</span> <span class="o">(</span><span class="nc">Element</span><span class="o">)</span><span class="n">rows</span><span class="o">.</span><span class="na">item</span><span class="o">(</span> <span class="n">index</span> <span class="o">);</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+Return the number of person in the Document
+*/</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">int</span> <span class="nf">getSize</span><span class="o">(</span> <span class="nc">Document</span> <span class="n">doc</span> <span class="o">,</span> <span class="nc">String</span> <span class="n">tagName</span> <span class="o">){</span>
+   <span class="nc">NodeList</span> <span class="n">rows</span> <span class="o">=</span>
+       <span class="n">doc</span><span class="o">.</span><span class="na">getDocumentElement</span><span class="o">().</span><span class="na">getElementsByTagName</span><span class="o">(</span>
+           <span class="n">tagName</span> <span class="o">);</span>
+   <span class="k">return</span> <span class="n">rows</span><span class="o">.</span><span class="na">getLength</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+Given a person element, must get the element specified
+by the tagName, then must traverse that Node to get the
+value.
+  Step1) get Element of name tagName from e
+  Step2) cast element to Node and then traverse it for its
+         non-whitespace, cr/lf value.
+  Step3) return it!
+  NOTE Element is a subclass of Node
+
+@param    e   an Element
+@param    tagName a tag name
+@return   s   the value of a Node
+*/</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">getValue</span><span class="o">(</span> <span class="nc">Element</span> <span class="n">e</span> <span class="o">,</span> <span class="nc">String</span> <span class="n">tagName</span> <span class="o">){</span>
+ <span class="k">try</span><span class="o">{</span>
+    <span class="c1">//get node lists of a tag name from a Element</span>
+    <span class="nc">NodeList</span> <span class="n">elements</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="na">getElementsByTagName</span><span class="o">(</span> <span class="n">tagName</span> <span class="o">);</span>
+    <span class="nc">Node</span> <span class="n">node</span> <span class="o">=</span> <span class="n">elements</span><span class="o">.</span><span class="na">item</span><span class="o">(</span> <span class="mi">0</span> <span class="o">);</span>
+    <span class="nc">NodeList</span> <span class="n">nodes</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="na">getChildNodes</span><span class="o">();</span>
+
+    <span class="c1">//find a value whose value is non-whitespace</span>
+    <span class="nc">String</span> <span class="n">s</span><span class="o">;</span>
+    <span class="k">for</span><span class="o">(</span> <span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">nodes</span><span class="o">.</span><span class="na">getLength</span><span class="o">();</span> <span class="n">i</span><span class="o">++){</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="o">((</span><span class="nc">Node</span><span class="o">)</span><span class="n">nodes</span><span class="o">.</span><span class="na">item</span><span class="o">(</span> <span class="n">i</span> <span class="o">)).</span><span class="na">getNodeValue</span><span class="o">().</span><span class="na">trim</span><span class="o">();</span>
+        <span class="k">if</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">""</span><span class="o">)</span> <span class="o">||</span> <span class="n">s</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="s">"\r"</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">continue</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="k">return</span> <span class="n">s</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+<span class="k">catch</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">ex</span><span class="o">){}</span>
+ <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="o">...</span>
+<span class="o">}</span><span class="c1">//end class</span>
+</code></pre></div></div>
+
+<p>The getElement() method is very straighforward, it is used to get the PERSON Element in the row
+index of the TableModel. Once you have a PERSON Element, you need to extract information from its
+column indexes. This is where the getValue() method comes in. Given a PERSON Element, it translates
+column names into values for that column.</p>
+
+<p>That’s it! You now know how to extract information from XML Documents and present them in Swing
+components. In the source code provided, you have to run the AddressBookFrame class in order to see
+the JTable with the XML information in it. You must also be connected to the Internet at the time,
+since the AddressBook.xml file is downloaded from the beanfactory.com webserver. If you are not
+connected to the Internet at the time your run this program, it will appear to hangup (it waits for
+an Internet connection to be made).</p>
+
+<p>Here are two screen shots of the AddressBookFrame class in action, one for the Sun parser and one
+for the IBM parser:</p>
+
+<p><img src="/assets/xmljava-3.gif" alt="Two versions of AddressBookFrame running" /></p>
+      <h2 id="using-the-servlet-api-with-xml">
+        
+        
+          <strong>Using the Servlet API with XML</strong> <a href="#using-the-servlet-api-with-xml">#</a>
+        
+        
+      </h2>
+    
+
+<p>Displaying this XML Document using a Servlet is very similar to creating a TableModel around it. The
+init() method of the Servlet can create a Document object from an XML file. Then the doGet() method
+simply has to extract all the values for every column of every row in the Document (using the
+XmlUtil class) and display a HTML table from it. You can learn more about Servlets in
+<a href="https://web.archive.org/web/20100126170627/http://www.amazon.com/Java-Servlet-Programming-Jason-Hunter/dp/0596000405/ref=bxgy_cc_b_text_a">the Java Servlet Programming book</a>.</p>
+
+<p><em>How to make XML information available to the Web</em></p>
+
+<p>The following is a listing of the AddressBookServlet.java (for the IBM Parser) which displays this
+information to a browser. Most of the code here generates the HTML. The actual Document parsing is
+the same as in the TableModel.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AddressBookServlet</span> <span class="kd">extends</span> <span class="nc">HttpServlet</span> <span class="o">{</span>
+<span class="c1">//CONSTANTS</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">String</span>
+   <span class="no">URL</span> <span class="o">=</span> <span class="s">"http//beanfactory.com/xml/AddressBook.xml"</span><span class="o">;</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">String</span> <span class="no">ROOT_ELEMENT_TAG</span> <span class="o">=</span> <span class="s">"PERSON"</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">String</span><span class="o">[]</span> <span class="n">colNames</span> <span class="o">={</span>
+     <span class="s">"LASTNAME"</span><span class="o">,</span>
+     <span class="s">"FIRSTNAME"</span><span class="o">,</span>
+    <span class="s">"COMPANY"</span><span class="o">,</span>
+    <span class="s">"EMAIL"</span>
+<span class="o">};</span>
+
+<span class="c1">//DATA</span>
+<span class="kd">protected</span> <span class="nc">Document</span> <span class="n">doc</span><span class="o">;</span>
+
+<span class="cm">/**
+When this method receives a request from a browser, it
+returns a Document in table format.
+@param     req     http servlet request
+@param     res     http servlet response
+@exception ServletException
+@exception IOException
+*/</span>
+
+<span class="kd">protected</span> <span class="kt">void</span> <span class="nf">doGet</span><span class="o">(</span><span class="nc">HttpServletRequest</span> <span class="n">req</span><span class="o">,</span> <span class="nc">HttpServletResponse</span> <span class="n">res</span><span class="o">)</span>
+<span class="kd">throws</span> <span class="nc">ServletException</span><span class="o">,</span> <span class="nc">IOException</span> <span class="o">{</span>
+   <span class="n">res</span><span class="o">.</span><span class="na">setContentType</span><span class="o">(</span><span class="s">"text/html"</span><span class="o">);</span>
+   <span class="nc">PrintWriter</span> <span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">PrintWriter</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">getOutputStream</span><span class="o">());</span>
+
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;html&gt;"</span> <span class="o">);</span>
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;title&gt;"</span> <span class="o">);</span>
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"XML and Java2 Tutorial Part  IBM Parser"</span> <span class="o">);</span>
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;/title&gt;"</span> <span class="o">);</span>
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;center&gt;"</span> <span class="o">);</span>
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;head&gt;&lt;pre&gt;"</span> <span class="o">);</span>
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"http//beanfactory.com/xml/AddressBook.xml"</span> <span class="o">);</span>
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;/pre&gt;&lt;/head&gt;&lt;hr&gt;"</span> <span class="o">);</span>
+   <span class="c1">//format the table</span>
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;table BORDER=0 CELLSPACING=2 "</span> <span class="o">);</span>
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"CELLPADDING=10 BGCOLOR=\"#CFCFFF\" &gt;"</span> <span class="o">);</span>
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;tr&gt;"</span><span class="o">);</span>
+
+   <span class="c1">//display table column</span>
+   <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="n">colNames</span><span class="o">.</span><span class="na">length</span><span class="o">;</span> <span class="n">i</span><span class="o">++){</span>
+       <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;td&gt;&lt;b&gt;&lt;center&gt;"</span> <span class="o">+</span>
+                   <span class="n">colNames</span><span class="o">[</span><span class="n">i</span><span class="o">]</span> <span class="o">+</span>
+                   <span class="s">"&lt;/center&gt;&lt;/b&gt;&lt;/td&gt;"</span> <span class="o">);</span>
+   <span class="o">}</span>
+
+   <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;/tr&gt;"</span> <span class="o">);</span>
+
+   <span class="c1">//need to iterate the doc to get the fields in it</span>
+   <span class="kt">int</span> <span class="n">rowCount</span> <span class="o">=</span> <span class="nc">XmlUtils</span><span class="o">.</span><span class="na">getSize</span><span class="o">(</span> <span class="n">doc</span> <span class="o">,</span> <span class="no">ROOT_ELEMENT_TAG</span> <span class="o">);</span>
+     <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">r</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">r</span><span class="o">&lt;</span><span class="n">rowCount</span><span class="o">;</span> <span class="n">r</span><span class="o">++)</span> <span class="o">{</span>
+       <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;tr&gt;"</span> <span class="o">);</span>
+       <span class="nc">Element</span> <span class="n">row</span> <span class="o">=</span> <span class="nc">XmlUtils</span><span class="o">.</span><span class="na">getElement</span><span class="o">(</span>
+           <span class="n">doc</span> <span class="o">,</span> <span class="no">ROOT_ELEMENT_TAG</span> <span class="o">,</span> <span class="n">r</span> <span class="o">);</span>
+       <span class="kt">int</span> <span class="n">colCount</span> <span class="o">=</span> <span class="n">colNames</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+
+       <span class="k">for</span><span class="o">(</span><span class="kt">int</span> <span class="n">c</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="n">colCount</span><span class="o">;</span> <span class="n">c</span><span class="o">++)</span> <span class="o">{</span>
+           <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;td&gt;"</span> <span class="o">);</span>
+           <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="nc">XmlUtils</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span> <span class="n">row</span> <span class="o">,</span> <span class="n">colNames</span><span class="o">[</span><span class="n">c</span><span class="o">]</span> <span class="o">));</span>
+           <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;/td&gt;"</span> <span class="o">);</span>
+       <span class="o">}</span><span class="c1">//end for c=0...</span>
+
+       <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;/tr&gt;"</span> <span class="o">);</span>
+
+    <span class="o">}</span><span class="c1">//end for r=0...</span>
+
+    <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;/table&gt;"</span> <span class="o">);</span>
+    <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;hr&gt;Copyright The Bean Factory, LLC."</span> <span class="o">);</span>
+    <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">" 1998-1999. All Rights Reserved."</span><span class="o">);</span>
+    <span class="n">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span> <span class="s">"&lt;/center&gt;"</span> <span class="o">);</span>
+    <span class="n">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"&lt;/body&gt;"</span><span class="o">);</span>
+    <span class="n">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"&lt;/html&gt;"</span><span class="o">);</span>
+    <span class="n">out</span><span class="o">.</span><span class="na">flush</span><span class="o">();</span>
+    <span class="n">out</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="o">}</span><span class="c1">//end method</span>
+
+<span class="cm">/**
+Create a DOM from an XML document when the servlet starts up.
+
+@param     config  servlet configuration
+@exception ServletException
+*/</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">(</span><span class="nc">ServletConfig</span> <span class="n">config</span> <span class="o">)</span> <span class="kd">throws</span> <span class="nc">ServletException</span><span class="o">{</span>
+   <span class="kd">super</span><span class="o">.</span><span class="na">init</span><span class="o">(</span> <span class="n">config</span> <span class="o">);</span>
+
+   <span class="c1">//load the Document</span>
+   <span class="k">try</span><span class="o">{</span>
+       <span class="c1">//create xml document</span>
+       <span class="no">URL</span> <span class="n">u</span> <span class="o">=</span> <span class="k">new</span> <span class="no">URL</span><span class="o">(</span><span class="no">URL</span><span class="o">);</span>
+       <span class="nc">InputStream</span> <span class="n">i</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="na">openStream</span><span class="o">();</span>
+       <span class="nc">Parser</span> <span class="n">p</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Parser</span><span class="o">(</span><span class="s">"myParser"</span><span class="o">);</span>
+       <span class="n">doc</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="na">readStream</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+    <span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">){</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span> <span class="n">e</span> <span class="o">);</span>
+   <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="cm">/**
+Return servlet information
+
+@return    message about this servlet
+*/</span>
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">getServletInfo</span><span class="o">(){</span>
+  <span class="k">return</span> <span class="s">"Copyright The Bean Factory, LLC. 1998."</span> <span class="o">+</span>
+         <span class="s">"All Rights Reserved."</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="o">}</span><span class="c1">//end class</span>
+</code></pre></div></div>
+
+<p>To run this servlet, place the AddressBookServlet.class and XmlUtils.class in the servlet class
+folder of your servlet engine and access AddressBookServlet using a web browser.</p>
+      <h2 id="downloading-the-source-code-and-running-the-programs">
+        
+        
+          <strong>Downloading the source code and running the programs</strong> <a href="#downloading-the-source-code-and-running-the-programs">#</a>
+        
+        
+      </h2>
+    
+
+<p>The same sets of Java classes are provided for the Sun Parser and IBM Parser. Here is a description
+of these source code files:</p>
+
+<ul>
+  <li>AddressBookMode.java - Contains the TableModel</li>
+  <li>XmlUtils.java - Needed by AddressBookModel.java and AddressBookServlet.java</li>
+  <li>AddressBookServlet.java - Contains the servlet</li>
+  <li>AddressBookFrame.java - Displays a JTable in a JFrame</li>
+  <li>AddressBookPanel.java - Needed by AddressBookFrame.java</li>
+</ul>
+
+<p>To run the Swing JTable program, you can type “java AddressBookFrame” at the command prompt. Make
+sure that you have Java2 (or JDK1.2) installed on your machine because it will not work with JDK1.1.
+<em>Also, please make sure that you are connected to the Internet at the time because the programs need
+to access AddressBook.xml from the website.</em></p>
+
+<p>To run the Servlet, place the AddressBookServlet.class and XmlUtils.class in your servlet folder,
+and start your servlet engine. You can access the Servlet from your web browser by using a URL like
+eg: http://localhost/servlet/AddressBookServlet.</p>
+
+<p>Here is older code using an old Sun parser – <a href="/assets/sun.zip">sun.zip</a> (it
+should be pretty easy to swap the Sun parser instantiation with the
+<a href="https://web.archive.org/web/20100126170627/http://jdom.org/">JDOM</a> parser).</p>
+
+<p>I hope you enjoyed this tutorial, I have lots more XML and Java related tutorials on this site.</p>
+      <h2 id="references">
+        
+        
+          <strong>References</strong> <a href="#references">#</a>
+        
+        
+      </h2>
+    
+
+<p><strong><a href="https://web.archive.org/web/20100126170627/http://www.jdom.org/index.html">JDOM</a></strong></p>
+
+<blockquote>
+  <p>You can download JDOM
+<a href="https://web.archive.org/web/20100126170627/http://www.jdom.org/downloads/index.html">here</a>.</p>
+
+  <p>Details on instantiating DOM objects using JDOM are provided
+<a href="https://web.archive.org/web/20100126170627/http://www.jdom.org/docs/oracle/jdom-part1.pdf">here</a>.
+You can learn more about JDOM in
+<a href="https://web.archive.org/web/20100126170627/http://www.amazon.com/gp/product/059610149X/104-3314020-2041557?ie=UTF8&amp;tag=developerlife-20&amp;linkCode=xm2&amp;camp=1789&amp;creativeASIN=059610149X">the Java and XML book</a>.</p>
+</blockquote>
+
+<p><strong><a href="https://web.archive.org/web/20100126170627/http://java.sun.com/xml/">Sun’s XML Site</a></strong></p>
+
+<blockquote>
+  <p>This is a good site to learn about Sun’s parser and also about how to do elementary things like
+use SAX and DOM. It also has a nice glossary of terms. After visiting this site and learning
+everything on it, the content on developerlife.com (which involves real-world application of this
+technology) will make more sense 😁.</p>
+</blockquote>
+
+<p><strong><a href="https://web.archive.org/web/20100126170627/http://www.w3.org/TR/1998/REC-xml-19980210">Extensible Markup Language (XML) 1.0 W3C Recommendation</a></strong></p>
+
+<blockquote>
+  <p>This is not useful for parsing or generating XML documents with Java. This specification lists all
+the rules that apply to a well formed XML document. This document is only good for specific rules
+about the syntax of XML documents.</p>
+</blockquote>
+
+<p><strong><a href="https://web.archive.org/web/20100126170627/http://www.w3.org/TR/REC-DOM-Level-1/level-one-core.html">Document Object Model IDL Documentation</a></strong></p>
+
+<blockquote>
+  <p>This is very useful for parsing and generating XML documents using Java. All these interfaces are
+available in Java (for both the Sun and IBM parsers). The documentation for this IDL was used to
+create the documentation for the IBM and Sun parser’s source code. This documentation is more
+detailed than the javadoc generated documentation for the Java interfaces in the org.w3c.dom
+package.</p>
+</blockquote>
+
+<p><strong><a href="https://web.archive.org/web/20100126170627/http://www.w3.org/TR/REC-DOM-Level-1/idl-definitions.html">Document Object Model IDL Definitions</a></strong></p>
+
+<blockquote>
+  <p>This is not useful for parsing or generating XML documents with Java. This specification lists all
+the rules that apply to a well formed XML document. This document is only good for specific rules
+about the syntax of XML documents.</p>
+</blockquote>
+
+<p><strong><a href="https://web.archive.org/web/20100126170627/http://metalab.unc.edu/pub/sun-info/standards/xml/why/xmlapps.htm">XML, Java and the future of the web</a></strong></p>
+
+<blockquote>
+  <p>Jon Bosak, who is on the chair of the W3C XML Working Group, does a great job of describing what
+kinds of products and services can be made possible from the union of Java and XML.</p>
+</blockquote>
+
+<p><strong><a href="https://web.archive.org/web/20100126170627/http://www.megginson.com/SAX/index.html">SAX 1.0: The Simple API for XML</a></strong></p>
+
+<blockquote>
+  <p>This is David Megginson’s website documenting the SAX 1.0 API. It is short and to the point. If
+you want to learn about SAX 1.0 I recommend reading my SAX Tutorial 😁 though .</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/1998/12/01/xml-and-java-tutorial-part-1/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

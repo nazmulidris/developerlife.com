@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Use just to manage project specific commands | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Use just to manage project specific commands" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A guide on how to create just files (which are like make files) to manage project specific commands. In a cross platform way." />
+<meta property="og:description" content="A guide on how to create just files (which are like make files) to manage project specific commands. In a cross platform way." />
+<link rel="canonical" href="http://developerlife.com/2023/08/28/justfile/" />
+<meta property="og:url" content="http://developerlife.com/2023/08/28/justfile/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2023-08-28T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Use just to manage project specific commands" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2023-08-28T10:00:00-05:00","datePublished":"2023-08-28T10:00:00-05:00","description":"A guide on how to create just files (which are like make files) to manage project specific commands. In a cross platform way.","headline":"Use just to manage project specific commands","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2023/08/28/justfile/"},"url":"http://developerlife.com/2023/08/28/justfile/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Use just to manage project specific commands&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Use just to manage project specific commands</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Use just to manage project specific commands</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Aug 28, 2023
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/justfile.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#prerequisites">Prerequisites</a></li>
+  <li><a href="#basic-usage">Basic usage</a></li>
+  <li><a href="#advanced-usage">Advanced usage</a>
+    <ul>
+      <li><a href="#running-many-different-commands">Running many different commands</a></li>
+      <li><a href="#run-on-windows">Run on Windows</a></li>
+      <li><a href="#run-in-ci--cd-environments-github-actions">Run in CI / CD environments Github Actions</a></li>
+      <li><a href="#pass-arguments-into-commands">Pass arguments into commands</a></li>
+    </ul>
+  </li>
+  <li><a href="#next-steps">Next steps</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>In this tutorial we will learn how to use <a href="https://github.com/casey/just"><code class="language-plaintext highlighter-rouge">just</code></a> by example to
+manage project specific commands. <code class="language-plaintext highlighter-rouge">just</code> is like <code class="language-plaintext highlighter-rouge">make</code>, but it is written in Rust, and it works
+with <code class="language-plaintext highlighter-rouge">cargo</code>.</p>
+
+<p>Before we get started, please take a look at the
+<a href="https://github.com/casey/just"><code class="language-plaintext highlighter-rouge">just</code> project README</a>.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+<p>Let’s say you have a <code class="language-plaintext highlighter-rouge">justfile</code> that looks like this, and it has a single recipe called
+<code class="language-plaintext highlighter-rouge">list</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>list:
+  ls -l
+</code></pre></div></div>
+
+<p>And you run it by typing <code class="language-plaintext highlighter-rouge">just list</code>. It just turns around and runs this <code class="language-plaintext highlighter-rouge">sh -c "ls -l"</code>.
+That’s it. So on Windows, this doesn’t work, because <code class="language-plaintext highlighter-rouge">sh</code> isn’t installed by default. So
+you have to install cygwin. And then you have to install <code class="language-plaintext highlighter-rouge">just</code> and then you have to
+install <code class="language-plaintext highlighter-rouge">sh</code>.</p>
+
+<p>Alternatively, you can specify that you want to use <code class="language-plaintext highlighter-rouge">powershell</code> instead by
+adding this to the top of the <code class="language-plaintext highlighter-rouge">justfile</code>: <code class="language-plaintext highlighter-rouge">set shell := ["powershell.exe", "-c"]</code>. Or you
+can just run this <code class="language-plaintext highlighter-rouge">just --shell powershell.exe --shell-arg -c list</code> to run <code class="language-plaintext highlighter-rouge">just</code> itself
+at the command prompt.</p>
+
+<p>You can also supply different shell interpreters like <code class="language-plaintext highlighter-rouge">python</code> or <code class="language-plaintext highlighter-rouge">node</code>. And you can even
+provide <code class="language-plaintext highlighter-rouge">shebang</code> lines like <code class="language-plaintext highlighter-rouge">#!/usr/bin/env python</code> or <code class="language-plaintext highlighter-rouge">#!/usr/bin/env node</code> at the top
+of each recipe.</p>
+      <h2 id="prerequisites">
+        
+        
+          Prerequisites <a href="#prerequisites">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-prerequisites" name="prerequisites"></a></p>
+
+<p>🌠 In order for our <code class="language-plaintext highlighter-rouge">just</code> file to work, we must first install the Rust toolchain and <code class="language-plaintext highlighter-rouge">just</code> and
+<code class="language-plaintext highlighter-rouge">cargo-watch</code>:</p>
+
+<ol>
+  <li>Install the Rust toolchain using <code class="language-plaintext highlighter-rouge">rustup</code> by following the instructions
+<a href="https://rustup.rs/">here</a>.</li>
+  <li>Install <code class="language-plaintext highlighter-rouge">cargo-watch</code> using <code class="language-plaintext highlighter-rouge">cargo install cargo-watch</code>.</li>
+  <li><a href="https://just.systems/man/en/chapter_4.html">Install</a> <code class="language-plaintext highlighter-rouge">just</code> on your system using
+<code class="language-plaintext highlighter-rouge">cargo install just</code>. It is available for Linux, macOS, and Windows.
+    <ul>
+      <li>If you want shell completions for <code class="language-plaintext highlighter-rouge">just</code> you can follow
+<a href="https://github.com/casey/just#shell-completion-scripts">these instructions</a>.</li>
+      <li>If you install <code class="language-plaintext highlighter-rouge">just</code> using <code class="language-plaintext highlighter-rouge">cargo install just</code> or <code class="language-plaintext highlighter-rouge">brew install just</code> you will not get shell
+completions without doing one extra configuration step. So on Linux it is best to use
+<code class="language-plaintext highlighter-rouge">sudo apt install -y just</code> if you want them.</li>
+    </ul>
+  </li>
+</ol>
+      <h2 id="basic-usage">
+        
+        
+          Basic usage <a href="#basic-usage">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-basic-usage" name="basic-usage"></a></p>
+
+<p>For Rust projects, typically we will have a build, run, test project specific commands. Let’s start
+with these simple ones first. The benefit of <code class="language-plaintext highlighter-rouge">just</code> is that we can use it to run these commands on
+any platform (Linux, Mac, Windows). And we don’t need to create OS or shell specific scripts to do
+this 🎉.</p>
+
+<p>Let’s start by creating a <code class="language-plaintext highlighter-rouge">justfile</code> in the root of our project. The <code class="language-plaintext highlighter-rouge">justfile</code> is where we will
+define our project specific commands. Here is what it looks like for the
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/ansi_color/justfile"><code class="language-plaintext highlighter-rouge">r3bl_ansi_color</code> repo</a>:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>build:
+  cargo build
+
+clean:
+  cargo clean
+
+run:
+  cargo run --example main
+</code></pre></div></div>
+
+<p>These are pretty simple commands. The syntax is pretty simple. The first line is the command name.
+And the second line is the command to run. The command can be a single command or a series of
+commands.</p>
+
+<p>Now in order to run this, we can just run <code class="language-plaintext highlighter-rouge">just --list</code> in the root of our project. And it will show
+us the list of commands that we can run.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>just <span class="nt">--list</span>
+Available recipes:
+    build
+    clean
+    run
+</code></pre></div></div>
+
+<p>Then to run a command, we can just run <code class="language-plaintext highlighter-rouge">just &lt;command_name&gt;</code>. For example, to run the <code class="language-plaintext highlighter-rouge">build</code>
+command, we can run <code class="language-plaintext highlighter-rouge">just build</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>just build
+</code></pre></div></div>
+      <h2 id="advanced-usage">
+        
+        
+          Advanced usage <a href="#advanced-usage">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-advanced-usage" name="advanced-usage"></a></p>
+      <h3 id="running-many-different-commands">
+        
+        
+          Running many different commands <a href="#running-many-different-commands">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-running-many-different-commands" name="running-many-different-commands"></a></p>
+
+<p>This is pretty straightforward. You can just list all other other just commands inline.
+Here’s an example.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>all: clean build test clippy docs rustfmt
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">all</code> command will run the other commands in the order they’re written.</p>
+      <h3 id="run-on-windows">
+        
+        
+          Run on Windows <a href="#run-on-windows">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-run-on-windows" name="run-on-windows"></a></p>
+
+<p>Currently our <code class="language-plaintext highlighter-rouge">justfile</code> will run on Linux and macOS. To make it run on Windows, we can
+run <code class="language-plaintext highlighter-rouge">just</code> itself using <code class="language-plaintext highlighter-rouge">powershell.exe</code>. Here is what it looks like:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>just <span class="nt">--shell</span> powershell.exe <span class="nt">--shell-arg</span> <span class="nt">-c</span> build
+</code></pre></div></div>
+
+<p>Or we can add the line <code class="language-plaintext highlighter-rouge">set shell := ["powershell.exe", "-c"]</code> to the top of the
+<code class="language-plaintext highlighter-rouge">justfile</code>.</p>
+
+<p>Alternatively, we can use <code class="language-plaintext highlighter-rouge">nu</code> shell instead of <code class="language-plaintext highlighter-rouge">powershell.exe</code> since it is written in
+Rust and available via <code class="language-plaintext highlighter-rouge">cargo install nu</code>.</p>
+      <h3 id="run-in-ci--cd-environments-github-actions">
+        
+        
+          Run in CI / CD environments (Github Actions) <a href="#run-in-ci--cd-environments-github-actions">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-run-in-ci-%2F-cd-environments-github-actions" name="run-in-ci-%2F-cd-environments-github-actions"></a></p>
+
+<p>Let’s add a new command called <code class="language-plaintext highlighter-rouge">all</code> to our <code class="language-plaintext highlighter-rouge">justfile</code>. This will just turn around and run the
+<code class="language-plaintext highlighter-rouge">build</code> and <code class="language-plaintext highlighter-rouge">clean</code> commands. Here is what it looks like:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>all: build clean
+</code></pre></div></div>
+
+<p>Now, we can also use <code class="language-plaintext highlighter-rouge">just</code> in CI / CD environments. For example, here is the <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/ansi_color/.github/workflows/rust.yml"><code class="language-plaintext highlighter-rouge">rust.yml</code>
+file</a>
+for this repo’s Github Actions. It runs <code class="language-plaintext highlighter-rouge">just all</code> in the <code class="language-plaintext highlighter-rouge">build</code> step.</p>
+
+<p>The one thing to note is that we are installing <code class="language-plaintext highlighter-rouge">just</code> in the docker container before we
+run the <code class="language-plaintext highlighter-rouge">just</code> command. We do this by pulling in the prebuilt binary for Ubuntu as shown
+<a href="https://github.com/casey/just#pre-built-binaries">here</a>: <code class="language-plaintext highlighter-rouge">curl --proto '=https' --tlsv1.2
+-sSf https://just.systems/install.sh | bash -s -- --to DEST</code></p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">jobs</span><span class="pi">:</span>
+  <span class="na">build</span><span class="pi">:</span>
+
+    <span class="na">runs-on</span><span class="pi">:</span> <span class="s">ubuntu-latest</span>
+
+    <span class="na">steps</span><span class="pi">:</span>
+
+    <span class="pi">-</span> <span class="na">uses</span><span class="pi">:</span> <span class="s">actions/checkout@v3</span>
+
+    <span class="c1"># Install just before running it below.</span>
+    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Install just</span>
+      <span class="na">run</span><span class="pi">:</span> <span class="s">curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin</span>
+
+    <span class="c1"># Simply run the `just all` command.</span>
+    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">all</span>
+      <span class="na">run</span><span class="pi">:</span> <span class="s">just all</span>
+</code></pre></div></div>
+
+<p>Using <code class="language-plaintext highlighter-rouge">just all</code> is relatively straightforward way to run all our build steps (that would
+run in a CI / CD environment) on our local computer w/out installing docker. While
+ensuring that these same steps are carried out in the CI / CD environment.</p>
+      <h3 id="pass-arguments-into-commands">
+        
+        
+          Pass arguments into commands <a href="#pass-arguments-into-commands">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-pass-arguments-into-commands" name="pass-arguments-into-commands"></a></p>
+
+<p>We can also pass arguments into our commands. Let’s say that we have a command that we can use to
+run a single test. We can pass the name of the test into the command. Here is what it looks like:</p>
+
+<!--
+  More info on escaping `` in markdown:
+  - https://stackoverflow.com/questions/24102498/escaping-double-curly-braces-inside-a-markdown-code-block-in-jekyll
+  - https://jekyllrb.com/docs/liquid/tags/
+ -->
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>watch-one-test test_name:
+  <span class="c"># More info on cargo test: https://doc.rust-lang.org/cargo/commands/cargo-test.html</span>
+  <span class="c"># More info on cargo watch: https://github.com/watchexec/cargo-watch</span>
+  cargo watch <span class="nt">-x</span> check <span class="nt">-x</span> <span class="s1">'test -- --test-threads=1 --nocapture {{test_name}}'</span> <span class="nt">-c</span> <span class="nt">-q</span>
+</code></pre></div></div>
+
+<p>There are a few things to note here:</p>
+
+<ol>
+  <li>The syntax to name the command is still the same as before.</li>
+  <li>However, we have added another string after the command name, which is the argument name
+<code class="language-plaintext highlighter-rouge">test_name</code>. If an argument is not passed in then <code class="language-plaintext highlighter-rouge">just</code> will display an error and print a
+message stating that an argument is required.</li>
+  <li>This argument is used just like a variable would in a <code class="language-plaintext highlighter-rouge">justfile</code>. The `` enclose a
+variable name.</li>
+</ol>
+
+<p>Now we can run this command by passing in the name of the test that we want to run. For example, if
+we want to run the <code class="language-plaintext highlighter-rouge">test_ansi_color</code> test, we can run <code class="language-plaintext highlighter-rouge">just watch-one-test test_ansi_color</code>.</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>just watch-one-test bold
+</code></pre></div></div>
+
+<p>Here’s an example of a <code class="language-plaintext highlighter-rouge">justfile</code> that has a lot more commands for you to look at:
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/ansi_color/justfile">r3bl_ansi_color justfile</a>.</p>
+      <h2 id="next-steps">
+        
+        
+          Next steps <a href="#next-steps">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-next-steps" name="next-steps"></a></p>
+
+<p>The <code class="language-plaintext highlighter-rouge">just</code> project <a href="https://github.com/casey/just">README</a> has lots of information on how to use
+<code class="language-plaintext highlighter-rouge">just</code>. It is best to have a specific thing you are looking for before you visit this page. Here are
+some interesting links inside the README:</p>
+
+<ol>
+  <li><a href="https://github.com/casey/just#recipe-parameters">Command line arguments</a>.</li>
+  <li><a href="https://github.com/casey/just#dotenv-integration">Support for .env files</a>.</li>
+  <li><a href="https://github.com/casey/just#conditional-expressions">Conditional expressions</a>.</li>
+  <li><a href="https://github.com/casey/just#setting-variables-from-the-command-line">Setting variables</a>.</li>
+</ol>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/04/ockam-routing-building-end-to-end-channels/">
+                        Create End-to-End Channels in Rust with Ockam Routing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2023/08/28/justfile/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

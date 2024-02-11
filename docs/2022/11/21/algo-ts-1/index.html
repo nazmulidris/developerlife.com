@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Algorithms and data structures in TypeScript: string tokenizer, rate limiter | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Algorithms and data structures in TypeScript: string tokenizer, rate limiter" />
+<meta name="author" content="Nadia Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles." />
+<meta property="og:description" content="This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles." />
+<link rel="canonical" href="http://developerlife.com/2022/11/21/algo-ts-1/" />
+<meta property="og:url" content="http://developerlife.com/2022/11/21/algo-ts-1/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-11-21T09:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Algorithms and data structures in TypeScript: string tokenizer, rate limiter" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nadia Idris"},"dateModified":"2022-11-21T09:00:00-06:00","datePublished":"2022-11-21T09:00:00-06:00","description":"This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles.","headline":"Algorithms and data structures in TypeScript: string tokenizer, rate limiter","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2022/11/21/algo-ts-1/"},"url":"http://developerlife.com/2022/11/21/algo-ts-1/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Algorithms and data structures in TypeScript: string tokenizer, rate limiter&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Algorithms and data structures in TypeScript: string tokenizer, rate limiter</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Algorithms and data structures in TypeScript: string tokenizer, rate limiter</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Nov 21, 2022
+
+            <!--Author-->
+            ∙ <a href="https://nadiaidris.com">Nadia Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="https://nadiaidris.com">Nadia</a>,
+            a frontend SWE in Silicon Valley.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            <i class="fas fa-terminal"></i> &&
+            <i class="fas fa-code"></i> &&
+            <i class="fas fa-coffee"></i> 😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nadiaidris1"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nadiaidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://dribbble.com/nadiaidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#dribbble"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/algo-typescript.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a>
+    <ul>
+      <li><a href="#how-to-run-this-project">How to run this project</a></li>
+    </ul>
+  </li>
+  <li><a href="#exercise-1-string-tokenizer">Exercise 1: String tokenizer</a>
+    <ul>
+      <li><a href="#function-signature">Function signature</a></li>
+      <li><a href="#test-against-the-following-cases">Test against the following cases</a></li>
+      <li><a href="#string-tokenizer-logic">String tokenizer logic</a>
+        <ul>
+          <li><a href="#data-modelling">Data modelling</a></li>
+          <li><a href="#assign-meaning-to-each-action">Assign meaning to each action</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#exercise-2-in-memory-rate-limiter">Exercise 2: In Memory Rate Limiter</a>
+    <ul>
+      <li><a href="#function-signature-1">Function signature</a></li>
+      <li><a href="#test-against-the-following-cases-1">Test against the following cases</a></li>
+      <li><a href="#in-memory-rate-limiter-logic">In Memory Rate Limiter Logic</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This tutorial is part of a collection of tutorials on basic data structures and algorithms that are
+created using TypeScript. Information is depicted visually using diagrams and code snippets. This
+article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do
+interview prep for software engineering roles.</p>
+
+<p>This tutorial has 2 examples in it:</p>
+
+<ol>
+  <li><a href="#exercise-1-string-tokenizer">String tokenizer</a></li>
+  <li><a href="#exercise-2-in-memory-rate-limiter">Rate limiter</a></li>
+</ol>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h3 id="how-to-run-this-project">
+        
+        
+          How to run this project <a href="#how-to-run-this-project">#</a>
+        
+        
+      </h3>
+    
+
+<p>You can get the code for this and all the other tutorials in this collection from
+<a href="https://github.com/NadiaIdris/ts-string-tokenizer">this github repo</a>. Once you clone this repo
+locally, you can run the following:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>ts-string-tokenizer
+npm <span class="nb">install
+</span>npx jest <span class="nt">--watchAll</span>
+</code></pre></div></div>
+
+<p>All the examples in this repo are written in the form of tests and you can see them running in
+there. If you change the code while the tests are running, the tests will re-run automatically w/
+these new changes. This is nice to have when you are learning how the code works.</p>
+      <h2 id="exercise-1-string-tokenizer">
+        
+        
+          Exercise 1: String tokenizer <a href="#exercise-1-string-tokenizer">#</a>
+        
+        
+      </h2>
+    
+
+<p>Create a function that mimics the
+<a href="https://www.unix.com/man-page/Linux/1/cd/"><code class="language-plaintext highlighter-rouge">cd</code> command in the terminal</a>.</p>
+
+<p><img src="/assets/algo-ts-1-images/string-tokenizer.svg" alt="" /></p>
+      <h3 id="function-signature">
+        
+        
+          Function signature <a href="#function-signature">#</a>
+        
+        
+      </h3>
+    
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">cd</span><span class="p">(</span><span class="nx">currentPath</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="nx">action</span><span class="p">:</span> <span class="kr">string</span><span class="p">):</span> <span class="kr">string</span>
+</code></pre></div></div>
+
+<p>The function takes two argument, first argument is a current path and the second argument is an
+action to apply to the current path to change the path. The function modifies the path and returns
+the resulting path as a string.</p>
+      <h3 id="test-against-the-following-cases">
+        
+        
+          Test against the following cases <a href="#test-against-the-following-cases">#</a>
+        
+        
+      </h3>
+    
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>| Current path         | Action             | Resulting path                       |
+| -------------------- | ------------------ | ------------------------------------ |
+| /                    | /folder            | /folder                              |
+| /folder              | nestedFolder       | /folder/nestedFolder                 |
+| /folder              | /home              | /home                                |
+| /folder/nestedFolder | ..                 | /folder                              |
+| /folder/nestedFolder | ../folder2/folder3 | /folder/folder2/folder3              |
+| /folder/nestedFolder | folder2/./folder3  | /folder/nestedFolder/folder2/folder3 |
+</code></pre></div></div>
+      <h3 id="string-tokenizer-logic">
+        
+        
+          String tokenizer logic <a href="#string-tokenizer-logic">#</a>
+        
+        
+      </h3>
+    
+
+<p>Our <code class="language-plaintext highlighter-rouge">currentPath</code> is a string and we need to manipulate this string and eventually return a new
+string.</p>
+      <h4 id="data-modelling">
+        
+        
+          Data modelling <a href="#data-modelling">#</a>
+        
+        
+      </h4>
+    
+
+<ol>
+  <li>
+    <p>In order for us to manipulate a string easily, we chunk the string into smaller strings and store
+those smaller string chunks into an array.</p>
+
+    <ul>
+      <li>For example, <code class="language-plaintext highlighter-rouge">"/home/user/folder"</code> would be turned into an array of
+<code class="language-plaintext highlighter-rouge">["home", "user", "folder"]</code> &lt;- Data modelling.</li>
+      <li>We don’t want to store delimiters into our array, this would only complicate manipulating the
+array.</li>
+      <li>We will add the delimiters back to our string later when we are returning output string.</li>
+    </ul>
+  </li>
+  <li>
+    <p>We have a string <code class="language-plaintext highlighter-rouge">currentPath</code> that we know we need to manipulate. But how? Our second argument
+is a <code class="language-plaintext highlighter-rouge">action</code>. <code class="language-plaintext highlighter-rouge">action</code> is a string that tells us how to manipulate our <code class="language-plaintext highlighter-rouge">currentPath</code>.</p>
+
+    <ul>
+      <li>The meaning of <code class="language-plaintext highlighter-rouge">action</code> string command: For example <code class="language-plaintext highlighter-rouge">action</code> can look like this:
+<code class="language-plaintext highlighter-rouge">"../anotherFolder"</code>. This means we want to go up one folder (..) and then go into folder
+called anotherFolder.
+In order for us to understand what this <code class="language-plaintext highlighter-rouge">action</code> string means, we need to break it down into
+smaller strings and store those smaller strings in an array as well.</li>
+      <li>For example, <code class="language-plaintext highlighter-rouge">"../anotherFolder"</code> would be turned into an array of <code class="language-plaintext highlighter-rouge">["..", "anotherFolder"]</code>.</li>
+      <li>If we encounter <code class="language-plaintext highlighter-rouge">"."</code>, then ignore it and go to the next element in the array.</li>
+      <li>If the action starts with <code class="language-plaintext highlighter-rouge">"/"</code> then this means that whatever comes after the <code class="language-plaintext highlighter-rouge">"/"</code> is the
+absolute path and the string output we want to return.</li>
+      <li>❗IMPORTANT: This tells me that when we are chunking our <code class="language-plaintext highlighter-rouge">action</code> into a smaller strings, we
+need to think about how to treat the <code class="language-plaintext highlighter-rouge">"/"</code> character, since we need to account for it (it tells
+us the new path is an absolute path).</li>
+      <li>💡IDEA: We check if the first string character is <code class="language-plaintext highlighter-rouge">"/"</code>, then don’t chunk the string into an
+array and just return the string as output string, since it’s an absolute path.</li>
+    </ul>
+  </li>
+</ol>
+      <h4 id="assign-meaning-to-each-action">
+        
+        
+          Assign meaning to each action <a href="#assign-meaning-to-each-action">#</a>
+        
+        
+      </h4>
+    
+
+<p><img src="/assets/algo-ts-1-images/string-tokenizer-assign-meaning.svg" alt="" /></p>
+
+<ol>
+  <li>
+    <p>Now we have <code class="language-plaintext highlighter-rouge">action</code> string array. In order to apply the <code class="language-plaintext highlighter-rouge">action</code> to our <code class="language-plaintext highlighter-rouge">currentPath</code>, we need
+to go through each array element, check what it means and then manipulate our currentPath
+accordingly. We need to define all of our <code class="language-plaintext highlighter-rouge">action</code> cases:</p>
+
+    <ul>
+      <li>If the first character is <code class="language-plaintext highlighter-rouge">"/"</code>, then we don’t chunk the string into an array and just return
+the string as output string, since it’s an absolute path.</li>
+      <li><code class="language-plaintext highlighter-rouge">".."</code> means go up one directory, which in terms or data structures means, remove the last
+element of our <code class="language-plaintext highlighter-rouge">currentPathArray</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">"anotherFolder"</code> means go into another folder, which in terms of data structures means, add
+the name of the anotherFolder to the end of our <code class="language-plaintext highlighter-rouge">currentPathArray</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">"."</code> means do nothing, which in terms of data structures means just go to the next element in
+the array.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Chunking up <code class="language-plaintext highlighter-rouge">currentPath</code> and <code class="language-plaintext highlighter-rouge">action</code> strings to arrays:</p>
+
+    <ul>
+      <li>FOR INTERVIEW I PREFER THIS: When we are chunking up our currentPath, we can use JS <code class="language-plaintext highlighter-rouge">split()</code>
+method and pass in a delimiter <code class="language-plaintext highlighter-rouge">"/"</code>.
+        <ul>
+          <li>The caveat is that it returns an array of strings, but the first string is an empty string.
+            <ul>
+              <li>If we choose to go with this option, we need to remove the first string from our array
+using <code class="language-plaintext highlighter-rouge">shift()</code> (modifies the array, returns the removed element) or <code class="language-plaintext highlighter-rouge">splice(0,1)</code> (0 is
+start index, 1 means how many elements we need to remove from the start index. Splice
+modifies an array, returns removed element).</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>Another way to chunk up our currentPath is to loop over it and start collecting characters into
+a <code class="language-plaintext highlighter-rouge">currentString</code> variable, when encounter <code class="language-plaintext highlighter-rouge">"/"</code> character, then push the <code class="language-plaintext highlighter-rouge">currentString</code> to
+<code class="language-plaintext highlighter-rouge">currentPathArray</code> and reset the <code class="language-plaintext highlighter-rouge">currentString</code> to empty string.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Manipulating <code class="language-plaintext highlighter-rouge">currentPathArray</code>:</p>
+
+    <ul>
+      <li>Now that we have <code class="language-plaintext highlighter-rouge">cdActionArray</code>, we need to loop over it and for each element we check our use
+cases (see number 3) and manipulate our <code class="language-plaintext highlighter-rouge">currentPathArray</code> accordingly.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Done!</p>
+  </li>
+</ol>
+      <h2 id="exercise-2-in-memory-rate-limiter">
+        
+        
+          Exercise 2: In Memory Rate Limiter <a href="#exercise-2-in-memory-rate-limiter">#</a>
+        
+        
+      </h2>
+    
+
+<p>Implement a in-memory rate limiter that limits the number of tokens that can be produced in a given
+time period.</p>
+
+<p><img src="/assets/algo-ts-1-images/api-rate-limiter.svg" alt="" />
+<img src="/assets/algo-ts-1-images/api-rate-limiter2.svg" alt="" /></p>
+      <h3 id="function-signature-1">
+        
+        
+          Function signature <a href="#function-signature-1">#</a>
+        
+        
+      </h3>
+    
+
+<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">acceptOrDenyRequest</span><span class="p">(</span>
+  <span class="nx">maxRequests</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span>
+  <span class="nx">timeWindowInMs</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span>
+  <span class="nx">successfulRequests</span><span class="p">:</span> <span class="kr">number</span><span class="p">[],</span>
+  <span class="nx">newRequestTimestamp</span><span class="p">:</span> <span class="kr">number</span>
+<span class="p">):</span> <span class="dl">"</span><span class="s2">accept</span><span class="dl">"</span> <span class="o">|</span> <span class="dl">"</span><span class="s2">deny</span><span class="dl">"</span>
+</code></pre></div></div>
+      <h3 id="test-against-the-following-cases-1">
+        
+        
+          Test against the following cases <a href="#test-against-the-following-cases-1">#</a>
+        
+        
+      </h3>
+    
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>| Request ## | Timestamp | Result |
+| ---------- | --------- | ------ |
+| 1          | 1100      | accept |
+| 2          | 1200      | accept |
+| 3          | 1300      | deny   |
+| 4          | 2100      | accept |
+| 5          | 2150      | deny   |
+| 6          | 2200      | accept |
+</code></pre></div></div>
+      <h3 id="in-memory-rate-limiter-logic">
+        
+        
+          In Memory Rate Limiter Logic <a href="#in-memory-rate-limiter-logic">#</a>
+        
+        
+      </h3>
+    
+
+<p>We have built and API and made it’s endpoint public. This means that in theory we could have
+millions of requests coming in to our API endpoint. This could be costly or we could have a
+malicious code that could potentially crash our server. We need to protect our API endpoint from
+malicious code and also from too many requests coming in at the same time. We need to implement a
+rate limiter that limits the number of tokens (requests) that can be produced in a given time
+period.</p>
+
+<ol>
+  <li>
+    <p>We are going to create two functions: outer and inner function. Outer function defines all the
+variables and data structures we need to keep track of and the inner function accepts all those
+variables as arguments and checks is there space left in the time window to allow another request
+in or not.</p>
+
+    <p>Things we need to keep track of in our outer function:</p>
+
+    <ul>
+      <li>We need to keep track of all the successful request timestamps. Create an empty array
+<code class="language-plaintext highlighter-rouge">successfulRequests</code> to start tracking the successful request timestamps.</li>
+      <li>We need to define how many requests we want to allow in a given time period. This is the
+<code class="language-plaintext highlighter-rouge">maxRequests</code>.</li>
+      <li>Then we need to define the time period that we count how many requests come in and which
+requests to allow and which to deny. This is the <code class="language-plaintext highlighter-rouge">timeWindowInMs</code>.</li>
+      <li>One more thing. When a new request comes in, we need to create a timestamp for it. This is the
+<code class="language-plaintext highlighter-rouge">newRequestTimestamp</code>. This is the time window endpoint. We use this timestamp to calculate the
+window start point to check if there are less than max requests currently in the time window.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Now we are going to call a function <code class="language-plaintext highlighter-rouge">acceptOrDenyRequest</code> which will accept or deny the request
+to hit the API endpoint. This function will take in the arguments we just defined:</p>
+
+    <div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">maxRequests</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span>
+<span class="nx">timeWindowInMs</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span>
+<span class="nx">successfulRequests</span><span class="p">:</span> <span class="kr">number</span><span class="p">[],</span>
+<span class="nx">newRequestTimestamp</span><span class="p">:</span> <span class="kr">number</span><span class="p">)</span>
+</code></pre></div>    </div>
+
+    <ul>
+      <li>
+        <p>We need to keep track of request count in the time window. We create a <code class="language-plaintext highlighter-rouge">requestCount</code> variable.
+When the request count is equal to the max requests, we need to deny the request since the time
+window is full.</p>
+      </li>
+      <li>
+        <p>We will loop through the <code class="language-plaintext highlighter-rouge">successfulRequests</code> array from back to front. We will check if the
+previously successful timestamp is still within the time window. If it is, we will increment
+the request count. If it is not, we will stop the loop since we know we have reached outside of
+the window bounds. <img src="/assets/algo-ts-1-images/api-rate-limiter3.svg" alt="" /></p>
+      </li>
+      <li>
+        <p>Now that we know how many requests were successful in the current time window, we can compare
+successful requests number with the max requests allowed in the time window. If successful
+requests number is less than max request allowed, then we can accept the request. If successful
+requests number is equal to max requests allowed, then we need to deny the request since the
+time window is full with successful requests already.
+<img src="/assets/algo-ts-1-images/api-rate-limiter4.svg" alt="" /></p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>In the outer function we check if the request was successful or not. It the request was
+successful, we push the request timestamp to <code class="language-plaintext highlighter-rouge">successfulRequests</code> array and return “accept”. If
+the request was not successful, we return “deny”.</p>
+  </li>
+</ol>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CS">
+                #cs</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TS">
+                #ts</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/12/11/algo-ts-2/">
+                        Algorithms and data structures in TypeScript: non binary tree traversal
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2022/11/21/algo-ts-1/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

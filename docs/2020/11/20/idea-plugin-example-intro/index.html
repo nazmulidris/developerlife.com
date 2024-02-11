@@ -1,0 +1,2147 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Introduction to creating IntelliJ IDEA plugins | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Introduction to creating IntelliJ IDEA plugins" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Introduction to creating plugins using JetBrains Plugin SDK covering these topics: PicoContainer, Services, plugin.xml, actions, extension points, extensions, testing, and the intellij-plugin-verifier. This is a companion of the Advanced guide to creating IntelliJ IDEA plugins." />
+<meta property="og:description" content="Introduction to creating plugins using JetBrains Plugin SDK covering these topics: PicoContainer, Services, plugin.xml, actions, extension points, extensions, testing, and the intellij-plugin-verifier. This is a companion of the Advanced guide to creating IntelliJ IDEA plugins." />
+<link rel="canonical" href="http://developerlife.com/2020/11/20/idea-plugin-example-intro/" />
+<meta property="og:url" content="http://developerlife.com/2020/11/20/idea-plugin-example-intro/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-20T23:19:43-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Introduction to creating IntelliJ IDEA plugins" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2020-11-20T23:19:43-06:00","datePublished":"2020-11-20T23:19:43-06:00","description":"Introduction to creating plugins using JetBrains Plugin SDK covering these topics: PicoContainer, Services, plugin.xml, actions, extension points, extensions, testing, and the intellij-plugin-verifier. This is a companion of the Advanced guide to creating IntelliJ IDEA plugins.","headline":"Introduction to creating IntelliJ IDEA plugins","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2020/11/20/idea-plugin-example-intro/"},"url":"http://developerlife.com/2020/11/20/idea-plugin-example-intro/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Introduction to creating IntelliJ IDEA plugins&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Introduction to creating IntelliJ IDEA plugins</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Introduction to creating IntelliJ IDEA plugins</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Nov 20, 2020
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/jetbrains-plugin.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#what-are-plugins">What are plugins?</a>
+    <ul>
+      <li><a href="#pluginxml---entry-point-into-your-plugin">plugin.xml - “entry point” into your plugin</a></li>
+      <li><a href="#declarative-nature-and-dependency-injection">Declarative nature and dependency injection</a></li>
+      <li><a href="#actions">Actions</a></li>
+      <li><a href="#dynamic-plugins">Dynamic plugins</a></li>
+      <li><a href="#main-thread-performance-and-ui-freezes">Main thread, performance, and UI freezes</a></li>
+      <li><a href="#extending-your-plugin-or-another-plugin">Extending your plugin or another plugin</a></li>
+      <li><a href="#references">References</a></li>
+    </ul>
+  </li>
+  <li><a href="#plugin-architecture">Plugin architecture</a>
+    <ul>
+      <li><a href="#picocontainer">PicoContainer</a></li>
+      <li><a href="#pluginxml">plugin.xml</a></li>
+      <li><a href="#migrating-from-components-to-dynamic-plugins-2020-07-17">Migrating from Components to Dynamic Plugins (2020-07-17)</a></li>
+      <li><a href="#components-deprecated">Components (deprecated)</a></li>
+      <li><a href="#extensions-and-extension-points">Extensions and extension points</a></li>
+      <li><a href="#services">Services</a></li>
+    </ul>
+  </li>
+  <li><a href="#persisting-state-between-ide-restarts">Persisting state between IDE restarts</a>
+    <ul>
+      <li><a href="#persistentstatecomponent-and-services">PersistentStateComponent and Services</a></li>
+    </ul>
+  </li>
+  <li><a href="#actions-1">Actions</a></li>
+  <li><a href="#intellij-platform-version-gradle-version-kotlin-version-gradle-intellij-plugin-intellij-plugin-verifier">IntelliJ platform version, Gradle version, Kotlin version, gradle-intellij-plugin, intellij-plugin-verifier</a>
+    <ul>
+      <li><a href="#intellij-plugin-verifier">intellij-plugin-verifier</a>
+        <ul>
+          <li><a href="#notes-on-the-build-or-version-codes">Notes on the build or version codes</a></li>
+        </ul>
+      </li>
+      <li><a href="#using-the-latest-version-of-gradle-and-gradle-intellij-plugin">Using the latest version of Gradle and gradle-intellij-plugin</a></li>
+      <li><a href="#in-buildgradlekts-which-intellij-version-should-we-use">In build.gradle.kts which intellij version should we use?</a></li>
+    </ul>
+  </li>
+  <li><a href="#declaring-dependencies-on-other-plugins">Declaring dependencies on other plugins</a></li>
+  <li><a href="#misc">Misc</a>
+    <ul>
+      <li><a href="#analyze-startup-performance">Analyze startup performance</a></li>
+      <li><a href="#how-to-use-project-specific-jdks">How to use project specific JDKs</a></li>
+      <li><a href="#using-resourcebundles-for-localization">Using ResourceBundles for localization</a>
+        <ul>
+          <li><a href="#imperative-approach">Imperative approach</a></li>
+          <li><a href="#declarative-approach">Declarative approach</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#testing">Testing</a>
+    <ul>
+      <li><a href="#assertj">AssertJ</a></li>
+      <li><a href="#example-tests">Example tests</a>
+        <ul>
+          <li><a href="#fixtures">Fixtures</a></li>
+          <li><a href="#test-data">Test data</a></li>
+          <li><a href="#mocking-actions">Mocking actions</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#references-1">References</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This tutorial (originally published on 2019-08-25) covers the basics of creating a plugin for
+IntelliJ IDEA using the Plugin SDK. It covers the basics, like what components and services are,
+what extension points and extensions are, along with persistent state components, and unit testing.
+Topics like disposables, PSI, VFS, read/write locks, are not covered in this tutorial. I will write
+more tutorials in the future to cover these advanced topics as well.</p>
+
+<p>To get the code for this tutorial, please clone the
+<a href="https://github.com/nazmulidris/idea-plugin-example"><code class="language-plaintext highlighter-rouge">nazmulidris/idea-plugin-example</code></a> repo from
+github. Please check out the README for this repo, and clone it to your computer, and get it running
+before following along in this tutorial. It’s much easier when you have some real code and examples
+to play with in the IDE to understand the concepts in this very long tutorial.</p>
+
+<p>There is quite a lot of information to absorb as you embark on this journey! The following is a link
+to the official JetBrains Platform SDK docs to create a plugin from scratch. In this tutorial we
+will cover using the gradle based plugin (and not the old Plugin DevKit based approach).</p>
+
+<ul>
+  <li><a href="http://www.jetbrains.org/intellij/sdk/docs/tutorials/build_system/prerequisites.html">Getting started w/ Gradle based IntelliJ Platform Plugin</a>.</li>
+</ul>
+
+<p>Once you are done with the basics, and want to get into more advanced topics, please read the
+<a href="/2021/03/13/ij-idea-plugin-advanced/">Advanced guide to creating IntelliJ IDEA
+plugins</a>.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h2 id="what-are-plugins">
+        
+        
+          What are plugins? <a href="#what-are-plugins">#</a>
+        
+        
+      </h2>
+    
+
+<p>IntelliJ IDEA is a very powerful IDE platform. This platform is used to roll out a variety of IDEs
+(eg: IntelliJ Community Edition (FOSS), IntelliJ Ultimate, Android Studio, Webstorm, etc). You can
+find the source code for the Community Edition in this repo
+<a href="https://github.com/JetBrains/intellij-community"><code class="language-plaintext highlighter-rouge">intellij-community</code></a>. The platform SDK is part of
+this repo.</p>
+
+<p>JetBrains allows you or anyone to extend their IDE in any way that they choose by writing their own
+<a href="https://plugins.jetbrains.com/docs/intellij/types-of-plugins.html">plugin</a>. IDEA itself is
+comprised of a very small core set of classes, with a ton of plugins that are supplied by JetBrains.</p>
+
+<p>So if you are thinking of writing a plugin to extend the functionality of IDEA, then you have come
+to the right place. Think of your plugin as an application that will live in the container of the
+IDEA window in a desktop environment. There are some rules that you have to comply with in order to
+be a good citizen of this container. This tutorial will guide you through some of what these
+constraints are.</p>
+      <h3 id="pluginxml---entry-point-into-your-plugin">
+        
+        
+          plugin.xml - “entry point” into your plugin <a href="#pluginxml---entry-point-into-your-plugin">#</a>
+        
+        
+      </h3>
+    
+
+<p>When creating a plugin, you must let the “IDEA container” know what your plugin actually does, so
+that IDEA can load it properly and allow users to interact with it (via keyboard shortcuts, menus,
+toolbars). Things like the name of your plugin, associate icons, internationalized string bundles,
+etc all have to be provided to IDEA so that it can render your plugin properly. All of this
+declarative information about your plugin is stored in a file called
+<a href="https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html"><code class="language-plaintext highlighter-rouge">plugin.xml</code></a> which is
+the most important “entry point” into the code for your plugin.</p>
+      <h3 id="declarative-nature-and-dependency-injection">
+        
+        
+          Declarative nature and dependency injection <a href="#declarative-nature-and-dependency-injection">#</a>
+        
+        
+      </h3>
+    
+
+<p>IDEA itself uses <a href="http://picocontainer.com/">PicoContainer</a> to load all the classes required by your
+plugin via very simple dependency injection. This is why all of the things in <code class="language-plaintext highlighter-rouge">plugin.xml</code> tend to
+be declarative. You won’t find any calls to constructors and such. IDEA uses something like
+<a href="https://github.com/classgraph/classgraph/wiki"><code class="language-plaintext highlighter-rouge">classgraph</code></a> in order to look thru its various
+classpaths and figure out which actual classes to load at runtime.
+<a href="https://github.com/nazmulidris/algorithms-in-kotlin">Here</a> is an example of how you can use
+<code class="language-plaintext highlighter-rouge">classgraph</code> in your Kotlin / Java code.</p>
+      <h3 id="actions">
+        
+        
+          Actions <a href="#actions">#</a>
+        
+        
+      </h3>
+    
+
+<p>One of the main ways in which IDEA users will interact with your plugin is via
+<a href="https://plugins.jetbrains.com/docs/intellij/action-system.html">actions</a>. Actions can be invoked by
+using Search Anywhere (<code class="language-plaintext highlighter-rouge">Shift + Shift</code>) and typing the name of the action. Or by pressing the
+keyboard shortcut to invoke that action. Or by clicking on a toolbar that has the action, or
+selecting a menu that is mapped to this action. All the actions that are exposed by your plugin are
+explicitly listed in this <code class="language-plaintext highlighter-rouge">plugin.xml</code> file.</p>
+      <h3 id="dynamic-plugins">
+        
+        
+          Dynamic plugins <a href="#dynamic-plugins">#</a>
+        
+        
+      </h3>
+    
+
+<p>All IDEA plugins need to be
+<a href="https://plugins.jetbrains.com/docs/intellij/dynamic-plugins.html">dynamic</a>. This means they can be
+unloaded and loaded on demand. So if the user uninstalls your plugin it should not require an IDE
+restart. Similarly if they install your plugin, or upgrade it, it should not require an IDE restart.
+For this reason you can think of your plugin as a set of actions, and a set of
+<a href="https://plugins.jetbrains.com/docs/intellij/plugin-services.html">services</a> that can be provided on
+demand. You can learn more about services in
+<a href="/2020/11/20/idea-plugin-example-intro/#services">Services</a>.</p>
+
+<p>There are tasks that your plugin might need to happen when a project is first opened that requires
+the use of this plugin. You can handle this by declaring the use of the
+<a href="https://plugins.jetbrains.com/intellij-platform-explorer/?extensions=com.intellij.backgroundPostStartupActivity"><code class="language-plaintext highlighter-rouge">backgroundPostStartupActivity</code></a>
+extension point. You may also have tasks that might need to happen when the IDE itself is started in
+which can you try using the
+<a href="https://github.com/gilday/dark-mode-sync-plugin/pull/24#discussion_r486033893"><code class="language-plaintext highlighter-rouge">AppLifecycleListener</code></a>.</p>
+      <h3 id="main-thread-performance-and-ui-freezes">
+        
+        
+          Main thread, performance, and UI freezes <a href="#main-thread-performance-and-ui-freezes">#</a>
+        
+        
+      </h3>
+    
+
+<p>So following is another reason dynamic plugins and the declarative nature of <code class="language-plaintext highlighter-rouge">plugin.xml</code> go hand in
+hand - performance. In order for IDEA itself to load quickly, plugins that are not needed by any
+open projects should not be loaded at startup. If the user opens a project, then only the plugins
+required by that project should be loaded without making the IDE unresponsive, or at least be
+delayed after the UI is responsive. A lot of code in IDEA runs in the UI (main) thread. This is
+unfortunate and unavoidable for a lot of reasons (which will become clear when you learn about
+<a href="https://plugins.jetbrains.com/docs/intellij/psi.html">PSI</a> and
+<a href="https://plugins.jetbrains.com/docs/intellij/files.html">VFS</a>; more about these in the <a href="/2021/03/13/ij-idea-plugin-advanced/">advanced
+tutorial</a>). In order to be a “good
+citizen” in the IDE container itself, your plugin will need to do things that are unintuitive just
+so that it
+<a href="https://plugins.jetbrains.com/docs/intellij/performance.html#avoiding-ui-freezes">does not freeze</a>
+the main thread, and make the IDE itself unresponsive to the user.</p>
+      <h3 id="extending-your-plugin-or-another-plugin">
+        
+        
+          Extending your plugin or another plugin <a href="#extending-your-plugin-or-another-plugin">#</a>
+        
+        
+      </h3>
+    
+
+<p>Even your plugin can be built in a way that it can be extended by other plugins! And your plugin can
+extend another plugin created by someone else. These are called <code class="language-plaintext highlighter-rouge">extension points</code> and <code class="language-plaintext highlighter-rouge">extensions</code>
+and you can learn about them in detail in <a href="/2020/11/20/idea-plugin-example-intro/#extensions-and-extension-points">Extensions and extension
+points</a>.</p>
+      <h3 id="references">
+        
+        
+          References <a href="#references">#</a>
+        
+        
+      </h3>
+    
+
+<p>Docs:</p>
+
+<ol>
+  <li><a href="/2020/11/20/idea-plugin-example-intro/">Introduction to creating IntelliJ IDEA
+plugins</a></li>
+  <li><a href="https://plugins.jetbrains.com/docs/intellij/welcome.html">Official JetBrains IntelliJ Platform SDK docs</a></li>
+  <li><a href="https://plugins.jetbrains.com/intellij-platform-explorer/">Official JetBrains IntelliJ Platform Explorer (extension point explorer)</a></li>
+</ol>
+
+<p>Code examples (GitHub repos):</p>
+
+<ol>
+  <li><a href="https://github.com/nazmulidris/idea-plugin-example">idea-plugin-example</a></li>
+  <li><a href="https://github.com/nazmulidris/idea-plugin-example2">idea-plugin-example2</a></li>
+  <li><a href="https://github.com/r3bl-org/shorty-idea-plugin">shorty-idea-plugin</a></li>
+  <li><a href="https://github.com/JetBrains/intellij-community">intellij-community</a></li>
+</ol>
+      <h2 id="plugin-architecture">
+        
+        
+          Plugin architecture <a href="#plugin-architecture">#</a>
+        
+        
+      </h2>
+    
+
+<p>An IDEA plugin really is an extension of the IDE that you are writing. Most of IDEA itself is
+constructed as a set of plugins that are layered on top of the base platform code.</p>
+
+<ul>
+  <li>Each plugin has a <code class="language-plaintext highlighter-rouge">plugin.xml</code> file which is a manifest that declares what is inside the plugin
+and how it hooks into IDEA itself. If you’re familiar w/ Android, this is similar to the
+<code class="language-plaintext highlighter-rouge">AndroidManifest.xml</code> file.</li>
+  <li>Each plugin gets its own classloader, and IDEA itself uses PicoContainer (more on this below) to
+perform dependency injection to handle loading classes via reflection.</li>
+  <li>In many situations in IDEA, classes are loaded via reflection, and there are even situations where
+classes loaded by a classloader are indexed and searched. Here’s a github repo for a really fast
+classpath scanner called <a href="https://github.com/classgraph/classgraph">classgraph</a> to give you an
+idea of how this might work.</li>
+</ul>
+      <h3 id="picocontainer">
+        
+        
+          PicoContainer <a href="#picocontainer">#</a>
+        
+        
+      </h3>
+    
+
+<p>IDEA uses <a href="http://picocontainer.com/introduction.html">PicoContainer</a> for dependency injection (DI).</p>
+
+<ul>
+  <li>PicoContainer is a very simple DI engine that supports both constructor and field injection
+injection and uses Java reflection. Even though it supports field injection, IDEA uses it
+primarily for constructor injection.</li>
+  <li><a href="https://github.com/avh4/picocontainer-example">Here’s a github repo</a> which contains some examples
+of how to use PicoContainer.</li>
+</ul>
+
+<p>When IDEA itself launches, it uses PicoContainer to manage loading all of its classes, interfaces,
+and objects. And this is extended to any plugin that you write (to extend IDEA itself). So you don’t
+really manage the lifecycle of your plugin, IDEA does. And it does it via PicoContainer components.</p>
+
+<p>When your plugin is loaded into IDEA, PicoContainer is used to instantiate the classes that your
+plugin provides to IDEA itself, and this is where things like project and application components can
+be injected into the constructors of your components (more on this below).</p>
+      <h3 id="pluginxml">
+        
+        
+          plugin.xml <a href="#pluginxml">#</a>
+        
+        
+      </h3>
+    
+
+<p>This is a really important file that really tells IDEA about what is inside of your component and
+how IDEA should deal with loading it, and having it interact w/ other 3rd party components, and IDEA
+itself. This is very similar to <code class="language-plaintext highlighter-rouge">AndroidManifest.xml</code> if you’re used to Android development.</p>
+
+<p>In this file you have to declare the <code class="language-plaintext highlighter-rouge">id</code> of your plugin. This is a really important piece of
+information as this will be used as a “namespace” for many of the things that are listed below.</p>
+
+<p>You also have to list all the components, services, and actions that your plugin provides to IDEA in
+this file.</p>
+
+<p>Here’s an example of a <code class="language-plaintext highlighter-rouge">plugin.xml</code> file.</p>
+
+<ul>
+  <li>It provides a custom extension point that allows some extensions (which are simple <code class="language-plaintext highlighter-rouge">Runnable</code>
+classes that are run at IDE startup).
+    <ul>
+      <li>The <code class="language-plaintext highlighter-rouge">extensionPoint</code> is called <code class="language-plaintext highlighter-rouge">configuratorRunnable</code>.</li>
+      <li>The <code class="language-plaintext highlighter-rouge">postStartupActivity</code> implemented by <code class="language-plaintext highlighter-rouge">extensionPoints.ConfiguratorComponent.kt</code> finds all
+its <code class="language-plaintext highlighter-rouge">extensions</code> (declared below) after the IDE finishes loading and does “something” with each
+of them.</li>
+      <li>Two <code class="language-plaintext highlighter-rouge">extensions</code> each of which implement the <code class="language-plaintext highlighter-rouge">configuratorRunnable</code> extension point (declared
+above) which is simply <code class="language-plaintext highlighter-rouge">Runnable</code>.</li>
+    </ul>
+  </li>
+  <li>A <code class="language-plaintext highlighter-rouge">PersistentStateComponent</code> called <code class="language-plaintext highlighter-rouge">services.LogService</code> is also declared which is a
+<code class="language-plaintext highlighter-rouge">applicationService</code>. Services are the preferred way of creating plugin functionality since they
+don’t all have to be created until actually needed.
+    <ul>
+      <li>Note that if you use
+<a href="https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_services.html#light-services">light services</a>
+then there’s no need to have this block in <code class="language-plaintext highlighter-rouge">plugin.xml</code>.</li>
+    </ul>
+  </li>
+  <li>It exposes a bunch of actions and specifies where these actions should appear.</li>
+  <li>It creates a menu group and adds some actions to it.</li>
+</ul>
+
+<p>More on all of this in the following sections.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;idea-plugin&gt;</span>
+  <span class="c">&lt;!-- Namespace of this plugin. Used in extensions and extension points. --&gt;</span>
+  <span class="nt">&lt;id&gt;</span>com.developerlife.example.idea-plugin-example<span class="nt">&lt;/id&gt;</span>
+  <span class="nt">&lt;name&gt;</span>developerlife example<span class="nt">&lt;/name&gt;</span>
+  <span class="nt">&lt;vendor</span> <span class="na">email=</span><span class="s">"support@developerlife.com"</span> <span class="na">url=</span><span class="s">"http://developerlife.com"</span><span class="nt">&gt;</span>
+    developerlife.com
+  <span class="nt">&lt;/vendor&gt;</span>
+
+  <span class="nt">&lt;description&gt;</span><span class="cp">&lt;![CDATA[
+    This sample plugin does the following things ...
+    ]]&gt;</span><span class="nt">&lt;/description&gt;</span>
+
+  <span class="c">&lt;!-- Add post startup activity to load extensions for our custom extension point. --&gt;</span>
+  <span class="nt">&lt;extensions</span> <span class="na">defaultExtensionNs=</span><span class="s">"com.intellij"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;postStartupActivity</span> <span class="na">implementation=</span><span class="s">"extensionPoints.ConfiguratorStartupActivity"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/extensions&gt;</span>
+
+  <span class="c">&lt;!-- Extension point for the application component above. --&gt;</span>
+  <span class="nt">&lt;extensionPoints&gt;</span>
+    <span class="nt">&lt;extensionPoint</span> <span class="na">name=</span><span class="s">"configuratorRunnable"</span>
+        <span class="na">interface=</span><span class="s">"java.lang.Runnable"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/extensionPoints&gt;</span>
+
+  <span class="c">&lt;!-- Extensions that run when the application component above is
+  initialized. --&gt;</span>
+  <span class="nt">&lt;extensions</span>
+      <span class="na">defaultExtensionNs=</span><span class="s">"com.developerlife.example.idea-plugin-example"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;configuratorRunnable</span> <span class="na">order=</span><span class="s">"first"</span>
+        <span class="na">implementation=</span><span class="s">"extensions.AnInitializer"</span>
+        <span class="na">id=</span><span class="s">"MyPlugin.extensions.AnInitializer"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;configuratorRunnable</span> <span class="na">order=</span><span class="s">"last"</span>
+        <span class="na">implementation=</span><span class="s">"extensions.AnotherInitializer"</span>
+        <span class="na">id=</span><span class="s">"MyPlugin.extensions.AnotherInitializer"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/extensions&gt;</span>
+
+  <span class="c">&lt;!-- Extension to publish the LogService. --&gt;</span>
+  <span class="nt">&lt;extensions</span> <span class="na">defaultExtensionNs=</span><span class="s">"com.intellij"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;applicationService</span> <span class="na">serviceImplementation=</span><span class="s">"services.LogService"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/extensions&gt;</span>
+
+  <span class="c">&lt;!-- Add SearchOnStackOverflowAction to both the EditorPopupMenu and
+  ConsoleEditorPopupMenu --&gt;</span>
+  <span class="nt">&lt;actions&gt;</span>
+    <span class="nt">&lt;action</span> <span class="na">id=</span><span class="s">"MyPlugin.Editor.actions.SearchOnStackOverflowAction"</span>
+        <span class="na">class=</span><span class="s">"actions.SearchOnStackOverflowAction"</span>
+        <span class="na">text=</span><span class="s">"Search on Stack Overflow"</span>
+        <span class="na">description=</span><span class="s">"Search selected text on Stack Overflow"</span>
+        <span class="na">icon=</span><span class="s">"/icons/ic_stackoverflow.svg"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;add-to-group</span> <span class="na">group-id=</span><span class="s">"EditorPopupMenu"</span> <span class="na">anchor=</span><span class="s">"last"</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;add-to-group</span> <span class="na">group-id=</span><span class="s">"ConsoleEditorPopupMenu"</span> <span class="na">anchor=</span><span class="s">"last"</span> <span class="nt">/&gt;</span>
+    <span class="nt">&lt;/action&gt;</span>
+  <span class="nt">&lt;/actions&gt;</span>
+
+  <span class="c">&lt;!-- Create a new Greeting menu and add the following to it: HelloAction and
+  AskQuestionOnStackOverflowAction. --&gt;</span>
+  <span class="nt">&lt;actions&gt;</span>
+    <span class="c">&lt;!-- Create a new Greeting menu --&gt;</span>
+    <span class="nt">&lt;group</span> <span class="na">id=</span><span class="s">"MyPlugin.SampleMenu"</span> <span class="na">text=</span><span class="s">"Greeting"</span> <span class="na">description=</span><span class="s">"Greeting menu"</span><span class="nt">&gt;</span>
+      <span class="nt">&lt;add-to-group</span> <span class="na">group-id=</span><span class="s">"MainMenu"</span> <span class="na">anchor=</span><span class="s">"last"</span> <span class="nt">/&gt;</span>
+
+      <span class="c">&lt;!-- Add HelloAction to the Greeting menu --&gt;</span>
+      <span class="nt">&lt;action</span> <span class="na">id=</span><span class="s">"MyPlugin.actions.HelloAction"</span> <span class="na">class=</span><span class="s">"actions.HelloAction"</span>
+          <span class="na">text=</span><span class="s">"Hello"</span> <span class="na">description=</span><span class="s">"Says hello"</span>
+          <span class="na">icon=</span><span class="s">"/icons/ic_check_circle.svg"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;add-to-group</span> <span class="na">group-id=</span><span class="s">"MainMenu"</span> <span class="na">anchor=</span><span class="s">"first"</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/action&gt;</span>
+
+      <span class="c">&lt;!-- Add AskQuestionOnStackOverflowAction to the Greeting menu --&gt;</span>
+      <span class="nt">&lt;action</span> <span class="na">id=</span><span class="s">"MyPlugin.actions.AskQuestionOnStackOverflowAction"</span>
+          <span class="na">class=</span><span class="s">"actions.AskQuestionOnStackOverflowAction"</span> <span class="na">text=</span><span class="s">"Ask Question"</span>
+          <span class="na">description=</span><span class="s">"Opens a browser"</span> <span class="na">icon=</span><span class="s">"/icons/ic_stackoverflow.svg"</span><span class="nt">&gt;</span>
+        <span class="nt">&lt;add-to-group</span> <span class="na">group-id=</span><span class="s">"MainMenu"</span> <span class="na">anchor=</span><span class="s">"last"</span> <span class="nt">/&gt;</span>
+      <span class="nt">&lt;/action&gt;</span>
+    <span class="nt">&lt;/group&gt;</span>
+  <span class="nt">&lt;/actions&gt;</span>
+<span class="nt">&lt;/idea-plugin&gt;</span>
+</code></pre></div></div>
+      <h3 id="migrating-from-components-to-dynamic-plugins-2020-07-17">
+        
+        
+          Migrating from Components to Dynamic Plugins (2020-07-17) <a href="#migrating-from-components-to-dynamic-plugins-2020-07-17">#</a>
+        
+        
+      </h3>
+    
+
+<p>Components are now deprecated, so just use services instead. To migrate your plugin to be Dynamic,
+use the following links to determine how to make the switch. Dynamic Plugins allow IDEA to
+load/unload/reload your plugin w/out restarting IDEA and it makes IDEA much faster to startup, and
+more memory and CPU efficient as well (when done correctly).</p>
+
+<ul>
+  <li><a href="https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_extension_points.html?search=extension">Plugin extension points</a></li>
+  <li><a href="https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/dynamic_plugins.html">Dynamic plugins</a></li>
+  <li><a href="https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_components.html">Migrate components to services</a></li>
+  <li><a href="https://jetbrains.org/intellij/sdk/docs/basics/disposers.html#choosing-a-disposable-parent">Dynamic plugins and choosing a parent disposable</a></li>
+  <li><a href="https://www.plugin-dev.com/intellij/general/plugin-initial-load/">Initialize plugin on startup</a></li>
+</ul>
+
+<p>In this plugin, here are
+<a href="https://github.com/nazmulidris/idea-plugin-example/commit/73756ffbef3159928f90f9289b54613bebac2ce3">the changes</a>
+that are related to making it dynamic.</p>
+
+<ol>
+  <li>The component (<code class="language-plaintext highlighter-rouge">ConfiguratorComponent.kt</code>) that runs the Runnables when the plugin loads after
+the IDE starts, was replaced w/ a <code class="language-plaintext highlighter-rouge">postStartupActivity</code> called <code class="language-plaintext highlighter-rouge">ConfiguratorStartupActivity.kt</code>
+that actually does what the old component did. The extensions for our custom extension point are
+instantiated and run here. This is essentially all that the old component actually did. The entry
+for the component in <code class="language-plaintext highlighter-rouge">plugin.xml</code> was removed and the <code class="language-plaintext highlighter-rouge">postStartupActivity</code> entry was added.</li>
+  <li>The custom extension point is actually marked as
+<a href="https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_extension_points.html?search=extension#dynamic-extension-points">dynamic</a>.</li>
+  <li>The service (<code class="language-plaintext highlighter-rouge">LogService.kt</code>) is marked w/ an annotation <code class="language-plaintext highlighter-rouge">@Service</code> making it a
+<a href="https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_services.html#light-services">light service</a>.
+This does not require any <code class="language-plaintext highlighter-rouge">plugin.xml</code> entry, which was removed.</li>
+</ol>
+      <h3 id="components-deprecated">
+        
+        
+          Components (deprecated) <a href="#components-deprecated">#</a>
+        
+        
+      </h3>
+    
+
+<p>Components are classes that are loaded by IDEA when it starts. You have to careful about creating
+too many components in your plugin, since they are created at IDEA startup and if they take a long
+time to execute, they will delay the launch of the IDE.</p>
+
+<p>Also, the code in components is executed on the main thread. JetBrains recommends that services
+should be used instead of components wherever possible, since these are loaded lazily, and are
+better for IDE performance.</p>
+
+<p>There are 3 kinds of components, a) application components, b) project components, and c) module
+components. Here are
+<a href="https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_components.html">the official docs</a>.
+This a <a href="https://confluence.jetbrains.com/pages/viewpage.action?pageId=61215573">link to older docs</a>
+from JetBrains which are a really good reference as well.</p>
+
+<p><strong>Application Components</strong> - These are created and initialized when the IDE starts up.</p>
+
+<ol>
+  <li>You can either declare a constructor in your class which accepts an <code class="language-plaintext highlighter-rouge">Application</code> object, eg:
+<code class="language-plaintext highlighter-rouge">class ConfiguratorComponent(val application : Application ) {}</code>. PicoContainer injects the
+application object into your constructor.</li>
+  <li>Or call the static method <code class="language-plaintext highlighter-rouge">ApplicationManager.getInstance().getComponent(YourComponent.class )</code>.
+Where <code class="language-plaintext highlighter-rouge">YourComponent.class</code> is your component class.</li>
+  <li>
+    <p>You also have to register the component class (eg: <code class="language-plaintext highlighter-rouge">YourComponent.class</code>) with <code class="language-plaintext highlighter-rouge">plugin.xml</code>.</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- Add application component. --&gt;</span>
+<span class="nt">&lt;application-components&gt;</span>
+<span class="nt">&lt;component&gt;</span>
+  <span class="nt">&lt;implementation-class&gt;</span>YourComponent<span class="nt">&lt;/implementation-class&gt;</span>
+<span class="nt">&lt;/component&gt;</span>
+<span class="nt">&lt;/application-components&gt;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>Here’s an example on github for this tutorial
+<a href="https://github.com/nazmulidris/idea-plugin-example">idea-plugin-example </a>.</li>
+</ol>
+
+<p><strong>Project Components</strong> - These are created for each project instance in the IDE.</p>
+
+<ol>
+  <li>You have to implement the <code class="language-plaintext highlighter-rouge">ProjectComponent</code> interface.</li>
+  <li>You can use constructor injection, that accepts a <code class="language-plaintext highlighter-rouge">Project</code> object.</li>
+  <li>
+    <p>You have to register the component class with <code class="language-plaintext highlighter-rouge">plugin.xml</code>.</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;project-components&gt;</span>
+  <span class="nt">&lt;component&gt;</span>
+    <span class="nt">&lt;implementation-class&gt;</span>YourProjectComponent<span class="nt">&lt;/implementation-class&gt;</span>
+  <span class="nt">&lt;/component&gt;</span>
+<span class="nt">&lt;/project-components&gt;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>You can get a list of all the open projects by using
+<code class="language-plaintext highlighter-rouge">ProjectManager.getInstance().getOpenProjects()</code>.</li>
+  <li>Here’s an example project on github called
+<a href="https://github.com/JetBrains/intellij-sdk-docs/tree/master/code_samples/max_opened_projects">max_opened_projects</a>.</li>
+</ol>
+
+<p><strong>Module Components</strong> - These are created for each module inside of every project in the IDE.</p>
+
+<ol>
+  <li>You have to implement the <code class="language-plaintext highlighter-rouge">ModuleComponent</code> interface.</li>
+  <li>The constructor of a module-level component can have a parameter of the <code class="language-plaintext highlighter-rouge">Module</code> type, if it
+needs the module instance (this will be injected by PicoContainer). It can also specify other
+application-level, project-level or module-level components as parameters, if it needs them
+(these will also be injected).</li>
+  <li>
+    <p>You have to register the component class with <code class="language-plaintext highlighter-rouge">plugin.xml</code>.</p>
+
+    <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">&lt;!-- Plugin's module components --&gt;</span>
+<span class="nt">&lt;module-components&gt;</span>
+  <span class="nt">&lt;component&gt;</span>
+    <span class="nt">&lt;interface-class&gt;</span>YourModuleComponent<span class="nt">&lt;/interface-class&gt;</span>
+  <span class="nt">&lt;/component&gt;</span>
+<span class="nt">&lt;/module-components&gt;</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+      <h3 id="extensions-and-extension-points">
+        
+        
+          Extensions and extension points <a href="#extensions-and-extension-points">#</a>
+        
+        
+      </h3>
+    
+
+<p>An IDEA extension is a way for a plugin to extend what IDEA can do. For eg, IDEA doesn’t know how to
+work w/ Bash files. You can install a plugin that gives IDEA syntax highlighting for Bash. This
+plugin provides this capability of turning a Bash filed loaded in the editor, into PSI via an
+extension that this plugin provides, which binds to an extension point that is provided by IDEA.</p>
+
+<p>IDEA itself is a set of plugins, and many parts of IDEA define extension points, that can be
+implemented by extensions that are provided by various plugins. In fact, there are some scenarios
+where multiple extensions are provided as an implementation of a single extension point. The IDE
+itself doesn’t know what extensions are available or even extension points, until it loads itself
+and all the bundled plugins and 3rd party plugins that are installed.</p>
+
+<p>There are many important extension points that are exposed by IDEA itself that are listed here:</p>
+
+<ul>
+  <li><a href="https://tinyurl.com/yxa99b2s">LangExtensionPoints.xml</a></li>
+  <li><a href="https://tinyurl.com/y5dlgw59">PlatformExtensionPoints.xml</a></li>
+  <li><a href="https://tinyurl.com/y4bd8ezy">VcsExtensionPoints.xml</a></li>
+</ul>
+
+<p>Here are the <a href="https://tinyurl.com/y6a4xafo">official docs</a> on extension and extension points.</p>
+
+<p>IDEA services are themselves implemented via this extension mechanism (more on that in the section
+below). There is a very consistent convention / idiom exposed by extension points and extensions.</p>
+
+<ol>
+  <li>The extension point defines an interface that an extension must implement. The <em>name</em> attribute
+of the extension point becomes the XML <em>element/tag name</em> of the extension itself.</li>
+  <li>Any attributes that are passed in to the extension are declared by the extension point as things
+it requires to be instantiated. For any extension point that you create, there are 2 attributes
+to consider: <code class="language-plaintext highlighter-rouge">interface</code> attribute is declared in the extension point, and the <code class="language-plaintext highlighter-rouge">implementation</code>
+attribute, which is used by each of the extensions that may be declared. Examples of these
+attributes for services (eg: <code class="language-plaintext highlighter-rouge">applicationService</code>, <code class="language-plaintext highlighter-rouge">projectService</code>, or <code class="language-plaintext highlighter-rouge">moduleService</code>
+extension points) are <code class="language-plaintext highlighter-rouge">serviceInterface</code>, and <code class="language-plaintext highlighter-rouge">serviceImplementation</code>.</li>
+</ol>
+
+<p>Here’s an example of this convention for a plugin providing its own extension point.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;extensionPoints&gt;</span>
+  <span class="nt">&lt;extensionPoint</span> <span class="na">name=</span><span class="s">"MyExtensionPoint2"</span> <span class="na">interface=</span><span class="s">"MyPlugin.MyInterface"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/extensionPoints&gt;</span>
+
+<span class="nt">&lt;extensions</span> <span class="na">defaultExtensionNs=</span><span class="s">"MyPluginID"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;MyExtensionPoint2</span> <span class="na">implementation=</span><span class="s">"MyTestPackage.MyClassImpl"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;/MyExtensionPoint2&gt;</span>
+<span class="nt">&lt;/extensions&gt;</span>
+</code></pre></div></div>
+
+<p>Here’s an example of this convention for a plugin providing an extension to IDEA extension points:
+<code class="language-plaintext highlighter-rouge">appStarter</code> and <code class="language-plaintext highlighter-rouge">applicationConfigurable</code>.</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;extensions</span> <span class="na">defaultExtensionNs=</span><span class="s">"com.intellij"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;appStarter</span> <span class="na">implementation=</span><span class="s">"MyTestPackage.MyTestExtension1"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;applicationConfigurable</span> <span class="na">implementation=</span><span class="s">"MyTestPackage.MyTestExtension2"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/extensions&gt;</span>
+</code></pre></div></div>
+
+<p>There are 2 namespaces that you should be aware of. Here is an example of this in use:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;extensions</span> <span class="na">defaultExtensionNs=</span><span class="s">"com.intellij"</span><span class="nt">&gt;</span>...<span class="nt">&lt;/extensions&gt;</span>
+<span class="nt">&lt;extensions</span> <span class="na">defaultExtensionNs=</span><span class="s">"MyPluginID"</span><span class="nt">&gt;</span>...<span class="nt">&lt;/extensions&gt;</span>
+</code></pre></div></div>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">com.intellij</code> means that you want to extend IDEA extension points itself.</li>
+  <li><code class="language-plaintext highlighter-rouge">MyPluginID</code> (which is really any string that you use for your plugin id) means that this
+extension implements the extension point that your plugin itself is exposing (and not IDEA
+directly).</li>
+</ol>
+
+<p>So, how are these extensions and extensions points loaded by IDEA? It seems magic that you just
+declare them in <code class="language-plaintext highlighter-rouge">plugin.xml</code> and then they are automagically instantiated and hooked up in the right
+way to do all the right things.</p>
+
+<p>The answer is
+<a href="https://github.com/JetBrains/intellij-community/blob/master/platform/core-impl/src/com/intellij/ide/plugins/PluginManagerCore.java"><code class="language-plaintext highlighter-rouge">PluginManagerCore.java</code></a>.
+It searches the plugins directory for plugins, parses their <code class="language-plaintext highlighter-rouge">plugin.xml</code> files, and then uses
+reflection to instantiate the extensions listed there. And PicoContainer takes care of injecting the
+platform dependencies.</p>
+
+<p>Here’s an example of this in the extension point implementation that is provided in the git repo of
+this tutorial
+(<a href="https://github.com/nazmulidris/idea-plugin-example/blob/main/src/main/kotlin/extensionPoints/ConfiguratorComponent.kt"><code class="language-plaintext highlighter-rouge">extensionPoints/ConfiguratorComponent.kt</code></a>).</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">package</span> <span class="nn">extensionPoints</span>
+
+<span class="cm">/**
+ * Create an ExtensionPointName given the namespace of the plugin and the
+ * name of the extension point itself. Note that the namespace is "com
+ * .intellij" if IntelliJ Platform core functionality is extended, otherwise,
+ * it is the namespace of the plugin itself.
+ */</span>
+<span class="kd">object</span> <span class="nc">EP_NAME</span> <span class="p">{</span>
+  <span class="k">private</span> <span class="k">const</span> <span class="kd">val</span> <span class="py">nameSpace</span> <span class="p">=</span>
+      <span class="s">"com.developerlife.example.idea-plugin-example"</span>
+  <span class="k">private</span> <span class="k">const</span> <span class="kd">val</span> <span class="py">name</span> <span class="p">=</span> <span class="s">"configuratorRunnable"</span>
+  <span class="k">private</span> <span class="k">const</span> <span class="kd">val</span> <span class="py">fullyQualifiedName</span> <span class="p">=</span> <span class="s">"$nameSpace.$name"</span>
+  <span class="k">operator</span> <span class="k">fun</span> <span class="nf">invoke</span><span class="p">():</span> <span class="nc">ExtensionPointName</span><span class="p">&lt;</span><span class="nc">Runnable</span><span class="p">&gt;</span> <span class="p">=</span>
+      <span class="nc">ExtensionPointName</span><span class="p">.</span><span class="n">create</span><span class="p">&lt;</span><span class="nc">Runnable</span><span class="p">&gt;(</span><span class="n">fullyQualifiedName</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="cm">/**
+ * An ApplicationComponent that loads all the extensions that are registered to
+ * the extension point. Note that this class does not have to implement any
+ * IntelliJ platform interfaces.
+ */</span>
+<span class="kd">class</span> <span class="nc">ConfiguratorComponent</span><span class="p">(</span><span class="kd">val</span> <span class="py">application</span><span class="p">:</span> <span class="nc">Application</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nf">init</span> <span class="p">{</span>
+    <span class="nc">EP_NAME</span><span class="p">().</span><span class="n">extensionList</span><span class="p">.</span><span class="nf">forEach</span> <span class="p">{</span> <span class="n">it</span><span class="p">.</span><span class="nf">run</span><span class="p">()</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here are some examples of real plugins that use extensions and extension points. You can use these
+links to browse the source code for these plugins.</p>
+
+<ul>
+  <li><a href="https://tinyurl.com/y54c35kk">OpenInTerminal</a></li>
+  <li><a href="https://tinyurl.com/y6lj6c5w">DateTimeConverter</a></li>
+  <li><a href="https://tinyurl.com/y3qg48ok">max_opened_projects sample</a></li>
+  <li><a href="https://tinyurl.com/y295zx6t">Customizing IDEA settings dialog</a></li>
+  <li><a href="https://tinyurl.com/y5c4p4c7">How to create a Tool Window</a></li>
+</ul>
+      <h3 id="services">
+        
+        
+          Services <a href="#services">#</a>
+        
+        
+      </h3>
+    
+
+<p>JetBrains recommends using services instead of components, since they are created on demand, and
+don’t slow down startup, or allocate resources even though they aren’t being used.</p>
+
+<p>Services are classes that can be instantiated by IDEA when needed, and these objects/instances
+reused, so they are stateful. It’s a way to provide any arbitrary class and interface to anything
+required by a plugin, such as components, actions, etc.</p>
+
+<p>Services utilize IDEA extensions. And they are unlike components (which are pre-loaded when the IDE
+starts up).</p>
+
+<p>In order to create services, here are the IDEA extension points that can be used (to create
+services, which are the extensions):</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">applicationService</code> - this is equivalent to application component</li>
+  <li><code class="language-plaintext highlighter-rouge">projectService</code> - this is equivalent to project component</li>
+  <li><code class="language-plaintext highlighter-rouge">moduleService</code> - this is equivalent to module component</li>
+</ul>
+
+<p>Here’s an example:</p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;extensions</span> <span class="na">defaultExtensionNs=</span><span class="s">"com.intellij"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;applicationService</span>
+        <span class="na">serviceImplementation=</span><span class="s">"settings.OpenInTerminalSettings"</span><span class="nt">/&gt;</span>
+    <span class="nt">&lt;applicationConfigurable</span>
+        <span class="na">id=</span><span class="s">"OpenInTerminal.settings"</span>
+        <span class="na">instance=</span><span class="s">"settings.OpenInTerminalSettingsConfigurable"</span><span class="nt">/&gt;</span>
+<span class="nt">&lt;/extensions&gt;</span>
+</code></pre></div></div>
+
+<p>It’s a very common pattern to provide a static factory method called <code class="language-plaintext highlighter-rouge">getInstance()</code> to get an
+object for the given service class. Here’s an example that gets an instance of <code class="language-plaintext highlighter-rouge">YourService</code> class:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * This is used by IDEA to get a reference to the single instance of this
+ * service (used by [ServiceManager]).
+ */</span>
+<span class="kd">val</span> <span class="py">instance</span><span class="p">:</span> <span class="nc">LogService</span>
+  <span class="k">get</span><span class="p">()</span> <span class="p">=</span> <span class="nc">ServiceManager</span><span class="p">.</span><span class="nf">getService</span><span class="p">(</span><span class="nc">YourService</span><span class="o">::</span><span class="k">class</span><span class="p">.</span><span class="n">java</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Here is more information on this:</p>
+
+<ul>
+  <li><a href="https://tinyurl.com/y4n4l4wd">Docs (jetbrains.org)</a></li>
+  <li><a href="https://tinyurl.com/y54c35kk">Example (OpenInTerminal plugin)</a></li>
+  <li><a href="https://tinyurl.com/y3qg48ok">Example (max_open_projects sample plugin)</a></li>
+</ul>
+      <h2 id="persisting-state-between-ide-restarts">
+        
+        
+          Persisting state between IDE restarts <a href="#persisting-state-between-ide-restarts">#</a>
+        
+        
+      </h2>
+    
+
+<p>IDEA allows components and services to persist their state across IDE restarts. You can specify the
+storage location, or use the defaults. And you can specify the data that gets stored as well (public
+fields of the “state” class that you pick). Annotations are used to specify all these things
+(combination of <code class="language-plaintext highlighter-rouge">@State</code> and <code class="language-plaintext highlighter-rouge">@Storage</code>, look at the <a href="https://tinyurl.com/y5ofu6g5">details link</a>
+for more info).</p>
+
+<p>There are 2 ways (each saves/loads from a different location):</p>
+
+<ul>
+  <li>Preferred:
+    <ul>
+      <li>Simple: <code class="language-plaintext highlighter-rouge">PropertiesComponent</code> (saves to <code class="language-plaintext highlighter-rouge">workspace.xml</code>)</li>
+      <li>Complex: <code class="language-plaintext highlighter-rouge">@State</code>, <code class="language-plaintext highlighter-rouge">@Storage</code>, <code class="language-plaintext highlighter-rouge">PersistentStateComponent</code> interface</li>
+    </ul>
+  </li>
+  <li>Deprecated: <code class="language-plaintext highlighter-rouge">JDOMExternalizable</code> interface</li>
+</ul>
+
+<p>Settings are persisted across IDEA restarts:</p>
+
+<ul>
+  <li>Application components are in global IDEA configuration.</li>
+  <li>Project components are saved in project specific configuration.</li>
+  <li>Module components are saved in project specific configuration.</li>
+</ul>
+
+<p>More info on persisting state (and lifecycle):</p>
+
+<ul>
+  <li><a href="https://tinyurl.com/y5qh3obf">Overview</a>.</li>
+  <li><a href="https://tinyurl.com/y5ofu6g5">Details</a>.</li>
+</ul>
+      <h3 id="persistentstatecomponent-and-services">
+        
+        
+          PersistentStateComponent and Services <a href="#persistentstatecomponent-and-services">#</a>
+        
+        
+      </h3>
+    
+
+<p>It is a very common pattern to combine services and <code class="language-plaintext highlighter-rouge">PersistentStateComponent</code>. Zooming out from the
+implementation details, this is how you can use these types of services:</p>
+
+<ul>
+  <li>You can call <code class="language-plaintext highlighter-rouge">getInstance()</code> on the companion object, or singleton instance of a service class.
+And IDEA will already restore its state from persistence (XML file in
+<code class="language-plaintext highlighter-rouge">$IDEA_CONFIG_FOLDER/config/system/</code> folder).</li>
+  <li>You can use the instance and mutate its state.</li>
+  <li>IDEA will automatically save the mutated state to persistence (XML) files for you in the
+background.</li>
+</ul>
+
+<p>Here’s an
+<a href="https://github.com/nazmulidris/idea-plugin-example/blob/main/src/main/kotlin/services/LogService.kt">example</a>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@State</span><span class="p">(</span><span class="n">name</span> <span class="p">=</span> <span class="s">"LogServiceData"</span><span class="p">,</span> <span class="n">storages</span> <span class="p">=</span> <span class="p">[</span><span class="nc">Storage</span><span class="p">(</span><span class="s">"logServiceData.xml"</span><span class="p">)])</span>
+<span class="kd">object</span> <span class="nc">LogService</span> <span class="p">:</span> <span class="nc">PersistentStateComponent</span><span class="p">&lt;</span><span class="nc">LogService</span><span class="p">.</span><span class="nc">State</span><span class="p">&gt;</span> <span class="p">{</span>
+  <span class="cm">/**
+   * This is used by IDEA to get a reference to the single instance of this
+   * service (used by [ServiceManager]).
+   */</span>
+  <span class="kd">val</span> <span class="py">instance</span><span class="p">:</span> <span class="nc">LogService</span>
+    <span class="k">get</span><span class="p">()</span> <span class="p">=</span> <span class="nc">ServiceManager</span><span class="p">.</span><span class="nf">getService</span><span class="p">(</span><span class="nc">LogService</span><span class="o">::</span><span class="k">class</span><span class="p">.</span><span class="n">java</span><span class="p">)</span>
+
+  <span class="k">fun</span> <span class="nf">addMessage</span><span class="p">(</span><span class="n">message</span><span class="p">:</span> <span class="nc">String</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">with</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">messageList</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nf">add</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+      <span class="nf">add</span><span class="p">(</span><span class="s">"LogService: ${whichThread()}"</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">override</span> <span class="k">fun</span> <span class="nf">toString</span><span class="p">():</span> <span class="nc">String</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nf">with</span><span class="p">(</span><span class="n">state</span><span class="p">.</span><span class="n">messageList</span><span class="p">)</span> <span class="p">{</span>
+      <span class="s">"messageList.size=$size"</span> <span class="p">+</span> <span class="s">"\n${joinToString(separator = "</span><span class="err">\</span><span class="n">n</span><span class="s">")}"</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">private</span> <span class="kd">var</span> <span class="py">state</span> <span class="p">=</span> <span class="nc">State</span><span class="p">()</span>
+
+  <span class="kd">data class</span> <span class="nc">State</span><span class="p">(</span>
+      <span class="kd">var</span> <span class="py">messageList</span><span class="p">:</span> <span class="nc">MutableList</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;</span> <span class="p">=</span>
+          <span class="nc">CopyOnWriteArrayList</span><span class="p">()</span>
+  <span class="p">)</span>
+
+  <span class="cm">/**
+   * Called by IDEA to get the current state of this service, so that it can
+   * be saved to persistence.
+   */</span>
+  <span class="k">override</span> <span class="k">fun</span> <span class="nf">getState</span><span class="p">():</span> <span class="nc">State</span> <span class="p">{</span>
+    <span class="s">"IDEA called getState()"</span><span class="p">.</span><span class="nf">logWithoutHistory</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">state</span>
+  <span class="p">}</span>
+
+  <span class="cm">/**
+   * Called by IDEA when new component state is loaded. This state object should
+   * be used directly, defensive copying is not required.
+   */</span>
+  <span class="k">override</span> <span class="k">fun</span> <span class="nf">loadState</span><span class="p">(</span><span class="n">stateLoadedFromPersistence</span><span class="p">:</span> <span class="nc">State</span><span class="p">)</span> <span class="p">{</span>
+    <span class="s">"IDEA called loadState(stateLoadedFromPersistence)"</span><span class="p">.</span><span class="nf">logWithoutHistory</span><span class="p">()</span>
+    <span class="n">stateLoadedFromPersistence</span><span class="p">.</span><span class="n">messageList</span>
+        <span class="p">.</span><span class="nf">joinToString</span><span class="p">(</span><span class="n">separator</span> <span class="p">=</span> <span class="s">","</span><span class="p">,</span> <span class="n">prefix</span> <span class="p">=</span> <span class="s">"{"</span><span class="p">,</span> <span class="n">postfix</span> <span class="p">=</span> <span class="s">"}"</span><span class="p">)</span>
+        <span class="p">.</span><span class="nf">logWithoutHistory</span><span class="p">()</span>
+    <span class="n">state</span> <span class="p">=</span> <span class="n">stateLoadedFromPersistence</span>
+  <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Notes on <code class="language-plaintext highlighter-rouge">PersistentStateComponent</code> implementation.</p>
+
+<ul>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">loadState()</code> method is called by IDEA after the component has been created (only if there is
+some non-default state persisted for the component), and after the XML file with the persisted
+state is changed externally (for example, if the project file was updated from the version control
+system). In the latter case, the component is responsible for updating the UI and other related
+components according to the changed state.</p>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">getState()</code> method is called by IDEA every time the settings are saved (for example, on frame
+deactivation or when closing the IDE). If the state returned from <code class="language-plaintext highlighter-rouge">getState()</code> is equal to the
+default state (obtained by creating the state class with a default constructor), nothing is
+persisted in the XML. Otherwise, the returned state is serialized in XML and stored.</p>
+  </li>
+</ul>
+
+<p>In this example, you can use the following instructions to locate the XML files and log files that
+are generated.</p>
+
+<p>To find the IDEA log look at the <code class="language-plaintext highlighter-rouge">$PROJECT_DIR/build/idea-sandbox/system/log/idea.log</code> file. A
+simple command to do this (from the project directory) is:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>find <span class="nb">.</span> <span class="nt">-name</span> <span class="s2">"idea.log"</span> | xargs <span class="nb">tail</span> <span class="nt">-f</span> | <span class="nb">grep </span>MyPlugin
+</code></pre></div></div>
+
+<p>To find the <code class="language-plaintext highlighter-rouge">"logServiceData.xml"</code> take a look at the
+<code class="language-plaintext highlighter-rouge">$PROJECT_DIR/build/idea-sandbox/config/options/logServiceData.xml</code> file. A simple command to do
+this (from the project directory) is:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>find <span class="nb">.</span> <span class="nt">-name</span> <span class="s2">"logServiceData.xml"</span> | xargs subl <span class="nt">-n</span>
+</code></pre></div></div>
+      <h2 id="actions-1">
+        
+        
+          Actions <a href="#actions-1">#</a>
+        
+        
+      </h2>
+    
+
+<p>Actions are one of the simplest ways in which to extend IDE functionality. The official docs do a
+great job of going over the action system
+<a href="http://www.jetbrains.org/intellij/sdk/docs/basics/action_system.html">here</a>. I recommend reading
+that page before continuing with this tutorial (as I’m not going to repeat that material here).</p>
+
+<p>You can declare actions in XML and you can also register them in code. Some of the built in actions
+in IDEA itself are registered in code (eg: <code class="language-plaintext highlighter-rouge">Coverage</code> action, which is the “Run with Coverage” icon
+that shows up in the main toolbar, and main menu). In fact, all the executors are actually
+registered in code (and not declaratively in XML).</p>
+
+<p>Here are some examples of actions declared in XML and implemented in Kotlin from the sample plugin
+created for this tutorial.</p>
+
+<ul>
+  <li><a href="https://github.com/nazmulidris/idea-plugin-example/blob/main/src/main/resources/META-INF/plugin.xml"><code class="language-plaintext highlighter-rouge">plugin.xml</code></a>.</li>
+  <li><a href="https://github.com/nazmulidris/idea-plugin-example/tree/main/src/main/kotlin/actions"><code class="language-plaintext highlighter-rouge">Actions implemented in Kotlin</code></a>.</li>
+</ul>
+      <h2 id="intellij-platform-version-gradle-version-kotlin-version-gradle-intellij-plugin-intellij-plugin-verifier">
+        
+        
+          IntelliJ platform version, Gradle version, Kotlin version, gradle-intellij-plugin, intellij-plugin-verifier <a href="#intellij-platform-version-gradle-version-kotlin-version-gradle-intellij-plugin-intellij-plugin-verifier">#</a>
+        
+        
+      </h2>
+    
+
+<p>When creating your plugin, you have to make a decision about which IntelliJ products your plugin
+will support (the products inside of which your plugin will run once they’re installed). Keep in
+mind that these products are rapidly evolving and platform updates (for the IntelliJ platform that
+all the IDE products are based on) are released quite often, about 3 releases a year. Oftentimes
+breaking changes are released and this requires big architectural or structural changes in your
+plugin codebase.</p>
+      <h3 id="intellij-plugin-verifier">
+        
+        
+          intellij-plugin-verifier <a href="#intellij-plugin-verifier">#</a>
+        
+        
+      </h3>
+    
+
+<p>JetBrains have a plugin verifier
+<a href="https://github.com/JetBrains/intellij-plugin-verifier">intellij-plugin-verifier</a> that makes it easy
+for you to know if your plugin is compatible w/ your chosen IntelliJ platform version or build
+codes. Instead of running this manually against your plugin, the
+<a href="https://github.com/JetBrains/gradle-intellij-plugin#plugin-verifier-dsl">gradle-intellij-plugin</a>
+makes it easy to run this as a gradle task. Note that you are using this gradle plugin to build your
+plugin. Here’s a snippet in your <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> that you can add to configure this verification
+task.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// See https://github.com/JetBrains/gradle-intellij-plugin#plugin-verifier-dsl</span>
+<span class="c1">// See https://data.services.jetbrains.com/products?fields=code,name,releases.version,releases.build,releases.type&amp;code=IIC,IIU</span>
+<span class="nf">tasks</span> <span class="p">{</span>
+  <span class="nf">runPluginVerifier</span> <span class="p">{</span>
+    <span class="nf">ideVersions</span><span class="p">(</span><span class="n">listOf</span><span class="p">&lt;</span><span class="nc">String</span><span class="p">&gt;(</span><span class="s">"2020.1.4"</span><span class="p">,</span> <span class="s">"2020.2.3"</span><span class="p">,</span> <span class="s">"2020.3"</span><span class="p">))</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You can run this task from IDEA, or from the command line using <code class="language-plaintext highlighter-rouge">./gradlew runPluginVerifier</code> to
+ensure that this the intellij-plugin-verifier runs. It points out any deprecations or any other
+mistakes that need to be corrected before publishing this plugin. Also, make sure to choose which
+IDEA versions you would like the plugin to be verified against in the <code class="language-plaintext highlighter-rouge">ideVersions</code> function. More
+on this <a href="#notes-on-the-build-or-version-codes">below</a>.</p>
+
+<p>You can learn more about this DSL
+<a href="https://github.com/JetBrains/gradle-intellij-plugin#plugin-verifier-dsl">here</a>. There’s a detailed
+report that is generated in <code class="language-plaintext highlighter-rouge">${project.buildDir}/reports/pluginVerifier</code> for each <code class="language-plaintext highlighter-rouge">ideVersion</code> that
+this plugin is tested against. Here’s an example of the output this task produces on the command
+line.</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Starting the IntelliJ Plugin Verifier 1.253
+2020-11-21T13:25:17 [main] INFO  c.j.p.options.OptionsParser - Delete the verification directory /home/nazmul/github/idea-plugin-example/build/reports/pluginVerifier because it isn't empty
+Verification reports directory: /home/nazmul/github/idea-plugin-example/build/reports/pluginVerifier
+2020-11-21T13:25:17 [main] INFO  verification - Reading IDE /home/nazmul/.pluginVerifier/ides/IC-2020.1.4
+2020-11-21T13:25:19 [main] INFO  verification - Reading IDE /home/nazmul/.pluginVerifier/ides/IC-2020.2.3
+2020-11-21T13:25:21 [main] INFO  verification - Reading IDE /home/nazmul/.pluginVerifier/ides/IC-2020.3
+2020-11-21T13:25:22 [main] INFO  verification - Reading plugin to check from /home/nazmul/github/idea-plugin-example/build/distributions/idea-plugin-example-1.0.zip
+2020-11-21T13:25:33 [main] INFO  verification - Task check-plugin parameters:
+Scheduled verifications (3):
+com.developerlife.example.idea-plugin-example:1.0 against IC-201.8743.12, com.developerlife.example.idea-plugin-example:1.0 against IC-202.7660.26, com.developerlife.example.idea-plugin-example:1.0 against IC-203.5981.41
+
+2020-11-21T13:25:34 [main] INFO  verification - Finished 1 of 3 verifications (in 0.6 s): IC-201.8743.12 against com.developerlife.example.idea-plugin-example:1.0: Compatible
+2020-11-21T13:25:34 [main] INFO  verification - Finished 2 of 3 verifications (in 0.6 s): IC-202.7660.26 against com.developerlife.example.idea-plugin-example:1.0: Compatible. 3 usages of internal API
+2020-11-21T13:25:34 [main] INFO  verification - Finished 3 of 3 verifications (in 0.6 s): IC-203.5981.41 against com.developerlife.example.idea-plugin-example:1.0: Compatible. 3 usages of deprecated API. 3 usages of internal API
+Plugin com.developerlife.example.idea-plugin-example:1.0 against IC-201.8743.12: Compatible
+    Plugin can be loaded/unloaded without IDE restart
+
+Plugin com.developerlife.example.idea-plugin-example:1.0 against IC-202.7660.26: Compatible. 3 usages of internal API
+Internal API usages (3):
+    #Internal method com.intellij.ide.plugins.PluginManager.getLogger() invocation
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.logWithHistory(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.log(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.logWithoutHistory(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+    Plugin can be loaded/unloaded without IDE restart
+
+Plugin com.developerlife.example.idea-plugin-example:1.0 against IC-203.5981.41: Compatible. 3 usages of deprecated API. 3 usages of internal API
+Deprecated API usages (3):
+    #Deprecated method com.intellij.openapi.util.IconLoader.getIcon(String) invocation
+        Deprecated method com.intellij.openapi.util.IconLoader.getIcon(java.lang.String path) : javax.swing.Icon is invoked in actions.PluginIcons.DefaultImpls.getHELLO_ACTION(PluginIcons) : Icon
+        Deprecated method com.intellij.openapi.util.IconLoader.getIcon(java.lang.String path) : javax.swing.Icon is invoked in actions.PluginIcons.DefaultImpls.getSTACKOVERFLOW_ACTION(PluginIcons) : Icon
+    #Deprecated constructor com.intellij.notification.NotificationGroup.&lt;init&gt;(String, NotificationDisplayType, boolean, String, Icon, int, DefaultConstructorMarker) invocation
+        Deprecated constructor com.intellij.notification.NotificationGroup.&lt;init&gt;(java.lang.String arg0, com.intellij.notification.NotificationDisplayType arg1, boolean arg2, java.lang.String arg3, javax.swing.Icon arg4, int arg5, kotlin.jvm.internal.DefaultConstructorMarker arg6) is invoked in ui.ShowNotificationSampleAction.anotherNotification(AnActionEvent) : void
+Internal API usages (3):
+    #Internal method com.intellij.ide.plugins.PluginManager.getLogger() invocation
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.logWithHistory(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.log(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+        Internal method com.intellij.ide.plugins.PluginManager.getLogger() : com.intellij.openapi.diagnostic.Logger is invoked in UtilsKt.logWithoutHistory(String) : void. This method is marked with @org.jetbrains.annotations.ApiStatus.Internal annotation and indicates that the method is not supposed to be used in client code.
+    Plugin can be loaded/unloaded without IDE restart
+
+2020-11-21T13:25:34 [main] INFO  verification - Total time spent downloading plugins and their dependencies: 0 ms
+2020-11-21T13:25:34 [main] INFO  verification - Total amount of plugins and dependencies downloaded: 0 B
+2020-11-21T13:25:34 [main] INFO  verification - Total amount of space used for plugins and dependencies: 0 B
+</code></pre></div></div>
+      <h4 id="notes-on-the-build-or-version-codes">
+        
+        
+          Notes on the build or version codes <a href="#notes-on-the-build-or-version-codes">#</a>
+        
+        
+      </h4>
+    
+
+<p>The gradle task shown above requires a <code class="language-plaintext highlighter-rouge">ideVersions</code> array to be passed in. This array contains the
+build or version codes for IDEA releases or EAPs that we want our plugin to be tested against. Where
+do we find these codes that are required? The following link has a list of build and version codes
+for <code class="language-plaintext highlighter-rouge">IIC - IntelliJ IDEA Community Edition</code>, and <code class="language-plaintext highlighter-rouge">IIU - IntelliJ IDEA Ultimate Edition</code>. You can
+modify the URL to get other product codes that you need to include. To view this link in Chrome,
+please use an extension like <a href="https://github.com/callumlocke/json-formatter">JSON Formatter</a> since
+there the JSON blob returned by this URL is quite big.</p>
+
+<ul>
+  <li><a href="https://data.services.jetbrains.com/products?fields=code,name,releases.downloads,releases.version,releases.build,releases.type&amp;code=IIC,IIU">IIC, IIU release version, build, download</a></li>
+</ul>
+
+<p>Once you have decided which versions of IDEA that you want this plugin to be verified against, make
+sure that you have declared this plugin to be compatible w/ these IDE build ranges in the following
+two places:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">build.gradle</code> - <code class="language-plaintext highlighter-rouge">intellij { version { "&lt;version-or-build-code&gt;" } }</code></li>
+  <li><code class="language-plaintext highlighter-rouge">plugin.xml</code> -
+<code class="language-plaintext highlighter-rouge">&lt;idea-version since-build="&lt;version-or-build-code&gt;" until-build="&lt;version-or-build-code" /&gt;</code>
+    <ul>
+      <li>Note that you can use wildcards here, eg: <code class="language-plaintext highlighter-rouge">2020.*</code> for the <code class="language-plaintext highlighter-rouge">&lt;version-or-build-code&gt;</code></li>
+    </ul>
+  </li>
+</ol>
+      <h3 id="using-the-latest-version-of-gradle-and-gradle-intellij-plugin">
+        
+        
+          Using the latest version of Gradle and gradle-intellij-plugin <a href="#using-the-latest-version-of-gradle-and-gradle-intellij-plugin">#</a>
+        
+        
+      </h3>
+    
+
+<p>On a somewhat related note, you might have to upgrade your existing plugin to use the latest Gradle
+and gradle-intellij-plugin. You might also have to upgrade the version of Kotlin you support. Most
+of these changes can be made in the <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> file. However, upgrading Gradle itself has to
+be done from the command line.</p>
+
+<p>Here’s more information on staying up to date w/ the latest version of
+<a href="https://github.com/JetBrains/gradle-intellij-plugin">gradle-intellij-plugin</a>. This requires changes
+to be made to the <code class="language-plaintext highlighter-rouge">plugin</code> section of <code class="language-plaintext highlighter-rouge">build.gradle</code> w/
+<code class="language-plaintext highlighter-rouge">id "org.jetbrains.intellij" version "&lt;latest-version-here&gt;"</code></p>
+
+<p>Here’s more information on staying up to date w/ the latest version of the
+<a href="https://docs.gradle.org/current/userguide/userguide.html">Gradle wrapper</a> that is required. You can
+run the following command upgrade the Gradle wrapper
+<code class="language-plaintext highlighter-rouge">./gradlew wrapper --gradle-version &lt;latest-version-here&gt;</code>, where <code class="language-plaintext highlighter-rouge">&lt;latest-version-here&gt;</code> is the
+latest version of Gradle, eg: <code class="language-plaintext highlighter-rouge">6.7</code>.</p>
+
+<p>To update to the latest version of Kotlin, in <code class="language-plaintext highlighter-rouge">build.gradle.kts</code>, you have to update
+<code class="language-plaintext highlighter-rouge">plugins { kotlin("jvm") version "&lt;new-version&gt;" }</code> where <code class="language-plaintext highlighter-rouge">&lt;new-version&gt;</code> is the latest version of
+Kotlin, eg: <code class="language-plaintext highlighter-rouge">1.4.10</code>.</p>
+      <h3 id="in-buildgradlekts-which-intellij-version-should-we-use">
+        
+        
+          In build.gradle.kts which intellij version should we use? <a href="#in-buildgradlekts-which-intellij-version-should-we-use">#</a>
+        
+        
+      </h3>
+    
+
+<p>Using <code class="language-plaintext highlighter-rouge">version 'LATEST-EAP-SNAPSHOT</code> can be very unstable, and cause gradle tasks to fail in strange
+ways, and cause other issues w/ the gradle plugins (IntelliJ, Kotlin, etc). Instead it is best to
+pick a specific stable version from <a href="https://www.jetbrains.com/intellij-repository/releases/">here</a>.</p>
+
+<p>You can get a list of EAP snapshots from
+<a href="https://www.jetbrains.com/intellij-repository/snapshots/">here</a> but these are also most likely
+unstable. For our plugin, it is a little bit more complex, since it has a dependency on “java” and
+“markdown” plugins. The workflow to update to the latest version of IDEA and Markdown plugin goes
+something like this:</p>
+
+<ol>
+  <li>Find the latest Markdown plugin release from
+<a href="https://plugins.jetbrains.com/plugin/7793-markdown/versions">here</a>, and insert it below
+(replacing whatever version is there now). The webpage will also tell you which version of IDEA
+this is compatible w/.</li>
+  <li>Find the IDEA snapshot that is compatible w/ the Markdown plugin above (which probably won’t be
+the latest EAP snapshot). Replace the <code class="language-plaintext highlighter-rouge">intellij.version</code> in <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> w/ this supported
+snapshot.</li>
+</ol>
+
+<p>You can read more about this on the
+<a href="https://www.jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_dependencies.html">JB official docs plugin dependencies</a>.</p>
+      <h2 id="declaring-dependencies-on-other-plugins">
+        
+        
+          Declaring dependencies on other plugins <a href="#declaring-dependencies-on-other-plugins">#</a>
+        
+        
+      </h2>
+    
+
+<p>It is common for some plugins to have dependencies on portions of the IntelliJ Platform that are
+themselves built and distributed as plugins, some of which can be bundled w/ the IDE itself. In the
+example used in for this tutorial there are dependencies declared on a few of these plugins: <code class="language-plaintext highlighter-rouge">java</code>,
+<code class="language-plaintext highlighter-rouge">markdown</code>, and <code class="language-plaintext highlighter-rouge">platform</code>.</p>
+
+<p>Since the example does PSI manipulation, the <code class="language-plaintext highlighter-rouge">markdown</code> and <code class="language-plaintext highlighter-rouge">java</code> plugins are needed. And the
+<code class="language-plaintext highlighter-rouge">platform</code> modules is needed for the following: Messaging, UI Themes, UI Components, Files,
+Documents, Actions, Components, Services, Extensions, Editors. You can read more about this in the
+<a href="https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html">IntelliJ Platform SDK DevGuide</a>.</p>
+
+<p>The confusing thing about these dependencies is that they have to be declared in 2 places. Let’s
+take a look at the <code class="language-plaintext highlighter-rouge">markdown</code> plugin dependency. Here are the places where you have to declare this.</p>
+
+<ol>
+  <li>In <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> - You have to specify the dependency in
+<code class="language-plaintext highlighter-rouge">intellij { setPlugin("markdown", ...) }</code>.</li>
+  <li>In <code class="language-plaintext highlighter-rouge">plugin.xml</code> - You have to specify the dependency in
+<code class="language-plaintext highlighter-rouge">&lt;depends&gt;org.intellij.plugins.markdown&lt;/depends&gt;</code>.</li>
+</ol>
+
+<p>Similarly for the <code class="language-plaintext highlighter-rouge">java</code> dependency, you have to declare this in 2 places.</p>
+
+<ol>
+  <li>In <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> - You have to specify the dependency in
+<code class="language-plaintext highlighter-rouge">intellij { setPlugin("java", ...) }</code>.</li>
+  <li>In <code class="language-plaintext highlighter-rouge">plugin.xml</code> - You have to specify the dependency in
+<code class="language-plaintext highlighter-rouge">&lt;depends&gt;com.intellij.modules.java&lt;/depends&gt;</code>.</li>
+</ol>
+
+<p>And finally, for the <code class="language-plaintext highlighter-rouge">platform</code> you only have to specify this in <code class="language-plaintext highlighter-rouge">plugin.xml</code>. Hoever, you don’t
+have to specify this in <code class="language-plaintext highlighter-rouge">build.gradle.kts</code>, since the code for these plugins are already included in
+the version of the platform that you choose in
+<code class="language-plaintext highlighter-rouge">intellij { version = "&lt;idea-build-code-or-version-here&gt; }</code>.</p>
+
+<ol>
+  <li>In <code class="language-plaintext highlighter-rouge">plugin.xml</code> - You have to specify the dependency in
+<code class="language-plaintext highlighter-rouge">&lt;depends&gt;com.intellij.modules.platform&lt;/depends&gt;</code>.</li>
+</ol>
+      <h2 id="misc">
+        
+        
+          Misc <a href="#misc">#</a>
+        
+        
+      </h2>
+    
+      <h3 id="analyze-startup-performance">
+        
+        
+          Analyze startup performance <a href="#analyze-startup-performance">#</a>
+        
+        
+      </h3>
+    
+
+<p>IDEA has an action called “Analyze Plugin Startup Performance”. It is hidden away in the main menu
+“Help -&gt; Diagnostic Tools -&gt; Analyze Plugin Startup Performance”. This gem of an action will show
+you how much time your plugin is taking, and all the other plugins that you have loaded are taking,
+at startup. For those other plugins, it provides a useful feature to disable them from this dialog.</p>
+
+<p>IDEA has yet another hidden gem to analyze the startup performance of an IDE instance. Visit
+<a href="https://ij-perf.jetbrains.com/#/report">ij-perf.jetbrains.com/#/report</a> and it will give you the
+ability to connect to an IDE instance running on your machine, or you can upload the logs to get the
+startup performance report.</p>
+      <h3 id="how-to-use-project-specific-jdks">
+        
+        
+          How to use project specific JDKs <a href="#how-to-use-project-specific-jdks">#</a>
+        
+        
+      </h3>
+    
+
+<p>If for some reason you use an embedded JDK in the plugin project that you are working on, then it
+can become cumbersome to have to manually change the JDK table settings in IDEA on every single
+machine that you have cloned this project on.</p>
+
+<p>There is a plugin called
+<a href="https://plugins.jetbrains.com/plugin/10480-embeddedprojectjdk">EmbeddedProjectJdk plugin</a> that
+enables per project JDK settings (that are not loaded from your IDEA user settings).
+<a href="https://www.jetbrains.com/help/idea/tuning-the-ide.html#default-dirs">This doc contains information of where IDEA stores its configuration files</a>.</p>
+
+<p>This plugin allows you to put the <code class="language-plaintext highlighter-rouge">jdk.table.xml</code> file (stored in
+<code class="language-plaintext highlighter-rouge">$IDEA_SETTINGS/config/options/jdk.table.xml</code> in
+<a href="https://intellij-support.jetbrains.com/hc/en-us/articles/206544519-Directories-used-by-the-IDE-to-store-settings-caches-plugins-and-logs">IDEA settings directory</a>),
+into the project folder and commit to your VCS. If the JDK defined in the per project
+<code class="language-plaintext highlighter-rouge">$PROJECT_DIR/.idea/jdk.table.xml</code> is not found or invalid, then the plugin will it automatically.
+You can also define OS-dependent <code class="language-plaintext highlighter-rouge">$PROJECT_DIR/.idea/jdk.table.*.xml</code> files like so:</p>
+
+<ul>
+  <li>Windows: <code class="language-plaintext highlighter-rouge">jdk.table.win.xml</code></li>
+  <li>Linux: <code class="language-plaintext highlighter-rouge">jdk.table.lin.xml</code></li>
+  <li>MacOS: <code class="language-plaintext highlighter-rouge">jdk.table.mac.xml</code></li>
+</ul>
+      <h3 id="using-resourcebundles-for-localization">
+        
+        
+          Using ResourceBundles for localization <a href="#using-resourcebundles-for-localization">#</a>
+        
+        
+      </h3>
+    
+
+<p>In order to use localized strings for use in your plugin, you can use an imperative or declarative
+approach.</p>
+      <h4 id="imperative-approach">
+        
+        
+          Imperative approach <a href="#imperative-approach">#</a>
+        
+        
+      </h4>
+    
+
+<p>For the imperative approach, create a <code class="language-plaintext highlighter-rouge">MyStringsBundle.properties</code> file in your
+<code class="language-plaintext highlighter-rouge">$PROJECT_DIR/resources/</code> folder. You can name this whatever you want. This file can contain
+something like this.</p>
+
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">dialog.title</span><span class="p">=</span><span class="s">My awesome dialog</span>
+</code></pre></div></div>
+
+<p>You can then use this code snippet to get the values of the properties that you have defined in that
+file.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fun</span> <span class="nf">getStringFromBundle</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nc">String</span><span class="p">):</span> <span class="nc">String</span> <span class="p">{</span>
+  <span class="kd">val</span> <span class="py">strings</span><span class="p">:</span> <span class="nc">ResourceBundle</span> <span class="p">=</span> <span class="nc">ResourceBundle</span><span class="p">.</span><span class="nf">getBundle</span><span class="p">(</span><span class="s">"MyStringsBundle"</span><span class="p">,</span> <span class="nc">Locale</span><span class="p">.</span><span class="nf">getDefault</span><span class="p">())</span>
+  <span class="k">return</span> <span class="n">strings</span><span class="p">.</span><span class="nf">getString</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h4 id="declarative-approach">
+        
+        
+          Declarative approach <a href="#declarative-approach">#</a>
+        
+        
+      </h4>
+    
+
+<p><code class="language-plaintext highlighter-rouge">plugin.xml</code>
+<a href="https://jetbrains.org/intellij/sdk/docs/basics/plugin_structure/plugin_configuration_file.html">supports getting values out of this properties file declaratively</a>
+as long as the following is done.</p>
+
+<ol>
+  <li>Add a <code class="language-plaintext highlighter-rouge">&lt;resource-bundle&gt;</code> element in the <code class="language-plaintext highlighter-rouge">plugin.xml</code> for the <code class="language-plaintext highlighter-rouge">MyStringsBundle</code> resource. For
+example, add <code class="language-plaintext highlighter-rouge">&lt;resource-bundle&gt;MyStringsBundle&lt;/resource-bundle&gt;</code> in the <code class="language-plaintext highlighter-rouge">&lt;idea-plugin&gt;</code> element.</li>
+  <li>In <code class="language-plaintext highlighter-rouge">MyStringsBundle.properties</code> file, if you want to provide a <code class="language-plaintext highlighter-rouge">text</code> value for an action, use
+the following naming pattern: <code class="language-plaintext highlighter-rouge">action.&lt;YOUR_ACTION_ID&gt;.text</code>. For <code class="language-plaintext highlighter-rouge">description</code> value, use the
+following pattern: <code class="language-plaintext highlighter-rouge">action.&lt;YOUR_ACTION_ID&gt;.description</code>.</li>
+</ol>
+      <h2 id="testing">
+        
+        
+          Testing <a href="#testing">#</a>
+        
+        
+      </h2>
+    
+
+<p>IDEA provides capabilities to do functional or integration testing of high level functionality. You
+can still use JUnit4 and AssertJ for example to create unit tests for your plugins. Please read
+<a href="http://www.jetbrains.org/intellij/sdk/docs/basics/testing_plugins.html">the official docs on testing</a>
+before reading further in the tutorial.</p>
+      <h3 id="assertj">
+        
+        
+          AssertJ <a href="#assertj">#</a>
+        
+        
+      </h3>
+    
+
+<p>In order to enable AssertJ in your project you can add the following to your <code class="language-plaintext highlighter-rouge">build.gradle.kts</code>
+file.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Testing</span>
+<span class="nf">dependencies</span> <span class="p">{</span>
+  <span class="nf">testImplementation</span><span class="p">(</span><span class="s">"org.assertj:assertj-core:3.11.1"</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And when you create tests in IDEA, it will ask you if you want to use JUnit3, 4, or 5.</p>
+      <h3 id="example-tests">
+        
+        
+          Example tests <a href="#example-tests">#</a>
+        
+        
+      </h3>
+    
+
+<p>You can see the tests that are created for the sample plugin created for this tutorial
+<a href="https://github.com/nazmulidris/idea-plugin-example/tree/main/src/test/kotlin">here</a>.</p>
+      <h4 id="fixtures">
+        
+        
+          Fixtures <a href="#fixtures">#</a>
+        
+        
+      </h4>
+    
+
+<p>When using fixtures that provide an empty project that you can run your plugin code on, you must
+make sure to call <code class="language-plaintext highlighter-rouge">super.setUp()</code> in the <code class="language-plaintext highlighter-rouge">setUp()</code> method. If you don’t then the test won’t really
+work. Here’s an example.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">LogServiceTest</span> <span class="p">:</span> <span class="nc">BasePlatformTestCase</span><span class="p">()</span> <span class="p">{</span>
+
+  <span class="nd">@Before</span>
+  <span class="k">public</span> <span class="k">override</span> <span class="k">fun</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="p">.</span><span class="nf">setUp</span><span class="p">()</span>
+  <span class="p">}</span>
+
+  <span class="c1">// snip</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h4 id="test-data">
+        
+        
+          Test data <a href="#test-data">#</a>
+        
+        
+      </h4>
+    
+
+<p>It is very common to load some files into the testing fixtures and then have your plugin code do
+some work on those files. Then compare the results, to see if things worked or failed.</p>
+
+<p>In order to load these test data files, you have to tell the test fixtures which folder to look for
+your test data. This is more complex than you think.</p>
+
+<p>Here’s an example (from the sample plugin created for this tutorial) that demonstrates this.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">@</span><span class="n">file</span><span class="p">:</span><span class="nc">JvmName</span><span class="p">(</span><span class="s">"TestUtils"</span><span class="p">)</span>
+
+<span class="kd">class</span> <span class="nc">TestUtils</span> <span class="p">{</span>
+
+  <span class="k">companion</span> <span class="k">object</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">testDataFolder</span> <span class="p">=</span> <span class="s">"testdata"</span>
+    <span class="cm">/**
+     * @throws [IllegalStateException] if the [testDataFolder] folder
+     * can't be found somewhere on the classpath.
+     */</span>
+    <span class="k">fun</span> <span class="nf">computeBasePath</span><span class="p">():</span> <span class="nc">String</span> <span class="p">{</span>
+      <span class="kd">val</span> <span class="py">urlFromClassloader</span> <span class="p">=</span>
+          <span class="nc">TestUtils</span><span class="o">::</span><span class="k">class</span><span class="p">.</span><span class="n">java</span><span class="p">.</span><span class="n">classLoader</span><span class="p">.</span><span class="nf">getResource</span><span class="p">(</span><span class="s">"TestUtils.class"</span><span class="p">)</span>
+      <span class="nf">checkNotNull</span><span class="p">(</span><span class="n">urlFromClassloader</span><span class="p">)</span> <span class="p">{</span> <span class="s">"Could not find $testDataFolder"</span> <span class="p">}</span>
+
+      <span class="kd">var</span> <span class="py">path</span><span class="p">:</span> <span class="nc">File</span><span class="p">?</span> <span class="p">=</span> <span class="nc">File</span><span class="p">(</span><span class="n">urlFromClassloader</span><span class="p">.</span><span class="nf">toURI</span><span class="p">())</span>
+      <span class="k">while</span> <span class="p">(</span><span class="n">path</span> <span class="p">!=</span> <span class="k">null</span> <span class="p">&amp;&amp;</span>
+             <span class="n">path</span><span class="p">.</span><span class="nf">exists</span><span class="p">()</span> <span class="p">&amp;&amp;</span>
+             <span class="p">!</span><span class="nc">File</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">testDataFolder</span><span class="p">).</span><span class="n">isDirectory</span>
+      <span class="p">)</span> <span class="p">{</span>
+        <span class="n">path</span> <span class="p">=</span> <span class="n">path</span><span class="p">.</span><span class="n">parentFile</span>
+      <span class="p">}</span>
+      <span class="nf">checkNotNull</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="p">{</span> <span class="s">"Could not find $testDataFolder"</span> <span class="p">}</span>
+      <span class="k">return</span> <span class="nc">File</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">testDataFolder</span><span class="p">).</span><span class="n">absolutePath</span>
+    <span class="p">}</span>
+
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Files needed to be loaded from the plugin project’s <code class="language-plaintext highlighter-rouge">testdata</code> directory. By default, IntelliJ
+Platform <code class="language-plaintext highlighter-rouge">BasePlatformTestCase</code> provides a location that is <em>invalid</em> for use by 3rd party plugins
+(provided by <code class="language-plaintext highlighter-rouge">BasePlatformTestCase.myFixture#basePath</code>) 😳. This assumes that the files are in the
+classpath of the IntelliJ IDEA codebase itself.</p>
+
+<p>In contrast, the
+<a href="https://github.com/nazmulidris/idea-plugin-example/blob/main/src/test/kotlin/TestUtils.kt"><code class="language-plaintext highlighter-rouge">TestUtils.kt</code></a>
+that provides the <code class="language-plaintext highlighter-rouge">computeBasePath</code> function uses the classpath of its own self (class) in order to
+locate where on disk, this class is loaded from. And then walks up the path (tree) to locate the
+<code class="language-plaintext highlighter-rouge">testdata</code> folder (which is a leaf off of one of these parent nodes). Also, note that this class
+uses an annotation (<code class="language-plaintext highlighter-rouge">@file:JvmName()</code>) in order to explicitly set its own classname and not use the
+computed <code class="language-plaintext highlighter-rouge">TestUtilsKt.class</code> (which would be the default w/out using this annotation).</p>
+      <h4 id="mocking-actions">
+        
+        
+          Mocking actions <a href="#mocking-actions">#</a>
+        
+        
+      </h4>
+    
+
+<p>By default, when you invoke an action from via the fixture, it will execute the action, and if this
+means that it does something to change something in your OS, then it will do that.</p>
+
+<p>For example in the
+<a href="https://github.com/nazmulidris/idea-plugin-example/blob/main/src/test/kotlin/actions/SearchOnStackOverflowActionTest.kt"><code class="language-plaintext highlighter-rouge">SearchOnStackOverflowActionTest</code></a>,
+I open a browser tab w/ the text that’s selected in the test data file <code class="language-plaintext highlighter-rouge">testFle.md</code>. And when the
+test would run, it would open a tab in my Chrome browser.</p>
+
+<p>In order to prevent this, I ended up mocking the action performed method of the action itself, by
+passing a lambda for testing purposes. If no lambda is passed, then the action does what it is
+supposed to do. However, if I pass a lambda (for testing) then I can verify some state information
+from that lambda to ensure that my action is doing what its supposed to.</p>
+
+<p>Here’s the action code
+<a href="https://github.com/nazmulidris/idea-plugin-example/blob/main/src/main/kotlin/actions/StackOverflowActions.kt"><code class="language-plaintext highlighter-rouge">StackOverflowActions.kt</code></a>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * [handler] allows this class to be mocked. If nothing is passed, then this
+ * action does what it is supposed to. Otherwise, this handler gets passed
+ * two things:
+ * 1. selectedText: String
+ * 2. langTag: String
+ */</span>
+<span class="kd">class</span> <span class="nc">SearchOnStackOverflowAction</span><span class="p">(</span>
+    <span class="kd">val</span> <span class="py">handler</span><span class="p">:</span> <span class="p">((</span><span class="nc">String</span><span class="p">,</span> <span class="nc">String</span><span class="p">)</span> <span class="p">-&gt;</span> <span class="nc">Unit</span><span class="p">)?</span> <span class="p">=</span> <span class="k">null</span>
+<span class="p">)</span> <span class="p">:</span> <span class="nc">AnAction</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">override</span> <span class="k">fun</span> <span class="nf">update</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="nc">AnActionEvent</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">with</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="nf">getRequiredData</span><span class="p">(</span><span class="nc">CommonDataKeys</span><span class="p">.</span><span class="nc">EDITOR</span><span class="p">))</span> <span class="p">{</span>
+      <span class="kd">val</span> <span class="py">condition</span> <span class="p">=</span> <span class="n">caretModel</span><span class="p">.</span><span class="n">currentCaret</span><span class="p">.</span><span class="nf">hasSelection</span><span class="p">()</span>
+      <span class="n">event</span><span class="p">.</span><span class="n">presentation</span><span class="p">.</span><span class="n">isEnabledAndVisible</span> <span class="p">=</span> <span class="n">condition</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">override</span> <span class="k">fun</span> <span class="nf">actionPerformed</span><span class="p">(</span><span class="n">event</span><span class="p">:</span> <span class="nc">AnActionEvent</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">val</span> <span class="py">langTag</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="nf">with</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="nf">getData</span><span class="p">(</span><span class="nc">CommonDataKeys</span><span class="p">.</span><span class="nc">PSI_FILE</span><span class="p">))</span> <span class="p">{</span>
+      <span class="k">this</span><span class="o">?.</span><span class="nf">run</span> <span class="p">{</span>
+        <span class="s">"+[${language.displayName.toLowerCase()}+]"</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="o">?:</span> <span class="s">""</span>
+
+    <span class="kd">val</span> <span class="py">selectedText</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span>
+        <span class="nf">with</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="nf">getRequiredData</span><span class="p">(</span><span class="nc">CommonDataKeys</span><span class="p">.</span><span class="nc">EDITOR</span><span class="p">))</span> <span class="p">{</span>
+          <span class="n">caretModel</span><span class="p">.</span><span class="n">currentCaret</span><span class="p">.</span><span class="n">selectedText</span>
+        <span class="p">}</span> <span class="o">?:</span> <span class="s">""</span>
+
+    <span class="kd">val</span> <span class="py">myHandler</span> <span class="p">=</span> <span class="n">handler</span> <span class="o">?:</span> <span class="p">{</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="p">-&gt;</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">selectedText</span><span class="p">.</span><span class="nf">isEmpty</span><span class="p">())</span> <span class="p">{</span>
+        <span class="nc">Messages</span><span class="p">.</span><span class="nf">showMessageDialog</span><span class="p">(</span>
+            <span class="n">event</span><span class="p">.</span><span class="n">project</span><span class="p">,</span>
+            <span class="s">"Please select something before running this action"</span><span class="p">,</span>
+            <span class="s">"Search on Stack Overflow"</span><span class="p">,</span>
+            <span class="nc">Messages</span><span class="p">.</span><span class="nf">getWarningIcon</span><span class="p">())</span>
+      <span class="p">}</span>
+      <span class="k">else</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">query</span> <span class="p">=</span> <span class="nc">URLEncoder</span><span class="p">.</span><span class="nf">encode</span><span class="p">(</span><span class="n">selectedText</span><span class="p">,</span> <span class="s">"UTF-8"</span><span class="p">)</span> <span class="p">+</span> <span class="n">langTag</span>
+        <span class="nc">BrowserUtil</span><span class="p">.</span><span class="nf">browse</span><span class="p">(</span><span class="s">"https://stackoverflow.com/search?q=$query"</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">myHandler</span><span class="p">.</span><span class="nf">invoke</span><span class="p">(</span><span class="n">selectedText</span><span class="p">,</span> <span class="n">langTag</span><span class="p">)</span>
+
+  <span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the
+<a href="https://github.com/nazmulidris/idea-plugin-example/blob/main/src/test/kotlin/actions/SearchOnStackOverflowActionTest.kt">test code <code class="language-plaintext highlighter-rouge">SearchOnStackOverflowActionTest.kt</code></a>.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">SearchOnStackOverflowActionTest</span> <span class="p">:</span> <span class="nc">BasePlatformTestCase</span><span class="p">()</span> <span class="p">{</span>
+
+<span class="k">private</span> <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">testFolderLocation</span><span class="p">:</span> <span class="nc">String</span>
+
+<span class="nd">@Before</span>
+<span class="k">public</span> <span class="k">override</span> <span class="k">fun</span> <span class="nf">setUp</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">super</span><span class="p">.</span><span class="nf">setUp</span><span class="p">()</span>
+  <span class="n">testFolderLocation</span> <span class="p">=</span> <span class="nf">computeBasePath</span><span class="p">()</span>
+  <span class="nf">assertThat</span><span class="p">(</span><span class="n">testFolderLocation</span><span class="p">).</span><span class="nf">isNotNull</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="nd">@Test</span>
+<span class="k">fun</span> <span class="nf">testSelectedTextIsSearchedOnStackOverflow</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Load test file w/ text selected.</span>
+  <span class="n">myFixture</span><span class="p">.</span><span class="nf">configureByFile</span><span class="p">(</span>
+      <span class="n">testFolderLocation</span> <span class="p">+</span> <span class="nc">File</span><span class="p">.</span><span class="n">separator</span> <span class="p">+</span> <span class="s">"testFile.md"</span><span class="p">)</span>
+
+  <span class="c1">// Try and perform the action.</span>
+  <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">selectedText</span><span class="p">:</span> <span class="nc">String</span>
+  <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">langTag</span><span class="p">:</span> <span class="nc">String</span>
+  <span class="kd">val</span> <span class="py">action</span> <span class="p">=</span> <span class="nc">SearchOnStackOverflowAction</span> <span class="p">{</span> <span class="n">text</span><span class="p">,</span> <span class="n">lang</span> <span class="p">-&gt;</span>
+    <span class="n">selectedText</span> <span class="p">=</span> <span class="n">text</span>
+    <span class="n">langTag</span> <span class="p">=</span> <span class="n">lang</span>
+  <span class="p">}</span>
+
+  <span class="kd">val</span> <span class="py">presentation</span> <span class="p">=</span> <span class="n">myFixture</span><span class="p">.</span><span class="nf">testAction</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
+  <span class="nf">assertThat</span><span class="p">(</span><span class="n">presentation</span><span class="p">.</span><span class="n">isEnabledAndVisible</span><span class="p">).</span><span class="nf">isTrue</span><span class="p">()</span>
+
+  <span class="nf">assertThat</span><span class="p">(</span><span class="n">selectedText</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="s">"jetbrains sdk plugin testing"</span><span class="p">)</span>
+  <span class="nf">assertThat</span><span class="p">(</span><span class="n">langTag</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="s">"+[plain text+]"</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h2 id="references-1">
+        
+        
+          References <a href="#references-1">#</a>
+        
+        
+      </h2>
+    
+
+<p>There aren’t many publicly available resources outside of JetBrains official docs (which are sparse,
+and tend to focus on the “how?” and never the “why?”) and open source plugins (which can be used as
+examples to learn from).</p>
+
+<p>Here are a few that I’ve found. Sources (where and if you can find them) serve as a good source of
+learning for how the Platform SDK APIs work, how they can be used, and even how to write tests for
+them. Using the <a href="https://www.youtube.com/watch?v=rjlhSDhFwzM">debugger</a> to set breakpoints and
+analyzing the stack traces are also a valid approach to understanding what this platform code does
+(since it is 15+ years old and has gone through many many revisions).</p>
+
+<ul>
+  <li><a href="http://www.jetbrains.org/intellij/sdk/docs/welcome.html">JetBrains IntelliJ Platform SDK official docs</a>.</li>
+  <li><a href="https://www.plugin-dev.com/intellij/">Information about Platform SDK by the author of the BashSupport plugin</a>.</li>
+  <li><a href="http://corochann.com/intellij-plugin-development-introduction-applicationconfigurable-projectconfigurable-873.html">Article on ApplicationConfigurable and ProjectConfigurable</a>.</li>
+  <li><a href="https://plugins.jetbrains.com/">All 3rd party plugins, the source can be used as examples</a>.</li>
+  <li><a href="https://www.programcreek.com/java-api-examples/?Query=intellij+plugin&amp;action=search_project&amp;submit=Search">Browse Code examples for open source plugins (from their github repos)</a>.</li>
+  <li><a href="https://medium.com/cacher-app/building-code-editor-plugins-a-comparison-83b5c21657fe">Comparison of plugin development on IDEA, VSCode, etc</a></li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/IJ">
+                #ij</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/KT">
+                #kt</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TDD">
+                #tdd</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/02/06/publish-kotlin-library-as-gradle-dep/">
+                        Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/15/non-capturing-lambda-problems/">
+                        Potential problems of using non-capturing lambdas
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
+                        Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-testing-setup/">
+                        Kotlin and Test Driven Development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-extension-function-expressions/">
+                        Kotlin Extension Function Expressions
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-and-kotlin/">
+                        Advanced Dagger 2 w/ Android and Kotlin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2020/11/20/idea-plugin-example-intro/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

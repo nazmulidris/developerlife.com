@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Vue.js, Webpack, Vueitify, Electron, and vue-cli | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Vue.js, Webpack, Vueitify, Electron, and vue-cli" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial serves as a deeper dive into Vue, along with Vuetify (a Material Design library for Vue), Webpack, Electron, and vue-cli" />
+<meta property="og:description" content="This tutorial serves as a deeper dive into Vue, along with Vuetify (a Material Design library for Vue), Webpack, Electron, and vue-cli" />
+<link rel="canonical" href="http://developerlife.com/2018/08/22/vue-vueitfy-webpack/" />
+<meta property="og:url" content="http://developerlife.com/2018/08/22/vue-vueitfy-webpack/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-08-22T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Vue.js, Webpack, Vueitify, Electron, and vue-cli" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2018-08-22T00:00:00-05:00","datePublished":"2018-08-22T00:00:00-05:00","description":"This tutorial serves as a deeper dive into Vue, along with Vuetify (a Material Design library for Vue), Webpack, Electron, and vue-cli","headline":"Vue.js, Webpack, Vueitify, Electron, and vue-cli","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2018/08/22/vue-vueitfy-webpack/"},"url":"http://developerlife.com/2018/08/22/vue-vueitfy-webpack/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Vue.js, Webpack, Vueitify, Electron, and vue-cli&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Vue.js, Webpack, Vueitify, Electron, and vue-cli</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Vue.js, Webpack, Vueitify, Electron, and vue-cli</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Aug 22, 2018
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/vue-hero.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#starter-project-repo">Starter project repo</a>
+    <ul>
+      <li><a href="#run-the-project">Run the project</a></li>
+      <li><a href="#step-by-step-guide-to-buiding-this-starter-project">Step by step guide to buiding this starter project</a>
+        <ul>
+          <li><a href="#install-vue-cli-3">Install vue-cli-3</a></li>
+          <li><a href="#setup-the-new-project">Setup the new project</a></li>
+          <li><a href="#run-the-project-in-browser-or-electron">Run the project (in browser or Electron)</a></li>
+          <li><a href="#add-dependencies">Add dependencies</a></li>
+          <li><a href="#references--documentation">References / Documentation</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#deep-dive-into-the-code">Deep dive into the code</a>
+    <ul>
+      <li><a href="#mainjs">main.js</a>
+        <ul>
+          <li><a href="#1-mounting-to-the-dom">1. Mounting to the DOM</a></li>
+          <li><a href="#2-state-or-application-object-model">2. State or application object model</a></li>
+        </ul>
+      </li>
+      <li><a href="#appvue">App.vue</a>
+        <ul>
+          <li><a href="#1-script">1. Script</a></li>
+          <li><a href="#2-template">2. Template</a></li>
+          <li><a href="#3-props">3. Props</a></li>
+          <li><a href="#4-material-design-and-theming">4. Material Design and Theming</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#get-the-code">Get the code</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>Vue.js is a reactive progressive framework that allows the creation of Javascript apps. It is very
+similar to React. This tutorial is a guide to using <a href="https://cli.vuejs.org/"><code class="language-plaintext highlighter-rouge">vue-cli</code></a> (which is
+similar to <a href="https://github.com/facebook/create-react-app"><code class="language-plaintext highlighter-rouge">create-react-app</code></a>) in order to create a
+project that supports Material Design (thru Vuetify), Electron, and Webpack.</p>
+
+<p>Here’s <a href="/2018/08/14/introduction-to-vue/">another tutorial</a> that serves as an
+introduction to Vue.</p>
+      <h2 id="starter-project-repo">
+        
+        
+          Starter project repo <a href="#starter-project-repo">#</a>
+        
+        
+      </h2>
+    
+
+<p>Here’s a <a href="https://github.com/nazmulidris/vue_webpack"><i class="fab fa-github"></i> GitHub repo</a>
+that I created as the end result of going thru this tutorial. This project can be used as a starter
+project that is built using <code class="language-plaintext highlighter-rouge">vue-cli-3</code> which allows for the use of Webpack, Vue, Vuetify (Material
+Design), and Electron (along w/ <code class="language-plaintext highlighter-rouge">lodash</code>, and <code class="language-plaintext highlighter-rouge">axios</code>).</p>
+      <h3 id="run-the-project">
+        
+        
+          Run the project <a href="#run-the-project">#</a>
+        
+        
+      </h3>
+    
+
+<table>
+  <thead>
+    <tr>
+      <th>Task</th>
+      <th>Command</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Project setup</td>
+      <td><code class="language-plaintext highlighter-rouge">npm install</code></td>
+    </tr>
+    <tr>
+      <td>Compiles and hot-reloads for development</td>
+      <td><code class="language-plaintext highlighter-rouge">npm run serve</code></td>
+    </tr>
+    <tr>
+      <td>Compiles and minifies for production</td>
+      <td><code class="language-plaintext highlighter-rouge">npm run build</code></td>
+    </tr>
+    <tr>
+      <td>Lints and fixes files</td>
+      <td><code class="language-plaintext highlighter-rouge">npm run lint</code></td>
+    </tr>
+  </tbody>
+</table>
+      <h3 id="step-by-step-guide-to-buiding-this-starter-project">
+        
+        
+          Step by step guide to buiding this starter project <a href="#step-by-step-guide-to-buiding-this-starter-project">#</a>
+        
+        
+      </h3>
+    
+
+<p>Instructions on getting started w/ Vue-cli3, electron, vuetify. The following steps will guide you
+thru creating this project from scratch if you choose, instead of getting the GitHub repo.</p>
+      <h4 id="install-vue-cli-3">
+        
+        
+          Install vue-cli-3 <a href="#install-vue-cli-3">#</a>
+        
+        
+      </h4>
+    
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">fix-brew.sh</code></li>
+  <li><a href="https://cli.vuejs.org/guide/installation.html"><code class="language-plaintext highlighter-rouge">npm install -g @vue/cli</code></a></li>
+</ul>
+      <h4 id="setup-the-new-project">
+        
+        
+          Setup the new project <a href="#setup-the-new-project">#</a>
+        
+        
+      </h4>
+    
+
+<ul>
+  <li><a href="https://lobotuerto.com/blog/quickstart-guide-for-a-new-vuejs-project/"><code class="language-plaintext highlighter-rouge">vue create vue_app</code></a></li>
+  <li><strong><code class="language-plaintext highlighter-rouge">cd vue_app</code></strong></li>
+  <li><a href="https://nklayman.github.io/vue-cli-plugin-electron-builder/"><code class="language-plaintext highlighter-rouge">vue add electron-builder</code></a></li>
+  <li><a href="https://github.com/vuetifyjs/vue-cli-plugin-vuetify"><code class="language-plaintext highlighter-rouge">vue add vuetify</code></a></li>
+</ul>
+      <h4 id="run-the-project-in-browser-or-electron">
+        
+        
+          Run the project (in browser or Electron) <a href="#run-the-project-in-browser-or-electron">#</a>
+        
+        
+      </h4>
+    
+
+<ul>
+  <li>in electron - <code class="language-plaintext highlighter-rouge">npm run serve:electron</code></li>
+  <li>in browser - <code class="language-plaintext highlighter-rouge">npm run serve</code></li>
+</ul>
+      <h4 id="add-dependencies">
+        
+        
+          Add dependencies <a href="#add-dependencies">#</a>
+        
+        
+      </h4>
+    
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">npm add axios lodash</code></li>
+  <li>Use them by doing a simple import (eg in main.js, <code class="language-plaintext highlighter-rouge">import _ from 'lodash';</code>)</li>
+</ul>
+      <h4 id="references--documentation">
+        
+        
+          References / Documentation <a href="#references--documentation">#</a>
+        
+        
+      </h4>
+    
+
+<ul>
+  <li><a href="http://tinyurl.com/ya8392qh">Step by step tutorial of using vue-cli, etc</a></li>
+  <li><a href="http://tinyurl.com/h8c9bbj">Single file components (.vue files)</a></li>
+  <li>Developing apps generated by <code class="language-plaintext highlighter-rouge">vue-cli</code>
+    <ul>
+      <li><a href="https://cli.vuejs.org/guide/html-and-static-assets.html">HTML and Static assets</a></li>
+      <li><a href="https://cli.vuejs.org/guide/css.html">CSS preprocessors</a></li>
+      <li><a href="https://cli.vuejs.org/guide/webpack.html">Webpack</a></li>
+      <li><a href="https://cli.vuejs.org/guide/deployment.html#general-guidelines">Deployment</a></li>
+    </ul>
+  </li>
+  <li><a href="http://tinyurl.com/y9hsshmz">Tool for theming and customizing Vuetify</a></li>
+</ul>
+      <h2 id="deep-dive-into-the-code">
+        
+        
+          Deep dive into the code <a href="#deep-dive-into-the-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>Now that we have the mechanics of creating this project out of the way, let’s look at how this
+project is organized and some of the interesting elements in it. Here are some files that we are
+going to cover in depth.</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>src/
+    +--- main.js
+    +--- App.vue
+    +--- components/
+        +--- HelloWorld.vue
+    +--- plugins
+        +--- vuetify.js
+</code></pre></div></div>
+      <h3 id="mainjs">
+        
+        
+          main.js <a href="#mainjs">#</a>
+        
+        
+      </h3>
+    
+
+<p>Webpack takes all the HTML, CSS, and JS files in the project, packages and minifies them. This
+<code class="language-plaintext highlighter-rouge">main.js</code> file ends up being the main entry point for the code in our project.</p>
+      <h4 id="1-mounting-to-the-dom">
+        
+        
+          1. Mounting to the DOM <a href="#1-mounting-to-the-dom">#</a>
+        
+        
+      </h4>
+    
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">new</span> <span class="nc">Vue</span><span class="p">({</span> <span class="na">render</span><span class="p">:</span> <span class="p">(</span><span class="nx">h</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nf">h</span><span class="p">(</span><span class="nx">App</span><span class="p">)</span> <span class="p">}).</span><span class="nf">$mount</span><span class="p">(</span><span class="dl">"</span><span class="s2">#app</span><span class="dl">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>There’s an <code class="language-plaintext highlighter-rouge">index.html</code> file in the <code class="language-plaintext highlighter-rouge">public/</code> folder which has a <code class="language-plaintext highlighter-rouge">div</code> with <code class="language-plaintext highlighter-rouge">id</code> of <code class="language-plaintext highlighter-rouge">app</code>. The line
+of code above mounts the root Vue component <code class="language-plaintext highlighter-rouge">App</code> to this <code class="language-plaintext highlighter-rouge">div</code>.</p>
+      <h4 id="2-state-or-application-object-model">
+        
+        
+          2. State or application object model <a href="#2-state-or-application-object-model">#</a>
+        
+        
+      </h4>
+    
+
+<p>The first thing that I do here is setup the data which serves as the application model or shared
+state between all the Vue components that are created.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">appData</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">app_icon</span><span class="p">:</span> <span class="dl">"</span><span class="s2">code</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">body_message</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Hello world!</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">footer_message</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Made with ❤️ in Mountain View, California</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">title</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Vue, Vuetify, Webpack</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">time</span><span class="p">:</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">(),</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">appData</code> object is the state of the application. And when this data changes, Vue components in
+this project will react and refresh themselves to stay up to date w/ the data in this object.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">setInterval</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="nx">appData</span><span class="p">.</span><span class="nx">time</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">()</span>
+<span class="p">},</span> <span class="mi">1000</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The code above updates the value of <code class="language-plaintext highlighter-rouge">appData.time</code> every second w/ the current date. When you run
+the code, you will see that the footer of the web app shows the current time updating every second.
+Let’s take a look at the root Vue component <code class="language-plaintext highlighter-rouge">App</code> to see how this is accomplished.</p>
+      <h3 id="appvue">
+        
+        
+          App.vue <a href="#appvue">#</a>
+        
+        
+      </h3>
+    
+
+<p>In <code class="language-plaintext highlighter-rouge">main.js</code> you will find the following import statement.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">App</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./App.vue</span><span class="dl">"</span>
+</code></pre></div></div>
+
+<p>This loads the <code class="language-plaintext highlighter-rouge">App</code> Vue component to be mounted to the DOM. Let’s take a closer look at this root
+Vue component. The <code class="language-plaintext highlighter-rouge">App.vue</code> file has 3 things in one place:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">&lt;template&gt;</code> that contains the template that will be used to stamp out this component in the DOM.</li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;script&gt;</code> that contains the JS code that is associated w/ this component. There are some
+interesting things that you should watch out for as you write functions in this block (especially
+with regards to how <code class="language-plaintext highlighter-rouge">this</code> is handled in functions that you write within these <code class="language-plaintext highlighter-rouge">&lt;script</code>&gt; tags).</li>
+  <li><code class="language-plaintext highlighter-rouge">&lt;style&gt;</code> that contains CSS fragments that you can apply only to this component and not pollute
+the rest of your DOM.</li>
+</ol>
+      <h4 id="1-script">
+        
+        
+          1. Script <a href="#1-script">#</a>
+        
+        
+      </h4>
+    
+
+<p>In the case of <code class="language-plaintext highlighter-rouge">App.vue</code>, here’s the <code class="language-plaintext highlighter-rouge">&lt;script&gt;</code> section.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">HelloWorld</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./components/HelloWorld</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">appData</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./main</span><span class="dl">"</span>
+
+<span class="k">export</span> <span class="k">default</span> <span class="p">{</span>
+  <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">App</span><span class="dl">"</span><span class="p">,</span>
+  <span class="na">components</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nx">HelloWorld</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="na">data</span><span class="p">:</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">appData</span>
+  <span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The main thing to note here is that an object is exported via <code class="language-plaintext highlighter-rouge">default</code>. This is the object which
+was imported in <code class="language-plaintext highlighter-rouge">main.js</code> and mounted to the DOM. This object represents options that are used by
+Vue to create the Vue component itself (<code class="language-plaintext highlighter-rouge">new Vue({render: h =&gt; h(App)}).$mount('#app');</code>) in
+<code class="language-plaintext highlighter-rouge">main.js</code>.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">data</code> function provides access to all the state information that will be available to <code class="language-plaintext highlighter-rouge">App</code>
+component, and portions of this state will be passed around as props to other components that are
+needed. In this case, we have <code class="language-plaintext highlighter-rouge">HelloWorld</code> component that is needed by <code class="language-plaintext highlighter-rouge">App</code>. You can see that this
+<code class="language-plaintext highlighter-rouge">HelloWorld</code> component is loaded using an import statement above.</p>
+
+<p>You can see the <code class="language-plaintext highlighter-rouge">HelloWorld</code> tag used in the <code class="language-plaintext highlighter-rouge">&lt;template&gt;</code> section below.</p>
+      <h4 id="2-template">
+        
+        
+          2. Template <a href="#2-template">#</a>
+        
+        
+      </h4>
+    
+
+<p>And here’s the <code class="language-plaintext highlighter-rouge">&lt;template&gt;</code> section.</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;v-app</span> <span class="na">dark</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;v-toolbar</span> <span class="na">app</span> <span class="na">dark</span> <span class="na">color=</span><span class="s">"primary"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;v-icon&gt;</span>{{app_icon}}<span class="nt">&lt;/v-icon&gt;</span>
+    <span class="nt">&lt;v-toolbar-title&gt;</span>{{title}}<span class="nt">&lt;/v-toolbar-title&gt;</span>
+    <span class="nt">&lt;v-spacer&gt;&lt;/v-spacer&gt;</span>
+  <span class="nt">&lt;/v-toolbar&gt;</span>
+  <span class="nt">&lt;v-content&gt;</span>
+    <span class="nt">&lt;HelloWorld</span> <span class="na">v-bind:msg=</span><span class="s">"body_message"</span> <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/v-content&gt;</span>
+  <span class="nt">&lt;v-footer</span> <span class="na">app</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;v-spacer&gt;&lt;/v-spacer&gt;</span>
+    <span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"surface--text"</span><span class="nt">&gt;</span> {{footer_message}} ⏱ {{time}} <span class="nt">&lt;/span&gt;</span>
+    <span class="nt">&lt;v-spacer&gt;&lt;/v-spacer&gt;</span>
+  <span class="nt">&lt;/v-footer&gt;</span>
+<span class="nt">&lt;/v-app&gt;</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">App</code> component is the root, which is why it provide <code class="language-plaintext highlighter-rouge">data</code>. You will see in the <code class="language-plaintext highlighter-rouge">HelloWord</code>
+component below, that it doesn’t have any <code class="language-plaintext highlighter-rouge">data</code>. Instead it has to rely on the use of props in
+order to get information.</p>
+      <h4 id="3-props">
+        
+        
+          3. Props <a href="#3-props">#</a>
+        
+        
+      </h4>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">HelloWorld</code> component is declared and passed a props <code class="language-plaintext highlighter-rouge">msg</code> via <code class="language-plaintext highlighter-rouge">v-bind:</code> attribute, and the
+<code class="language-plaintext highlighter-rouge">body_message</code> object is passed to it. This <code class="language-plaintext highlighter-rouge">body_message</code> object is loaded from the Vue component’s
+data, that is just prodding access to the <code class="language-plaintext highlighter-rouge">appData</code> object which was declared in <code class="language-plaintext highlighter-rouge">main.js</code>.</p>
+
+<p>Vue actually wraps the underlying <code class="language-plaintext highlighter-rouge">appData</code> object w/ a proxy, which is how the ‘reactivity’ is
+implemented in the Vue framework.</p>
+
+<p>There are some other places in the template where you see code appearing between <code class="language-plaintext highlighter-rouge">{{</code> and <code class="language-plaintext highlighter-rouge">}}</code>.
+These are all references to objects that are made available by the Vue component’s <code class="language-plaintext highlighter-rouge">data</code> property
+(which just provides access to <code class="language-plaintext highlighter-rouge">appData</code>).</p>
+      <h4 id="4-material-design-and-theming">
+        
+        
+          4. Material Design and Theming <a href="#4-material-design-and-theming">#</a>
+        
+        
+      </h4>
+    
+
+<p>And there are quite a few tags like <code class="language-plaintext highlighter-rouge">v-app</code> and <code class="language-plaintext highlighter-rouge">v-toolbar</code> etc. These are all part of the Vuetify
+Material Design library. Here’s a quick rundown of what these do.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">v-app</code> This is the root tag for any Vuetify application. The <code class="language-plaintext highlighter-rouge">dark</code> attribute marks this to have
+the dark theme. Vuetify doesn’t really manage themes in the way that I thought it would. Eg:
+overriding the theme doesn’t really propagate the color choices, etc to existing components. More
+on this below.</li>
+  <li><code class="language-plaintext highlighter-rouge">v-toolbar</code> This is the toolbar component, to which I’ve added some attributes for styling. Even
+though I provided a custom theme to Vuetify which is loaded via <code class="language-plaintext highlighter-rouge">vuetify.js</code> in <code class="language-plaintext highlighter-rouge">main.js</code>, my
+color choices for <code class="language-plaintext highlighter-rouge">primary</code>, <code class="language-plaintext highlighter-rouge">secondary</code>, etc didn’t propagate to the existing components 😡. So I
+had to explicitly provide attributes to each tag to specify my color choices. In this case I
+applied the background color to <code class="language-plaintext highlighter-rouge">primary</code> and then applied <code class="language-plaintext highlighter-rouge">dark</code> so that the icon and text colors
+would be inverted, so that they would have good contrast. I shouldn’t have to do this, and will be
+exploring other Material Design libraries for Vue in the future (that are not Vuetify).</li>
+  <li><code class="language-plaintext highlighter-rouge">v-content</code> This holds the main content of the app between the header and the footer. This is
+where the <code class="language-plaintext highlighter-rouge">HelloWorld</code> component is rendered.</li>
+  <li><code class="language-plaintext highlighter-rouge">v-footer</code> This holds the footer of the app, and has the time which gets updated. One interesting
+thing to note here, related to themeing is that I created a color called <code class="language-plaintext highlighter-rouge">surface</code> in my custom
+them (<code class="language-plaintext highlighter-rouge">vuetify.js</code>). In order to apply this color to the text, I do this:</li>
+</ul>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"surface--text"</span><span class="nt">&gt;&lt;/span&gt;</span>
+</code></pre></div></div>
+
+<p>However, in the code you could also have done something like this:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;span</span> <span class="na">class=</span><span class="s">"primary--text"</span><span class="nt">&gt;&lt;/span&gt;</span>
+</code></pre></div></div>
+      <h2 id="get-the-code">
+        
+        
+          Get the code <a href="#get-the-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>You can get the code used in this tutorial in the
+<a href="https://github.com/nazmulidris/vue_webpack"><i class="fab fa-github"></i> vue_webpack</a> GiHub repo.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Web">
+                #web</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/react-hooks-redux-typescript-handbook/">
+                        React hooks (v17.0.3) and Redux handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/css-responsive-design-handbook/">
+                        CSS responsive design using Grid, Flexbox, and media queries handbook
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/15/introduction-to-vue/">
+                        Getting started with Vue.js
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/19/loading-csv-files-in-javascript-and-node/">
+                        Loading CSV files in Node
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2018/08/22/vue-vueitfy-webpack/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

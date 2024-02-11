@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Kotlin and Test Driven Development | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Kotlin and Test Driven Development" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is an exploration of doing test driven development using Kotlin. This tutorial focuses on JUnit, MockK, AssertJ, and Roboelectric for Android." />
+<meta property="og:description" content="This tutorial is an exploration of doing test driven development using Kotlin. This tutorial focuses on JUnit, MockK, AssertJ, and Roboelectric for Android." />
+<link rel="canonical" href="http://developerlife.com/2018/10/21/kotlin-testing-setup/" />
+<meta property="og:url" content="http://developerlife.com/2018/10/21/kotlin-testing-setup/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-10-21T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Kotlin and Test Driven Development" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2018-10-21T00:00:00-05:00","datePublished":"2018-10-21T00:00:00-05:00","description":"This tutorial is an exploration of doing test driven development using Kotlin. This tutorial focuses on JUnit, MockK, AssertJ, and Roboelectric for Android.","headline":"Kotlin and Test Driven Development","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2018/10/21/kotlin-testing-setup/"},"url":"http://developerlife.com/2018/10/21/kotlin-testing-setup/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Kotlin and Test Driven Development&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Kotlin and Test Driven Development</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Kotlin and Test Driven Development</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Oct 21, 2018
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/kotlin-android-test-hero.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#test-driven-development-and-kotlin">Test driven development and Kotlin</a></li>
+  <li><a href="#using-kotlin-dsl-for-gradle">Using Kotlin DSL for gradle</a></li>
+  <li><a href="#loading-junit5-mockk-assertj-and-roboelectric">Loading JUnit5, MockK, AssertJ, and Roboelectric</a></li>
+  <li><a href="#defining-some-unit-tests">Defining some unit tests</a>
+    <ul>
+      <li><a href="#example-1">Example 1</a></li>
+      <li><a href="#example-2">Example 2</a></li>
+    </ul>
+  </li>
+  <li><a href="#references">References</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="test-driven-development-and-kotlin">
+        
+        
+          Test driven development and Kotlin <a href="#test-driven-development-and-kotlin">#</a>
+        
+        
+      </h2>
+    
+
+<p>As of October 2018, test driven development on Android is primarily focused on using JUnit4, and
+Mockito for unit testing. These don’t work very well w/ Kotlin. By default Kotlin classes are final,
+and so Mockito has a hard time mocking them. Additionally, JUnit4 doesn’t play well w/ lambdas. For
+these reasons, JUnit5 and MockK are better when writing unit tests in Kotlin.</p>
+
+<p>Please use the following resources to dive into more details on the following related topics.</p>
+
+<ol>
+  <li><a href="https://developer.android.com/training/testing/fundamentals">Test driven development on Android</a></li>
+  <li><a href="https://blog.philipphauer.de/best-practices-unit-testing-kotlin/">Best practices for unit testing in Kotlin blog post</a></li>
+  <li><a href="https://www.youtube.com/watch?v=RX_g65J14H0">Best practices for unit testing in Kotlin video</a></li>
+</ol>
+
+<p>This tutorial is purely focused on unit testing (not end to end, integration, or instrumented
+testing). There are quite a few dependencies that need to be accommodated before the first unit test
+can be written, and for that I will use the Kotlin DSL for gradle script (and not Groovy) in this
+tutorial and it’s related project on <a href="https://github.com/nazmulidris/places-api-poc/">github</a>.</p>
+      <h2 id="using-kotlin-dsl-for-gradle">
+        
+        
+          Using Kotlin DSL for gradle <a href="#using-kotlin-dsl-for-gradle">#</a>
+        
+        
+      </h2>
+    
+
+<p>In order to use Kotlin DSL for gradle, rather than Groovy, the first thing to do is use
+<a href="https://docs.gradle.org/current/userguide/organizing_gradle_projects.html#sec:build_sources"><code class="language-plaintext highlighter-rouge">buildSrc</code></a>
+where will create a Kotlin file that holds all our dependencies.</p>
+
+<p>There’s a
+<a href="https://guides.gradle.org/migrating-build-logic-from-groovy-to-kotlin/">Gradle Migration Guide</a>
+that will provide you with more details on how to get this done.</p>
+
+<blockquote>
+  <p>In order to be able to load a project into Android Studio, there must be a <code class="language-plaintext highlighter-rouge">build.gradle</code> file in
+the root folder of the project, which can be empty. The main logic will be in the
+<code class="language-plaintext highlighter-rouge">build.gradle.kts</code> file instead.</p>
+</blockquote>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">object</span> <span class="nc">TestingDeps</span> <span class="p">{</span>
+    <span class="kd">data class</span> <span class="nc">Versions</span><span class="p">(</span><span class="kd">val</span> <span class="py">assertj</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">"3.11.1"</span><span class="p">,</span>
+                        <span class="kd">val</span> <span class="py">junit5</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">"5.2.0"</span><span class="p">,</span>
+                        <span class="kd">val</span> <span class="py">mockk</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">"1.8.9"</span><span class="p">,</span>
+                        <span class="kd">val</span> <span class="py">roboelectric</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">"3.8"</span><span class="p">,</span>
+                        <span class="kd">val</span> <span class="py">junit4</span><span class="p">:</span> <span class="nc">String</span> <span class="p">=</span> <span class="s">"4.12"</span><span class="p">)</span>
+
+    <span class="kd">val</span> <span class="py">versions</span> <span class="p">=</span> <span class="nc">Versions</span><span class="p">()</span>
+
+    <span class="kd">val</span> <span class="py">junit5_jupiter</span> <span class="p">=</span> <span class="s">"org.junit.jupiter:junit-jupiter-api:${versions.junit5}"</span>
+    <span class="kd">val</span> <span class="py">junit5_jupiter_runtime</span> <span class="p">=</span> <span class="s">"org.junit.jupiter:junit-jupiter-engine:${versions.junit5}"</span>
+    <span class="kd">val</span> <span class="py">junit5_jupiter_params</span> <span class="p">=</span> <span class="s">"org.junit.jupiter:junit-jupiter-params:${versions.junit5}"</span>
+    <span class="kd">val</span> <span class="py">junit4_legacy</span> <span class="p">=</span> <span class="s">"junit:junit:${versions.junit4}"</span>
+    <span class="kd">val</span> <span class="py">junit5_vintage</span> <span class="p">=</span> <span class="s">"org.junit.vintage:junit-vintage-engine:${versions.junit5}"</span>
+
+    <span class="kd">val</span> <span class="py">assertj</span> <span class="p">=</span> <span class="s">"org.assertj:assertj-core:${versions.assertj}"</span>
+
+    <span class="kd">val</span> <span class="py">mockk</span> <span class="p">=</span> <span class="s">"io.mockk:mockk:${versions.mockk}"</span>
+
+    <span class="kd">val</span> <span class="py">roboelectric</span> <span class="p">=</span> <span class="s">"org.robolectric:robolectric:${versions.roboelectric}"</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>You can see the <code class="language-plaintext highlighter-rouge">buildSrc</code> folder of the project used in this tutorial
+<a href="https://github.com/nazmulidris/places-api-poc/tree/main/buildSrc">here</a>.</p>
+</blockquote>
+
+<p>Since I’m using Kotlin for test code, and my source code, the source sets needed to be updated as
+well. This is done in the app module’s <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> file (in the <code class="language-plaintext highlighter-rouge">android</code> section)</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">android</span> <span class="p">{</span>
+    <span class="c1">// For JUnit5 tests.</span>
+    <span class="c1">// More info : https://stackoverflow.com/a/46440810/2085356</span>
+    <span class="c1">// More info : https://github.com/gradle/kotlin-dsl/issues/443</span>
+    <span class="nf">sourceSets</span> <span class="p">{</span>
+        <span class="nf">getByName</span><span class="p">(</span><span class="s">"main"</span><span class="p">).</span><span class="n">java</span><span class="p">.</span><span class="nf">srcDir</span><span class="p">(</span><span class="s">"src/main/kotlin"</span><span class="p">)</span>
+        <span class="nf">getByName</span><span class="p">(</span><span class="s">"test"</span><span class="p">).</span><span class="n">java</span><span class="p">.</span><span class="nf">srcDir</span><span class="p">(</span><span class="s">"src/test/kotlin"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here are some links with gradle build scripts used in this project.</p>
+
+<ol>
+  <li><a href="https://github.com/nazmulidris/places-api-poc/blob/main/buildSrc/build.gradle.kts">buildSrc build.gradle.kts</a>.
+This loads the Kotlin DSL for gradle, so that Kotlin can be used to declare all the dependencies,
+in the
+<a href="https://github.com/nazmulidris/places-api-poc/blob/main/buildSrc/src/main/kotlin/Dependencies.kt">Dependencies.kt</a>
+file.</li>
+  <li><a href="https://github.com/nazmulidris/places-api-poc/blob/main/build.gradle.kts">Top level build.gradle.kts</a></li>
+  <li><a href="https://github.com/nazmulidris/places-api-poc/blob/main/settings.gradle">Top level settings.gradle</a></li>
+  <li><a href="https://github.com/nazmulidris/places-api-poc/blob/main/app/build.gradle.kts">App module build.gradle.kts</a></li>
+</ol>
+      <h2 id="loading-junit5-mockk-assertj-and-roboelectric">
+        
+        
+          Loading JUnit5, MockK, AssertJ, and Roboelectric <a href="#loading-junit5-mockk-assertj-and-roboelectric">#</a>
+        
+        
+      </h2>
+    
+
+<p>In order to get JUnit5 into the project, you can use the
+<a href="https://github.com/mannodermaus/android-junit5">android-junit5</a> gradle plugin. Sadly, there’s no
+easier way to automatically add support for JUnit5 (as of this Oct 2018).</p>
+
+<p>In order to use Roboelectric 3.8, you will also need JUnit4 via JUnit5 Vintage support. And you will
+have to ensure that you app doesn’t target API level 28.</p>
+
+<p>These are the entries in the <code class="language-plaintext highlighter-rouge">build.gradle.kts</code> file for the app module that are required to import
+all the dependencies.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">plugins</span> <span class="p">{</span>
+    <span class="nf">id</span><span class="p">(</span><span class="s">"de.mannodermaus.android-junit5"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nf">android</span> <span class="p">{</span>
+    <span class="n">lintOptions</span><span class="p">.</span><span class="n">isAbortOnError</span> <span class="p">=</span> <span class="k">false</span>
+
+    <span class="c1">// For JUnit5 tests.</span>
+    <span class="c1">// More info : https://stackoverflow.com/a/46440810/2085356</span>
+    <span class="c1">// More info : https://github.com/gradle/kotlin-dsl/issues/443</span>
+    <span class="nf">sourceSets</span> <span class="p">{</span>
+        <span class="nf">getByName</span><span class="p">(</span><span class="s">"main"</span><span class="p">).</span><span class="n">java</span><span class="p">.</span><span class="nf">srcDir</span><span class="p">(</span><span class="s">"src/main/kotlin"</span><span class="p">)</span>
+        <span class="nf">getByName</span><span class="p">(</span><span class="s">"test"</span><span class="p">).</span><span class="n">java</span><span class="p">.</span><span class="nf">srcDir</span><span class="p">(</span><span class="s">"src/test/kotlin"</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c1">// For Roboelectric.</span>
+    <span class="n">testOptions</span><span class="p">.</span><span class="n">unitTests</span><span class="p">.</span><span class="nf">setIncludeAndroidResources</span><span class="p">(</span><span class="k">true</span><span class="p">)</span>
+<span class="p">}</span>
+
+
+<span class="c1">// Testing w/ JUnit5 &amp; AssertJ.</span>
+<span class="nf">run</span> <span class="p">{</span>
+
+    <span class="nf">dependencies</span> <span class="p">{</span>
+        <span class="c1">// Add JUnit5 dependencies.</span>
+        <span class="nf">testImplementation</span><span class="p">(</span><span class="nc">TestingDeps</span><span class="p">.</span><span class="n">junit5_jupiter</span><span class="p">)</span>
+        <span class="nf">testRuntimeOnly</span><span class="p">(</span><span class="nc">TestingDeps</span><span class="p">.</span><span class="n">junit5_jupiter_runtime</span><span class="p">)</span>
+        <span class="nf">testImplementation</span><span class="p">(</span><span class="nc">TestingDeps</span><span class="p">.</span><span class="n">junit5_jupiter_params</span><span class="p">)</span>
+
+        <span class="c1">// Add JUnit4 legacy dependencies.</span>
+        <span class="nf">testImplementation</span><span class="p">(</span><span class="nc">TestingDeps</span><span class="p">.</span><span class="n">junit4_legacy</span><span class="p">)</span>
+        <span class="nf">testRuntimeOnly</span><span class="p">(</span><span class="nc">TestingDeps</span><span class="p">.</span><span class="n">junit5_vintage</span><span class="p">)</span>
+
+        <span class="c1">// Add AssertJ dependencies.</span>
+        <span class="nf">testImplementation</span><span class="p">(</span><span class="nc">TestingDeps</span><span class="p">.</span><span class="n">assertj</span><span class="p">)</span>
+
+        <span class="c1">// Add MockK dependencies.</span>
+        <span class="nf">testImplementation</span><span class="p">(</span><span class="nc">TestingDeps</span><span class="p">.</span><span class="n">mockk</span><span class="p">)</span>
+
+        <span class="c1">// Add Roboelectric dependencies.</span>
+        <span class="nf">testImplementation</span><span class="p">(</span><span class="nc">TestingDeps</span><span class="p">.</span><span class="n">roboelectric</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Need this to use Java8 in order to use certain features of JUnit5 (such as calling static</span>
+    <span class="c1">// methods on interfaces).</span>
+
+    <span class="c1">// More info : https://github.com/mannodermaus/android-junit5/wiki/Getting-Started</span>
+    <span class="c1">// More info : https://stackoverflow.com/a/45994990/2085356</span>
+
+    <span class="c1">// For Kotlin sources.</span>
+    <span class="n">tasks</span><span class="p">.</span><span class="n">withType</span><span class="p">&lt;</span><span class="n">org</span><span class="p">.</span><span class="n">jetbrains</span><span class="p">.</span><span class="n">kotlin</span><span class="p">.</span><span class="n">gradle</span><span class="p">.</span><span class="n">tasks</span><span class="p">.</span><span class="nc">KotlinCompile</span><span class="p">&gt;</span> <span class="p">{</span>
+        <span class="n">kotlinOptions</span><span class="p">.</span><span class="n">jvmTarget</span> <span class="p">=</span> <span class="s">"1.8"</span>
+    <span class="p">}</span>
+
+    <span class="c1">// For Java sources.</span>
+    <span class="nf">java</span> <span class="p">{</span>
+        <span class="n">sourceCompatibility</span> <span class="p">=</span> <span class="nc">JavaVersion</span><span class="p">.</span><span class="nc">VERSION_1_8</span>
+        <span class="n">targetCompatibility</span> <span class="p">=</span> <span class="nc">JavaVersion</span><span class="p">.</span><span class="nc">VERSION_1_8</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="defining-some-unit-tests">
+        
+        
+          Defining some unit tests <a href="#defining-some-unit-tests">#</a>
+        
+        
+      </h2>
+    
+
+<p>With the dependencies sorted, and sourceSets created, it is now possible to create unit tests!</p>
+
+<ul>
+  <li>You can use AssertJ, MockK, and JUnit5.</li>
+  <li>Or you can use JUnit5 Vintage (JUnit4 support) for tests that require Roboelectric.</li>
+</ul>
+      <h3 id="example-1">
+        
+        
+          Example 1 <a href="#example-1">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s an example of a unit test that requires Roboelectric to function. Note how you can have
+spaces in Kotlin function names as long as you escape them with backticks. This makes test names
+easier to read!</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * This class uses Roboelectric to mock [android.net.Uri] and it uses the
+ * [org.junit.Test] annotation from JUnit4 (and not JUnit5). Also,
+ * @[org.junit.runner.RunWith] is JUnit4 (and not JUnit5).
+ *
+ * Currently (as of Oct 19 2018) Roboelectric doesn't work w/ JUnit5,
+ * and also doesn't work w/ API level 28, which is why these changes
+ * have to be made.
+ */</span>
+<span class="nd">@RunWith</span><span class="p">(</span><span class="nc">RobolectricTestRunner</span><span class="o">::</span><span class="k">class</span><span class="p">)</span>
+<span class="kd">class</span> <span class="nc">PlaceWrapperTest</span> <span class="p">{</span>
+
+    <span class="nd">@Test</span>
+    <span class="k">fun</span> <span class="nf">`Convert</span> <span class="n">valid</span> <span class="nc">GMS</span> <span class="kd">object</span> <span class="err">into </span><span class="nc">PlaceWrapper`</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="kd">val</span> <span class="py">place</span> <span class="p">=</span> <span class="n">mockk</span><span class="p">&lt;</span><span class="nc">Place</span><span class="p">&gt;().</span><span class="nf">apply</span> <span class="p">{</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">id</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"placeId"</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">placeTypes</span> <span class="p">}</span> <span class="n">returns</span> <span class="nf">listOf</span><span class="p">(</span><span class="nc">Place</span><span class="p">.</span><span class="nc">TYPE_CAFE</span><span class="p">,</span> <span class="nc">Place</span><span class="p">.</span><span class="nc">TYPE_CAR_DEALER</span><span class="p">)</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">address</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"address"</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">locale</span> <span class="p">}</span> <span class="n">returns</span> <span class="nc">Locale</span><span class="p">(</span><span class="s">"en"</span><span class="p">)</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">name</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"name"</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">latLng</span> <span class="p">}</span> <span class="n">returns</span> <span class="nc">LatLng</span><span class="p">(-</span><span class="mf">33.880490</span><span class="p">,</span> <span class="mf">151.184363</span><span class="p">)</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">viewport</span> <span class="p">}</span> <span class="n">returns</span> <span class="nc">LatLngBounds</span><span class="p">(</span>
+                    <span class="nc">LatLng</span><span class="p">(-</span><span class="mf">33.880490</span><span class="p">,</span> <span class="mf">151.184363</span><span class="p">),</span>
+                    <span class="nc">LatLng</span><span class="p">(-</span><span class="mf">33.858754</span><span class="p">,</span> <span class="mf">151.229596</span><span class="p">))</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">websiteUri</span> <span class="p">}</span> <span class="n">returns</span> <span class="nc">Uri</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s">"http://google.com"</span><span class="p">)</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">phoneNumber</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"1231231234"</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">rating</span> <span class="p">}</span> <span class="n">returns</span> <span class="mf">4.4f</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">priceLevel</span> <span class="p">}</span> <span class="n">returns</span> <span class="p">-</span><span class="mi">1</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">attributions</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"n/a"</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="nf">freeze</span><span class="p">()</span> <span class="p">}</span> <span class="n">returns</span> <span class="k">this</span>
+        <span class="p">}</span>
+
+        <span class="nf">with</span><span class="p">(</span><span class="nc">PlaceWrapper</span><span class="p">(</span><span class="n">place</span><span class="p">,</span> <span class="mf">1f</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">id</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="s">"placeId"</span><span class="p">)</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">placeTypes</span><span class="p">).</span><span class="nf">containsAll</span><span class="p">(</span>
+                    <span class="nf">listOf</span><span class="p">(</span><span class="nc">Place</span><span class="p">.</span><span class="nc">TYPE_CAFE</span><span class="p">,</span> <span class="nc">Place</span><span class="p">.</span><span class="nc">TYPE_CAR_DEALER</span><span class="p">))</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">address</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="s">"address"</span><span class="p">)</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">locale</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="nc">Locale</span><span class="p">(</span><span class="s">"en"</span><span class="p">))</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">name</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="s">"name"</span><span class="p">)</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">latLng</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="nc">LatLng</span><span class="p">(-</span><span class="mf">33.880490</span><span class="p">,</span> <span class="mf">151.184363</span><span class="p">))</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">viewport</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="nc">LatLngBounds</span><span class="p">(</span>
+                    <span class="nc">LatLng</span><span class="p">(-</span><span class="mf">33.880490</span><span class="p">,</span> <span class="mf">151.184363</span><span class="p">),</span>
+                    <span class="nc">LatLng</span><span class="p">(-</span><span class="mf">33.858754</span><span class="p">,</span> <span class="mf">151.229596</span><span class="p">)))</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">websiteUri</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="nc">Uri</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s">"http://google.com"</span><span class="p">))</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">phoneNumber</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="s">"1231231234"</span><span class="p">)</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">rating</span><span class="p">).</span><span class="nf">isCloseTo</span><span class="p">(</span><span class="mf">4.4f</span><span class="p">,</span> <span class="nc">Percentage</span><span class="p">.</span><span class="nf">withPercentage</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">priceLevel</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">attributions</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="s">"n/a"</span><span class="p">)</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="k">fun</span> <span class="nf">`Convert</span> <span class="n">incomplete</span> <span class="nc">GMS</span> <span class="kd">object</span> <span class="err">into </span><span class="nc">PlaceWrapper`</span><span class="p">()</span> <span class="p">{</span>
+
+        <span class="kd">val</span> <span class="py">place</span> <span class="p">=</span> <span class="n">mockk</span><span class="p">&lt;</span><span class="nc">Place</span><span class="p">&gt;().</span><span class="nf">apply</span> <span class="p">{</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">id</span> <span class="p">}</span> <span class="n">returns</span> <span class="k">null</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">placeTypes</span> <span class="p">}</span> <span class="n">returns</span> <span class="nf">listOf</span><span class="p">()</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">address</span> <span class="p">}</span> <span class="n">returns</span> <span class="k">null</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">locale</span> <span class="p">}</span> <span class="n">returns</span> <span class="nc">Locale</span><span class="p">(</span><span class="s">"en"</span><span class="p">)</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">name</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"name"</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">latLng</span> <span class="p">}</span> <span class="n">returns</span> <span class="nc">LatLng</span><span class="p">(-</span><span class="mf">33.880490</span><span class="p">,</span> <span class="mf">151.184363</span><span class="p">)</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">viewport</span> <span class="p">}</span> <span class="n">returns</span> <span class="k">null</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">websiteUri</span> <span class="p">}</span> <span class="n">returns</span> <span class="nc">Uri</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s">"http://google.com"</span><span class="p">)</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">phoneNumber</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">""</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">rating</span> <span class="p">}</span> <span class="n">returns</span> <span class="mf">4.4f</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">priceLevel</span> <span class="p">}</span> <span class="n">returns</span> <span class="p">-</span><span class="mi">1</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="n">attributions</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"n/a"</span>
+            <span class="nf">every</span> <span class="p">{</span> <span class="nf">freeze</span><span class="p">()</span> <span class="p">}</span> <span class="n">returns</span> <span class="k">this</span>
+        <span class="p">}</span>
+
+        <span class="nf">with</span><span class="p">(</span><span class="nc">PlaceWrapper</span><span class="p">(</span><span class="n">place</span><span class="p">,</span> <span class="mf">1f</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">id</span><span class="p">).</span><span class="nf">isNull</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">placeTypes</span><span class="p">).</span><span class="nf">isEmpty</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">address</span><span class="p">).</span><span class="nf">isNull</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">locale</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="nc">Locale</span><span class="p">(</span><span class="s">"en"</span><span class="p">))</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">name</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="s">"name"</span><span class="p">)</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">latLng</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="nc">LatLng</span><span class="p">(-</span><span class="mf">33.880490</span><span class="p">,</span> <span class="mf">151.184363</span><span class="p">))</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">viewport</span><span class="p">).</span><span class="nf">isNull</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">websiteUri</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="nc">Uri</span><span class="p">.</span><span class="nf">parse</span><span class="p">(</span><span class="s">"http://google.com"</span><span class="p">))</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">phoneNumber</span><span class="p">).</span><span class="nf">isEmpty</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">rating</span><span class="p">).</span><span class="nf">isCloseTo</span><span class="p">(</span><span class="mf">4.4f</span><span class="p">,</span> <span class="nc">Percentage</span><span class="p">.</span><span class="nf">withPercentage</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">priceLevel</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">attributions</span><span class="p">).</span><span class="nf">isEqualTo</span><span class="p">(</span><span class="s">"n/a"</span><span class="p">)</span>
+        <span class="p">}</span>
+
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="example-2">
+        
+        
+          Example 2 <a href="#example-2">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s another example of a unit test that requires Roboelectric.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * This class uses Roboelectric to mock [android.util.Log.i] and it uses the
+ * [org.junit.Test] annotation from JUnit4 (and not JUnit5). Also,
+ * @[org.junit.runner.RunWith] is JUnit4 (and not JUnit5).
+ *
+ * Currently (as of Oct 19 2018) Roboelectric doesn't work w/ JUnit5, and
+ * also doesn't work w/ API level 28, which is why these changes have
+ * to be made.
+ */</span>
+<span class="nd">@RunWith</span><span class="p">(</span><span class="nc">RobolectricTestRunner</span><span class="o">::</span><span class="k">class</span><span class="p">)</span>
+<span class="kd">class</span> <span class="nc">AutocompletePredictionDataTest</span> <span class="p">{</span>
+
+    <span class="nd">@Test</span>
+    <span class="k">fun</span> <span class="nf">`Parse</span> <span class="n">with</span> <span class="n">non</span> <span class="k">null</span> <span class="n">and</span> <span class="n">non</span> <span class="n">empty</span> <span class="n">fields</span> <span class="n">from</span> <span class="nc">GMS</span> <span class="k">object</span><span class="err">`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">gmsObject</span><span class="p">:</span> <span class="nc">AutocompletePrediction</span> <span class="p">=</span>
+                <span class="n">mockk</span><span class="p">&lt;</span><span class="nc">AutocompletePrediction</span><span class="p">&gt;().</span><span class="nf">apply</span> <span class="p">{</span>
+                    <span class="nf">every</span> <span class="p">{</span> <span class="nf">getFullText</span><span class="p">(</span><span class="k">null</span><span class="p">)</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"fullText"</span>
+                    <span class="nf">every</span> <span class="p">{</span> <span class="nf">getPrimaryText</span><span class="p">(</span><span class="k">null</span><span class="p">)</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"primaryText"</span>
+                    <span class="nf">every</span> <span class="p">{</span> <span class="nf">getSecondaryText</span><span class="p">(</span><span class="k">null</span><span class="p">)</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"secondaryText"</span>
+                    <span class="nf">every</span> <span class="p">{</span> <span class="n">placeId</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"placeId"</span>
+                    <span class="nf">every</span> <span class="p">{</span> <span class="n">placeTypes</span> <span class="p">}</span> <span class="n">returns</span> <span class="nf">listOf</span><span class="p">()</span>
+                <span class="p">}</span>
+
+        <span class="nf">with</span><span class="p">(</span><span class="n">gmsObject</span><span class="p">.</span><span class="nf">parse</span><span class="p">())</span> <span class="p">{</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">fullText</span><span class="p">).</span><span class="nf">isNotBlank</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">primaryText</span><span class="p">).</span><span class="nf">isNotBlank</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">secondaryText</span><span class="p">).</span><span class="nf">isNotBlank</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">placeId</span><span class="p">).</span><span class="nf">isNotBlank</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">placeTypes</span><span class="p">).</span><span class="n">isNotNull</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Test</span>
+    <span class="k">fun</span> <span class="nf">`Parse</span> <span class="n">with</span> <span class="n">some</span> <span class="k">null</span> <span class="n">or</span> <span class="n">empty</span> <span class="n">fields</span> <span class="n">from</span> <span class="nc">GMS</span> <span class="k">object</span><span class="err">`</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kd">val</span> <span class="py">gmsObject</span><span class="p">:</span> <span class="nc">AutocompletePrediction</span> <span class="p">=</span>
+                <span class="n">mockk</span><span class="p">&lt;</span><span class="nc">AutocompletePrediction</span><span class="p">&gt;().</span><span class="nf">apply</span> <span class="p">{</span>
+                    <span class="nf">every</span> <span class="p">{</span> <span class="nf">getFullText</span><span class="p">(</span><span class="k">null</span><span class="p">)</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">"fullText"</span>
+                    <span class="nf">every</span> <span class="p">{</span> <span class="nf">getPrimaryText</span><span class="p">(</span><span class="k">null</span><span class="p">)</span> <span class="p">}</span> <span class="n">returns</span> <span class="k">null</span>
+                    <span class="nf">every</span> <span class="p">{</span> <span class="nf">getSecondaryText</span><span class="p">(</span><span class="k">null</span><span class="p">)</span> <span class="p">}</span> <span class="n">returns</span> <span class="s">""</span>
+                    <span class="nf">every</span> <span class="p">{</span> <span class="n">placeId</span> <span class="p">}</span> <span class="n">returns</span> <span class="k">null</span>
+                    <span class="nf">every</span> <span class="p">{</span> <span class="n">placeTypes</span> <span class="p">}</span> <span class="n">returns</span> <span class="k">null</span>
+                <span class="p">}</span>
+
+        <span class="nf">with</span><span class="p">(</span><span class="n">gmsObject</span><span class="p">.</span><span class="nf">parse</span><span class="p">())</span> <span class="p">{</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">fullText</span><span class="p">).</span><span class="nf">isNotBlank</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">primaryText</span><span class="p">).</span><span class="nf">isBlank</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">secondaryText</span><span class="p">).</span><span class="nf">isBlank</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">placeId</span><span class="p">).</span><span class="nf">isBlank</span><span class="p">()</span>
+            <span class="nf">assertThat</span><span class="p">(</span><span class="n">placeTypes</span><span class="p">).</span><span class="nf">isEmpty</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>You can see all the tests for this project on
+<a href="https://github.com/nazmulidris/places-api-poc/tree/main/app/src/test/kotlin">github</a>.</p>
+</blockquote>
+      <h2 id="references">
+        
+        
+          References <a href="#references">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li><a href="http://joel-costigliola.github.io/assertj/assertj-core-quick-start.html">AssertJ</a></li>
+  <li><a href="https://github.com/mockk/mockk">MockK</a></li>
+  <li><a href="http://robolectric.org/getting-started/">Roboelectric</a></li>
+  <li><a href="https://github.com/mannodermaus/android-junit5">android-junit5 gradle plugin</a></li>
+  <li><a href="https://www.baeldung.com/junit-5-migration">Migrating from JUnit4 to JUnit5</a></li>
+  <li><a href="https://blog.stylingandroid.com/junit-5-kotlin/">Tutorial on using JUnit5 for Android w/ Kotlin</a></li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/KT">
+                #kt</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TDD">
+                #tdd</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/02/06/publish-kotlin-library-as-gradle-dep/">
+                        Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/11/20/idea-plugin-example-intro/">
+                        Introduction to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/15/non-capturing-lambda-problems/">
+                        Potential problems of using non-capturing lambdas
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
+                        Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-extension-function-expressions/">
+                        Kotlin Extension Function Expressions
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-and-kotlin/">
+                        Advanced Dagger 2 w/ Android and Kotlin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2018/10/21/kotlin-testing-setup/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

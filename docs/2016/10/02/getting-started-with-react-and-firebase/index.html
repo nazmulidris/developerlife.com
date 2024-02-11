@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Building a real world app using React, Firebase, and Typescript | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Building a real world app using React, Firebase, and Typescript" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The purpose of this tutorial is to serve as a starting point for a real world React and Firebase example. The starter project is on GitHub." />
+<meta property="og:description" content="The purpose of this tutorial is to serve as a starting point for a real world React and Firebase example. The starter project is on GitHub." />
+<link rel="canonical" href="http://developerlife.com/2016/10/02/getting-started-with-react-and-firebase/" />
+<meta property="og:url" content="http://developerlife.com/2016/10/02/getting-started-with-react-and-firebase/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-10-02T16:51:14-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Building a real world app using React, Firebase, and Typescript" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2016-10-02T16:51:14-05:00","datePublished":"2016-10-02T16:51:14-05:00","description":"The purpose of this tutorial is to serve as a starting point for a real world React and Firebase example. The starter project is on GitHub.","headline":"Building a real world app using React, Firebase, and Typescript","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2016/10/02/getting-started-with-react-and-firebase/"},"url":"http://developerlife.com/2016/10/02/getting-started-with-react-and-firebase/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Building a real world app using React, Firebase, and Typescript&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Building a real world app using React, Firebase, and Typescript</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Building a real world app using React, Firebase, and Typescript</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Oct 2, 2016
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+<img class="post-hero-image" src="/assets/react-firebase-typescript-hero.png"/>
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a>
+    <ul>
+      <li><a href="#what-does-this-project-actually-do">What does this project actually do?</a></li>
+    </ul>
+  </li>
+  <li><a href="#setting-up-your-environment">Setting up your environment</a>
+    <ul>
+      <li><a href="#install-nodejs">Install NodeJS</a></li>
+      <li><a href="#install-all-the-other-things">Install all the other things</a></li>
+      <li><a href="#get-the-code-from-github">Get the code from GitHub</a></li>
+      <li><a href="#setup-firebase">Setup Firebase</a></li>
+    </ul>
+  </li>
+  <li><a href="#your-map-of-the-code">Your map of the code</a></li>
+  <li><a href="#patterns-used-in-the-code">Patterns used in the code</a>
+    <ul>
+      <li><a href="#event-emitters--event-listeners--observables">Event emitters / Event listeners / Observables</a>
+        <ul>
+          <li><a href="#local-events">Local events</a></li>
+          <li><a href="#firebase-database-patterns">Firebase Database patterns</a></li>
+          <li><a href="#react-ui-update-patterns">React UI update patterns</a></li>
+          <li><a href="#socketio-patterns">Socket.IO patterns</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#typescript">Typescript</a></li>
+  <li><a href="#material-design">Material Design</a></li>
+  <li><a href="#firebase-auth">Firebase Auth</a></li>
+  <li><a href="#misc">Misc</a></li>
+  <li><a href="#getting-the-code">Getting the code</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>I’d been looking for a good starter project to tie together React, Firebase, and Material Design,
+and I wanted it to be lightweight enough to get started with quickly, but deep enough so that it
+would be realistic enough to use in actual projects.</p>
+
+<p>With this in mind, I set out to create the starter project that is on
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_firebase_ts_md">GitHub here</a>. The
+core technologies used in this starter project are:</p>
+
+<ul>
+  <li><a href="https://facebook.github.io/react/">React</a></li>
+  <li><a href="https://www.firebase.com/">Firebase</a></li>
+  <li><a href="http://es6-features.org/#Constants">ES6</a></li>
+  <li><a href="https://www.typescriptlang.org/">Typescript</a>,
+<a href="https://basarat.gitbooks.io/typescript/content/docs/quick/nodejs.html">Typescript with NodeJS</a></li>
+  <li><a href="http://www.material-ui.com/#/">Material UI for React</a></li>
+  <li><a href="http://flexboxfroggy.com/">Flexbox layout</a></li>
+  <li><a href="http://socket.io/">Socket.IO</a></li>
+</ul>
+
+<p>Please note that is not for beginners, but is more for someone who knows these technologies and
+wants to put them together into real world applications. If you want to get started with the basics,
+here are some good resources:</p>
+
+<ul>
+  <li>React JS Essentials book - <a href="https://goo.gl/UkHggE">https://goo.gl/UkHggE</a></li>
+  <li>Udemy React Course - <a href="https://www.udemy.com/react-redux/">https://www.udemy.com/react-redux/</a></li>
+  <li>Basic code example for (redux/react/firebase) -
+<a href="https://github.com/r-park/todo-react-redux">https://github.com/r-park/todo-react-redux</a></li>
+</ul>
+      <h3 id="what-does-this-project-actually-do">
+        
+        
+          What does this project actually do? <a href="#what-does-this-project-actually-do">#</a>
+        
+        
+      </h3>
+    
+
+<p>To see it in action, see it deployed on <a href="https://todolist-r3bl-alliance.herokuapp.com/">heroku</a>.
+This project is a simple todo list app that stores its data in Firebase. And it uses Material Design
+and Flexbox layout for the UI, along with React. Additionally, it supports signed in users, so that
+all the data is stored on the user’s behalf based on their social identity (anonymous auth and
+Google sign in is supported via Firebase).</p>
+
+<p>When the app first starts up, you will be able to create todo list items. These are saved for the
+anonymous user that’s automatically created when the app launches. This is explained in more detail
+below in the Firebase Auth section. When you click on the user icon on the top right hand corner of
+the app, you will be asked to connect the app using your Google profile (via OAuth 2.0), which is
+handled by Firebase Auth as well. Once you provide your authorization, it will copy the todo data to
+a new account that is permanent and tied to your social identity. If you then sign in to this app
+from any number of machines, the same todo data will be available everywhere. As you make changes to
+this data (in real time) you will see these changes appear everywhere that you have the app running
+(as long as you are online on those machines).</p>
+
+<p><img src="/assets/react-firebase-typescript-1.png" alt="" /></p>
+      <h2 id="setting-up-your-environment">
+        
+        
+          Setting up your environment <a href="#setting-up-your-environment">#</a>
+        
+        
+      </h2>
+    
+
+<p>The project on GitHub uses node and Webpack in order to make sure that everything transpiles and
+deploys in your development and production environment. This project is ready to be deployed to a
+Heroku node container as is. I’m not going to go into the specifics of Babel, Webpack, Heroku, or
+Node in this tutorial.</p>
+
+<p>To get started you will need the following on your development machine:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">node</code></li>
+  <li><code class="language-plaintext highlighter-rouge">babel</code></li>
+  <li><code class="language-plaintext highlighter-rouge">webpack</code> and <code class="language-plaintext highlighter-rouge">webpack-dev-server</code></li>
+  <li><code class="language-plaintext highlighter-rouge">typescript</code> and <code class="language-plaintext highlighter-rouge">typings</code></li>
+</ul>
+      <h3 id="install-nodejs">
+        
+        
+          Install NodeJS <a href="#install-nodejs">#</a>
+        
+        
+      </h3>
+    
+
+<p>Make sure to install Node if you havent’ already. Here are directions on MacOS using <code class="language-plaintext highlighter-rouge">brew</code>:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"</code></p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">brew install node</code></p>
+  </li>
+</ul>
+      <h3 id="install-all-the-other-things">
+        
+        
+          Install all the other things <a href="#install-all-the-other-things">#</a>
+        
+        
+      </h3>
+    
+
+<p>To install all the other things on your machine (these are all installed globally and not specific
+to this project):</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">npm install babel webpack webpack-dev-server typescript typings -g</code></p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">typings install dt~node --global --save</code></p>
+  </li>
+</ul>
+      <h3 id="get-the-code-from-github">
+        
+        
+          Get the code from GitHub <a href="#get-the-code-from-github">#</a>
+        
+        
+      </h3>
+    
+
+<p>Then checkout the source code from GitHub and go to the folder where you downloaded this project and
+run (to install all the project scoped dependencies):</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">npm install</code></li>
+</ul>
+      <h3 id="setup-firebase">
+        
+        
+          Setup Firebase <a href="#setup-firebase">#</a>
+        
+        
+      </h3>
+    
+
+<p>Whew! We aren’t done yet, with the setup. Now, you have to setup your Firebase console and setup a
+new project and make sure to setup the project to enable Auth. Here are the details:</p>
+
+<ul>
+  <li>
+    <p>Create a new project</p>
+  </li>
+  <li>
+    <p>Set Database -&gt; Rules to read/write by public using
+<code class="language-plaintext highlighter-rouge">{ "rules": { ".read": true, ".write": true } }</code></p>
+  </li>
+  <li>
+    <p>Set the Auth -&gt; SignIn Methods to enable <code class="language-plaintext highlighter-rouge">Google</code> and <code class="language-plaintext highlighter-rouge">Anonymous</code></p>
+  </li>
+  <li>
+    <p>Put the config object generated by Firebase in <code class="language-plaintext highlighter-rouge">constants.js</code></p>
+  </li>
+</ul>
+
+<p>Now that you have everything setup and runing on your machine, it’s time to dig deeper and
+understand what it is that you just downloaded!</p>
+      <h2 id="your-map-of-the-code">
+        
+        
+          Your map of the code <a href="#your-map-of-the-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>You will find the following packages in the <code class="language-plaintext highlighter-rouge">src</code> folder:</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">client</code> - this folder holds all the code related to the web app</p>
+
+    <ul>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">container</code> - this folder holds all the related to the internal state and lifecycles of the web
+app itself.</p>
+      </li>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">ui</code> - this folder holds all the React UI code.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">global</code> - this folder holds the code that is shared between the web client app and the web server
+app.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">server</code> - this folder holds all the server code (spawns Websocket, HTTP server, etc).</p>
+  </li>
+</ul>
+
+<p>Let’s do a deep dive of the files in the <code class="language-plaintext highlighter-rouge">container</code> folder which only holds Typescript files (with
+the .ts extension):</p>
+
+<ul>
+  <li>
+    <p>Every <code class="language-plaintext highlighter-rouge">.ts</code> file gets compiled into a <code class="language-plaintext highlighter-rouge">.js</code> and <code class="language-plaintext highlighter-rouge">.js.map</code> file. Eg: <code class="language-plaintext highlighter-rouge">firebase.ts</code>, gets compiled
+into <code class="language-plaintext highlighter-rouge">firebase.js</code> and <code class="language-plaintext highlighter-rouge">firebase.js.map</code>. So the “real” file is just firebase.ts.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">firebase.ts</code> - This Typescript file contains all the functions that connect to Firebase Database
+and Firebase Auth. This is a central place where all the Firebase I/O happens.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">context.ts</code> - This Typescript file is actually the main container that is the web client app
+itself. All the connections to Firebase, server sockets, and all other kinds of lifecycle
+management and clean operations happen in this file and it can be imported and used everywhere.
+Event emitters and web sockets are also accessed via the ApplicationContext class in this file.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">interfaces.ts</code> - This is where all the interfaces that describe the types that are used in this
+folder are stored. Things like what does the data look like, what does a user object look like,
+etc. This helps you keep track of the types of data that flowing between Firebase and various
+components of your app.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">mutatedata.ts</code> - This Typescript file contains all the functions that deal with the UI making
+changes to the underlying Firebase data stores &amp; sync it with the UI (using event emitters).</p>
+  </li>
+</ul>
+      <h2 id="patterns-used-in-the-code">
+        
+        
+          Patterns used in the code <a href="#patterns-used-in-the-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>To understand the design of the code I’ve emplouyed some core design patterns that keep things very
+clear (conceptually). The primary pattern is that of the emitter or observable. To start your self
+guided journey into the code, I recommend starting with <code class="language-plaintext highlighter-rouge">main.js</code> and go from there.</p>
+      <h3 id="event-emitters--event-listeners--observables">
+        
+        
+          Event emitters / Event listeners / Observables <a href="#event-emitters--event-listeners--observables">#</a>
+        
+        
+      </h3>
+    
+
+<p>The key concept here, for those who aren’t familiar, is to have an interested party respond to
+changes in an object, without having any knowledge or awareness of who authored this change or where
+it occured. This decoupling makes it really easy to bind / glue disparate components together using
+“invisible wiring”. This pattern is quite natural to use for Firebase, React, and Socket.IO. This is
+a very fundamental pattern that shows up in just about any event driven type of system (and not
+batch systems).</p>
+
+<p>To abstract the pattern, there are 3 key things that have to happen (in no particular order):</p>
+
+<ul>
+  <li>
+    <p>The thing that you are interested in observing (aka the observable) has to emit or push an event
+into the event bus. This is done by naming the event and attaching a payload (JSON object) to it.</p>
+  </li>
+  <li>
+    <p>Your code that is interested in responding to changes in the observable (aka the observer) needs
+to attach a listener to the event name (which will be emitted above). This takes the form of
+calling an addListener() or on() method and passing 1. the name of the event, 2. the callback that
+will run when the event is emitted or fired.</p>
+  </li>
+  <li>
+    <p>You might have to unbind these listeners when they are no longer needed in the lifecycle of your
+application. This is just good hygene to keep listeners from being fired long after certain
+components have been torn down.</p>
+  </li>
+</ul>
+      <h4 id="local-events">
+        
+        
+          Local events <a href="#local-events">#</a>
+        
+        
+      </h4>
+    
+
+<p>The project uses the Node event emitter to tie observers to observables. It all begins with this
+import:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">events</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">events</span><span class="dl">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>The local event emitter is created in <code class="language-plaintext highlighter-rouge">context.ts</code> using the following code:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">this</span><span class="p">.</span><span class="nx">eventEmitter</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">events</span><span class="p">.</span><span class="nc">EventEmitter</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p>To actually emit or fire events that will be dispatched to listeners / observers, here’s what
+happens in the <code class="language-plaintext highlighter-rouge">emit()</code> method in <code class="language-plaintext highlighter-rouge">context.ts</code>.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">emit</span><span class="p">(</span><span class="nx">eventName</span><span class="p">,</span> <span class="nx">payload</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">eventEmitter</span><span class="p">.</span><span class="nf">emit</span><span class="p">(</span><span class="nx">eventName</span><span class="p">,</span> <span class="nx">payload</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>On the observer-side, to actually respond to an event, this is what has to happen:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">this</span><span class="p">.</span><span class="nx">eventEmitter</span><span class="p">.</span><span class="nf">addListener</span><span class="p">(</span><span class="dl">"</span><span class="s2">actual_name_of_event</span><span class="dl">"</span><span class="p">,</span> <span class="kd">function</span> <span class="nf">callback</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>You can see an actual example of this in the <code class="language-plaintext highlighter-rouge">componentWillMount()</code> method in <code class="language-plaintext highlighter-rouge">app.js</code>. This code
+actually shows a <a href="http://www.material-ui.com/#/components/snackbar">Material Design Snackbar</a> in
+response to the <code class="language-plaintext highlighter-rouge">LE_SHOW_SNACKBAR</code> event that is emitted (these constants are in the <code class="language-plaintext highlighter-rouge">constants.js</code>
+file).</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">this</span><span class="p">.</span><span class="nx">le_showSnackbarListener</span> <span class="o">=</span> <span class="nx">applicationContext</span><span class="p">.</span><span class="nf">addListener</span><span class="p">(</span>
+  <span class="nx">GLOBAL_CONSTANTS</span><span class="p">.</span><span class="nx">LE_SHOW_SNACKBAR</span><span class="p">,</span>
+  <span class="kd">function</span> <span class="nf">callback</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nf">showSnackBar</span><span class="p">(</span><span class="nx">param</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>To emit / fire an event that reaches this listener you would have to do this:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">applicationContext</span><span class="p">.</span><span class="nf">emit</span><span class="p">(</span><span class="nx">GLOBAL_CONSTANTS</span><span class="p">.</span><span class="nx">LE_SHOW_SNACKBAR</span><span class="p">,</span> <span class="dl">"</span><span class="s2">text to show in snackbar</span><span class="dl">"</span><span class="p">)</span>
+</code></pre></div></div>
+      <h4 id="firebase-database-patterns">
+        
+        
+          Firebase Database patterns <a href="#firebase-database-patterns">#</a>
+        
+        
+      </h4>
+    
+
+<p>It turns out that Firebase itself uses this same exact pattern for propagating changes data that’s
+stored in the cloud. Firebase is a realtime object database, that is very different than traditional
+SQL databases. All Firebase clients maintain a local copy of the data that is written to first,
+before these changes are propagated to the cloud. When these changes are applied locally, the
+Firebase client then notifies all interested components of your app that the data has changed.</p>
+
+<p>In the case of Firebase:</p>
+
+<ul>
+  <li>
+    <p>The observable is just about any Firebase node that you hold a reference to.</p>
+  </li>
+  <li>
+    <p>The observer is any component in your code that has registered a callback to a Firebase reference
+(the reference is the event name in our analogy). The payload that is passed to the callback you
+register to the on() or once() methods of Firebase is the JSON object that is at the node that you
+have the Firebase reference to.</p>
+  </li>
+</ul>
+
+<p>One key thing to remember with Firebase is that when you register an on() listener with it, it will
+be fired on ALL listeners, even if your component is the one making the change. So it won’t just
+skip sending a notification to your component, since it knows that you’re the author of the change,
+and you don’t need to be poked that the thing that you just changed, acutally did change. So keep
+this in mind when designing for Firebase. You pretty much have to rely on the Firebase callback
+mechanism to notify your own code that it has made changes to the data, you can’t take advantage of
+the fact that you know this - otherwise you risk breaking Firebase synchrnoization.</p>
+
+<p>Another key thing to remember with Firebase is that if you register for on() events of type
+<code class="language-plaintext highlighter-rouge">child_added</code>, <code class="language-plaintext highlighter-rouge">child_removed</code>, etc. then when you first connect to the Firebase reference, all the
+events that are stored in the local database will be immediately applied to your listener. This is
+very unintiutive, since you might want to sense the deltas from this point in time forwards. There
+is a way to do this, but it requires the use of timestamps on the server side and asking for changes
+based on timestamps. This is a more advanced topic and I will cover this in another tutorial.</p>
+
+<p>Here are some code examples of Firebase using the observer / observable pattern. The following code
+example is from the <code class="language-plaintext highlighter-rouge">_loadDataForUserAndAttachListenerToFirebase()</code> method in the <code class="language-plaintext highlighter-rouge">firebase.ts</code>
+file. It registers a listener that is called everytime the JSON object stored in the
+<code class="language-plaintext highlighter-rouge">userDataRootRef</code> node changes in Firebase.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">userId</span> <span class="o">=</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">getUserId</span><span class="p">()</span>
+<span class="kd">let</span> <span class="nx">userDataRootRef</span> <span class="o">=</span> <span class="nf">_getUserDataRootRef</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">userId</span><span class="p">)</span>
+<span class="nx">userDataRootRef</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">"</span><span class="s2">value</span><span class="dl">"</span><span class="p">,</span> <span class="kd">function</span> <span class="nf">callback</span><span class="p">(</span><span class="nx">snap</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nf">_processUpdateFromFirebase</span><span class="p">(</span><span class="nx">snap</span><span class="p">,</span> <span class="nx">ctx</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Here is the code that saves data to Firebase (which ends up triggering the callback above).</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// apply the action locally, and this will change the state</span>
+<span class="nx">ctx</span><span class="p">.</span><span class="nf">getReduxStore</span><span class="p">().</span><span class="nf">dispatch</span><span class="p">(</span><span class="nx">action</span><span class="p">)</span>
+<span class="c1">// save to persistence</span>
+<span class="kd">let</span> <span class="nx">root_ref</span> <span class="o">=</span> <span class="nf">_getUserDataRootRef</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">getUserId</span><span class="p">())</span>
+<span class="kd">let</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">getReduxState</span><span class="p">().</span><span class="nx">data</span>
+<span class="nx">value</span><span class="p">[</span><span class="nx">DB_CONST</span><span class="p">.</span><span class="nx">SESSION_ID</span><span class="p">]</span> <span class="o">=</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">getSessionId</span><span class="p">()</span>
+<span class="nx">value</span><span class="p">[</span><span class="nx">DB_CONST</span><span class="p">.</span><span class="nx">TIMESTAMP</span><span class="p">]</span> <span class="o">=</span> <span class="nx">ctx</span><span class="p">.</span><span class="nf">getFirebaseServerTimestampObject</span><span class="p">()</span>
+<span class="nx">root_ref</span><span class="p">.</span><span class="nf">child</span><span class="p">(</span><span class="nx">DB_CONST</span><span class="p">.</span><span class="nx">DATA_KEY</span><span class="p">).</span><span class="nf">set</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
+</code></pre></div></div>
+      <h4 id="react-ui-update-patterns">
+        
+        
+          React UI update patterns <a href="#react-ui-update-patterns">#</a>
+        
+        
+      </h4>
+    
+
+<p>The observer - observable pattern works nicely with React. React itself is totally event driven. The
+idea with React is that it figures out how to pain the DOM tree more efficiently based on changes un
+underlying state that is explicicly declared in your code. There’s a render() method that simply
+paints the current state to the UI. For native UI developers (on mobile or desktop), this is nothing
+new, and is a very familiar pattern. For the web, where components and subclassing components is
+new, this is a new thing.</p>
+
+<p>To tie React to the event emitter pattern is super straightforward:</p>
+
+<ul>
+  <li>
+    <p>When the component mounts, simply attach a listener to the event name you are interested in. This
+will ensure that your listener will be poked when this event is fired (when the observable
+changes).</p>
+  </li>
+  <li>
+    <p>In your listener, make sure to take the payload and apply that to the underlying state object that
+you are maintaining in React. The state object can simply be set in your constructor.</p>
+  </li>
+  <li>
+    <p>In the render method, make sure to pull things out of the state object and paint them.</p>
+  </li>
+  <li>
+    <p>When the component unmounts, simply detact the listener, so that it will no longer respond to
+events that are fired by the observable.</p>
+  </li>
+</ul>
+      <h4 id="socketio-patterns">
+        
+        
+          Socket.IO patterns <a href="#socketio-patterns">#</a>
+        
+        
+      </h4>
+    
+
+<p>Turns out that Socket.IO uses a near identical pattern to do it’s thing. In order to fire something
+off to a socket, you simply emit() an event and payload to it. Similarly, you can attach a listener
+(using on() or addListener()) and it will invoke your callback when this named event is fired.</p>
+
+<p>On the client, to create the socket:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">io</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">socket.io-client</span><span class="dl">"</span><span class="p">)</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">socket</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">io</span><span class="p">.</span><span class="nf">connect</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nf">getSocketURL</span><span class="p">())</span>
+</code></pre></div></div>
+
+<p>To emit an event to the server, the code is similar to the Node local emitter.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">this</span><span class="p">.</span><span class="nx">socket</span><span class="p">.</span><span class="nf">emit</span><span class="p">(</span><span class="dl">"</span><span class="s2">my_named_event</span><span class="dl">"</span><span class="p">,</span> <span class="p">{</span> <span class="na">key</span><span class="p">:</span> <span class="dl">"</span><span class="s2">value</span><span class="dl">"</span> <span class="p">})</span>
+</code></pre></div></div>
+
+<p>On the server, to recieve this event, you have to setup a Socket.IO object.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">http</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">http</span><span class="dl">"</span><span class="p">)</span>
+<span class="kd">let</span> <span class="nx">httpServer</span> <span class="o">=</span> <span class="nx">http</span><span class="p">.</span><span class="nf">createServer</span><span class="p">(</span><span class="kd">function</span> <span class="nf">handler</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nf">writeHead</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="p">{</span> <span class="dl">"</span><span class="s2">Content-Type</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">text/html</span><span class="dl">"</span> <span class="p">})</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nf">end</span><span class="p">(</span><span class="dl">"</span><span class="s2">&lt;h1&gt;Socket IO Server Running&lt;/h1&gt;</span><span class="dl">"</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="kd">let</span> <span class="nx">io</span> <span class="o">=</span> <span class="nf">require</span><span class="p">(</span><span class="dl">"</span><span class="s2">socket.io</span><span class="dl">"</span><span class="p">)</span>
+<span class="nx">socketio</span> <span class="o">=</span> <span class="nx">io</span><span class="p">.</span><span class="nf">listen</span><span class="p">(</span><span class="nx">httpServer</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Then you attach a listener to it on the server:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">socketio</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">"</span><span class="s2">connection</span><span class="dl">"</span><span class="p">,</span> <span class="kd">function</span> <span class="nf">callback</span><span class="p">(</span><span class="nx">socket</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">socket</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">"</span><span class="s2">my_named_event</span><span class="dl">"</span><span class="p">,</span> <span class="kd">function</span> <span class="nf">listen</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">Received message from client: </span><span class="dl">"</span> <span class="o">+</span> <span class="nx">data</span><span class="p">)</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+</code></pre></div></div>
+      <h2 id="typescript">
+        
+        
+          Typescript <a href="#typescript">#</a>
+        
+        
+      </h2>
+    
+
+<p>I chose to use Typescript for parts of this project (the container classes) in order to leverage the
+power of static type checking to reduce the errors and increase quality of code. Using this event
+emitter pattern, payloads are flying all over the place. And without having any idea of the
+interface or type of the object that is expected to be fired or responded it, all hell can break
+loose.</p>
+
+<p>For more info check out - <a href="https://www.typescriptlang.org/">https://www.typescriptlang.org/</a></p>
+      <h2 id="material-design">
+        
+        
+          Material Design <a href="#material-design">#</a>
+        
+        
+      </h2>
+    
+
+<p>I used Material Design UI library for React for this project, since I really like Material Design
+and wanted to provide an example of how to use the UI library. I don’t spend too much effort in
+theming these components, though I do provide examples of how to customize themes and apply local
+styling.</p>
+
+<p>For more info check out - <a href="http://material-ui.com">http://material-ui.com</a></p>
+      <h2 id="firebase-auth">
+        
+        
+          Firebase Auth <a href="#firebase-auth">#</a>
+        
+        
+      </h2>
+    
+
+<p>I decided to use Firebase Auth to provide anonymous auth and signedin auth for this app. Anonymous
+auth is a good idea for a variety of reasons:</p>
+
+<ul>
+  <li>
+    <p>You can leverage the power of signed in experience and remember things (create state and context)
+for the user while not burdening them with signing in.</p>
+  </li>
+  <li>
+    <p>Once you do decide to convert the user from anonymous to named or signed in, then you can save all
+the data (state and context) that they’ve created and simply make it part of the newly created
+user’s data set.</p>
+  </li>
+</ul>
+
+<p>Here’s the main callback that you register with Firebase which is called anytime the auth state
+changes from signed-out -&gt; signed-in-anonymously -&gt; signed-in-withgoogle. This code is from the
+<code class="language-plaintext highlighter-rouge">initAuth()</code> method of the <code class="language-plaintext highlighter-rouge">firebase.ts</code> file.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// setup auth</span>
+<span class="nx">ctx</span>
+  <span class="p">.</span><span class="nf">getFirebase</span><span class="p">()</span>
+  <span class="p">.</span><span class="nf">auth</span><span class="p">()</span>
+  <span class="p">.</span><span class="nf">onAuthStateChanged</span><span class="p">(</span><span class="kd">function</span> <span class="nf">callback</span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if </span><span class="p">(</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// user is signed in</span>
+      <span class="nf">_processAuthStateChange</span><span class="p">(</span><span class="nx">ctx</span><span class="p">,</span> <span class="nx">user</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="c1">// user is signed out</span>
+      <span class="nf">_forceAnonSignIn</span><span class="p">(</span><span class="nx">ctx</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">})</span>
+</code></pre></div></div>
+      <h2 id="misc">
+        
+        
+          Misc <a href="#misc">#</a>
+        
+        
+      </h2>
+    
+
+<p>Lodash is pretty awesome. It’s used in this project, learn more about it
+<a href="http://colintoh.com/blog/lodash-10-javascript-utility-functions-stop-rewriting">here</a>.</p>
+
+<p>If you use Chrome, the React and Redux Dev Tool extensions are very useful:</p>
+
+<ul>
+  <li>
+    <p>Install the React DevTools for Chrome <a href="https://goo.gl/1XNSjY">here</a>.</p>
+  </li>
+  <li>
+    <p>Install the Redux DevTools for Chrome <a href="https://goo.gl/HTKf5g">here</a>.</p>
+  </li>
+</ul>
+      <h2 id="getting-the-code">
+        
+        
+          Getting the code <a href="#getting-the-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>You can get the
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_firebase_ts_md">code on GitHub</a>.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/DB">
+                #db</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/React">
+                #react</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TypeScript">
+                #typescript</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Web">
+                #web</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/01/28/swingx-tutorial-task-pane/">
+                        SwingX Tutorial - Task Pane (JXTaskPane, Container)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/">
+                        How to use glass pane for animation (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/react-hooks-redux-typescript-handbook/">
+                        React hooks (v17.0.3) and Redux handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/css-responsive-design-handbook/">
+                        CSS responsive design using Grid, Flexbox, and media queries handbook
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/22/vue-vueitfy-webpack/">
+                        Vue.js, Webpack, Vueitify, Electron, and vue-cli
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/15/introduction-to-vue/">
+                        Getting started with Vue.js
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/19/loading-csv-files-in-javascript-and-node/">
+                        Loading CSV files in Node
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2016/10/02/getting-started-with-react-and-firebase/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

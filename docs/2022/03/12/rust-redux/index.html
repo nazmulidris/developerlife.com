@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Write a Redux library in Rust | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Write a Redux library in Rust" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This article illustrates how we can build a Redux library in Rust. This library is thread safe and asynchronous (using Tokio). The middleware and subscribers will be run in parallel. But the reducer functions will be run in sequence." />
+<meta property="og:description" content="This article illustrates how we can build a Redux library in Rust. This library is thread safe and asynchronous (using Tokio). The middleware and subscribers will be run in parallel. But the reducer functions will be run in sequence." />
+<link rel="canonical" href="http://developerlife.com/2022/03/12/rust-redux/" />
+<meta property="og:url" content="http://developerlife.com/2022/03/12/rust-redux/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-12T09:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Write a Redux library in Rust" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2022-03-12T09:00:00-06:00","datePublished":"2022-03-12T09:00:00-06:00","description":"This article illustrates how we can build a Redux library in Rust. This library is thread safe and asynchronous (using Tokio). The middleware and subscribers will be run in parallel. But the reducer functions will be run in sequence.","headline":"Write a Redux library in Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2022/03/12/rust-redux/"},"url":"http://developerlife.com/2022/03/12/rust-redux/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Write a Redux library in Rust&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Write a Redux library in Rust</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Write a Redux library in Rust</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Mar 12, 2022
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/rust-redux.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#architecture">Architecture</a></li>
+  <li><a href="#of-things-and-their-managers">Of “things” and their “managers”</a></li>
+  <li><a href="#using-the-redux-library">Using the Redux library</a></li>
+  <li><a href="#the-store-struct">The Store struct</a></li>
+  <li><a href="#reducer-functions">Reducer functions</a></li>
+  <li><a href="#middleware-functions">Middleware functions</a></li>
+  <li><a href="#subscriber-functions">Subscriber functions</a></li>
+  <li><a href="#wrapping-up">Wrapping up</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This article illustrates how we can build a Redux library in Rust. This library is thread safe and
+asynchronous (using Tokio). The middleware and subscribers will be run in asynchronously via Tokio
+tasks. But the reducer functions will be run in sequence (not in separate Tokio tasks).</p>
+
+<blockquote>
+  <p>💡 Learn more about:</p>
+
+  <ul>
+    <li>Redux <a href="https://redux.js.org/">from the official docs</a>. You can get familiar w/ the store,
+reducer functions, <code class="language-plaintext highlighter-rouge">async</code> middleware, and subscribers. Along w/ the idea of finite state
+machines as an effective way to manage your application’s state.</li>
+    <li>Tokio <a href="https://developerlife.com/2022/03/12/rust-tokio/">from our article</a>. You can get familiar
+with the <code class="language-plaintext highlighter-rouge">async</code> programming model and the Tokio runtime. And get some insights into writing
+macros that help you write <code class="language-plaintext highlighter-rouge">async</code> code.</li>
+  </ul>
+</blockquote>
+
+<blockquote>
+  <p>📜 The source code for the finished Redux library can be found
+<a href="https://github.com/r3bl-org/r3bl-rs-utils">here</a>.</p>
+</blockquote>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+<p>This article is getting us ready to building more complex TUI apps next using crates like <code class="language-plaintext highlighter-rouge">termion</code>
+and <code class="language-plaintext highlighter-rouge">tui</code>.</p>
+
+<blockquote>
+  <p>For more information on general Rust type system design (functional approach rather than
+object oriented), please take a look at this <a href="https://arxiv.org/pdf/2307.07069.pdf">paper</a>
+by Will Crichton demonstrating Typed Design Patterns with Rust.</p>
+</blockquote>
+      <h2 id="architecture">
+        
+        
+          Architecture <a href="#architecture">#</a>
+        
+        
+      </h2>
+    
+
+<p>Before we start, let’s get familiar with the Redux architecture.</p>
+
+<ol>
+  <li>The store is a central place to manage the state of your application. It is the only place where
+you can change the state of your application. In order to change the state, you need to dispatch
+an action. State is immutable. So you can’t change it once it is created. The only way to change
+the state is to dispatch an action, which will generate a new and also immutable state. This is
+the key to Redux’s unidirectional data flow.</li>
+  <li>An action describes your desired change and includes any data (in the form of arguments that will
+end up going to middleware or reducer functions).</li>
+  <li>Once an action has been dispatched to the store, the reducer functions are responsible for
+updating the state based on these incoming actions. Reducer functions must also be pure
+functions, ie, no side effects are allowed (can’t generate unique ids, perform <code class="language-plaintext highlighter-rouge">async</code> function
+calls, use random number generators, or even use the current time). This is severely limiting,
+since these side effects are where most important things in an application’s business logic
+actually happen. This is where middleware functions come in.</li>
+  <li>The middleware is a function that takes an action and returns a new action. This is where all
+kinds of <code class="language-plaintext highlighter-rouge">async</code> operations can be performed. Ultimately, each middleware function call
+asynchronously resolves into a new action. This action is then dispatched to the store (where the
+pure reducer function will use it to generate a new state).</li>
+  <li>The subscriber is a function that is called whenever the state of the store changes. This is
+where you would normally perform UI updates, but they don’t have to be restricted to just UI. Any
+kind of data can be observed by the subscriber.</li>
+</ol>
+
+<p>In our implementation of Redux, we will make the middleware and subscriber functions asynchronous.
+And we will use the Tokio runtime that allows us to run them concurrently and in parallel. However,
+we will run the reducer functions in sequence.</p>
+
+<p>Here are some of our assumptions about the performance characteristics of these components.</p>
+
+<ol>
+  <li>A reducer function is pure and is really fast. It isn’t allowed to do any <code class="language-plaintext highlighter-rouge">async</code> work, so its
+very limited in what it can do. It is best to run these in sequence.</li>
+  <li>A middleware function is <code class="language-plaintext highlighter-rouge">async</code> and can be really slow (doing computations or waiting around for
+IO). These are heavy functions and its good that we can run them asynchronously using Tokio.</li>
+  <li>A Subscriber function can be really slow as well, since it can render some really complex UI.
+However, since this is separate from state changes, we can run them asynchronously using Tokio.</li>
+</ol>
+
+<blockquote>
+  <p>💡 Please read
+<a href="http://developerlife.com/2022/03/12/rust-tokio/#asyncawait-rust-and-tokio">our article on Tokio</a>
+to learn more about the terms: Tokio runtime, synchronous, asynchronous, concurrent, parallel.</p>
+</blockquote>
+
+<p>To make things even more flexible, we will provide 2 ways of dispatching actions:</p>
+
+<ol>
+  <li><strong>A spawning dispatch function</strong>. This frees the main thread from waiting around for the
+middleware, reducer, and subscriber functions to complete. Even the reducer functions will not
+block the calling thread. A new Tokio task is spawned inside of which the reducers are run, the
+<code class="language-plaintext highlighter-rouge">async</code> middleware and <code class="language-plaintext highlighter-rouge">async</code> subscribers are also run.</li>
+  <li><strong>A regular dispatch function</strong>. This does not spawn a new Tokio task. Instead, it runs the
+reducer functions on the calling thread. However, the middleware and subscriber functions will be
+run asynchronously in other Tokio tasks. You can actually await the results of all of them to
+complete.</li>
+</ol>
+      <h2 id="of-things-and-their-managers">
+        
+        
+          Of “things” and their “managers” <a href="#of-things-and-their-managers">#</a>
+        
+        
+      </h2>
+    
+
+<p>This brings us into the implementation of the Redux library. The first thing we will need is a Redux
+store that is shareable between threads / tasks and also allows thread safe interior mutability. We
+will also need other structures that have these same requirements (wrapped functions / lambdas,
+lists, etc).</p>
+
+<blockquote>
+  <p>💡 Please read
+<a href="https://developerlife.com/2022/02/24/rust-non-binary-tree/#naive-approach-using-weak-and-strong-references">our article on shared ownership and interior mutability</a>.</p>
+</blockquote>
+
+<p>Before starting our implementation, let’s take a close look at the following pattern we will heavily
+lean on which to make this “shareability” happen, which is:</p>
+
+<ol>
+  <li>Wrap a “thing” that we want to be shareable inside of a <code class="language-plaintext highlighter-rouge">Mutex</code> or <code class="language-plaintext highlighter-rouge">RwLock</code>, and then wrap that
+inside of an <code class="language-plaintext highlighter-rouge">Arc</code>. The naming convention that we apply to this is prefixing the word <code class="language-plaintext highlighter-rouge">Safe</code>
+before the “thing” (e.g. <code class="language-plaintext highlighter-rouge">SafeThing</code>).
+    <ul>
+      <li>The “thing” in this case is <code class="language-plaintext highlighter-rouge">Vec&lt;T&gt;</code>.</li>
+      <li>And the <code class="language-plaintext highlighter-rouge">Safe</code> “thing” is <code class="language-plaintext highlighter-rouge">Arc&lt;Mutex&lt;Vec&lt;T&gt;&gt;&gt;</code> or <code class="language-plaintext highlighter-rouge">Arc&lt;RwLock&lt;Vec&lt;T&gt;&gt;&gt;</code>.</li>
+    </ul>
+  </li>
+  <li>So far, we’ve just made some type aliases. Where is all this instantiated, what holds memory?
+Let’s make a struct which has a single property (named <code class="language-plaintext highlighter-rouge">my_arc</code>) that holds the <code class="language-plaintext highlighter-rouge">Safe</code> “thing”.
+We will call this struct a <code class="language-plaintext highlighter-rouge">Manager</code> of the <code class="language-plaintext highlighter-rouge">Safe</code> “thing”, (e.g. <code class="language-plaintext highlighter-rouge">SafeThingManager</code>). In other
+words your code will work w/ the “manager” and not the “thing” directly.
+    <ul>
+      <li>The <code class="language-plaintext highlighter-rouge">Manager</code> of the <code class="language-plaintext highlighter-rouge">Safe</code> “thing” (or just “manager”) is what your code will work with. And
+not directly with the <code class="language-plaintext highlighter-rouge">Safe</code> “thing”.</li>
+      <li>The “manager” is the struct that occupies memory.</li>
+    </ul>
+  </li>
+  <li>The “manager” will:
+    <ul>
+      <li>Provide a constructor method <code class="language-plaintext highlighter-rouge">new()</code> that allows you to instantiate it.</li>
+      <li>Allow shared ownership by providing a <code class="language-plaintext highlighter-rouge">get()</code> method that simply returns a clone of the
+underlying <code class="language-plaintext highlighter-rouge">Arc</code> which we call <code class="language-plaintext highlighter-rouge">my_arc</code>.</li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+  <p>💡 This is a fantastic cheat sheet of pointers and ownership in Rust. Here’s more info on
+<code class="language-plaintext highlighter-rouge">vtable</code>, <code class="language-plaintext highlighter-rouge">dyn Trait</code>, dynamically sized types:</p>
+
+  <ol>
+    <li><a href="https://users.rust-lang.org/t/where-does-the-vtable-pointer-go-in-box-trait/17437/2">discussion</a></li>
+    <li><a href="https://doc.rust-lang.org/nomicon/exotic-sizes.html#exotically-sized-types">book - wide pointers</a></li>
+    <li><a href="https://doc.rust-lang.org/book/ch17-02-trait-objects.html?highlight=dynamic%20dispatch#using-trait-objects-that-allow-for-values-of-different-types">book - trait objects</a></li>
+    <li><a href="https://doc.rust-lang.org/reference/items/traits.html#object-safety">book - trait object safety</a></li>
+    <li><a href="https://alschwalm.com/blog/static/2017/03/07/exploring-dynamic-dispatch-in-rust/">article - super traits</a></li>
+  </ol>
+
+  <p><img src="/assets/rust-container-cheat-sheet.svg" /></p>
+</blockquote>
+
+<p>Here is an example 🎉.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="n">RwLock</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">type</span> <span class="n">Thing</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">type</span> <span class="n">SafeThing</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">RwLock</span><span class="o">&lt;</span><span class="n">Thing</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&gt;&gt;</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">SafeThingManager</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="k">where</span>
+  <span class="n">T</span><span class="p">:</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="k">'static</span><span class="p">,</span>
+<span class="p">{</span>
+  <span class="n">my_arc</span><span class="p">:</span> <span class="n">SafeThing</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">SafeThingManager</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+<span class="k">where</span>
+  <span class="n">T</span><span class="p">:</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="k">'static</span><span class="p">,</span>
+<span class="p">{</span>
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">SafeThing</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">Self</span> <span class="p">{</span>
+      <span class="n">my_arc</span><span class="p">:</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">RwLock</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Thing</span><span class="p">::</span><span class="nf">new</span><span class="p">())),</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">SafeThing</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">self</span><span class="py">.my_arc</span><span class="nf">.clone</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You might be asking yourself: <kbd> Ok, how do we access the "thing" inside the "manager"? 🤔 </kbd></p>
+
+<p>Excellent question 👍. The pattern we will use to do this is also repeated throughout the rest of
+the library codebase. The logic goes something like this:</p>
+
+<ol>
+  <li>Call <code class="language-plaintext highlighter-rouge">get()</code> on the “manager”.
+    <ul>
+      <li>This returns a cloned <code class="language-plaintext highlighter-rouge">Arc</code>.</li>
+    </ul>
+  </li>
+  <li>Call <code class="language-plaintext highlighter-rouge">.lock()</code> or <code class="language-plaintext highlighter-rouge">read()</code> or <code class="language-plaintext highlighter-rouge">write()</code> on it (depending on whether you used <code class="language-plaintext highlighter-rouge">Mutex</code> or
+<code class="language-plaintext highlighter-rouge">RwLock</code>).
+    <ul>
+      <li>This returns a <code class="language-plaintext highlighter-rouge">MutexGuard</code>, <code class="language-plaintext highlighter-rouge">RwLockReadGuard</code> or <code class="language-plaintext highlighter-rouge">RwLockWriteGuard</code>). Which we then have to
+<a href="https://docs.rs/tokio/1.17.0/tokio/sync/struct.Mutex.html"><code class="language-plaintext highlighter-rouge">.await</code></a> (since these are
+<a href="https://tokio.rs/tokio/tutorial/shared-state">Tokio locks</a>).</li>
+    </ul>
+  </li>
+  <li>Finally we have access to the underlying “thing” that we can now use 🎉.</li>
+</ol>
+
+<p>As you can see these steps can be tedious and repetitive. One way to handle this repetition is via
+the use of macros. We can use <code class="language-plaintext highlighter-rouge">macro_rules!</code> to create some macros for this common pattern across
+some of our structs. Here are two examples of such macros.</p>
+
+<blockquote>
+  <p>💡 Please take a look at our
+<a href="/2022/03/12/rust-tokio/#with-macros">Tokio article</a> to learn more about
+macros and how they can be used w/ this “manager” and “thing” pattern.</p>
+</blockquote>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// The `$lambda` expression is not `async`.</span>
+<span class="nd">macro_rules!</span> <span class="n">iterate_over_vec_with</span> <span class="p">{</span>
+  <span class="p">(</span><span class="nv">$this:ident</span><span class="p">,</span> <span class="nv">$locked_list_arc:expr</span><span class="p">,</span> <span class="nv">$lambda:expr</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">locked_list</span> <span class="o">=</span> <span class="nv">$locked_list_arc</span><span class="nf">.get</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">list_r</span> <span class="o">=</span> <span class="n">locked_list</span><span class="nf">.read</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>
+    <span class="k">for</span> <span class="n">item_fn</span> <span class="k">in</span> <span class="n">list_r</span><span class="nf">.iter</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nv">$lambda</span><span class="p">(</span><span class="o">&amp;</span><span class="n">item_fn</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="cd">/// The `$lambda` expression is `async`.</span>
+<span class="nd">macro_rules!</span> <span class="n">iterate_over_vec_with_async</span> <span class="p">{</span>
+  <span class="p">(</span><span class="nv">$this:ident</span><span class="p">,</span> <span class="nv">$locked_list_arc:expr</span><span class="p">,</span> <span class="nv">$lambda:expr</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">locked_list</span> <span class="o">=</span> <span class="nv">$locked_list_arc</span><span class="nf">.get</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">list_r</span> <span class="o">=</span> <span class="n">locked_list</span><span class="nf">.read</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>
+    <span class="k">for</span> <span class="n">item_fn</span> <span class="k">in</span> <span class="n">list_r</span><span class="nf">.iter</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nv">$lambda</span><span class="p">(</span><span class="o">&amp;</span><span class="n">item_fn</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">use</span> <span class="n">iterate_over_vec_with</span><span class="p">;</span>
+<span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">use</span> <span class="n">iterate_over_vec_with_async</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Here’s a snippet of how this ends up being used in the Redux library. This snippet might not make
+sense at this point, its just there to give you a sense of how this macro is used. We will get into
+the details of all of this in the next sections.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="n">actually_dispatch_action</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span>
+  <span class="n">action</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">A</span><span class="p">,</span>
+<span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// Run reducers.</span>
+  <span class="p">{</span>
+    <span class="nd">iterate_over_vec_with!</span><span class="p">(</span>
+      <span class="k">self</span><span class="p">,</span>
+      <span class="k">self</span><span class="py">.reducer_manager</span><span class="p">,</span>
+      <span class="p">|</span><span class="n">reducer_fn</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">ReducerFnWrapper</span><span class="o">&lt;</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span><span class="p">|</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">new_state</span> <span class="o">=</span> <span class="n">reducer_fn</span><span class="nf">.invoke</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="py">.state</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">action</span><span class="p">);</span>
+        <span class="k">self</span><span class="nf">.update_history</span><span class="p">(</span><span class="o">&amp;</span><span class="n">new_state</span><span class="p">);</span>
+        <span class="k">self</span><span class="py">.state</span> <span class="o">=</span> <span class="n">new_state</span><span class="p">;</span>
+      <span class="p">}</span>
+    <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>With this, we can now dive into the Redux library implementation 🚀.</p>
+
+<blockquote>
+  <p>📦 There are ways to automate the generation of all this boilerplate in Rust using
+<a href="https://developerlife.com/2022/03/30/rust-proc-macro/#eg-2---function-like-macro-that-parses-custom-syntax">procedural macros</a>.
+To see a real world example of using code generation to express this pattern, please check out the
+<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/my_proc_macros_lib/src/manager_of_things.rs"><code class="language-plaintext highlighter-rouge">manager_of_things.rs</code></a>
+file in our <a href="https://crates.io/crates/r3bl_rs_utils"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> crate</a>. You can also look at
+the
+<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/tests/test_manager_of_things_macro.rs">tests</a>
+to see how this macro is used.</p>
+
+  <p>🌟 Please star the <a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo</a> on github if
+you like it 🙏.</p>
+</blockquote>
+      <h2 id="using-the-redux-library">
+        
+        
+          Using the Redux library <a href="#using-the-redux-library">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <p>🚀 You can find a CLI app that uses this Redux library to manage an address book
+<a href="https://github.com/nazmulidris/rust_scratch/tree/main/address-book-with-redux">here</a> called
+<code class="language-plaintext highlighter-rouge">address_book_with_redux</code>. Please clone that repo on github and run it using <code class="language-plaintext highlighter-rouge">cargo run</code> to play
+with this library and see what it can do. If you type <code class="language-plaintext highlighter-rouge">help</code> when the CLI starts up, it will give
+you a list of commands you can use. Try <code class="language-plaintext highlighter-rouge">add-async</code> and <code class="language-plaintext highlighter-rouge">add-sync</code> to see what happens.</p>
+</blockquote>
+
+<p>The <code class="language-plaintext highlighter-rouge">Store</code> struct is the heart of the Redux library. It is the “thing” that we will use to manage
+our shared application state. It allows for a few things:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">Store</code> creation.</li>
+  <li>Dispatching actions.</li>
+  <li>Getting the current state.</li>
+  <li>Accessing history of state changes.</li>
+  <li>Managing middleware.</li>
+  <li>Managing reducers.</li>
+  <li>Managing subscribers.</li>
+</ol>
+
+<blockquote>
+  <p>⚡ <strong>Any functions or blocks that you write which uses the Redux library will have to be marked
+<code class="language-plaintext highlighter-rouge">async</code> as well. And you will have to spawn the Tokio runtime by using the <code class="language-plaintext highlighter-rouge">#[tokio::main]</code> macro.
+If you use the default runtime then Tokio will use multiple threads and its task stealing
+implementation to give you parallel and concurrent behavior. You can also use the single threaded
+runtime; its really up to you.</strong></p>
+</blockquote>
+
+<blockquote>
+  <p>📦 You can use this Redux library today by adding
+<a href="https://crates.io/crates/r3bl_rs_utils/"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate as a dependency in your
+<code class="language-plaintext highlighter-rouge">Cargo.toml</code>.</p>
+
+  <p>🌟 Please star the <a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo</a> on github if
+you like it 🙏.</p>
+</blockquote>
+
+<p>This is what the API looks like when we use it our app. Let’s say we have the following action enum,
+and state struct.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Action enum.</span>
+<span class="nd">#[derive(Debug,</span> <span class="nd">PartialEq,</span> <span class="nd">Eq,</span> <span class="nd">Hash,</span> <span class="nd">Clone)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">Action</span> <span class="p">{</span>
+  <span class="nf">Add</span><span class="p">(</span><span class="nb">i32</span><span class="p">,</span> <span class="nb">i32</span><span class="p">),</span>
+  <span class="nf">AddPop</span><span class="p">(</span><span class="nb">i32</span><span class="p">),</span>
+  <span class="n">Clear</span><span class="p">,</span>
+  <span class="n">MiddlewareCreateClearAction</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="cd">/// State.</span>
+<span class="nd">#[derive(Clone,</span> <span class="nd">Default,</span> <span class="nd">PartialEq,</span> <span class="nd">Debug,</span> <span class="nd">Hash)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">State</span> <span class="p">{</span>
+  <span class="k">pub</span> <span class="n">stack</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">i32</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s an example of the reducer function.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Reducer function (pure).</span>
+<span class="k">let</span> <span class="n">reducer_fn</span> <span class="o">=</span> <span class="p">|</span><span class="n">state</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">State</span><span class="p">,</span> <span class="n">action</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">Action</span><span class="p">|</span> <span class="k">match</span> <span class="n">action</span> <span class="p">{</span>
+  <span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+    <span class="n">State</span> <span class="p">{</span> <span class="n">stack</span><span class="p">:</span> <span class="nd">vec!</span><span class="p">[</span><span class="n">sum</span><span class="p">]</span> <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="nn">Action</span><span class="p">::</span><span class="nf">AddPop</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">a</span> <span class="o">+</span> <span class="n">state</span><span class="py">.stack</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+    <span class="n">State</span> <span class="p">{</span> <span class="n">stack</span><span class="p">:</span> <span class="nd">vec!</span><span class="p">[</span><span class="n">sum</span><span class="p">]</span> <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="nn">Action</span><span class="p">::</span><span class="n">Clear</span> <span class="k">=&gt;</span> <span class="n">State</span> <span class="p">{</span> <span class="n">stack</span><span class="p">:</span> <span class="nd">vec!</span><span class="p">[]</span> <span class="p">},</span>
+  <span class="n">_</span> <span class="k">=&gt;</span> <span class="n">state</span><span class="nf">.clone</span><span class="p">(),</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>Here’s an example of an <code class="language-plaintext highlighter-rouge">async</code> subscriber function (which are run in parallel after an action is
+dispatched). The following example uses a lambda that captures a shared object. This is a pretty
+common pattern that you might encounter when creating subscribers that share state in your enclosing
+block or scope.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// This shared object is used to collect results from the subscriber function</span>
+<span class="c1">// &amp; test it later.</span>
+<span class="k">let</span> <span class="n">shared_object</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Mutex</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Vec</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">i32</span><span class="o">&gt;</span><span class="p">::</span><span class="nf">new</span><span class="p">()));</span>
+<span class="c1">// This subscriber function is curried to capture a reference to the shared object.</span>
+<span class="k">let</span> <span class="n">subscriber_fn</span> <span class="o">=</span> <span class="nf">with</span><span class="p">(</span><span class="n">shared_object</span><span class="nf">.clone</span><span class="p">(),</span> <span class="p">|</span><span class="n">it</span><span class="p">|</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">curried_fn</span> <span class="o">=</span> <span class="k">move</span> <span class="p">|</span><span class="n">state</span><span class="p">:</span> <span class="n">State</span><span class="p">|</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">stack</span> <span class="o">=</span> <span class="n">it</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="n">stack</span><span class="nf">.push</span><span class="p">(</span><span class="n">state</span><span class="py">.stack</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+  <span class="p">};</span>
+  <span class="n">curried_fn</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>Here are two types of <code class="language-plaintext highlighter-rouge">async</code> middleware functions. One that returns an action (which will get
+dispatched once this middleware returns), and another that doesn’t return anything (like a logger
+middleware that just dumps the current action to the console). Note that both these functions share
+the <code class="language-plaintext highlighter-rouge">shared_object</code> reference from above.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// This middleware function is curried to capture a reference to the shared object.</span>
+<span class="k">let</span> <span class="n">mw_returns_none</span> <span class="o">=</span> <span class="nf">with</span><span class="p">(</span><span class="n">shared_object</span><span class="nf">.clone</span><span class="p">(),</span> <span class="p">|</span><span class="n">it</span><span class="p">|</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">curried_fn</span> <span class="o">=</span> <span class="k">move</span> <span class="p">|</span><span class="n">action</span><span class="p">:</span> <span class="n">Action</span><span class="p">|</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">stack</span> <span class="o">=</span> <span class="n">it</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="k">match</span> <span class="n">action</span> <span class="p">{</span>
+      <span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="n">stack</span><span class="nf">.push</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+      <span class="nn">Action</span><span class="p">::</span><span class="nf">AddPop</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="n">stack</span><span class="nf">.push</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">),</span>
+      <span class="nn">Action</span><span class="p">::</span><span class="n">Clear</span> <span class="k">=&gt;</span> <span class="n">stack</span><span class="nf">.push</span><span class="p">(</span><span class="o">-</span><span class="mi">3</span><span class="p">),</span>
+      <span class="n">_</span> <span class="k">=&gt;</span> <span class="p">{}</span>
+    <span class="p">}</span>
+    <span class="nb">None</span>
+  <span class="p">};</span>
+  <span class="n">curried_fn</span>
+<span class="p">});</span>
+
+<span class="c1">// This middleware function is curried to capture a reference to the shared object.</span>
+<span class="k">let</span> <span class="n">mw_returns_action</span> <span class="o">=</span> <span class="nf">with</span><span class="p">(</span><span class="n">shared_object</span><span class="nf">.clone</span><span class="p">(),</span> <span class="p">|</span><span class="n">it</span><span class="p">|</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">curried_fn</span> <span class="o">=</span> <span class="k">move</span> <span class="p">|</span><span class="n">action</span><span class="p">:</span> <span class="n">Action</span><span class="p">|</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">stack</span> <span class="o">=</span> <span class="n">it</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="k">match</span> <span class="n">action</span> <span class="p">{</span>
+      <span class="nn">Action</span><span class="p">::</span><span class="n">MiddlewareCreateClearAction</span> <span class="k">=&gt;</span> <span class="n">stack</span><span class="nf">.push</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">),</span>
+      <span class="n">_</span> <span class="k">=&gt;</span> <span class="p">{}</span>
+    <span class="p">}</span>
+    <span class="nf">Some</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="n">Clear</span><span class="p">)</span>
+  <span class="p">};</span>
+  <span class="n">curried_fn</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>Here’s how you can setup a store with the above reducer, middleware, and subscriber functions.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Setup store.</span>
+<span class="k">let</span> <span class="k">mut</span> <span class="n">store</span> <span class="o">=</span> <span class="nn">Store</span><span class="p">::</span><span class="o">&lt;</span><span class="n">State</span><span class="p">,</span> <span class="n">Action</span><span class="o">&gt;</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+<span class="n">store</span>
+  <span class="nf">.add_reducer</span><span class="p">(</span><span class="nn">ReducerFnWrapper</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">reducer_fn</span><span class="p">))</span>
+  <span class="k">.await</span>
+  <span class="nf">.add_subscriber</span><span class="p">(</span><span class="nn">SafeSubscriberFnWrapper</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">subscriber_fn</span><span class="p">))</span>
+  <span class="k">.await</span>
+  <span class="nf">.add_middleware</span><span class="p">(</span><span class="nn">SafeMiddlewareFnWrapper</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">mw_returns_none</span><span class="p">))</span>
+  <span class="k">.await</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Finally here’s an example of how to dispatch an action in a test. You can dispatch actions
+asynchronously using <code class="language-plaintext highlighter-rouge">dispatch_spawn()</code> which is “fire and forget” meaning that the caller won’t
+block or wait for the <code class="language-plaintext highlighter-rouge">dispatch_spawn()</code> to return. Then you can dispatch actions synchronously if
+that’s what you would like using <code class="language-plaintext highlighter-rouge">dispatch()</code>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Test reducer and subscriber by dispatching Add and AddPop actions asynchronously.</span>
+<span class="n">store</span><span class="nf">.dispatch_spawn</span><span class="p">(</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+<span class="n">store</span><span class="nf">.dispatch</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Action</span><span class="p">::</span><span class="nf">Add</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+<span class="nd">assert_eq!</span><span class="p">(</span><span class="n">shared_object</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.pop</span><span class="p">(),</span> <span class="nf">Some</span><span class="p">(</span><span class="mi">3</span><span class="p">));</span>
+<span class="n">store</span><span class="nf">.dispatch</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Action</span><span class="p">::</span><span class="nf">AddPop</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+<span class="nd">assert_eq!</span><span class="p">(</span><span class="n">shared_object</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.pop</span><span class="p">(),</span> <span class="nf">Some</span><span class="p">(</span><span class="mi">21</span><span class="p">));</span>
+<span class="n">store</span><span class="nf">.clear_subscribers</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>
+
+<span class="c1">// Test `async` middleware: mw_returns_action.</span>
+<span class="n">shared_object</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.clear</span><span class="p">();</span>
+<span class="n">store</span>
+  <span class="nf">.add_middleware</span><span class="p">(</span><span class="nn">SafeMiddlewareFnWrapper</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">mw_returns_action</span><span class="p">))</span>
+  <span class="nf">.dispatch</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Action</span><span class="p">::</span><span class="n">MiddlewareCreateClearAction</span><span class="p">)</span>
+  <span class="k">.await</span><span class="p">;</span>
+<span class="nd">assert_eq!</span><span class="p">(</span><span class="n">store</span><span class="nf">.get_state</span><span class="p">()</span><span class="py">.stack</span><span class="nf">.len</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
+<span class="nd">assert_eq!</span><span class="p">(</span><span class="n">shared_object</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.pop</span><span class="p">(),</span> <span class="nf">Some</span><span class="p">(</span><span class="o">-</span><span class="mi">4</span><span class="p">));</span>
+</code></pre></div></div>
+      <h2 id="the-store-struct">
+        
+        
+          The Store struct <a href="#the-store-struct">#</a>
+        
+        
+      </h2>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">Store</code> is actually a “manager” for the “thing” which is <code class="language-plaintext highlighter-rouge">SafeStoreStateMachineWrapper</code>. The
+“thing” that it manages actually has all the good stuff like the following:</p>
+
+<ol>
+  <li>The current state.</li>
+  <li>The history of states.</li>
+  <li>The subscriber manager (which itself is a “manager” for the “thing” that is a function).</li>
+  <li>The middleware manager (which itself is a “manager” for the “thing” that is a function).</li>
+  <li>The reducer manager (which itself is a “manager” for the “thing” that is a function).</li>
+</ol>
+
+<p>Here’s a code snippet that shows how to use the <code class="language-plaintext highlighter-rouge">Store</code> struct. In terms of “manager” and “thing”
+here’s the breakdown:</p>
+
+<ol>
+  <li>“manager”: <code class="language-plaintext highlighter-rouge">Store</code> is a “manager” for the “thing” that is <code class="language-plaintext highlighter-rouge">SafeStoreStateMachineWrapper</code>.</li>
+  <li>“thing”: <code class="language-plaintext highlighter-rouge">SafeStoreStateMachineWrapper</code> is a “thing” that holds the current state, the history of
+states, the subscriber manager, the middleware manager, and the reducer manager.</li>
+</ol>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">struct</span> <span class="n">StoreStateMachine</span><span class="o">&lt;</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span>
+<span class="k">where</span>
+  <span class="n">S</span><span class="p">:</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="k">'static</span><span class="p">,</span>
+  <span class="n">A</span><span class="p">:</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="k">'static</span><span class="p">,</span>
+<span class="p">{</span>
+  <span class="k">pub</span> <span class="n">state</span><span class="p">:</span> <span class="n">S</span><span class="p">,</span>
+  <span class="k">pub</span> <span class="n">history</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="k">pub</span> <span class="n">subscriber_manager</span><span class="p">:</span> <span class="n">SubscriberManager</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="k">pub</span> <span class="n">middleware_manager</span><span class="p">:</span> <span class="n">MiddlewareManager</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">,</span>
+  <span class="k">pub</span> <span class="n">reducer_manager</span><span class="p">:</span> <span class="n">ReducerManager</span><span class="o">&lt;</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">Store</code> itself has quite a few methods that allows to add/remove/dispatch/get/clear/etc. Here
+are some of these methods.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">dispatch</code> and <code class="language-plaintext highlighter-rouge">dispatchSpawn</code> which allow us to dispatch action objects synchronously or
+asynchronously.</li>
+  <li><code class="language-plaintext highlighter-rouge">add_subscriber</code> and <code class="language-plaintext highlighter-rouge">clear_subscribers</code> which allow us to add/remove subscriber functions.</li>
+  <li><code class="language-plaintext highlighter-rouge">add_middleware</code> and <code class="language-plaintext highlighter-rouge">clear_middlewares</code> which allow us to add/remove middleware functions.</li>
+  <li><code class="language-plaintext highlighter-rouge">add_reducer</code> which allows us to add a reducer function.</li>
+</ol>
+      <h2 id="reducer-functions">
+        
+        
+          Reducer functions <a href="#reducer-functions">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <p>With <code class="language-plaintext highlighter-rouge">0.7.12</code> of the library, the codebase has been refactored to make all the things <code class="language-plaintext highlighter-rouge">async</code>.
+Please read the <a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux">README</a> for
+details on these changes and how to build your own reducers. Instead of using function pointers,
+the new implementation uses <code class="language-plaintext highlighter-rouge">async</code> trait objects (which are much easier to reason about and
+create, and also can be made <code class="language-plaintext highlighter-rouge">async</code>).</p>
+</blockquote>
+
+<p>These live in the <code class="language-plaintext highlighter-rouge">SafeStoreStateMachineWrapper</code> struct. The reducer functions are managed by a
+<code class="language-plaintext highlighter-rouge">ReducerManager</code> which is just a type alias for <code class="language-plaintext highlighter-rouge">SafeListManager</code>. Here’s the breakdown of this in
+terms of “manager” and “thing”.</p>
+
+<ol>
+  <li>“manager”: <code class="language-plaintext highlighter-rouge">SafeListManager</code> which holds a list of functions.</li>
+  <li>“thing”: a <code class="language-plaintext highlighter-rouge">ReducerFnWrapper</code> function wrapper that is safe to share (it’s actually a “manager”
+for the actual function that is the “thing”).</li>
+</ol>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Reducer manager.</span>
+<span class="k">pub</span> <span class="k">type</span> <span class="n">ReducerManager</span><span class="o">&lt;</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">SafeListManager</span><span class="o">&lt;</span><span class="n">ReducerFnWrapper</span><span class="o">&lt;</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>💡 This <code class="language-plaintext highlighter-rouge">SafeListManager</code> is used all over the place. It is used to manage a vector of things,
+where the things could be other managers.</p>
+</blockquote>
+
+<p>The reducer function itself (which is a “thing”) is wrapped in a <code class="language-plaintext highlighter-rouge">ReducerFnWrapper</code> which is a
+“manager”. Here’s the breakdown:</p>
+
+<ol>
+  <li>“manager”: <code class="language-plaintext highlighter-rouge">ReducerFnWrapper</code> which manages a function.</li>
+  <li>“thing”: <code class="language-plaintext highlighter-rouge">SafeFnSafeReducerFn</code> which wraps a function that takes an action and state and returns
+a new state.</li>
+</ol>
+
+<p>The function wrapper itself is a “manager” for the “thing” that is a lambda that accepts an action
+and returns a new state.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Reducer function.</span>
+<span class="k">pub</span> <span class="k">type</span> <span class="n">ReducerFn</span><span class="o">&lt;</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span> <span class="o">=</span> <span class="k">dyn</span> <span class="nf">Fn</span><span class="p">(</span><span class="o">&amp;</span><span class="n">S</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">A</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">S</span><span class="p">;</span>
+<span class="k">pub</span> <span class="k">type</span> <span class="n">SafeReducerFn</span><span class="o">&lt;</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">Mutex</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nf">Fn</span><span class="p">(</span><span class="o">&amp;</span><span class="n">S</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">A</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">S</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="k">'static</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+
+<span class="nd">#[derive(Clone)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">ReducerFnWrapper</span><span class="o">&lt;</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span>
+<span class="k">where</span>
+  <span class="n">S</span><span class="p">:</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="k">'static</span><span class="p">,</span>
+  <span class="n">A</span><span class="p">:</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="k">'static</span><span class="p">,</span>
+<span class="p">{</span>
+  <span class="n">fn_mut</span><span class="p">:</span> <span class="n">SafeReducerFn</span><span class="o">&lt;</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When an action is dispatched to the store, each reducer function is called one after another, and
+the state is updated. These happen sequentially (not in separate Tokio tasks). Before the reducers
+are run the middleware functions are run.</p>
+      <h2 id="middleware-functions">
+        
+        
+          Middleware functions <a href="#middleware-functions">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <p>With <code class="language-plaintext highlighter-rouge">0.7.12</code> of the library, the codebase has been refactored to make all the things <code class="language-plaintext highlighter-rouge">async</code>.
+Please read the <a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux">README</a> for
+details on these changes and how to build your own reducers. Instead of using function pointers,
+the new implementation uses <code class="language-plaintext highlighter-rouge">async</code> trait objects (which are much easier to reason about and
+create, and also can be made <code class="language-plaintext highlighter-rouge">async</code>).</p>
+</blockquote>
+
+<p>These live in the <code class="language-plaintext highlighter-rouge">SafeStoreStateMachineWrapper</code> struct. The middleware functions are managed by a
+<code class="language-plaintext highlighter-rouge">MiddlewareManager</code> which is just a type alias for <code class="language-plaintext highlighter-rouge">SafeListManager</code>. Here’s the breakdown of this
+in terms of “manager” and “thing”.</p>
+
+<ol>
+  <li>“manager”: <code class="language-plaintext highlighter-rouge">SafeListManager</code> which holds a list of functions.</li>
+  <li>“thing”: a <code class="language-plaintext highlighter-rouge">SafeMiddlewareFnWrapper</code> function wrapper that is safe to share (it’s actually a
+“manager” for the actual function that is the “thing”).</li>
+</ol>
+
+<p>The middleware function itself (which is a “thing”) is wrapped in a <code class="language-plaintext highlighter-rouge">SafeMiddlewareFnWrapper</code> which
+is a “manager”. Here’s the breakdown:</p>
+
+<ol>
+  <li>“manager”: <code class="language-plaintext highlighter-rouge">SafeMiddlewareFnWrapper</code> which manages an <code class="language-plaintext highlighter-rouge">async</code> function.</li>
+  <li>“thing”: <code class="language-plaintext highlighter-rouge">SafeMiddlewareFn</code> which wraps a function that takes an action and returns an option
+that can hold an action. This means that it can return <code class="language-plaintext highlighter-rouge">None</code> or <code class="language-plaintext highlighter-rouge">Some</code> containing an action.</li>
+</ol>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::{</span>
+  <span class="nn">marker</span><span class="p">::{</span><span class="nb">Send</span><span class="p">,</span> <span class="nb">Sync</span><span class="p">},</span>
+  <span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="p">,</span>
+<span class="p">};</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::{</span><span class="nn">task</span><span class="p">::</span><span class="n">JoinHandle</span><span class="p">,</span> <span class="nn">sync</span><span class="p">::</span><span class="n">RwLock</span><span class="p">};</span>
+
+<span class="k">pub</span> <span class="k">type</span> <span class="n">SafeMiddlewareFn</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">RwLock</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nf">FnMut</span><span class="p">(</span><span class="n">A</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="o">+</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+<span class="c1">//                             ^^^^^^^^^^                             ^^^^^^^^^^^</span>
+<span class="c1">//                             Safe to pass      Declare`FnMut` has thread safety</span>
+<span class="c1">//                             around.           requirement to rust compiler.</span>
+
+<span class="nd">#[derive(Clone)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">SafeMiddlewareFnWrapper</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="n">fn_mut</span><span class="p">:</span> <span class="n">SafeMiddlewareFn</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>💡 Here are some excellent resources on lifetimes and returning references:</p>
+
+  <ol>
+    <li><a href="https://stackoverflow.com/questions/59442080/rust-pass-a-function-reference-to-threads">https://stackoverflow.com/questions/59442080/rust-pass-a-function-reference-to-threads</a></li>
+    <li><a href="https://stackoverflow.com/questions/68547268/cannot-borrow-data-in-an-arc-as-mutable">https://stackoverflow.com/questions/68547268/cannot-borrow-data-in-an-arc-as-mutable</a></li>
+    <li><a href="https://willmurphyscode.net/2018/04/25/fixing-a-simple-lifetime-error-in-rust/">https://willmurphyscode.net/2018/04/25/fixing-a-simple-lifetime-error-in-rust/</a></li>
+  </ol>
+</blockquote>
+
+<p>When an action is dispatched, each middleware is run in its own Tokio task. Then the store waits for
+all of these to finish. If any actions have been created then these are queued up and passed to the
+reducer functions (which actually generate new states). These reducers are run sequentially. When
+the final state is ready, it is then passed to each subscriber function; each subscriber function is
+run in a separate Tokio task).</p>
+      <h2 id="subscriber-functions">
+        
+        
+          Subscriber functions <a href="#subscriber-functions">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <p>With <code class="language-plaintext highlighter-rouge">0.7.12</code> of the library, the codebase has been refactored to make all the things <code class="language-plaintext highlighter-rouge">async</code>.
+Please read the <a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux">README</a> for
+details on these changes and how to build your own reducers. Instead of using function pointers,
+the new implementation uses <code class="language-plaintext highlighter-rouge">async</code> trait objects (which are much easier to reason about and
+create, and also can be made <code class="language-plaintext highlighter-rouge">async</code>).</p>
+</blockquote>
+
+<p>These live in the <code class="language-plaintext highlighter-rouge">SafeStoreStateMachineWrapper</code> struct. The subscriber functions are managed by a
+<code class="language-plaintext highlighter-rouge">SubscriberManager</code> which is just a type alias for <code class="language-plaintext highlighter-rouge">SafeListManager</code>. Here’s the breakdown of this
+in terms of “manager” and “thing”.</p>
+
+<ol>
+  <li>“manager”: <code class="language-plaintext highlighter-rouge">SafeListManager</code> which holds a list of functions.</li>
+  <li>“thing”: a <code class="language-plaintext highlighter-rouge">SafeSubscriberFnWrapper</code> function wrapper that is safe to share (it’s actually a
+“manager” for the actual function that is the “thing”).</li>
+</ol>
+
+<p>The middleware function itself (which is a “thing”) is wrapped in a <code class="language-plaintext highlighter-rouge">SafeSubscriberFnWrapper</code> which
+is a “manager”. Here’s the breakdown:</p>
+
+<ol>
+  <li>“manager”: <code class="language-plaintext highlighter-rouge">SafeSubscriberFnWrapper</code> which manages an <code class="language-plaintext highlighter-rouge">async</code> function.</li>
+  <li>“thing”: <code class="language-plaintext highlighter-rouge">SafeSubscriberFn</code> which wraps a function that takes a state and returns nothing.</li>
+</ol>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::{</span><span class="nn">task</span><span class="p">::</span><span class="n">JoinHandle</span><span class="p">,</span> <span class="nn">sync</span><span class="p">::</span><span class="n">RwLock</span><span class="p">};</span>
+
+<span class="cd">/// Subscriber function.</span>
+<span class="k">pub</span> <span class="k">type</span> <span class="n">SafeSubscriberFn</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">RwLock</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nf">FnMut</span><span class="p">(</span><span class="n">S</span><span class="p">)</span> <span class="o">+</span> <span class="nb">Sync</span> <span class="o">+</span> <span class="nb">Send</span><span class="o">&gt;&gt;</span><span class="p">;</span>
+
+<span class="nd">#[derive(Clone)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">SafeSubscriberFnWrapper</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="n">fn_mut</span><span class="p">:</span> <span class="n">SafeSubscriberFn</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The last stage of action dispatch is to call each subscriber function. These happen in their own
+Tokio tasks.</p>
+      <h2 id="wrapping-up">
+        
+        
+          Wrapping up <a href="#wrapping-up">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <p>🚀 You can find a CLI app that uses this Redux library to manage an address book
+<a href="https://github.com/nazmulidris/rust_scratch/tree/main/address-book-with-redux">here</a> called
+<code class="language-plaintext highlighter-rouge">address_book_with_redux</code>. Please clone that repo on github and run it using <code class="language-plaintext highlighter-rouge">cargo run</code> to play
+with this library and see what it can do. If you type <code class="language-plaintext highlighter-rouge">help</code> when the CLI starts up, it will give
+you a list of commands you can use. Try <code class="language-plaintext highlighter-rouge">add-async</code> and <code class="language-plaintext highlighter-rouge">add-sync</code> to see what happens.</p>
+</blockquote>
+
+<blockquote>
+  <p>📜 The source code for the finished Redux library can be found
+<a href="https://github.com/r3bl-org/r3bl-rs-utils">here</a>. You can always find the most up to date
+information on this library in it’s
+<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux"><code class="language-plaintext highlighter-rouge">README</code></a> file.</p>
+</blockquote>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CC">
+                #cc</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/State">
+                #state</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TUI">
+                #tui</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/05/27/task-api-3-of-5-monitoring-http-post-operations/">
+                        Task API (3 of 3) - Monitoring HTTP POST operations
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/08/task-api-2-of-5-task-api-in-depth/">
+                        Task API (2 of 3) - Task API in-depth
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/05/task-api-quick-start-guide/">
+                        Task API (1 of 3) - Quick Start Guide
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/">
+                        Creating multi-threaded Swing apps that consume web services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2006/06/09/introduction-to-java-50-javautilconcurrent-api/">
+                        Introduction to Java 5 java.util.concurrent API
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/introduction-to-threads/">
+                        Introduction to Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/04/ockam-routing-building-end-to-end-channels/">
+                        Create End-to-End Channels in Rust with Ockam Routing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2022/03/12/rust-redux/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

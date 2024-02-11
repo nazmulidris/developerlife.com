@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Potential problems of using non-capturing lambdas | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Potential problems of using non-capturing lambdas" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial covers the potential pitfalls of using non-capturing lambdas and using use anonymous classes to implement SAM / functional interfaces instead" />
+<meta property="og:description" content="This tutorial covers the potential pitfalls of using non-capturing lambdas and using use anonymous classes to implement SAM / functional interfaces instead" />
+<link rel="canonical" href="http://developerlife.com/2020/07/15/non-capturing-lambda-problems/" />
+<meta property="og:url" content="http://developerlife.com/2020/07/15/non-capturing-lambda-problems/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-07-15T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Potential problems of using non-capturing lambdas" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2020-07-15T00:00:00-05:00","datePublished":"2020-07-15T00:00:00-05:00","description":"This tutorial covers the potential pitfalls of using non-capturing lambdas and using use anonymous classes to implement SAM / functional interfaces instead","headline":"Potential problems of using non-capturing lambdas","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2020/07/15/non-capturing-lambda-problems/"},"url":"http://developerlife.com/2020/07/15/non-capturing-lambda-problems/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Potential problems of using non-capturing lambdas&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Potential problems of using non-capturing lambdas</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Potential problems of using non-capturing lambdas</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jul 15, 2020
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/non-capturing-lambda.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#non-capturing-lambdas-and-their-implementation-instances">Non-capturing lambdas and their (implementation) instances</a></li>
+  <li><a href="#capturing-lambdas">Capturing lambdas</a></li>
+  <li><a href="#problems-w-using-non-capturing-lambdas">Problems w/ using non-capturing lambdas</a></li>
+  <li><a href="#solution---use-anonymous-classes-to-implement-the-sam--functional-interface">Solution - use anonymous classes to implement the SAM / functional interface</a></li>
+  <li><a href="#beware-ide-automatic-conversions">Beware IDE automatic conversions</a></li>
+  <li><a href="#references">References</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h1 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h1>
+    
+
+<p>This tutorial explores the issues that can arise when using lambdas that touch Java SAM (single
+abstract method) or functional interfaces. To see this in action, check out the code in this
+<a href="https://github.com/nazmulidris/kt-scratch">GitHub repo</a></p>
+
+<ol>
+  <li>The Java code is in the Java module in the package: <code class="language-plaintext highlighter-rouge">java_interop_sam_gotchas</code>.</li>
+  <li>The Kotlin code is in the package: <code class="language-plaintext highlighter-rouge">java_interop_sam_gotchas_kt</code>.</li>
+</ol>
+
+<p>Note: This Gradle project supports both Kotlin and Java. In order for this IDEA project to use both
+Kotlin and Java, I had to create a new Gradle project in IDEA, and select both Kotlin and Java
+support for the same project, and then it worked.</p>
+      <h1 id="non-capturing-lambdas-and-their-implementation-instances">
+        
+        
+          Non-capturing lambdas and their (implementation) instances <a href="#non-capturing-lambdas-and-their-implementation-instances">#</a>
+        
+        
+      </h1>
+    
+
+<p>When an expression does not capture any variables it’s called a non-capturing lambda.</p>
+
+<p>Here’s an made up functional interface called <code class="language-plaintext highlighter-rouge">ImmediateFuture</code> that implements the Java
+<a href="https://stackabuse.com/guide-to-the-future-interface-in-java/"><code class="language-plaintext highlighter-rouge">Future</code></a> interface (similar to a
+JavaScript promise).</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * A simplification of the {@link Future} interface for cases in which the result is immediately available.
+ * @param &lt;V&gt; the result type returned by this Future's {@link #get()} method
+ */</span>
+<span class="nd">@FunctionalInterface</span>
+<span class="kd">public</span> <span class="kd">interface</span> <span class="nc">ImmediateFuture</span><span class="o">&lt;</span><span class="no">V</span><span class="o">&gt;</span> <span class="kd">extends</span> <span class="nc">Future</span><span class="o">&lt;</span><span class="no">V</span><span class="o">&gt;</span> <span class="o">{</span>
+	<span class="nd">@Override</span>
+	<span class="k">default</span> <span class="kt">boolean</span> <span class="nf">cancel</span><span class="o">(</span><span class="kt">boolean</span> <span class="n">mayInterruptIfRunning</span><span class="o">)</span> <span class="o">{</span>
+		<span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+	<span class="o">}</span>
+	<span class="nd">@Override</span>
+	<span class="k">default</span> <span class="kt">boolean</span> <span class="nf">isCancelled</span><span class="o">()</span> <span class="o">{</span>
+		<span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+	<span class="o">}</span>
+	<span class="nd">@Override</span>
+	<span class="k">default</span> <span class="kt">boolean</span> <span class="nf">isDone</span><span class="o">()</span> <span class="o">{</span>
+		<span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+	<span class="o">}</span>
+	<span class="nd">@Override</span>
+	<span class="k">default</span> <span class="no">V</span> <span class="nf">get</span><span class="o">(</span><span class="kt">long</span> <span class="n">timeout</span><span class="o">,</span> <span class="nc">TimeUnit</span> <span class="n">unit</span><span class="o">)</span>
+			<span class="kd">throws</span> <span class="nc">InterruptedException</span><span class="o">,</span>
+			<span class="nc">ExecutionException</span><span class="o">,</span>
+			<span class="nc">TimeoutException</span> <span class="o">{</span>
+		<span class="k">return</span> <span class="nf">get</span><span class="o">();</span>
+	<span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Here’s an example of a non-capturing lambda using this interface (using
+<a href="https://www.concretepage.com/java/jdk-8/java-8-runnable-and-callable-lambda-example-with-argument">Java labmdas</a>).
+Note that it does not capture any variables any simply returns the same value <code class="language-plaintext highlighter-rouge">0</code> always.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="nc">Future</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="nf">createWithDefaultResult</span><span class="o">()</span> <span class="o">{</span>
+	<span class="nc">ImmediateFuture</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">immediateFuture</span> <span class="o">=</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="mi">0</span><span class="o">;</span>
+	<span class="k">return</span> <span class="n">immediateFuture</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>So the following code would print <code class="language-plaintext highlighter-rouge">1</code> and not <code class="language-plaintext highlighter-rouge">2</code> as you might expect:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+	<span class="nc">Set</span><span class="o">&lt;</span><span class="nc">Future</span><span class="o">&lt;?&gt;&gt;</span> <span class="n">futures</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">HashSet</span><span class="o">&lt;&gt;();</span>
+	<span class="n">futures</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="nc">FutureFactory</span><span class="o">.</span><span class="na">createWithDefaultResult</span><span class="o">());</span>
+	<span class="n">futures</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="nc">FutureFactory</span><span class="o">.</span><span class="na">createWithDefaultResult</span><span class="o">());</span>
+	<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">futures</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The JVM reuses the implementation of these non-capturing lambdas, since it thinks that it is safe to
+do so. Please read more on this in the references (about how the JVM implements lambdas).</p>
+      <h1 id="capturing-lambdas">
+        
+        
+          Capturing lambdas <a href="#capturing-lambdas">#</a>
+        
+        
+      </h1>
+    
+
+<p>Contrast this with a lambda expression which captures some variables. A straight forward evaluation
+of such an expression is to create a class which has the captured variables as fields. Each single
+evaluation must then create a new instance which stores the captured variables in its fields. These
+instances are obviously not generally equal. Here’s an example that returns a variable <code class="language-plaintext highlighter-rouge">result</code>
+which it “captures”.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="nc">Future</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="nf">createWithResult</span><span class="o">(</span><span class="nc">Integer</span> <span class="n">result</span><span class="o">)</span> <span class="o">{</span>
+	<span class="nc">ImmediateFuture</span><span class="o">&lt;</span><span class="nc">Integer</span><span class="o">&gt;</span> <span class="n">immediateFuture</span> <span class="o">=</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">result</span><span class="o">;</span>
+	<span class="k">return</span> <span class="n">immediateFuture</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h1 id="problems-w-using-non-capturing-lambdas">
+        
+        
+          Problems w/ using non-capturing lambdas <a href="#problems-w-using-non-capturing-lambdas">#</a>
+        
+        
+      </h1>
+    
+
+<p>Non-capturing lambda instance reuse can cause issues when hooking up w/ these SAM / functional
+interfaces / lambdas from Kotlin code (or Java code).</p>
+
+<p>Here’s an example of this issue using the
+<a href="https://github.com/JetBrains/intellij-community/blob/master/platform/util/src/com/intellij/openapi/util/Disposer.java"><code class="language-plaintext highlighter-rouge">Disposer</code> interface</a>
+in IntelliJ Platform (written in Java), in Kotlin this time.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Disposer</span><span class="p">.</span><span class="nf">register</span><span class="p">(</span><span class="n">parentDisposable</span><span class="p">,</span> <span class="nc">Disposable</span> <span class="p">{</span>
+    <span class="nf">synchronized</span><span class="p">(</span><span class="nc">APPLICATION_LOCK</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(--</span><span class="n">ourProjectCount</span> <span class="p">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nf">disposeApplicationEnvironment</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>The intent behind this code is to register a <code class="language-plaintext highlighter-rouge">Disposable</code> with the IntelliJ platform so that it can
+be cleaned up. Each disposable registered needs to be a unique object, since that’s how the disposer
+mechanism works. However, due to the fact that this implementation is simply reused this won’t work!</p>
+      <h1 id="solution---use-anonymous-classes-to-implement-the-sam--functional-interface">
+        
+        
+          Solution - use anonymous classes to implement the SAM / functional interface <a href="#solution---use-anonymous-classes-to-implement-the-sam--functional-interface">#</a>
+        
+        
+      </h1>
+    
+
+<p>The solution is to simply replace the non-capturing lambda w/ a different expression (anonymous
+class implementing the functional interface / SAM). The anonymous inner class guarantees the
+creation of new instances, while the non-capturing lambda does not.</p>
+
+<p>Here’s the resolution of the issue by turning this lambda into an anonymous class (implementing
+<code class="language-plaintext highlighter-rouge">Disposable</code> interface):</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Disposer</span><span class="p">.</span><span class="nf">register</span><span class="p">(</span><span class="n">parentDisposable</span><span class="p">,</span> <span class="kd">object</span> <span class="err">: </span><span class="nc">Disposable</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">dispose</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">synchronized</span><span class="p">(</span><span class="nc">APPLICATION_LOCK</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(--</span><span class="n">ourProjectCount</span> <span class="p">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nf">disposeApplicationEnvironment</span><span class="p">()</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Note the different semantics of the following:</p>
+
+<ul>
+  <li>an anonymous class (<code class="language-plaintext highlighter-rouge">object: Disposable ...</code>) - guarantees the creation of new instances</li>
+  <li>a (non-capturing) lambda expression (<code class="language-plaintext highlighter-rouge">Disposable {...}</code>) - does not guarantee the creation of new
+instances</li>
+</ul>
+      <h1 id="beware-ide-automatic-conversions">
+        
+        
+          Beware IDE automatic conversions <a href="#beware-ide-automatic-conversions">#</a>
+        
+        
+      </h1>
+    
+
+<p>This is especially unsettling because many IDEs allow the automatic conversion from anonymous
+interface implementations to lambda expressions and vice versa. With the subtle differences between
+the two this seemingly purely syntactic conversion can introduce subtle behavior changes.</p>
+      <h1 id="references">
+        
+        
+          References <a href="#references">#</a>
+        
+        
+      </h1>
+    
+
+<ul>
+  <li><a href="https://github.com/JetBrains/intellij-community/blob/master/platform/util/src/com/intellij/openapi/Disposable.java">The Java SAM</a></li>
+  <li><a href="https://github.com/JetBrains/kotlin/pull/3556">Fix</a></li>
+  <li><a href="https://youtrack.jetbrains.com/issue/KT-32158#focus=Comments-27-4267010.0-0">Problem</a></li>
+  <li><a href="https://blog.codefx.org/java/instances-non-capturing-lambdas/">More insights into the issue (Java side)</a>
+    <ul>
+      <li><a href="https://blog.codefx.org/java/dev/lambdas-java-peek-hood/">How lambdas are created in Java</a></li>
+    </ul>
+  </li>
+  <li><a href="https://medium.com/@krossovochkin/kotlin-java-interop-function-references-and-sam-conversions-3d0cd36f7967">More insights into the issue (Kotlin -&gt; Java side)</a></li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/KT">
+                #kt</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/02/06/publish-kotlin-library-as-gradle-dep/">
+                        Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/11/20/idea-plugin-example-intro/">
+                        Introduction to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
+                        Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-testing-setup/">
+                        Kotlin and Test Driven Development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-extension-function-expressions/">
+                        Kotlin Extension Function Expressions
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-and-kotlin/">
+                        Advanced Dagger 2 w/ Android and Kotlin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2020/07/15/non-capturing-lambda-problems/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

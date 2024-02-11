@@ -42,8 +42,9 @@ categories:
 Vue.js is a reactive progressive framework that allows the creation of Javascript apps. It is very
 similar to React. This tutorial is a guide to using [`vue-cli`](https://cli.vuejs.org/) (which is
 similar to [`create-react-app`](https://github.com/facebook/create-react-app)) in order to create a
-project that supports Material Design (thru Vuetify), Electron, and Webpack. Here's
-[another tutorial](http://localhost:4000/2018/08/14/introduction-to-vue/) that serves as an
+project that supports Material Design (thru Vuetify), Electron, and Webpack.
+
+Here's [another tutorial]({{ '/2018/08/14/introduction-to-vue/' | relative_url}}) that serves as an
 introduction to Vue.
 
 ## Starter project repo

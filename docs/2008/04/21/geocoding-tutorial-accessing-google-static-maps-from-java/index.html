@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Geocoding tutorial - Accessing Google Static Maps from Java | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Geocoding tutorial - Accessing Google Static Maps from Java" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Given an IP address, this tutorial will show you how to get a Google Static Map from it" />
+<meta property="og:description" content="Given an IP address, this tutorial will show you how to get a Google Static Map from it" />
+<link rel="canonical" href="http://developerlife.com/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/" />
+<meta property="og:url" content="http://developerlife.com/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2008-04-21T07:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Geocoding tutorial - Accessing Google Static Maps from Java" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2008-04-21T07:00:00-05:00","datePublished":"2008-04-21T07:00:00-05:00","description":"Given an IP address, this tutorial will show you how to get a Google Static Map from it","headline":"Geocoding tutorial - Accessing Google Static Maps from Java","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/"},"url":"http://developerlife.com/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Geocoding tutorial - Accessing Google Static Maps from Java&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Geocoding tutorial - Accessing Google Static Maps from Java</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Geocoding tutorial - Accessing Google Static Maps from Java</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Apr 21, 2008
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#license-key">License key</a></li>
+  <li><a href="#background-information">Background Information</a></li>
+  <li><a href="#source-code">Source code</a></li>
+  <li><a href="#graphical-test-harness">Graphical test harness</a>
+    <ul>
+      <li><a href="#using-the-harness">Using the harness</a></li>
+    </ul>
+  </li>
+  <li><a href="#advanced-api-usage">Advanced API usage</a></li>
+  <li><a href="#example-of-integrating-this-into-an-app">Example of integrating this into an app</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>Google just released a new API that allows access to ‘static’ maps. Static maps are GIF images that
+are generated based on a longitude/latitude that’s passed to the Google Static Map API. In this
+tutorial, you will see how to use this API from Java applications. I’ve created a Java adapter to
+the API that will allow you to quickly access all the Static Map API features. I’ve also provide a
+graphical application that you can use as a test harness to the see the API in action.</p>
+
+<p>You need a latitude and longitude in order to start using the API. You can get this lat/lon pair
+from a GeoIP database, or a GPS receiver, or just type it in manually.</p>
+
+<p>Also, the ‘normal’ Google Maps API is geared for use in JavaScript, and the Static API doesn’t
+involve any JavaScript.</p>
+      <h2 id="license-key">
+        
+        
+          License key <a href="#license-key">#</a>
+        
+        
+      </h2>
+    
+
+<p>You will need to sign up for a license key in order to use this API. You can learn more about it
+<a href="http://code.google.com/apis/maps/documentation/staticmaps/">here</a>. You can sign up for a key
+<a href="http://code.google.com/apis/maps/signup.html">here</a>. A license key will allow 1000 accesses in a 24
+hour period. I’ve designed the Java API to access the Static Maps API in a way that you can easily
+cache maps that the Static Maps API generates.</p>
+      <h2 id="background-information">
+        
+        
+          Background Information <a href="#background-information">#</a>
+        
+        
+      </h2>
+    
+
+<p>Locations on earth can be specified by a combination of longitude, latitude, and elevation. You can
+read all about it <a href="http://en.wikipedia.org/wiki/Geographic_coordinates">here on wikipedia</a>. The
+following code is enough to identify a geographic location:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">double</span> <span class="n">latitude</span><span class="o">;</span>
+<span class="kt">double</span> <span class="n">longitude</span><span class="o">;</span>
+</code></pre></div></div>
+
+<p>This is the bare minimum information that you will need, but you will be able to get by and
+interface with many location based services just with this data. How do you get this long/lat data?
+If your app has access to a <a href="http://en.wikipedia.org/wiki/Gps">GPS</a> device, then it can read the GPS
+coordinates from it (<a href="http://en.wikipedia.org/wiki/NMEA">NMEA</a> standard) - the GPS receiver sends
+lat/long information every few seconds via a serial port, USB, or Bluetooth connection to your
+laptop or mobile device, and you can then use that data. Alternatively, if you know the IP address
+where your desktop, mobile, or web based app is running, then you might be able to get geographic
+information out of it. There are issues with this and it’s not always reliable, and these
+<a href="http://www.maxmind.com/app/ip-location-explained">issues are explained here</a>.</p>
+      <h2 id="source-code">
+        
+        
+          Source code <a href="#source-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>The following code is the main() method implementation of the MapLookup class, and you can run it to
+get a feel for how to use the API:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="c1">// make sure to set a valid license key</span>
+  <span class="n">setLicenseKey</span><span class="o">(</span><span class="s">""</span><span class="o">);</span>
+
+  <span class="kt">double</span> <span class="n">lat</span> <span class="o">=</span> <span class="mf">38.931099</span><span class="o">;</span>
+  <span class="kt">double</span> <span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="mf">77.3489</span><span class="o">;</span>
+
+  <span class="kt">double</span> <span class="n">lat1</span> <span class="o">=</span> <span class="mf">40.742100</span><span class="o">;</span>
+  <span class="kt">double</span> <span class="n">lon1</span> <span class="o">=</span> <span class="o">-</span><span class="mf">74.001801</span><span class="o">;</span>
+
+  <span class="nc">String</span> <span class="n">u1</span> <span class="o">=</span> <span class="n">getMap</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">);</span>
+  <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u1</span><span class="o">);</span>
+
+  <span class="nc">String</span> <span class="n">u2</span> <span class="o">=</span> <span class="n">getMap</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span> <span class="mi">256</span><span class="o">,</span> <span class="mi">256</span><span class="o">);</span>
+  <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u2</span><span class="o">);</span>
+
+  <span class="nc">String</span> <span class="n">u3</span> <span class="o">=</span> <span class="n">getMap</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span>
+        <span class="k">new</span> <span class="nf">MapMarker</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span> <span class="nc">MapMarker</span><span class="o">.</span><span class="na">MarkerColor</span><span class="o">.</span><span class="na">blue</span><span class="o">,</span> <span class="sc">'a'</span><span class="o">));</span>
+  <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u3</span><span class="o">);</span>
+
+  <span class="nc">String</span> <span class="n">u4</span> <span class="o">=</span>
+    <span class="n">getMap</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span>
+           <span class="mi">250</span><span class="o">,</span> <span class="mi">500</span><span class="o">,</span>
+           <span class="k">new</span> <span class="nf">MapMarker</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span> <span class="nc">MapMarker</span><span class="o">.</span><span class="na">MarkerColor</span><span class="o">.</span><span class="na">green</span><span class="o">,</span> <span class="sc">'v'</span><span class="o">),</span>
+           <span class="k">new</span> <span class="nf">MapMarker</span><span class="o">(</span><span class="n">lat1</span><span class="o">,</span> <span class="n">lon1</span><span class="o">,</span> <span class="nc">MapMarker</span><span class="o">.</span><span class="na">MarkerColor</span><span class="o">.</span><span class="na">red</span><span class="o">,</span> <span class="sc">'n'</span><span class="o">)</span>
+    <span class="o">);</span>
+  <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u4</span><span class="o">);</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>There are many different ways to use the API as you can see from this code. The methods getMap(…)
+return a String URI that can be resolved to get the map image from Google. All the parameters that
+you give the MapLookup class are used to generate this URI that is compliant with what Google
+expects. The MapLookup class also performs range validation checking for input parameters. The
+following is a list of methods you can call:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// set the license key</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">setLicenseKey</span><span class="o">(</span><span class="nc">String</span> <span class="n">lic</span><span class="o">)</span> <span class="o">{</span>
+  <span class="nc">GmapLicense</span> <span class="o">=</span> <span class="n">lic</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="c1">// methods</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">getMap</span><span class="o">(</span><span class="kt">double</span> <span class="n">lat</span><span class="o">,</span> <span class="kt">double</span> <span class="n">lon</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="nf">getMap</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span> <span class="nc">SizeMax</span><span class="o">,</span> <span class="nc">SizeMax</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">getMap</span><span class="o">(</span><span class="kt">double</span> <span class="n">lat</span><span class="o">,</span> <span class="kt">double</span> <span class="n">lon</span><span class="o">,</span> <span class="kt">int</span> <span class="n">sizeW</span><span class="o">,</span> <span class="kt">int</span> <span class="n">sizeH</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="nf">getMap</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span> <span class="n">sizeW</span><span class="o">,</span> <span class="n">sizeH</span><span class="o">,</span> <span class="nc">ZoomDefault</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">getMap</span><span class="o">(</span><span class="kt">double</span> <span class="n">lat</span><span class="o">,</span>
+                            <span class="kt">double</span> <span class="n">lon</span><span class="o">,</span>
+                            <span class="kt">int</span> <span class="n">sizeW</span><span class="o">,</span>
+                            <span class="kt">int</span> <span class="n">sizeH</span><span class="o">,</span>
+                            <span class="kt">int</span> <span class="n">zoom</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">_map</span><span class="o">.</span><span class="na">getURI</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span> <span class="n">sizeW</span><span class="o">,</span> <span class="n">sizeH</span><span class="o">,</span> <span class="n">zoom</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">getMap</span><span class="o">(</span><span class="kt">double</span> <span class="n">lat</span><span class="o">,</span>
+                            <span class="kt">double</span> <span class="n">lon</span><span class="o">,</span>
+                            <span class="kt">int</span> <span class="n">sizeW</span><span class="o">,</span>
+                            <span class="kt">int</span> <span class="n">sizeH</span><span class="o">,</span>
+                            <span class="nc">MapMarker</span><span class="o">...</span> <span class="n">markers</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="n">_map</span><span class="o">.</span><span class="na">getURI</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span> <span class="n">sizeW</span><span class="o">,</span> <span class="n">sizeH</span><span class="o">,</span> <span class="n">markers</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">getMap</span><span class="o">(</span><span class="kt">double</span> <span class="n">lat</span><span class="o">,</span>
+                            <span class="kt">double</span> <span class="n">lon</span><span class="o">,</span>
+                            <span class="nc">MapMarker</span><span class="o">...</span> <span class="n">markers</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">return</span> <span class="nf">getMap</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span> <span class="nc">SizeMax</span><span class="o">,</span> <span class="nc">SizeMax</span><span class="o">,</span> <span class="n">markers</span><span class="o">);</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>All the getMap(…) methods return a String URI that can be resolved to get a map image from Google.
+Most of the methods are pretty straightforward. The class validates your input params to make sure
+that they are in range. Here’s a list of restrictions:</p>
+
+<ol>
+  <li>
+    <p>size width and height - max of 512 pixels</p>
+  </li>
+  <li>
+    <p>zoom - zoom level between 0 and 19.</p>
+  </li>
+</ol>
+
+<p>Make sure to call setLicenseKey() to set the license key supplied to you by Google, when you sign
+up.</p>
+
+<p>To turn the URI into a GIF use the getDataFromURI(String) method:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/** use httpclient to get the data */</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="nc">ByteBuffer</span> <span class="nf">getDataFromURI</span><span class="o">(</span><span class="nc">String</span> <span class="n">uri</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+
+  <span class="nc">GetMethod</span> <span class="n">get</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">GetMethod</span><span class="o">(</span><span class="n">uri</span><span class="o">);</span>
+
+  <span class="k">try</span> <span class="o">{</span>
+    <span class="k">new</span> <span class="nf">HttpClient</span><span class="o">().</span><span class="na">executeMethod</span><span class="o">(</span><span class="n">get</span><span class="o">);</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="nf">ByteBuffer</span><span class="o">(</span><span class="n">get</span><span class="o">.</span><span class="na">getResponseBodyAsStream</span><span class="o">());</span>
+  <span class="o">}</span>
+  <span class="k">finally</span> <span class="o">{</span>
+    <span class="n">get</span><span class="o">.</span><span class="na">releaseConnection</span><span class="o">();</span>
+  <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+      <h2 id="graphical-test-harness">
+        
+        
+          Graphical test harness <a href="#graphical-test-harness">#</a>
+        
+        
+      </h2>
+    
+
+<p>A full blown graphical test harness is provided so that you can get familiar with the API. Here’s a
+screenshot of this app in action:</p>
+
+<p><img src="/assets/geocoding-1.png" alt="" /></p>
+
+<p><img src="/assets/geocoding-2.png" alt="" /></p>
+
+<p>To run the harness, run the SampleApp class in the Provider.GoogleMapsStatic.TestUI package. If you
+have IDEA, then a GeoIPLookup.ipr project file is provided with a run configuration for this
+graphical test harness. Make sure that you have a license key pasted into the License Key field,
+otherwise you will get an error.</p>
+      <h3 id="using-the-harness">
+        
+        
+          Using the harness <a href="#using-the-harness">#</a>
+        
+        
+      </h3>
+    
+
+<p>The graphical app can be used to access simple API functions. You have to provide a width and height
+for the map size that you’re expecting. The max size is 512 pixels for each. Also you have to
+provide a latitude and longitude, these are just Java double values. When you click on “Get Map”,
+the app generates a URI, which is then resolved into a GIF image that’s displayed. The Task API is
+used to load this map in the background. For more information on the Task API,
+<a href="https://developerlife.com/2008/04/06/task-api-quick-start-guide/">start here</a>.</p>
+      <h2 id="advanced-api-usage">
+        
+        
+          Advanced API usage <a href="#advanced-api-usage">#</a>
+        
+        
+      </h2>
+    
+
+<p>Simple usage of the API is covered by the test harness. Advanced usage constitutes using “markers”.
+My API makes it really easy to work with markers! There’s a getMap(…) variant that takes any
+number of MapMarker objects. These objects represent “pushpins” that you want to show up on the map
+itself. You can pass any number of these to the API. Here’s the MapMarker class:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * {latitude} (required) specifies a latitudinal value with precision to
+ * 6 decimal places.
+ * {longitude} (required) specifies a longitudinal value with precision
+ * to 6 decimal places.
+ * {color} (optional) specifies a color from the set {red,blue,green}.
+ * {alpha-character} (optional) specifies a single lowercase alphabetic
+ * character from the set {a-z}.
+ * &lt;p/&gt;
+ * An example marker declaration is of the form {latitude},{longitude},
+ * {color}{alpha-character}. Note in particular that the color and
+ * alpha-character values of the string are not separated by a comma.
+ * A sample marker declaration is shown below.
+ * &lt;p/&gt;
+ * markers=40.702147,-74.015794,
+ *         blues|40.711614,-74.012318,
+ *         greeng&amp;key=MAPS_API_KEY
+ */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">MapMarker</span> <span class="kd">implements</span> <span class="nc">Serializable</span> <span class="o">{</span>
+<span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">5805831996822361347L</span><span class="o">;</span>
+
+<span class="c1">// enum for marker colors</span>
+<span class="kd">enum</span> <span class="nc">MarkerColor</span> <span class="o">{</span>
+  <span class="n">red</span><span class="o">,</span> <span class="n">green</span><span class="o">,</span> <span class="n">blue</span>
+<span class="o">}</span><span class="c1">// enum MarkerColor</span>
+
+<span class="c1">// data</span>
+<span class="kd">private</span> <span class="kt">char</span> <span class="n">_alpha</span> <span class="o">=</span> <span class="sc">'1'</span><span class="o">;</span>
+<span class="kd">private</span> <span class="nc">MarkerColor</span> <span class="n">_color</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kt">double</span> <span class="n">_lat</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kt">double</span> <span class="n">_lon</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">;</span>
+
+<span class="c1">// constructor</span>
+<span class="kd">public</span> <span class="nf">MapMarker</span><span class="o">(</span><span class="kt">double</span> <span class="n">lat</span><span class="o">,</span> <span class="kt">double</span> <span class="n">lon</span><span class="o">,</span> <span class="nc">MarkerColor</span> <span class="n">color</span><span class="o">,</span> <span class="kt">char</span> <span class="n">alpha</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">_lat</span> <span class="o">=</span> <span class="n">lat</span><span class="o">;</span>
+  <span class="n">_lon</span> <span class="o">=</span> <span class="n">lon</span><span class="o">;</span>
+  <span class="n">_color</span> <span class="o">=</span> <span class="n">color</span><span class="o">;</span>
+  <span class="n">_alpha</span> <span class="o">=</span> <span class="n">alpha</span><span class="o">;</span>
+
+  <span class="nc">StringBuffer</span> <span class="n">buf</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StringBuffer</span><span class="o">();</span>
+  <span class="n">buf</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">alpha</span><span class="o">);</span>
+  <span class="k">if</span> <span class="o">(!</span><span class="nc">Pattern</span><span class="o">.</span><span class="na">matches</span><span class="o">(</span><span class="s">"[a-zA-Z]"</span><span class="o">,</span> <span class="n">buf</span><span class="o">))</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalArgumentException</span><span class="o">(</span>
+            <span class="s">"marker alpha is not a char between a-z"</span><span class="o">);</span>
+
+  <span class="k">if</span> <span class="o">(</span><span class="n">color</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">throw</span> <span class="k">new</span> <span class="nc">IllegalArgumentException</span><span class="o">(</span>
+          <span class="s">"marker color can not be null"</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="nf">MapMarker</span><span class="o">(</span><span class="kt">double</span> <span class="n">lat</span><span class="o">,</span> <span class="kt">double</span> <span class="n">lon</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">_lat</span> <span class="o">=</span> <span class="n">lat</span><span class="o">;</span>
+  <span class="n">_lon</span> <span class="o">=</span> <span class="n">lon</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="c1">// generate Google Maps uri</span>
+<span class="kd">public</span> <span class="nc">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+  <span class="nc">StringBuilder</span> <span class="n">sb</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StringBuilder</span><span class="o">();</span>
+
+  <span class="n">sb</span><span class="o">.</span><span class="na">append</span><span class="o">(</span><span class="n">_lat</span><span class="o">).</span><span class="na">append</span><span class="o">(</span><span class="s">","</span><span class="o">).</span><span class="na">append</span><span class="o">(</span><span class="n">_lon</span><span class="o">);</span>
+
+  <span class="k">if</span> <span class="o">(</span><span class="n">_color</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="n">_alpha</span> <span class="o">!=</span> <span class="sc">'1'</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">sb</span><span class="o">.</span>
+        <span class="nf">append</span><span class="o">(</span><span class="s">","</span><span class="o">).</span>
+        <span class="n">append</span><span class="o">(</span><span class="n">_color</span><span class="o">.</span><span class="na">toString</span><span class="o">()).</span>
+        <span class="n">append</span><span class="o">(</span><span class="n">_alpha</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="k">return</span> <span class="n">sb</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="o">}</span><span class="c1">// class Marker</span>
+
+</code></pre></div></div>
+
+<p>You can create a MapMarker just by providing a lat/lon pair. You can also provide a color and
+alphabet designation along with the lat/lon. The API takes care of translating this into URL
+parameters that the Google Static Maps API will understand. Here’s are some examples:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">String</span> <span class="n">u3</span> <span class="o">=</span> <span class="n">getMap</span><span class="o">(</span>
+      <span class="n">lat</span><span class="o">,</span>
+      <span class="n">lon</span><span class="o">,</span>
+      <span class="k">new</span> <span class="nf">MapMarker</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span> <span class="nc">MapMarker</span><span class="o">.</span><span class="na">MarkerColor</span><span class="o">.</span><span class="na">blue</span><span class="o">,</span> <span class="sc">'a'</span><span class="o">));</span>
+<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u3</span><span class="o">);</span>
+
+<span class="nc">String</span> <span class="n">u4</span> <span class="o">=</span> <span class="n">getMap</span><span class="o">(</span>
+        <span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span>
+        <span class="mi">250</span><span class="o">,</span> <span class="mi">500</span><span class="o">,</span>
+        <span class="k">new</span> <span class="nf">MapMarker</span><span class="o">(</span><span class="n">lat</span><span class="o">,</span> <span class="n">lon</span><span class="o">,</span> <span class="nc">MapMarker</span><span class="o">.</span><span class="na">MarkerColor</span><span class="o">.</span><span class="na">green</span><span class="o">,</span> <span class="sc">'v'</span><span class="o">),</span>
+        <span class="k">new</span> <span class="nf">MapMarker</span><span class="o">(</span><span class="n">lat1</span><span class="o">,</span> <span class="n">lon1</span><span class="o">,</span> <span class="nc">MapMarker</span><span class="o">.</span><span class="na">MarkerColor</span><span class="o">.</span><span class="na">red</span><span class="o">,</span> <span class="sc">'n'</span><span class="o">)</span>
+<span class="o">);</span>
+<span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u4</span><span class="o">);</span>
+</code></pre></div></div>
+
+<p>In the code above (part of the main()), you can see how to create MapMarker objects really easily!</p>
+      <h2 id="example-of-integrating-this-into-an-app">
+        
+        
+          Example of integrating this into an app <a href="#example-of-integrating-this-into-an-app">#</a>
+        
+        
+      </h2>
+    
+
+<p>When you put the Static Maps API together with the GeoIP APIs, then you can create some really
+useful and compelling functionality in your applications - be they mobile, web, or desktop based. In
+the ScreamingToaster Platform, I’ve created functionality that embeds geocode information into every
+aspect of the user experience. Here’s an example of this in action:</p>
+
+<p><img src="/assets/geocoding-3.png" alt="" /></p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

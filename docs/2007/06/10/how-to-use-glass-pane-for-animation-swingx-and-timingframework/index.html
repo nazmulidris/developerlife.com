@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>How to use glass pane for animation (SwingX and Timingframework) | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="How to use glass pane for animation (SwingX and Timingframework)" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I needed to perform animations in the desktop app framework that I’m building for ScreamingToaster. I needed to build animations that move various components around on the screen, and other animations that pop up components on top of existing components, etc. After creating a few of these effects, I realized that I was doing the same thing over and over again, which is why I decided to write this tutorial to encapsulate this pattern, in the hopes that I will help others doing the same thing." />
+<meta property="og:description" content="I needed to perform animations in the desktop app framework that I’m building for ScreamingToaster. I needed to build animations that move various components around on the screen, and other animations that pop up components on top of existing components, etc. After creating a few of these effects, I realized that I was doing the same thing over and over again, which is why I decided to write this tutorial to encapsulate this pattern, in the hopes that I will help others doing the same thing." />
+<link rel="canonical" href="http://developerlife.com/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/" />
+<meta property="og:url" content="http://developerlife.com/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2007-06-10T15:02:26-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="How to use glass pane for animation (SwingX and Timingframework)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2007-06-10T15:02:26-05:00","datePublished":"2007-06-10T15:02:26-05:00","description":"I needed to perform animations in the desktop app framework that I’m building for ScreamingToaster. I needed to build animations that move various components around on the screen, and other animations that pop up components on top of existing components, etc. After creating a few of these effects, I realized that I was doing the same thing over and over again, which is why I decided to write this tutorial to encapsulate this pattern, in the hopes that I will help others doing the same thing.","headline":"How to use glass pane for animation (SwingX and Timingframework)","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/"},"url":"http://developerlife.com/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;How to use glass pane for animation (SwingX and Timingframework)&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = How to use glass pane for animation (SwingX and Timingframework)</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">How to use glass pane for animation (SwingX and Timingframework)</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jun 10, 2007
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#background-information">Background information</a></li>
+  <li><a href="#getting-started">Getting started</a></li>
+  <li><a href="#implementation-details">Implementation details</a>
+    <ul>
+      <li><a href="#1-implementation-of-the-event-listener-that-will-trigger-the-animator-to-start">#1 implementation of the event listener that will trigger the animator to start</a></li>
+      <li><a href="#2-implementation-of-the-custom-component-that-performs-the-animation">#2 implementation of the custom component that performs the animation</a></li>
+      <li><a href="#extras">Extras</a></li>
+    </ul>
+  </li>
+  <li><a href="#summary">Summary</a></li>
+  <li><a href="#related-links">Related links</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>I needed to perform animations in the desktop app framework that I’m building for ScreamingToaster.
+I needed to build animations that move various components around on the screen, and other animations
+that pop up components on top of existing components, etc. After creating a few of these effects, I
+realized that I was doing the same thing over and over again, which is why I decided to write this
+tutorial to encapsulate this pattern, in the hopes that I will help others doing the same thing.</p>
+
+<p>The strategy outlined here is just a suggestion on how to perform animation using a glass pane.
+There are many more strategies that you can select, depending on your requirements. However, I feel
+that this is one of the simplest and most effective approaches that have worked well for me, and I
+use it all the time in creating the user interface for applications in my desktop app container
+framework for ScreamingToaster. If you look at some of the animations on the video posted on this
+website, they all use this strategy.</p>
+
+<p>The following is a list of approaches that you can take to create custom components:</p>
+
+<table class="formattedinnertable">
+
+<tbody>
+
+<tr>
+
+<td width="40%"><strong>Strategy</strong>
+
+</td>
+
+<td width="60%"><strong>Cost</strong>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>Create your own components that implement paint() methods, or override the paint() method on existing components
+
+</td>
+
+<td>Medium/High level of effort, since you have to generate your own paint method
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>Use SwingX API to install your own custom painters
+
+</td>
+
+<td>Low level of effort, since you can mix and match a variety of painters that are provided for you. It’s easy to write painters as well
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>Use the glass pane to perform custom painting on top of your existing components
+
+</td>
+
+<td>Low level of effort, since you can just paint what you need, instead of re-doing painting code for various components
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>Implement your own look and feel
+
+</td>
+
+<td>High level of effort, unless you just tweak with a few UIDelegates
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<p>The following is a list of approaches that you can take to create animations:</p>
+
+<table class="formattedinnertable">
+
+<tbody>
+
+<tr>
+
+<td width="40%"><strong>Strategy</strong>
+
+</td>
+
+<td width="60%"><strong>Cost</strong>
+
+</td>
+
+</tr>
+
+<tr>
+
+<td>Create your animations in a custom paint() method
+
+</td>
+
+<td>Medium/High level of effort, since you may have to implement the whole thing from scratch. You can speed things up (reduce your coding effort) by drawing over existing components using super.paint()
+
+</td>
+
+</tr>
+
+<tr>
+
+<td valign="top">Use the glass pane to draw the animation sequences on
+
+</td>
+
+<td valign="top">Low/Medium level of effort, since you may just have to paint on top of existing components
+
+</td>
+
+</tr>
+
+<tr>
+
+<td valign="top">Implement your own look and feel
+
+</td>
+
+<td valign="top">High level of effort
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+<p>The easiest approach is to performing animations is using the glass pane. This tutorial will outline
+a strategy to using the glass pane for performing your own custom animation on components, to add
+special effects like Spring and Glow, and to even place custom components on top of existing
+components to show error conditions and such, and have components fly down and move up.</p>
+      <h2 id="background-information">
+        
+        
+          Background information <a href="#background-information">#</a>
+        
+        
+      </h2>
+    
+
+<p>For more information on glasspane and RootPaneContainers refer to these links:</p>
+
+<ol>
+  <li>
+    <p>The Java Tutorial –
+<a href="http://java.sun.com/docs/books/tutorial/uiswing/components/rootpane.html">How to use Root Panes</a></p>
+  </li>
+  <li>
+    <p>Java 6 javadocs on <a href="http://java.sun.com/javase/6/docs/api/javax/swing/JRootPane.html">JRootPane</a></p>
+  </li>
+</ol>
+
+<p>For more information on SwingX, refer to these links:</p>
+
+<ol>
+  <li>
+    <p>SwingLabs – <a href="http://swinglabs.org/">SwingX toolkit</a></p>
+  </li>
+  <li>
+    <p>Download SwingX here –
+<a href="http://swinglabs.org/hudson/job/SwingX%20Weekly%20Build/">Hudson Weekly Builds</a></p>
+  </li>
+</ol>
+
+<p>I’m planning on writing more tutorials on SwingX and how to use painters… check back in a few
+days/weeks and I should have them uploaded on the site.</p>
+
+<p>For more information on the Timingframework for animation, refer to these lniks:</p>
+
+<ol>
+  <li>
+    <p>Timingframework tutorial –
+<a href="http://today.java.net/pub/a/today/2005/02/15/timing.html">Timing is Everything</a></p>
+  </li>
+  <li>
+    <p>Timingframework homepage – <a href="https://timingframework.dev.java.net/">timingframework.java.net</a></p>
+  </li>
+  <li>
+    <p>Timingframework downloads –
+<a href="https://timingframework.dev.java.net/servlets/ProjectDocumentList?folderID=7194&amp;expandFolder=7194&amp;folderID=0">java.net downloads</a></p>
+  </li>
+</ol>
+      <h2 id="getting-started">
+        
+        
+          Getting started <a href="#getting-started">#</a>
+        
+        
+      </h2>
+    
+
+<p>The basic idea is to have all animation effects delegated to a component that’s placed on the glass
+pane, on top of your container (dialog, frame, etc). When the appropriate event triggers the
+animation to being, the custom component has to be installed as the glass pane of your
+RootPaneContainer and then your animator can be started which runs the animation, and when it’s
+complete, the glass pane has to be unistalled. The following diagram depicts this sequence of
+events:</p>
+
+<p><img src="/assets/glasspane-1.png" alt="" /></p>
+      <h2 id="implementation-details">
+        
+        
+          Implementation details <a href="#implementation-details">#</a>
+        
+        
+      </h2>
+    
+
+<p>You have to implement 2 things:</p>
+
+<ol>
+  <li>
+    <p>The event listener that will trigger the animator to start – and the implementation of Animator’s
+TimingTarget interface. This event listener will be bound to some event source in your
+container/RootPaneContainer. You can create and initialize your custom component here.</p>
+  </li>
+  <li>
+    <p>The custom component that will be installed on the RootPaneContainer’s glass pane. This component
+will be created and initialized by your container/RootPaneContainer.</p>
+  </li>
+</ol>
+      <h3 id="1-implementation-of-the-event-listener-that-will-trigger-the-animator-to-start">
+        
+        
+          #1 implementation of the event listener that will trigger the animator to start <a href="#1-implementation-of-the-event-listener-that-will-trigger-the-animator-to-start">#</a>
+        
+        
+      </h3>
+    
+
+<p>In your event listener, be sure to perform the following in your TimingTarget implementation:</p>
+
+<ol>
+  <li>
+    <p>Create the Animator and it’s TimingTarget object.</p>
+  </li>
+  <li>
+    <p>In the TimingTarget implementation, do the following:</p>
+  </li>
+  <li>
+    <p>begin() – create your custom component, initialize it, and install it on the RootPaneContainer</p>
+  </li>
+  <li>
+    <p>timingEvent(float) – delegate to your custom component (which will cause a repaint)</p>
+  </li>
+  <li>
+    <p>end() – uninstall the custom component from the RootPaneContainer.</p>
+  </li>
+  <li>
+    <p>Start the Animator after you’ve configured it with the appropriate Interpolator, timing
+resolution, etc.</p>
+  </li>
+</ol>
+
+<p>Here’s is some sample code below of an Animator that you could create in an event handler in your
+container:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">RootPaneContainer</span> <span class="n">container</span> <span class="o">=</span> <span class="o">...;</span>
+<span class="nc">AnimCompGlassPane</span> <span class="n">component</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">AnimCompGlassPane</span><span class="o">();</span>
+<span class="n">component</span><span class="o">.</span><span class="na">init</span><span class="o">(...);</span>
+<span class="n">component</span><span class="o">.</span><span class="na">installOnContainer</span><span class="o">(</span><span class="n">container</span><span class="o">);</span>
+
+<span class="nc">Animator</span> <span class="n">animator</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Animator</span><span class="o">(</span>
+  <span class="no">ANIMATION_LENGTH</span><span class="o">,</span> <span class="no">ANIMATION_REPEATS</span><span class="o">,</span> <span class="nc">Animator</span><span class="o">.</span><span class="na">RepeatBehavior</span><span class="o">.</span><span class="na">REVERSE</span><span class="o">,</span>
+  <span class="k">new</span> <span class="nf">TimingTargetAdapter</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nd">@Override</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">begin</span><span class="o">()</span> <span class="o">{</span>
+   <span class="n">component</span><span class="o">.</span><span class="na">startAnimation</span><span class="o">();</span>
+ <span class="o">}</span>
+
+
+
+<span class="nd">@Override</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">timingEvent</span><span class="o">(</span><span class="kt">float</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+   <span class="n">component</span><span class="o">.</span><span class="na">setAnimationPhase</span><span class="o">(</span><span class="n">v</span><span class="o">);</span>
+ <span class="o">}</span>
+
+ <span class="nd">@Override</span> <span class="kd">public</span> <span class="kt">void</span> <span class="nf">end</span><span class="o">()</span> <span class="o">{</span>
+   <span class="n">component</span><span class="o">.</span><span class="na">endAnimation</span><span class="o">();</span>
+   <span class="n">component</span><span class="o">.</span><span class="na">uninstallFromContainer</span><span class="o">();</span>
+ <span class="o">}</span>
+ <span class="o">});</span>
+
+<span class="n">animator</span><span class="o">.</span><span class="na">setInterpolator</span><span class="o">(</span><span class="k">new</span> <span class="nc">SplineInterpolator</span><span class="o">(</span><span class="mf">0.0f</span><span class="o">,</span> <span class="mf">0.99f</span><span class="o">,</span> <span class="mf">0.01f</span><span class="o">,</span> <span class="mf">1.0f</span><span class="o">));</span>
+<span class="n">animator</span><span class="o">.</span><span class="na">setResolution</span><span class="o">(</span><span class="no">ANIMATION_RESOLUTION</span><span class="o">);</span>
+<span class="n">animator</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+</code></pre></div></div>
+      <h3 id="2-implementation-of-the-custom-component-that-performs-the-animation">
+        
+        
+          #2 implementation of the custom component that performs the animation <a href="#2-implementation-of-the-custom-component-that-performs-the-animation">#</a>
+        
+        
+      </h3>
+    
+
+<p>In your custom component, that actually performs the painting for the animation, be sure to perform
+the following:</p>
+
+<ol>
+  <li>
+    <p>Provide an install(RootPaneContainer) method that installs this component on the glass pane of
+the RootPaneContainer after saving off the old component that’s in the glass pane. There is only
+one glass pane per container, so be sure to save off an existing one and restore it once your
+animation is complete – so be careful not to clobber existing glass panes.</p>
+  </li>
+  <li>
+    <p>Provide an uninstall() method that removes this component from the RootPaneContainer’s glass pane
+and restores the original glass pane component.</p>
+  </li>
+  <li>
+    <p>Provide a method that will be called by timingEvent(float) of the TimingTarget implementation.
+This method should store the current animation stage (which is a float between 0f and 1f that
+signifies how much of the animation is complete), and it should call repaint().</p>
+  </li>
+  <li>
+    <p>Provide an implementation of paint(Graphics) method that performs your custom painting code. It
+should use the float value received in the method above to determine what stage of the animation
+to paint.</p>
+  </li>
+</ol>
+
+<p>Here is some sample code, that may be a partial implementation of your animated component that goes
+on the glass pane:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="nc">RootPaneContainer</span> <span class="n">_rootPaneContainer</span><span class="o">;</span>
+<span class="kd">private</span> <span class="nc">Component</span> <span class="n">_oldGlasspane</span><span class="o">;</span>
+<span class="kd">private</span> <span class="kt">float</span> <span class="n">_animPhase</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">installOnContainer</span><span class="o">(</span><span class="nc">RootPaneContainer</span> <span class="n">container</span><span class="o">){</span>
+  <span class="n">_rootPaneContainer</span> <span class="o">=</span> <span class="n">container</span><span class="o">;</span>
+  <span class="n">_oldGlasspane</span> <span class="o">=</span> <span class="n">_rootPaneContainer</span><span class="o">.</span><span class="na">getGlassPane</span><span class="o">();</span>
+  <span class="n">_rootPaneContainer</span><span class="o">.</span><span class="na">setGlassPane</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+  <span class="n">setVisible</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+ <span class="n">requestFocusInWindow</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">uninstallFromContainer</span><span class="o">(){</span>
+ <span class="n">setVisible</span><span class="o">(</span><span class="kc">false</span><span class="o">);</span>
+ <span class="n">_rootPaneContainer</span><span class="o">.</span><span class="na">setGlassPane</span><span class="o">(</span><span class="n">_oldGlasspane</span><span class="o">);</span>
+ <span class="n">_rootPaneContainer</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+ <span class="n">_oldGlasspane</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">startAnimation</span><span class="o">(){...}</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAnimationPhase</span><span class="o">(</span><span class="kt">float</span> <span class="n">v</span><span class="o">){</span>
+ <span class="n">_animPhase</span> <span class="o">=</span> <span class="n">v</span><span class="o">;</span>
+ <span class="n">repaint</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">endAnimation</span><span class="o">(...);</span>
+
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">paint</span><span class="o">(</span><span class="nc">Graphics</span> <span class="n">g</span><span class="o">){</span>
+ <span class="kd">super</span><span class="o">.</span><span class="na">paint</span><span class="o">(</span><span class="n">g</span><span class="o">);</span>
+ <span class="c1">// do something with _animPhase and paint...</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h3 id="extras">
+        
+        
+          Extras <a href="#extras">#</a>
+        
+        
+      </h3>
+    
+
+<p>When the glass pane is installed on your RootPaneContainer, you should request that it gets keyboard
+focus. This way, you won’t see any strange artifacts of keypresses moving things around underneath
+the component in the glasspane. You can also install a sink that absorbs all key press and mouse
+events so that these aren’t passed on to components other that what’s on your glass pane. You can
+also choose to respond to mouse events or key presses by removing the glass pane (kick off the
+animation which hides the component in the glass pane for example). The same pattern used in the #1
+would apply here!</p>
+      <h2 id="summary">
+        
+        
+          Summary <a href="#summary">#</a>
+        
+        
+      </h2>
+    
+
+<p>The strategy outlined here is just a suggestion on how to perform animation using a glass pane.
+There are many more strategies that you can select, depending on your requirements. However, I feel
+that this is one of the simplest and most effective approaches that have worked well for me, and I
+use it all the time in creating the user interface for applications in my desktop app framework for
+ScreamingToaster. If you look at some of the animations on the video posted on this website, they
+all use this strategy.</p>
+      <h2 id="related-links">
+        
+        
+          Related links <a href="#related-links">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li>Timingframework – <a href="http://timingframework.java.net">http://timingframework.java.net</a></li>
+  <li>SwingX - <a href="http://swinglabs.org">http://swinglabs.org</a></li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/01/28/swingx-tutorial-task-pane/">
+                        SwingX Tutorial - Task Pane (JXTaskPane, Container)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

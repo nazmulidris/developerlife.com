@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Build a grep CLI app in Rust | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Build a grep CLI app in Rust" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This article illustrates how we can build a CLI app in Rust that is a very basic implementation of grep. This app will have 2 modes of operation: piping lines in from stdin and searching them, and reading a file and searching thru it. The output of the program will be lines that match the search term w/ the term being highlighted. Topics like stdin manipulation in a terminal, detecting when the terminal is in tty mode vs piped mode, doing simple file I/O, creating non consuming builders, and managing Results, along w/ building a simple CLI interface are covered in this article." />
+<meta property="og:description" content="This article illustrates how we can build a CLI app in Rust that is a very basic implementation of grep. This app will have 2 modes of operation: piping lines in from stdin and searching them, and reading a file and searching thru it. The output of the program will be lines that match the search term w/ the term being highlighted. Topics like stdin manipulation in a terminal, detecting when the terminal is in tty mode vs piped mode, doing simple file I/O, creating non consuming builders, and managing Results, along w/ building a simple CLI interface are covered in this article." />
+<link rel="canonical" href="http://developerlife.com/2022/03/02/rust-grep-cli-app/" />
+<meta property="og:url" content="http://developerlife.com/2022/03/02/rust-grep-cli-app/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-02T08:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build a grep CLI app in Rust" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2022-03-02T08:00:00-06:00","datePublished":"2022-03-02T08:00:00-06:00","description":"This article illustrates how we can build a CLI app in Rust that is a very basic implementation of grep. This app will have 2 modes of operation: piping lines in from stdin and searching them, and reading a file and searching thru it. The output of the program will be lines that match the search term w/ the term being highlighted. Topics like stdin manipulation in a terminal, detecting when the terminal is in tty mode vs piped mode, doing simple file I/O, creating non consuming builders, and managing Results, along w/ building a simple CLI interface are covered in this article.","headline":"Build a grep CLI app in Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2022/03/02/rust-grep-cli-app/"},"url":"http://developerlife.com/2022/03/02/rust-grep-cli-app/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Build a grep CLI app in Rust&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Build a grep CLI app in Rust</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build a grep CLI app in Rust</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Mar 2, 2022
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/rust-grep-cli-app.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#building-the-main-function">Building the main function</a></li>
+  <li><a href="#reading-piped-input-from-stdin-mode-1">Reading piped input from stdin (mode 1)</a></li>
+  <li><a href="#reading-a-file-and-searching-thru-it-mode-2">Reading a file and searching thru it (mode 2)</a></li>
+  <li><a href="#wrapping-up">Wrapping up</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This article illustrates how we can build a CLI app in Rust that is a very basic
+implementation of grep. This app will have 2 modes of operation: piping lines in from
+<code class="language-plaintext highlighter-rouge">stdin</code> and searching them, and reading a file and searching thru it. The output of the
+program will be lines that match the search term w/ the term being highlighted. Topics
+like <code class="language-plaintext highlighter-rouge">stdin</code> manipulation in a terminal, detecting when the terminal is in <code class="language-plaintext highlighter-rouge">tty</code> mode vs
+<code class="language-plaintext highlighter-rouge">piped</code> mode, doing simple file I/O, creating non consuming builders, and managing
+<code class="language-plaintext highlighter-rouge">Result</code>s, along w/ building a simple CLI interface are covered in this article.</p>
+
+<p>The app we are building is very simple by design so we can get a handle on command line
+arguments, stdin, stdout, and piping.</p>
+
+<blockquote>
+  <p>📜 The source code for the finished app named <code class="language-plaintext highlighter-rouge">rust-grep-cli</code> can be found
+<a href="https://github.com/nazmulidris/rust_scratch/tree/main/rust-grep-cli">here</a>.</p>
+</blockquote>
+
+<blockquote>
+  <p>For more information on general Rust type system design (functional approach rather than
+object oriented), please take a look at this <a href="https://arxiv.org/pdf/2307.07069.pdf">paper</a>
+by Will Crichton demonstrating Typed Design Patterns with Rust.</p>
+</blockquote>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+      <h2 id="building-the-main-function">
+        
+        
+          Building the main function <a href="#building-the-main-function">#</a>
+        
+        
+      </h2>
+    
+
+<p>The first thing we need to do is build the main function. This is where we will be routing
+our app to be in mode 1 or mode 2. We have to detect whether the terminal is in <code class="language-plaintext highlighter-rouge">tty</code> mode
+or <code class="language-plaintext highlighter-rouge">piped</code> mode. In order to do this we have to use a crate
+<a href="https://crates.io/crates/is_terminal"><code class="language-plaintext highlighter-rouge">is_terminal</code></a>. Helper methods based on this crate
+are available in the <a href="https://crates.io/crates/r3bl_tuify"><code class="language-plaintext highlighter-rouge">r3bl_tuify</code></a> crate, which is
+what we will be using in our app.</p>
+
+<p>Here’s the <code class="language-plaintext highlighter-rouge">main</code> function, w/ the most important thing being the call to
+<code class="language-plaintext highlighter-rouge">is_stdin_piped()</code>. This uses the <code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> crate which itself uses <code class="language-plaintext highlighter-rouge">atty</code> to
+determine whether the terminal is currently accepting input piped to <code class="language-plaintext highlighter-rouge">stdin</code>.</p>
+
+<blockquote>
+  <p>📜 You can find the source for <code class="language-plaintext highlighter-rouge">is_stdin_piped()</code> (in <code class="language-plaintext highlighter-rouge">r3bl_tuify</code> crate) <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tuify/src/term.rs">in
+<code class="language-plaintext highlighter-rouge">term.rs</code></a>. You
+will also find these other functions that are related: <code class="language-plaintext highlighter-rouge">is_tty()</code>, <code class="language-plaintext highlighter-rouge">is_stdout_piped</code>.</p>
+
+  <p>🌟 Please star the <a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo</a> on
+github if you like it 🙏. If you would like to contribute to it, please click
+<a href="https://github.com/r3bl-org/r3bl-open-core/contribute">here</a>.</p>
+</blockquote>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="n">args</span> <span class="o">=</span> <span class="nf">args</span><span class="p">()</span><span class="py">.collect</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+  <span class="nf">with</span><span class="p">(</span><span class="nf">run</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="p">|</span><span class="n">it</span><span class="p">|</span> <span class="k">match</span> <span class="n">it</span> <span class="p">{</span>
+    <span class="nf">Ok</span><span class="p">(())</span> <span class="k">=&gt;</span> <span class="nf">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+    <span class="nf">Err</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+      <span class="nd">eprintln!</span><span class="p">(</span><span class="s">"{}: {}"</span><span class="p">,</span> <span class="nf">style_error</span><span class="p">(</span><span class="s">"Problem encountered"</span><span class="p">),</span> <span class="n">err</span><span class="p">);</span>
+      <span class="nf">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">run</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+  <span class="k">match</span> <span class="nf">is_stdin_piped</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">true</span> <span class="k">=&gt;</span> <span class="nf">piped_grep</span><span class="p">(</span><span class="nn">PipedGrepOptionsBuilder</span><span class="p">::</span><span class="nf">parse</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">?</span><span class="p">)</span><span class="o">?</span><span class="p">,</span>
+    <span class="k">false</span> <span class="k">=&gt;</span> <span class="nf">grep</span><span class="p">(</span><span class="nn">GrepOptionsBuilder</span><span class="p">::</span><span class="nf">parse</span><span class="p">(</span><span class="n">args</span><span class="p">)</span><span class="o">?</span><span class="p">)</span><span class="o">?</span><span class="p">,</span>
+  <span class="p">}</span>
+  <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Please note the following things in the <code class="language-plaintext highlighter-rouge">run()</code> function:</p>
+
+<ol>
+  <li>It returns a <code class="language-plaintext highlighter-rouge">Result</code> and all the functions that it calls also return <code class="language-plaintext highlighter-rouge">Result</code>:</li>
+</ol>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">PipedGrepOptionsBuilder::parse()</code></li>
+  <li><code class="language-plaintext highlighter-rouge">piped_grep()</code></li>
+  <li><code class="language-plaintext highlighter-rouge">GrepOptionsBuilder::parse()</code></li>
+  <li><code class="language-plaintext highlighter-rouge">grep()</code></li>
+</ul>
+
+<ol>
+  <li>It uses the <code class="language-plaintext highlighter-rouge">?</code> operator to unwrap the <code class="language-plaintext highlighter-rouge">Result</code> (produced by each of the four functions that it
+calls) to propagate any <code class="language-plaintext highlighter-rouge">Error</code> that may have been produced to the caller (<code class="language-plaintext highlighter-rouge">main()</code> function).</li>
+</ol>
+      <h2 id="reading-piped-input-from-stdin-mode-1">
+        
+        
+          Reading piped input from stdin (mode 1) <a href="#reading-piped-input-from-stdin-mode-1">#</a>
+        
+        
+      </h2>
+    
+
+<p>The arguments that our app will take are different for each mode. In this mode, we need to know what
+our search term is, and whether to apply case-sensitive or insensitive search. We don’t need a file
+path like we do in <a href="#reading-a-file-and-searching-thru-it-mode-2">mode 2</a>.</p>
+
+<p>We want our user to be able to run our app like this:</p>
+
+<!--prettier-ignore-start-->
+
+<blockquote>
+  <p><span style="color:#ea1bf5"> $
+<span style="color:#6FF51B">c</span><span style="color:#73F318">a</span><span style="color:#77F116">t</span><span style="color:#7BF014">
+</span><span style="color:#80ED11">R</span><span style="color:#84EB0F">E</span><span style="color:#88E90D">A</span><span style="color:#8CE70C">D</span><span style="color:#90E40A">M</span><span style="color:#95E108">E</span><span style="color:#99DF07">.</span><span style="color:#9DDC06">m</span><span style="color:#A1D905">d</span><span style="color:#A5D604">
+</span><span style="color:#A9D303">|</span><span style="color:#ADCF02">
+</span><span style="color:#B1CC01">c</span><span style="color:#B5C901">a</span><span style="color:#B9C501">r</span><span style="color:#BCC201">g</span><span style="color:#C0BE01">o</span><span style="color:#C4BA01">
+</span><span style="color:#C7B601">r</span><span style="color:#CBB301">u</span><span style="color:#CEAF02">n</span><span style="color:#D1AB02">
+</span><span style="color:#D5A703">S</span><span style="color:#D8A304">E</span><span style="color:#DB9F05">A</span><span style="color:#DE9A07">R</span><span style="color:#E09608">C</span><span style="color:#E39209">H</span><span style="color:#E68E0B">_</span><span style="color:#E88A0D">T</span><span style="color:#EA850F">E</span><span style="color:#ED8111">R</span><span style="color:#EF7D13">M</span><span style="color:#F17915">
+</span><span style="color:#F37417">C</span><span style="color:#F4701A">A</span><span style="color:#F66C1D">S</span><span style="color:#F7681F">E</span><span style="color:#F96422">_</span><span style="color:#FA6025">S</span><span style="color:#FB5C28">E</span><span style="color:#FC582B">N</span><span style="color:#FD542E">S</span><span style="color:#FD5032">I</span><span style="color:#FE4C35">T</span><span style="color:#FE4838">I</span><span style="color:#FE443C">V</span><span style="color:#FE4040">E</span></span></p>
+</blockquote>
+
+<!--prettier-ignore-end-->
+
+<ol>
+  <li>The left hand side of the pipe <code class="language-plaintext highlighter-rouge">|</code> is just a call to <code class="language-plaintext highlighter-rouge">cat</code> command w/ a file name <code class="language-plaintext highlighter-rouge">README.md</code>,
+but you can replace it w/ whatever command pipes its output into the terminal, like <code class="language-plaintext highlighter-rouge">echo</code>, etc.</li>
+  <li>The user will have to supply the <code class="language-plaintext highlighter-rouge">SEARCH_TERM</code> and <code class="language-plaintext highlighter-rouge">CASE_SENSITIVE</code> arguments.
+    <ul>
+      <li>Note these are just placeholders for the actual arguments that will be passed in the terminal.</li>
+      <li>Another note is that the <code class="language-plaintext highlighter-rouge">CASE_SENSITIVE</code> argument can be any string, we will just look for the
+existence of a 2nd argument and if it exists, we will assume that the user wants case-sensitive
+search, otherwise we default to case-insensitive search.</li>
+    </ul>
+  </li>
+</ol>
+
+<p>The <code class="language-plaintext highlighter-rouge">main()</code> function will provide the <code class="language-plaintext highlighter-rouge">std::env::args</code> that contain the arguments the user passes
+in the terminal, as an iterator, which we turn into a <code class="language-plaintext highlighter-rouge">Vec&lt;String&gt;</code>.</p>
+
+<p>This <code class="language-plaintext highlighter-rouge">Vec&lt;String&gt;</code> will be passed to the <code class="language-plaintext highlighter-rouge">PipedGrepOptionsBuilder</code> which will parse the arguments
+into this struct.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">struct</span> <span class="n">PipedGrepOptions</span> <span class="p">{</span>
+  <span class="k">pub</span> <span class="n">search</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+  <span class="k">pub</span> <span class="n">case_sensitive</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>⚡ <code class="language-plaintext highlighter-rouge">PipedGrepOptionsBuilder</code> is a
+<a href="https://github.com/nazmulidris/rust_scratch/blob/main/rust-book/src/intermediate/builders.rs">non-consuming builder</a>,
+which makes it a little easier to work w/ (than a consuming builder).</p>
+</blockquote>
+
+<p>Once these steps are complete, now we can step into the <code class="language-plaintext highlighter-rouge">piped_grep()</code> function that actually parses
+each line from <code class="language-plaintext highlighter-rouge">stdin</code> and checks to see whether it contains the search term. Here’s the full
+<a href="https://github.com/nazmulidris/rust_scratch/blob/main/rust-grep-cli/src/piped_grep.rs">source file</a>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">stdin</span><span class="p">()</span>
+  <span class="nf">.lock</span><span class="p">()</span>
+  <span class="nf">.lines</span><span class="p">()</span>
+  <span class="nf">.filter</span><span class="p">(|</span><span class="n">line</span><span class="p">|</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="nf">.as_ref</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="k">if</span> <span class="n">options</span><span class="py">.case_sensitive</span> <span class="p">{</span>
+      <span class="n">line</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="n">options</span><span class="py">.search</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">line</span><span class="nf">.to_lowercase</span><span class="p">()</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="n">options</span><span class="py">.search</span><span class="nf">.to_lowercase</span><span class="p">())</span>
+    <span class="p">}</span>
+  <span class="p">})</span>
+  <span class="nf">.map</span><span class="p">(|</span><span class="n">line</span><span class="p">|</span> <span class="n">line</span><span class="nf">.unwrap</span><span class="p">())</span>
+  <span class="nf">.for_each</span><span class="p">(|</span><span class="n">line</span><span class="p">|</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">from</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">options</span><span class="py">.search</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">to</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="nf">style_primary</span><span class="p">(</span><span class="o">&amp;</span><span class="n">options</span><span class="py">.search</span><span class="p">));</span>
+    <span class="k">let</span> <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="nf">.replace</span><span class="p">(</span><span class="n">from</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">to</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">line</span><span class="p">);</span>
+  <span class="p">});</span>
+</code></pre></div></div>
+
+<p>Let’s break down each line of the above code:</p>
+
+<ol>
+  <li>We first get the <code class="language-plaintext highlighter-rouge">stdin</code> handle by calling <code class="language-plaintext highlighter-rouge">std::io::stdin()</code>. And we call <code class="language-plaintext highlighter-rouge">.lock()</code> on it to get
+a <code class="language-plaintext highlighter-rouge">StdinLock</code> handle which implements the <code class="language-plaintext highlighter-rouge">BufRead</code> trait. This allows us to call <code class="language-plaintext highlighter-rouge">lines()</code> on it
+in order to get an iterator over every single line that is read from <code class="language-plaintext highlighter-rouge">stdin</code>.</li>
+  <li>We then call <code class="language-plaintext highlighter-rouge">.filter()</code> on the <code class="language-plaintext highlighter-rouge">lines()</code> iterator to filter out any lines that don’t contain the
+search term. And this is also where we implement case-sensitive vs case-insensitive search.</li>
+  <li>We then call <code class="language-plaintext highlighter-rouge">.map()</code> on the <code class="language-plaintext highlighter-rouge">filter()</code> iterator to map each line to a <code class="language-plaintext highlighter-rouge">String</code> from <code class="language-plaintext highlighter-rouge">Result</code> by
+unwrapping it.</li>
+  <li>We then call <code class="language-plaintext highlighter-rouge">.for_each()</code> on the <code class="language-plaintext highlighter-rouge">map()</code> iterator to iterate over each line and find every
+instance of the search term and replace it with the formatted version. Then print it to the
+console.</li>
+</ol>
+
+<p>Next, we will look at implementing mode 2.</p>
+      <h2 id="reading-a-file-and-searching-thru-it-mode-2">
+        
+        
+          Reading a file and searching thru it (mode 2) <a href="#reading-a-file-and-searching-thru-it-mode-2">#</a>
+        
+        
+      </h2>
+    
+
+<p>The arguments that our app will take in this mode are the search term, the file path, and whether to
+apply case-sensitive or case-insensitive search. These are different than the arguments for
+<a href="#reading-piped-input-from-stdin-mode-1">mode 1</a>.</p>
+
+<p>We want our use to be able to run our app like this:</p>
+
+<!--prettier-ignore-start-->
+<blockquote>
+  <p><span style="color:#46FE3A">c</span><span style="color:#4AFE36">a</span><span style="color:#4EFE33">r</span><span style="color:#52FD30">g</span><span style="color:#56FC2C">o</span><span style="color:#5AFB29">
+</span><span style="color:#5EFA26">r</span><span style="color:#62F923">u</span><span style="color:#66F820">n</span><span style="color:#6AF61E">
+</span><span style="color:#6FF51B">S</span><span style="color:#73F318">E</span><span style="color:#77F116">A</span><span style="color:#7BF014">R</span><span style="color:#80ED11">C</span><span style="color:#84EB0F">H</span><span style="color:#88E90E">_</span><span style="color:#8CE70C">T</span><span style="color:#90E40A">E</span><span style="color:#95E108">R</span><span style="color:#99DF07">M</span><span style="color:#9DDC06">
+</span><span style="color:#A1D905">F</span><span style="color:#A5D604">I</span><span style="color:#A9D303">L</span><span style="color:#ADCF02">E</span><span style="color:#B1CC01">N</span><span style="color:#B5C901">A</span><span style="color:#B9C501">M</span><span style="color:#BCC201">E</span><span style="color:#C0BE01">
+</span><span style="color:#C4BA01">C</span><span style="color:#C7B601">A</span><span style="color:#CBB301">S</span><span style="color:#CEAF02">E</span><span style="color:#D1AB02">_</span><span style="color:#D5A703">S</span><span style="color:#D8A304">E</span><span style="color:#DB9F05">N</span><span style="color:#DE9A07">S</span><span style="color:#E09608">I</span><span style="color:#E39209">T</span><span style="color:#E68E0B">I</span><span style="color:#E88A0D">V</span><span style="color:#EA850F">E</span>
+<!--prettier-ignore-end--></p>
+</blockquote>
+
+<ol>
+  <li>The first argument is the search term.</li>
+  <li>The second argument is the file path.</li>
+  <li>The third argument is whether to apply case-sensitive or case-insensitive search.</li>
+</ol>
+
+<p>The <code class="language-plaintext highlighter-rouge">main()</code> function will provide the <code class="language-plaintext highlighter-rouge">std::env::args</code> that contain the arguments the user passes
+in the terminal, as an iterator, which we turn into a <code class="language-plaintext highlighter-rouge">Vec&lt;String&gt;</code>.</p>
+
+<p>This <code class="language-plaintext highlighter-rouge">Vec&lt;String&gt;</code> will be passed to the <code class="language-plaintext highlighter-rouge">GrepOptionsBuilder</code> which will parse the arguments into
+this struct. This builder is also a non-consuming builder.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">PartialEq,</span> <span class="nd">Eq,</span> <span class="nd">Hash)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">GrepOptions</span> <span class="p">{</span>
+  <span class="k">pub</span> <span class="n">search</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+  <span class="k">pub</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+  <span class="k">pub</span> <span class="n">case_sensitive</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>We can then pass this struct into the <code class="language-plaintext highlighter-rouge">grep()</code> function which does the following.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="n">content</span> <span class="o">=</span> <span class="nn">fs</span><span class="p">::</span><span class="nf">read_to_string</span><span class="p">(</span><span class="n">options</span><span class="py">.file_path</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="k">let</span> <span class="n">filtered_content</span> <span class="o">=</span> <span class="n">content</span>
+  <span class="nf">.lines</span><span class="p">()</span>
+  <span class="nf">.filter</span><span class="p">(|</span><span class="n">line</span><span class="p">|</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="n">options</span><span class="py">.case_sensitive</span> <span class="p">{</span>
+      <span class="n">line</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="n">options</span><span class="py">.search</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">line</span><span class="nf">.to_lowercase</span><span class="p">()</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="n">options</span><span class="py">.search</span><span class="nf">.to_lowercase</span><span class="p">())</span>
+    <span class="p">}</span>
+  <span class="p">})</span>
+  <span class="nf">.map</span><span class="p">(|</span><span class="n">line</span><span class="p">|</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">from</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">options</span><span class="py">.search</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">to</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="nf">style_primary</span><span class="p">(</span><span class="o">&amp;</span><span class="n">options</span><span class="py">.search</span><span class="p">));</span>
+    <span class="n">line</span><span class="nf">.replace</span><span class="p">(</span><span class="n">from</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">to</span><span class="p">)</span>
+  <span class="p">})</span>
+  <span class="py">.collect</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;&gt;</span><span class="p">();</span>
+<span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">filtered_content</span><span class="nf">.join</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">));</span>
+</code></pre></div></div>
+
+<p>Similar to what happened in <a href="#reading-piped-input-from-stdin-mode-1">mode 1</a>, we first read the
+contents of the file into a string, and then we filter out any lines that don’t contain the search,
+and finally replace the search term with the formatted version. Then print the result to the
+console.</p>
+      <h2 id="wrapping-up">
+        
+        
+          Wrapping up <a href="#wrapping-up">#</a>
+        
+        
+      </h2>
+    
+
+<p>You can get the code for this app
+<a href="https://github.com/nazmulidris/rust_scratch/tree/main/rust-grep-cli">here</a>.</p>
+
+<p>Here are a list of crates that are used in this app.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> - <a href="https://crates.io/crates/r3bl_rs_utils">https://crates.io/crates/r3bl_rs_utils</a></li>
+  <li><code class="language-plaintext highlighter-rouge">atty</code> - <a href="https://crates.io/crates/atty">https://crates.io/crates/atty</a></li>
+</ol>
+
+<p>We will explore more complex TUIs built w/ Rust in the future.</p>
+<blockquote>
+<p>
+🌟 Please star the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+
+You can get lots of useful Rust command line apps from the <code>r3bl-cmdr</code> crate in this repo:
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+📦 You can install them using <code>cargo install r3bl-cmdr</code>
+</p>
+
+<kbd>giti in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
+</video>
+
+<kbd>edi in action</kbd>
+<video width="100%" controls="">
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
+</video>
+
+
+<p>If you would like to get involved in an open source project and like Rust crates, we
+welcome your contributions to the
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr">r3bl-open-core</a> repo.
+</p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/04/ockam-routing-building-end-to-end-channels/">
+                        Create End-to-End Channels in Rust with Ockam Routing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2022/03/02/rust-grep-cli-app/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

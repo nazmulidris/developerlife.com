@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Redux, React Navigation, and React Native | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Redux, React Navigation, and React Native" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is a deep dive in the use of Redux in React Native projects. It will show you how to architect apps that rely on external web services, and Firebase. The code for this tutorial is on GitHub." />
+<meta property="og:description" content="This tutorial is a deep dive in the use of Redux in React Native projects. It will show you how to architect apps that rely on external web services, and Firebase. The code for this tutorial is on GitHub." />
+<link rel="canonical" href="http://developerlife.com/2017/05/25/redux-react-navigation-and-react-native/" />
+<meta property="og:url" content="http://developerlife.com/2017/05/25/redux-react-navigation-and-react-native/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-05-25T17:26:34-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Redux, React Navigation, and React Native" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2017-05-25T17:26:34-05:00","datePublished":"2017-05-25T17:26:34-05:00","description":"This tutorial is a deep dive in the use of Redux in React Native projects. It will show you how to architect apps that rely on external web services, and Firebase. The code for this tutorial is on GitHub.","headline":"Redux, React Navigation, and React Native","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2017/05/25/redux-react-navigation-and-react-native/"},"url":"http://developerlife.com/2017/05/25/redux-react-navigation-and-react-native/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Redux, React Navigation, and React Native&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Redux, React Navigation, and React Native</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Redux, React Navigation, and React Native</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->May 25, 2017
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+<img class="post-hero-image" src="/assets/redux-hero.png"/>
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#source-code-on-github">Source code on GitHub</a></li>
+  <li><a href="#mvvp-vs-unidirectional-architectures">MVVP vs Unidirectional architectures</a></li>
+  <li><a href="#flow">Flow</a></li>
+  <li><a href="#material-design-components">Material Design Components</a></li>
+  <li><a href="#migrating-the-weather-app-to-using-redux">Migrating the weather app to using Redux</a></li>
+  <li><a href="#redux">Redux</a>
+    <ul>
+      <li><a href="#1-state">1. State</a></li>
+      <li><a href="#2-actions">2. Actions</a></li>
+      <li><a href="#3-reducer-functions">3. Reducer functions</a>
+        <ul>
+          <li><a href="#deep-copy-or-shallow-copy-to-generate-the-new-state">Deep copy or shallow copy to generate the new state?</a></li>
+        </ul>
+      </li>
+      <li><a href="#4-middleware-functions">4. Middleware functions</a></li>
+      <li><a href="#5-store-creation">5. Store creation</a></li>
+      <li><a href="#6-connect">6. Connect</a></li>
+      <li><a href="#heres-some-more-information-on-redux">Here’s some more information on Redux</a></li>
+    </ul>
+  </li>
+  <li><a href="#weather-app-architecture">Weather App Architecture</a></li>
+  <li><a href="#react-navigation-and-redux">React Navigation and Redux</a></li>
+  <li><a href="#react-native-resources">React Native resources</a></li>
+  <li><a href="#react-redux-and-native-android-resources">React, Redux, and native Android resources</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This tutorial is all about thinking in Redux when building mobile apps. In addition to showcasing an
+architecture for a simple weather app, I will provide clean examples for middleware and reducers and
+delve into <code class="language-plaintext highlighter-rouge">@connect</code> and the <code class="language-plaintext highlighter-rouge">connect</code> function. I will also show you how to set it up for
+integration into Firebase realtime database, and show you how to use Flow static type checking in
+your apps.</p>
+
+<p>There will be many more tutorials on the evolution of this weather app into using Firebase Database,
+Firebase Auth, precise location lookup, and notifications. My goal for creating this project is to
+provide really clean and simple (while remaining real-world) reference code and architecture that
+can be used to build most contemporary mobile apps.</p>
+      <h2 id="source-code-on-github">
+        
+        
+          Source code on GitHub <a href="#source-code-on-github">#</a>
+        
+        
+      </h2>
+    
+
+<p>Here’s the
+<a href="https://github.com/r3bl-alliance/react-native-weather/tree/5d51b3c622136bcf0e5e4999cd96112b9d55c77b">source code on GitHub</a>
+with react-navigation NOT wired into Redux. This is primarily what this tutorial will cover. I chose
+not to wire react-navigation into Redux (even though it supports it). So navigation state is not
+stored in Redux in this tutorial and this version of the source. At the end of this tutorial, you
+will find information on a branch of this codebase where I did integrate <code class="language-plaintext highlighter-rouge">react-navigation</code> with
+Redux in case you’re interested in that.</p>
+      <h2 id="mvvp-vs-unidirectional-architectures">
+        
+        
+          MVVP vs Unidirectional architectures <a href="#mvvp-vs-unidirectional-architectures">#</a>
+        
+        
+      </h2>
+    
+
+<p>Before we get started with the code, let’s consider the high level patterns that Redux embodies for
+data flow and how they are different than
+<a href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93viewmodel">MVVM</a> or MVP approaches.
+<a href="http://www.michaelridland.com/xamarin/mvvm-mvc-is-dead-is-unidirectional-a-mvvm-mvc-killer/">This article</a>
+does a great job highlighting the differences between these approaches. Google just released
+<a href="https://developer.android.com/topic/libraries/architecture/index.html">Android Architecture Components</a>
+(at Google IO17) which is a MVVM framework for native Android development.</p>
+
+<p>In this tutorial and the example weather app, I use Redux which is a unidirectional framework. Both
+approaches (MVVM and unidirectional) require boilerplate code, and a lot of forethought before
+starting coding up a project. I might explore MVVM and Android Architecture Components in a
+different tutorial. If you want to see unidirectional Redux applied to native Android development,
+<a href="https://developerlife.com/2017/01/27/native-android-redux-and-firebase/">check out this tutorial</a>.</p>
+      <h2 id="flow">
+        
+        
+          Flow <a href="#flow">#</a>
+        
+        
+      </h2>
+    
+
+<p>Type safety is a good thing. And Flow is a really seamless way of integrating type safety into your
+React Native application. In fact, it’s enabled by default. All the flow code that you add actually
+gets stripped out when the JS is executed, which is awesome. To learn more about Flow, here are some
+resources:</p>
+
+<ul>
+  <li><a href="https://flow.org/en/docs/types/primitives/">Flow documentation</a>.</li>
+  <li><a href="https://blog.callstack.io/typed-redux-2aa8bff926ff">Tutorial on using Flow and Redux</a>.</li>
+  <li><a href="https://flow.org/try/#0PTAEAEDMBsHsHcBQjgCpGgLawE4FNQBLAO0llFmNBgQwFpQALAF2YAcBnALhBvgDpcAc2B5iwACawAxh2DMAnmzxyAhjhyqFc+k1acewPoJwixkmXMXK10Qqo4rgulu2684A4aPFTZ8pScSZjwcSFVpJwwMEI5mUGZGAmlYCQIk-Bd9dyNPExFmHAVnUAwOVUw2aGTUgkTVeIBJUHgcWBCst0MhWFh+IWhgAGZ4AE0ANUgkUFRnFGcQBMCOeeQ8AA82XHjrAgBlZgaCAF5QAG8MUABXRxwuUABVW4AaS7hpBsJKblAAGRlPpQAOoNaSMX6EOKvUCgfBbHDMH5AvANDIAJTw8MRrwAvmtNtslspHrdQKcLjDIQBBYiUe4AI161VUxGhoGIFTw9ziOBIQjZN1ChAk3MKfLZbDakEI1QACoRpMwrvgHjhoKLecR+Yg8YgNliiQR-h9mF9iCDmGCIXEyaAqRotAAeHl8gB8AG58QbdqBkajQhisRxbfbNApHX7EgHMdsPV7CT7I+iYwjbRTQO9AcQNeLLtJlfhiMx7gBhAtiZglygSQim75ssj4D5xe7IvAAa2gCgAYrg8M3mLj46mfWWNBWq8Qa3XiMHyZcQpV7sQrph6aE2YxV8Lawpl6v1zg2fASCL2QeN5crgA3U8bfdry8wjhXYi8xwPw9sl+zvDF8+PkeOrDjsgS+ngHZdr2TYOPE84whIWg-KGToACKqDKPZ9gOrpDnqBIjmB6GYdB-awWmlyIXuoAulqm6EJ+T4ZrAjFAbqIDzBQ9IAFb9oiqyINU8SYAoTyhPcYk4BRlIcDSdIJDgVx4GyHKYFyoAAOQcgAXhpAq3MK9waQAjAATEMemXJKsDSnKCpKiqapGa4bCGIysCWTinqCX+WAKMaWY-AFM4WlakJwaAADaJmmXpmnGRZzzxQALBpAC63lCX5gbbEiKJRjgOUInOlyRZcMLpjCMKZjORlmZZVVVfm45FvclWNQkeBLqAZlsh1TDbtO1EABwAAx9R1J5TvcQwTY1N53us9wAKxzVVP7vupvXlR1P6OP+xnDWtOJrY2ZEtucO2NVRPxlf1jXtfdoBUUZ2DEA1T1VYwDGgAA7ONV33XA9wAGwA59oB4k9aXHTtJ2XBlQA">Try it!</a>.</li>
+</ul>
+
+<p>In this weather app, I use Flow to type the State objects that are managed by Redux, and in the
+middleware, reducers, and actions as well. It makes it easy for me to keep track of object shapes in
+my code. I defined all the types that I would need in one file -
+<a href="https://github.com/r3bl-alliance/react-native-weather/blob/91da767ef1a0964c416cf1cf61f2cb81216a348d/app/Types.js">Types.js</a>.
+I then import this into whatever JS file I need and use these types, using
+<code class="language-plaintext highlighter-rouge">import type * as Types from './Types';</code>. This keeps all the Flow types neatly in one place, while
+allowing me to use them or not wherever I chose. I’ve used
+<a href="https://developerlife.com/2016/10/07/getting-started-with-react-redux-and-firebase/">TypeScript before in another tutorial and web app on GitHub</a>,
+and I prefer Flow over it.</p>
+
+<p>Here’s an example of a reducer that uses Flow types:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">appReducer</span> <span class="o">=</span> <span class="p">(</span>
+  <span class="nx">state</span><span class="p">:</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">AppState</span> <span class="o">=</span> <span class="nx">INIT_STATE</span><span class="p">,</span>
+  <span class="nx">action</span><span class="p">:</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">Action</span>
+<span class="p">):</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">AppState</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">switch </span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="na">set_watchlist</span><span class="p">:</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nf">setWatchlist</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">action</span><span class="p">.</span><span class="nx">payload</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="na">set_weather_data</span><span class="p">:</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nf">setWeatherData</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">action</span><span class="p">.</span><span class="nx">payload</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="na">set_user_object</span><span class="p">:</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nf">setUserObject</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">action</span><span class="p">.</span><span class="nx">payload</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c1">// in case nothing matched, just return the old state</span>
+  <span class="k">return</span> <span class="nx">state</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the <code class="language-plaintext highlighter-rouge">setUserObject</code> method implementation:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">setUserObject</span><span class="p">(</span><span class="nx">state</span><span class="p">:</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">AppState</span><span class="p">,</span> <span class="nx">user</span><span class="p">:</span> <span class="nx">User</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">ToastAndroid</span><span class="p">.</span><span class="nf">show</span><span class="p">(</span><span class="dl">"</span><span class="s2">USER OBJECT SET</span><span class="dl">"</span><span class="p">,</span> <span class="nx">ToastAndroid</span><span class="p">.</span><span class="nx">SHORT</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="p">...</span><span class="nx">state</span><span class="p">,</span> <span class="c1">// syntax : http://es6-features.org/#SpreadOperator</span>
+    <span class="nx">user</span><span class="p">,</span> <span class="c1">// syntax : http://es6-features.org/#PropertyShorthand</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s an example of some of the types defined in <code class="language-plaintext highlighter-rouge">Types.js</code>:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="nx">type</span> <span class="nx">Action</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">type</span><span class="p">:</span> <span class="nx">number</span><span class="p">,</span>
+  <span class="na">payload</span><span class="p">:</span> <span class="nx">any</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="nx">type</span> <span class="nx">State</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">app</span><span class="p">:</span> <span class="nx">AppState</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="nx">type</span> <span class="nx">AppState</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">user</span><span class="p">:</span> <span class="nx">User</span><span class="p">,</span>
+  <span class="na">locations</span><span class="p">:</span> <span class="nx">LocationWatchList</span><span class="p">,</span>
+  <span class="na">reports</span><span class="p">:</span> <span class="nx">WeatherReports</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="nx">type</span> <span class="nx">User</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">isAnon</span><span class="p">:</span> <span class="nx">boolean</span><span class="p">,</span>
+  <span class="na">name</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="na">userid</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="na">profilePictureUrl</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="nx">type</span> <span class="nx">LocationWatchList</span> <span class="o">=</span> <span class="nb">Array</span><span class="o">&lt;</span><span class="nx">string</span><span class="o">&gt;</span>
+
+<span class="k">export</span> <span class="nx">type</span> <span class="nx">WeatherReports</span> <span class="o">=</span> <span class="nb">Array</span><span class="o">&lt;</span><span class="nx">WeatherReport</span><span class="o">&gt;</span>
+
+<span class="k">export</span> <span class="nx">type</span> <span class="nx">WeatherReport</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">location</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="na">current</span><span class="p">:</span> <span class="nx">CurrentConditions</span><span class="p">,</span>
+  <span class="na">forecast</span><span class="p">:</span> <span class="nx">WeeklyForecast</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="nx">type</span> <span class="nx">CurrentConditions</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">temp</span><span class="p">:</span> <span class="nx">number</span><span class="p">,</span>
+  <span class="na">humidity</span><span class="p">:</span> <span class="nx">number</span><span class="p">,</span>
+  <span class="na">wind</span><span class="p">:</span> <span class="nx">number</span><span class="p">,</span>
+  <span class="na">uvindex</span><span class="p">:</span> <span class="nx">number</span><span class="p">,</span>
+  <span class="na">sunrise</span><span class="p">:</span> <span class="nx">number</span><span class="p">,</span>
+  <span class="na">sunset</span><span class="p">:</span> <span class="nx">number</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="nx">type</span> <span class="nx">WeeklyForecast</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">days</span><span class="p">:</span> <span class="nb">Array</span><span class="o">&lt;</span><span class="nx">DailyForecast</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="nx">type</span> <span class="nx">DailyForecast</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">day</span><span class="p">:</span> <span class="nx">string</span><span class="p">,</span>
+  <span class="na">hi</span><span class="p">:</span> <span class="nx">number</span><span class="p">,</span>
+  <span class="na">lo</span><span class="p">:</span> <span class="nx">number</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="material-design-components">
+        
+        
+          Material Design Components <a href="#material-design-components">#</a>
+        
+        
+      </h2>
+    
+
+<p>At Google IO17, Google released the new
+<a href="https://material.io/components/">Material Components project</a>. This just brings to life the
+Material Design spec in code libraries that you can use in your Web (Javascript), Android (Java,
+Kotlin), or iOS (Swift, ObjC) apps.</p>
+
+<p>I went looking for a React Native equivalent for these components and I found this
+<a href="https://github.com/xotahal/react-native-material-ui">react-native-material-design</a> library. It
+works with the vector fonts library that this weather app is already using. The only caveat is that
+it’s currently (as of May 2017) not possible to use font icons other than <code class="language-plaintext highlighter-rouge">materialicons</code> in
+react-native-material-ui library.</p>
+
+<p>To accommodate this library, I had to make a few changes to the weather app:</p>
+
+<ol>
+  <li>
+    <p>Importing the library from npm was easy since the vector icons project was already added.</p>
+  </li>
+  <li>
+    <p>I had to wrap the root view that contains a material component in a <code class="language-plaintext highlighter-rouge">ThemeProvder</code> wrapper, which
+allows <code class="language-plaintext highlighter-rouge">UITheme</code> to be passed to it (in order to consistently theme all the material components
+in the hierarchy).</p>
+  </li>
+  <li>
+    <p>Adding the floating action button (<code class="language-plaintext highlighter-rouge">ActionButton</code>) was easy, but it took some time to figure out
+how the styling works for this library and how to integrate that into react native styles (which
+I store in
+<a href="https://github.com/r3bl-alliance/react-native-weather/blob/5d51b3c622136bcf0e5e4999cd96112b9d55c77b/app/Styles.js">Styles.js</a>)
+and deal with the material-ui theme object(s).</p>
+  </li>
+</ol>
+
+<p>Here’s the code to add the
+<a href="https://github.com/xotahal/react-native-material-ui/blob/master/docs/ActionButton.md"><code class="language-plaintext highlighter-rouge">ActionButton</code></a>
+in <code class="language-plaintext highlighter-rouge">HomeScreen.js</code>:</p>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>return (
+<span class="nt">&lt;ThemeProvider</span> <span class="na">uiTheme=</span><span class="s">"{uiTheme}"</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;View</span> <span class="na">style=</span><span class="s">"{css.home_screen.v_container}"</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;StatusBar</span> <span class="na">hidden=</span><span class="s">{false}</span> <span class="na">translucent=</span><span class="s">{false}</span> <span class="na">animated=</span><span class="s">{true}</span> <span class="na">barStyle=</span><span class="s">{'light-content'}</span>
+    <span class="na">backgroundColor=</span><span class="s">{css.colors.secondary}</span> <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;FlatList</span>
+      <span class="na">style=</span><span class="s">"{css.home_screen_list.container}"</span>
+      <span class="na">data=</span><span class="s">"{listData}"</span>
+      <span class="na">renderItem=</span><span class="s">"{this.renderRow}"</span>
+    <span class="nt">/&gt;</span>
+
+    <span class="nt">&lt;ActionButton</span>
+      <span class="na">style=</span><span class="s">"{css.fab.stylesheet}"</span>
+      <span class="na">icon=</span><span class="s">"{css.fab.icon}"</span>
+      <span class="na">onPress=</span><span class="s">"{this.actionButtonPressed}"</span>
+    <span class="nt">/&gt;</span>
+  <span class="nt">&lt;/View&gt;</span>
+<span class="nt">&lt;/ThemeProvider&gt;</span>
+</code></pre></div></div>
+
+<p>Here’s the <code class="language-plaintext highlighter-rouge">fab</code> style from <code class="language-plaintext highlighter-rouge">Styles.js</code>:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">fab</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="c1">// key - value pairs needed to decorate the FAB</span>
+  <span class="na">icon</span><span class="p">:</span> <span class="dl">"</span><span class="s2">library-add</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// As of May 16 '17 only MaterialIcons</span>
+  <span class="c1">// can be used in material-uilib</span>
+  <span class="c1">// StyleSheet needed to style the FAB</span>
+  <span class="na">stylesheet</span><span class="p">:</span> <span class="nx">StyleSheet</span><span class="p">.</span><span class="nf">create</span><span class="p">({</span>
+    <span class="na">container</span><span class="p">:</span> <span class="p">{</span>
+      <span class="c1">//COLORS can be used here as well</span>
+      <span class="na">backgroundColor</span><span class="p">:</span> <span class="nx">colors</span><span class="p">.</span><span class="nx">secondary</span><span class="p">,</span>
+    <span class="p">},</span>
+  <span class="p">}),</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Finally, here’s the <code class="language-plaintext highlighter-rouge">uiTheme</code> object (which doesn’t really do anything in this form):</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">uiTheme</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">palette</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">primaryColor</span><span class="p">:</span> <span class="nx">COLOR</span><span class="p">.</span><span class="nx">green500</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="migrating-the-weather-app-to-using-redux">
+        
+        
+          Migrating the weather app to using Redux <a href="#migrating-the-weather-app-to-using-redux">#</a>
+        
+        
+      </h2>
+    
+
+<p>This weather app started life off without having any Redux code in it
+(<a href="https://developerlife.com/2017/04/26/flexbox-layouts-and-lists-with-react-native/">see this tutorial</a>).
+There was a strange issue I ran into related to JSX while I was wiring Redux into this existing
+codebase.</p>
+
+<p>In order to move the existing code over to Redux, I couldn’t just pass a <code class="language-plaintext highlighter-rouge">Drawer Navigator</code> to the
+<code class="language-plaintext highlighter-rouge">AppRegistry</code> as I was doing in the past. This navigator now needs to be wrapped with a <code class="language-plaintext highlighter-rouge">Provider</code>.
+When I went to create a simple <code class="language-plaintext highlighter-rouge">React.Component</code> class that just returns this navigator, I ran into
+trouble because I named the variable for the <code class="language-plaintext highlighter-rouge">Drawer Navigator "nav_drawer"</code> and this does not play
+nice with JSX! JSX thought it was an HTML element and didn’t know what to do with it. When I renamed
+it to _U_ppercase <code class="language-plaintext highlighter-rouge">NavDrawer</code>, it worked as expected. More info <a href="https://goo.gl/nGRaAl">here</a>.</p>
+      <h2 id="redux">
+        
+        
+          Redux <a href="#redux">#</a>
+        
+        
+      </h2>
+    
+
+<p>With that out of the way, let’s talk about the main thing in this tutorial - which is Redux. Redux
+is a way to create a finite state machine that captures the state of your entire application. This
+finite state machine’s state can be changed when actions are dispatched against it. Each state
+transition results in an immutable state. So an entirely new state object is created every time an
+action is successfully dispatched, and it transitions the state to a new one.</p>
+
+<p>Subscribers can attach to the Redux store. These subscribers are invoked whenever the Redux state
+changes. You can query the Redux store for the state at anytime. There’s a <code class="language-plaintext highlighter-rouge">react-redux</code> library
+which provides some helper functions to make this efficient. There’s a <code class="language-plaintext highlighter-rouge">connect</code> function that wires
+up part of a state tree to React Components that are interested in observing it. These React
+Components are re-rendered only if there are actual changes in parts of the state tree, so
+re-renders are efficient.</p>
+
+<p>You can choose to wire react-navigation into this state or not. There’s a branch on GitHub (link is
+shared at the top of the tutorial) which covers how you can wire react-navigation into Redux if you
+like.</p>
+
+<p>The key elements of using Redux are the following:</p>
+      <h3 id="1-state">
+        
+        
+          1. State <a href="#1-state">#</a>
+        
+        
+      </h3>
+    
+
+<p>Hold your entire app’s state in a single object. The shape of this object matters, since you can
+slice the object based on key names, and then tie them to reducer functions which only operate on
+that slice of the state tree. You can also connect (or bind) slices of the state tree to React
+Components that will be re-rendered when anything in these state slices change. This is the main
+promise of Redux - to make state management robust and manageable, and testable.</p>
+      <h3 id="2-actions">
+        
+        
+          2. Actions <a href="#2-actions">#</a>
+        
+        
+      </h3>
+    
+
+<p>You have to create action functions that contain a name and a payload. These actions are
+declarative. They don’t actually do anything. Instead they describe what you would like to happen to
+the Redux state, once these actions are dispatched to the Redux store. Think of actions as requests
+that you are making against the Redux store. Just because you make a request doesn’t mean that it
+will be fulfilled. If it does get fulfilled, then the state will change and your React Component(s)
+will be re-rendered if necessary.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">TYPES</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">request_refresh_weather_data</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="na">request_add_to_watchlist</span>    <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="na">set_watchlist</span>               <span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="na">set_weather_data</span>            <span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="na">set_user_object</span>             <span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+<span class="p">};</span>
+<span class="p">...</span>
+<span class="k">export</span> <span class="kd">function</span> <span class="nf">set_weather_data_action</span><span class="p">(</span>
+    <span class="nx">weatherreports</span><span class="p">:</span> <span class="nx">WeatherReports</span><span class="p">):</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">Action</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="na">type</span>   <span class="p">:</span> <span class="nx">TYPES</span><span class="p">.</span><span class="nx">set_weather_data</span><span class="p">,</span>
+    <span class="na">payload</span><span class="p">:</span> <span class="nx">weatherreports</span><span class="p">,</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="k">export</span> <span class="kd">function</span> <span class="nf">set_user_object_action</span><span class="p">(</span><span class="nx">user</span><span class="p">:</span> <span class="nx">User</span><span class="p">):</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">Action</span> <span class="p">{</span>
+  <span class="kd">let</span> <span class="nx">retval</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="k">if </span><span class="p">(</span><span class="nx">_</span><span class="p">.</span><span class="nf">isNil</span><span class="p">(</span><span class="nx">user</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">retval</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">type</span>   <span class="p">:</span> <span class="nx">TYPES</span><span class="p">.</span><span class="nx">set_user_object</span><span class="p">,</span>
+      <span class="na">payload</span><span class="p">:</span> <span class="p">{</span>
+        <span class="na">isAnon</span>           <span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="na">name</span>             <span class="p">:</span> <span class="nb">Math</span><span class="p">.</span><span class="nf">random</span><span class="p">().</span><span class="nf">toString</span><span class="p">(</span><span class="mi">36</span><span class="p">).</span><span class="nf">substring</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
+        <span class="na">userid</span>           <span class="p">:</span> <span class="nb">Math</span><span class="p">.</span><span class="nf">random</span><span class="p">().</span><span class="nf">toString</span><span class="p">(</span><span class="mi">36</span><span class="p">).</span><span class="nf">substring</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
+        <span class="na">profilePictureUrl</span><span class="p">:</span> <span class="nb">Math</span><span class="p">.</span><span class="nf">random</span><span class="p">().</span><span class="nf">toString</span><span class="p">(</span><span class="mi">36</span><span class="p">).</span><span class="nf">substring</span><span class="p">(</span><span class="mi">7</span><span class="p">),</span>
+      <span class="p">},</span>
+    <span class="p">};</span>
+  <span class="p">}</span>
+  <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">retval</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">type</span>   <span class="p">:</span> <span class="nx">TYPES</span><span class="p">.</span><span class="nx">set_user_object</span><span class="p">,</span>
+      <span class="na">payload</span><span class="p">:</span> <span class="nx">user</span><span class="p">,</span>
+    <span class="p">};</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="nx">retval</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="p">...</span>
+</code></pre></div></div>
+      <h3 id="3-reducer-functions">
+        
+        
+          3. Reducer functions <a href="#3-reducer-functions">#</a>
+        
+        
+      </h3>
+    
+
+<p>You have to create reducer functions that take the old state object, and an action, and then run
+some code to change the state to a new state. These functions are pure, and you can’t call web
+services in them. If you need to do anything asynchronously in these reducers, then you have to use
+middleware (shown next). To make things more manageable, you can create reducer functions that
+operate on small parts of the state. Let’s say that you have a State object that has the following
+shape:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">state</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="na">app</span><span class="p">:</span> <span class="p">{</span> <span class="na">key</span><span class="p">:</span> <span class="dl">"</span><span class="s2">value</span><span class="dl">"</span> <span class="p">},</span>
+  <span class="na">nav</span><span class="p">:</span> <span class="p">{},</span>
+  <span class="na">net</span><span class="p">:</span> <span class="p">{},</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You can now create 3 reducers, one that operates on the <code class="language-plaintext highlighter-rouge">app</code> leaf of the state, another that works
+on the <code class="language-plaintext highlighter-rouge">nav</code> leaf, and yet another that operates on the <code class="language-plaintext highlighter-rouge">net</code> leaf. Redux provides a simple way to
+combine these reducers and associate a reducer function with the key that it’s supposed to work
+with.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">combineReducers</span><span class="p">({</span>
+                  <span class="na">app</span><span class="p">:</span> <span class="nx">appReducer</span><span class="p">,</span>
+                  <span class="na">nav</span><span class="p">:</span> <span class="nx">navReducer</span><span class="p">,</span>
+                  <span class="na">net</span><span class="p">:</span> <span class="nx">netReducer</span><span class="p">,</span>
+                <span class="p">},</span>
+<span class="p">),</span>
+</code></pre></div></div>
+
+<p>Here’s what appReducer might look like:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">appReducer</span> <span class="o">=</span> <span class="p">(</span><span class="nx">state</span><span class="p">:</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">AppState</span> <span class="o">=</span> <span class="nx">INIT_STATE</span><span class="p">,</span>
+                           <span class="nx">action</span><span class="p">:</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">Action</span><span class="p">,</span>
+<span class="p">):</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">AppState</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">switch </span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">type</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="na">set_watchlist</span><span class="p">:</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nf">setWatchlist</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">action</span><span class="p">.</span><span class="nx">payload</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="na">set_weather_data</span><span class="p">:</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nf">setWeatherData</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">action</span><span class="p">.</span><span class="nx">payload</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">case</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="na">set_user_object</span><span class="p">:</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nf">setUserObject</span><span class="p">(</span><span class="nx">state</span><span class="p">,</span> <span class="nx">action</span><span class="p">.</span><span class="nx">payload</span><span class="p">);</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c1">// in case nothing matched, just return the old state</span>
+  <span class="k">return</span> <span class="nx">state</span><span class="p">;</span>
+<span class="p">};</span>
+<span class="p">...</span>
+<span class="kd">function</span> <span class="nf">setUserObject</span><span class="p">(</span><span class="nx">state</span><span class="p">:</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">AppState</span><span class="p">,</span> <span class="nx">user</span><span class="p">:</span> <span class="nx">User</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">ToastAndroid</span><span class="p">.</span><span class="nf">show</span><span class="p">(</span><span class="dl">"</span><span class="s2">USER OBJECT SET</span><span class="dl">"</span><span class="p">,</span> <span class="nx">ToastAndroid</span><span class="p">.</span><span class="nx">SHORT</span><span class="p">);</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="p">...</span><span class="nx">state</span><span class="p">,</span> <span class="c1">// syntax : http://es6-features.org/#SpreadOperator</span>
+    <span class="nx">user</span><span class="p">,</span> <span class="c1">// syntax : http://es6-features.org/#PropertyShorthand</span>
+  <span class="p">};</span>
+<span class="p">...</span>
+</code></pre></div></div>
+      <h4 id="deep-copy-or-shallow-copy-to-generate-the-new-state">
+        
+        
+          Deep copy or shallow copy to generate the new state? <a href="#deep-copy-or-shallow-copy-to-generate-the-new-state">#</a>
+        
+        
+      </h4>
+    
+
+<p>There is something that you have to keep in mind when returning the new state. If you zoom out and
+consider where this state is going, this will give you some insight into how all this fits together.
+When an action is dispatched, and this generates a new state object, this object will then be passed
+to some React Component using the <code class="language-plaintext highlighter-rouge">connect</code> function and it will probably update some UI, e.g. a
+<code class="language-plaintext highlighter-rouge">FlatList</code>. If the thing that’s being updated (which will need to be re-rendered) does a shallow
+equality test of it’s existing state and the new state, then this has an impact on how we generate
+this new state.</p>
+
+<p>Let’s use a real example. In the code above there’s an action called <code class="language-plaintext highlighter-rouge">set_weather_data</code>. This is an
+action that takes data (which is probably from a RESTful endpoint containing the latest version of
+some data) and applies it to the new state. There will be some UI code that renders this data into a
+<a href="https://facebook.github.io/react-native/docs/flatlist.html"><code class="language-plaintext highlighter-rouge">FlatList</code></a>. This <code class="language-plaintext highlighter-rouge">FlatList</code> is a
+<code class="language-plaintext highlighter-rouge">PureComponent</code> and it does a shallow equality test in order to determine if it should re-render
+itself, when it gets new data. In this case, when we <code class="language-plaintext highlighter-rouge">connect</code> our Redux store to a <code class="language-plaintext highlighter-rouge">FlatList</code>, we
+have to make sure that when we generate the new state that it will be <strong>DIFFERENT</strong> when we do a
+<strong>shallow-equality-test</strong>.</p>
+
+<p>What this means is that if we use the following code in the reducer function, then the <code class="language-plaintext highlighter-rouge">FlatList</code>
+will NOT update even when we dispatch this action and add new data to the state:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">setWeatherData</span><span class="p">(</span><span class="nx">state</span><span class="p">:</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">AppState</span><span class="p">,</span> <span class="nx">reports</span><span class="p">:</span> <span class="nx">WeatherReports</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">ToastAndroid</span><span class="p">.</span><span class="nf">show</span><span class="p">(</span><span class="dl">"</span><span class="s2">REDUCER: SET WEATHER DATA</span><span class="dl">"</span><span class="p">,</span> <span class="nx">ToastAndroid</span><span class="p">.</span><span class="nx">SHORT</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="p">...</span><span class="nx">state</span><span class="p">,</span>
+    <span class="nx">reports</span><span class="p">,</span> <span class="c1">// shallow-equality-test will not detect this change!</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>In order for the <code class="language-plaintext highlighter-rouge">FlatList</code> to actually update, we have to do a deep copy of a portion of the old
+state in order to let it know that the underlying state data has changed, and it should re-render
+itself.</p>
+
+<p>Here’s what that code would look like:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">setWeatherData</span><span class="p">(</span><span class="nx">state</span><span class="p">:</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">AppState</span><span class="p">,</span> <span class="nx">reports</span><span class="p">:</span> <span class="nx">WeatherReports</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">ToastAndroid</span><span class="p">.</span><span class="nf">show</span><span class="p">(</span><span class="dl">"</span><span class="s2">REDUCER: SET WEATHER DATA</span><span class="dl">"</span><span class="p">,</span> <span class="nx">ToastAndroid</span><span class="p">.</span><span class="nx">SHORT</span><span class="p">)</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="p">...</span><span class="nx">state</span><span class="p">,</span>
+    <span class="na">reports</span><span class="p">:</span> <span class="nx">_</span><span class="p">.</span><span class="nf">cloneDeep</span><span class="p">(</span><span class="nx">reports</span><span class="p">),</span> <span class="c1">// shallow-equality-test</span>
+    <span class="c1">// will detect this change!</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s more information on this:</p>
+
+<ul>
+  <li>Here’s code that illustrates this for this weather app:
+<a href="https://github.com/r3bl-alliance/react-native-weather/blob/dc1f5ea02af4125c443d60da44e5aaa6b4802e97/app/state/Reducers.js">Reducers.js</a>
+and
+<a href="https://github.com/r3bl-alliance/react-native-weather/blob/dc1f5ea02af4125c443d60da44e5aaa6b4802e97/app/HomeScreen.js">HomeScreen</a>.</li>
+  <li><a href="https://lodash.com/docs/4.17.4#cloneDeep">lodash deep copy</a>.</li>
+  <li><a href="https://stackoverflow.com/questions/43397803/how-to-re-render-flatlist/43398395">PureComponent and shallow equality test</a>.</li>
+</ul>
+      <h3 id="4-middleware-functions">
+        
+        
+          4. Middleware functions <a href="#4-middleware-functions">#</a>
+        
+        
+      </h3>
+    
+
+<p>You have to create middleware functions of you want to do asynchronous things, such as make a
+webservice call, or change something in Firebase, that will cause a Firebase listener to wake up and
+then dispatch an action against the Redux store. For Firebase, this is a very simple and effective
+way to integrate with Firebase Database and even Firebase Functions. I won’t delve very deeply into
+middleware functions in this tutorial, but I will cover this very deeply in a future tutorial where
+I connect this weather app to a backend (that gets live weather data from a weather data provider).
+This is what middleware functions look like:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">mainMiddleware</span> <span class="o">=</span> <span class="nf">function </span><span class="p">(</span><span class="nx">store</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">function </span><span class="p">(</span><span class="nx">next</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nf">function </span><span class="p">(</span><span class="nx">action</span><span class="p">:</span> <span class="nx">Types</span><span class="p">.</span><span class="nx">Action</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if </span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="nx">request_refresh_weather_data</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nf">requestRefreshWeatherData</span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">payload</span><span class="p">)</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="k">if </span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">type</span> <span class="o">===</span> <span class="nx">actions</span><span class="p">.</span><span class="nx">TYPES</span><span class="p">.</span><span class="nx">request_add_to_watchlist</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nf">requestAddToWatchlist</span><span class="p">(</span><span class="nx">action</span><span class="p">.</span><span class="nx">payload</span><span class="p">)</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="c1">// must return this in order to invoke reducer functions</span>
+        <span class="k">return</span> <span class="nf">next</span><span class="p">(</span><span class="nx">action</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Note that you have to <code class="language-plaintext highlighter-rouge">return next(action);</code> in order for the reducer to continue executing any
+other middleware functions you might have, and also, any other reducer functions you might have. If
+you fail to do this, then the method chaining will be aborted. This is exactly what we are doing
+when we match an action type in the if statements. Chaining is a really effective way to broadcast
+this action to be handled by any number of middleware and reducer functions. It is entirely possible
+for you to have multiple reducer functions respond to the same action type (if you have
+<code class="language-plaintext highlighter-rouge">return next(action);</code> at the end of the if statements above for example). You can also have actions
+processed by multiple middleware and reducer functions.</p>
+      <h3 id="5-store-creation">
+        
+        
+          5. Store creation <a href="#5-store-creation">#</a>
+        
+        
+      </h3>
+    
+
+<p>In order to setup Redux for your app, the first thing that has to happen is the store must be
+created and initialized with the initial state, and the middleware and reducer functions that you
+want to use. In addition to this, in order to pass this Redux store to all your React Components,
+you have to use a <code class="language-plaintext highlighter-rouge">Provider</code> object that you pass to the root of your React Component view
+hierarchy.</p>
+
+<p>The store is actually
+<a href="http://javascript.tutorialhorizon.com/2016/07/07/passing-the-store-down-implicitly-via-context-in-a-react-redux-app/">stuffed in the React Context</a>
+by <code class="language-plaintext highlighter-rouge">react-redux</code> when you use the <code class="language-plaintext highlighter-rouge">Provider</code>. It’s an implementation detail that isn’t too important
+for you to be aware of, but it’s a great example of using
+<a href="https://facebook.github.io/react/docs/context.html">React’s Context mechanism</a>.</p>
+
+<p>The Redux store that you create will be a very important object, since:</p>
+
+<ul>
+  <li>
+    <p>all actions will have to be dispatched against this store,</p>
+  </li>
+  <li>
+    <p>subscribers attached to this store, and</p>
+  </li>
+  <li>
+    <p>you will retrieve the current state from this store object.</p>
+  </li>
+</ul>
+
+<p>Here’s an example of creating a store:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">store</span> <span class="o">=</span> <span class="nf">createStore</span><span class="p">(</span>
+  <span class="nf">combineReducers</span><span class="p">({</span>
+    <span class="na">app</span><span class="p">:</span> <span class="nx">appReducer</span><span class="p">,</span>
+  <span class="p">}),</span>
+  <span class="nf">applyMiddleware</span><span class="p">(</span><span class="nx">mainMiddleware</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div></div>
+      <h3 id="6-connect">
+        
+        
+          6. Connect <a href="#6-connect">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">connect</code> function (from <code class="language-plaintext highlighter-rouge">react-redux</code>), or it’s annotation/decorator form <code class="language-plaintext highlighter-rouge">@connect</code> is a
+really important function for you to grok. When state changes occur, due to actions being dispatched
+against the Redux store, this will have to be reflected in your React Components. <code class="language-plaintext highlighter-rouge">connect</code> is the
+thing that makes this happen for you, and there are 2 ways in which you can use this: as a
+decorator, or as a function. I prefer using the decorator/annotation form over the function call,
+it’s terse and really easy to use. Here’s an example:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">@</span><span class="nd">connect</span><span class="p">(</span>
+  <span class="p">(</span><span class="nx">state</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">{</span><span class="na">app</span><span class="p">:</span> <span class="nx">state</span><span class="p">.</span><span class="nx">app</span><span class="p">};</span>
+  <span class="p">},</span>
+<span class="p">)</span>
+<span class="k">export</span> <span class="kd">class</span> <span class="nc">HomeScreen</span> <span class="kd">extends</span> <span class="nc">Component</span> <span class="p">{</span>
+<span class="p">...</span>
+</code></pre></div></div>
+
+<p>In this example, <code class="language-plaintext highlighter-rouge">@connect</code> simply wraps the HomeScreen component with a call to the <code class="language-plaintext highlighter-rouge">connect()</code>
+function. This in turn maps a leaf of the state tree (<code class="language-plaintext highlighter-rouge">app</code>) to cause <code class="language-plaintext highlighter-rouge">render()</code> calls on HomeScreen
+whenever anything in the <code class="language-plaintext highlighter-rouge">state.app</code> object changes. It’s incredibly powerful and terse. And if you
+think about shaping your state object and binding it to reducers, then this will make sense as well.
+You’re doing something similar with the shape of the state object and binding or connecting it to a
+React Component unidirectionally. Now, changes to the Redux store that are made by dispatching
+actions against it will cause re-renders in this connected React component, and it will be done in
+an efficient way for you!</p>
+
+<p>The 2nd parameter for <code class="language-plaintext highlighter-rouge">@connect</code> is something called <code class="language-plaintext highlighter-rouge">mapDispatchToProps</code>, and this is something
+that I’m not really using in this example. But the idea here is that if you want your UI components
+to make changes in Redux state, they will have to dispatch actions to the store. This is a function
+where you can take actions and then automatically bind them to the dispatch. The following example
+of the expanded <code class="language-plaintext highlighter-rouge">connect()</code> function will show you this in action:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// NOTE - if you don't use @connect ...</span>
+<span class="cm">/*
+ * mapStateToProps &amp; mapDispatchToProps more info:
+ * - http://tinyurl.com/y8scrq5y
+ * - https://goo.gl/VNQAOZ
+ */</span>
+<span class="kd">const</span> <span class="nx">mapStateToProps</span> <span class="o">=</span> <span class="p">(</span><span class="nx">state</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span> <span class="na">app</span><span class="p">:</span> <span class="nx">state</span><span class="p">.</span><span class="nx">app</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">mapDispatchToProps</span> <span class="o">=</span> <span class="p">(</span><span class="nx">dispatch</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">bindActionCreators</span><span class="p">(</span><span class="nx">actions</span><span class="p">,</span> <span class="nx">dispatch</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// exports HomeScreen as the connected component</span>
+<span class="c1">// more info - http://redux.js.org/docs/basics/UsageWithReact.html</span>
+<span class="k">export</span> <span class="kd">const</span> <span class="nx">ConnectedHomeScreen</span> <span class="o">=</span> <span class="nf">connect</span><span class="p">(</span><span class="nx">mapStateToProps</span><span class="p">,</span> <span class="nx">mapDispatchToProps</span><span class="p">)(</span><span class="nx">HomeScreen</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Again, in this weather app example, I’m not going to be using <code class="language-plaintext highlighter-rouge">mapDispatchToProps</code> or
+<code class="language-plaintext highlighter-rouge">bindActionCreators</code>, since I will have actions in the UI run code that does this manually by
+creating an action with the needed parameters, and then dispatching them directly against the Redux
+store.</p>
+      <h3 id="heres-some-more-information-on-redux">
+        
+        
+          Here’s some more information on Redux <a href="#heres-some-more-information-on-redux">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><a href="https://reactrocket.com/post/react-redux-optimization/">Redux Optimization</a>.</li>
+  <li><a href="http://redux.js.org/docs/api/createStore.html">Redux documentation</a>.</li>
+  <li><a href="http://www.sohamkamani.com/blog/2017/03/31/react-redux-connect-explained/">Tutorial on react-redux and @connect</a>.</li>
+  <li><a href="http://moduscreate.com/using-es2016-decorators-in-react-native/">Tutorial on how to enable es2016 decorators in react-native projects</a>.</li>
+  <li><a href="https://blog.callstack.io/typed-redux-2aa8bff926ff">Tutorial on using Flow and Redux</a>.</li>
+</ul>
+      <h2 id="weather-app-architecture">
+        
+        
+          Weather App Architecture <a href="#weather-app-architecture">#</a>
+        
+        
+      </h2>
+    
+
+<p>The following diagram represents how the weather app will be constructed with the use of Redux.</p>
+
+<p><img src="/assets/redux-nav-1.png" alt="" /></p>
+
+<p>Here are some important things to note:</p>
+
+<ol>
+  <li>
+    <p>All the actions have been mapped out in advance that represent things that either the user can
+perform, or things that the app will do (outside of any user interaction). It’s really important
+to map these out at the start, even thought they might change as you start building and iterating
+on the design and implementation of your app. It will give you a clear roadmap of all the UI
+things that have to be built as well as the backend things. I’ve separated the actions into 2
+chunks: <code class="language-plaintext highlighter-rouge">REQUEST</code>_ and <code class="language-plaintext highlighter-rouge">SET</code>_.</p>
+
+    <ul>
+      <li>
+        <p>All the actions starting with <code class="language-plaintext highlighter-rouge">REQUEST</code> are handled by middleware functions. These are all
+async things that will result in Firebase getting poked (or some kind of REST endpoint getting
+poked). I will build out the backend of this app in a future tutorial (to use Node.JS and
+Firebase Functions, just to show 2 different ways of doing this). These async actions end up
+causing some data to be changed in Firebase. Which then results in a Firebase listener being
+run in the app, which then creates a Redux action with some data (from Firebase) and then
+dispatches it to the Redux store.</p>
+      </li>
+      <li>
+        <p>All the actions starting with <code class="language-plaintext highlighter-rouge">SET</code> are handled by reducer functions. These are pure functions
+that don’t make any web service calls or deal with Firebase. They are only concerned with
+changing the portion of the state that they are passed (since I’m using <code class="language-plaintext highlighter-rouge">combineReducers</code>).</p>
+      </li>
+    </ul>
+  </li>
+</ol>
+      <h2 id="react-navigation-and-redux">
+        
+        
+          React Navigation and Redux <a href="#react-navigation-and-redux">#</a>
+        
+        
+      </h2>
+    
+
+<p>Here’s the
+<a href="https://github.com/r3bl-alliance/react-native-weather/tree/55b5ab0ae15a5d0682c340924d2758342e4c5c72">source code on GitHub</a>
+with react-navigation wired into Redux. This branch is an exploration to see how react-navigation
+can be integrated with Redux (and isn’t covered in detail in this tutorial).</p>
+
+<p>The Redux state has 4 high level objects in it: <code class="language-plaintext highlighter-rouge">app</code>, <code class="language-plaintext highlighter-rouge">nav_tab</code>, <code class="language-plaintext highlighter-rouge">nav_stack</code>, and <code class="language-plaintext highlighter-rouge">nav_drawer</code>. The
+biggest differences between these 2 source code version are 2 files:
+<a href="https://github.com/r3bl-alliance/react-native-weather/blob/55b5ab0ae15a5d0682c340924d2758342e4c5c72/app/navigation/Router.js">Router.js</a>
+and
+<a href="https://github.com/r3bl-alliance/react-native-weather/blob/55b5ab0ae15a5d0682c340924d2758342e4c5c72/app/state/Context.js">Context.js</a>.
+The biggest changes between these 2 versions are:</p>
+
+<ol>
+  <li>
+    <p>Android back button has to be handled manually now (this is expected behavior documented in the
+<a href="https://reactnavigation.org/docs/guides/redux">react-navigation docs</a>).</p>
+  </li>
+  <li>
+    <p>Route params are not being passed to screens nested underneath navigators (e.g.: navigate to
+<code class="language-plaintext highlighter-rouge">DetailsRoute</code> with params <code class="language-plaintext highlighter-rouge">{...items}</code> results in ending up on the correct destination screen
+BUT the params are lost! I’m sure this can be addressed by connecting the <code class="language-plaintext highlighter-rouge">DetailsScreen1</code> and
+<code class="language-plaintext highlighter-rouge">DetailsScreen2</code> to redux and have them observe the state.</p>
+  </li>
+</ol>
+      <h2 id="react-native-resources">
+        
+        
+          React Native resources <a href="#react-native-resources">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li>This is a <a href="http://reactnative.cc/">good resource</a> that you can follow for keeping up to date with
+changes in React Native.</li>
+  <li>This a
+<a href="https://www.facebook.com/groups/react.native.community/?hc_ref=NEWSFEED">great facebook community</a>
+on React Native.</li>
+</ul>
+      <h2 id="react-redux-and-native-android-resources">
+        
+        
+          React, Redux, and native Android resources <a href="#react-redux-and-native-android-resources">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li>How to integrate Redux into native Android development. I have tutorials
+<a href="https://developerlife.com/2017/01/27/native-android-redux-and-firebase/">on native Android and Redux here</a>.</li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/DB">
+                #db</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/RN">
+                #rn</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/State">
+                #state</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/01/28/swingx-tutorial-task-pane/">
+                        SwingX Tutorial - Task Pane (JXTaskPane, Container)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/">
+                        How to use glass pane for animation (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2017/05/25/redux-react-navigation-and-react-native/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

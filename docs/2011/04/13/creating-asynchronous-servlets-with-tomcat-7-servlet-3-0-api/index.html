@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API) | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Overall, the API is pretty straightforward to use, assuming that you are familiar with asynchronous processing in the first place. However, if you are not familiar with asynchronous processing, then this business of callbacks can be quite confusing and daunting. Additionally Tomcat 7 and Servlet API 3.0 make it easier to configure servlets using annotations. There are other cool features in 3.0 that I haven’t covered in this tutorial, like loading servlets programmatically." />
+<meta property="og:description" content="Overall, the API is pretty straightforward to use, assuming that you are familiar with asynchronous processing in the first place. However, if you are not familiar with asynchronous processing, then this business of callbacks can be quite confusing and daunting. Additionally Tomcat 7 and Servlet API 3.0 make it easier to configure servlets using annotations. There are other cool features in 3.0 that I haven’t covered in this tutorial, like loading servlets programmatically." />
+<link rel="canonical" href="http://developerlife.com/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/" />
+<meta property="og:url" content="http://developerlife.com/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2011-04-13T18:24:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2011-04-13T18:24:00-05:00","datePublished":"2011-04-13T18:24:00-05:00","description":"Overall, the API is pretty straightforward to use, assuming that you are familiar with asynchronous processing in the first place. However, if you are not familiar with asynchronous processing, then this business of callbacks can be quite confusing and daunting. Additionally Tomcat 7 and Servlet API 3.0 make it easier to configure servlets using annotations. There are other cool features in 3.0 that I haven’t covered in this tutorial, like loading servlets programmatically.","headline":"Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/"},"url":"http://developerlife.com/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Apr 13, 2011
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#some-pseudo-code-to-explain-this">Some pseudo code to explain this</a></li>
+  <li><a href="#what-if-something-goes-wrong">What if something goes wrong?</a></li>
+  <li><a href="#sample-code">Sample code</a>
+    <ul>
+      <li><a href="#simple-example">Simple example</a></li>
+      <li><a href="#heres-the-client-side-code-that-calls-this">Here’s the client side code that calls this</a></li>
+      <li><a href="#complex-example">Complex example</a></li>
+    </ul>
+  </li>
+  <li><a href="#to-async-or-not-to-async">To async or not to async</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>Prior to Servlet API 3.0, in order to create servlet implementations that are asynchronous you would
+have to use something like Comet. However, Tomcat 7 and Servlet API 3.0, it is now possible to
+create servlets that can operate in both asynchronous and synchronous mode (and are portable across
+any 3.0 compliant app server, like Tomcat 7 or GlassFish 3.x). With synchronous servlets, a thread
+handling the client HTTP request would be tied up for the entire duration of time it takes to
+process the request. For long running tasks, where the server primarily waits around for a response
+(from somewhere else), this leads to thread starvation, under heavy load. This is due to the fact
+that even though the server isn’t doing anything but waiting around, the threads are being consumed
+by lots of requests as they come in (and threads are a finite resource).</p>
+
+<p>Asynchronous servlets solve this problem by letting this thread that was engaged to handle the
+request go back to a pool, while the long running task is executing in some other thread. Once the
+task has completed and results are ready, then the servlet container has to be notified that the
+results are ready, and then another thread will be allocated to handle sending this result back to
+the client. The client is totally oblivious that this is happening on the server, and requires no
+change at all. To enable this async magic to happen, your new servlet must use a callback mechanism
+(supplied by the app server itself) by which to notify the app server that the results are ready (to
+be sent back to the client). Additionally, you have to tell the servlet container/app server when to
+release the thread that’s handling the request right now (just after you spawn some background task
+to do the actual work).</p>
+      <h2 id="some-pseudo-code-to-explain-this">
+        
+        
+          Some pseudo code to explain this <a href="#some-pseudo-code-to-explain-this">#</a>
+        
+        
+      </h2>
+    
+
+<p>Here’s some pseudo code, from the perspective of the servlet, to explain this:</p>
+
+<ol>
+  <li>
+    <p>Client request comes in via HTTP and is dispatched to some servlet.</p>
+  </li>
+  <li>
+    <p>The servlet’s <code class="language-plaintext highlighter-rouge">service()</code> method is executed in some thread provided by the app server/servlet
+container.</p>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">service()</code> method must create an <code class="language-plaintext highlighter-rouge">AsyncContext</code> (by calling <code class="language-plaintext highlighter-rouge">startAsync()</code>).</p>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">service()</code> method must then create a <code class="language-plaintext highlighter-rouge">Runnable</code> and pass it to an <code class="language-plaintext highlighter-rouge">Executor</code> for execution
+on some other thread. This <code class="language-plaintext highlighter-rouge">Runnable</code> will have a reference to the <code class="language-plaintext highlighter-rouge">AsyncContext</code> (as it will
+need this to notify the app server that it’s done in the near future).</p>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">service()</code> method must then then return and terminate execution of this method! This might
+seem counter intuitive, but this is the asynchronous part.</p>
+  </li>
+</ol>
+
+<p>Now, when this happens, the client is still connected to the server and is still waiting. At some
+later time, the following occurs:</p>
+
+<ol>
+  <li>The <code class="language-plaintext highlighter-rouge">Runnable</code> that is now done processing the request (in some thread provided by an
+<code class="language-plaintext highlighter-rouge">Executor</code>), and has the results ready, will notify the <code class="language-plaintext highlighter-rouge">AsyncContext</code> that the response is
+ready. It will write the result to the <code class="language-plaintext highlighter-rouge">HttpResponse</code>, and then call <code class="language-plaintext highlighter-rouge">complete()</code> on the
+<code class="language-plaintext highlighter-rouge">AsyncContext</code>. This signals the app server to send this result back to the client, which has
+been waiting for this data this entire time.</li>
+</ol>
+      <h2 id="what-if-something-goes-wrong">
+        
+        
+          What if something goes wrong? <a href="#what-if-something-goes-wrong">#</a>
+        
+        
+      </h2>
+    
+
+<p>If something unexpected goes wrong before the <code class="language-plaintext highlighter-rouge">Runnable</code> has been sent off to the <code class="language-plaintext highlighter-rouge">Executor</code>, then
+the client application will just get some kind of network exception. However, if something does go
+wrong in the <code class="language-plaintext highlighter-rouge">Runnable</code>, there is one way to handle this. When creating an <code class="language-plaintext highlighter-rouge">AsyncContext</code>, you can
+specify two things:</p>
+
+<ol>
+  <li>
+    <p>maximum amount of time that can pass before the results must be ready, otherwise a timeout error
+will occur,</p>
+  </li>
+  <li>
+    <p>attach a listener that can handle this timeout condition occurring in a listener implementation
+that you provide.</p>
+  </li>
+</ol>
+
+<p>So, if something bad happens inside your <code class="language-plaintext highlighter-rouge">Runnable</code>, then after the appropriate time, specified by
+your timeout (in ms), has passed, the listener will be called and told that a timeout condition has
+occurred. Your timeout handler code will then run, and you can send some error response back to the
+client that’s been waiting all this time. If your runnable (after all this has occurred) then tries
+to write to the <code class="language-plaintext highlighter-rouge">HttpResponse</code> object, then an exception will be raised in the <code class="language-plaintext highlighter-rouge">Runnable</code> code.
+Also, if <code class="language-plaintext highlighter-rouge">AsyncContext.complete()</code> is called, this will also raise an exception in your <code class="language-plaintext highlighter-rouge">Runnable</code>
+code. You essentially have to throw away any results at this point that may have been generated.</p>
+      <h2 id="sample-code">
+        
+        
+          Sample code <a href="#sample-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>I have provided two sets of examples of asynchronous servlets: a simple one and a complex one. The
+simple example just goes through and introduces you to the concept of asynchronous servlets and
+web.xml fragments (which is another cool addition to Servlet 3.0). The complex example shows what
+happens when long running tasks timeout and cause errors, so you can see how to handle them.</p>
+      <h3 id="simple-example">
+        
+        
+          Simple example <a href="#simple-example">#</a>
+        
+        
+      </h3>
+    
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@javax</span><span class="o">.</span><span class="na">servlet</span><span class="o">.</span><span class="na">annotation</span><span class="o">.</span><span class="na">WebServlet</span><span class="o">(</span>
+    <span class="c1">// servlet name</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"simple"</span><span class="o">,</span>
+    <span class="c1">// servlet url pattern</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="o">{</span><span class="s">"/simple"</span><span class="o">},</span>
+    <span class="c1">// async support needed</span>
+    <span class="n">asyncSupported</span> <span class="o">=</span> <span class="kc">true</span>
+<span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">SimpleAsyncServlet</span> <span class="kd">extends</span> <span class="nc">HttpServlet</span> <span class="o">{</span>
+
+<span class="cm">/**
+ * Simply spawn a new thread (from the app server's pool) for every
+ * new async request. Will consume a lot more threads for many
+ * concurrent requests.
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">service</span><span class="o">(</span><span class="nc">ServletRequest</span> <span class="n">req</span><span class="o">,</span> <span class="kd">final</span> <span class="nc">ServletResponse</span> <span class="n">res</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">ServletException</span><span class="o">,</span> <span class="nc">IOException</span> <span class="o">{</span>
+
+  <span class="c1">// create the async context, otherwise getAsyncContext() will be null</span>
+  <span class="kd">final</span> <span class="nc">AsyncContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">startAsync</span><span class="o">();</span>
+
+  <span class="c1">// set the timeout</span>
+  <span class="n">ctx</span><span class="o">.</span><span class="na">setTimeout</span><span class="o">(</span><span class="mi">30000</span><span class="o">);</span>
+
+  <span class="c1">// attach listener to respond to lifecycle events of this AsyncContext</span>
+  <span class="n">ctx</span><span class="o">.</span><span class="na">addListener</span><span class="o">(</span><span class="k">new</span> <span class="nc">AsyncListener</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onComplete</span><span class="o">(</span><span class="nc">AsyncEvent</span> <span class="n">event</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+      <span class="n">log</span><span class="o">(</span><span class="s">"onComplete called"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onTimeout</span><span class="o">(</span><span class="nc">AsyncEvent</span> <span class="n">event</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+      <span class="n">log</span><span class="o">(</span><span class="s">"onTimeout called"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onError</span><span class="o">(</span><span class="nc">AsyncEvent</span> <span class="n">event</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+      <span class="n">log</span><span class="o">(</span><span class="s">"onError called"</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onStartAsync</span><span class="o">(</span><span class="nc">AsyncEvent</span> <span class="n">event</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+      <span class="n">log</span><span class="o">(</span><span class="s">"onStartAsync called"</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+
+  <span class="c1">// spawn some task in a background thread</span>
+  <span class="n">ctx</span><span class="o">.</span><span class="na">start</span><span class="o">(</span><span class="k">new</span> <span class="nc">Runnable</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+
+      <span class="k">try</span> <span class="o">{</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="na">getResponse</span><span class="o">().</span><span class="na">getWriter</span><span class="o">().</span><span class="na">write</span><span class="o">(</span>
+            <span class="nc">MessageFormat</span><span class="o">.</span><span class="na">format</span><span class="o">(</span>
+                    <span class="s">"&lt;h1&gt;Processing task in bgt_id:[{0}]&lt;/h1&gt;"</span><span class="o">,</span>
+                    <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getId</span><span class="o">()));</span>
+      <span class="o">}</span>
+      <span class="k">catch</span> <span class="o">(</span><span class="nc">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">log</span><span class="o">(</span><span class="s">"Problem processing task"</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+      <span class="o">}</span>
+
+      <span class="n">ctx</span><span class="o">.</span><span class="na">complete</span><span class="o">();</span>
+    <span class="o">}</span>
+  <span class="o">});</span>
+
+
+<span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Notes on the code:</p>
+
+<ol>
+  <li>
+    <p>You can actually name your servlet and provide it’s url pattern in the code using annotations,
+without having to mess with <code class="language-plaintext highlighter-rouge">web.xml</code> entries</p>
+  </li>
+  <li>
+    <p>You have to pass <code class="language-plaintext highlighter-rouge">asyncSupported=true</code> to tell the app server that this servlet needs
+asynchronous mode.</p>
+  </li>
+  <li>
+    <p>In the <code class="language-plaintext highlighter-rouge">service()</code> method, the timeout value is set to 30 seconds. So as long as the <code class="language-plaintext highlighter-rouge">Runnable</code>
+takes less than this amount of time to call <code class="language-plaintext highlighter-rouge">complete()</code>, no timeout errors will be generated.</p>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">Runnable</code> is actually passed to the app server for execution on a different thread (than the
+one running the <code class="language-plaintext highlighter-rouge">service()</code> method).</p>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">AsyncContext</code> listener does not really do anything useful in this example, just prints out
+“<code class="language-plaintext highlighter-rouge">onComplete called</code>” to the app server log when requests come in.</p>
+  </li>
+</ol>
+      <h3 id="heres-the-client-side-code-that-calls-this">
+        
+        
+          Here’s the client side code that calls this <a href="#heres-the-client-side-code-that-calls-this">#</a>
+        
+        
+      </h3>
+    
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">LoadTester</span> <span class="o">{</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">AtomicInteger</span> <span class="n">counter</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">AtomicInteger</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="n">maxThreadCount</span> <span class="o">=</span> <span class="mi">100</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">InterruptedException</span> <span class="o">{</span>
+  <span class="k">new</span> <span class="nf">LoadTester</span><span class="o">();</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="nf">LoadTester</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">InterruptedException</span> <span class="o">{</span>
+  <span class="c1">// call simple servlet</span>
+  <span class="nc">ExecutorService</span> <span class="n">exec1</span> <span class="o">=</span> <span class="nc">Executors</span><span class="o">.</span><span class="na">newCachedThreadPool</span><span class="o">();</span>
+  <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">maxThreadCount</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+    <span class="n">exec1</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="k">new</span> <span class="nc">UrlReaderTask</span><span class="o">(</span><span class="s">"http://localhost:8080/test/simple"</span><span class="o">));</span>
+  <span class="o">}</span>
+  <span class="n">exec1</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+
+  <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">sleep</span><span class="o">(</span><span class="mi">5000</span><span class="o">);</span>
+  <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"....NEXT...."</span><span class="o">);</span>
+
+  <span class="c1">// call complex servlet</span>
+  <span class="n">counter</span><span class="o">.</span><span class="na">set</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+  <span class="nc">ExecutorService</span> <span class="n">exec2</span> <span class="o">=</span> <span class="nc">Executors</span><span class="o">.</span><span class="na">newCachedThreadPool</span><span class="o">();</span>
+  <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">maxThreadCount</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+    <span class="n">exec2</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="k">new</span> <span class="nc">UrlReaderTask</span><span class="o">(</span><span class="s">"http://localhost:8080/test/complex"</span><span class="o">));</span>
+  <span class="o">}</span>
+  <span class="n">exec2</span><span class="o">.</span><span class="na">awaitTermination</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="nc">TimeUnit</span><span class="o">.</span><span class="na">DAYS</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">UrlReaderTask</span> <span class="kd">implements</span> <span class="nc">Runnable</span> <span class="o">{</span>
+
+  <span class="kd">private</span> <span class="nc">String</span> <span class="n">endpoint</span><span class="o">;</span>
+  <span class="kd">public</span> <span class="nf">UrlReaderTask</span><span class="o">(</span><span class="nc">String</span> <span class="n">s</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">endpoint</span> <span class="o">=</span> <span class="n">s</span><span class="o">;</span>
+  <span class="o">}</span>
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+
+    <span class="k">try</span> <span class="o">{</span>
+      <span class="n">actuallyrun</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+    <span class="o">}</span>
+
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">actuallyrun</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">Exception</span> <span class="o">{</span>
+
+    <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="n">counter</span><span class="o">.</span><span class="na">addAndGet</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+    <span class="nc">BufferedReader</span> <span class="n">in</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">BufferedReader</span><span class="o">(</span>
+        <span class="k">new</span> <span class="nf">InputStreamReader</span><span class="o">(</span>
+            <span class="k">new</span> <span class="nf">URL</span><span class="o">(</span><span class="n">endpoint</span><span class="o">).</span><span class="na">openStream</span><span class="o">()));</span>
+    <span class="nc">String</span> <span class="n">inputLine</span><span class="o">;</span>
+    <span class="k">while</span> <span class="o">((</span><span class="n">inputLine</span> <span class="o">=</span> <span class="n">in</span><span class="o">.</span><span class="na">readLine</span><span class="o">())</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+              <span class="nc">MessageFormat</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">"thread[{0}] : {1} : {2}"</span><span class="o">,</span>
+                                   <span class="n">count</span><span class="o">,</span> <span class="n">inputLine</span><span class="o">,</span> <span class="n">endpoint</span><span class="o">));</span>
+    <span class="o">}</span>
+    <span class="n">in</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+
+  <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="o">}</span><span class="c1">//end class ComplexLoadTester</span>
+</code></pre></div></div>
+
+<p>Notes on the code:</p>
+
+<ol>
+  <li>
+    <p>This simple console app just spawns 100 threads and makes concurrent <code class="language-plaintext highlighter-rouge">GET</code> method calls on the
+URL for the simple and complex asynchronous servlets.</p>
+  </li>
+  <li>
+    <p>The simple asynchronous servlet runs without any issues and will show all the responses that come
+back from the app server. You will notice that the thread id of the worker thread on the app
+server side will vary quite a bit, since these threads are supplied from some pool of threads
+that Tomcat 7 manages. You will see very few thread ids in the calls to the complex servlet; more
+on this in the section below.</p>
+  </li>
+</ol>
+      <h3 id="complex-example">
+        
+        
+          Complex example <a href="#complex-example">#</a>
+        
+        
+      </h3>
+    
+
+<p>In the complex asynchronous servlet example, there are some major changes from the simple, notably:</p>
+
+<ol>
+  <li>
+    <p>The complex servlet manages it’s own thread pool using a fixed thread pool executor. By passing a
+servlet config init param, you can specify what this is using an annotation. In the code, this is
+set to 3.</p>
+  </li>
+  <li>
+    <p>The first 4 requests that are handled result in unexpected errors, just to show what happens when
+unhandled exceptions are generated in the <code class="language-plaintext highlighter-rouge">service()</code>.</p>
+  </li>
+  <li>
+    <p>The long running task that’s performed takes a random amount of time up to a maximum of 5
+seconds. The timeout value assigned to the AsyncContext is 60 seconds. This results in the last
+20 or so requests (from the client test console app), all end up causing timeout errors, since
+there are only 3 server threads that are actually processing the 100 requests that are made
+concurrently.</p>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">AsyncContext</code> listener actually has to call <code class="language-plaintext highlighter-rouge">AsyncContext.complete()</code>, when a timeout
+condition is detected by Tomcat 7, and it invokes the listener.</p>
+  </li>
+  <li>
+    <p>Once a timeout condition does occur, Tomcat 7 will invalidate the <code class="language-plaintext highlighter-rouge">HttpRequest</code> and
+<code class="language-plaintext highlighter-rouge">HttpResponse</code> objects contained in the <code class="language-plaintext highlighter-rouge">AsyncContext</code>. This is a signal to the long running task
+that it’s <code class="language-plaintext highlighter-rouge">AsyncContext</code> has already been invalidated. This is why there is a check to see if
+it’s null or not, before writing the response via the <code class="language-plaintext highlighter-rouge">AsyncContext</code> in the long running task.
+This is something to keep in mind. When a timeout does happen, the long running task will
+probably be unaware of this, and must check to see if the request and response objects are null.
+If they are null, this means that the long running task should probably terminate itself, since
+the response has already been sent to the client via the <code class="language-plaintext highlighter-rouge">AsyncContext</code> listener (if one was
+assigned) or Tomcat 7 itself.</p>
+  </li>
+</ol>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@javax</span><span class="o">.</span><span class="na">servlet</span><span class="o">.</span><span class="na">annotation</span><span class="o">.</span><span class="na">WebServlet</span><span class="o">(</span>
+    <span class="c1">// servlet name</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s">"complex"</span><span class="o">,</span>
+    <span class="c1">// servlet url pattern</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="o">{</span><span class="s">"/complex"</span><span class="o">},</span>
+    <span class="c1">// async support needed</span>
+    <span class="n">asyncSupported</span> <span class="o">=</span> <span class="kc">true</span><span class="o">,</span>
+    <span class="c1">// servlet init params</span>
+    <span class="n">initParams</span> <span class="o">=</span> <span class="o">{</span>
+        <span class="nd">@WebInitParam</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"threadpoolsize"</span><span class="o">,</span> <span class="n">value</span> <span class="o">=</span> <span class="s">"3"</span><span class="o">)</span>
+    <span class="o">}</span>
+<span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ComplexAsyncServlet</span> <span class="kd">extends</span> <span class="nc">HttpServlet</span> <span class="o">{</span>
+
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">AtomicInteger</span> <span class="n">counter</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">AtomicInteger</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">CALLBACK_TIMEOUT</span> <span class="o">=</span> <span class="mi">60000</span><span class="o">;</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">int</span> <span class="no">MAX_SIMULATED_TASK_LENGTH_MS</span> <span class="o">=</span> <span class="mi">5000</span><span class="o">;</span>
+
+<span class="cm">/** executor svc */</span>
+<span class="kd">private</span> <span class="nc">ExecutorService</span> <span class="n">exec</span><span class="o">;</span>
+
+<span class="cm">/** create the executor */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">init</span><span class="o">()</span> <span class="kd">throws</span> <span class="nc">ServletException</span> <span class="o">{</span>
+
+  <span class="kt">int</span> <span class="n">size</span> <span class="o">=</span> <span class="nc">Integer</span><span class="o">.</span><span class="na">parseInt</span><span class="o">(</span>
+      <span class="n">getInitParameter</span><span class="o">(</span><span class="s">"threadpoolsize"</span><span class="o">));</span>
+  <span class="n">exec</span> <span class="o">=</span> <span class="nc">Executors</span><span class="o">.</span><span class="na">newFixedThreadPool</span><span class="o">(</span><span class="n">size</span><span class="o">);</span>
+
+<span class="o">}</span>
+
+<span class="cm">/** destroy the executor */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">destroy</span><span class="o">()</span> <span class="o">{</span>
+
+  <span class="n">exec</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
+
+<span class="o">}</span>
+
+<span class="cm">/**
+ * Spawn the task on the provided {@link #exec} object.
+ * This limits the max number of threads in the
+ * pool that can be spawned and puts a ceiling on
+ * the max number of threads that can be used to
+ * the init param "threadpoolsize".
+ */</span>
+<span class="kd">public</span> <span class="kt">void</span> <span class="nf">service</span><span class="o">(</span><span class="kd">final</span> <span class="nc">ServletRequest</span> <span class="n">req</span><span class="o">,</span> <span class="kd">final</span> <span class="nc">ServletResponse</span> <span class="n">res</span><span class="o">)</span>
+    <span class="kd">throws</span> <span class="nc">ServletException</span><span class="o">,</span> <span class="nc">IOException</span> <span class="o">{</span>
+
+  <span class="c1">// create the async context, otherwise getAsyncContext() will be null</span>
+  <span class="kd">final</span> <span class="nc">AsyncContext</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">req</span><span class="o">.</span><span class="na">startAsync</span><span class="o">();</span>
+
+  <span class="c1">// set the timeout</span>
+  <span class="n">ctx</span><span class="o">.</span><span class="na">setTimeout</span><span class="o">(</span><span class="no">CALLBACK_TIMEOUT</span><span class="o">);</span>
+
+  <span class="c1">// attach listener to respond to lifecycle events of this AsyncContext</span>
+  <span class="n">ctx</span><span class="o">.</span><span class="na">addListener</span><span class="o">(</span><span class="k">new</span> <span class="nc">AsyncListener</span><span class="o">()</span> <span class="o">{</span>
+    <span class="cm">/**
+    * complete() has already been called on the async context,
+    * nothing to do
+    */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onComplete</span><span class="o">(</span><span class="nc">AsyncEvent</span> <span class="n">event</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span> <span class="o">}</span>
+    <span class="cm">/** timeout has occured in async task... handle it */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onTimeout</span><span class="o">(</span><span class="nc">AsyncEvent</span> <span class="n">event</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+      <span class="n">log</span><span class="o">(</span><span class="s">"onTimeout called"</span><span class="o">);</span>
+      <span class="n">log</span><span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+      <span class="n">ctx</span><span class="o">.</span><span class="na">getResponse</span><span class="o">().</span><span class="na">getWriter</span><span class="o">().</span><span class="na">write</span><span class="o">(</span><span class="s">"TIMEOUT"</span><span class="o">);</span>
+      <span class="n">ctx</span><span class="o">.</span><span class="na">complete</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="cm">/**
+    * THIS NEVER GETS CALLED - error has occured in async task...
+    * handle it
+    */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onError</span><span class="o">(</span><span class="nc">AsyncEvent</span> <span class="n">event</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span>
+      <span class="n">log</span><span class="o">(</span><span class="s">"onError called"</span><span class="o">);</span>
+      <span class="n">log</span><span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">toString</span><span class="o">());</span>
+      <span class="n">ctx</span><span class="o">.</span><span class="na">getResponse</span><span class="o">().</span><span class="na">getWriter</span><span class="o">().</span><span class="na">write</span><span class="o">(</span><span class="s">"ERROR"</span><span class="o">);</span>
+      <span class="n">ctx</span><span class="o">.</span><span class="na">complete</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="cm">/** async context has started, nothing to do */</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onStartAsync</span><span class="o">(</span><span class="nc">AsyncEvent</span> <span class="n">event</span><span class="o">)</span> <span class="kd">throws</span> <span class="nc">IOException</span> <span class="o">{</span> <span class="o">}</span>
+  <span class="o">});</span>
+
+  <span class="c1">// simulate error - this does not cause onError - causes network</span>
+  <span class="c1">// error on client side</span>
+  <span class="k">if</span> <span class="o">(</span><span class="n">counter</span><span class="o">.</span><span class="na">addAndGet</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nf">IndexOutOfBoundsException</span><span class="o">(</span><span class="s">"Simulated error"</span><span class="o">);</span>
+  <span class="o">}</span>
+  <span class="k">else</span> <span class="o">{</span>
+    <span class="c1">// spawn some task to be run in executor</span>
+    <span class="n">enqueLongRunningTask</span><span class="o">(</span><span class="n">ctx</span><span class="o">);</span>
+  <span class="o">}</span>
+
+
+<span class="o">}</span>
+
+<span class="cm">/**
+ * if something goes wrong in the task, it simply causes timeout
+ * condition that causes the async context listener to be invoked
+ * (after the fact)
+ * &lt;p/&gt;
+ * if the {@link AsyncContext#getResponse()} is null, that means
+ * this context has already timedout (and context listener has
+ * been invoked).
+ */</span>
+<span class="kd">private</span> <span class="kt">void</span> <span class="nf">enqueLongRunningTask</span><span class="o">(</span><span class="kd">final</span> <span class="nc">AsyncContext</span> <span class="n">ctx</span><span class="o">)</span> <span class="o">{</span>
+
+  <span class="n">exec</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="k">new</span> <span class="nc">Runnable</span><span class="o">()</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+
+      <span class="k">try</span> <span class="o">{</span>
+
+        <span class="c1">// simulate random delay</span>
+        <span class="kt">int</span> <span class="n">delay</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Random</span><span class="o">().</span><span class="na">nextInt</span><span class="o">(</span><span class="no">MAX_SIMULATED_TASK_LENGTH_MS</span><span class="o">);</span>
+        <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">sleep</span><span class="o">(</span><span class="n">delay</span><span class="o">);</span>
+
+        <span class="c1">// response is null if the context has already timedout</span>
+        <span class="c1">// (at this point the app server has called the listener already)</span>
+        <span class="nc">ServletResponse</span> <span class="n">response</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getResponse</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">response</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+          <span class="n">response</span><span class="o">.</span><span class="na">getWriter</span><span class="o">().</span><span class="na">write</span><span class="o">(</span>
+              <span class="nc">MessageFormat</span><span class="o">.</span><span class="na">format</span><span class="o">(</span>
+                  <span class="s">"&lt;h1&gt;Processing task in bgt_id:[{0}], delay:{1}&lt;/h1&gt;"</span><span class="o">,</span>
+                  <span class="nc">Thread</span><span class="o">.</span><span class="na">currentThread</span><span class="o">().</span><span class="na">getId</span><span class="o">(),</span> <span class="n">delay</span><span class="o">)</span>
+          <span class="o">);</span>
+          <span class="n">ctx</span><span class="o">.</span><span class="na">complete</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="o">{</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nf">IllegalStateException</span><span class="o">(</span>
+                  <span class="s">"Response object from context is null!"</span><span class="o">);</span>
+        <span class="o">}</span>
+      <span class="o">}</span>
+      <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">log</span><span class="o">(</span><span class="s">"Problem processing task"</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+        <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+      <span class="o">}</span>
+
+    <span class="o">}</span>
+  <span class="o">});</span>
+<span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The client code is the same one used to test the simple servlet. It in fact calls both of these
+servlets in the same <code class="language-plaintext highlighter-rouge">main()</code> method and gets responses from each of them.</p>
+
+<p>When you run the client console app, which spawns 100 concurrent requests to the complex servlet,
+you will notice a few things:</p>
+
+<ol>
+  <li>
+    <p>The complex servlet never uses more than 3 threads to process all these 100 requests that come in
+concurrently.</p>
+  </li>
+  <li>
+    <p>The time for each response by the complex servlet can take up to 5 seconds, during which time
+about 20% of the incoming requests timeout (since the timeout period is set to 60 seconds, and
+all the requests come in at the same time and are queued for processing). Even though a 100
+requests come in at once, only 3 are concurrently processed. However, even after the timeout
+condition is handled by the <code class="language-plaintext highlighter-rouge">AsyncContext</code> listener (and the client is sent an error message and
+<code class="language-plaintext highlighter-rouge">complete()</code> is called), the server <code class="language-plaintext highlighter-rouge">Runnables</code> continue to execute and error out. This is just
+something to keep in mind. Even though the timeout has been processed, those background tasks are
+still being executed and are consuming CPU and memory. You have to do something to detect such
+conditions in your code if you don’t want this to happen and terminate your execution manually
+(Java does not have preemptive multithreading, only cooperative).</p>
+  </li>
+  <li>
+    <p>When the complex servlet errors out for the first 4 requests, these generate network exceptions
+on the client side.</p>
+  </li>
+</ol>
+      <h2 id="to-async-or-not-to-async">
+        
+        
+          To async or not to async <a href="#to-async-or-not-to-async">#</a>
+        
+        
+      </h2>
+    
+
+<p>Overall, the API is pretty straightforward to use, assuming that you are familiar with asynchronous
+processing in the first place. However, if you are not familiar with asynchronous processing, then
+this business of callbacks can be quite confusing and daunting. Additionally Tomcat 7 and Servlet
+API 3.0 make it easier to configure servlets using annotations. There are other cool features in 3.0
+that I haven’t covered in this tutorial, like loading servlets programmatically.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

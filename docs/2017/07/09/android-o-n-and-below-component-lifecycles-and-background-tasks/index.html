@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Deep dive into Android Services | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Deep dive into Android Services" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This article is a deep dive into Android Services. Learn all about started services, bound services, and bound and started services. With source code examples and a sample app." />
+<meta property="og:description" content="This article is a deep dive into Android Services. Learn all about started services, bound services, and bound and started services. With source code examples and a sample app." />
+<link rel="canonical" href="http://developerlife.com/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/" />
+<meta property="og:url" content="http://developerlife.com/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-07-09T23:25:15-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Deep dive into Android Services" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2017-07-09T23:25:15-05:00","datePublished":"2017-07-09T23:25:15-05:00","description":"This article is a deep dive into Android Services. Learn all about started services, bound services, and bound and started services. With source code examples and a sample app.","headline":"Deep dive into Android Services","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/"},"url":"http://developerlife.com/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Deep dive into Android Services&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Deep dive into Android Services</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Deep dive into Android Services</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jul 9, 2017
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/android-service-hero.png" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#threads-services-and-android-component-lifecycles">Threads, Services, and Android component lifecycles</a></li>
+  <li><a href="#android-o-changes">Android O Changes</a></li>
+  <li><a href="#started-services">Started Services</a>
+    <ul>
+      <li><a href="#intent">Intent</a></li>
+      <li><a href="#foreground-and-persistent-notification">Foreground and persistent notification</a></li>
+      <li><a href="#stopping-started-services">Stopping Started Services</a></li>
+    </ul>
+  </li>
+  <li><a href="#bound-services">Bound Services</a>
+    <ul>
+      <li><a href="#bindservice-and-oncreate">bindService() and onCreate()</a></li>
+      <li><a href="#service-binder">Service binder</a></li>
+      <li><a href="#unbind-and-ondestroy">unBind and onDestroy</a></li>
+    </ul>
+  </li>
+  <li><a href="#bound-and-started-services">Bound and Started Services</a>
+    <ul>
+      <li><a href="#moving-to-started-state">Moving to Started State</a></li>
+      <li><a href="#destruction-and-unbinding">Destruction and unbinding</a></li>
+    </ul>
+  </li>
+  <li><a href="#source-code-example">Source code example</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>Most sophisticated Android apps have to do something that requires background execution. This means
+in a Background Thread, and not the Main Thread (which is used for all UI updates).</p>
+
+<p>If you create a Thread or an Executor in an Activity of your app, this leads to unpredictable
+results, since a simple screen orientation change will disrupt things, since the Activity will no
+longer be around when the Thread completes its task.</p>
+
+<p>You could use <a href="https://developer.android.com/reference/android/os/AsyncTask.html"><code class="language-plaintext highlighter-rouge">AsyncTask</code></a> to
+handle this in an Activity. However, what if your app needs this Background Thread to be started a
+notification or another Android component?</p>
+
+<p>In these cases, Android Services are the right Android component to use to match up the Thread’s
+lifecycle with that of the Service’s lifecycle.</p>
+
+<p>A Service is an Android application component without a UI that runs on the main (UI) thread. It
+also has to be declared in the <code class="language-plaintext highlighter-rouge">AndroidManifest.xml</code>. If you want the service code to run in a
+Background Thread, then you must manage that yourself. The terms <code class="language-plaintext highlighter-rouge">background</code> and <code class="language-plaintext highlighter-rouge">foreground</code> are
+overloaded, and can apply to:</p>
+
+<ol>
+  <li>Lifecycle of Android components.</li>
+  <li>Threads.</li>
+</ol>
+
+<p>In this article, we are going to use the terms background and foreground to refer to the lifecycle
+of Android components. And when referring to Threads, we will use <code class="language-plaintext highlighter-rouge">Background Thread</code>, and
+<code class="language-plaintext highlighter-rouge">Foreground Thread</code> explicitly.</p>
+
+<p>There is a subclass of Service that handles it’s own Background Thread called
+<a href="https://developer.android.com/training/run-background-service/create-service.html"><code class="language-plaintext highlighter-rouge">IntentService</code></a>
+which we are not going to cover in this article.</p>
+      <h2 id="threads-services-and-android-component-lifecycles">
+        
+        
+          Threads, Services, and Android component lifecycles <a href="#threads-services-and-android-component-lifecycles">#</a>
+        
+        
+      </h2>
+    
+
+<p>Let’s take a step back and look at a larger picture of what Services are meant to do. Your code that
+runs in a Background Thread, like a Java Thread or an Executor isn’t really bound to any the
+lifecycle of any Android components. If you think about an Activity, it has a discrete starting and
+ending point, based on user interaction. However, these starting and ending points don’t necessarily
+connect with a Thread’s lifecycle.</p>
+
+<p><img src="/assets/android-services-1.png" alt="" /></p>
+
+<p>The following are high level points to note in this diagram. The details for all of these points
+(and clarifications to them) are going to be provided in the rest of the article.</p>
+
+<ul>
+  <li>
+    <p>The Service’s <code class="language-plaintext highlighter-rouge">onCreate()</code> method is called when it is created (by “starting” it or “binding” to
+it).</p>
+
+    <ul>
+      <li>
+        <p>It then spawns a <code class="language-plaintext highlighter-rouge">Thread</code> or an <code class="language-plaintext highlighter-rouge">Executor</code> some time after it has been created.</p>
+      </li>
+      <li>
+        <p>When this <code class="language-plaintext highlighter-rouge">Thread</code> finishes, it lets the <code class="language-plaintext highlighter-rouge">Service</code> know that by calling <code class="language-plaintext highlighter-rouge">stopSelf()</code>. This is a
+very common pattern in <code class="language-plaintext highlighter-rouge">Service</code> implementations.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>The code that you write in your <code class="language-plaintext highlighter-rouge">Thread</code> or <code class="language-plaintext highlighter-rouge">Executor</code> task will have to tell the service whether
+its Background Thread has started or stopped.</p>
+
+    <ul>
+      <li>
+        <p>When the <code class="language-plaintext highlighter-rouge">Thread</code> starts up it has to set the started state of the service (by calling
+<code class="language-plaintext highlighter-rouge">startService()</code>).</p>
+      </li>
+      <li>
+        <p>And when the <code class="language-plaintext highlighter-rouge">Thread</code> stops it has to call <code class="language-plaintext highlighter-rouge">stopSelf()</code>.</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>The <code class="language-plaintext highlighter-rouge">Service</code>’s <code class="language-plaintext highlighter-rouge">onDestroy()</code> method is called by the Android system only when you’ve let the
+service know that it’s time stop. The <code class="language-plaintext highlighter-rouge">Service</code> doesn’t know what is going on in the code running
+in your <code class="language-plaintext highlighter-rouge">Thread</code> or <code class="language-plaintext highlighter-rouge">Executor</code> task - it is your responsibility to let it know when you’ve
+started, and when you’ve finished.</p>
+  </li>
+</ul>
+
+<p>There are 2 kinds of services - <code class="language-plaintext highlighter-rouge">Started Services</code>, and <code class="language-plaintext highlighter-rouge">Bound Services</code>. And a <code class="language-plaintext highlighter-rouge">Service</code> can be
+both at the same time. We will now cover the behaviors of 3 types of services:</p>
+
+<ol>
+  <li>Started Services</li>
+  <li>Bound Services</li>
+  <li>Bound and Started Services</li>
+</ol>
+      <h2 id="android-o-changes">
+        
+        
+          Android O Changes <a href="#android-o-changes">#</a>
+        
+        
+      </h2>
+    
+
+<p>A lot has <a href="https://developer.android.com/about/versions/oreo/background">changed</a> with background
+Services in Android O. One of the main differences is that a Started Service that does not have a
+persistent notification won’t be allowed to run in the background when the Activity goes away. In
+other words, you must have a persistent notification that you attach the Started Service to. And you
+also start Started Services with a different method - <code class="language-plaintext highlighter-rouge">startForegroundService()</code>. And you have 5
+seconds in order to move this Started Service to the foreground and attach a persistent notification
+to it, otherwise you will get an <a href="https://developer.android.com/topic/performance/vitals/anr">ANR</a>.
+All of this will be explained below with examples.</p>
+      <h2 id="started-services">
+        
+        
+          Started Services <a href="#started-services">#</a>
+        
+        
+      </h2>
+    
+
+<p>You can put a service in the started state (aka make a Started Service) by calling
+<code class="language-plaintext highlighter-rouge">startService(Intent)</code> method in your <code class="language-plaintext highlighter-rouge">Activity</code> or <code class="language-plaintext highlighter-rouge">Service</code>. The <code class="language-plaintext highlighter-rouge">Intent</code> that you pass must to be
+an <a href="https://developer.android.com/guide/components/intents-filters#ExampleExplicit">explicit</a> one,
+which means that you either make a reference to the <code class="language-plaintext highlighter-rouge">Service</code>’s class, or you include the package
+name of your app in the <code class="language-plaintext highlighter-rouge">Intent</code>. Here’s some code to create an explicit <code class="language-plaintext highlighter-rouge">Intent</code>.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyIntentBuilder</span><span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="nc">MyIntentBuilder</span> <span class="nf">getInstance</span><span class="o">(</span><span class="nc">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nf">MyIntentBuilder</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="nf">MyIntentBuilder</span><span class="o">(</span><span class="nc">Context</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">mContext</span> <span class="o">=</span> <span class="n">context</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="nc">MyIntentBuilder</span> <span class="nf">setMessage</span><span class="o">(</span><span class="nc">String</span> <span class="n">message</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">mMessage</span> <span class="o">=</span> <span class="n">message</span><span class="o">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="nc">MyIntentBuilder</span> <span class="nf">setCommand</span><span class="o">(</span><span class="nd">@Command</span> <span class="kt">int</span> <span class="n">command</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">mCommandId</span> <span class="o">=</span> <span class="n">command</span><span class="o">;</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kd">public</span> <span class="nc">Intent</span> <span class="nf">build</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Assert</span><span class="o">.</span><span class="na">assertNotNull</span><span class="o">(</span><span class="s">"Context can not be null!"</span><span class="o">,</span> <span class="n">mContext</span><span class="o">);</span>
+        <span class="nc">Intent</span> <span class="n">intent</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">Intent</span><span class="o">(</span><span class="n">mContext</span><span class="o">,</span> <span class="nc">MyTileService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">mCommandId</span> <span class="o">!=</span> <span class="nc">Command</span><span class="o">.</span><span class="na">INVALID</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">intent</span><span class="o">.</span><span class="na">putExtra</span><span class="o">(</span><span class="no">KEY_COMMAND</span><span class="o">,</span> <span class="n">mCommandId</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">mMessage</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">intent</span><span class="o">.</span><span class="na">putExtra</span><span class="o">(</span><span class="no">KEY_MESSAGE</span><span class="o">,</span> <span class="n">mMessage</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">intent</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>In order to move a <code class="language-plaintext highlighter-rouge">Service</code> to the “Started” state, you must call <code class="language-plaintext highlighter-rouge">startService()</code> with an explicit
+<code class="language-plaintext highlighter-rouge">Intent</code>. If you don’t do this, then the service will not be in the “Started State”. If the
+<code class="language-plaintext highlighter-rouge">Service</code> isn’t in the “Started State”, then it can’t be moved into the foreground, and <code class="language-plaintext highlighter-rouge">stopSelf()</code>
+won’t really do anything.</p>
+
+<p>So if you’ve not put the <code class="language-plaintext highlighter-rouge">Service</code> in the “Started State”, then you won’t be able to attach a
+persistent notification to it either. These are all important things to keep in mind when you think
+about letting the <code class="language-plaintext highlighter-rouge">Service</code> know when it should put itself in the “Started State”.</p>
+
+<p>A <code class="language-plaintext highlighter-rouge">Service</code> can be started multiple times. Each time it is started, then <code class="language-plaintext highlighter-rouge">onStartCommand()</code> is
+called. A few parameters are passed to this command, along with any extras that are passed from your
+explicit <code class="language-plaintext highlighter-rouge">Intent</code>. Even if you start a <code class="language-plaintext highlighter-rouge">Service</code> multiple times, it will only call <code class="language-plaintext highlighter-rouge">onCreate()</code> once
+(unless of course this <code class="language-plaintext highlighter-rouge">Service</code> has already been bound to). In order to kill this <code class="language-plaintext highlighter-rouge">Service</code>, you
+have to ask it to stop by calling <code class="language-plaintext highlighter-rouge">stopSelf()</code>. When the <code class="language-plaintext highlighter-rouge">Service</code> does stop (after you’ve asked it
+to) and there’s nothing else bound to it, then it will call <code class="language-plaintext highlighter-rouge">onDestroy()</code>. Keep this in mind when
+allocating resources for your “Started Service”.</p>
+      <h3 id="intent">
+        
+        
+          Intent <a href="#intent">#</a>
+        
+        
+      </h3>
+    
+
+<p>A “Started Service” is launched with an <code class="language-plaintext highlighter-rouge">Intent</code>. And the component that launches the <code class="language-plaintext highlighter-rouge">Service</code>
+doesn’t really keep a connection to it, and if it needs to communicate something to the “Started
+Service” then it can start it again and pass it a different <code class="language-plaintext highlighter-rouge">Intent</code>. This is one of the main
+differences between “Started Services” and “Bound Services”. “Bound Services” on the other hand
+follow a client-server pattern. Where the client (Android UI component or another <code class="language-plaintext highlighter-rouge">Service</code>) retains
+a stub (or binder) that it can use to call methods directly on the <code class="language-plaintext highlighter-rouge">Service</code> (in this case the
+server).</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyActivity</span> <span class="kd">extends</span> <span class="nc">Activity</span><span class="o">{</span>
+    <span class="nd">@TargetApi</span><span class="o">(</span><span class="nc">Build</span><span class="o">.</span><span class="na">VERSION_CODES</span><span class="o">.</span><span class="na">O</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">moveToStartedState</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Intent</span> <span class="n">intent</span> <span class="o">=</span>
+            <span class="k">new</span> <span class="nf">MyIntentBuilder</span><span class="o">(</span><span class="k">this</span><span class="o">).</span><span class="na">setCommand</span><span class="o">(</span><span class="nc">Command</span><span class="o">.</span><span class="na">START</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isPreAndroidO</span><span class="o">())</span> <span class="o">{</span>
+            <span class="nc">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="no">TAG</span><span class="o">,</span>
+                <span class="s">"moveToStartedState: N or lower - startService(intent)"</span><span class="o">);</span>
+            <span class="n">startService</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="nc">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="no">TAG</span><span class="o">,</span>
+                <span class="s">"moveToStartedState: O - startFgService(intent)"</span><span class="o">);</span>
+            <span class="n">startForegroundService</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Keep in mind that things have changed regarding “Started Services” in Android O. They are no longer
+allowed to run in the background without having a persistent notification. And the method to start a
+background “Started Service” in O, is <code class="language-plaintext highlighter-rouge">startForegroundService(Intent)</code>.</p>
+      <h3 id="foreground-and-persistent-notification">
+        
+        
+          Foreground and persistent notification <a href="#foreground-and-persistent-notification">#</a>
+        
+        
+      </h3>
+    
+
+<p>“Started Services” can run in the “foreground”. Again, the term <code class="language-plaintext highlighter-rouge">foreground</code> doesn’t apply to
+whether the <code class="language-plaintext highlighter-rouge">Service</code> is running on the Main Thread or a Background Thread. It means that the
+Android system will give this service highest priority and will try not to destroy it when it is
+running low on system resources. You should only put a Started Service in the <code class="language-plaintext highlighter-rouge">foreground</code> if it is
+critical to do this in order to deliver a compelling user experience.</p>
+
+<p>Sample use cases are:</p>
+
+<ol>
+  <li>Apps that need to record or play media (audio/video) in the background.</li>
+  <li>Apps that need to capture fine grained location in the background.</li>
+</ol>
+
+<p>When a Started Service moves into the foreground, it must display a persistent notification,
+explicitly notifying the user that the service is running. This is important because a Started
+Service in the foreground is detached from the lifecycle of UI components (with the exception of the
+persistent notification). And there’s no way to let the user know that something is running on their
+phone without displaying any UI. And potentially consuming lots of resources on their phone.</p>
+
+<p>Here’s an example of moving a Started Service into the foreground.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyTileService</span> <span class="kd">extends</span> <span class="nc">TileService</span> <span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">onStartCommand</span><span class="o">(</span><span class="nc">Intent</span> <span class="n">intent</span><span class="o">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="o">,</span> <span class="kt">int</span> <span class="n">startId</span><span class="o">)</span> <span class="o">{</span>
+      <span class="kt">boolean</span> <span class="n">containsCommand</span> <span class="o">=</span> <span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">containsCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+      <span class="n">d</span><span class="o">(</span><span class="no">TAG</span><span class="o">,</span>
+        <span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span>
+            <span class="s">"onStartCommand: Service in [%s] state. commandId: [%d]. startId: [%d]"</span><span class="o">,</span>
+            <span class="n">myIsServiceStarted</span> <span class="o">?</span> <span class="s">"STARTED"</span> <span class="o">:</span> <span class="s">"NOT STARTED"</span><span class="o">,</span>
+            <span class="n">containsCommand</span> <span class="o">?</span> <span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">getCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">)</span> <span class="o">:</span> <span class="s">"N/A"</span><span class="o">,</span>
+            <span class="n">startId</span><span class="o">));</span>
+      <span class="n">routerIntentToCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+      <span class="k">return</span> <span class="no">START_NOT_STICKY</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">routeIntentToCommand</span><span class="o">(</span><span class="nc">Intent</span> <span class="n">intent</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">intent</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="k">return</span><span class="o">;</span>
+        <span class="c1">// Process command.</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">containsCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">processCommand</span><span class="o">(</span><span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">getCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">));</span>
+        <span class="o">}</span>
+        <span class="c1">// Process message.</span>
+        <span class="k">if</span> <span class="o">(</span><span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">containsMessage</span><span class="o">(</span><span class="n">intent</span><span class="o">))</span> <span class="o">{</span>
+            <span class="n">processMessage</span><span class="o">(</span><span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="n">intent</span><span class="o">));</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">commandStart</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">myIsServiceStarted</span><span class="o">)</span> <span class="o">{</span>
+          <span class="n">moveToStartedState</span><span class="o">();</span>
+          <span class="n">myIsServiceStarted</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+          <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Here’s the code to display the persistent notifications before Android O.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@TargetApi</span><span class="o">(</span><span class="mi">25</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">PreO</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createNotification</span><span class="o">(</span><span class="nc">Service</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Create Pending Intents.</span>
+        <span class="nc">PendingIntent</span> <span class="n">piLaunchMainActivity</span> <span class="o">=</span> <span class="n">getLaunchActivityPI</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+        <span class="nc">PendingIntent</span> <span class="n">piStopService</span> <span class="o">=</span> <span class="n">getStopServicePI</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+
+        <span class="c1">// Action to stop the service.</span>
+        <span class="nc">NotificationCompat</span><span class="o">.</span><span class="na">Action</span> <span class="n">stopAction</span> <span class="o">=</span>
+                <span class="k">new</span> <span class="nc">NotificationCompat</span><span class="o">.</span><span class="na">Action</span><span class="o">.</span><span class="na">Builder</span><span class="o">(</span>
+                                <span class="no">STOP_ACTION_ICON</span><span class="o">,</span>
+                                <span class="n">getNotificationStopActionText</span><span class="o">(</span><span class="n">context</span><span class="o">),</span>
+                                <span class="n">piStopService</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+        <span class="c1">// Create a notification.</span>
+        <span class="nc">Notification</span> <span class="n">mNotification</span> <span class="o">=</span>
+                <span class="k">new</span> <span class="nc">NotificationCompat</span><span class="o">.</span><span class="na">Builder</span><span class="o">(</span><span class="n">context</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">setContentTitle</span><span class="o">(</span><span class="n">getNotificationTitle</span><span class="o">(</span><span class="n">context</span><span class="o">))</span>
+                        <span class="o">.</span><span class="na">setContentText</span><span class="o">(</span><span class="n">getNotificationContent</span><span class="o">(</span><span class="n">context</span><span class="o">))</span>
+                        <span class="o">.</span><span class="na">setSmallIcon</span><span class="o">(</span><span class="no">SMALL_ICON</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">setContentIntent</span><span class="o">(</span><span class="n">piLaunchMainActivity</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">addAction</span><span class="o">(</span><span class="n">stopAction</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">setStyle</span><span class="o">(</span><span class="k">new</span> <span class="nc">NotificationCompat</span><span class="o">.</span><span class="na">BigTextStyle</span><span class="o">())</span>
+                        <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+        <span class="n">context</span><span class="o">.</span><span class="na">startForeground</span><span class="o">(</span><span class="no">ONGOING_NOTIFICATION_ID</span><span class="o">,</span> <span class="n">mNotification</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Here’s the code to display the persistent notifications on Android O (using Notification channels).</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@TargetApi</span><span class="o">(</span><span class="mi">26</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">O</span> <span class="o">{</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">final</span> <span class="nc">String</span> <span class="no">CHANNEL_ID</span> <span class="o">=</span>
+        <span class="nc">String</span><span class="o">.</span><span class="na">valueOf</span><span class="o">(</span><span class="n">getRandomNumber</span><span class="o">());</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">createNotification</span><span class="o">(</span><span class="nc">Service</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">String</span> <span class="n">channelId</span> <span class="o">=</span> <span class="n">createChannel</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+        <span class="nc">Notification</span> <span class="n">notification</span> <span class="o">=</span> <span class="n">buildNotification</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">channelId</span><span class="o">);</span>
+        <span class="n">context</span><span class="o">.</span><span class="na">startForeground</span><span class="o">(</span><span class="no">ONGOING_NOTIFICATION_ID</span><span class="o">,</span> <span class="n">notification</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">Notification</span> <span class="nf">buildNotification</span><span class="o">(</span><span class="nc">Service</span> <span class="n">context</span><span class="o">,</span>
+                                                  <span class="nc">String</span> <span class="n">channelId</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Create Pending Intents.</span>
+        <span class="nc">PendingIntent</span> <span class="n">piLaunchMainActivity</span> <span class="o">=</span> <span class="n">getLaunchActivityPI</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+        <span class="nc">PendingIntent</span> <span class="n">piStopService</span> <span class="o">=</span> <span class="n">getStopServicePI</span><span class="o">(</span><span class="n">context</span><span class="o">);</span>
+
+        <span class="c1">// Action to stop the service.</span>
+        <span class="nc">Notification</span><span class="o">.</span><span class="na">Action</span> <span class="n">stopAction</span> <span class="o">=</span>
+                <span class="k">new</span> <span class="nc">Notification</span><span class="o">.</span><span class="na">Action</span>
+                    <span class="o">.</span><span class="na">Builder</span><span class="o">(</span><span class="no">STOP_ACTION_ICON</span><span class="o">,</span>
+                             <span class="n">getNotificationStopActionText</span><span class="o">(</span><span class="n">context</span><span class="o">),</span>
+                             <span class="n">piStopService</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+
+        <span class="c1">// Create a notification.</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="nc">Notification</span><span class="o">.</span><span class="na">Builder</span><span class="o">(</span><span class="n">context</span><span class="o">,</span> <span class="n">channelId</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">setContentTitle</span><span class="o">(</span><span class="n">getNotificationTitle</span><span class="o">(</span><span class="n">context</span><span class="o">))</span>
+                <span class="o">.</span><span class="na">setContentText</span><span class="o">(</span><span class="n">getNotificationContent</span><span class="o">(</span><span class="n">context</span><span class="o">))</span>
+                <span class="o">.</span><span class="na">setSmallIcon</span><span class="o">(</span><span class="no">SMALL_ICON</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">setContentIntent</span><span class="o">(</span><span class="n">piLaunchMainActivity</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">setActions</span><span class="o">(</span><span class="n">stopAction</span><span class="o">)</span>
+                <span class="o">.</span><span class="na">setStyle</span><span class="o">(</span><span class="k">new</span> <span class="nc">Notification</span><span class="o">.</span><span class="na">BigTextStyle</span><span class="o">())</span>
+                <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="nd">@NonNull</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">String</span> <span class="nf">createChannel</span><span class="o">(</span><span class="nc">Service</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// Create a channel.</span>
+        <span class="nc">NotificationManager</span> <span class="n">notificationManager</span> <span class="o">=</span>
+                <span class="o">(</span><span class="nc">NotificationManager</span><span class="o">)</span> <span class="n">context</span>
+                        <span class="o">.</span><span class="na">getSystemService</span><span class="o">(</span><span class="nc">Context</span><span class="o">.</span><span class="na">NOTIFICATION_SERVICE</span><span class="o">);</span>
+        <span class="nc">CharSequence</span> <span class="n">channelName</span> <span class="o">=</span> <span class="s">"Playback channel"</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">importance</span> <span class="o">=</span> <span class="nc">NotificationManager</span><span class="o">.</span><span class="na">IMPORTANCE_DEFAULT</span><span class="o">;</span>
+        <span class="nc">NotificationChannel</span> <span class="n">notificationChannel</span> <span class="o">=</span>
+                <span class="k">new</span> <span class="nf">NotificationChannel</span><span class="o">(</span><span class="no">CHANNEL_ID</span><span class="o">,</span>
+                                        <span class="n">channelName</span><span class="o">,</span>
+                                        <span class="n">importance</span><span class="o">);</span>
+        <span class="n">notificationManager</span>
+            <span class="o">.</span><span class="na">createNotificationChannel</span><span class="o">(</span><span class="n">notificationChannel</span><span class="o">);</span>
+        <span class="k">return</span> <span class="no">CHANNEL_ID</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h3 id="stopping-started-services">
+        
+        
+          Stopping Started Services <a href="#stopping-started-services">#</a>
+        
+        
+      </h3>
+    
+
+<p>Note that the PendingIntent <code class="language-plaintext highlighter-rouge">piStopService</code> (that is passed to the <code class="language-plaintext highlighter-rouge">mNotification</code>) would actually
+pass an Intent with the <code class="language-plaintext highlighter-rouge">Command.STOP</code> integer. Remember that <code class="language-plaintext highlighter-rouge">startService(Intent)</code> can be called
+multiple times? This is an example of that. In order to STOP the service, we are firing an Intent on
+it via <code class="language-plaintext highlighter-rouge">startService(Intent)</code> that will be handled in the <code class="language-plaintext highlighter-rouge">onStartCommand()</code> method of the Started
+Service.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">HandleNotifications</span><span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">PendingIntent</span> <span class="nf">getStopServicePI</span><span class="o">(</span><span class="nc">Service</span> <span class="n">context</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">PendingIntent</span> <span class="n">piStopService</span><span class="o">;</span>
+        <span class="o">{</span>
+            <span class="nc">Intent</span> <span class="n">iStopService</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MyIntentBuilder</span><span class="o">(</span><span class="n">context</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">setCommand</span><span class="o">(</span><span class="nc">Command</span><span class="o">.</span><span class="na">STOP</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+            <span class="n">piStopService</span> <span class="o">=</span> <span class="nc">PendingIntent</span><span class="o">.</span><span class="na">getService</span><span class="o">(</span>
+                    <span class="n">context</span><span class="o">,</span> <span class="n">getRandomNumber</span><span class="o">(),</span> <span class="n">iStopService</span><span class="o">,</span> <span class="mi">0</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">piStopService</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>This is why the <code class="language-plaintext highlighter-rouge">onStartCommand()</code> of the Started Service needs to be able to handle Intents that
+might cause the service to stop itself. Here’s some code to illustrate this.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyService</span> <span class="kd">extends</span> <span class="nc">Service</span><span class="o">{</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">onStartCommand</span><span class="o">(</span><span class="nc">Intent</span> <span class="n">intent</span><span class="o">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="o">,</span> <span class="kt">int</span> <span class="n">startId</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">boolean</span> <span class="n">containsCommand</span> <span class="o">=</span> <span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">containsCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+        <span class="n">d</span><span class="o">(</span>
+            <span class="no">TAG</span><span class="o">,</span>
+            <span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span>
+                <span class="s">"onStartCommand: Service in [%s] state. "</span>
+                <span class="o">+</span> <span class="s">"commandId: [%d]. startId: [%d]"</span><span class="o">,</span>
+                <span class="n">mServiceIsStarted</span> <span class="o">?</span> <span class="s">"STARTED"</span> <span class="o">:</span> <span class="s">"NOT STARTED"</span><span class="o">,</span>
+                <span class="n">containsCommand</span> <span class="o">?</span>
+                    <span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">getCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">)</span> <span class="o">:</span> <span class="s">"N/A"</span><span class="o">,</span>
+                <span class="n">startId</span><span class="o">));</span>
+        <span class="n">mServiceIsStarted</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="n">routeIntentToCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+        <span class="k">return</span> <span class="no">START_NOT_STICKY</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">routeIntentToCommand</span><span class="o">(</span><span class="nc">Intent</span> <span class="n">intent</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">intent</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+
+            <span class="c1">// process command</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">containsCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">processCommand</span><span class="o">(</span><span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">getCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">));</span>
+            <span class="o">}</span>
+
+            <span class="c1">// process message</span>
+            <span class="k">if</span> <span class="o">(</span><span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">containsMessage</span><span class="o">(</span><span class="n">intent</span><span class="o">))</span> <span class="o">{</span>
+                <span class="n">processMessage</span><span class="o">(</span><span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(</span><span class="n">intent</span><span class="o">));</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>When you want to take your Started Service out of foreground execution, you can call
+<code class="language-plaintext highlighter-rouge">stopForeground(true)</code>. This will also take away the persistent notification. However, this will not
+stop the service. In order to do that you still have to call <code class="language-plaintext highlighter-rouge">stopSelf()</code>.</p>
+
+<p>To stop a service, you can do any of the following:</p>
+
+<ol>
+  <li>
+    <p>As shown above, pass an Intent with an extra to <code class="language-plaintext highlighter-rouge">startService()</code> that will be processed by
+<code class="language-plaintext highlighter-rouge">onStartCommand()</code>, which will actually call <code class="language-plaintext highlighter-rouge">stopSelf()</code> on the service. If there are no clients
+bound to it, then it will result in <code class="language-plaintext highlighter-rouge">onDestroy()</code> being called, and the service shutting down.</p>
+  </li>
+  <li>
+    <p>You can also create an explicit Intent (pointing to the Service class) and pass it to
+<code class="language-plaintext highlighter-rouge">stopService()</code>, which will cause <code class="language-plaintext highlighter-rouge">stopSelf()</code> to be called, and then <code class="language-plaintext highlighter-rouge">onDestroy()</code> in case there
+are no bound clients.</p>
+  </li>
+</ol>
+
+<p>Here’s some code samples for stopping a Started Service from an Activity.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyActivity</span> <span class="kd">extends</span> <span class="nc">Activity</span><span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">stopService1</span><span class="o">(){</span>
+        <span class="n">stopService</span><span class="o">(</span><span class="k">new</span> <span class="nc">MyIntentBuilder</span><span class="o">(</span><span class="k">this</span><span class="o">).</span><span class="na">build</span><span class="o">());</span>
+    <span class="o">}</span>
+    <span class="kt">void</span> <span class="nf">stopService2</span><span class="o">(){</span>
+        <span class="n">startService</span><span class="o">(</span>
+            <span class="k">new</span> <span class="nf">MyIntentBuilder</span><span class="o">(</span><span class="k">this</span><span class="o">).</span><span class="na">setCommand</span><span class="o">(</span><span class="nc">Command</span><span class="o">.</span><span class="na">STOP</span><span class="o">).</span><span class="na">build</span><span class="o">());</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>And here’s the code in your Started Service that would respond to these (assuming that your Started
+Service has been moved to the foreground).</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyService</span> <span class="kd">extends</span> <span class="nc">Service</span><span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">stopCommand</span><span class="o">(){</span>
+        <span class="n">stopForeground</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+        <span class="n">stopSelf</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h2 id="bound-services">
+        
+        
+          Bound Services <a href="#bound-services">#</a>
+        
+        
+      </h2>
+    
+
+<p>Unlike Started Services, Bound Services allow a connection to be established between the Android
+component binding to the Service, and the Service. This connection is an IBinder which allows
+methods to be called on the Service. The simplest example of this is a Bound Service that has a
+client in a local process. In this case a Java object (an Binder subclass) is exposed to the client
+which can be used to access public methods on the Service.</p>
+
+<p>In more complex scenarios where the Bound Service might be executing in a different process from the
+client, a Message handler or AIDL stub would have to be created. However, for local processes, it’s
+really straightforward.</p>
+
+<p>Here are a list of differences between Bound Services and Started Services.</p>
+
+<ul>
+  <li>
+    <p>A client component doesn’t have a connection to a Started Service. It just fires Intents via
+<code class="language-plaintext highlighter-rouge">startService()</code> or <code class="language-plaintext highlighter-rouge">stopService()</code> that are processed by the Started Service’s
+<code class="language-plaintext highlighter-rouge">onStartCommand()</code>.</p>
+  </li>
+  <li>
+    <p>When a client component (Activity, Fragment, or another Service) connects to a Bound Service, it
+has an IBinder object which can be used to call methods on the Bound Service.</p>
+  </li>
+</ul>
+
+<p>In either case, if the Service (Bound or Started) needs to send messages to the bound client or
+whatever component started a Service, it has to use something like
+<a href="https://developer.android.com/reference/android/support/v4/content/LocalBroadcastManager.html">LocalBroadcastManager</a>
+when the the client and Service are local to one process. Bound Services don’t typically connect
+directly to a bound client component.</p>
+      <h3 id="bindservice-and-oncreate">
+        
+        
+          bindService() and onCreate() <a href="#bindservice-and-oncreate">#</a>
+        
+        
+      </h3>
+    
+
+<p>In order for a client component (Activity, Fragement, another Service) to bind to a Bound Service,
+<code class="language-plaintext highlighter-rouge">bindService()</code> must be called, with an explicit Intent just like with Started Services.</p>
+
+<p>Here’s a code example.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyActivity</span> <span class="kd">extends</span> <span class="nc">Activity</span><span class="o">{</span>
+    <span class="kt">void</span> <span class="nf">bind</span><span class="o">(){</span>
+        <span class="n">bindService</span><span class="o">(</span>
+                <span class="k">new</span> <span class="nf">MyIntentBuilder</span><span class="o">(</span><span class="k">this</span><span class="o">).</span><span class="na">build</span><span class="o">(),</span>
+                <span class="n">mServiceConnection</span><span class="o">,</span>
+                <span class="no">BIND_AUTO_CREATE</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">BIND_AUTO_CREATE</code> is a very common flag to pass to the <code class="language-plaintext highlighter-rouge">bindService()</code> method. There are other
+flags that you can pass. What auto create does is that it calls <code class="language-plaintext highlighter-rouge">onCreate()</code> on the Bound Service if
+that hasn’t happened yet, at the time <code class="language-plaintext highlighter-rouge">bindService()</code> is called. This essentially automatically
+creates the Bound Service upon the first client connecting to it.</p>
+
+<p>Once <code class="language-plaintext highlighter-rouge">bindService()</code> is called, the service needs a way to reach out to the client, and give it the
+IBinder object which it can then use to call methods on the Bound Service. This happens in the code
+above via the <code class="language-plaintext highlighter-rouge">mServiceConnection</code> reference. This is a ServiceConnection callback which the Bound
+Service will use to notify the client about the completion of the binding process. It will let the
+client know as well if the Bound Service has disconnected.</p>
+
+<p>Here’s an example of a ServiceConnection implementation.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyActivity</span> <span class="kd">extends</span> <span class="nc">Activity</span><span class="o">{</span>
+    <span class="kd">private</span> <span class="nc">ServiceConnection</span> <span class="n">mServiceConnection</span> <span class="o">=</span>
+        <span class="k">new</span> <span class="nf">ServiceConnection</span><span class="o">(){</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onServiceConnected</span><span class="o">(</span><span class="nc">ComponentName</span> <span class="n">cName</span><span class="o">,</span>
+                                           <span class="nc">IBinder</span> <span class="n">service</span><span class="o">){</span>
+                <span class="nc">My</span><span class="o">.</span><span class="na">MyBinder</span> <span class="n">binder</span> <span class="o">=</span> <span class="o">(</span><span class="nc">MyService</span><span class="o">.</span><span class="na">MyBinder</span><span class="o">)</span> <span class="n">service</span><span class="o">;</span>
+                <span class="c1">// Get a reference to the Bound Service object.</span>
+                <span class="n">mService</span> <span class="o">=</span> <span class="n">binder</span><span class="o">.</span><span class="na">getService</span><span class="o">();</span>
+                <span class="n">mServiceBound</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+            <span class="o">}</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onServiceDisconnected</span><span class="o">(</span><span class="nc">ComponentName</span> <span class="n">cName</span><span class="o">){</span>
+                <span class="n">mServiceBound</span><span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="o">}</span>
+        <span class="o">};</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h3 id="service-binder">
+        
+        
+          Service binder <a href="#service-binder">#</a>
+        
+        
+      </h3>
+    
+
+<p>Let’s look at what happens on the Bound Service side, when a client calls bindService(Intent).</p>
+
+<p>In the Bound Service you have to implement the onBind() method. This gets called only once, when the
+very first client component connects to this Bound Service.</p>
+
+<p>Here’s an example of this.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyService</span> <span class="kd">extends</span> <span class="nc">Service</span><span class="o">{</span>
+    <span class="kd">public</span> <span class="nc">IBinder</span> <span class="nf">onBind</span><span class="o">(</span><span class="nc">Intent</span> <span class="n">intent</span><span class="o">){</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">mBinder</span> <span class="o">==</span> <span class="kc">null</span><span class="o">){</span>
+            <span class="n">mBinder</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MyBinder</span><span class="o">();</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">mBinder</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>The Bound Service creates a <code class="language-plaintext highlighter-rouge">mBinder</code> object of type IBinder. So what is this
+<a href="https://developer.android.com/reference/android/os/IBinder"><code class="language-plaintext highlighter-rouge">IBinder</code></a> interface?</p>
+
+<p><code class="language-plaintext highlighter-rouge">Binder</code> implements this interface, and is an Android base class that allows a remote-able object to
+be created. It implements a lightweight RPC mechanism for high performance in-process and
+cross-process calls (between clients and Bound Services).</p>
+
+<p>Here’s an example.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyService</span> <span class="kd">extends</span> <span class="nc">Service</span><span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyBinder</span> <span class="kd">extends</span> <span class="n">android</span><span class="o">.</span><span class="na">os</span><span class="o">.</span><span class="na">Binder</span> <span class="o">{</span>
+        <span class="nc">MyService</span> <span class="nf">getService</span><span class="o">(){</span>
+            <span class="c1">// Simply return a reference to this instance of the Service.</span>
+            <span class="k">return</span> <span class="nc">MyService</span><span class="o">.</span><span class="na">this</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>In the example above, we simply expose a method called <code class="language-plaintext highlighter-rouge">getService()</code> which exposes the Java object
+for the Bound Service to the client component. With a reference to this IBinder, the client can call
+public methods directly on the Bound Service object. Note that these methods will execute on the
+thread of the client component that is calling these methods. In the case of an Activity or
+Fragment, these methods will run on the Main Thread, so be careful of calling blocking methods on
+the Bound Service and causing ANRs in your app.</p>
+      <h3 id="unbind-and-ondestroy">
+        
+        
+          unBind and onDestroy <a href="#unbind-and-ondestroy">#</a>
+        
+        
+      </h3>
+    
+
+<p>In order to unBind() from a Bound Service, a calling simply calls
+unBindService(<code class="language-plaintext highlighter-rouge">mServiceConnection</code>). The system will then call <code class="language-plaintext highlighter-rouge">onUnbind()</code> on the Bound Service
+itself. If there are no more bound clients, then the system will call <code class="language-plaintext highlighter-rouge">onDestroy()</code> on the Bound
+Service, unless it is in the Started State. If the Service is not in a Started State, then
+<code class="language-plaintext highlighter-rouge">onDestroy()</code> gets called immediately, and the Bound Service will be killed.</p>
+
+<p>Here’s what a client component’s call to <code class="language-plaintext highlighter-rouge">unbindService()</code> looks like.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyActivity</span> <span class="kd">extends</span> <span class="nc">Activity</span><span class="o">{</span>
+    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onStop</span><span class="o">(){</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">mServiceBound</span><span class="o">){</span>
+            <span class="n">unbindService</span><span class="o">(</span><span class="n">mServiceConnection</span><span class="o">);</span>
+            <span class="n">mServiceBound</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>In the code above, the Activity’s <code class="language-plaintext highlighter-rouge">onStop()</code> method is overridden to call <code class="language-plaintext highlighter-rouge">unbindService()</code>.
+Depending on the UX requirements for your app, your client components can bind and unbind to a Bound
+Service in <code class="language-plaintext highlighter-rouge">onStart()</code> and <code class="language-plaintext highlighter-rouge">onStop()</code>, or whatever other Android Activity or Fragment of Service
+lifecycle methods you choose to hook into.</p>
+
+<p>Here’s an example of what <code class="language-plaintext highlighter-rouge">onUnbind()</code> looks like (in the Bound Service).</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyService</span> <span class="kd">extends</span> <span class="nc">Service</span><span class="o">{</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onUnbind</span><span class="o">(</span><span class="nc">Intent</span> <span class="n">i</span><span class="o">){</span>
+        <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Typically, you will return <code class="language-plaintext highlighter-rouge">false</code>. If you don’t, then when the next client binds to the Bound
+Service, then <code class="language-plaintext highlighter-rouge">onRebind()</code> will be called, instead of <code class="language-plaintext highlighter-rouge">onBind()</code>.</p>
+      <h2 id="bound-and-started-services">
+        
+        
+          Bound and Started Services <a href="#bound-and-started-services">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are many use cases for your app that will require a service to be both Bound and Started. In
+the sections above, lots of detail have already been provided that highlight the implications to
+services being both. They usually involve the creation and destruction hooks for a Service.</p>
+
+<p>A Service that is both Bound and Started can have methods inside of that can be called by bound
+client components. Since a Service doesn’t have to be started for a client to bind to it, this is
+something that you must be aware of. This means that a client binding to a Service will call
+<code class="language-plaintext highlighter-rouge">onCreate()</code>. If you don’t move your Service to a Started State, then when the client unbinds from
+the Service, it will be killed and it’s <code class="language-plaintext highlighter-rouge">onDestroy()</code> method will be called.</p>
+
+<p>This is what happens with a UI component will bind to the Service and create it. Then at some point
+the UI unbinds from the Service, and if it’s in the middle of performing some long running task,
+then it’s <code class="language-plaintext highlighter-rouge">onDestroy()</code> will be created and it will be killed. If your app requirements are that the
+Bound Service should continue running past the end of the UI component’s lifecycle, then you have to
+start it, move it to the foreground and have it show a persistent notification. This will ensure
+that the Bound and Started Service will keep running as long as it has to, or until the user decides
+to kill it by firing the PendingIntent to stop the Service (as shown in the examples above).</p>
+      <h3 id="moving-to-started-state">
+        
+        
+          Moving to Started State <a href="#moving-to-started-state">#</a>
+        
+        
+      </h3>
+    
+
+<p>Since a client binding to a Service will not move it to the Started State, for Bound and Started
+services, it is safe to have the Service move itself into the Started State just in case.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MyService</span> <span class="kd">extends</span> <span class="nc">Service</span><span class="o">{</span>
+
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">commandStart</span><span class="o">()</span> <span class="o">{</span>
+
+        <span class="k">if</span> <span class="o">(!</span><span class="n">mServiceIsStarted</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">moveToStartedState</span><span class="o">();</span>
+            <span class="k">return</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">mExecutor</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">mTimeRunning_sec</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="n">isPreAndroidO</span><span class="o">())</span> <span class="o">{</span>
+                <span class="nc">HandleNotifications</span><span class="o">.</span><span class="na">PreO</span><span class="o">.</span><span class="na">createNotification</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="nc">HandleNotifications</span><span class="o">.</span><span class="na">O</span><span class="o">.</span><span class="na">createNotification</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="n">mExecutor</span> <span class="o">=</span> <span class="nc">Executors</span><span class="o">.</span><span class="na">newSingleThreadScheduledExecutor</span><span class="o">();</span>
+            <span class="nc">Runnable</span> <span class="n">runnable</span> <span class="o">=</span>
+                    <span class="k">new</span> <span class="nf">Runnable</span><span class="o">()</span> <span class="o">{</span>
+                        <span class="nd">@Override</span>
+                        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+                            <span class="n">recurringTask</span><span class="o">();</span>
+                        <span class="o">}</span>
+                    <span class="o">};</span>
+            <span class="n">mExecutor</span><span class="o">.</span><span class="na">scheduleWithFixedDelay</span><span class="o">(</span>
+                    <span class="n">runnable</span><span class="o">,</span> <span class="no">DELAY_INITIAL</span><span class="o">,</span> <span class="no">DELAY_RECURRING</span><span class="o">,</span> <span class="no">DELAY_UNIT</span><span class="o">);</span>
+            <span class="n">d</span><span class="o">(</span><span class="no">TAG</span><span class="o">,</span> <span class="s">"commandStart: starting executor"</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="n">d</span><span class="o">(</span><span class="no">TAG</span><span class="o">,</span> <span class="s">"commandStart: do nothing"</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="nd">@TargetApi</span><span class="o">(</span><span class="nc">Build</span><span class="o">.</span><span class="na">VERSION_CODES</span><span class="o">.</span><span class="na">O</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">moveToStartedState</span><span class="o">()</span> <span class="o">{</span>
+
+        <span class="nc">Intent</span> <span class="n">intent</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MyIntentBuilder</span><span class="o">(</span><span class="k">this</span><span class="o">)</span>
+            <span class="o">.</span><span class="na">setCommand</span><span class="o">(</span><span class="nc">Command</span><span class="o">.</span><span class="na">START</span><span class="o">).</span><span class="na">build</span><span class="o">();</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">isPreAndroidO</span><span class="o">())</span> <span class="o">{</span>
+            <span class="nc">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="no">TAG</span><span class="o">,</span>
+                <span class="s">"moveToStartedState: N / lower - startService(intent)"</span><span class="o">);</span>
+            <span class="n">startService</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+            <span class="nc">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="no">TAG</span><span class="o">,</span>
+                <span class="s">"moveToStartedState: O - startFg(intent)"</span><span class="o">);</span>
+            <span class="n">startForegroundService</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">onStartCommand</span><span class="o">(</span><span class="nc">Intent</span> <span class="n">intent</span><span class="o">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="o">,</span> <span class="kt">int</span> <span class="n">startId</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kt">boolean</span> <span class="n">containsCommand</span> <span class="o">=</span> <span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">containsCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+        <span class="n">d</span><span class="o">(</span>
+            <span class="no">TAG</span><span class="o">,</span>
+            <span class="nc">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span>
+                <span class="s">"onStartCommand: Service in [%s] state. "</span>
+                <span class="o">+</span> <span class="s">"commandId: [%d]. startId: [%d]"</span><span class="o">,</span>
+                <span class="n">mServiceIsStarted</span> <span class="o">?</span> <span class="s">"STARTED"</span> <span class="o">:</span> <span class="s">"NOT STARTED"</span><span class="o">,</span>
+                <span class="n">containsCommand</span> <span class="o">?</span>
+                    <span class="nc">MyIntentBuilder</span><span class="o">.</span><span class="na">getCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">)</span> <span class="o">:</span> <span class="s">"N/A"</span><span class="o">,</span>
+                <span class="n">startId</span><span class="o">));</span>
+        <span class="n">mServiceIsStarted</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="n">routeIntentToCommand</span><span class="o">(</span><span class="n">intent</span><span class="o">);</span>
+        <span class="k">return</span> <span class="no">START_NOT_STICKY</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>In the example above:</p>
+
+<ol>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">commandStart()</code> can be called by a client that binds to the Service.</p>
+  </li>
+  <li>
+    <p>Or it can be called via an Intent that is passed to <code class="language-plaintext highlighter-rouge">startService()</code> or
+<code class="language-plaintext highlighter-rouge">startServiceInForeground()</code> (for Android O).</p>
+  </li>
+</ol>
+
+<p>Regardless, what the example shows is the Service putting itself in the Started State first, before
+actually creating the Executor.</p>
+
+<p>Let’s say that <code class="language-plaintext highlighter-rouge">commandStart()</code> is called, after a client component binds to the Service. The
+Service hasn’t been started yet.</p>
+
+<p>Let’s walk thru this code.</p>
+
+<ol>
+  <li>
+    <p>If the Service is Bound to a client, then it is not started (and mServiceStarted is false).</p>
+  </li>
+  <li>
+    <p>In this case the call to <code class="language-plaintext highlighter-rouge">moveToStarted()</code>) state simply creates an explicit Intent with an Extra
+(<code class="language-plaintext highlighter-rouge">Command.START</code>), and calls <code class="language-plaintext highlighter-rouge">startService()</code> or <code class="language-plaintext highlighter-rouge">startForegroundService()</code>.</p>
+  </li>
+  <li>
+    <p>This ends up calling <code class="language-plaintext highlighter-rouge">onStartCommand()</code> which routes to <code class="language-plaintext highlighter-rouge">commandStart()</code> again!</p>
+  </li>
+  <li>
+    <p>However, this time in <code class="language-plaintext highlighter-rouge">commandStart()</code> <code class="language-plaintext highlighter-rouge">mServiceIsStarted</code> is set to <code class="language-plaintext highlighter-rouge">true</code> and this will
+actually do the work of <code class="language-plaintext highlighter-rouge">commandStart()</code> which is to create the Executor.</p>
+  </li>
+</ol>
+      <h3 id="destruction-and-unbinding">
+        
+        
+          Destruction and unbinding <a href="#destruction-and-unbinding">#</a>
+        
+        
+      </h3>
+    
+
+<p>When a client component unbinds from your Service, if it is NOT in the Started State then it will be
+killed and <code class="language-plaintext highlighter-rouge">onDestroy()</code> will be called.</p>
+
+<p>However, if it is in the Started State, then it will not be killed. It will only be killed if the
+Started Service is stopped (either by calling <code class="language-plaintext highlighter-rouge">stopService(Intent)</code> or by calling
+<code class="language-plaintext highlighter-rouge">startService(Intent)</code> with Extras to let the service know it should stop, for eg: <code class="language-plaintext highlighter-rouge">Command.STOP</code>)).</p>
+
+<p>Here’s a diagram that summarizes these states and transitions between them for a bound and started
+service.</p>
+
+<p><img src="/assets/android-services-2.png" alt="" /></p>
+      <h2 id="source-code-example">
+        
+        
+          Source code example <a href="#source-code-example">#</a>
+        
+        
+      </h2>
+    
+
+<p>You can see examples of most of the things outlined in this article in the source code for the Awake
+app. It is a simple utility for Android O and N that keeps your screen on while charging. Here are
+some links:</p>
+
+<ul>
+  <li><a href="https://play.google.com/store/apps/details?id=com.r3bl.stayawake&amp;rdid=com.r3bl.stayawake">Awake Android App on Google Play Store</a></li>
+  <li><a href="https://github.com/r3bl-alliance/stay-awake-app">Source code for Awake app on GitHub</a></li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Android">
+                #android</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/CC">
+                #cc</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-in-depth/">
+                        In-depth exploration of Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/07/introduction-to-android-architecture-components/">
+                        Introduction to Android Architecture Components
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/29/getting-started-with-mediaplayer-on-android/">
+                        Getting started with MediaPlayer on Android
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/03/31/getting-started-with-react-native/">
+                        Getting started with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/20/gps/">
+                        Android Location Providers (gps, network, passive)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/05/android-animation-framework/">
+                        Android Animation Framework Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-listview/">
+                        Android ListView and custom adapter Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-linearlayout/">
+                        Android LinearLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/31/android-ui-themes/">
+                        Android UI Themes Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/29/android-tablelayout/">
+                        Android TableLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/option-and-context-menu/">
+                        Android Option and Context menu Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/android-xml-view-inflation/">
+                        Android XML View inflation Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/14/android-app-lifecycle-activity-intent-and-service-draft/">
+                        Android Activity and sub-Activity Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/">
+                        Android - How to build a service-enabled Android app - Part 1/3 UI
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-23-networking/">
+                        Android - How to build a service-enabled Android App - Part 2/3 Networking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/05/27/task-api-3-of-5-monitoring-http-post-operations/">
+                        Task API (3 of 3) - Monitoring HTTP POST operations
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/08/task-api-2-of-5-task-api-in-depth/">
+                        Task API (2 of 3) - Task API in-depth
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/05/task-api-quick-start-guide/">
+                        Task API (1 of 3) - Quick Start Guide
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/01/08/creating-multi-threaded-swing-apps-that-consume-web-services/">
+                        Creating multi-threaded Swing apps that consume web services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2006/06/09/introduction-to-java-50-javautilconcurrent-api/">
+                        Introduction to Java 5 java.util.concurrent API
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/introduction-to-threads/">
+                        Introduction to Threads
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

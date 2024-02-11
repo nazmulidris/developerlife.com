@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript) | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This article is reference handbook for using Ink v3.2.0 (with TypeScript and React) components to create CLI apps. IDEA Ultimate / Webstorm project files are provided." />
+<meta property="og:description" content="This article is reference handbook for using Ink v3.2.0 (with TypeScript and React) components to create CLI apps. IDEA Ultimate / Webstorm project files are provided." />
+<link rel="canonical" href="http://developerlife.com/2021/11/25/ink-v3-advanced-ui-components/" />
+<meta property="og:url" content="http://developerlife.com/2021/11/25/ink-v3-advanced-ui-components/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-11-25T08:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2021-11-25T08:00:00-06:00","datePublished":"2021-11-25T08:00:00-06:00","description":"This article is reference handbook for using Ink v3.2.0 (with TypeScript and React) components to create CLI apps. IDEA Ultimate / Webstorm project files are provided.","headline":"Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2021/11/25/ink-v3-advanced-ui-components/"},"url":"http://developerlife.com/2021/11/25/ink-v3-advanced-ui-components/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Nov 25, 2021
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/ink-intro.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#what-is-ink">What is Ink</a></li>
+  <li><a href="#items-covered-in-this-article">Items covered in this article</a></li>
+  <li><a href="#example-1---moving-a-component-with-arrow-keys">Example 1 - moving a component with arrow keys</a></li>
+  <li><a href="#example-2---keyboard-input--focus-manipulation">Example 2 - keyboard input &amp; focus manipulation</a></li>
+  <li><a href="#example-3---full-screen-app">Example 3 - full screen app</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This article is reference handbook for using Ink v3.2.0 (with TypeScript and React) components to
+create CLI apps. IDEA Ultimate / Webstorm project files are provided.</p>
+
+<p>To get started w/ Ink v3 please check out this <a href="https://developerlife.com/2021/11/04/introduction-to-ink-v3/">introductory article</a> and this <a href="https://developerlife.com/2021/11/05/ink-v3-advanced/">advanced
+article</a>.</p>
+
+<blockquote>
+      <h3 id="️-this-isnt-a-reference-for-react-nodejs-typescript-or-css">
+        
+        
+          ⚠️ This isn’t a reference for React, Node.js, TypeScript, or CSS <a href="#️-this-isnt-a-reference-for-react-nodejs-typescript-or-css">#</a>
+        
+        
+      </h3>
+    
+
+  <p>Learn more about these topics on <a href="https://developerlife.com/category/Web/">developerlife.com</a>:</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Resource</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="https://developerlife.com/2021/07/02/nodejs-typescript-handbook/">Node.js handbook</a></td>
+        <td>Learn Node.js w/ TypeScript</td>
+      </tr>
+      <tr>
+        <td><a href="https://developerlife.com/2021/10/19/react-hooks-redux-typescript-handbook/">React Hooks handbook</a></td>
+        <td>Learn React, Redux, and Testing w/ TypeScript</td>
+      </tr>
+      <tr>
+        <td><a href="https://developerlife.com/2021/10/19/css-responsive-design-handbook/">CSS handbook</a></td>
+        <td>Learn CSS, grid, flexbox, to implement responsive design</td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end --><hr />
+      <h2 id="what-is-ink">
+        
+        
+          What is Ink <a href="#what-is-ink">#</a>
+        
+        
+      </h2>
+    
+
+<p>Ink is a React renderer written in TypeScript using the <a href="https://github.com/facebook/react/tree/master/packages/react-reconciler"><code class="language-plaintext highlighter-rouge">react-reconciler</code></a> package. So
+instead of rendering React components to the DOM Ink actually renders them to a terminal based UI.</p>
+
+<p>With it, you can make CLI apps that look like this:</p>
+
+<p><img src="/assets/ink-demo.svg" /></p>
+
+<p>Ink supplies its own <a href="https://developerlife.com/2021/11/04/introduction-to-ink-v3/#react-core-renderer-reconciler">host</a> UI components (eg: <code class="language-plaintext highlighter-rouge">&lt;Text&gt;</code>) which has nothing to do w/
+<a href="https://github.com/facebook/react/tree/main/packages/react-dom">react-dom</a> host components that come out of the box (eg: <code class="language-plaintext highlighter-rouge">&lt;img&gt;</code>) w/ React.</p>
+
+<p>Ink supplied host UI components are rendered to a terminal based UI by using:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">console</code> streams to manipulate the <a href="https://github.com/r3bl-org/r3bl-ts-utils/blob/3251cdf13f029da641c9e467dad513f9a27abc47/src/color-console-utils.ts#L99">output to the console</a>, and <a href="https://developerlife.com/2021/07/02/nodejs-typescript-handbook/#user-input-and-output-via-stdin-stdout">input from the
+console</a>.</li>
+  <li><a href="https://github.com/facebook/yoga">Yoga</a> to implement CSS flexbox layout and positioning. Yoga is written in C++ that allows
+flexbox layout itself to be implemented in various platforms (like <a href="https://github.com/facebook/litho">Lithio on Android</a>,
+Node.js, .Net, etc).</li>
+  <li>You can take a look at the dependencies that Ink has in its <a href="https://github.com/vadimdemedes/ink/blob/master/package.json"><code class="language-plaintext highlighter-rouge">package.json</code></a>. It relies on
+packages like: <code class="language-plaintext highlighter-rouge">chalk</code>, <code class="language-plaintext highlighter-rouge">cli-boxes</code>, <code class="language-plaintext highlighter-rouge">cli-cursor</code>, <code class="language-plaintext highlighter-rouge">yoga-layout-prebuilt</code>, <code class="language-plaintext highlighter-rouge">react-reconciler</code>,
+<code class="language-plaintext highlighter-rouge">react-devtools-core</code>.</li>
+</ol>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end --><hr />
+      <h2 id="items-covered-in-this-article">
+        
+        
+          Items covered in this article <a href="#items-covered-in-this-article">#</a>
+        
+        
+      </h2>
+    
+
+<p>There are a wealth of examples that you can find in the
+<a href="https://github.com/nazmulidris/ink/tree/master/examples">ink repo</a> itself. I suggest browsing
+through all of them to get some sense of how to use all the host components and hooks.</p>
+
+<p>In this article, we will walk through three examples in order to get a sense of how to use the
+entire API surface of Ink. There are a lot of community contributions in the form of npm packages
+that are built using ink that we will not cover here. These examples will cover the usage of the
+following API surface of ink.</p>
+
+<ol>
+  <li>Components
+    <ol>
+      <li><code class="language-plaintext highlighter-rouge">Text</code></li>
+      <li><code class="language-plaintext highlighter-rouge">Box</code></li>
+      <li><code class="language-plaintext highlighter-rouge">Border</code></li>
+      <li><code class="language-plaintext highlighter-rouge">Newline</code></li>
+    </ol>
+  </li>
+  <li>Hooks
+    <ol>
+      <li><code class="language-plaintext highlighter-rouge">useInput</code></li>
+      <li><code class="language-plaintext highlighter-rouge">useApp</code></li>
+      <li><code class="language-plaintext highlighter-rouge">useStdin</code></li>
+      <li><code class="language-plaintext highlighter-rouge">useFocus</code></li>
+      <li><code class="language-plaintext highlighter-rouge">useFocusManager</code></li>
+    </ol>
+  </li>
+</ol>
+
+<blockquote>
+  <p>🪄 You can find the source code for these examples in the
+<a href="https://github.com/nazmulidris/ts-scratch/tree/main/ink-cli-app3/">ink-cli-app3</a> repo. Please
+clone this repo to run the samples below on your computer.</p>
+
+  <p>Then navigate to the <code class="language-plaintext highlighter-rouge">ts-scratch/ink-cli-app3/</code> folder which contains the following.</p>
+
+  <ol>
+    <li><code class="language-plaintext highlighter-rouge">package.json</code> and npm start scripts. Make sure to run <code class="language-plaintext highlighter-rouge">npm i</code> after cloning this repo.</li>
+    <li>IDEA &amp; VSCode projects. You can open this folder in your favorite IDE.</li>
+  </ol>
+</blockquote><hr />
+      <h2 id="example-1---moving-a-component-with-arrow-keys">
+        
+        
+          Example 1 - moving a component with arrow keys <a href="#example-1---moving-a-component-with-arrow-keys">#</a>
+        
+        
+      </h2>
+    
+
+<p>This small example is a CLI app that allows the user to move a component on the screen the cursor
+around using arrow up, down, left, and right keys. It shows how we can use the <code class="language-plaintext highlighter-rouge">useInput()</code> hook to
+make this happen. Here’s the code.</p>
+
+<blockquote>
+  <p>🪄 Here’s the source code for
+<a href="https://github.com/nazmulidris/ts-scratch/blob/main/ink-cli-app3/src/examples/use-input.tsx"><code class="language-plaintext highlighter-rouge">use-input.tsx</code></a>.</p>
+</blockquote>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="nx">React</span><span class="p">,</span> <span class="p">{</span> <span class="nx">useState</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">Box</span><span class="p">,</span> <span class="nx">render</span><span class="p">,</span> <span class="nx">Text</span><span class="p">,</span> <span class="nx">useApp</span><span class="p">,</span> <span class="nx">useInput</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">ink</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span> <span class="nx">_callIfTruthy</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">r3bl-ts-utils</span><span class="dl">"</span>
+
+<span class="kd">const</span> <span class="nx">UseInputExample</span> <span class="o">=</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">exit</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">useApp</span><span class="p">()</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">x</span><span class="p">,</span> <span class="nx">setX</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useState</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">y</span><span class="p">,</span> <span class="nx">setY</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useState</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="nf">useInput</span><span class="p">((</span><span class="nx">input</span><span class="p">,</span> <span class="nx">key</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="nf">_callIfTruthy</span><span class="p">(</span><span class="nx">input</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">q</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nf">exit</span><span class="p">())</span>
+    <span class="nf">_callIfTruthy</span><span class="p">(</span><span class="nx">key</span><span class="p">.</span><span class="nx">leftArrow</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nf">setX</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nf">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nx">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="nf">_callIfTruthy</span><span class="p">(</span><span class="nx">key</span><span class="p">.</span><span class="nx">rightArrow</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nf">setX</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nf">min</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nx">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="nf">_callIfTruthy</span><span class="p">(</span><span class="nx">key</span><span class="p">.</span><span class="nx">upArrow</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nf">setY</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nf">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nx">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)))</span>
+    <span class="nf">_callIfTruthy</span><span class="p">(</span><span class="nx">key</span><span class="p">.</span><span class="nx">downArrow</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nf">setY</span><span class="p">(</span><span class="nb">Math</span><span class="p">.</span><span class="nf">min</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nx">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+  <span class="p">})</span>
+
+  <span class="k">return </span><span class="p">(</span>
+    <span class="p">&lt;</span><span class="nc">Box</span> <span class="na">flexDirection</span><span class="p">=</span><span class="s">"column"</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">color</span><span class="p">=</span><span class="si">{</span><span class="dl">"</span><span class="s2">green</span><span class="dl">"</span><span class="si">}</span><span class="p">&gt;</span>Use arrow keys to move the X.<span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">color</span><span class="p">=</span><span class="si">{</span><span class="dl">"</span><span class="s2">red</span><span class="dl">"</span><span class="si">}</span><span class="p">&gt;</span>Press “q” to exit.<span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nc">Box</span> <span class="na">height</span><span class="p">=</span><span class="si">{</span><span class="mi">12</span><span class="si">}</span> <span class="na">paddingLeft</span><span class="p">=</span><span class="si">{</span><span class="nx">x</span><span class="si">}</span> <span class="na">paddingTop</span><span class="p">=</span><span class="si">{</span><span class="nx">y</span><span class="si">}</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">color</span><span class="p">=</span><span class="si">{</span><span class="dl">"</span><span class="s2">blue</span><span class="dl">"</span><span class="si">}</span><span class="p">&gt;</span>X<span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nc">Box</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nc">Box</span><span class="p">&gt;</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nf">render</span><span class="p">(&lt;</span><span class="nc">UseInputExample</span> <span class="p">/&gt;)</span>
+</code></pre></div></div>
+
+<p>Here’s the output that it produces.</p>
+
+<pre class="pre-manual-highlight"><span style="color:#2f9ece">$ </span><span style="color:#F8F8F2">node</span> <span style="color:#FF79C6">-r</span> <span style="color:#FF79C6">tsm</span> <span style="color:#FF79C6"><u style="text-decoration-style:single">src/examples/use-input.tsx</u></span> 
+<span style="color:#4E9A06">Use arrow keys to move the X.</span>
+<span style="color:#CC0000">Press “q” to exit.</span>
+
+   <span style="color:#3465A4">X</span>
+
+</pre>
+
+<p>Here’s a brief description of the lifecycle of the app.</p>
+
+<ol>
+  <li>First it is started from the terminal when the script is executed using the <code class="language-plaintext highlighter-rouge">node ...</code> command
+shown above.</li>
+  <li>Once the <code class="language-plaintext highlighter-rouge">useInput()</code> hook is called the Node.js process is listening for input events on
+<code class="language-plaintext highlighter-rouge">process.stdin</code>. This prevents the Node.js process from exiting once the app is rendered once.</li>
+  <li>When the user presses up, down, left, or right, this causes the X and Y padding of the app to be
+changed, which makes it look like the <code class="language-plaintext highlighter-rouge">X</code> is moving around the terminal.</li>
+  <li>When the user presses <kbd>q</kbd> or <kbd>Ctrl+c</kbd> this will exit the Node.js process. The
+<code class="language-plaintext highlighter-rouge">useApp()</code> hook supplies an <code class="language-plaintext highlighter-rouge">exit()</code> function which can be used to do this.</li>
+</ol><hr />
+      <h2 id="example-2---keyboard-input--focus-manipulation">
+        
+        
+          Example 2 - keyboard input &amp; focus manipulation <a href="#example-2---keyboard-input--focus-manipulation">#</a>
+        
+        
+      </h2>
+    
+
+<p>This medium size example goes deep into the hooks <code class="language-plaintext highlighter-rouge">useFocus()</code> and <code class="language-plaintext highlighter-rouge">useFocusManager()</code> to
+demonstrate how to manage input focus in a CLI app. Not only can <kbd>Tab</kbd> and
+<kbd>Shift+Tab</kbd> be used to move keyboard focus from one component to another, but shortcuts are
+provided that allow giving focus to a given component (by pressing <kbd>Shift+1</kbd> to focus the
+first component, <kbd>Shift+2</kbd> the second, and <kbd>Shift+3</kbd> the third). A debug component
+is provided which shows what keys are actually being pressed. Additionally, flexbox is used via
+<code class="language-plaintext highlighter-rouge">Box</code> to organize the components in a sophisticated way.</p>
+
+<blockquote>
+  <p>🪄 Here’s the source code for
+<a href="https://github.com/nazmulidris/ts-scratch/blob/main/ink-cli-app3/src/examples/use-focus.tsx"><code class="language-plaintext highlighter-rouge">use-focus.tsx</code></a>.</p>
+</blockquote>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">Box</span><span class="p">,</span> <span class="nx">Newline</span><span class="p">,</span> <span class="nx">render</span><span class="p">,</span> <span class="nx">Text</span><span class="p">,</span> <span class="nx">useApp</span><span class="p">,</span> <span class="nx">useFocus</span><span class="p">,</span> <span class="nx">useFocusManager</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">ink</span><span class="dl">"</span>
+<span class="k">import</span> <span class="p">{</span>
+  <span class="nx">_callIfTrue</span><span class="p">,</span>
+  <span class="nx">KeyboardInputHandlerFn</span><span class="p">,</span>
+  <span class="nx">makeReactElementFromArray</span><span class="p">,</span>
+  <span class="nx">useKeyboard</span><span class="p">,</span>
+  <span class="nx">UserInputKeyPress</span><span class="p">,</span>
+<span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">r3bl-ts-utils</span><span class="dl">"</span>
+<span class="k">import</span> <span class="nx">React</span><span class="p">,</span> <span class="p">{</span> <span class="nx">FC</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">react</span><span class="dl">"</span>
+
+<span class="c1">//#region Main functional component.</span>
+<span class="kd">const</span> <span class="nx">UseFocusExample</span><span class="p">:</span> <span class="nx">FC</span> <span class="o">=</span> <span class="nf">function </span><span class="p">():</span> <span class="nx">JSX</span><span class="p">.</span><span class="nx">Element</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">[</span><span class="nx">keyPress</span><span class="p">,</span> <span class="nx">inRawMode</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useKeyboard</span><span class="p">(</span>
+    <span class="nx">onKeyPress</span><span class="p">.</span><span class="nf">bind</span><span class="p">({</span> <span class="na">app</span><span class="p">:</span> <span class="nf">useApp</span><span class="p">(),</span> <span class="na">focusManager</span><span class="p">:</span> <span class="nf">useFocusManager</span><span class="p">()</span> <span class="p">})</span>
+  <span class="p">)</span>
+
+  <span class="k">return </span><span class="p">(</span>
+    <span class="p">&lt;</span><span class="nc">Box</span> <span class="na">flexDirection</span><span class="p">=</span><span class="s">"column"</span><span class="p">&gt;</span>
+      <span class="si">{</span><span class="nx">keyPress</span> <span class="o">&amp;&amp;</span> <span class="p">(</span>
+        <span class="p">&lt;</span><span class="nc">Row_Debug</span>
+          <span class="na">inRawMode</span><span class="p">=</span><span class="si">{</span><span class="nx">inRawMode</span><span class="si">}</span>
+          <span class="na">keyPressed</span><span class="p">=</span><span class="si">{</span><span class="nx">keyPress</span><span class="p">?.</span><span class="nx">key</span><span class="si">}</span>
+          <span class="na">inputPressed</span><span class="p">=</span><span class="si">{</span><span class="nx">keyPress</span><span class="p">?.</span><span class="nx">input</span><span class="si">}</span>
+        <span class="p">/&gt;</span>
+      <span class="p">)</span><span class="si">}</span>
+      <span class="p">&lt;</span><span class="nc">Row_Instructions</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nc">Row_FocusableItems</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nc">Box</span><span class="p">&gt;</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">//#endregion</span>
+
+<span class="c1">//#region Keypress handler.</span>
+<span class="kd">const</span> <span class="nx">onKeyPress</span><span class="p">:</span> <span class="nx">KeyboardInputHandlerFn</span> <span class="o">=</span> <span class="nf">function </span><span class="p">(</span>
+  <span class="k">this</span><span class="p">:</span> <span class="p">{</span> <span class="nl">app</span><span class="p">:</span> <span class="nb">ReturnType</span><span class="o">&lt;</span><span class="k">typeof</span> <span class="nx">useApp</span><span class="o">&gt;</span><span class="p">;</span> <span class="nl">focusManager</span><span class="p">:</span> <span class="nb">ReturnType</span><span class="o">&lt;</span><span class="k">typeof</span> <span class="nx">useFocusManager</span><span class="o">&gt;</span> <span class="p">},</span>
+  <span class="nx">userInputKeyPress</span><span class="p">:</span> <span class="nx">UserInputKeyPress</span>
+<span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">app</span><span class="p">,</span> <span class="nx">focusManager</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">exit</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">app</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">focus</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">focusManager</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">input</span><span class="p">,</span> <span class="nx">key</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">userInputKeyPress</span>
+
+  <span class="nf">_callIfTrue</span><span class="p">(</span><span class="nx">input</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">q</span><span class="dl">"</span><span class="p">,</span> <span class="nx">exit</span><span class="p">)</span>
+  <span class="nf">_callIfTrue</span><span class="p">(</span><span class="nx">key</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">ctrl</span><span class="dl">"</span> <span class="o">&amp;&amp;</span> <span class="nx">input</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">q</span><span class="dl">"</span><span class="p">,</span> <span class="nx">exit</span><span class="p">)</span>
+  <span class="nf">_callIfTrue</span><span class="p">(</span><span class="nx">input</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">!</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nf">focus</span><span class="p">(</span><span class="dl">"</span><span class="s2">1</span><span class="dl">"</span><span class="p">))</span>
+  <span class="nf">_callIfTrue</span><span class="p">(</span><span class="nx">input</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">@</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nf">focus</span><span class="p">(</span><span class="dl">"</span><span class="s2">2</span><span class="dl">"</span><span class="p">))</span>
+  <span class="nf">_callIfTrue</span><span class="p">(</span><span class="nx">input</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">#</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="nf">focus</span><span class="p">(</span><span class="dl">"</span><span class="s2">3</span><span class="dl">"</span><span class="p">))</span>
+<span class="p">}</span>
+<span class="c1">//#endregion</span>
+
+<span class="c1">//#region UI.</span>
+
+<span class="kd">function</span> <span class="nf">Row_Debug</span><span class="p">(</span><span class="nx">props</span><span class="p">:</span> <span class="p">{</span>
+  <span class="nl">inRawMode</span><span class="p">:</span> <span class="nx">boolean</span>
+  <span class="nx">keyPressed</span><span class="p">:</span> <span class="kr">string</span> <span class="o">|</span> <span class="kc">undefined</span>
+  <span class="nx">inputPressed</span><span class="p">:</span> <span class="kr">string</span> <span class="o">|</span> <span class="kc">undefined</span>
+<span class="p">})</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">inputPressed</span><span class="p">,</span> <span class="nx">keyPressed</span><span class="p">,</span> <span class="nx">inRawMode</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">props</span>
+  <span class="k">return</span> <span class="nx">inRawMode</span> <span class="p">?</span> <span class="p">(</span>
+    <span class="p">&lt;&gt;</span>
+      <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">color</span><span class="p">=</span><span class="si">{</span><span class="dl">"</span><span class="s2">magenta</span><span class="dl">"</span><span class="si">}</span><span class="p">&gt;</span>input: <span class="si">{</span><span class="nx">inputPressed</span><span class="si">}</span><span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">color</span><span class="p">=</span><span class="si">{</span><span class="dl">"</span><span class="s2">gray</span><span class="dl">"</span><span class="si">}</span><span class="p">&gt;</span>key: <span class="si">{</span><span class="nx">keyPressed</span><span class="si">}</span><span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+    <span class="p">&lt;/&gt;</span>
+  <span class="p">)</span> <span class="p">:</span> <span class="p">(</span>
+    <span class="p">&lt;</span><span class="nc">Text</span><span class="p">&gt;</span>keyb disabled<span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">Row_Instructions</span><span class="p">:</span> <span class="nx">FC</span> <span class="o">=</span> <span class="nf">function </span><span class="p">():</span> <span class="nx">JSX</span><span class="p">.</span><span class="nx">Element</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nf">makeReactElementFromArray</span><span class="p">(</span>
+    <span class="p">[</span>
+      <span class="p">[</span><span class="dl">"</span><span class="s2">blue</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">Press Tab to focus next element</span><span class="dl">"</span><span class="p">],</span>
+      <span class="p">[</span><span class="dl">"</span><span class="s2">blue</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">Shift+Tab to focus previous element</span><span class="dl">"</span><span class="p">],</span>
+      <span class="p">[</span><span class="dl">"</span><span class="s2">blue</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">Esc to reset focus.</span><span class="dl">"</span><span class="p">],</span>
+      <span class="p">[</span><span class="dl">"</span><span class="s2">green</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">Press Shift+&lt;n&gt; to directly focus on 1st through 3rd item.</span><span class="dl">"</span><span class="p">],</span>
+      <span class="p">[</span><span class="dl">"</span><span class="s2">red</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">To exit, press Ctrl+q, or q</span><span class="dl">"</span><span class="p">],</span>
+    <span class="p">],</span>
+    <span class="p">(</span><span class="nx">item</span><span class="p">:</span> <span class="kr">string</span><span class="p">[],</span> <span class="nx">id</span><span class="p">:</span> <span class="kr">number</span><span class="p">):</span> <span class="nx">JSX</span><span class="p">.</span><span class="nx">Element</span> <span class="o">=&gt;</span> <span class="p">(</span>
+      <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">color</span><span class="p">=</span><span class="si">{</span><span class="nx">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span> <span class="na">key</span><span class="p">=</span><span class="si">{</span><span class="nx">id</span><span class="si">}</span><span class="p">&gt;</span>
+        <span class="si">{</span><span class="nx">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span>
+      <span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+    <span class="p">)</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">Row_FocusableItems</span><span class="p">:</span> <span class="nx">FC</span> <span class="o">=</span> <span class="nf">function </span><span class="p">():</span> <span class="nx">JSX</span><span class="p">.</span><span class="nx">Element</span> <span class="p">{</span>
+  <span class="k">return </span><span class="p">(</span>
+    <span class="p">&lt;</span><span class="nc">Box</span> <span class="na">padding</span><span class="p">=</span><span class="si">{</span><span class="mi">1</span><span class="si">}</span> <span class="na">flexDirection</span><span class="p">=</span><span class="s">"row"</span> <span class="na">justifyContent</span><span class="p">=</span><span class="si">{</span><span class="dl">"</span><span class="s2">space-between</span><span class="dl">"</span><span class="si">}</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nc">FocusableItem</span> <span class="na">id</span><span class="p">=</span><span class="s">"1"</span> <span class="na">label</span><span class="p">=</span><span class="s">"First"</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nc">FocusableItem</span> <span class="na">id</span><span class="p">=</span><span class="s">"2"</span> <span class="na">label</span><span class="p">=</span><span class="s">"Second"</span> <span class="p">/&gt;</span>
+      <span class="p">&lt;</span><span class="nc">FocusableItem</span> <span class="na">id</span><span class="p">=</span><span class="s">"3"</span> <span class="na">label</span><span class="p">=</span><span class="s">"Third"</span> <span class="p">/&gt;</span>
+    <span class="p">&lt;/</span><span class="nc">Box</span><span class="p">&gt;</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">const</span> <span class="nx">FocusableItem</span><span class="p">:</span> <span class="nx">FC</span><span class="o">&lt;</span><span class="p">{</span> <span class="na">label</span><span class="p">:</span> <span class="kr">string</span><span class="p">;</span> <span class="nl">id</span><span class="p">:</span> <span class="kr">string</span> <span class="p">}</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nf">function </span><span class="p">({</span> <span class="nx">label</span><span class="p">,</span> <span class="nx">id</span> <span class="p">}):</span> <span class="nx">JSX</span><span class="p">.</span><span class="nx">Element</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">isFocused</span> <span class="p">}</span> <span class="o">=</span> <span class="nf">useFocus</span><span class="p">({</span> <span class="nx">id</span> <span class="p">})</span>
+  <span class="k">return </span><span class="p">(</span>
+    <span class="p">&lt;</span><span class="nc">Text</span><span class="p">&gt;</span>
+      <span class="si">{</span><span class="nx">label</span><span class="si">}</span>
+      <span class="si">{</span><span class="nx">isFocused</span> <span class="p">?</span> <span class="p">(</span>
+        <span class="p">&lt;&gt;</span>
+          <span class="p">&lt;</span><span class="nc">Newline</span> <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">color</span><span class="p">=</span><span class="s">"green"</span><span class="p">&gt;</span>(*)<span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+        <span class="p">&lt;/&gt;</span>
+      <span class="p">)</span> <span class="p">:</span> <span class="p">(</span>
+        <span class="p">&lt;&gt;</span>
+          <span class="p">&lt;</span><span class="nc">Newline</span> <span class="p">/&gt;</span>
+          <span class="p">&lt;</span><span class="nc">Text</span> <span class="na">color</span><span class="p">=</span><span class="s">"gray"</span><span class="p">&gt;</span>n/a<span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+        <span class="p">&lt;/&gt;</span>
+      <span class="p">)</span><span class="si">}</span>
+    <span class="p">&lt;/</span><span class="nc">Text</span><span class="p">&gt;</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">//#endregion</span>
+
+<span class="nf">render</span><span class="p">(&lt;</span><span class="nc">UseFocusExample</span> <span class="p">/&gt;)</span>
+</code></pre></div></div>
+
+<p>This is what the output looks like when <kbd>Shift+2</kbd> (ie <code class="language-plaintext highlighter-rouge">@</code>) is typed to gain focus to the
+“Second” component.</p>
+
+<pre class="pre-manual-highlight"><span style="color:#2f9ece">$ </span><span style="color:#F8F8F2">node</span> <span style="color:#FF79C6">-r</span> <span style="color:#FF79C6">tsm</span> <span style="color:#FF79C6"><u style="text-decoration-style:single">src/examples/use-focus.tsx</u></span>
+<span style="color:#75507B">input: @</span>
+<span style="color:#88807C">key: n/a</span>
+<span style="color:#3465A4">Press Tab to focus next element</span>
+<span style="color:#3465A4">Shift+Tab to focus previous element</span>
+<span style="color:#3465A4">Esc to reset focus.</span>
+<span style="color:#4E9A06">Press Shift+&lt;n&gt; to directly focus on 1st through 3rd item.</span>
+<span style="color:#CC0000">To exit, press Ctrl+q, or q</span>
+
+ First                      Second                      Third
+ <span style="color:#88807C">n/a</span>                        <span style="color:#4E9A06">(*)</span>                         <span style="color:#88807C">n/a</span>
+
+</pre>
+
+<p>Here’s a brief description of the lifecycle of the app.</p>
+
+<ol>
+  <li>First it is started from the terminal when the script is executed using the <code class="language-plaintext highlighter-rouge">node ...</code> command
+shown above.</li>
+  <li>The main UI is a flexbox container (<code class="language-plaintext highlighter-rouge">flexDirection="column"</code>) which lays out three components top
+to bottom.
+    <ol>
+      <li>The first row is <code class="language-plaintext highlighter-rouge">Row_Debug</code> component which displays which key is currently pressed if any.</li>
+      <li>The second row is <code class="language-plaintext highlighter-rouge">Row_Instructions</code> component which displays the keyboard shortcuts to use to
+interact with the CLI app.</li>
+      <li>The third row is <code class="language-plaintext highlighter-rouge">Row_FocusableItems</code> component which is another flexbox container
+(<code class="language-plaintext highlighter-rouge">flexDirection="row"</code> this time) which lays out the focusable <code class="language-plaintext highlighter-rouge">Text</code> components left to
+right.</li>
+    </ol>
+  </li>
+  <li>The custom hook <code class="language-plaintext highlighter-rouge">useKeyboard()</code> gets the key that is pressed (the <code class="language-plaintext highlighter-rouge">UserInput</code> object). It works
+hand in hand w/ the <code class="language-plaintext highlighter-rouge">FocusableItem</code> component in order to make all of this work.
+    <ol>
+      <li>This custom hook just calls the <code class="language-plaintext highlighter-rouge">useInput()</code> hook (just like in the
+<a href="#small-example---moving-a-component-with-arrow-keys">example above</a>). This prevents the
+Node.js process from exiting once the app is rendered once.</li>
+      <li>When the user presses keys, this is saved to the state and then the <code class="language-plaintext highlighter-rouge">Row_Debug</code> is updated w/
+this information.</li>
+      <li>When <kbd>Shift+1</kbd>, <kbd>Shift+2</kbd>, <kbd>Shift+3</kbd> is pressed, the
+<code class="language-plaintext highlighter-rouge">const { focus } = useFocusManager()</code> hook is used to directly bring focus to the <code class="language-plaintext highlighter-rouge">Text</code>
+components (via a call to <code class="language-plaintext highlighter-rouge">focus(id)</code>. As a setup for this to work, when each focusable
+component is declared (inside <code class="language-plaintext highlighter-rouge">Row_FocusableItems</code>) the <code class="language-plaintext highlighter-rouge">useFocus({ id })</code> hook has to be
+given the same ID that is used to bring focus directly to it.</li>
+      <li>In <code class="language-plaintext highlighter-rouge">FocusableItem</code>, the <code class="language-plaintext highlighter-rouge">isFocused</code> boolean from the hook call
+<code class="language-plaintext highlighter-rouge">const { isFocused } = useFocus({ id })</code> is used to determine whether that component currently
+has keyboard focus and if so, it renders itself slightly differently.</li>
+      <li>When the user presses <kbd>q</kbd>, <kbd>Ctrl+q</kbd>, or <kbd>Ctrl+c</kbd> this will exit the
+Node.js process. The <code class="language-plaintext highlighter-rouge">useApp()</code> hook supplies an <code class="language-plaintext highlighter-rouge">exit()</code> function which can be used to do
+this.</li>
+    </ol>
+  </li>
+</ol><hr />
+      <h2 id="example-3---full-screen-app">
+        
+        
+          Example 3 - full screen app <a href="#example-3---full-screen-app">#</a>
+        
+        
+      </h2>
+    
+
+<p>This large size example is similar to the medium size one, except that it has a more complex UI. It
+takes up the full height and width of the terminal that it is started in. And it listens for
+keyboard input. It also uses a lot of custom hooks. For the UI, it splits the screen into two
+columns, and adds components to each column. The UI also features a ticking clock that updates every
+1 second.</p>
+
+<blockquote>
+  <p>🪄 Here’s the source code for
+<a href="https://github.com/nazmulidris/ts-scratch/blob/main/ink-cli-app3/src/cli.tsx"><code class="language-plaintext highlighter-rouge">cli.tsx</code></a>. You can
+find all the other files that are loaded by <code class="language-plaintext highlighter-rouge">cli.tsx</code> in the repo.</p>
+</blockquote>
+
+<p>You can run the program using the following command
+<code><font color="#F82067">n</font><font color="#F61D6B">p</font><font color="#F51A6F">m</font><font color="#F31874">
+</font><font color="#F11678">r</font><font color="#EF137C">u</font><font color="#ED1180">n</font><font color="#EB0F84">
+</font><font color="#E90D89">s</font><font color="#E60B8D">t</font><font color="#E40A91">a</font><font color="#E10895">r</font><font color="#DE0799">t</font><font color="#DB069E">-</font><font color="#D804A2">d</font><font color="#D504A6">e</font><font color="#D203AA">v</font></code>.</p>
+
+<p>The following output is produced.</p>
+
+<pre>   <span style="color:#2F9ECE">╭──────────────────────────────────────────────────╮</span>
+   <span style="color:#2F9ECE">│</span> <span style="background-color:#2F9ECE"><span style="color:#161B22"><b> 1st column </b></span></span>     <span style="background-color:#2F9ECE"><span style="color:#161B22"><b> 2nd column </b></span></span>                    <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span> <span style="background-color:#161B22"><span style="color:#2F9ECE"><b> Hello </b></span></span>          <span style="color:#E6E6E6">Item 1</span>                          <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span> <span style="color:#E6E6E6"><i><b>Stranger</b></i></span>         <span style="color:#E6E6E6">Item 2</span>                          <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span> <span style="background-color:#161B22"><span style="color:#2F9ECE"><b> 7:16:58 PM </b></span></span>     <span style="background-color:#2F9ECE"><span style="color:#161B22"><b> rows: 19, columns: 58 </b></span></span>         <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span> <span style="background-color:#161B22"><span style="color:#2F9ECE"><b> keyb enabled </b></span></span>                                   <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">│</span>                                                  <span style="color:#2F9ECE">│</span>
+   <span style="color:#2F9ECE">╰──────────────────────────────────────────────────╯</span><span style="color:#A1A1A1"> </span></pre>
+
+<p>Let’s start w/ the main <code class="language-plaintext highlighter-rouge">app.tsx</code> file which is loaded via <code class="language-plaintext highlighter-rouge">cli.tsx</code> when the CLI app is run from
+the terminal. Here’s the one line that kicks everything off. <code class="language-plaintext highlighter-rouge">appFn</code> is a functional React
+component.</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">export</span> <span class="kd">const</span> <span class="nx">appFn</span><span class="p">:</span> <span class="nx">FC</span><span class="o">&lt;</span><span class="p">{</span> <span class="na">name</span><span class="p">:</span> <span class="kr">string</span> <span class="p">}</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">({</span> <span class="nx">name</span> <span class="p">})</span> <span class="o">=&gt;</span> <span class="nf">render</span><span class="p">(</span><span class="nf">runHooks</span><span class="p">(</span><span class="nx">name</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p>There are quite a few hooks which are executed (custom ones) that return an object, which is then
+used by the <code class="language-plaintext highlighter-rouge">render</code> function to paint the UI. Here’s what the <code class="language-plaintext highlighter-rouge">runHooks()</code> function looks like.</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">runHooks</span><span class="p">(</span><span class="nx">name</span><span class="p">:</span> <span class="kr">string</span><span class="p">):</span> <span class="nx">LocalVars</span> <span class="p">{</span>
+  <span class="nf">usePreventProcessExitDuringTesting</span><span class="p">()</span> <span class="c1">// For testing using `npm run start-dev-watch`.</span>
+  <span class="kd">const</span> <span class="nx">ttySize</span><span class="p">:</span> <span class="nx">TTYSize</span> <span class="o">=</span> <span class="nf">useTTYSize</span><span class="p">()</span>
+  <span class="kd">const</span> <span class="nx">time</span> <span class="o">=</span> <span class="nf">useClock</span><span class="p">()</span>
+  <span class="kd">const</span> <span class="nx">inRawMode</span> <span class="o">=</span> <span class="nf">_let</span><span class="p">(</span><span class="nf">useApp</span><span class="p">(),</span> <span class="p">(</span><span class="nx">it</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="p">[</span><span class="nx">_</span><span class="p">,</span> <span class="nx">inRawMode</span><span class="p">]</span> <span class="o">=</span> <span class="nf">useKeyboard</span><span class="p">(</span><span class="nx">onKeyboardFn</span><span class="p">.</span><span class="nf">bind</span><span class="p">({</span> <span class="na">useApp</span><span class="p">:</span> <span class="nx">it</span> <span class="p">}))</span>
+    <span class="k">return</span> <span class="nx">inRawMode</span>
+  <span class="p">})</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="nx">name</span><span class="p">,</span>
+    <span class="nx">ttySize</span><span class="p">,</span>
+    <span class="nx">time</span><span class="p">,</span>
+    <span class="nx">inRawMode</span><span class="p">,</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="kr">interface</span> <span class="nx">LocalVars</span> <span class="p">{</span>
+  <span class="nl">ttySize</span><span class="p">:</span> <span class="nx">TTYSize</span>
+  <span class="nx">inRawMode</span><span class="p">:</span> <span class="nx">boolean</span>
+  <span class="nx">time</span><span class="p">:</span> <span class="kr">number</span>
+  <span class="nx">name</span><span class="p">:</span> <span class="kr">string</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here is a brief overview of what the hooks do.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">usePreventProcessExitDuringTesting()</code> is a hook that comes from <code class="language-plaintext highlighter-rouge">r3bl-ts-utils</code>. It checks to
+see if the terminal is in raw mode (which is needed to enable keyboard input). If it’s not in raw
+mode &amp; keyboard input isn’t possible, it just starts a <code class="language-plaintext highlighter-rouge">Timer</code> that doesn’t do anything so that
+the Node.js process won’t exit.</li>
+  <li><code class="language-plaintext highlighter-rouge">useTTYSize()</code> is a hook that comes from <code class="language-plaintext highlighter-rouge">r3bl-ts-utils</code>. It provides the width and height of the
+terminal. This is used by the UI code below in order to take up the full width and height of the
+terminal. A “resize” listener is also registered so that if this terminal is resized, the new
+width and height, will be propagated and the UI re-rendered by React.</li>
+  <li><code class="language-plaintext highlighter-rouge">useClock()</code> is a hook that comes from <code class="language-plaintext highlighter-rouge">r3bl-ts-utils</code> that simply starts a <code class="language-plaintext highlighter-rouge">Timer</code> and returns
+the current time. This time is displayed in the UI. It is updated every second and <code class="language-plaintext highlighter-rouge">setState()</code>
+is used in order to re-render the React UI.</li>
+  <li><code class="language-plaintext highlighter-rouge">useKeyboard()</code> is a hook that comes from <code class="language-plaintext highlighter-rouge">r3bl-ts-utils</code> that simply attaches the given function
+to handle key input from the terminal. The <code class="language-plaintext highlighter-rouge">useApp()</code> hook is provided by Ink, and it allows
+access to the <code class="language-plaintext highlighter-rouge">exit()</code> function which can be used to exit the CLI app. This is useful when you
+create keyboard shortcuts that allow the user to exit the terminal app (eg: <kbd>Ctrl+q</kbd>).</li>
+  <li>Finally, an object (implementing <code class="language-plaintext highlighter-rouge">LocalVars</code>) is returned that is used by the <code class="language-plaintext highlighter-rouge">render()</code> function
+in order to paint the UI. This explicit passing of local state is meant to make it clear that
+this is a stateless functional component.</li>
+</ol>
+
+<blockquote>
+  <p>🪄 There are quite a few hooks &amp; utility classes that are provided by <code class="language-plaintext highlighter-rouge">r3bl-ts-utils</code> that are used
+here (like <code class="language-plaintext highlighter-rouge">Timer</code>, <code class="language-plaintext highlighter-rouge">useTTYSize()</code>, <code class="language-plaintext highlighter-rouge">_let()</code>, etc.). Learn more about this package
+<a href="https://github.com/r3bl-org/r3bl-ts-utils/">here</a>.</p>
+</blockquote>
+
+<p>Here’s the code that provides the function for keyboard input handling.</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cm">/**
+ * 🪄 This function implements `KeyboardInputHandlerFn` interface.
+ *
+ * `this` binds it to an object of type OnKeyboardContext. Since this function is a callback that's
+ * executed by Ink itself, it can't make any calls to hooks (like `useApp()` which is why re-binding
+ * `this` is needed).
+ */</span>
+<span class="kd">function</span> <span class="nf">onKeyboardFn</span><span class="p">(</span>
+  <span class="k">this</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nl">useApp</span><span class="p">:</span> <span class="nb">ReturnType</span><span class="o">&lt;</span><span class="k">typeof</span> <span class="nx">useApp</span><span class="o">&gt;</span>
+  <span class="p">},</span>
+  <span class="nx">keyPress</span><span class="p">:</span> <span class="nx">UserInputKeyPress</span>
+<span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">useApp</span> <span class="p">}</span> <span class="o">=</span> <span class="k">this</span>
+
+  <span class="nf">_callIfTrue</span><span class="p">(</span><span class="nx">keyPress</span><span class="p">.</span><span class="nf">toString</span><span class="p">()</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">ctrl+q</span><span class="dl">"</span><span class="p">,</span> <span class="nx">useApp</span><span class="p">.</span><span class="nx">exit</span><span class="p">)</span>
+  <span class="nf">_callIfTrue</span><span class="p">(</span><span class="nx">keyPress</span><span class="p">.</span><span class="nf">toString</span><span class="p">()</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">q</span><span class="dl">"</span><span class="p">,</span> <span class="nx">useApp</span><span class="p">.</span><span class="nx">exit</span><span class="p">)</span>
+  <span class="nf">_callIfTrue</span><span class="p">(</span><span class="nx">keyPress</span><span class="p">.</span><span class="nf">toString</span><span class="p">()</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">escape</span><span class="dl">"</span><span class="p">,</span> <span class="nx">useApp</span><span class="p">.</span><span class="nx">exit</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And here’s the function that renders the UI, using the objects in <code class="language-plaintext highlighter-rouge">LocalVars</code> that is generated by
+<code class="language-plaintext highlighter-rouge">runHooks()</code>.</p>
+
+<div class="language-tsx highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//#region render().</span>
+<span class="kd">function</span> <span class="nf">render</span><span class="p">(</span><span class="nx">locals</span><span class="p">:</span> <span class="nx">LocalVars</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">inRawMode</span><span class="p">,</span> <span class="nx">ttySize</span><span class="p">,</span> <span class="nx">time</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">locals</span>
+  <span class="k">return </span><span class="p">(</span>
+    <span class="p">&lt;</span><span class="nc">Box</span> <span class="na">flexDirection</span><span class="p">=</span><span class="s">"row"</span> <span class="na">alignSelf</span><span class="p">=</span><span class="si">{</span><span class="dl">"</span><span class="s2">center</span><span class="dl">"</span><span class="si">}</span> <span class="na">height</span><span class="p">=</span><span class="si">{</span><span class="nx">ttySize</span><span class="p">.</span><span class="nx">rows</span><span class="si">}</span><span class="p">&gt;</span>
+      <span class="p">&lt;</span><span class="nc">Box</span>
+        <span class="na">borderStyle</span><span class="p">=</span><span class="s">"round"</span>
+        <span class="na">borderColor</span><span class="p">=</span><span class="si">{</span><span class="nx">Style</span><span class="p">.</span><span class="nx">brandColor</span><span class="si">}</span>
+        <span class="na">flexDirection</span><span class="p">=</span><span class="s">"row"</span>
+        <span class="na">paddingLeft</span><span class="p">=</span><span class="si">{</span><span class="mi">1</span><span class="si">}</span>
+        <span class="na">paddingRight</span><span class="p">=</span><span class="si">{</span><span class="mi">1</span><span class="si">}</span>
+        <span class="na">width</span><span class="p">=</span><span class="si">{</span><span class="nx">Style</span><span class="p">.</span><span class="nx">appWidth</span><span class="si">}</span>
+      <span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nc">Box</span> <span class="na">flexDirection</span><span class="p">=</span><span class="s">"column"</span> <span class="na">flexBasis</span><span class="p">=</span><span class="si">{</span><span class="nx">Style</span><span class="p">.</span><span class="nx">column1Width</span><span class="si">}</span><span class="p">&gt;</span>
+          <span class="si">{</span><span class="nf">renderColumn1</span><span class="p">(</span><span class="nx">locals</span><span class="p">)</span><span class="si">}</span>
+          <span class="si">{</span><span class="nx">TextStyle</span><span class="p">.</span><span class="nf">subHeading</span><span class="p">(</span><span class="k">new</span> <span class="nc">Date</span><span class="p">(</span><span class="nx">time</span><span class="p">).</span><span class="nf">toLocaleTimeString</span><span class="p">())</span><span class="si">}</span>
+          <span class="si">{</span><span class="nx">inRawMode</span> <span class="p">?</span> <span class="nx">TextStyle</span><span class="p">.</span><span class="nf">subHeading</span><span class="p">(</span><span class="dl">"</span><span class="s2">keyb enabled</span><span class="dl">"</span><span class="p">)</span> <span class="p">:</span> <span class="nx">TextStyle</span><span class="p">.</span><span class="nf">subHeading</span><span class="p">(</span><span class="dl">"</span><span class="s2">keyb disabled</span><span class="dl">"</span><span class="p">)</span><span class="si">}</span>
+        <span class="p">&lt;/</span><span class="nc">Box</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nc">Box</span> <span class="na">flexDirection</span><span class="p">=</span><span class="s">"column"</span> <span class="na">flexGrow</span><span class="p">=</span><span class="si">{</span><span class="mi">1</span><span class="si">}</span><span class="p">&gt;</span>
+          <span class="si">{</span><span class="nf">renderColumn2</span><span class="p">(</span><span class="nx">locals</span><span class="p">)</span><span class="si">}</span>
+        <span class="p">&lt;/</span><span class="nc">Box</span><span class="p">&gt;</span>
+      <span class="p">&lt;/</span><span class="nc">Box</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nc">Box</span><span class="p">&gt;</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">//#endregion</span>
+
+<span class="c1">//#region UI.</span>
+<span class="kd">function</span> <span class="nf">renderColumn1</span><span class="p">(</span><span class="nx">locals</span><span class="p">:</span> <span class="nx">LocalVars</span><span class="p">):</span> <span class="nx">JSX</span><span class="p">.</span><span class="nx">Element</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">name</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">locals</span>
+  <span class="k">return </span><span class="p">(</span>
+    <span class="p">&lt;&gt;</span>
+      <span class="si">{</span><span class="nx">TextStyle</span><span class="p">.</span><span class="nf">heading</span><span class="p">(</span><span class="dl">"</span><span class="s2">1st column</span><span class="dl">"</span><span class="p">)</span><span class="si">}</span>
+      <span class="si">{</span><span class="nx">TextStyle</span><span class="p">.</span><span class="nf">subHeading</span><span class="p">(</span><span class="dl">"</span><span class="s2">Hello</span><span class="dl">"</span><span class="p">)</span><span class="si">}</span>
+      <span class="si">{</span><span class="nx">TextStyle</span><span class="p">.</span><span class="nf">emphasis</span><span class="p">(</span><span class="nx">name</span><span class="p">)</span><span class="si">}</span>
+    <span class="p">&lt;/&gt;</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nf">renderColumn2</span><span class="p">(</span><span class="nx">locals</span><span class="p">:</span> <span class="nx">LocalVars</span><span class="p">):</span> <span class="nx">JSX</span><span class="p">.</span><span class="nx">Element</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span> <span class="nx">ttySize</span> <span class="p">}</span> <span class="o">=</span> <span class="nx">locals</span>
+  <span class="k">return </span><span class="p">(</span>
+    <span class="p">&lt;&gt;</span>
+      <span class="si">{</span><span class="nx">TextStyle</span><span class="p">.</span><span class="nf">heading</span><span class="p">(</span><span class="dl">"</span><span class="s2">2nd column</span><span class="dl">"</span><span class="p">)</span><span class="si">}</span>
+      <span class="si">{</span><span class="nx">TextStyle</span><span class="p">.</span><span class="nf">styleNormal</span><span class="p">(</span><span class="dl">"</span><span class="s2">Item 1</span><span class="dl">"</span><span class="p">)</span><span class="si">}</span>
+      <span class="si">{</span><span class="nx">TextStyle</span><span class="p">.</span><span class="nf">styleNormal</span><span class="p">(</span><span class="dl">"</span><span class="s2">Item 2</span><span class="dl">"</span><span class="p">)</span><span class="si">}</span>
+      <span class="si">{</span><span class="nx">TextStyle</span><span class="p">.</span><span class="nf">heading</span><span class="p">(</span><span class="nx">ttySize</span><span class="p">.</span><span class="nf">toString</span><span class="p">())</span><span class="si">}</span>
+    <span class="p">&lt;/&gt;</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">//#endregion</span>
+</code></pre></div></div>
+
+<p>Most of this code is flexbox in order to create the 2 column layout that takes up the entire width
+and height of the terminal in which this app is run.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Node">
+                #node</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/React">
+                #react</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TypeScript">
+                #typescript</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Web">
+                #web</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/react-hooks-redux-typescript-handbook/">
+                        React hooks (v17.0.3) and Redux handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/css-responsive-design-handbook/">
+                        CSS responsive design using Grid, Flexbox, and media queries handbook
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/22/vue-vueitfy-webpack/">
+                        Vue.js, Webpack, Vueitify, Electron, and vue-cli
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/15/introduction-to-vue/">
+                        Getting started with Vue.js
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/19/loading-csv-files-in-javascript-and-node/">
+                        Loading CSV files in Node
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2021/11/25/ink-v3-advanced-ui-components/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

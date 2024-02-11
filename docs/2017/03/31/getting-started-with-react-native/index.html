@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Getting started with React Native | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Getting started with React Native" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial will show you how to get started quickly with React Native for mobile app development on Android and iOS. It focuses on Flexbox layouts, Navigation, and cross platform considerations. The code for this tutorials is in GitHub." />
+<meta property="og:description" content="This tutorial will show you how to get started quickly with React Native for mobile app development on Android and iOS. It focuses on Flexbox layouts, Navigation, and cross platform considerations. The code for this tutorials is in GitHub." />
+<link rel="canonical" href="http://developerlife.com/2017/03/31/getting-started-with-react-native/" />
+<meta property="og:url" content="http://developerlife.com/2017/03/31/getting-started-with-react-native/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2017-03-31T18:18:57-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Getting started with React Native" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2017-03-31T18:18:57-05:00","datePublished":"2017-03-31T18:18:57-05:00","description":"This tutorial will show you how to get started quickly with React Native for mobile app development on Android and iOS. It focuses on Flexbox layouts, Navigation, and cross platform considerations. The code for this tutorials is in GitHub.","headline":"Getting started with React Native","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2017/03/31/getting-started-with-react-native/"},"url":"http://developerlife.com/2017/03/31/getting-started-with-react-native/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Getting started with React Native&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Getting started with React Native</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Getting started with React Native</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Mar 31, 2017
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+<img class="post-hero-image" src="/assets/rn-hero.png"/>
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#what-you-will-learn-in-this-tutorial">What you will learn in this tutorial</a></li>
+  <li><a href="#setup-your-dev-environment">Setup your dev environment</a>
+    <ul>
+      <li><a href="#get-the-project-from-github">Get the project from Github</a></li>
+    </ul>
+  </li>
+  <li><a href="#layout-using-flexbox">Layout using Flexbox</a></li>
+  <li><a href="#best-practices-on-styling">Best practices on styling</a></li>
+  <li><a href="#javascript-and-flow">Javascript and Flow</a></li>
+  <li><a href="#in-app-navigation">In App Navigation</a>
+    <ul>
+      <li><a href="#1-pre-defined-routes-in-routerjs">1) Pre-defined routes in Router.js</a></li>
+      <li><a href="#2-wiring-up-calls-to-navigator-push-and-pop-in-mainviewjs-flexboxview1js-and-flexboxview2js">2) Wiring up calls to Navigator push(…) and pop() in MainView.js, FlexboxView1.js, and FlexBoxView2.js</a></li>
+      <li><a href="#3-render-function-in-routerjs">3) render() function in Router.js</a></li>
+      <li><a href="#4-renderscene-function-in-routerjs">4) renderScene() function in Router.js</a></li>
+    </ul>
+  </li>
+  <li><a href="#platform-specific-differences">Platform specific differences</a>
+    <ul>
+      <li><a href="#fonts">Fonts</a></li>
+      <li><a href="#backbutton">BackButton</a></li>
+      <li><a href="#image-loading">Image loading</a></li>
+    </ul>
+  </li>
+  <li><a href="#react-native-resources">React Native resources</a></li>
+  <li><a href="#react-redux-and-native-android-resources">React, Redux, and native Android resources</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p><a href="https://facebook.github.io/react-native/">React Native</a> is a pretty amazing piece of technology
+from Facebook. It combines the best of web development and native development into one compelling
+package that holds the promise to have your mobile cake and eat it too! The React Native (RN)
+tagline is “Learn once, write anywhere: Build mobile apps with React.” And that is a very truthful
+statement, and it sets the expectations for what it is, and what it isn’t.</p>
+
+<p>For this tutorial, I am going to assume that you have some basic idea of what React Native is
+(<a href="https://facebook.github.io/react-native/">from Facebook’s website</a>) and take it from there.</p>
+
+<p>In short, it allows you to write JavaScript (JS) code to create native mobile apps. All the view
+hierarchies / UI components in RN are native components and they are really flat hierarchies (which
+is wonderful). Essentially instead of a DOM, RN creates it’s own equivalent using native components.
+The objects in this RN DOM can be manipulated by JS code, which can be the same for iOS or Android,
+and they can be different. It does all kinds of optimizations to ensure that the view hierarchy is
+repainted efficiently when underlying views change; if you’re curious about the specifics of how
+this works you can check out things like
+<a href="https://medium.com/@rajaraodv/the-inner-workings-of-virtual-dom-666ee7ad47cf">virtual DOM</a> and
+<a href="https://auth0.com/blog/incremental-dom/">incremental DOM</a>.</p>
+
+<p>You have a tremendous amount of flexibility in using one codebase, or diving up your codebase to
+have very little overlap between your iOS and Android code. You can also leverage native components
+that you or others write in either iOS and Android. And you can use npm to load libraries into your
+codebase. Sounds too good to be true? It’s not - the price you have to pay for all this magic is
+having to learn a new way of doing things, especially if you have invested a lot of time and energy
+into iOS and / or Android development.</p>
+      <h2 id="what-you-will-learn-in-this-tutorial">
+        
+        
+          What you will learn in this tutorial <a href="#what-you-will-learn-in-this-tutorial">#</a>
+        
+        
+      </h2>
+    
+
+<p>This tutorial will walk you thru the creation of a demo app that works on both Android and iOS.</p>
+
+<p>I will walk you thru the different aspects of this project in the sections below:</p>
+
+<ul>
+  <li>Starting with app layout and styling using Flexbox.</li>
+  <li>Getting into deeper aspects of application design (such as navigation).</li>
+  <li>Loading resources from the network and locally.</li>
+  <li>Platform specific differences you need to be aware of.</li>
+</ul>
+
+<p>What I will not cover in this tutorial:</p>
+
+<ul>
+  <li>What Flexbox or CSS is.</li>
+  <li>How to integrate Redux into native Android development. I have tutorials on
+<a href="https://developerlife.com/2017/01/27/native-android-redux-and-firebase/">native Android and Redux here</a>.</li>
+</ul>
+
+<p>Here’s what the app looks like on Android:</p>
+
+<p><a href="https://youtu.be/jK3X_z-38Do" title="Click to play video"><img src="https://img.youtube.com/vi/jK3X_z-38Do/0.jpg" alt="Click to play video" /></a></p>
+
+<p>RN is a pretty vast expanse of technology that will take some time to learn and then master. This
+tutorial gets you up to speed with some bare essentials for what you will need. There will be other
+tutorials that go into much more complex examples and do deeper dives into many different topics.
+Here’s the github link for this project -
+<a href="https://github.com/r3bl-alliance/react-native-learning">https://github.com/r3bl-alliance/react-native-learning</a></p>
+
+<p>Here’s the video of the app running in iOS:</p>
+
+<p><a href="https://youtu.be/7IPyPMp_dl8" title="Click to play video"><img src="https://img.youtube.com/vi/7IPyPMp_dl8/0.jpg" alt="Click to play video" /></a></p>
+      <h2 id="setup-your-dev-environment">
+        
+        
+          Setup your dev environment <a href="#setup-your-dev-environment">#</a>
+        
+        
+      </h2>
+    
+
+<p>If you haven’t done so already, please follow the instructions on the RN website to get started
+here -
+<a href="https://facebook.github.io/react-native/docs/getting-started.html">https://facebook.github.io/react-native/docs/getting-started.html</a>.
+The instructions are very straightforward, you will need node and then install a react-native-cli
+npm package. Then you are good to go. The current release of the CLI tools makes deployment to
+Android even easier (as there’s no need to do the <code class="language-plaintext highlighter-rouge">adb reverse</code> command anymore. I use
+<a href="https://www.jetbrains.com/webstorm/">Webstorm</a> as my IDE of choice, as I’m a JetBrains user and I
+can re-use my IntelliJ IDEA and Android Studio settings (including custom kemaps, coding styles,
+themes, etc).</p>
+      <h3 id="get-the-project-from-github">
+        
+        
+          Get the project from Github <a href="#get-the-project-from-github">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s the github link for this project -
+<a href="https://github.com/r3bl-alliance/react-native-learning">https://github.com/r3bl-alliance/react-native-learning</a>.
+Once you get the project cloned on your development machine, then make sure to run <code class="language-plaintext highlighter-rouge">npm install</code> in
+the root folder where you cloned this repo to. Then open up the project in your favorite IDE.</p>
+      <h2 id="layout-using-flexbox">
+        
+        
+          Layout using Flexbox <a href="#layout-using-flexbox">#</a>
+        
+        
+      </h2>
+    
+
+<p>RN uses CSS Flexbox to do layouts. If you’re familiar with Android layout managers, this is the
+equivalent of their function, only done using CSS standards. These are 2 excellent resources on
+Flexbox to get you started:</p>
+
+<ul>
+  <li>
+    <p><a href="https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox">https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Flexbox</a></p>
+  </li>
+  <li>
+    <p><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Using_CSS_flexible_boxes">https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Using_CSS_flexible_boxes</a></p>
+  </li>
+</ul>
+
+<p>The key thing to remember when doing Flexbox layouts is that everything happens on the main axis or
+the cross axis. The code in github takes you thru many examples of Flexbox layouts that are relevant
+to designing apps (things like hero images, headers, text styling, horizontal and vertical layout,
+and spacing).</p>
+
+<p><img src="/assets/rn-1.png" alt="flex_terms" /></p>
+
+<p>When you think about laying out screens, it’s best to start with looking at all the elements in the
+screen as being laid out on the main or cross axis and then thinking about nesting these elements.
+Here’s an example of a screen:</p>
+
+<p><img src="/assets/rn-2.png" alt="" /></p>
+
+<p>There’s a main container, which has <code class="language-plaintext highlighter-rouge">flex:1</code>, and it has <code class="language-plaintext highlighter-rouge">flexDirection:'column'</code>. What this does is
+that it adds the text fields and button bar and image in a vertical list (from top to bottom). It
+also has a directive to <code class="language-plaintext highlighter-rouge">justifyContent:'center'</code> and <code class="language-plaintext highlighter-rouge">alignItems:'center'</code>. justifyContent controls
+the way in which items are laid out in the main axis (in this case it centers all the items in a
+vertical, top to bottom direction main axis). And alignItems controls how items are laid out in the
+cross axis (in this case it centers all the items horizontally across the main axis which is
+vertical).</p>
+
+<p>Take a look at the <code class="language-plaintext highlighter-rouge">mainview_style.v_container</code> style below to get an idea of this. There are
+helpful comments as well, to make sense of what these Flexbox directives mean.</p>
+
+<p>Another interesting bit of code is the Flexbox styles that are used to layout the icons (Android and
+Google Play) in the center of the screen (centered horizontally). If you look at the
+<code class="language-plaintext highlighter-rouge">mainview_style.h_container</code> you will see the code that does this.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">mainview_style</span> <span class="o">=</span> <span class="nx">StyleSheet</span><span class="p">.</span><span class="nf">create</span><span class="p">({</span>
+  <span class="na">v_container</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="na">flexDirection</span><span class="p">:</span> <span class="dl">"</span><span class="s2">column</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// main axis</span>
+    <span class="na">justifyContent</span><span class="p">:</span> <span class="dl">"</span><span class="s2">center</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// main axis</span>
+    <span class="na">alignItems</span><span class="p">:</span> <span class="dl">"</span><span class="s2">center</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// cross axis</span>
+    <span class="na">backgroundColor</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#c1e1c5</span><span class="dl">"</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="na">welcome</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="c1">// shrink to min height and width if needed</span>
+    <span class="na">fontSize</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="na">color</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#006b7699</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// #RGBA supported</span>
+    <span class="na">fontFamily</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Rubik-Regular</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// list of families https://goo.gl/fsrJsK</span>
+    <span class="na">fontWeight</span><span class="p">:</span> <span class="dl">"</span><span class="s2">500</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// weights are between 100 and 900</span>
+    <span class="na">margin</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="na">instructions</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="na">margin</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">fontFamily</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Rubik-Regular</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">fontSize</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="na">color</span><span class="p">:</span> <span class="dl">"</span><span class="s2">rgba(33, 150, 243, 0.6)</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// different ways to provide color</span>
+  <span class="p">},</span>
+  <span class="na">h_container</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="na">flexDirection</span><span class="p">:</span> <span class="dl">"</span><span class="s2">row</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">justifyContent</span><span class="p">:</span> <span class="dl">"</span><span class="s2">space-around</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">alignSelf</span><span class="p">:</span> <span class="dl">"</span><span class="s2">stretch</span><span class="dl">"</span><span class="p">,</span> <span class="c1">// overrides container alignItems</span>
+    <span class="na">backgroundColor</span><span class="p">:</span> <span class="dl">"</span><span class="s2">#fef3bd</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">padding</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="na">image</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="na">margin</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="na">height</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="na">width</span><span class="p">:</span> <span class="mi">75</span><span class="p">,</span>
+    <span class="na">resizeMode</span><span class="p">:</span> <span class="dl">"</span><span class="s2">contain</span><span class="dl">"</span><span class="p">,</span> <span class="c1">//'cover' | 'contain'</span>
+  <span class="p">},</span>
+  <span class="na">image2</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">flex</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="na">height</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="na">width</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>
+    <span class="na">resizeMode</span><span class="p">:</span> <span class="dl">"</span><span class="s2">contain</span><span class="dl">"</span><span class="p">,</span> <span class="c1">//'cover' | 'contain'</span>
+  <span class="p">},</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>A few more things to note in the code above:</p>
+
+<ul>
+  <li>
+    <p>There’s a reference to a custom font called <code class="language-plaintext highlighter-rouge">Rubik-Regular</code> that is loaded (more on this at the
+end of this document).</p>
+  </li>
+  <li>
+    <p>There are lots of interesting ways in which you can size images in RN. The <code class="language-plaintext highlighter-rouge">Image</code> component has
+lots of useful options to help you size images. The main ones that I’ve found useful are <code class="language-plaintext highlighter-rouge">cover</code>
+and <code class="language-plaintext highlighter-rouge">contain</code>. In the
+<a href="https://github.com/r3bl-alliance/react-native-learning/blob/d3d805443d557cc3b8227a9685975f66492fb9f2/styles/Styles.js"><code class="language-plaintext highlighter-rouge">Styles.js</code></a>
+class, try making changes in the <code class="language-plaintext highlighter-rouge">mainview_style</code> object and switch <code class="language-plaintext highlighter-rouge">contain</code> to <code class="language-plaintext highlighter-rouge">cover</code> and see
+what happens.</p>
+  </li>
+</ul>
+      <h2 id="best-practices-on-styling">
+        
+        
+          Best practices on styling <a href="#best-practices-on-styling">#</a>
+        
+        
+      </h2>
+    
+
+<p>You will notice that all the styles that are used in the code in github are all stored in a single
+file -
+<a href="https://github.com/r3bl-alliance/react-native-learning/blob/d3d805443d557cc3b8227a9685975f66492fb9f2/styles/Styles.js"><code class="language-plaintext highlighter-rouge">Styles.js</code></a>.
+This was a conscious choice on my part. It is easier to declare these styles inline in the code, but
+the disadvantage of doing so is that you have styling all over the place and it’s difficult to make
+sweeping changes in styling in your codebase.</p>
+
+<p>Also, if you share this <code class="language-plaintext highlighter-rouge">Styles.js</code> file with a designer who’s familiar with CSS, they should be
+able to make changes to this one file and radically change the UI, since all the layout, graphics,
+padding, colors, etc are stored in this single file! This is also a great way to engage with
+designers on your project, since RN holds the promise of changing the traditional approach to the
+way in which developers and designers interact through wireframes, clickable prototypes, etc.</p>
+      <h2 id="javascript-and-flow">
+        
+        
+          Javascript and Flow <a href="#javascript-and-flow">#</a>
+        
+        
+      </h2>
+    
+
+<p>RN projects are enabled to work with <a href="https://flow.org/">Flow static type checking</a> out of the box.
+I’m a huge proponent of type checking. Typescript can be clunky to use due to the tooling around it.
+Flow is pretty much invisible for the most part. The tooling isn’t great at this point, but it’s not
+bad. If you look at the
+<a href="https://github.com/r3bl-alliance/react-native-learning/blob/d3d805443d557cc3b8227a9685975f66492fb9f2/flow/TypeAliases.js">TypeAliases.js</a>
+code, you will find how I’m lightly using type aliases. In future tutorials, featuring real-world
+apps, I will lean on this much more heavily. For Webstorm users,
+<a href="https://blog.jetbrains.com/webstorm/tag/flow/">here’s more info on Flow and Webstorm</a>.</p>
+      <h2 id="in-app-navigation">
+        
+        
+          In App Navigation <a href="#in-app-navigation">#</a>
+        
+        
+      </h2>
+    
+
+<p>In app navigation is important for most apps. And RN has multiple ways of handling this. There are 2
+main ways in which to achieve this. In this tutorial, I will cover the legacy and cross platform way
+of doing things. In a future tutorial (and a different github project) I will cover the new and also
+cross platform way of doing things. For your reference, here’s more information on both ways:</p>
+
+<ul>
+  <li>
+    <p><a href="https://medium.com/react-native-training/react-native-navigator-navigating-like-a-pro-in-react-native-3cb1b6dc1e30">Legacy cross platform navigation</a> -
+Navigator</p>
+  </li>
+  <li>
+    <p><a href="https://reactnavigation.org/">Modern cross plaform navigation</a> - React Navigation</p>
+  </li>
+</ul>
+
+<p>What is in app navigation for? It is to provide you with a mechanism of switching to and between
+different ‘screens’ in your app. There is a router that basically manages which views are displayed
+at any given moment, and how transitions between these screens happen. This tutorial is really
+simple and I chose not to muddy the waters by bringing in Redux (this will happen in a future
+tutorial on a different project on github).</p>
+
+<p>There are a few basic things you have to keep in mind with navigation:</p>
+
+<ol>
+  <li>
+    <p>List of pre-defined routes (these describe the different screen destinations in your app).</p>
+  </li>
+  <li>
+    <p>Wiring up calls to Navigator <code class="language-plaintext highlighter-rouge">push(...)</code> and <code class="language-plaintext highlighter-rouge">pop()</code> which trigger the Navigator to do it’s thing
+and switch up those screens and end up calling <code class="language-plaintext highlighter-rouge">renderScene()</code>. You also have to pass the
+navigator object as props to the React components contained inside the Navigator component.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">render()</code> function that uses the
+<a href="https://facebook.github.io/react-native/docs/navigator.html">Navigator</a> class.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">renderScene()</code> function that actually performs the task of rendering differnet view hierarchies
+depending on the current route.</p>
+  </li>
+</ol>
+
+<p>The
+<a href="https://github.com/r3bl-alliance/react-native-learning/blob/d3d805443d557cc3b8227a9685975f66492fb9f2/app/Router.js"><code class="language-plaintext highlighter-rouge">Router.js</code></a>
+class is an example that showcases these 4 things. I will go thru greater detail using this as an
+example below.</p>
+      <h3 id="1-pre-defined-routes-in-routerjs">
+        
+        
+          1) Pre-defined routes in Router.js <a href="#1-pre-defined-routes-in-routerjs">#</a>
+        
+        
+      </h3>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">Router.js</code> class defines the following pre-defined routes in the <code class="language-plaintext highlighter-rouge">routes</code> object.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">routes</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">main view</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">index</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">flexbox view 1</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">index</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="na">name</span><span class="p">:</span> <span class="dl">"</span><span class="s2">flexbox view 2</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">index</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="p">},</span>
+<span class="p">]</span>
+</code></pre></div></div>
+
+<p>Pre-defined routes are just JSON objects that you create which hold some data about each destination
+or screen in your app. You can decide what key-value pairs are stored in these objects, as long as
+you make sure to use these key-value pairs in the <code class="language-plaintext highlighter-rouge">renderScene()</code> method later. In this case, I’m
+using <code class="language-plaintext highlighter-rouge">index</code> and <code class="language-plaintext highlighter-rouge">name</code> as the main data that I’m storing that represents each route. I have 3
+‘screens’ that I wish for the app to show the user and they are the
+<a href="https://github.com/r3bl-alliance/react-native-learning/blob/d3d805443d557cc3b8227a9685975f66492fb9f2/app/MainView.js"><code class="language-plaintext highlighter-rouge">MainView.js</code></a>,
+<a href="https://github.com/r3bl-alliance/react-native-learning/blob/d3d805443d557cc3b8227a9685975f66492fb9f2/app/FlexboxView1.js"><code class="language-plaintext highlighter-rouge">FlexboxView1.js</code></a>,
+and
+<a href="https://github.com/r3bl-alliance/react-native-learning/blob/d3d805443d557cc3b8227a9685975f66492fb9f2/app/FlexboxView2.js"><code class="language-plaintext highlighter-rouge">FlexboxView2.js</code></a>.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">Router.js</code> class also passes the Navigator object as props to all the React components that it
+manages (in this case to <code class="language-plaintext highlighter-rouge">MainView.js</code>, <code class="language-plaintext highlighter-rouge">FlexboxView1.js</code>, and <code class="language-plaintext highlighter-rouge">FlexboxView2.js</code>).</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">renderScene</span><span class="p">(</span><span class="nx">route</span><span class="p">,</span> <span class="nb">navigator</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">_navigator</span> <span class="o">=</span> <span class="nb">navigator</span><span class="p">;</span>
+  <span class="nx">_route</span> <span class="o">=</span> <span class="nx">route</span><span class="p">;</span>
+  <span class="k">switch </span><span class="p">(</span><span class="nx">route</span><span class="p">.</span><span class="nx">index</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">return </span><span class="p">(</span>
+        <span class="o">&lt;</span><span class="nx">MainView</span> <span class="nb">navigator</span><span class="o">=</span><span class="p">{</span><span class="nb">navigator</span><span class="p">}</span> <span class="nx">title</span><span class="o">=</span><span class="p">{</span><span class="nx">route</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="sr">/</span><span class="err">&gt;
+</span>      <span class="p">);</span>
+    <span class="k">case</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="k">return </span><span class="p">(</span>
+        <span class="o">&lt;</span><span class="nx">FlexboxView1</span> <span class="nb">navigator</span><span class="o">=</span><span class="p">{</span><span class="nb">navigator</span><span class="p">}</span> <span class="nx">title</span><span class="o">=</span><span class="p">{</span><span class="nx">route</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="sr">/</span><span class="err">&gt;
+</span>      <span class="p">);</span>
+    <span class="k">case</span> <span class="mi">2</span><span class="p">:</span>
+      <span class="k">return </span><span class="p">(</span>
+        <span class="o">&lt;</span><span class="nx">FlexboxView2</span> <span class="nb">navigator</span><span class="o">=</span><span class="p">{</span><span class="nb">navigator</span><span class="p">}</span> <span class="nx">title</span><span class="o">=</span><span class="p">{</span><span class="nx">route</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="sr">/</span><span class="err">&gt;
+</span>      <span class="p">);</span>
+  <span class="p">}</span>
+
+<span class="p">};</span>
+</code></pre></div></div>
+      <h3 id="2-wiring-up-calls-to-navigator-push-and-pop-in-mainviewjs-flexboxview1js-and-flexboxview2js">
+        
+        
+          2) Wiring up calls to Navigator push(…) and pop() in MainView.js, FlexboxView1.js, and FlexBoxView2.js <a href="#2-wiring-up-calls-to-navigator-push-and-pop-in-mainviewjs-flexboxview1js-and-flexboxview2js">#</a>
+        
+        
+      </h3>
+    
+
+<p>In this app, the user is presented with the MainView.js first which allows them to press one of 2
+touchable areas (that are on top of images). The following code is in the <code class="language-plaintext highlighter-rouge">render()</code> method of
+MainView.js:</p>
+
+<ul>
+  <li>
+    <p>Android image - this takes the user to FlexboxView1.js. The way this is achieved is that the
+<code class="language-plaintext highlighter-rouge">onPress</code> handler for the TouchableHighlight pushes a new route into the navigation stack
+(<code class="language-plaintext highlighter-rouge">index:1</code>).</p>
+  </li>
+  <li>
+    <p>Google Play image - this takes the user to FlexboxView2.js. The way this is achieved is that on
+the <code class="language-plaintext highlighter-rouge">onPress</code> handler for the TouchableHighlight pushes a new route into the navigation stack
+(<code class="language-plaintext highlighter-rouge">index:2</code>).</p>
+  </li>
+</ul>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">View</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">mainview_style</span><span class="p">.</span><span class="nx">h_container</span><span class="p">}</span><span class="o">&gt;</span>
+
+  <span class="o">&lt;</span><span class="nx">TouchableHighlight</span>
+    <span class="nx">activeOpacity</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span>
+    <span class="nx">underlayColor</span><span class="o">=</span><span class="dl">'</span><span class="s1">#c1e1c5</span><span class="dl">'</span>
+    <span class="nx">onPress</span><span class="o">=</span><span class="p">{()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nb">navigator</span><span class="p">.</span><span class="nf">push</span><span class="p">({</span><span class="na">index</span><span class="p">:</span> <span class="mi">1</span><span class="p">});</span>
+    <span class="p">}}</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nx">Image</span> <span class="nx">source</span><span class="o">=</span><span class="p">{</span><span class="nx">imageUrl2</span><span class="p">}</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">mainview_style</span><span class="p">.</span><span class="nx">image</span><span class="p">}</span><span class="sr">/</span><span class="err">&gt;
+</span>  <span class="o">&lt;</span><span class="sr">/TouchableHighlight</span><span class="err">&gt;
+</span>
+  <span class="o">&lt;</span><span class="nx">TouchableHighlight</span>
+    <span class="nx">activeOpacity</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span>
+    <span class="nx">underlayColor</span><span class="o">=</span><span class="dl">'</span><span class="s1">#c1e1c5</span><span class="dl">'</span>
+    <span class="nx">onPress</span><span class="o">=</span><span class="p">{()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nb">navigator</span><span class="p">.</span><span class="nf">push</span><span class="p">({</span><span class="na">index</span><span class="p">:</span> <span class="mi">2</span><span class="p">});</span>
+    <span class="p">}}</span><span class="o">&gt;</span>
+    <span class="o">&lt;</span><span class="nx">Image</span> <span class="nx">source</span><span class="o">=</span><span class="p">{</span><span class="nx">imageUrl3</span><span class="p">}</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">mainview_style</span><span class="p">.</span><span class="nx">image</span><span class="p">}</span><span class="sr">/</span><span class="err">&gt;
+</span>  <span class="o">&lt;</span><span class="sr">/TouchableHighlight</span><span class="err">&gt;
+</span>
+<span class="o">&lt;</span><span class="sr">/View</span><span class="err">&gt;
+</span>
+<span class="p">...</span>
+
+<span class="nx">MainView</span><span class="p">.</span><span class="nx">propTypes</span> <span class="o">=</span> <span class="p">{</span>
+ <span class="na">navigator</span><span class="p">:</span> <span class="nx">React</span><span class="p">.</span><span class="nx">PropTypes</span><span class="p">.</span><span class="nx">object</span><span class="p">.</span><span class="nx">isRequired</span><span class="p">,</span>
+<span class="p">};</span>
+</code></pre></div></div>
+
+<p>The calls to <code class="language-plaintext highlighter-rouge">push()</code> are just part of the equation. Calls to <code class="language-plaintext highlighter-rouge">pop()</code> have to be made as well. There
+are 3 places where this happens:</p>
+
+<ol>
+  <li>
+    <p>Android BackButton listener</p>
+  </li>
+  <li>
+    <p>FlexboxView1 render() method</p>
+  </li>
+  <li>
+    <p>FlexboxView2 render() method</p>
+  </li>
+</ol>
+
+<p>Here’s the code for the AndroidBack button listener (which isn’t activated on iOS, which is why we
+have FlexboxView1 and FlexboxView2 handle their own calls to <code class="language-plaintext highlighter-rouge">pop()</code>). This code is in the
+Router.constructor() method.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">BackAndroid</span><span class="p">.</span><span class="nf">addEventListener</span><span class="p">(</span><span class="dl">"</span><span class="s2">hardwareBackPress</span><span class="dl">"</span><span class="p">,</span> <span class="p">()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// debug msg</span>
+  <span class="kd">let</span> <span class="nx">msg</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">back press</span><span class="dl">"</span>
+  <span class="kd">let</span> <span class="nx">length</span> <span class="o">=</span> <span class="nx">_navigator</span><span class="p">.</span><span class="nf">getCurrentRoutes</span><span class="p">().</span><span class="nx">length</span>
+  <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nf">isNil</span><span class="p">(</span><span class="nx">_navigator</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">msg</span> <span class="o">=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">msg</span><span class="p">}</span><span class="s2"> length=</span><span class="p">${</span><span class="nx">length</span><span class="p">}</span><span class="s2">`</span>
+  <span class="p">}</span>
+  <span class="k">if </span><span class="p">(</span><span class="o">!</span><span class="nx">_</span><span class="p">.</span><span class="nf">isNil</span><span class="p">(</span><span class="nx">_route</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nx">msg</span> <span class="o">=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">msg</span><span class="p">}</span><span class="s2"> index=</span><span class="p">${</span><span class="nx">_route</span><span class="p">.</span><span class="nx">index</span><span class="p">}</span><span class="s2">, name=</span><span class="p">${</span><span class="nx">_route</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="s2">`</span>
+  <span class="p">}</span>
+  <span class="nx">ToastAndroid</span><span class="p">.</span><span class="nf">show</span><span class="p">(</span><span class="nx">msg</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+
+  <span class="c1">// actual code</span>
+  <span class="k">if </span><span class="p">(</span><span class="nx">length</span> <span class="o">===</span> <span class="mi">1</span> <span class="o">||</span> <span class="nx">length</span> <span class="o">===</span> <span class="nx">routes</span><span class="p">.</span><span class="nx">length</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">false</span>
+  <span class="p">}</span>
+  <span class="nx">_navigator</span><span class="p">.</span><span class="nf">pop</span><span class="p">()</span>
+  <span class="k">return</span> <span class="kc">true</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<p>Here’s the code for calling <code class="language-plaintext highlighter-rouge">pop()</code> in FlexboxView1.render() function:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">TouchableHighlight</span>
+  <span class="nx">activeOpacity</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span>
+  <span class="nx">underlayColor</span><span class="o">=</span><span class="dl">"</span><span class="s2">#c1e1c5</span><span class="dl">"</span>
+  <span class="nx">onPress</span><span class="o">=</span><span class="p">{()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nb">navigator</span><span class="p">.</span><span class="nf">pop</span><span class="p">()</span>
+  <span class="p">}}</span>
+<span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">flexboxview1_style</span><span class="p">.</span><span class="nx">text1</span><span class="p">}</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">msg1</span><span class="p">}</span><span class="o">&lt;</span><span class="sr">/Text</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/TouchableHighlight</span><span class="err">&gt;
+</span></code></pre></div></div>
+
+<p>Here’s the code for calling <code class="language-plaintext highlighter-rouge">pop()</code> in FlexboxView2.render() function:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">TouchableHighlight</span>
+  <span class="nx">activeOpacity</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span>
+  <span class="nx">underlayColor</span><span class="o">=</span><span class="dl">"</span><span class="s2">#c1e1c5</span><span class="dl">"</span>
+  <span class="nx">onPress</span><span class="o">=</span><span class="p">{()</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">props</span><span class="p">.</span><span class="nb">navigator</span><span class="p">.</span><span class="nf">pop</span><span class="p">()</span>
+  <span class="p">}}</span>
+<span class="o">&gt;</span>
+  <span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">flexboxview2_style</span><span class="p">.</span><span class="nx">text1</span><span class="p">}</span><span class="o">&gt;</span><span class="p">{</span><span class="nx">msg1</span><span class="p">}</span><span class="o">&lt;</span><span class="sr">/Text</span><span class="err">&gt;
+</span><span class="o">&lt;</span><span class="sr">/TouchableHighlight</span><span class="err">&gt;
+</span></code></pre></div></div>
+
+<p>Note that in both cases, the navigator object is passed as a props to the from Router.js.</p>
+      <h3 id="3-render-function-in-routerjs">
+        
+        
+          3) render() function in Router.js <a href="#3-render-function-in-routerjs">#</a>
+        
+        
+      </h3>
+    
+
+<p>The render() function simply delcares that we are using the Navigator component in the JSX. It also
+wires up the Navigator component to our list of pre-defined routes, and our <code class="language-plaintext highlighter-rouge">renderScene()</code>
+function. Here’s the code:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">render</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return </span><span class="p">(</span>
+    <span class="o">&lt;</span><span class="nx">Navigator</span>
+      <span class="nx">style</span><span class="o">=</span><span class="p">{</span><span class="nx">styles</span><span class="p">.</span><span class="nx">router_style</span><span class="p">.</span><span class="nx">container</span><span class="p">}</span>
+      <span class="nx">initialRoute</span><span class="o">=</span><span class="p">{</span><span class="nx">routes</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+      <span class="nx">initialRouteStack</span><span class="o">=</span><span class="p">{</span><span class="nx">routes</span><span class="p">}</span>
+      <span class="nx">renderScene</span><span class="o">=</span><span class="p">{</span><span class="k">this</span><span class="p">.</span><span class="nx">renderScene</span><span class="p">}</span>
+    <span class="sr">/</span><span class="err">&gt;
+</span>  <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="4-renderscene-function-in-routerjs">
+        
+        
+          4) renderScene() function in Router.js <a href="#4-renderscene-function-in-routerjs">#</a>
+        
+        
+      </h3>
+    
+
+<p>This function simply provides conditional logic that takes the given route object and then actually
+loads a React component when this route is set. Note that two very important objects are passed as
+parameters to this function: route, and navigation. I store these in class scope variables since
+they are used elsewhere in the class (eg by the Android BackButton listener). Here’s the code:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">renderScene</span><span class="p">(</span><span class="nx">route</span><span class="p">,</span> <span class="nb">navigator</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">_navigator</span> <span class="o">=</span> <span class="nb">navigator</span><span class="p">;</span>
+  <span class="nx">_route</span> <span class="o">=</span> <span class="nx">route</span><span class="p">;</span>
+  <span class="k">switch </span><span class="p">(</span><span class="nx">route</span><span class="p">.</span><span class="nx">index</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="k">return </span><span class="p">(</span>
+        <span class="o">&lt;</span><span class="nx">MainView</span> <span class="nb">navigator</span><span class="o">=</span><span class="p">{</span><span class="nb">navigator</span><span class="p">}</span> <span class="nx">title</span><span class="o">=</span><span class="p">{</span><span class="nx">route</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="sr">/</span><span class="err">&gt;
+</span>      <span class="p">);</span>
+    <span class="k">case</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="k">return </span><span class="p">(</span>
+        <span class="o">&lt;</span><span class="nx">FlexboxView1</span> <span class="nb">navigator</span><span class="o">=</span><span class="p">{</span><span class="nb">navigator</span><span class="p">}</span> <span class="nx">title</span><span class="o">=</span><span class="p">{</span><span class="nx">route</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="sr">/</span><span class="err">&gt;
+</span>      <span class="p">);</span>
+    <span class="k">case</span> <span class="mi">2</span><span class="p">:</span>
+      <span class="k">return </span><span class="p">(</span>
+        <span class="o">&lt;</span><span class="nx">FlexboxView2</span> <span class="nb">navigator</span><span class="o">=</span><span class="p">{</span><span class="nb">navigator</span><span class="p">}</span> <span class="nx">title</span><span class="o">=</span><span class="p">{</span><span class="nx">route</span><span class="p">.</span><span class="nx">name</span><span class="p">}</span><span class="sr">/</span><span class="err">&gt;
+</span>      <span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</code></pre></div></div>
+      <h2 id="platform-specific-differences">
+        
+        
+          Platform specific differences <a href="#platform-specific-differences">#</a>
+        
+        
+      </h2>
+    
+
+<p>In this github project, I’ve used classes that are cross platform between iOS and Android, with one
+exception (the Android BackButton). RN doesn’t require you to doing use a single codebase for both
+platforms, you can choose to do whatever works for your project. Eg: instead of using Navigator, you
+can use <a href="https://facebook.github.io/react-native/docs/navigatorios.html">NavigatorIOS</a> which is a
+platform specific component and won’t work on Android. Navigation and BackButton aren’t the only two
+differences that you have to be aware of as you deploy your app onto Android and iOS. I’ve compiled
+a short list for this github project. In future tutorials, I will take you thru many more examples
+of this.</p>
+      <h3 id="fonts">
+        
+        
+          Fonts <a href="#fonts">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here is
+<a href="https://medium.com/@danielskripnik/how-to-add-and-remove-custom-fonts-in-react-native-b2830084b0e4">an excellent article</a>
+that covers how custom fonts can be loaded into your RN project. In this github project I’ve loaded
+a custom font called <a href="https://fonts.google.com/specimen/Rubik">Rubik-Regular</a>. In order to use this
+font, here’s the JSX code that you can write:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">&lt;</span><span class="nx">Text</span> <span class="nx">style</span><span class="o">=</span><span class="p">{{</span> <span class="na">fontFamily</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Rubik-Regular</span><span class="dl">"</span> <span class="p">}}</span><span class="o">&gt;</span><span class="nx">Hello</span><span class="o">&lt;</span><span class="sr">/Text</span><span class="err">&gt;
+</span></code></pre></div></div>
+
+<p>Finally, keep in mind that fonts that come out of the box in RN on iOS and Android are totally
+different. Here’s <a href="https://github.com/react-native-training/react-native-fonts">an article</a> that
+goes into what fonts are available and where. This is why I choose to include my own custom font, so
+that it would be available on both the iOS and Android apps that are generated.</p>
+      <h3 id="backbutton">
+        
+        
+          BackButton <a href="#backbutton">#</a>
+        
+        
+      </h3>
+    
+
+<p>The Android BackButton doesn’t exist on iOS. For the Android app, I use the BackButton listener in
+the Router.js constructor. Since BackButton functionality isn’t available for the iOS app, I
+provided a way for the user to navigate back to the homescreen by clicking on the
+<code class="language-plaintext highlighter-rouge">Flexbox View (tap to go back)</code> Text component.</p>
+
+<p><img src="/assets/rn-3.png" alt="" /></p>
+
+<p><img src="/assets/rn-4.png" alt="" /></p>
+      <h3 id="image-loading">
+        
+        
+          Image loading <a href="#image-loading">#</a>
+        
+        
+      </h3>
+    
+
+<p>RN has some very powerful image loading mechanisms, whether it’s loading an image from the network
+or from local storage (on the phone). It also supports some very useful and flexible sizing options,
+such as <code class="language-plaintext highlighter-rouge">cover</code> and <code class="language-plaintext highlighter-rouge">contain</code>. But the biggest thing to keep in mind for cross platform
+functionality is that images loaded over the network on iOS must have <code class="language-plaintext highlighter-rouge">https</code> in the URI, or they
+won’t work. This is a key difference between Android and iOS image loading.</p>
+      <h2 id="react-native-resources">
+        
+        
+          React Native resources <a href="#react-native-resources">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li>
+    <p>This is a good resource that you can follow for keeping up to date with changes in RN -
+<a href="http://reactnative.cc/">http://reactnative.cc/</a></p>
+  </li>
+  <li>
+    <p>This is a
+<a href="https://www.udemy.com/the-complete-react-native-and-redux-course/#curriculum">class on Udemy on React Native (it’s not free)</a>.</p>
+  </li>
+  <li>
+    <p>This is another
+<a href="https://school.shoutem.com/lectures/react-native-101-build-first-mobile-app/">video lecture course online</a>
+on React Native on shoutem.com.</p>
+  </li>
+  <li>
+    <p>This a
+<a href="https://www.facebook.com/groups/react.native.community/?hc_ref=NEWSFEED">great facebook community</a>
+on React Native.</p>
+  </li>
+</ul>
+      <h2 id="react-redux-and-native-android-resources">
+        
+        
+          React, Redux, and native Android resources <a href="#react-redux-and-native-android-resources">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li>How to integrate Redux into native Android development. I have tutorials on
+<a href="https://developerlife.com/2017/01/27/native-android-redux-and-firebase/">native Android and Redux here</a>.</li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Android">
+                #android</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/FE">
+                #fe</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/RN">
+                #rn</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/State">
+                #state</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-in-depth/">
+                        In-depth exploration of Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/07/21/designing-for-multiple-screen-densities-on-android/">
+                        Designing for multiple screen densities on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/07/introduction-to-android-architecture-components/">
+                        Introduction to Android Architecture Components
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/12/02/android-downloadable-fonts/">
+                        Android Downloadable Fonts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/29/getting-started-with-mediaplayer-on-android/">
+                        Getting started with MediaPlayer on Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/09/android-o-n-and-below-component-lifecycles-and-background-tasks/">
+                        Deep dive into Android Services
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/14/navigation-and-styling-with-react-native/">
+                        Navigation and Styling with React Native
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/20/gps/">
+                        Android Location Providers (gps, network, passive)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2010/10/12/android-event-dispatch-thread-or-main-thread/">
+                        Android Event Dispatch Thread or Main Thread
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/05/android-animation-framework/">
+                        Android Animation Framework Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-listview/">
+                        Android ListView and custom adapter Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/08/04/android-linearlayout/">
+                        Android LinearLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/31/android-ui-themes/">
+                        Android UI Themes Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/29/android-tablelayout/">
+                        Android TableLayout Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/option-and-context-menu/">
+                        Android Option and Context menu Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/16/android-xml-view-inflation/">
+                        Android XML View inflation Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/07/14/android-app-lifecycle-activity-intent-and-service-draft/">
+                        Android Activity and sub-Activity Tutorial
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-33-multithreading/">
+                        Android - How to build a service-enabled Android app - Part 3/3 Multithreading
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-13-ui/">
+                        Android - How to build a service-enabled Android app - Part 1/3 UI
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/06/04/how-to-build-a-service-enabled-android-app-part-23-networking/">
+                        Android - How to build a service-enabled Android App - Part 2/3 Networking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/28/painting-with-code-review-of-airbnbs-react-sketch-app/">
+                        Painting with code - review of Airbnb&#39;s React Sketch.app plugin
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/02/02/swingx-tutorial-busy-label-jxbusylabel/">
+                        SwingX Tutorial - Busy Label (JXBusyLabel)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/01/28/swingx-tutorial-task-pane/">
+                        SwingX Tutorial - Task Pane (JXTaskPane, Container)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/12/24/swingx-tutorial-painters/">
+                        SwingX Tutorial - Painters
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/09/swingworker-details-canceling-background-tasks-in-flight/">
+                        SwingWorker details - canceling background tasks in flight
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/09/24/how-to-use-the-animatedtransition-api-swingx-and-timingframework/">
+                        How to use the AnimatedTransition API (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/06/10/how-to-use-glass-pane-for-animation-swingx-and-timingframework/">
+                        How to use glass pane for animation (SwingX and Timingframework)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2017/03/31/getting-started-with-react-native/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

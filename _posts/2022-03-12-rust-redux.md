@@ -205,7 +205,7 @@ the use of macros. We can use `macro_rules!` to create some macros for this comm
 some of our structs. Here are two examples of such macros.
 
 > 💡 Please take a look at our
-> [Tokio article](http://localhost:4000/2022/03/12/rust-tokio/#with-macros) to learn more about
+> [Tokio article]({{ '/2022/03/12/rust-tokio/#with-macros' | relative_url}}) to learn more about
 > macros and how they can be used w/ this "manager" and "thing" pattern.
 
 ```rust

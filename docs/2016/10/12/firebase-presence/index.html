@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Using Firebase for user presence tracking | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Using Firebase for user presence tracking" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial will show you how to use Firebase to to build user presence tracking into web apps. The code for this tutorial is in GitHub." />
+<meta property="og:description" content="This tutorial will show you how to use Firebase to to build user presence tracking into web apps. The code for this tutorial is in GitHub." />
+<link rel="canonical" href="http://developerlife.com/2016/10/12/firebase-presence/" />
+<meta property="og:url" content="http://developerlife.com/2016/10/12/firebase-presence/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2016-10-12T14:40:50-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Using Firebase for user presence tracking" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2016-10-12T14:40:50-05:00","datePublished":"2016-10-12T14:40:50-05:00","description":"This tutorial will show you how to use Firebase to to build user presence tracking into web apps. The code for this tutorial is in GitHub.","headline":"Using Firebase for user presence tracking","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2016/10/12/firebase-presence/"},"url":"http://developerlife.com/2016/10/12/firebase-presence/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Using Firebase for user presence tracking&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Using Firebase for user presence tracking</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Using Firebase for user presence tracking</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Oct 12, 2016
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+<img class="post-hero-image" src="/assets/firebase-presence-hero.png"/>
+
+
+        <!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#how-this-is-built">How this is built</a>
+    <ul>
+      <li><a href="#sensing-network-connectivity">Sensing network connectivity</a></li>
+      <li><a href="#responding-to-user-state-changes">Responding to user state changes</a>
+        <ul>
+          <li><a href="#ui-updates">UI updates</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#getting-the-code">Getting the code</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>Firebase handles so many core infrastructure needs that modern apps have, ranging from persistence
+to authentication to offline mode. This tutorial is all about how to leverage Firebase to build a
+presence system for signed in users. The idea is for your app to sense when a signed in user is
+online, idle, away, and offline. So not only do you see which users are currently online, but also
+what their detailed state is. Both idle and away are forms of being online. Offline might mean that
+the user has closed the app or they don’t have network connectivity.</p>
+
+<p>To see this app in action, click <a href="https://todolist-redux-r3bl-alliance.herokuapp.com/">here</a> and
+then sign in to the app.</p>
+
+<p><img src="/assets/firebase-presence-1.png" alt="" /></p>
+      <h2 id="how-this-is-built">
+        
+        
+          How this is built <a href="#how-this-is-built">#</a>
+        
+        
+      </h2>
+    
+
+<p>For details on how this is done, check out <code class="language-plaintext highlighter-rouge">presence.ts</code> on
+<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md/blob/main/web/src/client/container/presence.ts">GitHub</a>.
+This is part of a todo list app that is built using
+<a href="https://developerlife.com/2016/10/07/getting-started-with-react-redux-and-firebase/">React, Redux, Firebase, and Typescript</a>.</p>
+
+<p>The main thing that drives presence track is Firebase’s ability to sense if the client app (on any
+platform) is currently online or offline. So it can track network state on the client app or device
+that the Firebase client is running on. It can also respond on the server side to network
+connectivity changes (eg: when the client device loses network, or the app is closed).</p>
+      <h3 id="sensing-network-connectivity">
+        
+        
+          Sensing network connectivity <a href="#sensing-network-connectivity">#</a>
+        
+        
+      </h3>
+    
+
+<p>There’s a special path that you can create a Firebase reference to (in your client app) that listens
+to changes in network connectivity on the device that this client is running on (web browser on a
+laptop, or native app on a mobile device). Here’s the location: <code class="language-plaintext highlighter-rouge">.info/connected</code>. This is what it
+looks like to attach a value change listener to this path.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">const</span> <span class="nx">userListRef</span> <span class="o">=</span> <span class="nx">firebase</span><span class="p">.</span><span class="nf">database</span><span class="p">().</span><span class="nf">ref</span><span class="p">(</span><span class="dl">"</span><span class="s2">USERS_ONLINE</span><span class="dl">"</span><span class="p">)</span>
+<span class="kd">const</span> <span class="nx">myUserRef</span> <span class="o">=</span> <span class="nx">userListRef</span><span class="p">.</span><span class="nf">push</span><span class="p">()</span>
+
+<span class="c1">// Monitor connection state on browser tab</span>
+<span class="nx">firebase</span>
+  <span class="p">.</span><span class="nf">database</span><span class="p">()</span>
+  <span class="p">.</span><span class="nf">ref</span><span class="p">(</span><span class="dl">"</span><span class="s2">.info/connected</span><span class="dl">"</span><span class="p">)</span>
+  <span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">"</span><span class="s2">value</span><span class="dl">"</span><span class="p">,</span> <span class="nf">function </span><span class="p">(</span><span class="nx">snap</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if </span><span class="p">(</span><span class="nx">snap</span><span class="p">.</span><span class="nf">val</span><span class="p">())</span> <span class="p">{</span>
+      <span class="c1">// if we lose network then remove this user from the list</span>
+      <span class="nx">myUserRef</span><span class="p">.</span><span class="nf">onDisconnect</span><span class="p">().</span><span class="nf">remove</span><span class="p">()</span>
+      <span class="c1">// set user's online status</span>
+      <span class="nf">setUserStatus</span><span class="p">(</span><span class="dl">"</span><span class="s2">online</span><span class="dl">"</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="c1">// client has lost network</span>
+      <span class="nf">setUserStatus</span><span class="p">(</span><span class="dl">"</span><span class="s2">offline</span><span class="dl">"</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">})</span>
+</code></pre></div></div>
+
+<p>This is what is happening in the code above:</p>
+
+<ul>
+  <li>
+    <p>At the start of code block, a <code class="language-plaintext highlighter-rouge">userListRef</code> object is created that will be used to store an object
+for each user that is active in the app. <code class="language-plaintext highlighter-rouge">myUserRef</code> is a pointer to this user object that is
+returned by <code class="language-plaintext highlighter-rouge">push()</code>. The idea here is that all the users that are online in the system have an
+entry in this <code class="language-plaintext highlighter-rouge">userListRef</code> node in Firebase. And as they go offline, this entry is removed from
+Firebase. This is what allows your app to sense which users are online and which ones have gone
+offline (more on this below).</p>
+  </li>
+  <li>
+    <p>When Firebase client senses that network connectivity state changes the callback is invoked. The
+<code class="language-plaintext highlighter-rouge">snap</code> object contains <code class="language-plaintext highlighter-rouge">true</code> or <code class="language-plaintext highlighter-rouge">false</code>. This happens in your client app and this callback runs
+in your client app.</p>
+  </li>
+  <li>
+    <p>When you have network connectivity (<code class="language-plaintext highlighter-rouge">snap.val()</code> is <code class="language-plaintext highlighter-rouge">true</code>) and your callback is run, it registers
+a <code class="language-plaintext highlighter-rouge">onDisconnect()</code> handler on the <code class="language-plaintext highlighter-rouge">myUserRef</code> object. What this does is that it tells Firebase to
+<code class="language-plaintext highlighter-rouge">remove()</code> the <code class="language-plaintext highlighter-rouge">myUserRef</code> on the SERVER side when Firebase senses that the client is no longer
+connected!</p>
+
+    <ul>
+      <li>
+        <p>When <code class="language-plaintext highlighter-rouge">snap.val()</code> becomes false and your callback is run, it will actually only run this
+callback in your client app (in your browser tab). Since network is lost, Firebase server will
+not be notified (obviously).</p>
+      </li>
+      <li>
+        <p>However, Firebase server will sense (after a while) that the Firebase client isn’t connected to
+it anymore. And it will run the <code class="language-plaintext highlighter-rouge">remove()</code> function on the SERVER side!</p>
+
+        <ul>
+          <li>When the client comes back online, this object will be removed from the client side (since
+they will sync). However, when <code class="language-plaintext highlighter-rouge">setUserStatus()</code> runs it will actually re-create this object
+on the client with the same key that it had before. So when you go from <code class="language-plaintext highlighter-rouge">online</code> -&gt; <code class="language-plaintext highlighter-rouge">offline</code>
+-&gt; <code class="language-plaintext highlighter-rouge">online</code> again, it all works out! However, they work out differently on the client side
+than the server side. Whew! This is pretty intricate and Firebase essentially makes it as
+simple as it can for you to deal with this.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>What does setUserStatus() do? It just takes the currently signed in user and the status (online,
+away, idle, and offline) and writes it to myUserRef.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">let</span> <span class="nx">presenceObject</span> <span class="o">=</span> <span class="p">{</span> <span class="na">user</span><span class="p">:</span> <span class="nx">myUserObject</span><span class="p">,</span> <span class="na">status</span><span class="p">:</span> <span class="nx">myStatus</span> <span class="p">}</span>
+<span class="nx">myUserRef</span><span class="p">.</span><span class="nf">set</span><span class="p">(</span><span class="nx">presenceObject</span><span class="p">)</span>
+</code></pre></div></div>
+      <h3 id="responding-to-user-state-changes">
+        
+        
+          Responding to user state changes <a href="#responding-to-user-state-changes">#</a>
+        
+        
+      </h3>
+    
+
+<p>The code above simply allows you to sense network connectivity changes in your own client app, but
+what of the other users who are connected at the same time? There is another half to this
+<code class="language-plaintext highlighter-rouge">presence.ts</code> file, which is how to you detect when other users have come online or when their
+status is changing or when they go offline entirely.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// update the UI to show that a new user is now online</span>
+<span class="nx">userListRef</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">"</span><span class="s2">child_added</span><span class="dl">"</span><span class="p">,</span> <span class="nf">function </span><span class="p">(</span><span class="nx">snap</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">presence</span><span class="p">:</span> <span class="nx">PresenceIF</span> <span class="o">=</span> <span class="nx">snap</span><span class="p">.</span><span class="nf">val</span><span class="p">()</span>
+  <span class="nx">ctx</span><span class="p">.</span><span class="nf">emit</span><span class="p">(</span><span class="nx">GLOBAL_CONSTANTS</span><span class="p">.</span><span class="nx">LE_PRESENCE_USER_ADDED</span><span class="p">,</span> <span class="nx">presence</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="c1">// update the UI to show that a user has left (gone offline)</span>
+<span class="nx">userListRef</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">"</span><span class="s2">child_removed</span><span class="dl">"</span><span class="p">,</span> <span class="nf">function </span><span class="p">(</span><span class="nx">snap</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">presence</span><span class="p">:</span> <span class="nx">PresenceIF</span> <span class="o">=</span> <span class="nx">snap</span><span class="p">.</span><span class="nf">val</span><span class="p">()</span>
+  <span class="nx">ctx</span><span class="p">.</span><span class="nf">emit</span><span class="p">(</span><span class="nx">GLOBAL_CONSTANTS</span><span class="p">.</span><span class="nx">LE_PRESENCE_USER_REMOVED</span><span class="p">,</span> <span class="nx">presence</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="c1">// update the UI to show that a user's status has changed</span>
+<span class="nx">userListRef</span><span class="p">.</span><span class="nf">on</span><span class="p">(</span><span class="dl">"</span><span class="s2">child_changed</span><span class="dl">"</span><span class="p">,</span> <span class="nf">function </span><span class="p">(</span><span class="nx">snap</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="nx">presence</span><span class="p">:</span> <span class="nx">PresenceIF</span> <span class="o">=</span> <span class="nx">snap</span><span class="p">.</span><span class="nf">val</span><span class="p">()</span>
+  <span class="nx">ctx</span><span class="p">.</span><span class="nf">emit</span><span class="p">(</span><span class="nx">GLOBAL_CONSTANTS</span><span class="p">.</span><span class="nx">LE_PRESENCE_USER_CHANGED</span><span class="p">,</span> <span class="nx">presence</span><span class="p">)</span>
+<span class="p">})</span>
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <p>This block of code just adds 3 callbacks to listen to various child event changes to the
+userListRef reference to Firebase (remember that this holds entries for every user that is online
+and when they go offline this entry is removed).</p>
+  </li>
+  <li>
+    <p>In each of the callbacks a different event is emitted that notifies the rest of the system that
+these changes have occurred. And in this example, the <code class="language-plaintext highlighter-rouge">groupchat.tsx</code> file is what responds to
+these events and paints the UI with these changes.</p>
+  </li>
+  <li>
+    <p>To learn more about the event emitter (observer / observable) pattern, please read
+<a href="https://developerlife.com/2016/10/02/getting-started-with-react-and-firebase/">this tutorial</a>.</p>
+  </li>
+</ul>
+      <h4 id="ui-updates">
+        
+        
+          UI updates <a href="#ui-updates">#</a>
+        
+        
+      </h4>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">groupchat.tsx</code> file
+(<a href="https://github.com/nazmulidris/starterproject_todolist_react_redux_firebase_ts_md/blob/main/web/src/client/ui/groupchat.tsx">GitHub</a>)
+simply attaches listeners to the <code class="language-plaintext highlighter-rouge">PRESENCE_USER_ADDED</code>, <code class="language-plaintext highlighter-rouge">PRESENCE_USER_REMOVED</code>, and
+<code class="language-plaintext highlighter-rouge">PRESENCE_USER_CHANGED</code> events. This is what that code looks like:</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// respond to changes in presence</span>
+<span class="nx">applicationContext</span><span class="p">.</span><span class="nf">addListener</span><span class="p">(</span><span class="nx">GLOBAL_CONSTANTS</span><span class="p">.</span><span class="nx">LE_PRESENCE_USER_ADDED</span><span class="p">,</span> <span class="p">(</span><span class="nx">presence</span><span class="p">:</span> <span class="nx">PresenceIF</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="na">msg</span><span class="p">:</span> <span class="nx">ChatMessageIF</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="na">message</span><span class="p">:</span> <span class="s2">`</span><span class="p">${</span><span class="nx">presence</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">displayName</span><span class="p">}</span><span class="s2"> joined`</span><span class="p">,</span>
+    <span class="na">displayName</span><span class="p">:</span> <span class="dl">"</span><span class="s2">The App</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">photoURL</span><span class="p">:</span> <span class="dl">"</span><span class="s2">https://url/image.png</span><span class="dl">"</span><span class="p">,</span>
+    <span class="na">timestamp</span><span class="p">:</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">().</span><span class="nf">getTime</span><span class="p">(),</span>
+  <span class="p">}</span>
+  <span class="k">this</span><span class="p">.</span><span class="nf">rcvMsgFromServer</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">applicationContext</span><span class="p">.</span><span class="nf">addListener</span><span class="p">(</span>
+  <span class="nx">GLOBAL_CONSTANTS</span><span class="p">.</span><span class="nx">LE_PRESENCE_USER_REMOVED</span><span class="p">,</span>
+  <span class="p">(</span><span class="nx">presence</span><span class="p">:</span> <span class="nx">PresenceIF</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="na">msg</span><span class="p">:</span> <span class="nx">ChatMessageIF</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">message</span><span class="p">:</span> <span class="s2">`</span><span class="p">${</span><span class="nx">presence</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">displayName</span><span class="p">}</span><span class="s2"> left`</span><span class="p">,</span>
+      <span class="na">displayName</span><span class="p">:</span> <span class="dl">"</span><span class="s2">The App</span><span class="dl">"</span><span class="p">,</span>
+      <span class="na">photoURL</span><span class="p">:</span> <span class="dl">"</span><span class="s2">https://url/image.png</span><span class="dl">"</span><span class="p">,</span>
+      <span class="na">timestamp</span><span class="p">:</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">().</span><span class="nf">getTime</span><span class="p">(),</span>
+    <span class="p">}</span>
+    <span class="k">this</span><span class="p">.</span><span class="nf">rcvMsgFromServer</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="nx">applicationContext</span><span class="p">.</span><span class="nf">addListener</span><span class="p">(</span>
+  <span class="nx">GLOBAL_CONSTANTS</span><span class="p">.</span><span class="nx">LE_PRESENCE_USER_CHANGED</span><span class="p">,</span>
+  <span class="p">(</span><span class="nx">presence</span><span class="p">:</span> <span class="nx">PresenceIF</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
+    <span class="kd">const</span> <span class="na">msg</span><span class="p">:</span> <span class="nx">ChatMessageIF</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="na">message</span><span class="p">:</span> <span class="s2">`</span><span class="p">${</span><span class="nx">presence</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">displayName</span><span class="p">}</span><span class="s2"> is </span><span class="p">${</span><span class="nx">presence</span><span class="p">.</span><span class="nx">status</span><span class="p">}</span><span class="s2">`</span><span class="p">,</span>
+      <span class="na">displayName</span><span class="p">:</span> <span class="dl">"</span><span class="s2">The App</span><span class="dl">"</span><span class="p">,</span>
+      <span class="na">photoURL</span><span class="p">:</span> <span class="dl">"</span><span class="s2">https://url/image.png</span><span class="dl">"</span><span class="p">,</span>
+      <span class="na">timestamp</span><span class="p">:</span> <span class="k">new</span> <span class="nc">Date</span><span class="p">().</span><span class="nf">getTime</span><span class="p">(),</span>
+    <span class="p">}</span>
+    <span class="k">this</span><span class="p">.</span><span class="nf">rcvMsgFromServer</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div></div>
+
+<p>There’s an important thing that happens in <code class="language-plaintext highlighter-rouge">rcvMsgFromServer()</code> that is worth noting, and this has
+to do with using <code class="language-plaintext highlighter-rouge">setState()</code> in React. Make sure NOT to re-use partial state to create new state.
+Just make a new state object and <code class="language-plaintext highlighter-rouge">setState()</code> with it, and let React figure out what needs to be
+rendered / re-rendered, otherwise, you will confuse React with what it should mark as dirty and
+needing re-rendering.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nf">rcvMsgFromServer</span><span class="p">(</span><span class="nx">data</span><span class="p">:</span> <span class="nx">ChatMessageIF</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">const</span> <span class="p">{</span><span class="nx">chatMessageList</span><span class="p">}</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">state</span><span class="p">;</span>
+  <span class="kd">let</span> <span class="nx">copy</span> <span class="o">=</span> <span class="nx">lodash</span><span class="p">.</span><span class="nf">clone</span><span class="p">(</span><span class="nx">chatMessageList</span><span class="p">);</span>
+  <span class="nx">copy</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="nx">data</span><span class="p">);</span>
+  <span class="k">this</span><span class="p">.</span><span class="nf">setState</span><span class="p">({</span><span class="na">chatMessageList</span><span class="p">:</span> <span class="nx">copy</span><span class="p">});</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="getting-the-code">
+        
+        
+          Getting the code <a href="#getting-the-code">#</a>
+        
+        
+      </h2>
+    
+
+<p>You can get the
+<a href="https://github.com/r3bl-alliance/starterproject_todolist_react_redux_firebase_ts_md">code on GitHub</a>.</p>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/DB">
+                #db</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Web">
+                #web</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/11/chrome-extension-shortlink/">
+                        Build a Chrome Extension using Manifest V3
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/react-hooks-redux-typescript-handbook/">
+                        React hooks (v17.0.3) and Redux handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/10/19/css-responsive-design-handbook/">
+                        CSS responsive design using Grid, Flexbox, and media queries handbook
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/08/25/guide-to-building-responsive-web-apps/">
+                        A pragmatic guide to designing and building responsive web applications
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/07/06/starter-project-typescript-karma-jasmine-webpack/">
+                        TypeScript starter project w/ Webpack 4, Karma, Jasmine
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/22/vue-vueitfy-webpack/">
+                        Vue.js, Webpack, Vueitify, Electron, and vue-cli
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/15/introduction-to-vue/">
+                        Getting started with Vue.js
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/15/flexbox-getting-started-part-1-2/">
+                        Flexbox: Getting started (Part 1/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/11/14/flexbox-building-a-navigation-bar-part-2-2/">
+                        Flexbox: Building a navigation bar (Part 2/2)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/19/loading-csv-files-in-javascript-and-node/">
+                        Loading CSV files in Node
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/04/26/flexbox-layouts-and-lists-with-react-native/">
+                        Flexbox layouts and lists with React Native
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2016/10/12/firebase-presence/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

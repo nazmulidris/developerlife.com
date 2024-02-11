@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Advanced Dagger 2 w/ Android and Kotlin | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Advanced Dagger 2 w/ Android and Kotlin" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is an advanced exploration of Dagger 2 using Subcomponents and custom scopes. Android and Kotlin are used to demonstrate the use of these advanced Dagger 2 capabilities." />
+<meta property="og:description" content="This tutorial is an advanced exploration of Dagger 2 using Subcomponents and custom scopes. Android and Kotlin are used to demonstrate the use of these advanced Dagger 2 capabilities." />
+<link rel="canonical" href="http://developerlife.com/2018/10/21/dagger2-and-kotlin/" />
+<meta property="og:url" content="http://developerlife.com/2018/10/21/dagger2-and-kotlin/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2018-10-21T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Advanced Dagger 2 w/ Android and Kotlin" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2018-10-21T00:00:00-05:00","datePublished":"2018-10-21T00:00:00-05:00","description":"This tutorial is an advanced exploration of Dagger 2 using Subcomponents and custom scopes. Android and Kotlin are used to demonstrate the use of these advanced Dagger 2 capabilities.","headline":"Advanced Dagger 2 w/ Android and Kotlin","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2018/10/21/dagger2-and-kotlin/"},"url":"http://developerlife.com/2018/10/21/dagger2-and-kotlin/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /></head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Advanced Dagger 2 w/ Android and Kotlin&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Advanced Dagger 2 w/ Android and Kotlin</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Advanced Dagger 2 w/ Android and Kotlin</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Oct 21, 2018
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/di-kotlin-hero.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#gradle-configuration-changes">Gradle configuration changes</a></li>
+  <li><a href="#custom-scopes">Custom scopes</a></li>
+  <li><a href="#creating-and-using-a-custom-scope">Creating and using a custom scope</a>
+    <ul>
+      <li><a href="#approach-1---component-and-dependency">Approach 1 - Component and dependency</a>
+        <ul>
+          <li><a href="#top-level-component-with-singleton-scope">Top level component with @Singleton scope</a></li>
+          <li><a href="#component-with-activityscope-that-depends-on-the-component-above">Component with @ActivityScope that depends on the component above</a></li>
+          <li><a href="#using-these-components">Using these components</a></li>
+        </ul>
+      </li>
+      <li><a href="#approach-2---subcomponents">Approach 2 - Subcomponents</a>
+        <ul>
+          <li><a href="#binding-the-subcomponent-to-the-component">Binding the subcomponent to the component</a></li>
+          <li><a href="#creating-the-scoped-subcomponent-manually-and-destroying-it-manually">Creating the (scoped) subcomponent (manually) and destroying it (manually)</a></li>
+          <li><a href="#component-listing">Component listing</a></li>
+          <li><a href="#subcomponent-listing">Subcomponent listing</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#real-example">Real example</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="gradle-configuration-changes">
+        
+        
+          Gradle configuration changes <a href="#gradle-configuration-changes">#</a>
+        
+        
+      </h2>
+    
+
+<p>In order to use Dagger 2 w/ Kotlin it’s necessary to use <code class="language-plaintext highlighter-rouge">kapt</code> instead of <code class="language-plaintext highlighter-rouge">annotationProcessor</code>
+(which is what works in Java).</p>
+
+<ol>
+  <li><a href="https://kotlinlang.org/docs/tutorials/android-frameworks.html">How to setup Kotlin w/ Android and Dagger 2</a>.</li>
+  <li><a href="https://github.com/google/dagger#android-gradle">Dagger 2 setup for Android using <strong>Java</strong>, not Kotlin</a>.</li>
+</ol>
+
+<p>So, in <code class="language-plaintext highlighter-rouge">build.gradle</code>:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">kapt</code> has to be added as a plugin</li>
+  <li><code class="language-plaintext highlighter-rouge">annotationProcessor</code> has to be replaced by <code class="language-plaintext highlighter-rouge">kapt</code></li>
+</ol>
+
+<div class="language-groovy highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">apply</span> <span class="nl">plugin:</span> <span class="s1">'kotlin-kapt'</span>
+
+<span class="n">dependencies</span> <span class="o">{</span>
+    <span class="n">ext</span><span class="o">.</span><span class="na">dagger2_version</span> <span class="o">=</span> <span class="s1">'2.17'</span>
+    <span class="c1">// Basic Dagger 2 (required)</span>
+    <span class="n">implementation</span> <span class="s2">"com.google.dagger:dagger:$dagger2_version"</span>
+    <span class="n">kapt</span> <span class="s2">"com.google.dagger:dagger-compiler:$dagger2_version"</span>
+
+    <span class="c1">// dagger.android package (optional)</span>
+    <span class="n">implementation</span> <span class="s2">"com.google.dagger:dagger-android:$dagger2_version"</span>
+    <span class="n">kapt</span> <span class="s2">"com.google.dagger:dagger-android-processor:$dagger2_version"</span>
+
+    <span class="c1">// Support library support (optional)</span>
+    <span class="n">kapt</span> <span class="s2">"com.google.dagger:dagger-android-support:$dagger2_version"</span>
+<span class="o">}</span>
+</code></pre></div></div>
+      <h2 id="custom-scopes">
+        
+        
+          Custom scopes <a href="#custom-scopes">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li>
+    <p><a href="http://lundgren.io/blog/closer-look-at-scopes-in-dagger-2/">Tutorial</a></p>
+
+    <ul>
+      <li>
+        <p>This tutorial does a great job going over how to use scopes and makes it clear by showing how
+simple the mechanism really is.</p>
+      </li>
+      <li>
+        <p>A component that’s marked w/ <code class="language-plaintext highlighter-rouge">@Scope</code> annotation can have its module’s providers marked w/ the
+same scope.</p>
+      </li>
+      <li>
+        <p>There’s nothing special about <code class="language-plaintext highlighter-rouge">@Singleton</code>. Just as w/ any other scope, when you mark a
+component w/ a scope annotation, you also have to have to mark the provider(s) as well in the
+module(s) w/ the same one. In other words, you can’t mix scopes. For <code class="language-plaintext highlighter-rouge">@Singleton</code> this means
+creating the component in an Application, so all the objects provided by modules marked w/ this
+scope are available everywhere. It’s just convention.</p>
+      </li>
+      <li>
+        <p>The idea behind using custom scopes shifts the complexity on object creation and management, to
+the component/module/provider side. And simplicity is provided to the client/consumer side,
+where you simply mark the fields you need injected using <code class="language-plaintext highlighter-rouge">@Inject</code> and it “just works”!</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p><a href="https://www.techyourchance.com/dagger-2-scopes-demystified/">Tutorial</a></p>
+
+    <ul>
+      <li>This article is a deep dive into the code generated by <code class="language-plaintext highlighter-rouge">@Scope</code> and what it is really doing
+under the covers. Scope simply creates a cached provider.</li>
+    </ul>
+  </li>
+  <li>
+    <p><a href="https://proandroiddev.com/dagger-2-part-ii-custom-scopes-component-dependencies-subcomponents-697c1fa1cfc">Tutorial</a></p>
+
+    <ul>
+      <li>This article provides a complex example of multiple scopes and subcomponents.</li>
+    </ul>
+  </li>
+  <li>
+    <p><a href="https://stackoverflow.com/a/41194165/2085356">SO</a></p>
+
+    <ul>
+      <li>This stackoverflow discussion is great about creating more sophisticated subcomponents.</li>
+    </ul>
+  </li>
+</ul>
+      <h2 id="creating-and-using-a-custom-scope">
+        
+        
+          Creating and using a custom scope <a href="#creating-and-using-a-custom-scope">#</a>
+        
+        
+      </h2>
+    
+
+<p>Here’s an example of a custom scope called <code class="language-plaintext highlighter-rouge">@ActivityScope</code>. The syntax for Java is quite different
+than Kotlin.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Scope</span>
+<span class="err">@</span><span class="n">kotlin</span><span class="p">.</span><span class="k">annotation</span><span class="p">.</span><span class="nc">Retention</span><span class="p">(</span><span class="nc">AnnotationRetention</span><span class="p">.</span><span class="nc">RUNTIME</span><span class="p">)</span>
+<span class="k">annotation</span> <span class="kd">class</span> <span class="nc">ActivityScope</span>
+</code></pre></div></div>
+
+<p>Here’s the Java equivalent.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Scope</span>
+<span class="nd">@Retention</span><span class="o">(</span><span class="nc">RetentionPolicy</span><span class="o">.</span><span class="na">RUNTIME</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nd">@interface</span> <span class="nc">ActivityScope</span> <span class="o">{}</span>
+</code></pre></div></div>
+
+<p>We use custom scope when we want to reuse dependencies for a custom amount of time. For example, the
+<code class="language-plaintext highlighter-rouge">@ActivityScope</code> above can be used for dependencies that only should be available for the lifecycle
+of an Activity. Or <code class="language-plaintext highlighter-rouge">@UserScope</code> for all dependencies tied to a user session.</p>
+
+<p>It’s however important to understand that custom scopes work exactly like <code class="language-plaintext highlighter-rouge">@Singleton</code>, which is
+simply a Dagger 2 defined scope annotation. Any dependency annotated with any scope will be reused
+(and injected into clients) as long as we use the corresponding component. There is no magic
+involved, we must manually create and throw away component in accordance with our desired lifecycle.</p>
+
+<p>We could even use <code class="language-plaintext highlighter-rouge">@Singleton</code> on all dependencies and still have custom lifecycle. Dagger will
+however throw helpful build exceptions if we mix different scopes. So, custom scopes will be
+valuable both as documentation and to find mistakes early.</p>
+
+<p>We can use components directly or use the concept of subcomponents to deal with our wanted
+lifecycle. Subcomponents can be done using <code class="language-plaintext highlighter-rouge">dependencies=[]</code> or <code class="language-plaintext highlighter-rouge">@Subcomponent</code> annotation. The main
+difference between them is that you have to export all the objects that you would like
+dependent-components to have explicitly in the component interface (as methods). Here’s an example.</p>
+      <h3 id="approach-1---component-and-dependency">
+        
+        
+          Approach 1 - Component and dependency <a href="#approach-1---component-and-dependency">#</a>
+        
+        
+      </h3>
+    
+      <h4 id="top-level-component-with-singleton-scope">
+        
+        
+          Top level component with @Singleton scope <a href="#top-level-component-with-singleton-scope">#</a>
+        
+        
+      </h4>
+    
+
+<p>Here’s the top level <code class="language-plaintext highlighter-rouge">ApplicationComponent</code> which has <code class="language-plaintext highlighter-rouge">@Singleton</code> scope and is created by the
+Android Application class.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Singleton</span>
+<span class="nd">@Component</span><span class="p">(</span><span class="n">modules</span> <span class="p">=</span> <span class="p">[</span><span class="nc">ApplicationModule</span><span class="o">::</span><span class="k">class</span><span class="p">,</span> <span class="nc">GMSClientsModule</span><span class="o">::</span><span class="k">class</span><span class="p">])</span>
+<span class="kd">interface</span> <span class="nc">ApplicationComponent</span> <span class="p">{</span>
+    <span class="c1">// Expose objects created by modules to any other components</span>
+    <span class="c1">// dependent on this component.</span>
+    <span class="k">fun</span> <span class="nf">placeDetectionClient</span><span class="p">():</span> <span class="nc">PlaceDetectionClient</span>
+    <span class="k">fun</span> <span class="nf">geoDataClient</span><span class="p">():</span> <span class="nc">GeoDataClient</span>
+    <span class="k">fun</span> <span class="nf">fusedLocationProviderClient</span><span class="p">():</span> <span class="nc">FusedLocationProviderClient</span>
+<span class="p">}</span>
+
+<span class="nd">@Module</span>
+<span class="kd">class</span> <span class="nc">ApplicationModule</span><span class="p">(</span><span class="k">private</span> <span class="kd">val</span> <span class="py">application</span><span class="p">:</span> <span class="nc">Application</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nd">@Singleton</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">provideContext</span><span class="p">():</span> <span class="nc">Context</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">application</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nd">@Module</span>
+<span class="kd">class</span> <span class="nc">GMSClientsModule</span> <span class="p">{</span>
+    <span class="nd">@Singleton</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesPlaceDetectionClient</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="nc">Context</span><span class="p">):</span> <span class="nc">PlaceDetectionClient</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">Places</span><span class="p">.</span><span class="nf">getPlaceDetectionClient</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Singleton</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesGeoDataClient</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="nc">Context</span><span class="p">):</span> <span class="nc">GeoDataClient</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">Places</span><span class="p">.</span><span class="nf">getGeoDataClient</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Singleton</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesLocation</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="nc">Context</span><span class="p">):</span> <span class="nc">FusedLocationProviderClient</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">LocationServices</span><span class="p">.</span><span class="nf">getFusedLocationProviderClient</span><span class="p">(</span>
+                <span class="n">context</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h4 id="component-with-activityscope-that-depends-on-the-component-above">
+        
+        
+          Component with @ActivityScope that depends on the component above <a href="#component-with-activityscope-that-depends-on-the-component-above">#</a>
+        
+        
+      </h4>
+    
+
+<p>Here’s another component w/ scope of <code class="language-plaintext highlighter-rouge">@ActivityScope</code> that depends on the component above.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Scope</span>
+<span class="err">@</span><span class="n">kotlin</span><span class="p">.</span><span class="k">annotation</span><span class="p">.</span><span class="nc">Retention</span><span class="p">(</span><span class="nc">AnnotationRetention</span><span class="p">.</span><span class="nc">RUNTIME</span><span class="p">)</span>
+<span class="k">annotation</span> <span class="kd">class</span> <span class="nc">ActivityScope</span>
+
+<span class="nd">@ActivityScope</span>
+<span class="nd">@Component</span><span class="p">(</span><span class="n">dependencies</span> <span class="p">=</span> <span class="p">[</span><span class="nc">ApplicationComponent</span><span class="o">::</span><span class="k">class</span><span class="p">],</span>
+           <span class="n">modules</span> <span class="p">=</span> <span class="p">[</span><span class="nc">ExecutorModule</span><span class="o">::</span><span class="k">class</span><span class="p">])</span>
+<span class="kd">interface</span> <span class="nc">ActivityComponent</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">inject</span><span class="p">(</span><span class="n">placesAPI</span><span class="p">:</span> <span class="nc">PlacesAPI</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nd">@Module</span>
+<span class="kd">class</span> <span class="nc">ExecutorModule</span> <span class="p">{</span>
+    <span class="nd">@Provides</span>
+    <span class="nd">@ActivityScope</span>
+    <span class="k">fun</span> <span class="nf">provideExecutor</span><span class="p">():</span> <span class="nc">ExecutorWrapper</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">ExecutorWrapper</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">ExecutorWrapper</span> <span class="p">{</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">executor</span><span class="p">:</span> <span class="nc">ExecutorService</span>
+
+    <span class="k">fun</span> <span class="nf">create</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">executor</span> <span class="p">=</span> <span class="nc">Executors</span><span class="p">.</span><span class="nf">newFixedThreadPool</span><span class="p">(</span><span class="nc">Runtime</span><span class="p">.</span><span class="nf">getRuntime</span><span class="p">().</span><span class="nf">availableProcessors</span><span class="p">())</span>
+    <span class="p">}</span>
+
+    <span class="k">fun</span> <span class="nf">destroy</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">executor</span><span class="p">.</span><span class="nf">shutdown</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h4 id="using-these-components">
+        
+        
+          Using these components <a href="#using-these-components">#</a>
+        
+        
+      </h4>
+    
+
+<p>In order to use them, two things need to happen.</p>
+
+<ol>
+  <li>The Application class needs to create the <code class="language-plaintext highlighter-rouge">ApplicationComponent</code></li>
+  <li>An activity (or lifecycle observer that is bound to its lifecycle) has to create and destroy the
+<code class="language-plaintext highlighter-rouge">ActivityComponent</code>.</li>
+</ol>
+
+<p>Here’s code for what happens in the Application class:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">MyApplication</span> <span class="p">:</span> <span class="nc">Application</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">applicationComponent</span><span class="p">:</span> <span class="nc">ApplicationComponent</span>
+
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">onCreate</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">super</span><span class="p">.</span><span class="nf">onCreate</span><span class="p">()</span>
+        <span class="n">applicationComponent</span> <span class="p">=</span> <span class="nc">DaggerApplicationComponent</span><span class="p">.</span><span class="nf">builder</span><span class="p">()</span>
+                <span class="p">.</span><span class="nf">applicationModule</span><span class="p">(</span><span class="nc">ApplicationModule</span><span class="p">(</span><span class="k">this</span><span class="p">))</span>
+                <span class="p">.</span><span class="nf">build</span><span class="p">()</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s code for what happens in the lifecycle observer that is bound to Activity lifecycle:</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="c1">// Places API Clients.</span>
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">currentPlaceClient</span><span class="p">:</span> <span class="nc">PlaceDetectionClient</span>
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">geoDataClient</span><span class="p">:</span> <span class="nc">GeoDataClient</span>
+    <span class="c1">// Background Executor.</span>
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">executorWrapper</span><span class="p">:</span> <span class="nc">ExecutorWrapper</span>
+
+    <span class="c1">// Lifecycle hooks.</span>
+    <span class="nd">@OnLifecycleEvent</span><span class="p">(</span><span class="nc">Lifecycle</span><span class="p">.</span><span class="nc">Event</span><span class="p">.</span><span class="nc">ON_CREATE</span><span class="p">)</span>
+    <span class="k">fun</span> <span class="nf">connect</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// Dagger 2 component creation.</span>
+        <span class="nf">with</span><span class="p">((</span><span class="n">app</span> <span class="k">as</span> <span class="nc">MyApplication</span><span class="p">).</span><span class="n">applicationComponent</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nc">DaggerActivityComponent</span><span class="p">.</span><span class="nf">builder</span><span class="p">()</span>
+                    <span class="p">.</span><span class="nf">applicationComponent</span><span class="p">(</span><span class="k">this</span><span class="p">)</span>
+                    <span class="p">.</span><span class="nf">build</span><span class="p">()</span>
+                    <span class="p">.</span><span class="nf">inject</span><span class="p">(</span><span class="k">this</span><span class="nd">@PlacesAPI</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="s">"ON_CREATE ⇢ Create Executor ✅"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+        <span class="n">executorWrapper</span><span class="p">.</span><span class="nf">create</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="nd">@OnLifecycleEvent</span><span class="p">(</span><span class="nc">Lifecycle</span><span class="p">.</span><span class="nc">Event</span><span class="p">.</span><span class="nc">ON_DESTROY</span><span class="p">)</span>
+    <span class="k">fun</span> <span class="nf">cleanup</span><span class="p">()</span> <span class="p">{</span>
+        <span class="s">"ON_DESTROY ⇢ PlacesAPI cleanup ✅"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+        <span class="n">executorWrapper</span><span class="p">.</span><span class="nf">destroy</span><span class="p">()</span>
+        <span class="s">"🚿 cleanup() - complete!"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>Note that all the objects that are correctly scoped and created by Dagger 2 are neatly injected into
+the fields where they’re required! This is the magic of Dagger 2. By worrying about scopes, modules,
+and components, we get <code class="language-plaintext highlighter-rouge">@Inject</code> for “free”.</p>
+      <h3 id="approach-2---subcomponents">
+        
+        
+          Approach 2 - Subcomponents <a href="#approach-2---subcomponents">#</a>
+        
+        
+      </h3>
+    
+
+<p>Using subcomponents is very similar to Approach 1 with the major difference being that it is no
+longer necessary to export all the objects created by the top level component to the components that
+depend on it. However, you still have to create the scoped component at the appropriate time and
+handle any cleanup when it’s scope terminates.</p>
+
+<p>Here’s what the Application class looks like when using subcomponents.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">MyApplication</span> <span class="p">:</span> <span class="nc">Application</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// ApplicationComponent (scoped to life of entire app).</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">applicationComponent</span><span class="p">:</span> <span class="nc">ApplicationComponent</span>
+
+    <span class="k">override</span> <span class="k">fun</span> <span class="nf">onCreate</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">super</span><span class="p">.</span><span class="nf">onCreate</span><span class="p">()</span>
+        <span class="n">applicationComponent</span> <span class="p">=</span> <span class="nc">DaggerApplicationComponent</span><span class="p">.</span><span class="nf">builder</span><span class="p">()</span>
+                <span class="p">.</span><span class="nf">applicationModule</span><span class="p">(</span><span class="nc">ApplicationModule</span><span class="p">(</span><span class="k">this</span><span class="p">))</span>
+                <span class="p">.</span><span class="nf">build</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="c1">// ActivityComponent (scoped to just the lifetime of an Activity).</span>
+    <span class="kd">var</span> <span class="py">activityComponent</span><span class="p">:</span> <span class="nc">ActivityComponent</span><span class="p">?</span> <span class="p">=</span> <span class="k">null</span>
+
+    <span class="k">fun</span> <span class="nf">createActivityComponent</span><span class="p">():</span> <span class="nc">ActivityComponent</span><span class="p">?</span> <span class="p">{</span>
+        <span class="n">activityComponent</span> <span class="p">=</span> <span class="n">applicationComponent</span><span class="p">.</span><span class="nf">plus</span><span class="p">(</span><span class="nc">ExecutorModule</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">activityComponent</span>
+    <span class="p">}</span>
+
+    <span class="k">fun</span> <span class="nf">destroyActivityComponent</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">activityComponent</span> <span class="p">=</span> <span class="k">null</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s a snippet of the component.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Singleton</span>
+<span class="nd">@Component</span><span class="p">(</span><span class="n">modules</span> <span class="p">=</span> <span class="p">[</span><span class="nc">ApplicationModule</span><span class="o">::</span><span class="k">class</span><span class="p">,</span> <span class="nc">GMSClientsModule</span><span class="o">::</span><span class="k">class</span><span class="p">])</span>
+<span class="kd">interface</span> <span class="nc">ApplicationComponent</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">plus</span><span class="p">(</span><span class="n">executorModule</span><span class="p">:</span> <span class="nc">ExecutorModule</span><span class="p">):</span> <span class="nc">ActivityComponent</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s a snippet of the subcomponent.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@ActivityScope</span>
+<span class="nd">@Subcomponent</span><span class="p">(</span><span class="n">modules</span> <span class="p">=</span> <span class="p">[</span><span class="nc">ExecutorModule</span><span class="o">::</span><span class="k">class</span><span class="p">])</span>
+<span class="kd">interface</span> <span class="nc">ActivityComponent</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">inject</span><span class="p">(</span><span class="n">placesAPI</span><span class="p">:</span> <span class="nc">PlacesAPI</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s a snippet of a lifecycle aware component (<code class="language-plaintext highlighter-rouge">PlacesAPI.kt</code>) using the subcomponent.</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">PlacesAPI</span><span class="p">(</span><span class="kd">val</span> <span class="py">app</span><span class="p">:</span> <span class="nc">Application</span><span class="p">)</span> <span class="p">:</span> <span class="nc">AndroidViewModel</span><span class="p">(</span><span class="n">app</span><span class="p">),</span> <span class="nc">LifecycleObserver</span> <span class="p">{</span>
+
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">currentPlaceClient</span><span class="p">:</span> <span class="nc">PlaceDetectionClient</span>
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">geoDataClient</span><span class="p">:</span> <span class="nc">GeoDataClient</span>
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">fusedLocationProviderClient</span><span class="p">:</span> <span class="nc">FusedLocationProviderClient</span>
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">executorWrapper</span><span class="p">:</span> <span class="nc">ExecutorWrapper</span>
+
+    <span class="c1">// Lifecycle hooks.</span>
+    <span class="nd">@OnLifecycleEvent</span><span class="p">(</span><span class="nc">Lifecycle</span><span class="p">.</span><span class="nc">Event</span><span class="p">.</span><span class="nc">ON_CREATE</span><span class="p">)</span>
+    <span class="k">fun</span> <span class="nf">connect</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// Dagger 2 component creation.</span>
+        <span class="nf">with</span><span class="p">((</span><span class="n">app</span> <span class="k">as</span> <span class="nc">MyApplication</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nf">createActivityComponent</span><span class="p">().</span><span class="nf">inject</span><span class="p">(</span><span class="k">this</span><span class="nd">@PlacesAPI</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">executorWrapper</span><span class="p">.</span><span class="nf">create</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="nd">@OnLifecycleEvent</span><span class="p">(</span><span class="nc">Lifecycle</span><span class="p">.</span><span class="nc">Event</span><span class="p">.</span><span class="nc">ON_DESTROY</span><span class="p">)</span>
+    <span class="k">fun</span> <span class="nf">cleanup</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">executorWrapper</span><span class="p">.</span><span class="nf">destroy</span><span class="p">()</span>
+        <span class="nf">with</span><span class="p">((</span><span class="n">app</span> <span class="k">as</span> <span class="nc">MyApplication</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nf">destroyActivityComponent</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+      <h4 id="binding-the-subcomponent-to-the-component">
+        
+        
+          Binding the subcomponent to the component <a href="#binding-the-subcomponent-to-the-component">#</a>
+        
+        
+      </h4>
+    
+
+<p>Notice the changes in the <code class="language-plaintext highlighter-rouge">MyApplication</code> class.</p>
+
+<ul>
+  <li>
+    <p>There’s a <code class="language-plaintext highlighter-rouge">createActivityComponent()</code> method which actually calls the <code class="language-plaintext highlighter-rouge">plus()</code> method in the
+<code class="language-plaintext highlighter-rouge">ApplicationComponent</code> object.</p>
+  </li>
+  <li>
+    <p>Notes on the <code class="language-plaintext highlighter-rouge">plus()</code> method.</p>
+
+    <ul>
+      <li>
+        <p>This method (<code class="language-plaintext highlighter-rouge">plus()</code>) can be called anything, but we are adding the module(s) that this
+component will be comprised of. If there are multiple modules that need to be passed, then they
+can be passed as arguments to the same method call.
+<a href="https://stackoverflow.com/a/41194165/2085356">This stackoverflow discussion</a> sheds light on
+this.</p>
+      </li>
+      <li>
+        <p><code class="language-plaintext highlighter-rouge">plus(ExecutorModule)</code> acts as the declarative glue telling Dagger 2 how the <code class="language-plaintext highlighter-rouge">@Subcomponent</code> and
+<code class="language-plaintext highlighter-rouge">@Component</code> are related, since this relationships isn’t really defined anywhere else. And this
+happens in the <code class="language-plaintext highlighter-rouge">ApplicationComponent</code> interface where <code class="language-plaintext highlighter-rouge">plus()</code> is declared. So the component
+states its relationship w/ the subcomponent declaratively.</p>
+      </li>
+      <li>
+        <p>This is actually what tells Dagger 2 to use this newly created <code class="language-plaintext highlighter-rouge">ExecutorModule</code> object as a
+scoped object. Note that an <code class="language-plaintext highlighter-rouge">ExecutorModule</code> object had to be passed in order to get a reference
+to the <code class="language-plaintext highlighter-rouge">ActivityComponent</code> which is very different than what we saw in Approach ## 1, but the
+idea is similar (since <code class="language-plaintext highlighter-rouge">PlacesAPI.kt</code> is what calls this method in both Approach 1 and 2).</p>
+      </li>
+      <li>
+        <p>The <code class="language-plaintext highlighter-rouge">MyApplication</code> class allows the <code class="language-plaintext highlighter-rouge">activityComponent</code> field to be accessed by other classes.
+This is to allow the Activity (or Activity lifecycle observer, like <code class="language-plaintext highlighter-rouge">PlacesAPI.kt</code>) that creates
+this subcomponent, to be able to destroy it later. Also if this field <code class="language-plaintext highlighter-rouge">activityComponent</code> is
+<code class="language-plaintext highlighter-rouge">null</code> this means that this object hasn’t been created yet, and is currently out of scope, ie,
+its scope isn’t currently active. When its scope becomes active again (ie, an
+<code class="language-plaintext highlighter-rouge">activityComponent</code> object is created, then any <code class="language-plaintext highlighter-rouge">@Inject</code> statements <strong>based on this
+subcomponent</strong>, will work, because they will get the objects provided by this subcomponent’s
+modules).</p>
+      </li>
+      <li>
+        <p>This means anyone calling <code class="language-plaintext highlighter-rouge">activityComponent.inject(???)</code> will be able to get the required
+objects injected into them when marked w/ <code class="language-plaintext highlighter-rouge">@Inject</code>. These objects are provided by the modules.</p>
+      </li>
+      <li>
+        <p>All of this ends up being a fancy way of allowing you to control the lifecycle of a set of
+objects (provided by the subcomponent’s module(s)), when they are created and destroyed, and
+associate a label with it (which is your custom <code class="language-plaintext highlighter-rouge">@Scope</code> annotation).</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+      <h4 id="creating-the-scoped-subcomponent-manually-and-destroying-it-manually">
+        
+        
+          Creating the (scoped) subcomponent (manually) and destroying it (manually) <a href="#creating-the-scoped-subcomponent-manually-and-destroying-it-manually">#</a>
+        
+        
+      </h4>
+    
+
+<p>The following is a complete listing of <code class="language-plaintext highlighter-rouge">PlacesAPI.kt</code> (only snippets have appeared above).</p>
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">PlacesAPI</span><span class="p">(</span><span class="kd">val</span> <span class="py">app</span><span class="p">:</span> <span class="nc">Application</span><span class="p">)</span> <span class="p">:</span> <span class="nc">AndroidViewModel</span><span class="p">(</span><span class="n">app</span><span class="p">),</span> <span class="nc">LifecycleObserver</span> <span class="p">{</span>
+
+    <span class="c1">// Places API Clients.</span>
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">currentPlaceClient</span><span class="p">:</span> <span class="nc">PlaceDetectionClient</span>
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">geoDataClient</span><span class="p">:</span> <span class="nc">GeoDataClient</span>
+
+    <span class="c1">// Fused Location Provider Client.</span>
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">fusedLocationProviderClient</span><span class="p">:</span> <span class="nc">FusedLocationProviderClient</span>
+
+    <span class="c1">// Background Executor.</span>
+    <span class="nd">@Inject</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">executorWrapper</span><span class="p">:</span> <span class="nc">ExecutorWrapper</span>
+
+    <span class="c1">// Lifecycle hooks.</span>
+    <span class="nd">@OnLifecycleEvent</span><span class="p">(</span><span class="nc">Lifecycle</span><span class="p">.</span><span class="nc">Event</span><span class="p">.</span><span class="nc">ON_CREATE</span><span class="p">)</span>
+    <span class="k">fun</span> <span class="nf">connect</span><span class="p">()</span> <span class="p">{</span>
+        <span class="s">"ON_CREATE ⇢ PlacesAPI.connect() ✅"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+
+        <span class="c1">// Dagger 2 component creation.</span>
+        <span class="nf">with</span><span class="p">((</span><span class="n">app</span> <span class="k">as</span> <span class="nc">MyApplication</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nf">createActivityComponent</span><span class="p">().</span><span class="nf">inject</span><span class="p">(</span><span class="k">this</span><span class="nd">@PlacesAPI</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="s">"💥 connect() - got GetDataClient, PlaceDetectionClient, FusedLocationProviderClient"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+
+        <span class="s">"ON_CREATE ⇢ Create Executor ✅"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+
+        <span class="n">executorWrapper</span><span class="p">.</span><span class="nf">create</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="nd">@OnLifecycleEvent</span><span class="p">(</span><span class="nc">Lifecycle</span><span class="p">.</span><span class="nc">Event</span><span class="p">.</span><span class="nc">ON_DESTROY</span><span class="p">)</span>
+    <span class="k">fun</span> <span class="nf">cleanup</span><span class="p">()</span> <span class="p">{</span>
+        <span class="s">"ON_DESTROY ⇢ PlacesAPI cleanup ✅"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+        <span class="n">executorWrapper</span><span class="p">.</span><span class="nf">destroy</span><span class="p">()</span>
+        <span class="s">"🚿 cleanup() - complete!"</span><span class="p">.</span><span class="nf">log</span><span class="p">()</span>
+        <span class="nf">with</span><span class="p">((</span><span class="n">app</span> <span class="k">as</span> <span class="nc">MyApplication</span><span class="p">))</span> <span class="p">{</span>
+            <span class="nf">destroyActivityComponent</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here are the class definitions for the component and subcomponent.</p>
+      <h4 id="component-listing">
+        
+        
+          Component listing <a href="#component-listing">#</a>
+        
+        
+      </h4>
+    
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Singleton</span>
+<span class="nd">@Component</span><span class="p">(</span><span class="n">modules</span> <span class="p">=</span> <span class="p">[</span><span class="nc">ApplicationModule</span><span class="o">::</span><span class="k">class</span><span class="p">,</span> <span class="nc">GMSClientsModule</span><span class="o">::</span><span class="k">class</span><span class="p">])</span>
+<span class="kd">interface</span> <span class="nc">ApplicationComponent</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">plus</span><span class="p">(</span><span class="n">executorModule</span><span class="p">:</span> <span class="nc">ExecutorModule</span><span class="p">):</span> <span class="nc">ActivityComponent</span>
+<span class="p">}</span>
+
+<span class="nd">@Module</span>
+<span class="kd">class</span> <span class="nc">ApplicationModule</span><span class="p">(</span><span class="k">private</span> <span class="kd">val</span> <span class="py">application</span><span class="p">:</span> <span class="nc">Application</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nd">@Singleton</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">provideContext</span><span class="p">():</span> <span class="nc">Context</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">application</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nd">@Module</span>
+<span class="kd">class</span> <span class="nc">GMSClientsModule</span> <span class="p">{</span>
+    <span class="nd">@Singleton</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesPlaceDetectionClient</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="nc">Context</span><span class="p">):</span> <span class="nc">PlaceDetectionClient</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">Places</span><span class="p">.</span><span class="nf">getPlaceDetectionClient</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Singleton</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesGeoDataClient</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="nc">Context</span><span class="p">):</span> <span class="nc">GeoDataClient</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">Places</span><span class="p">.</span><span class="nf">getGeoDataClient</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nd">@Singleton</span>
+    <span class="nd">@Provides</span>
+    <span class="k">fun</span> <span class="nf">providesLocation</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="nc">Context</span><span class="p">):</span> <span class="nc">FusedLocationProviderClient</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">LocationServices</span><span class="p">.</span><span class="nf">getFusedLocationProviderClient</span><span class="p">(</span>
+                <span class="n">context</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h4 id="subcomponent-listing">
+        
+        
+          Subcomponent listing <a href="#subcomponent-listing">#</a>
+        
+        
+      </h4>
+    
+
+<div class="language-kotlin highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Scope</span>
+<span class="err">@</span><span class="n">kotlin</span><span class="p">.</span><span class="k">annotation</span><span class="p">.</span><span class="nc">Retention</span><span class="p">(</span><span class="nc">AnnotationRetention</span><span class="p">.</span><span class="nc">RUNTIME</span><span class="p">)</span>
+<span class="k">annotation</span> <span class="kd">class</span> <span class="nc">ActivityScope</span>
+
+<span class="nd">@ActivityScope</span>
+<span class="nd">@Subcomponent</span><span class="p">(</span><span class="n">modules</span> <span class="p">=</span> <span class="p">[</span><span class="nc">ExecutorModule</span><span class="o">::</span><span class="k">class</span><span class="p">])</span>
+<span class="kd">interface</span> <span class="nc">ActivityComponent</span> <span class="p">{</span>
+    <span class="k">fun</span> <span class="nf">inject</span><span class="p">(</span><span class="n">placesAPI</span><span class="p">:</span> <span class="nc">PlacesAPI</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nd">@Module</span>
+<span class="kd">class</span> <span class="nc">ExecutorModule</span> <span class="p">{</span>
+    <span class="nd">@Provides</span>
+    <span class="nd">@ActivityScope</span>
+    <span class="k">fun</span> <span class="nf">provideExecutor</span><span class="p">():</span> <span class="nc">ExecutorWrapper</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nc">ExecutorWrapper</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="nc">ExecutorWrapper</span> <span class="p">{</span>
+    <span class="k">lateinit</span> <span class="kd">var</span> <span class="py">executor</span><span class="p">:</span> <span class="nc">ExecutorService</span>
+
+    <span class="k">fun</span> <span class="nf">create</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">executor</span> <span class="p">=</span> <span class="nc">Executors</span><span class="p">.</span><span class="nf">newFixedThreadPool</span><span class="p">(</span><span class="nc">Runtime</span><span class="p">.</span><span class="nf">getRuntime</span><span class="p">().</span><span class="nf">availableProcessors</span><span class="p">())</span>
+    <span class="p">}</span>
+
+    <span class="k">fun</span> <span class="nf">destroy</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">executor</span><span class="p">.</span><span class="nf">shutdown</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="real-example">
+        
+        
+          Real example <a href="#real-example">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <p>To see an example of Dagger 2 applied to Kotlin and Android in the context of a real Android
+application, please check out this <a href="https://github.com/nazmulidris/places-api-poc">repo</a></p>
+</blockquote>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/DI">
+                #di</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/KT">
+                #kt</a>
+        </span>
+    
+</div>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/getting-started-with-dagger2/">
+                        Introduction to Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/dagger2-in-depth/">
+                        In-depth exploration of Dagger 2
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/13/ij-idea-plugin-advanced/">
+                        Advanced guide to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/02/06/publish-kotlin-library-as-gradle-dep/">
+                        Publishing a Kotlin library as a Gradle dependency to JitPack or GitHub Package Repository
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/11/20/idea-plugin-example-intro/">
+                        Introduction to creating IntelliJ IDEA plugins
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/15/non-capturing-lambda-problems/">
+                        Potential problems of using non-capturing lambdas
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/07/11/annotation-processing-kotlin-android/">
+                        Annotation Processing in Kotlin and Android
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
+                        Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/05/11/kotlin-vs-java/">
+                        Java vs Kotlin for Android development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-testing-setup/">
+                        Kotlin and Test Driven Development
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-sealed-classes/">
+                        Kotlin Sealed Classes and State
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/10/21/kotlin-extension-function-expressions/">
+                        Kotlin Extension Function Expressions
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2018/10/21/dagger2-and-kotlin/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Please star our Github and use our apps & libs<span class="heading-emoji">🙏</span>
+    </h2>
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/star-gradient.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+</div></div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

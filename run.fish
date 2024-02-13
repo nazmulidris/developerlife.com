@@ -18,50 +18,89 @@ function isPackageInstalled -a packageName
     echo $packageIsInstalled
 end
 
-if test -e Gemfile.lock
-    rm Gemfile.lock
-end
-
-# More info to find if a package is installed: https://askubuntu.com/a/823630/872482
-if test (uname) = Linux
-
-    if string match -q false (isPackageInstalled ruby-dev);
-        or string match -q false (isPackageInstalled ruby-bundler)
-        echo "Install ruby"
-        echo "ruby-bundler or ruby-dev are not installed; installing now..."
-        sudo apt install -y ruby-bundler ruby-dev
+# More info on prompting a user for confirmation using fish read function: https://stackoverflow.com/a/16673745/2085356
+# More info about fish `read` function: https://fishshell.com/docs/current/cmds/read.html
+function _promptUserForConfirmation -a message
+    if not test -z "$message"
+        echo (set_color brmagenta)"🤔 $message?"
     end
 
+    while true
+        # read -l -P '🔴 Do you want to continue? [y/N] ' confirm
+        read -l -p "set_color brcyan; echo '🔴 Do you want to continue? [y/N] ' ; set_color normal; echo '> '" confirm
+        switch $confirm
+            case Y y
+                return 0
+            case '' N n
+                return 1
+        end
+    end
 end
 
-if test (uname) = Darwin
-    fish_add_path /opt/homebrew/opt/ruby/bin
+function main
+    if test -e Gemfile.lock
+        rm Gemfile.lock
+    end
+
+    # On Linux.
+    if test (uname) = Linux
+        # More info to find if a package is installed: https://askubuntu.com/a/823630/872482
+        if string match -q false (isPackageInstalled ruby-dev);
+            or string match -q false (isPackageInstalled ruby-bundler)
+            echo "Install ruby"
+            echo "ruby-bundler or ruby-dev are not installed; installing now..."
+            sudo apt install -y ruby-bundler ruby-dev
+        end
+    end
+
+    # On macOS.
+    if test (uname) = Darwin
+        brew install ruby
+        fish_add_path /opt/homebrew/opt/ruby/bin
+        echo Ruby version: (ruby -v)
+    end
+
+    echo "Install Jekyll and dependencies."
+    bundle install
+    bundle update
+
+    if test -d _site/
+        rm -rf _site/
+    end
+
+    if test -d docs/
+        rm -rf docs/
+    end
+
+    echo "Build the site."
+    # Generate the site (in the _site/ folder)
+    bundle exec jekyll build
+
+    # Move _site folder to docs/ folder
+    mv _site/ docs/
+
+    # Copy CNAME file to docs/ folder.
+    cp CNAME docs/
+
+    if _promptUserForConfirmation "Do you want to run the local dev server"
+        npm install -g serve
+        serve docs/
+    else
+        echo "Ok, bye!"
+        return
+    end
+
+
+    # Run the local dev server (this will hardcode all the links to be localhost:4000)
+    # bundle exec jekyll serve
+
+    # Old stuff.
+    # Jekyll install instructions: http://tinyurl.com/y2vbgyqz
+    # jekyll serve --config _config_dev.yml
+    # More info: http://tinyurl.com/yytw8hus
+    # gem install bundler
+    # bundle update --bundler
 end
 
-echo "Run the server"
-bundle install
-bundle update
-
-if test -d _site/
-    rm -rf _site/
-end
-
-if test -d docs/
-    rm -rf docs/
-end
-
-# Generate the site (in the _site folder)
-bundle exec jekyll build
-
-# Move _site folder to /docs folder
-mv _site/ docs/
-
-# Run the local dev server (this will hardcode all the links to be localhost:4000)
-# bundle exec jekyll serve
-
-# Old stuff.
-# Jekyll install instructions: http://tinyurl.com/y2vbgyqz
-# jekyll serve --config _config_dev.yml
-# More info: http://tinyurl.com/yytw8hus
-# gem install bundler
-# bundle update --bundler
+# Actually call the main function.
+main

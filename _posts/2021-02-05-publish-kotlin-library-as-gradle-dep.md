@@ -472,8 +472,6 @@ dependencies {
 }
 ```
 
-{%- include featured.html -%}
-
 ### References
 
 - [Tutorial on using GitHub Package Registry to publish and import Android Kotlin library](https://medium.com/@stpatrck/publish-an-android-library-to-github-packages-8dfff3ececcb)

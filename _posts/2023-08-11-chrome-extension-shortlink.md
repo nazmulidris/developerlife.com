@@ -216,5 +216,3 @@ If you would like to get involved in an open source project and like Chrome exte
 free to contribute to the [Shortlink repo](https://github.com/r3bl-org/shortlink/issues). There are
 a lot of small features that need to be added. And they can be a nice stepping stone into the world
 of open source contribution 🎉.
-
-{%- include featured.html -%}

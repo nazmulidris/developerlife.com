@@ -827,5 +827,3 @@ function timed -d Pass the program or function that you want to execute as an ar
   echo "⏲ Total runtime: $RUNTIME min ⏲"
 end
 ```
-
-{%- include featured.html -%}

@@ -661,5 +661,3 @@ There are functions that make it easy to unwrap things in Rust that are wrapped 
 
 > 📜 You can take a look the source code of this thread safe non-binary tree data structure named
 > `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/utils).
-
-{%- include featured.html -%}

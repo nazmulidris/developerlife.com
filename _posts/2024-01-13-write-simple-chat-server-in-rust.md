@@ -393,5 +393,3 @@ fn process(incoming: &str) -> String {
 
 ## Next steps
 <a id="markdown-next-steps" name="next-steps"></a>
-
-{%- include featured.html -%}

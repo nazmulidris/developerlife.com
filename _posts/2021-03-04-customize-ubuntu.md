@@ -667,5 +667,3 @@ presses that you have configured on your system to do whatever it is that you wa
 management things (like switch workspaces, switch windows between workspaces, etc) and I use my
 custom key mappings for these `xdotool` commands. Here is a [my review of the UHK
 v1]({{ '/2021/03/09/mechanical-keyboard-review/' | relative_url}}).
-
-{%- include featured.html -%}

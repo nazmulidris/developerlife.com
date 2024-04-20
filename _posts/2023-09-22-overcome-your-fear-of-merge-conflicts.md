@@ -142,5 +142,3 @@ Let's use some pictures to understand the story of how we got here. And how to r
 ## Next steps
 <a id="markdown-next-steps" name="next-steps"></a>
 
-
-{%- include featured.html -%}

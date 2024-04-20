@@ -714,5 +714,3 @@ Tokio, along w/ the tutorials that are provided on the [Tokio website](https://t
 
 We will take this and build upon it further to create a full Redux library in Rust using Tokio
 [here](https://developerlife.com/2022/03/12/rust-redux/).
-
-{%- include featured.html -%}

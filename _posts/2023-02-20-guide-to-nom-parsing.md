@@ -350,5 +350,3 @@ Here are some entry points into the codebase.
    that are used to represent the Markdown document model
    ([`Document`](https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs))
    and all the other intermediate types (`Fragment`, `Block`, etc) & enums required for parsing.
-
-{%- include featured.html -%}

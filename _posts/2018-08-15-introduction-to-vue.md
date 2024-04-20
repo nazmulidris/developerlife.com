@@ -374,5 +374,3 @@ new Vue({
 
 You can get the code used in this tutorial in the
 [<i class="fab fa-github"></i> vue_intro](https://github.com/nazmulidris/vue_intro) GiHub repo.
-
-{%- include featured.html -%}

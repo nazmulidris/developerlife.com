@@ -317,5 +317,3 @@ There are many more components that need to be added to make it easier to "tuify
 existing CLI experiences. Things like multi line editor component w/ syntax highlighting,
 scroll view, form input fields, and more. If you would like to contribute to this effort,
 it would be great to have your help.
-
-{%- include featured.html -%}

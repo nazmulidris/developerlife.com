@@ -685,5 +685,3 @@ handle variables that hold color values in them).
 In the future we will expand this DSL to include more features like generating the entire stylesheet
 declaratively. And then move on to creating JSX like syntax in Rust for layout stuff in the `tui`
 module as well. More articles to follow based on this work.
-
-{%- include featured.html -%}

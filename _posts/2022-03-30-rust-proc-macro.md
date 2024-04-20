@@ -101,8 +101,6 @@ Here are some resources to help you w/ learning declarative macros.
 2. You can find all the pedagogical examples of macros shown in this article in this
    [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/).
 
-{%- include featured.html -%}
-
 > For more information on general Rust type system design (functional approach rather than
 > object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
 > by Will Crichton demonstrating Typed Design Patterns with Rust.
@@ -221,6 +219,8 @@ If you publish the public crate to crates.io, then you will need to publish each
 crates as well. This won't happen automatically when publishing the public crate, you have to go in
 and run `cargo publish` on each and every dependent crate and they will be their own installable
 crate on crates.io.
+
+{%- include featured.html -%}
 
 ## What does a syn AST look like?
 <a id="markdown-what-does-a-syn-ast-look-like%3F" name="what-does-a-syn-ast-look-like%3F"></a>
@@ -1784,5 +1784,3 @@ pub fn foo() -> &'static str {
     - [decl macros](https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules)
   2. You can find all the pedagogical examples of macros shown in this article in this
     [repo](https://github.com/nazmulidris/rust_scratch/blob/main/macros/).
-
-{%- include featured.html -%}

@@ -465,5 +465,3 @@ can read [this tutorial]({{ '/2024/01/13/write-simple-chat-server-in-rust/' |
 relative_url}}) to learn more about creating a more advanced TCP server that netcat,
 telnet, or PuTTY clients can connect to, in order to have multiple client apps chat with
 each other.
-
-{%- include featured.html -%}

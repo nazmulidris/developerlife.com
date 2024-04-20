@@ -3049,8 +3049,6 @@ class OpenUrlAction(val linkDestination: String?) :
 }
 ```
 
-{%- include featured.html -%}
-
 #### References
 
 Docs

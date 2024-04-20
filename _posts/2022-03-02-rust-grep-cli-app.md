@@ -264,5 +264,3 @@ Here are a list of crates that are used in this app.
 2. `atty` - <https://crates.io/crates/atty>
 
 We will explore more complex TUIs built w/ Rust in the future.
-
-{%- include featured.html -%}

@@ -1214,8 +1214,6 @@ fun testSelectedTextIsSearchedOnStackOverflow() {
 }
 ```
 
-{%- include featured.html -%}
-
 ## References
 
 There aren't many publicly available resources outside of JetBrains official docs (which are sparse,

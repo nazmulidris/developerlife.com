@@ -632,5 +632,3 @@ Tokio tasks.
 > [here](https://github.com/r3bl-org/r3bl-rs-utils). You can always find the most up to date
 > information on this library in it's
 > [`README`](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) file.
-
-{%- include featured.html -%}

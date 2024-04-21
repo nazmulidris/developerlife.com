@@ -1,4 +1,155 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-04-20T15:39:05-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Write a simple TCP chat server in Rust</title><link href="http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/" rel="alternate" type="text/html" title="Write a simple TCP chat server in Rust" /><published>2024-01-13T09:00:00-06:00</published><updated>2024-01-13T09:00:00-06:00</updated><id>http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust</id><content type="html" xml:base="http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/chatserver-hero.svg" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-04-21T14:58:49-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async</title><link href="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/" rel="alternate" type="text/html" title="Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async" /><published>2024-04-21T10:00:00-05:00</published><updated>2024-04-21T10:00:00-05:00</updated><id>http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust</id><content type="html" xml:base="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/r3bl_terminal_async-hero.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#why-use-this-crate">Why use this crate</a></li>
+  <li><a href="#demo-of-this-in-action">Demo of this in action</a></li>
+  <li><a href="#example-of-using-this-crate">Example of using this crate</a></li>
+  <li><a href="#video-series-on-developerlifecom-youtube-channel-on-building-this-crate-with-naz">Video series on developerlife.com YouTube channel on building this crate with Naz</a></li>
+</ul>
+
+<!-- /TOC -->
+
+<p>The <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> library lets your CLI program be asynchronous and interactive without
+blocking the main thread. Your spawned tasks can use it to concurrently write to the display output,
+pause and resume it. You can also display of colorful animated spinners ⌛🌈 for long running tasks.
+With it, you can create beautiful, powerful, and interactive REPLs (read execute print loops) with
+ease.</p>
+
+<h2 id="why-use-this-crate">Why use this crate</h2>
+<p><a id="markdown-why-use-this-crate" name="why-use-this-crate"></a></p>
+
+<ul>
+  <li>Because <a href="https://doc.rust-lang.org/std/io/struct.Stdin.html#method.read_line">read_line()</a> is
+blocking. And there is no way to terminate an OS thread that is blocking in Rust. To do this you
+have to exit the process (who’s thread is blocked in <code class="language-plaintext highlighter-rouge">read_line()</code>).</li>
+  <li>Another annoyance is that when a thread is blocked in <code class="language-plaintext highlighter-rouge">read_line()</code>, and you have to display
+output to stdout concurrently, this poses some challenges.</li>
+</ul>
+
+<h2 id="demo-of-this-in-action">Demo of this in action</h2>
+<p><a id="markdown-demo-of-this-in-action" name="demo-of-this-in-action"></a></p>
+
+<p>Here’s a screen capture of the types of interactive REPLs that you can expect to build in Rust,
+using this crate.</p>
+
+<p><img src="https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/docs/r3bl_terminal_async_clip_ffmpeg.gif?raw=true" alt="" /></p>
+
+<p>A couple of things to note about this demo:</p>
+
+<ol>
+  <li>You can use up, down to access history in the multi-line editor.</li>
+  <li>You can use left, right, ctrl+left, ctrl+right, to jump around in the multi-line editor.</li>
+  <li>You can edit content in this multi-line editor without blocking the main thread, and while other
+tasks (started via <code class="language-plaintext highlighter-rouge">tokio::spawn</code> are concurrently producing output to the display.</li>
+  <li>You can pause the output while spinners are being displayed, and these spinners support many
+different kinds of animations!</li>
+</ol>
+
+<h2 id="example-of-using-this-crate">Example of using this crate</h2>
+<p><a id="markdown-example-of-using-this-crate" name="example-of-using-this-crate"></a></p>
+
+<p>There are great examples in the <code class="language-plaintext highlighter-rouge">examples</code> folder of the repo
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async/examples">here</a>. Let’s walk
+through a simple example of using this crate. Let’s create a new example using the following
+commands:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo new <span class="nt">--bin</span> async-cli
+<span class="nb">cd </span>async-cli
+cargo add r3bl_terminal_async
+cargo add miette <span class="nt">--features</span> fancy
+cargo add tokio <span class="nt">--features</span> full
+</code></pre></div></div>
+
+<p>Now, let’s add a <code class="language-plaintext highlighter-rouge">main.rs</code> file in the <code class="language-plaintext highlighter-rouge">src</code> folder.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="n">Duration</span><span class="p">;</span>
+
+<span class="k">use</span> <span class="nn">r3bl_terminal_async</span><span class="p">::{</span><span class="n">tracing_setup</span><span class="p">,</span> <span class="n">TerminalAsync</span><span class="p">,</span> <span class="n">TracingConfig</span><span class="p">};</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="n">interval</span><span class="p">;</span>
+
+<span class="nd">#[tokio::main]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">maybe_terminal_async</span> <span class="o">=</span> <span class="nn">TerminalAsync</span><span class="p">::</span><span class="nf">try_new</span><span class="p">(</span><span class="s">"&gt; "</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// If the terminal is not fully interactive, then return early.</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">terminal_async</span> <span class="o">=</span> <span class="k">match</span> <span class="n">maybe_terminal_async</span> <span class="p">{</span>
+        <span class="nb">None</span> <span class="k">=&gt;</span> <span class="k">return</span> <span class="nf">Ok</span><span class="p">(()),</span>
+        <span class="n">_</span> <span class="k">=&gt;</span> <span class="n">maybe_terminal_async</span><span class="nf">.unwrap</span><span class="p">(),</span>
+    <span class="p">};</span>
+
+    <span class="c1">// Initialize tracing w/ the "async stdout".</span>
+    <span class="nn">tracing_setup</span><span class="p">::</span><span class="nf">init</span><span class="p">(</span><span class="nn">TracingConfig</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nf">Some</span><span class="p">(</span>
+        <span class="n">terminal_async</span><span class="nf">.clone_shared_writer</span><span class="p">(),</span>
+    <span class="p">)))</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Start tasks.</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval_1_task</span> <span class="o">=</span> <span class="nf">interval</span><span class="p">(</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_secs</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval_2_task</span> <span class="o">=</span> <span class="nf">interval</span><span class="p">(</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_secs</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span>
+
+    <span class="n">terminal_async</span>
+        <span class="nf">.println</span><span class="p">(</span><span class="s">"Welcome to your async repl! press Ctrl+D or Ctrl+C to exit."</span><span class="p">)</span>
+        <span class="k">.await</span><span class="p">;</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">interval_1_task</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="n">terminal_async</span><span class="nf">.println</span><span class="p">(</span><span class="s">"interval_1_task ticked"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+            <span class="p">},</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">interval_2_task</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="n">terminal_async</span><span class="nf">.println</span><span class="p">(</span><span class="s">"interval_1_task ticked"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+            <span class="p">},</span>
+            <span class="n">user_input</span> <span class="o">=</span> <span class="n">terminal_async</span><span class="nf">.get_readline_event</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="k">match</span> <span class="n">user_input</span> <span class="p">{</span>
+                <span class="nf">Ok</span><span class="p">(</span><span class="n">readline_event</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="k">match</span> <span class="n">readline_event</span> <span class="p">{</span>
+                        <span class="nn">r3bl_terminal_async</span><span class="p">::</span><span class="nn">ReadlineEvent</span><span class="p">::</span><span class="n">Eof</span> <span class="k">=&gt;</span> <span class="k">break</span><span class="p">,</span>
+                        <span class="nn">r3bl_terminal_async</span><span class="p">::</span><span class="nn">ReadlineEvent</span><span class="p">::</span><span class="n">Interrupted</span> <span class="k">=&gt;</span> <span class="k">break</span><span class="p">,</span>
+                        <span class="n">_</span> <span class="k">=&gt;</span> <span class="p">(),</span>
+                    <span class="p">}</span>
+
+                    <span class="k">let</span> <span class="n">msg</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">readline_event</span><span class="p">);</span>
+                    <span class="n">terminal_async</span><span class="nf">.println</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+                <span class="p">},</span>
+                <span class="nf">Err</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="k">let</span> <span class="n">msg</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"Received err: {:?}. Exiting."</span><span class="p">,</span> <span class="n">err</span><span class="p">);</span>
+                    <span class="n">terminal_async</span><span class="nf">.println</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Flush all writers to stdout</span>
+    <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">terminal_async</span><span class="nf">.flush</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You can then run this program using <code class="language-plaintext highlighter-rouge">cargo run</code>. Play with it to get a sense of the asynchronous and
+non blocking nature of the REPL. Press Ctrl+C, or Ctrl+D to exit this program.</p>
+
+<h2 id="video-series-on-developerlifecom-youtube-channel-on-building-this-crate-with-naz">Video series on developerlife.com YouTube channel on building this crate with Naz</h2>
+<p><a id="markdown-video-series-on-developerlife.com-youtube-channel-on-building-this-crate-with-naz" name="video-series-on-developerlife.com-youtube-channel-on-building-this-crate-with-naz"></a></p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a>
+    <ul>
+      <li><a href="https://youtu.be/6LhVx0xM86c">Part 1: Why?</a></li>
+      <li><a href="https://youtu.be/3vQJguti02I">Part 2: What?</a></li>
+      <li><a href="https://youtu.be/uxgyZzOmVIw">Part 3: Do the refactor and rename the crate</a></li>
+      <li><a href="https://www.youtube.com/watch?v=fcb6rstRniI">Part 4: Build the spinner</a></li>
+      <li><a href="https://www.youtube.com/watch?v=_QjsGDds270">Part 5: Add color gradient animation to spinner</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Testing playlist</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk">Part 1: Intro</a></li>
+      <li><a href="https://www.youtube.com/watch?v=4iM9t5dgvU4">Part 2: Deep dive</a></li>
+      <li>Playlists</li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[The r3bl_terminal_async library lets your CLI program be asynchronous and interactive without blocking the main thread. Your spawned tasks can use it to concurrently write to the display output, pause and resume it. You can also display of colorful animated spinners ⌛🌈 for long running tasks. With it, you can create beautiful, powerful, and interactive REPLs (read execute print loops) with ease.]]></summary></entry><entry><title type="html">Write a simple TCP chat server in Rust</title><link href="http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/" rel="alternate" type="text/html" title="Write a simple TCP chat server in Rust" /><published>2024-01-13T09:00:00-06:00</published><updated>2024-01-13T09:00:00-06:00</updated><id>http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust</id><content type="html" xml:base="http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/chatserver-hero.svg" /></p>
 
 <!-- TOC -->
 
@@ -3018,728 +3169,4 @@ time window is full with successful requests already.
 successful, we push the request timestamp to <code class="language-plaintext highlighter-rouge">successfulRequests</code> array and return “accept”. If
 the request was not successful, we return “deny”.</p>
   </li>
-</ol>]]></content><author><name>Nadia Idris</name></author><category term="TS" /><category term="CS" /><summary type="html"><![CDATA[This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles.]]></summary></entry><entry><title type="html">Create a simple DSL for CSS like syntax for TUIs</title><link href="http://developerlife.com/2022/08/04/rust-dsl-part-1/" rel="alternate" type="text/html" title="Create a simple DSL for CSS like syntax for TUIs" /><published>2022-08-04T10:00:00-05:00</published><updated>2022-08-04T10:00:00-05:00</updated><id>http://developerlife.com/2022/08/04/rust-dsl-part-1</id><content type="html" xml:base="http://developerlife.com/2022/08/04/rust-dsl-part-1/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust-dsl.svg" /></p>
-
-<!-- TOC -->
-
-<ul>
-  <li><a href="#create-a-dsl-for-css-like-syntax-for-tuis">Create a DSL for CSS like syntax for TUIs</a>
-    <ul>
-      <li><a href="#a-tui-brings-gui-features-to-terminal-apps">A TUI brings GUI features to terminal apps</a></li>
-      <li><a href="#what-is-a-style-and-how-is-it-used">What is a style, and how is it used?</a></li>
-      <li><a href="#life-of-a-style">Life of a style</a></li>
-      <li><a href="#going-from-imperative-to-declarative-style-declaration">Going from imperative to declarative style declaration</a></li>
-    </ul>
-  </li>
-  <li><a href="#what-are-procedural-macros">What are procedural macros</a></li>
-  <li><a href="#define-the-syntax">Define the syntax</a></li>
-  <li><a href="#parse-the-syntax">Parse the syntax</a></li>
-  <li><a href="#generate-the-code">Generate the code</a></li>
-  <li><a href="#exporting-it">Exporting it</a></li>
-  <li><a href="#wrapping-up">Wrapping up</a></li>
-</ul>
-
-<!-- /TOC -->
-
-<h2 id="create-a-dsl-for-css-like-syntax-for-tuis">Create a DSL for CSS like syntax for TUIs</h2>
-<p><a id="markdown-create-a-dsl-for-css-like-syntax-for-tuis" name="create-a-dsl-for-css-like-syntax-for-tuis"></a></p>
-
-<p>In this article, we will create a simple DSL
-(<a href="https://docs.microsoft.com/en-us/visualstudio/modeling/about-domain-specific-languages?view=vs-2022">domain specific language</a>)
-for CSS like syntax to declaratively create styling for TUI apps. You might be thinking, but why? 🤔</p>
-
-<p>The motivation for doing this comes from having built a TUI library in the
-<a href="https://crates.io/crates/r3bl_rs_utils/"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate and wanting to make it more
-ergonomic for developers, so that it is easier to use and familiar to declarative styling from CSS,
-etc.</p>
-<blockquote>
-
-👀 Watch Rust 🦀 live coding videos on our <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
-
-<br />
-<br />
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
-</iframe>
-
-<br />
-<br />
-
-📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
-(they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
-project):
-<ul>
-  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
-  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
-</ul>
-
-<p>
-<kbd>giti in action</kbd>
-<video width="100%" controls="">
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
-</video>
-</p>
-
-<p>
-<kbd>edi in action</kbd>
-<video width="100%" controls="">
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
-</video>
-</p>
-
-</blockquote>
-<h3 id="a-tui-brings-gui-features-to-terminal-apps">A TUI brings GUI features to terminal apps</h3>
-<p><a id="markdown-a-tui-brings-gui-features-to-terminal-apps" name="a-tui-brings-gui-features-to-terminal-apps"></a></p>
-
-<p>The best way to grok what a TUI is, is to see one in action.</p>
-
-<p><img src="https://user-images.githubusercontent.com/2966499/234949476-98ad595a-3b72-497f-8056-84b6acda80e2.gif" /></p>
-
-<ol>
-  <li><kbd>TUI library crate</kbd>: Clone <a href="https://github.com/r3bl-org/r3bl-open-core/">this TUI library
-repo</a> for the <a href="https://crates.io/crates/r3bl_tui"><code class="language-plaintext highlighter-rouge">r3bl_tui</code>
-crate</a> to your local or remote machine. You can run
-the examples in the
-<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui#examples-to-get-you-started">README</a>.</li>
-  <li><kbd>TUI apps crate</kbd>: Clone <a href="https://github.com/r3bl-org/r3bl-open-core">this TUI apps
-repo</a> for the <a href="https://crates.io/crates/r3bl-cmdr"><code class="language-plaintext highlighter-rouge">r3bl-cmdr</code>
-crate</a> to your local or remote machine. Run <code class="language-plaintext highlighter-rouge">cargo
-run</code> (in <code class="language-plaintext highlighter-rouge">r3bl-cmdr</code> folder) to see it doing its thing. Works great over
-<a href="https://en.wikipedia.org/wiki/Secure_Shell">SSH</a> too! Or you can just run <code class="language-plaintext highlighter-rouge">cargo
-install r3bl-cmdr</code>. And then run <code class="language-plaintext highlighter-rouge">edi</code> or <code class="language-plaintext highlighter-rouge">giti</code>.</li>
-</ol>
-
-<p>The TUI library allows developers to build “rich” text user interface apps in Rust, which
-are fully async, and loosely leverages architectural ideas from CSS, React, web app
-development paradigm, and Elm. Once we built the library, we wanted to make it easier for
-developer to declaratively create styling and even layouts, rather than having to do it
-imperatively.</p>
-
-<blockquote>
-  <p>💭 In frontend web development, we take it for granted that we can describe things
-<a href="https://www.educative.io/blog/declarative-vs-imperative-programming">declaratively rather than imperatively</a>.
-Anytime we use CSS, JSX, or HTML we are doing this. We are used to telling the computer <strong>what</strong>
-we would like it to produce, and it figures out <strong>how</strong> to go about making this happen. There are
-similar declarative technologies in desktop and mobile GUI toolkits as well.</p>
-</blockquote>
-
-<blockquote>
-  <p>For more information on general Rust type system design (functional approach rather than
-object oriented), please take a look at this <a href="https://arxiv.org/pdf/2307.07069.pdf">paper</a>
-by Will Crichton demonstrating Typed Design Patterns with Rust.</p>
-</blockquote>
-
-<h3 id="what-is-a-style-and-how-is-it-used">What is a style, and how is it used?</h3>
-<p><a id="markdown-what-is-a-style%2C-and-how-is-it-used%3F" name="what-is-a-style%2C-and-how-is-it-used%3F"></a></p>
-
-<p>What exactly is a style? It is used to format some text that is painted to the terminal. This is
-done by specifying the text’s color, background color, and other attributes (bold, underline, etc).</p>
-
-<p>In this article, we will create a simple DSL just to describe a single style. But this next section
-gives you context around where this style is used in the <code class="language-plaintext highlighter-rouge">r3bl_rs_utils::tui</code> library.</p>
-
-<h3 id="life-of-a-style">Life of a style</h3>
-<p><a id="markdown-life-of-a-style" name="life-of-a-style"></a></p>
-
-<p>As an aside, before getting into making the syntax declarative, let’s look at how a style is
-actually used in the <code class="language-plaintext highlighter-rouge">r3bl_rs_utils::tui</code> library. The following is a whirlwind overview of how the
-<code class="language-plaintext highlighter-rouge">r3bl_rs_utils::tui</code> engine itself works. It is not meant to be an in depth examination or
-explanation, so hold on for the blast of information that is about to follow 💨.</p>
-
-<p>First we have to make a stylesheet. This stylesheet holds 2 styles <code class="language-plaintext highlighter-rouge">style1</code> and <code class="language-plaintext highlighter-rouge">style2</code>. We will
-track <code class="language-plaintext highlighter-rouge">style1</code>’s journey in this section.</p>
-
-<p>We currently have to make the stylesheet imperatively, but will be converted to declarative in the
-near future 😃. More articles about DSLs are on the horizon.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">create_stylesheet</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">CommonResult</span><span class="o">&lt;</span><span class="n">Stylesheet</span><span class="o">&gt;</span> <span class="p">{</span>
-  <span class="c1">// Turquoise:  Color::Rgb { r: 51, g: 255, b: 255 }</span>
-  <span class="c1">// Pink:       Color::Rgb { r: 252, g: 157, b: 248 }</span>
-  <span class="c1">// Blue:       Color::Rgb { r: 55, g: 55, b: 248 }</span>
-  <span class="c1">// Faded blue: Color::Rgb { r: 85, g: 85, b: 255 }</span>
-  <span class="nd">throws_with_return!</span><span class="p">({</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">stylesheet</span> <span class="o">=</span> <span class="nn">Stylesheet</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
-
-    <span class="n">stylesheet</span><span class="nf">.add_styles</span><span class="p">(</span><span class="nd">vec!</span><span class="p">[</span>
-      <span class="nd">style!</span> <span class="p">{</span>
-        <span class="n">id</span><span class="p">:</span> <span class="n">style1</span>
-        <span class="n">margin</span><span class="p">:</span> <span class="mi">1</span>
-        <span class="n">color_bg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Rgb</span> <span class="p">{</span> <span class="n">r</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="mi">248</span> <span class="p">}</span>
-      <span class="p">},</span>
-      <span class="nd">style!</span> <span class="p">{</span>
-        <span class="n">id</span><span class="p">:</span> <span class="n">style2</span>
-        <span class="n">margin</span><span class="p">:</span> <span class="mi">1</span>
-        <span class="n">color_bg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Rgb</span> <span class="p">{</span> <span class="n">r</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="mi">255</span> <span class="p">}</span>
-      <span class="p">},</span>
-    <span class="p">])</span><span class="o">?</span><span class="p">;</span>
-
-    <span class="n">stylesheet</span>
-  <span class="p">})</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Then we have to use this style in a few different places. Let’s first use in to create a (flexbox
-like) layout. This is currently done imperatively. We intend to create a JSX like declarative syntax
-for this layout engine in the near future 😃. Even more articles about DSLs are on the horizon.</p>
-
-<p>The following snippet is a layout being created (imperatively right now). And the stylesheet is
-attached into the layout engine, which is a <code class="language-plaintext highlighter-rouge">struct</code> called <code class="language-plaintext highlighter-rouge">TWSurface</code> or terminal window surface.
-It stores some information about the terminal “window” (like available rows and columns, and it is
-manages when window resize events happen, and even manages user input events); it also has the
-stylesheet attached to it.</p>
-
-<p>And then <code class="language-plaintext highlighter-rouge">create_main_container()</code> is called. This seems important too, so let’s look at that next.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="k">mut</span> <span class="n">tw_surface</span> <span class="o">=</span> <span class="n">TWSurface</span> <span class="p">{</span>
-  <span class="n">stylesheet</span><span class="p">:</span> <span class="k">self</span><span class="nf">.create_stylesheet</span><span class="p">()</span><span class="o">?</span><span class="p">,</span>
-  <span class="o">..</span><span class="nn">TWSurface</span><span class="p">::</span><span class="nf">default</span><span class="p">()</span>
-<span class="p">};</span>
-<span class="n">tw_surface</span><span class="nf">.surface_start</span><span class="p">(</span><span class="n">TWSurfaceProps</span> <span class="p">{</span>
-  <span class="n">pos</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="nf">.into</span><span class="p">(),</span>
-  <span class="n">size</span><span class="p">:</span> <span class="n">window_size</span><span class="p">,</span>
-<span class="p">})</span><span class="o">?</span><span class="p">;</span>
-<span class="k">self</span>
-  <span class="nf">.create_main_container</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">tw_surface</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">shared_store</span><span class="p">)</span>
-  <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-<span class="n">tw_surface</span><span class="nf">.surface_end</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-</code></pre></div></div>
-
-<p>You can think of creating a layout using flexbox containers or boxes (<code class="language-plaintext highlighter-rouge">TWBox</code>).</p>
-
-<ol>
-  <li>You first create the surface that holds all the boxes. This surface takes up the full width and
-height of the terminal’s window (<code class="language-plaintext highlighter-rouge">TerminalWindow</code>).</li>
-  <li>Then inside of this surface (<code class="language-plaintext highlighter-rouge">TWSurface</code>), you can add a “main container” box (<code class="language-plaintext highlighter-rouge">TWBox</code>) which
-takes up the full space of the terminal window.</li>
-  <li>You can then add two other boxes (<code class="language-plaintext highlighter-rouge">TWBox</code>) which will be columns that are 50% width each.</li>
-  <li>They will be arranged from left to right (horizontal direction, or <code class="language-plaintext highlighter-rouge">Direction::Horizontal</code>).</li>
-  <li>Inside of each column box, you can provide a <code class="language-plaintext highlighter-rouge">Component</code> to actually paint the content &amp; even
-handle user input events.</li>
-  <li>And ll of this happening asynchronously.</li>
-</ol>
-
-<p>Here’s the snippet that creates this “main container” box. No mention of styles here. But they are
-attached to the <code class="language-plaintext highlighter-rouge">tw_surface</code> which is passed into <code class="language-plaintext highlighter-rouge">create_left_col()</code> &amp; <code class="language-plaintext highlighter-rouge">create_right_col()</code>.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="n">create_main_container</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span><span class="p">(</span>
-  <span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">tw_surface</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">TWSurface</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">AppWithLayoutState</span><span class="p">,</span>
-  <span class="n">shared_store</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">SharedStore</span><span class="o">&lt;</span><span class="n">AppWithLayoutState</span><span class="p">,</span> <span class="n">AppWithLayoutAction</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">CommonResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-  <span class="nd">throws!</span><span class="p">({</span>
-    <span class="n">tw_surface</span><span class="nf">.box_start</span><span class="p">(</span><span class="n">TWBoxProps</span> <span class="p">{</span>
-      <span class="n">id</span><span class="p">:</span> <span class="n">CONTAINER_ID</span><span class="nf">.into</span><span class="p">(),</span>
-      <span class="n">dir</span><span class="p">:</span> <span class="nn">Direction</span><span class="p">::</span><span class="n">Horizontal</span><span class="p">,</span>
-      <span class="n">req_size</span><span class="p">:</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span><span class="nf">.try_into</span><span class="p">()</span><span class="o">?</span><span class="p">,</span>
-      <span class="o">..</span><span class="nn">Default</span><span class="p">::</span><span class="nf">default</span><span class="p">()</span>
-    <span class="p">})</span><span class="o">?</span><span class="p">;</span>
-    <span class="k">self</span>
-      <span class="nf">.create_left_col</span><span class="p">(</span><span class="n">tw_surface</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">shared_store</span><span class="p">)</span>
-      <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-    <span class="k">self</span>
-      <span class="nf">.create_right_col</span><span class="p">(</span><span class="n">tw_surface</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">shared_store</span><span class="p">)</span>
-      <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">tw_surface</span><span class="nf">.box_end</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-  <span class="p">});</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>For now, we will just look at one of the columns - <code class="language-plaintext highlighter-rouge">create_left_col()</code>. After all this article is
-about DSL to build a single style and not about how to build TUIs. Here’s the snippet to create this
-column, and it does use a style from the stylesheet (<code class="language-plaintext highlighter-rouge">style1</code>) that we made earlier.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="n">create_left_col</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span><span class="p">(</span>
-  <span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">tw_surface</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">TWSurface</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">AppWithLayoutState</span><span class="p">,</span>
-  <span class="n">shared_state</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">SharedStore</span><span class="o">&lt;</span><span class="n">AppWithLayoutState</span><span class="p">,</span> <span class="n">AppWithLayoutAction</span><span class="o">&gt;</span><span class="p">,</span>
-<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">CommonResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-  <span class="nd">throws!</span><span class="p">({</span>
-    <span class="n">tw_surface</span><span class="nf">.box_start</span><span class="p">(</span><span class="n">TWBoxProps</span> <span class="p">{</span>
-      <span class="n">styles</span><span class="p">:</span> <span class="n">tw_surface</span><span class="py">.stylesheet</span><span class="nf">.find_styles_by_ids</span><span class="p">(</span><span class="nd">vec!</span><span class="p">[</span><span class="s">"style1"</span><span class="p">]),</span>
-      <span class="n">id</span><span class="p">:</span> <span class="n">COL_1_ID</span><span class="nf">.into</span><span class="p">(),</span>
-      <span class="n">dir</span><span class="p">:</span> <span class="nn">Direction</span><span class="p">::</span><span class="n">Vertical</span><span class="p">,</span>
-      <span class="n">req_size</span><span class="p">:</span> <span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span><span class="nf">.try_into</span><span class="p">()</span><span class="o">?</span><span class="p">,</span>
-    <span class="p">})</span><span class="o">?</span><span class="p">;</span>
-
-    <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">shared_component</span><span class="p">)</span> <span class="o">=</span> <span class="k">self</span><span class="py">.component_registry</span><span class="nf">.get</span><span class="p">(</span><span class="n">COL_1_ID</span><span class="p">)</span> <span class="p">{</span>
-      <span class="k">let</span> <span class="n">current_box</span> <span class="o">=</span> <span class="n">tw_surface</span><span class="nf">.current_box</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-      <span class="k">let</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">shared_component</span>
-        <span class="nf">.write</span><span class="p">()</span>
-        <span class="k">.await</span>
-        <span class="nf">.render</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="py">.has_focus</span><span class="p">,</span> <span class="n">current_box</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">shared_state</span><span class="p">)</span>
-        <span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-      <span class="n">tw_surface</span><span class="py">.render_buffer</span> <span class="o">+=</span> <span class="n">queue</span><span class="p">;</span>
-    <span class="p">}</span>
-
-    <span class="n">tw_surface</span><span class="nf">.box_end</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-  <span class="p">});</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h3 id="going-from-imperative-to-declarative-style-declaration">Going from imperative to declarative style declaration</h3>
-<p><a id="markdown-going-from-imperative-to-declarative-style-declaration" name="going-from-imperative-to-declarative-style-declaration"></a></p>
-
-<p>Now that we have that context out of the way, let’s look at a single style in more detail.</p>
-
-<p>This is how we can imperatively create a style using the
-<a href="https://docs.rs/r3bl_rs_utils/latest/r3bl_rs_utils/tui/index.html"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils::tui</code> module</a>.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
-<span class="k">use</span> <span class="nn">r3bl_rs_utils</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
-
-<span class="k">fn</span> <span class="nf">make_a_style_imperatively</span><span class="p">(</span><span class="n">id</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Style</span> <span class="p">{</span>
-  <span class="k">let</span> <span class="n">black</span> <span class="o">=</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Rgb</span> <span class="p">{</span> <span class="n">r</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="mi">0</span> <span class="p">};</span>
-  <span class="n">Style</span> <span class="p">{</span>
-    <span class="n">id</span><span class="p">:</span> <span class="n">id</span><span class="nf">.to_string</span><span class="p">(),</span>
-    <span class="n">dim</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>
-    <span class="n">bold</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>
-    <span class="n">color_fg</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span><span class="n">black</span><span class="nf">.into</span><span class="p">()),</span>
-    <span class="n">color_bg</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span><span class="n">black</span><span class="nf">.into</span><span class="p">()),</span>
-    <span class="o">..</span><span class="nn">Style</span><span class="p">::</span><span class="nf">default</span><span class="p">()</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Once created in this manner, it can be added to a stylesheet, which can then be attached to a
-<code class="language-plaintext highlighter-rouge">TWSurface</code>. And then it can be used to style things in boxes (<code class="language-plaintext highlighter-rouge">TWBox</code>).</p>
-
-<p>We would like to express this declaratively, like so.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
-<span class="k">use</span> <span class="nn">r3bl_rs_utils</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
-
-<span class="k">fn</span> <span class="nf">make_a_style_declaratively</span><span class="p">(</span><span class="n">id</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Style</span> <span class="p">{</span>
-  <span class="nd">style!</span> <span class="p">{</span>
-    <span class="n">id</span><span class="p">:</span> <span class="n">style2</span>
-    <span class="n">attrib</span><span class="p">:</span> <span class="p">[</span><span class="n">dim</span><span class="p">,</span> <span class="n">bold</span><span class="p">]</span>
-    <span class="n">margin</span><span class="p">:</span> <span class="mi">1</span>
-    <span class="n">color_fg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Red</span>
-    <span class="n">color_bg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Rgb</span> <span class="p">{</span> <span class="n">r</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">g</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="mi">0</span> <span class="p">}</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>The rest of this article will be devoted to making this happen using procedural macros (function
-like).</p>
-
-<h2 id="what-are-procedural-macros">What are procedural macros</h2>
-<p><a id="markdown-what-are-procedural-macros" name="what-are-procedural-macros"></a></p>
-
-<p>For an introduction to procedural macros, please read our article on
-<a href="https://developerlife.com/2022/03/30/rust-proc-macro/">Procedural Macros</a>. Here are some snippets
-from that article.</p>
-
-<blockquote>
-  <p>🔮 <strong>Procedural macros</strong> are a way for you to extend the Rust compiler and provide plugins that
-you can use to extend the language. They are really powerful and require some more work to setup
-in an existing project (you have to create a new library create just for them and they all have to
-be declared in the <code class="language-plaintext highlighter-rouge">lib.rs</code> file). Here are the key benefits of procedural macros:</p>
-
-  <ul>
-    <li>Minimize the amount of manual work you have to do in order to generate boilerplate code 🎉. This
-is similar to
-<a href="https://developerlife.com/2020/07/11/annotation-processing-kotlin-android/">annotation processing</a>
-in Java and Kotlin.</li>
-    <li>You can create your own domain specific language like React JSX in Rust 🎉. Create your own
-<a href="https://developerlife.com/2020/04/04/kotlin-dsl-intro/">DSL (domain spe <a id="markdown-define-the-syntax" name="define-the-syntax"></a>cific language)</a>
-like in Kotlin and babel and JavaScript.</li>
-  </ul>
-</blockquote>
-
-<blockquote>
-  <p>🪄 <strong>Declarative macros</strong> have many limitations (eg: they can’t work with generics) but are easier
-to use. If you have simple use cases they work great, since they are so easy to write. Here are
-some resources to help you w/ learning declarative macros.</p>
-
-  <ol>
-    <li><a href="https://github.com/nazmulidris/rust_scratch/blob/main/macros/tests/decl/main.rs">Declarative macros included in this article’s repo (but not covered in this article)</a></li>
-    <li><a href="https://veykril.github.io/tlborm/introduction.html">Little book of Rust macros</a></li>
-    <li><a href="https://youtu.be/q6paRBbLgNw">Great YT video on declarative macros</a></li>
-  </ol>
-</blockquote>
-
-<blockquote>
-  <p>Here’s a summary:</p>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Macro type</th>
-        <th>Capabilities &amp; limitations</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Declarative</td>
-        <td>Can’t handle generics, patterns capture items as <em>wholes</em> and can’t be broken down in the macro body</td>
-      </tr>
-      <tr>
-        <td>Procedural - function like</td>
-        <td>Operates on the code passed inside parenthesis of invocation to produce new token stream.</td>
-      </tr>
-      <tr>
-        <td>Procedural - derive</td>
-        <td>Can’t touch token stream of annotated <code class="language-plaintext highlighter-rouge">struct</code> or <code class="language-plaintext highlighter-rouge">enum</code>, only add new token stream below; can declare helper attributes</td>
-      </tr>
-      <tr>
-        <td>Procedural - attribute</td>
-        <td>Like function-like, replaces token stream of annotated item (not just <code class="language-plaintext highlighter-rouge">struct</code> or <code class="language-plaintext highlighter-rouge">enum</code>)</td>
-      </tr>
-    </tbody>
-  </table>
-</blockquote>
-
-<h2 id="define-the-syntax">Define the syntax</h2>
-<p><a id="markdown-define-the-syntax" name="define-the-syntax"></a></p>
-
-<p>The fun part of creating a DSL is coming up w/ whatever syntax you want to allow developers to use.
-This is a very liberating, empowering, and creative exercise. You don’t have to accept the language
-keywords as they are. You are free to make your own! Rust is awesome!</p>
-
-<p>To meet the goal of being an ergonomic API, the <code class="language-plaintext highlighter-rouge">tui</code> library leverages the mental model that people
-already possess coming from web, or Android, etc. of declaratively creating styling. And then
-specifying that some component uses that style. We will do the same while taking the unique
-constraints of a text user interface (that only renders to the terminal) into account. Fun times!</p>
-
-<p>A style is made up of the following things, and is intended to style text that is going to be
-painted to the terminal.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">style!</span> <span class="p">{</span>
-  <span class="n">id</span><span class="p">:</span>       <span class="n">style1</span>                   <span class="c1">// (req) unique id of the style</span>
-  <span class="n">attrib</span><span class="p">:</span>   <span class="p">[</span><span class="n">dim</span><span class="p">,</span> <span class="n">bold</span><span class="p">]</span>              <span class="c1">// (opt) array of attributes for styling text</span>
-  <span class="n">margin</span><span class="p">:</span>   <span class="mi">1</span>                        <span class="c1">// (opt) top, bottom, left, right margin</span>
-  <span class="n">color_fg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Red</span>               <span class="c1">// (opt) Foreground color (specified via enum)</span>
-  <span class="n">color_bg</span><span class="p">:</span> <span class="nn">Color</span><span class="p">::</span><span class="n">Rgb</span> <span class="p">{</span><span class="n">r</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="n">g</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="n">b</span><span class="p">:</span><span class="mi">0</span><span class="p">}</span> <span class="c1">// (opt) Background color (specified via struct)</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Let’s break this down into more specifics, so that we can build the parser for the syntax next.</p>
-
-<ol>
-  <li>The <code class="language-plaintext highlighter-rouge">id</code> is required. The value is going to be turned into a string. So the value is a literal
-which can be anything that can be turned into a string.</li>
-  <li>The <code class="language-plaintext highlighter-rouge">attrib</code> field is optional. When you do provide a value for it, this looks like an array of
-attributes. Here’s the full list of these attributes: <code class="language-plaintext highlighter-rouge">dim</code>, <code class="language-plaintext highlighter-rouge">bold</code>, <code class="language-plaintext highlighter-rouge">underline</code>, <code class="language-plaintext highlighter-rouge">reverse</code>,
-<code class="language-plaintext highlighter-rouge">hidden</code>, <code class="language-plaintext highlighter-rouge">strikethrough</code>.</li>
-  <li>The <code class="language-plaintext highlighter-rouge">margin</code> field is optional. When you do provide a value for it, this looks like an integer.
-The value is the number of spaces to add to the top, down, left, and right of the text.</li>
-  <li>The foreground color is optional. It can take an enum (<code class="language-plaintext highlighter-rouge">Color::Red</code>) or a struct
-(<code class="language-plaintext highlighter-rouge">Color::Rgb {r:0,g:0,b:0}</code>).</li>
-  <li>The background color is optional. It can take an enum (<code class="language-plaintext highlighter-rouge">Color::Red</code>) or a struct
-(<code class="language-plaintext highlighter-rouge">Color::Rgb {r:0,g:0,b:0}</code>).</li>
-</ol>
-
-<blockquote>
-  <p>📜 Here’s the production version of the <code class="language-plaintext highlighter-rouge">style!</code> procedural macro:
-<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/macro/src/make_style"><code class="language-plaintext highlighter-rouge">make_style()</code></a></p>
-</blockquote>
-
-<p>You can play around w/ the syntax that you want to be able to parse. It takes some iterating in
-order to be ergonomic. It helps to just write out a lot of different ways to express this
-information and see what feels the best.</p>
-
-<p>A lot of what feels the best will be biased by whatever style that you might be used to, based on
-your background. This is another reason why the ability to create your own DSLs in Rust is so
-awesome! You can just extend the language in ways that you would like code to be expressed
-regardless of whatever keywords come “out of the box” w/ Rust.</p>
-
-<p>Even if you change it later, it is good to start w/ something to aim for. If we aim for nothing, we
-won’t hit anything 🎯.</p>
-
-<h2 id="parse-the-syntax">Parse the syntax</h2>
-<p><a id="markdown-parse-the-syntax" name="parse-the-syntax"></a></p>
-
-<p>Now that we have an idea of what the thing we want to parse looks like, let’s parse it. The rough
-approach that we can take to parsing this is just go ahead and try and read things that we expect to
-see one after another. If it fails, then the compiler will generate a warning letting us know that
-something has gone wrong. In this sense, it is fairly straightforward to parse the syntax. However,
-there are a lot of details we need to take care of while we are attempting to read the next token in
-the stream, since things can be optional, they can be nested, etc.</p>
-
-<p>Let’s start w/ a few things to get us going. First we will need a <code class="language-plaintext highlighter-rouge">struct</code> in which we can store the
-things that we have parsed from the token stream. This struct basically holds all the meta data that
-we will need to generate the code (which is just auto generating the imperative code we’ve already
-seen above).</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Docs: https://docs.rs/syn/1.0.98/syn/parse/struct.ParseBuffer.html</span>
-<span class="nd">#[derive(Debug,</span> <span class="nd">Clone)]</span>
-<span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">struct</span> <span class="n">StyleMetadata</span> <span class="p">{</span>
-  <span class="k">pub</span> <span class="n">id</span><span class="p">:</span> <span class="n">Ident</span><span class="p">,</span>                <span class="cm">/* Only required field. */</span>
-  <span class="k">pub</span> <span class="n">attrib_vec</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Attrib</span><span class="o">&gt;</span><span class="p">,</span>  <span class="cm">/* Attributes are optional. */</span>
-  <span class="k">pub</span> <span class="n">margin</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">UnitType</span><span class="o">&gt;</span><span class="p">,</span> <span class="cm">/* Optional. */</span>
-  <span class="k">pub</span> <span class="n">color_fg</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Expr</span><span class="o">&gt;</span><span class="p">,</span>   <span class="cm">/* Optional. */</span>
-  <span class="k">pub</span> <span class="n">color_bg</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Expr</span><span class="o">&gt;</span><span class="p">,</span>   <span class="cm">/* Optional. */</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Here’s an <code class="language-plaintext highlighter-rouge">enum</code> that we use to represent the various attributes that we can have.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">PartialEq,</span> <span class="nd">Eq)]</span>
-<span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">enum</span> <span class="n">Attrib</span> <span class="p">{</span>
-  <span class="n">Bold</span><span class="p">,</span>
-  <span class="n">Dim</span><span class="p">,</span>
-  <span class="n">Underline</span><span class="p">,</span>
-  <span class="n">Reverse</span><span class="p">,</span>
-  <span class="n">Hidden</span><span class="p">,</span>
-  <span class="n">Strikethrough</span><span class="p">,</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>So far so good. Now we can implement the <code class="language-plaintext highlighter-rouge">Parse</code> trait for this <code class="language-plaintext highlighter-rouge">struct</code> so that we can have <code class="language-plaintext highlighter-rouge">syn</code>
-take the token stream and turn it into a <code class="language-plaintext highlighter-rouge">StyleMetadata</code> struct.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span> <span class="n">Parse</span> <span class="k">for</span> <span class="n">StyleMetadata</span> <span class="p">{</span>
-  <span class="k">fn</span> <span class="nf">parse</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="n">ParseStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="k">Self</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">StyleMetadata</span> <span class="p">{</span>
-      <span class="n">id</span><span class="p">:</span> <span class="nn">Ident</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"tbd"</span><span class="p">,</span> <span class="nn">Span</span><span class="p">::</span><span class="nf">call_site</span><span class="p">()),</span>
-      <span class="n">attrib_vec</span><span class="p">:</span> <span class="nn">Vec</span><span class="p">::</span><span class="nf">new</span><span class="p">(),</span>
-      <span class="n">margin</span><span class="p">:</span> <span class="nb">None</span><span class="p">,</span>
-      <span class="n">color_fg</span><span class="p">:</span> <span class="nb">None</span><span class="p">,</span>
-      <span class="n">color_bg</span><span class="p">:</span> <span class="nb">None</span><span class="p">,</span>
-    <span class="p">};</span>
-
-    <span class="c1">// TODO: implement these functions below.</span>
-    <span class="nf">parse_id</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">metadata</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-    <span class="nf">parse_optional_attrib</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">metadata</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-    <span class="nf">parse_optional_margin</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">metadata</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-    <span class="nf">parse_optional_color_fg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">metadata</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-    <span class="nf">parse_optional_color_bg</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">metadata</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-
-    <span class="nf">Ok</span><span class="p">(</span><span class="n">metadata</span><span class="p">)</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>With this stubbed out, we can have <code class="language-plaintext highlighter-rouge">syn</code> do something like this in our procedural macro.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">fn</span> <span class="nf">fn_proc_macro_impl</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span> <span class="p">{</span>
-  <span class="k">let</span> <span class="n">style_metadata</span><span class="p">:</span> <span class="n">StyleMetadata</span> <span class="o">=</span> <span class="nn">syn</span><span class="p">::</span><span class="nd">parse_macro_input!</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
-  <span class="c1">// TODO: implement the function below.</span>
-  <span class="nf">code_gen</span><span class="p">(</span><span class="n">style_metadata</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>To implement those <code class="language-plaintext highlighter-rouge">parse_*</code> methods we saw above, we need to create a set of custom keywords for
-our syntax.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// [syn custom keywords docs](https://docs.rs/syn/latest/syn/macro.custom_keyword.html)</span>
-<span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">mod</span> <span class="n">kw</span> <span class="p">{</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">bold</span><span class="p">);</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">attrib</span><span class="p">);</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">dim</span><span class="p">);</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">underline</span><span class="p">);</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">reverse</span><span class="p">);</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">hidden</span><span class="p">);</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">strikethrough</span><span class="p">);</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">margin</span><span class="p">);</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">color_fg</span><span class="p">);</span>
-  <span class="nn">syn</span><span class="p">::</span><span class="nd">custom_keyword!</span><span class="p">(</span><span class="n">color_bg</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>With that out of the way, we can implement each of the functions. Here’s the simplest one. Since the
-<code class="language-plaintext highlighter-rouge">id</code> is required, we can just go for it. If it fails, then the compiler will complain that <code class="language-plaintext highlighter-rouge">id</code> is
-missing.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Parse id (required).</span>
-<span class="k">fn</span> <span class="nf">parse_id</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ParseStream</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">StyleMetadata</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-  <span class="k">let</span> <span class="n">lookahead</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.lookahead1</span><span class="p">();</span>
-  <span class="k">if</span> <span class="n">lookahead</span><span class="nf">.peek</span><span class="p">(</span><span class="nn">kw</span><span class="p">::</span><span class="n">id</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nn">kw</span><span class="p">::</span><span class="n">id</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nd">Token!</span><span class="p">[:]</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">id</span> <span class="o">=</span> <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="n">Ident</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">metadata</span><span class="py">.id</span> <span class="o">=</span> <span class="n">id</span><span class="p">;</span>
-  <span class="p">}</span>
-  <span class="nd">call_if_true!</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"🚀 id: {:?}"</span><span class="p">,</span> <span class="n">metadata</span><span class="py">.id</span><span class="p">));</span>
-  <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>The next one is more difficult, since we are dealing w/ optional attributes that can be parsed. Also
-the things being parsed come in an array and there can be a bunch of different ones.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Parse attrib (optional).</span>
-<span class="k">fn</span> <span class="nf">parse_optional_attrib</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ParseStream</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">StyleMetadata</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-  <span class="k">let</span> <span class="n">lookahead</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.lookahead1</span><span class="p">();</span>
-  <span class="k">if</span> <span class="n">lookahead</span><span class="nf">.peek</span><span class="p">(</span><span class="nn">kw</span><span class="p">::</span><span class="n">attrib</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nn">kw</span><span class="p">::</span><span class="n">attrib</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nd">Token!</span><span class="p">[:]</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-
-    <span class="k">let</span> <span class="n">expr_array</span><span class="p">:</span> <span class="n">ExprArray</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.parse</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="k">for</span> <span class="n">item</span> <span class="k">in</span> <span class="n">expr_array</span><span class="py">.elems</span> <span class="p">{</span>
-      <span class="k">if</span> <span class="k">let</span> <span class="nn">Expr</span><span class="p">::</span><span class="nf">Path</span><span class="p">(</span><span class="n">ExprPath</span> <span class="p">{</span>
-        <span class="n">attrs</span><span class="p">:</span> <span class="n">_</span><span class="p">,</span>
-        <span class="n">qself</span><span class="p">:</span> <span class="n">_</span><span class="p">,</span>
-        <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="p">{</span> <span class="n">segments</span><span class="p">,</span> <span class="o">..</span> <span class="p">},</span>
-      <span class="p">})</span> <span class="o">=</span> <span class="n">item</span>
-      <span class="p">{</span>
-        <span class="k">let</span> <span class="n">PathSegment</span> <span class="p">{</span>
-          <span class="n">ident</span><span class="p">,</span>
-          <span class="n">arguments</span><span class="p">:</span> <span class="n">_</span><span class="p">,</span>
-        <span class="p">}</span> <span class="o">=</span> <span class="n">segments</span><span class="nf">.first</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
-        <span class="k">match</span> <span class="n">ident</span><span class="nf">.as_str</span><span class="p">()</span><span class="nf">.as_ref</span><span class="p">()</span> <span class="p">{</span>
-          <span class="s">"bold"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Bold</span><span class="p">),</span>
-          <span class="s">"dim"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Dim</span><span class="p">),</span>
-          <span class="s">"underline"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Underline</span><span class="p">),</span>
-          <span class="s">"reverse"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Reverse</span><span class="p">),</span>
-          <span class="s">"hidden"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Hidden</span><span class="p">),</span>
-          <span class="s">"strikethrough"</span> <span class="k">=&gt;</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="nf">.push</span><span class="p">(</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Strikethrough</span><span class="p">),</span>
-          <span class="n">_</span> <span class="k">=&gt;</span> <span class="nd">panic!</span><span class="p">(</span><span class="s">"🚀 unknown attrib: {}"</span><span class="p">,</span> <span class="n">ident</span><span class="p">),</span>
-        <span class="p">}</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="nd">call_if_true!</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"🚀 attrib_vec: {:?}"</span><span class="p">,</span> <span class="n">metadata</span><span class="py">.attrib_vec</span><span class="p">));</span>
-  <span class="p">}</span>
-  <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Finally, the following are fairly naive implementations of the rest of the required functions. And I
-say naive, because we don’t really support handling colors that are passed in a variable. We
-currently only support <code class="language-plaintext highlighter-rouge">Color</code> <code class="language-plaintext highlighter-rouge">enum</code> and <code class="language-plaintext highlighter-rouge">Rgb</code> <code class="language-plaintext highlighter-rouge">struct</code>. But it is feasible that a variable can be
-passed in which holds either. We will leave this implementation for another article.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Parse margin (optional).</span>
-<span class="k">fn</span> <span class="nf">parse_optional_margin</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ParseStream</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">StyleMetadata</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-  <span class="k">let</span> <span class="n">lookahead</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.lookahead1</span><span class="p">();</span>
-  <span class="k">if</span> <span class="n">lookahead</span><span class="nf">.peek</span><span class="p">(</span><span class="nn">kw</span><span class="p">::</span><span class="n">margin</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nn">kw</span><span class="p">::</span><span class="n">margin</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nd">Token!</span><span class="p">[:]</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">lit_int</span> <span class="o">=</span> <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="n">LitInt</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">margin_int</span><span class="p">:</span> <span class="n">UnitType</span> <span class="o">=</span> <span class="n">lit_int</span><span class="nf">.base10_parse</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
-    <span class="n">metadata</span><span class="py">.margin</span> <span class="o">=</span> <span class="nf">Some</span><span class="p">(</span><span class="n">margin_int</span><span class="p">);</span>
-    <span class="nd">call_if_true!</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"🚀 margin: {:?}"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">metadata</span><span class="py">.margin</span><span class="p">));</span>
-  <span class="p">}</span>
-  <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-
-<span class="c1">// Parse color_fg (optional).</span>
-<span class="k">fn</span> <span class="nf">parse_optional_color_fg</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ParseStream</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">StyleMetadata</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-  <span class="k">let</span> <span class="n">lookahead</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.lookahead1</span><span class="p">();</span>
-  <span class="k">if</span> <span class="n">lookahead</span><span class="nf">.peek</span><span class="p">(</span><span class="nn">kw</span><span class="p">::</span><span class="n">color_fg</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nn">kw</span><span class="p">::</span><span class="n">color_fg</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nd">Token!</span><span class="p">[:]</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">color_expr</span> <span class="o">=</span> <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="n">Expr</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">metadata</span><span class="py">.color_fg</span> <span class="o">=</span> <span class="nf">Some</span><span class="p">(</span><span class="n">color_expr</span><span class="p">);</span>
-    <span class="nd">call_if_true!</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"🚀 color_fg: {:#?}"</span><span class="p">,</span> <span class="n">metadata</span><span class="py">.color_fg</span><span class="p">));</span>
-  <span class="p">}</span>
-
-  <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-
-<span class="c1">// Parse color_bg (optional).</span>
-<span class="k">fn</span> <span class="nf">parse_optional_color_bg</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">ParseStream</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">StyleMetadata</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-  <span class="k">let</span> <span class="n">lookahead</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.lookahead1</span><span class="p">();</span>
-  <span class="k">if</span> <span class="n">lookahead</span><span class="nf">.peek</span><span class="p">(</span><span class="nn">kw</span><span class="p">::</span><span class="n">color_bg</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nn">kw</span><span class="p">::</span><span class="n">color_bg</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nd">Token!</span><span class="p">[:]</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">color_expr</span> <span class="o">=</span> <span class="n">input</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="n">Expr</span><span class="o">&gt;</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">metadata</span><span class="py">.color_bg</span> <span class="o">=</span> <span class="nf">Some</span><span class="p">(</span><span class="n">color_expr</span><span class="p">);</span>
-    <span class="nd">call_if_true!</span><span class="p">(</span><span class="n">DEBUG</span><span class="p">,</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"🚀 color_bg: {:#?}"</span><span class="p">,</span> <span class="n">metadata</span><span class="py">.color_bg</span><span class="p">));</span>
-  <span class="p">}</span>
-
-  <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>With the parsing out of the way, we can now proceed to the code generation.</p>
-
-<h2 id="generate-the-code">Generate the code</h2>
-<p><a id="markdown-generate-the-code" name="generate-the-code"></a></p>
-
-<p>Revisiting our procedural macro function, we can now generate the code.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">fn</span> <span class="nf">fn_proc_macro_impl</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span> <span class="p">{</span>
-  <span class="k">let</span> <span class="n">style_metadata</span><span class="p">:</span> <span class="n">StyleMetadata</span> <span class="o">=</span> <span class="nd">parse_macro_input!</span><span class="p">(</span><span class="n">input</span><span class="p">);</span>
-  <span class="nf">code_gen</span><span class="p">(</span><span class="n">style_metadata</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>This is much more straightforward than parsing the syntax, thanks to <code class="language-plaintext highlighter-rouge">quote!</code>.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span><span class="p">(</span><span class="k">crate</span><span class="p">)</span> <span class="k">fn</span> <span class="nf">code_gen</span><span class="p">(</span>
-  <span class="n">StyleMetadata</span> <span class="p">{</span><span class="n">id</span><span class="p">,</span> <span class="n">attrib_vec</span><span class="p">,</span> <span class="n">margin</span><span class="p">,</span> <span class="n">color_fg</span><span class="p">,</span> <span class="n">color_bg</span><span class="p">}:</span> <span class="n">StyleMetadata</span><span class="p">,</span>
-<span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span> <span class="p">{</span>
-  <span class="k">let</span> <span class="n">has_attrib_bold</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Bold</span><span class="p">);</span>
-  <span class="k">let</span> <span class="n">has_attrib_dim</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Dim</span><span class="p">);</span>
-  <span class="k">let</span> <span class="n">has_attrib_underline</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Underline</span><span class="p">);</span>
-  <span class="k">let</span> <span class="n">has_attrib_reverse</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Reverse</span><span class="p">);</span>
-  <span class="k">let</span> <span class="n">has_attrib_hidden</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Hidden</span><span class="p">);</span>
-  <span class="k">let</span> <span class="n">has_attrib_strikethrough</span> <span class="o">=</span> <span class="n">attrib_vec</span><span class="nf">.contains</span><span class="p">(</span><span class="o">&amp;</span><span class="nn">Attrib</span><span class="p">::</span><span class="n">Strikethrough</span><span class="p">);</span>
-
-  <span class="k">let</span> <span class="n">id_str</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">id</span><span class="p">);</span>
-
-  <span class="k">let</span> <span class="n">maybe_margin_expr</span> <span class="o">=</span> <span class="k">match</span> <span class="n">margin</span> <span class="p">{</span>
-    <span class="nf">Some</span><span class="p">(</span><span class="n">margin_int</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-      <span class="nd">quote!</span> <span class="p">{</span>
-        <span class="n">margin</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span>#<span class="n">margin_int</span><span class="p">),</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="nb">None</span> <span class="k">=&gt;</span> <span class="nd">quote!</span> <span class="p">{},</span>
-  <span class="p">};</span>
-
-  <span class="k">let</span> <span class="n">maybe_color_fg_expr</span> <span class="o">=</span> <span class="k">match</span> <span class="n">color_fg</span> <span class="p">{</span>
-    <span class="nf">Some</span><span class="p">(</span><span class="n">color_expr</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-      <span class="nd">quote!</span> <span class="p">{</span>
-        <span class="n">color_fg</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span>#<span class="n">color_expr</span><span class="nf">.into</span><span class="p">()),</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="nb">None</span> <span class="k">=&gt;</span> <span class="nd">quote!</span> <span class="p">{},</span>
-  <span class="p">};</span>
-
-  <span class="k">let</span> <span class="n">maybe_color_bg_expr</span> <span class="o">=</span> <span class="k">match</span> <span class="n">color_bg</span> <span class="p">{</span>
-    <span class="nf">Some</span><span class="p">(</span><span class="n">color_expr</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-      <span class="nd">quote!</span> <span class="p">{</span>
-        <span class="n">color_bg</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span>#<span class="n">color_expr</span><span class="nf">.into</span><span class="p">()),</span>
-      <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="nb">None</span> <span class="k">=&gt;</span> <span class="nd">quote!</span> <span class="p">{},</span>
-  <span class="p">};</span>
-
-  <span class="nd">quote!</span> <span class="p">{</span>
-    <span class="nn">r3bl_rs_utils</span><span class="p">::</span><span class="n">Style</span> <span class="p">{</span>
-      <span class="n">id</span><span class="p">:</span> #<span class="n">id_str</span><span class="nf">.to_string</span><span class="p">(),</span>
-      <span class="n">bold</span><span class="p">:</span> #<span class="n">has_attrib_bold</span><span class="p">,</span>
-      <span class="n">dim</span><span class="p">:</span> #<span class="n">has_attrib_dim</span><span class="p">,</span>
-      <span class="n">underline</span><span class="p">:</span> #<span class="n">has_attrib_underline</span><span class="p">,</span>
-      <span class="n">reverse</span><span class="p">:</span> #<span class="n">has_attrib_reverse</span><span class="p">,</span>
-      <span class="n">hidden</span><span class="p">:</span> #<span class="n">has_attrib_hidden</span><span class="p">,</span>
-      <span class="n">strikethrough</span><span class="p">:</span> #<span class="n">has_attrib_strikethrough</span><span class="p">,</span>
-      #<span class="n">maybe_margin_expr</span>
-      #<span class="n">maybe_color_fg_expr</span>
-      #<span class="n">maybe_color_bg_expr</span>
-      <span class="o">..</span> <span class="nn">Default</span><span class="p">::</span><span class="nf">default</span><span class="p">()</span>
-    <span class="p">}</span>
-  <span class="p">}</span>
-  <span class="nf">.into</span><span class="p">()</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h2 id="exporting-it">Exporting it</h2>
-<p><a id="markdown-exporting-it" name="exporting-it"></a></p>
-
-<p>This is the simplest part of our journey. In our procedural macro crate, we have do something like
-this.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">extern</span> <span class="k">crate</span> <span class="n">proc_macro</span><span class="p">;</span>
-<span class="k">mod</span> <span class="n">make_style</span><span class="p">;</span>
-<span class="k">use</span> <span class="nn">proc_macro</span><span class="p">::</span><span class="n">TokenStream</span><span class="p">;</span>
-
-<span class="nd">#[proc_macro]</span>
-<span class="k">pub</span> <span class="k">fn</span> <span class="nf">style</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="n">TokenStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">TokenStream</span> <span class="p">{</span> <span class="nn">make_style</span><span class="p">::</span><span class="nf">fn_proc_macro_impl</span><span class="p">(</span><span class="n">input</span><span class="p">)</span> <span class="p">}</span>
-</code></pre></div></div>
-
-<blockquote>
-  <p>📜 Here’s the production version of the <code class="language-plaintext highlighter-rouge">style!</code> procedural macro:
-<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/macro/src/make_style"><code class="language-plaintext highlighter-rouge">make_style()</code></a></p>
-</blockquote>
-
-<h2 id="wrapping-up">Wrapping up</h2>
-<p><a id="markdown-wrapping-up" name="wrapping-up"></a></p>
-
-<p>This article just shows how to handle a single style. And it has room for improvement (being able to
-handle variables that hold color values in them).</p>
-
-<p>In the future we will expand this DSL to include more features like generating the entire stylesheet
-declaratively. And then move on to creating JSX like syntax in Rust for layout stuff in the <code class="language-plaintext highlighter-rouge">tui</code>
-module as well. More articles to follow based on this work.</p>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="MP" /><category term="CLI" /><category term="TUI" /><summary type="html"><![CDATA[Procedural macros are a way for you to extend the Rust compiler and provide plugins that you can use to extend the language. They allow to create your own DSL (domain specific language). This article goes into the details of creating a simple DSL to mimic CSS syntax but in Rust, for a TUI app framework.]]></summary></entry></feed>
+</ol>]]></content><author><name>Nadia Idris</name></author><category term="TS" /><category term="CS" /><summary type="html"><![CDATA[This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles.]]></summary></entry></feed>

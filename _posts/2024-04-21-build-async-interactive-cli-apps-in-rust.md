@@ -33,8 +33,8 @@ With it, you can create beautiful, powerful, and interactive REPLs (read execute
 ease.
 
 ## Why use this crate
-<a id="markdown-why-use-this-crate" name="why-use-this-crate"></a>
 
+<a id="markdown-why-use-this-crate" name="why-use-this-crate"></a>
 
 - Because [read_line()](https://doc.rust-lang.org/std/io/struct.Stdin.html#method.read_line) is
   blocking. And there is no way to terminate an OS thread that is blocking in Rust. To do this you
@@ -43,8 +43,8 @@ ease.
   output to stdout concurrently, this poses some challenges.
 
 ## Demo of this in action
-<a id="markdown-demo-of-this-in-action" name="demo-of-this-in-action"></a>
 
+<a id="markdown-demo-of-this-in-action" name="demo-of-this-in-action"></a>
 
 Here's a screen capture of the types of interactive REPLs that you can expect to build in Rust,
 using this crate.
@@ -61,8 +61,8 @@ A couple of things to note about this demo:
    different kinds of animations!
 
 ## Example of using this crate
-<a id="markdown-example-of-using-this-crate" name="example-of-using-this-crate"></a>
 
+<a id="markdown-example-of-using-this-crate" name="example-of-using-this-crate"></a>
 
 There are great examples in the `examples` folder of the repo
 [here](https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async/examples). Let's walk
@@ -147,17 +147,26 @@ You can then run this program using `cargo run`. Play with it to get a sense of 
 non blocking nature of the REPL. Press Ctrl+C, or Ctrl+D to exit this program.
 
 ## Video series on developerlife.com YouTube channel on building this crate with Naz
+
 <a id="markdown-video-series-on-developerlife.com-youtube-channel-on-building-this-crate-with-naz" name="video-series-on-developerlife.com-youtube-channel-on-building-this-crate-with-naz"></a>
 
+You can watch a video series on building this crate with Naz on the
+[developerlife.com YouTube channel](https://www.youtube.com/@developerlifecom).
+
+Here's the video that is tied to this blog post:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/X5wDVaZENOo?si=yYfXuCxSilWh4Gd5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 - [YT channel](https://www.youtube.com/@developerlifecom)
-    - [Part 1: Why?](https://youtu.be/6LhVx0xM86c)
-    - [Part 2: What?](https://youtu.be/3vQJguti02I)
-    - [Part 3: Do the refactor and rename the crate](https://youtu.be/uxgyZzOmVIw)
-    - [Part 4: Build the spinner](https://www.youtube.com/watch?v=fcb6rstRniI)
-    - [Part 5: Add color gradient animation to spinner](https://www.youtube.com/watch?v=_QjsGDds270)
-    - [Testing playlist](https://www.youtube.com/watch?v=Xt495QLrFFk&list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8)
+  - [Part 1: Why?](https://youtu.be/6LhVx0xM86c)
+  - [Part 2: What?](https://youtu.be/3vQJguti02I)
+  - [Part 3: Do the refactor and rename the crate](https://youtu.be/uxgyZzOmVIw)
+  - [Part 4: Build the spinner](https://www.youtube.com/watch?v=fcb6rstRniI)
+  - [Part 5: Add color gradient animation to spinner](https://www.youtube.com/watch?v=_QjsGDds270)
+  - [Part 6: Publish the crate and overview](https://youtu.be/X5wDVaZENOo)
+  - [Testing playlist](https://www.youtube.com/watch?v=Xt495QLrFFk&list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8)
     - [Part 1: Intro](https://www.youtube.com/watch?v=Xt495QLrFFk)
     - [Part 2: Deep dive](https://www.youtube.com/watch?v=4iM9t5dgvU4)
-    - Playlists
+  - Playlists
     - [Build with Naz, async readline and spinner for CLI in Rust](https://www.youtube.com/watch?v=3vQJguti02I&list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE)
     - [Build with Naz, testing in Rust](https://www.youtube.com/watch?v=Xt495QLrFFk&list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8)

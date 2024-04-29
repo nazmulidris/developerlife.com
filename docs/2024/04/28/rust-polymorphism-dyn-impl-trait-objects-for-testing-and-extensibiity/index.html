@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Learn how to implement effective Rust polymorphism, using dyn, impl, existing traits, and trait objects for testing and extensibility, in real world projects." />
+<meta property="og:description" content="Learn how to implement effective Rust polymorphism, using dyn, impl, existing traits, and trait objects for testing and extensibility, in real world projects." />
+<link rel="canonical" href="http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/" />
+<meta property="og:url" content="http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-04-28T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-04-28T10:00:00-05:00","datePublished":"2024-04-28T10:00:00-05:00","description":"Learn how to implement effective Rust polymorphism, using dyn, impl, existing traits, and trait objects for testing and extensibility, in real world projects.","headline":"Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/"},"url":"http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /><!-- https://developers.google.com/analytics/devguides/collection/gtagjs -->
+<script async
+        src="https://www.googletagmanager.com/gtag/js?id=G-NQY9ECC58H"></script>
+<script>
+  window.dataLayer = window.dataLayer || []
+
+  function gtag() {
+    window.dataLayer.push(arguments)
+  }
+
+  gtag("js", new Date())
+  gtag("config", "G-NQY9ECC58H")
+</script>
+<!-- https://us14.admin.mailchimp.com/account/connected-sites/site-detail/ -->
+
+<script id="mcjs">
+  !(function (c, h, i, m, p) {
+    ;(m = c.createElement(h)),
+      (p = c.getElementsByTagName(h)[0]),
+      (m.async = 1),
+      (m.src = i),
+      p.parentNode.insertBefore(m, p)
+  })(
+    document,
+    "script",
+    "https://chimpstatic.com/mcjs-connected/js/users/c2470ddfa863eb8ace707651b/2bb3bcad193ef862398700457.js"
+  )
+</script>
+</head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Apr 28, 2024
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+        
+<blockquote>
+
+👀 Watch Rust 🦀 live coding videos on our <a
+href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
+
+<br/>
+
+<iframe width="560" height="315"
+  src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+  title="YouTube video player" frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+</iframe>
+
+</blockquote>
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/rust_polymorphism.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#why-use-polymorphism-in-rust">Why use polymorphism in Rust?</a></li>
+  <li><a href="#short-example-to-illustrate-both-approaches">Short example to illustrate both approaches</a></li>
+  <li><a href="#video-of-this-in-action-in-the-real-world">Video of this in action in the real world</a></li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="why-use-polymorphism-in-rust">
+        
+        
+          Why use polymorphism in Rust? <a href="#why-use-polymorphism-in-rust">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-why-use-polymorphism-in-rust%3F" name="why-use-polymorphism-in-rust%3F"></a></p>
+
+<p>When it comes to polymorphism in Rust, which means that you want to be intentionally “vague” about
+what arguments a function can receive or what values it can return, there are roughly two
+approaches: static dispatch and dynamic dispatch. They are both tightly related to the notion of
+sidedness in Rust.</p>
+
+<p>There are many legitimate reasons to be intentionally vague about the types of arguments a function
+can receive or the values it can return. Here are a few:</p>
+
+<ul>
+  <li>Testing: You want swap out the implementation of a function with a test mock or test fixture, so
+that you can test the function in isolation.</li>
+  <li>Extensibility: You want to accommodate integrations with other code that you don’t control, and
+you want to be able to use dependency injection to provide the intended behaviors (from) systems
+that you don’t control.</li>
+  <li>Reuse: You want to reuse the same code in multiple places, since they only operate on on aspect
+(or trait) of the data.</li>
+</ul>
+
+<p>Here are the two approaches to polymorphism in Rust:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>static</th>
+      <th>dynamic</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>receive</td>
+      <td>receive</td>
+    </tr>
+    <tr>
+      <td>return</td>
+      <td>return</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>There are pros and cons to each approach:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>approach</th>
+      <th>pros</th>
+      <th>cons</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>static</td>
+      <td>Compile time checks and dispatch. No runtime overhead.</td>
+      <td>Code is more difficult to read and write since generics and their often verbose trait bounds have to be spread to the caller.</td>
+    </tr>
+    <tr>
+      <td>dynamic</td>
+      <td>Code is more concise and easier to read and write since the trait objects are localized to the function that accepts or returns them.</td>
+      <td>Runtime overhead due to dynamic dispatch. Vtable lookup is required due to type erasure.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Here are some helpful links to learn more about this topic:</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/watch?v=xcygqF5LVmM&amp;t=1162s">Great Crust of Rust video on monomorphization, generics, vtables, fat pointers, static dispatch, and dynamic dispatch</a></li>
+  <li><a href="https://developerlife.com/2022/03/12/rust-redux/#of-things-and-their-managers">Vtables</a></li>
+  <li><a href="https://developerlife.com/assets/rust-container-cheat-sheet.svg">Diagram of sizes</a></li>
+  <li><a href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/sizedness-in-rust.md">Sizedness</a></li>
+  <li><a href="https://gemini.google.com/app/157980ca7d9b588c">Difference between using <code class="language-plaintext highlighter-rouge">Arc</code> and <code class="language-plaintext highlighter-rouge">Box</code> with <code class="language-plaintext highlighter-rouge">dyn</code></a></li>
+  <li><a href="https://rust-unofficial.github.io/too-many-lists/index.html">Book on <code class="language-plaintext highlighter-rouge">dyn</code> and <code class="language-plaintext highlighter-rouge">Box</code></a></li>
+</ul>
+      <h2 id="short-example-to-illustrate-both-approaches">
+        
+        
+          Short example to illustrate both approaches <a href="#short-example-to-illustrate-both-approaches">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-short-example-to-illustrate-both-approaches" name="short-example-to-illustrate-both-approaches"></a></p>
+
+<p>The code for this example lives
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/dyn-dispatch/src">here</a>.</p>
+
+<p>Let’s look a single example (that fits in one file) that illustrates both approaches to polymorphism
+in Rust. You can run <code class="language-plaintext highlighter-rouge">cargo new --lib dyn-dispatch</code> to create a new library crate, and then run
+<code class="language-plaintext highlighter-rouge">cargo add rand</code>. Then you can add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file.</p>
+
+<p>This first part is the setup for this example. We have two structs, each of which
+implements the <a href="https://doc.rust-lang.org/std/io/struct.Error.html"><code class="language-plaintext highlighter-rouge">Error</code></a> trait. We
+want to be able to use both structs in functions that can receive or return
+<a href="https://doc.rust-lang.org/std/io/struct.Error.html"><code class="language-plaintext highlighter-rouge">Error</code></a> trait objects.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Display</span><span class="p">;</span>
+
+<span class="c1">// ErrorOne.</span>
+<span class="k">mod</span> <span class="n">error_one</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="nd">#[derive(Debug)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">ErrorOne</span><span class="p">;</span>
+
+    <span class="k">impl</span> <span class="n">Display</span> <span class="k">for</span> <span class="n">ErrorOne</span> <span class="p">{</span>
+        <span class="k">fn</span> <span class="nf">fmt</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Formatter</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="nb">Result</span> <span class="p">{</span>
+            <span class="nd">write!</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s">"ErrorOne"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">impl</span> <span class="n">Error</span> <span class="k">for</span> <span class="n">ErrorOne</span> <span class="p">{}</span>
+<span class="p">}</span>
+<span class="k">use</span> <span class="nn">error_one</span><span class="p">::</span><span class="n">ErrorOne</span><span class="p">;</span>
+
+<span class="c1">// ErrorTwo.</span>
+<span class="k">mod</span> <span class="n">error_two</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="nd">#[derive(Debug)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">ErrorTwo</span><span class="p">;</span>
+
+    <span class="k">impl</span> <span class="n">Display</span> <span class="k">for</span> <span class="n">ErrorTwo</span> <span class="p">{</span>
+        <span class="k">fn</span> <span class="nf">fmt</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Formatter</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="nb">Result</span> <span class="p">{</span>
+            <span class="nd">write!</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s">"ErrorTwo"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">impl</span> <span class="n">Error</span> <span class="k">for</span> <span class="n">ErrorTwo</span> <span class="p">{}</span>
+<span class="p">}</span>
+<span class="k">use</span> <span class="nn">error_two</span><span class="p">::</span><span class="n">ErrorTwo</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>In some of the code we will need to make a random decision, so we’ll use the <code class="language-plaintext highlighter-rouge">rand</code> crate to
+generate random booleans.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Random boolean generator.</span>
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">random_bool</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">bool</span> <span class="p">{</span>
+    <span class="nn">rand</span><span class="p">::</span><span class="nf">random</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the code for the static dispatch approach, using generics, trait bounds, and compiler
+monomorphisation.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Static dispatch.</span>
+<span class="k">mod</span> <span class="n">static_dispatch</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="k">mod</span> <span class="n">receives</span> <span class="p">{</span>
+        <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="n">accept_error</span><span class="o">&lt;</span><span class="n">E</span><span class="p">:</span> <span class="n">Error</span><span class="o">&gt;</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="n">E</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling ErrorOne Debug: {:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling ErrorOne Display: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">accept_error_with_syntactic_sugar</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="k">impl</span> <span class="n">Error</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling ErrorOne Debug: {:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling ErrorOne Display: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">mod</span> <span class="n">returns</span> <span class="p">{</span>
+        <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_error_one</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">ErrorOne</span> <span class="p">{</span>
+            <span class="n">ErrorOne</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_error_two</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">ErrorTwo</span> <span class="p">{</span>
+            <span class="n">ErrorTwo</span>
+        <span class="p">}</span>
+
+        <span class="c1">// 🚨 DOES NOT WORK! Need dynamic dispatch.</span>
+        <span class="c1">// pub fn return_single_error() -&gt; impl Error {</span>
+        <span class="c1">//     if random_bool() {</span>
+        <span class="c1">//         ErrorOne</span>
+        <span class="c1">//     } else {</span>
+        <span class="c1">//         ErrorTwo</span>
+        <span class="c1">//     }</span>
+        <span class="c1">// }</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_single_error</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="k">impl</span> <span class="n">Error</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">ErrorOne</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Finally, here’s the code for the dynamic dispatch approach, using trait objects and vtables to
+enable runtime polymorphism.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Dynamic dispatch.</span>
+<span class="k">mod</span> <span class="n">dynamic_dispatch</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="k">mod</span> <span class="n">receives</span> <span class="p">{</span>
+        <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">recieve_error_by_ref</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">dyn</span> <span class="n">Error</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Debug: {:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Display: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">example_1</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">error_one</span> <span class="o">=</span> <span class="n">ErrorOne</span><span class="p">;</span>
+            <span class="nf">recieve_error_by_ref</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_one</span><span class="p">);</span>
+            <span class="k">let</span> <span class="n">error_two</span> <span class="o">=</span> <span class="n">ErrorTwo</span><span class="p">;</span>
+            <span class="nf">recieve_error_by_ref</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_two</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">receive_error_by_box</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Debug: {:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Display: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">example_2</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">error_one</span> <span class="o">=</span> <span class="n">ErrorOne</span><span class="p">;</span>
+            <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">error_one</span><span class="p">);</span>
+            <span class="nf">receive_error_by_box</span><span class="p">(</span><span class="n">it</span><span class="p">);</span>
+            <span class="k">let</span> <span class="n">error_two</span> <span class="o">=</span> <span class="n">ErrorTwo</span><span class="p">;</span>
+            <span class="nf">receive_error_by_box</span><span class="p">(</span><span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">error_two</span><span class="p">));</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">receive_slice_of_errors</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="o">&amp;</span><span class="p">[</span><span class="o">&amp;</span><span class="k">dyn</span> <span class="n">Error</span><span class="p">])</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="n">error</span> <span class="k">in</span> <span class="n">arg</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Debug: {:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Display: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">mod</span> <span class="n">returns</span> <span class="p">{</span>
+        <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_one_of_two_errors</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="nf">random_bool</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">ErrorOne</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">ErrorTwo</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_one_of_two_errors_with_arc</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="nf">random_bool</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">ErrorOne</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">ErrorTwo</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_slice_of_errors</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="k">'static</span> <span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">errors</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
+            <span class="k">if</span> <span class="nf">random_bool</span><span class="p">()</span> <span class="p">{</span>
+                <span class="n">errors</span><span class="nf">.push</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">ErrorOne</span><span class="p">));</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="n">errors</span><span class="nf">.push</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">ErrorTwo</span><span class="p">));</span>
+            <span class="p">}</span>
+            <span class="n">errors</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">mut_vec_containing_different_types_of_errors</span><span class="p">(</span><span class="n">mut_vec</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">mut_vec</span><span class="nf">.push</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ErrorOne</span><span class="p">);</span>
+            <span class="n">mut_vec</span><span class="nf">.push</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ErrorTwo</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h2 id="video-of-this-in-action-in-the-real-world">
+        
+        
+          Video of this in action in the real world <a href="#video-of-this-in-action-in-the-real-world">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-video-of-this-in-action-in-the-real-world" name="video-of-this-in-action-in-the-real-world"></a></p>
+
+<p>To learn more about this topic, please watch the following video on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+      <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
+        
+        
+          Build with Naz video series on developerlife.com YouTube channel <a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a>
+    <ul>
+      <li><a href="https://youtu.be/6LhVx0xM86c">Part 1: Why?</a></li>
+      <li><a href="https://youtu.be/3vQJguti02I">Part 2: What?</a></li>
+      <li><a href="https://youtu.be/uxgyZzOmVIw">Part 3: Do the refactor and rename the crate</a></li>
+      <li><a href="https://www.youtube.com/watch?v=fcb6rstRniI">Part 4: Build the spinner</a></li>
+      <li><a href="https://www.youtube.com/watch?v=_QjsGDds270">Part 5: Add color gradient animation to spinner</a></li>
+      <li><a href="https://youtu.be/X5wDVaZENOo">Part 6: Publish the crate and overview</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Testing playlist</a>
+        <ul>
+          <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk">Part 1: Intro</a></li>
+          <li><a href="https://www.youtube.com/watch?v=4iM9t5dgvU4">Part 2: Deep dive</a></li>
+          <li><a href="https://www.youtube.com/watch?v=kYTgGtJjSro">Part 3: Polymorphism, static and dynamic dispatch</a></li>
+        </ul>
+      </li>
+      <li>Playlists
+        <ul>
+          <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+          <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        
+<blockquote>
+
+📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
+(they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
+project):
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+<p>
+<kbd>giti in action</kbd>
+<video width="100%" controls>
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4"/>
+</video>
+</p>
+
+<p>
+<kbd>edi in action</kbd>
+<video width="100%" controls>
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4"/>
+</video>
+</p>
+
+</blockquote>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/21/build-async-interactive-cli-apps-in-rust/">
+                        Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Subscribe to our Rust live coding <a
+      href="https://www.youtube.com/@developerlifecom">YouTube Channel</a><span
+      class="heading-emoji"> 🦀</span>
+    </h2>
+
+    <iframe width="330" height="185"
+      src="https://www.youtube.com/embed/videoseries?si=i37Ei9nCfvslOoaI&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+    </iframe>
+
+    <br/>
+    <br/>
+
+    <h2 class="star-us-github-heading">
+      Use our extensions, apps, binary and library crates<span class="heading-emoji"> 📦</span>
+    </h2>
+
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-apps.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-shortlink.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TERMINAL ASYNC LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_terminal_async</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+    <br/>
+
+    <h2 class="star-us-github-heading">
+      Join our <a href="https://discord.gg/PhuF4qFpcA">Discord</a>
+      <span class="heading-emoji"> 💬</span>
+    </h2>
+
+  </section>
+</div>
+
+
+</div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

@@ -1,4 +1,323 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-04-27T12:22:31-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async</title><link href="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/" rel="alternate" type="text/html" title="Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async" /><published>2024-04-21T10:00:00-05:00</published><updated>2024-04-21T10:00:00-05:00</updated><id>http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust</id><content type="html" xml:base="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/r3bl_terminal_async-hero.svg" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-04-29T09:44:20-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility</title><link href="http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/" rel="alternate" type="text/html" title="Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility" /><published>2024-04-28T10:00:00-05:00</published><updated>2024-04-28T10:00:00-05:00</updated><id>http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity</id><content type="html" xml:base="http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust_polymorphism.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#why-use-polymorphism-in-rust">Why use polymorphism in Rust?</a></li>
+  <li><a href="#short-example-to-illustrate-both-approaches">Short example to illustrate both approaches</a></li>
+  <li><a href="#video-of-this-in-action-in-the-real-world">Video of this in action in the real world</a></li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+
+<h2 id="why-use-polymorphism-in-rust">Why use polymorphism in Rust?</h2>
+<p><a id="markdown-why-use-polymorphism-in-rust%3F" name="why-use-polymorphism-in-rust%3F"></a></p>
+
+<p>When it comes to polymorphism in Rust, which means that you want to be intentionally “vague” about
+what arguments a function can receive or what values it can return, there are roughly two
+approaches: static dispatch and dynamic dispatch. They are both tightly related to the notion of
+sidedness in Rust.</p>
+
+<p>There are many legitimate reasons to be intentionally vague about the types of arguments a function
+can receive or the values it can return. Here are a few:</p>
+
+<ul>
+  <li>Testing: You want swap out the implementation of a function with a test mock or test fixture, so
+that you can test the function in isolation.</li>
+  <li>Extensibility: You want to accommodate integrations with other code that you don’t control, and
+you want to be able to use dependency injection to provide the intended behaviors (from) systems
+that you don’t control.</li>
+  <li>Reuse: You want to reuse the same code in multiple places, since they only operate on on aspect
+(or trait) of the data.</li>
+</ul>
+
+<p>Here are the two approaches to polymorphism in Rust:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>static</th>
+      <th>dynamic</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>receive</td>
+      <td>receive</td>
+    </tr>
+    <tr>
+      <td>return</td>
+      <td>return</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>There are pros and cons to each approach:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>approach</th>
+      <th>pros</th>
+      <th>cons</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>static</td>
+      <td>Compile time checks and dispatch. No runtime overhead.</td>
+      <td>Code is more difficult to read and write since generics and their often verbose trait bounds have to be spread to the caller.</td>
+    </tr>
+    <tr>
+      <td>dynamic</td>
+      <td>Code is more concise and easier to read and write since the trait objects are localized to the function that accepts or returns them.</td>
+      <td>Runtime overhead due to dynamic dispatch. Vtable lookup is required due to type erasure.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Here are some helpful links to learn more about this topic:</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/watch?v=xcygqF5LVmM&amp;t=1162s">Great Crust of Rust video on monomorphization, generics, vtables, fat pointers, static dispatch, and dynamic dispatch</a></li>
+  <li><a href="https://developerlife.com/2022/03/12/rust-redux/#of-things-and-their-managers">Vtables</a></li>
+  <li><a href="https://developerlife.com/assets/rust-container-cheat-sheet.svg">Diagram of sizes</a></li>
+  <li><a href="https://github.com/pretzelhammer/rust-blog/blob/master/posts/sizedness-in-rust.md">Sizedness</a></li>
+  <li><a href="https://gemini.google.com/app/157980ca7d9b588c">Difference between using <code class="language-plaintext highlighter-rouge">Arc</code> and <code class="language-plaintext highlighter-rouge">Box</code> with <code class="language-plaintext highlighter-rouge">dyn</code></a></li>
+  <li><a href="https://rust-unofficial.github.io/too-many-lists/index.html">Book on <code class="language-plaintext highlighter-rouge">dyn</code> and <code class="language-plaintext highlighter-rouge">Box</code></a></li>
+</ul>
+
+<h2 id="short-example-to-illustrate-both-approaches">Short example to illustrate both approaches</h2>
+<p><a id="markdown-short-example-to-illustrate-both-approaches" name="short-example-to-illustrate-both-approaches"></a></p>
+
+<p>The code for this example lives
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/dyn-dispatch/src">here</a>.</p>
+
+<p>Let’s look a single example (that fits in one file) that illustrates both approaches to polymorphism
+in Rust. You can run <code class="language-plaintext highlighter-rouge">cargo new --lib dyn-dispatch</code> to create a new library crate, and then run
+<code class="language-plaintext highlighter-rouge">cargo add rand</code>. Then you can add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file.</p>
+
+<p>This first part is the setup for this example. We have two structs, each of which
+implements the <a href="https://doc.rust-lang.org/std/io/struct.Error.html"><code class="language-plaintext highlighter-rouge">Error</code></a> trait. We
+want to be able to use both structs in functions that can receive or return
+<a href="https://doc.rust-lang.org/std/io/struct.Error.html"><code class="language-plaintext highlighter-rouge">Error</code></a> trait objects.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Display</span><span class="p">;</span>
+
+<span class="c1">// ErrorOne.</span>
+<span class="k">mod</span> <span class="n">error_one</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="nd">#[derive(Debug)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">ErrorOne</span><span class="p">;</span>
+
+    <span class="k">impl</span> <span class="n">Display</span> <span class="k">for</span> <span class="n">ErrorOne</span> <span class="p">{</span>
+        <span class="k">fn</span> <span class="nf">fmt</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Formatter</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="nb">Result</span> <span class="p">{</span>
+            <span class="nd">write!</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s">"ErrorOne"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">impl</span> <span class="n">Error</span> <span class="k">for</span> <span class="n">ErrorOne</span> <span class="p">{}</span>
+<span class="p">}</span>
+<span class="k">use</span> <span class="nn">error_one</span><span class="p">::</span><span class="n">ErrorOne</span><span class="p">;</span>
+
+<span class="c1">// ErrorTwo.</span>
+<span class="k">mod</span> <span class="n">error_two</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="nd">#[derive(Debug)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">ErrorTwo</span><span class="p">;</span>
+
+    <span class="k">impl</span> <span class="n">Display</span> <span class="k">for</span> <span class="n">ErrorTwo</span> <span class="p">{</span>
+        <span class="k">fn</span> <span class="nf">fmt</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Formatter</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="nb">Result</span> <span class="p">{</span>
+            <span class="nd">write!</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s">"ErrorTwo"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">impl</span> <span class="n">Error</span> <span class="k">for</span> <span class="n">ErrorTwo</span> <span class="p">{}</span>
+<span class="p">}</span>
+<span class="k">use</span> <span class="nn">error_two</span><span class="p">::</span><span class="n">ErrorTwo</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>In some of the code we will need to make a random decision, so we’ll use the <code class="language-plaintext highlighter-rouge">rand</code> crate to
+generate random booleans.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Random boolean generator.</span>
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">random_bool</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">bool</span> <span class="p">{</span>
+    <span class="nn">rand</span><span class="p">::</span><span class="nf">random</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the code for the static dispatch approach, using generics, trait bounds, and compiler
+monomorphisation.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Static dispatch.</span>
+<span class="k">mod</span> <span class="n">static_dispatch</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="k">mod</span> <span class="n">receives</span> <span class="p">{</span>
+        <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="n">accept_error</span><span class="o">&lt;</span><span class="n">E</span><span class="p">:</span> <span class="n">Error</span><span class="o">&gt;</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="n">E</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling ErrorOne Debug: {:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling ErrorOne Display: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">accept_error_with_syntactic_sugar</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="k">impl</span> <span class="n">Error</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling ErrorOne Debug: {:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling ErrorOne Display: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">mod</span> <span class="n">returns</span> <span class="p">{</span>
+        <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_error_one</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">ErrorOne</span> <span class="p">{</span>
+            <span class="n">ErrorOne</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_error_two</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">ErrorTwo</span> <span class="p">{</span>
+            <span class="n">ErrorTwo</span>
+        <span class="p">}</span>
+
+        <span class="c1">// 🚨 DOES NOT WORK! Need dynamic dispatch.</span>
+        <span class="c1">// pub fn return_single_error() -&gt; impl Error {</span>
+        <span class="c1">//     if random_bool() {</span>
+        <span class="c1">//         ErrorOne</span>
+        <span class="c1">//     } else {</span>
+        <span class="c1">//         ErrorTwo</span>
+        <span class="c1">//     }</span>
+        <span class="c1">// }</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_single_error</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="k">impl</span> <span class="n">Error</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">ErrorOne</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Finally, here’s the code for the dynamic dispatch approach, using trait objects and vtables to
+enable runtime polymorphism.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Dynamic dispatch.</span>
+<span class="k">mod</span> <span class="n">dynamic_dispatch</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+    <span class="k">mod</span> <span class="n">receives</span> <span class="p">{</span>
+        <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">recieve_error_by_ref</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">dyn</span> <span class="n">Error</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Debug: {:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Display: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">example_1</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">error_one</span> <span class="o">=</span> <span class="n">ErrorOne</span><span class="p">;</span>
+            <span class="nf">recieve_error_by_ref</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_one</span><span class="p">);</span>
+            <span class="k">let</span> <span class="n">error_two</span> <span class="o">=</span> <span class="n">ErrorTwo</span><span class="p">;</span>
+            <span class="nf">recieve_error_by_ref</span><span class="p">(</span><span class="o">&amp;</span><span class="n">error_two</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">receive_error_by_box</span><span class="p">(</span><span class="n">error</span><span class="p">:</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Debug: {:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Display: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">example_2</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">error_one</span> <span class="o">=</span> <span class="n">ErrorOne</span><span class="p">;</span>
+            <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">error_one</span><span class="p">);</span>
+            <span class="nf">receive_error_by_box</span><span class="p">(</span><span class="n">it</span><span class="p">);</span>
+            <span class="k">let</span> <span class="n">error_two</span> <span class="o">=</span> <span class="n">ErrorTwo</span><span class="p">;</span>
+            <span class="nf">receive_error_by_box</span><span class="p">(</span><span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">error_two</span><span class="p">));</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">receive_slice_of_errors</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="o">&amp;</span><span class="p">[</span><span class="o">&amp;</span><span class="k">dyn</span> <span class="n">Error</span><span class="p">])</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="n">error</span> <span class="k">in</span> <span class="n">arg</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Debug: {:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"Handling Error Display: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">mod</span> <span class="n">returns</span> <span class="p">{</span>
+        <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_one_of_two_errors</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="nf">random_bool</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">ErrorOne</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">ErrorTwo</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_one_of_two_errors_with_arc</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="nf">random_bool</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">ErrorOne</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">ErrorTwo</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">return_slice_of_errors</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="k">'static</span> <span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">errors</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
+            <span class="k">if</span> <span class="nf">random_bool</span><span class="p">()</span> <span class="p">{</span>
+                <span class="n">errors</span><span class="nf">.push</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">ErrorOne</span><span class="p">));</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="n">errors</span><span class="nf">.push</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="n">ErrorTwo</span><span class="p">));</span>
+            <span class="p">}</span>
+            <span class="n">errors</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">mut_vec_containing_different_types_of_errors</span><span class="p">(</span><span class="n">mut_vec</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="k">dyn</span> <span class="n">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">mut_vec</span><span class="nf">.push</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ErrorOne</span><span class="p">);</span>
+            <span class="n">mut_vec</span><span class="nf">.push</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ErrorTwo</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="video-of-this-in-action-in-the-real-world">Video of this in action in the real world</h2>
+<p><a id="markdown-video-of-this-in-action-in-the-real-world" name="video-of-this-in-action-in-the-real-world"></a></p>
+
+<p>To learn more about this topic, please watch the following video on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a>
+    <ul>
+      <li><a href="https://youtu.be/6LhVx0xM86c">Part 1: Why?</a></li>
+      <li><a href="https://youtu.be/3vQJguti02I">Part 2: What?</a></li>
+      <li><a href="https://youtu.be/uxgyZzOmVIw">Part 3: Do the refactor and rename the crate</a></li>
+      <li><a href="https://www.youtube.com/watch?v=fcb6rstRniI">Part 4: Build the spinner</a></li>
+      <li><a href="https://www.youtube.com/watch?v=_QjsGDds270">Part 5: Add color gradient animation to spinner</a></li>
+      <li><a href="https://youtu.be/X5wDVaZENOo">Part 6: Publish the crate and overview</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Testing playlist</a>
+        <ul>
+          <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk">Part 1: Intro</a></li>
+          <li><a href="https://www.youtube.com/watch?v=4iM9t5dgvU4">Part 2: Deep dive</a></li>
+          <li><a href="https://www.youtube.com/watch?v=kYTgGtJjSro">Part 3: Polymorphism, static and dynamic dispatch</a></li>
+        </ul>
+      </li>
+      <li>Playlists
+        <ul>
+          <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+          <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[Learn how to implement effective Rust polymorphism, using `dyn`, `impl`, existing traits, and trait objects for testing and extensibility, in real world projects.]]></summary></entry><entry><title type="html">Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async</title><link href="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/" rel="alternate" type="text/html" title="Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async" /><published>2024-04-21T10:00:00-05:00</published><updated>2024-04-21T10:00:00-05:00</updated><id>http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust</id><content type="html" xml:base="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/r3bl_terminal_async-hero.svg" /></p>
 
 <!-- TOC -->
 
@@ -2865,326 +3184,4 @@ The first person in line is the first person to be served.</p>
 <p>All DFS methods use stack data structure. In JavaScript stack is an array where we add items one
 after another and then remove them from the end of the array. It’s called last-in-first-out (LIFO).
 You could think of it as a stack of papers. The last paper you put on the stack is the first paper
-you take off the stack.</p>]]></content><author><name>Nadia Idris</name></author><category term="TS" /><category term="CS" /><summary type="html"><![CDATA[This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles.]]></summary></entry><entry><title type="html">Algorithms and data structures in TypeScript: string tokenizer, rate limiter</title><link href="http://developerlife.com/2022/11/21/algo-ts-1/" rel="alternate" type="text/html" title="Algorithms and data structures in TypeScript: string tokenizer, rate limiter" /><published>2022-11-21T09:00:00-06:00</published><updated>2022-11-21T09:00:00-06:00</updated><id>http://developerlife.com/2022/11/21/algo-ts-1</id><content type="html" xml:base="http://developerlife.com/2022/11/21/algo-ts-1/"><![CDATA[<p><img class="post-hero-image" src="/assets/algo-typescript.svg" /></p>
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-<ul>
-  <li><a href="#introduction">Introduction</a>
-    <ul>
-      <li><a href="#how-to-run-this-project">How to run this project</a></li>
-    </ul>
-  </li>
-  <li><a href="#exercise-1-string-tokenizer">Exercise 1: String tokenizer</a>
-    <ul>
-      <li><a href="#function-signature">Function signature</a></li>
-      <li><a href="#test-against-the-following-cases">Test against the following cases</a></li>
-      <li><a href="#string-tokenizer-logic">String tokenizer logic</a>
-        <ul>
-          <li><a href="#data-modelling">Data modelling</a></li>
-          <li><a href="#assign-meaning-to-each-action">Assign meaning to each action</a></li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li><a href="#exercise-2-in-memory-rate-limiter">Exercise 2: In Memory Rate Limiter</a>
-    <ul>
-      <li><a href="#function-signature-1">Function signature</a></li>
-      <li><a href="#test-against-the-following-cases-1">Test against the following cases</a></li>
-      <li><a href="#in-memory-rate-limiter-logic">In Memory Rate Limiter Logic</a></li>
-    </ul>
-  </li>
-</ul>
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-<h2 id="introduction">Introduction</h2>
-
-<p>This tutorial is part of a collection of tutorials on basic data structures and algorithms that are
-created using TypeScript. Information is depicted visually using diagrams and code snippets. This
-article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do
-interview prep for software engineering roles.</p>
-
-<p>This tutorial has 2 examples in it:</p>
-
-<ol>
-  <li><a href="#exercise-1-string-tokenizer">String tokenizer</a></li>
-  <li><a href="#exercise-2-in-memory-rate-limiter">Rate limiter</a></li>
-</ol>
-<blockquote>
-
-👀 Watch Rust 🦀 live coding videos on our <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
-
-<br />
-<br />
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
-</iframe>
-
-<br />
-<br />
-
-📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
-(they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
-project):
-<ul>
-  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
-  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
-</ul>
-
-<p>
-<kbd>giti in action</kbd>
-<video width="100%" controls="">
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
-</video>
-</p>
-
-<p>
-<kbd>edi in action</kbd>
-<video width="100%" controls="">
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
-</video>
-</p>
-
-</blockquote>
-<h3 id="how-to-run-this-project">How to run this project</h3>
-
-<p>You can get the code for this and all the other tutorials in this collection from
-<a href="https://github.com/NadiaIdris/ts-string-tokenizer">this github repo</a>. Once you clone this repo
-locally, you can run the following:</p>
-
-<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd </span>ts-string-tokenizer
-npm <span class="nb">install
-</span>npx jest <span class="nt">--watchAll</span>
-</code></pre></div></div>
-
-<p>All the examples in this repo are written in the form of tests and you can see them running in
-there. If you change the code while the tests are running, the tests will re-run automatically w/
-these new changes. This is nice to have when you are learning how the code works.</p>
-
-<h2 id="exercise-1-string-tokenizer">Exercise 1: String tokenizer</h2>
-
-<p>Create a function that mimics the
-<a href="https://www.unix.com/man-page/Linux/1/cd/"><code class="language-plaintext highlighter-rouge">cd</code> command in the terminal</a>.</p>
-
-<p><img src="/assets/algo-ts-1-images/string-tokenizer.svg" alt="" /></p>
-
-<h3 id="function-signature">Function signature</h3>
-
-<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">cd</span><span class="p">(</span><span class="nx">currentPath</span><span class="p">:</span> <span class="kr">string</span><span class="p">,</span> <span class="nx">action</span><span class="p">:</span> <span class="kr">string</span><span class="p">):</span> <span class="kr">string</span>
-</code></pre></div></div>
-
-<p>The function takes two argument, first argument is a current path and the second argument is an
-action to apply to the current path to change the path. The function modifies the path and returns
-the resulting path as a string.</p>
-
-<h3 id="test-against-the-following-cases">Test against the following cases</h3>
-
-<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>| Current path         | Action             | Resulting path                       |
-| -------------------- | ------------------ | ------------------------------------ |
-| /                    | /folder            | /folder                              |
-| /folder              | nestedFolder       | /folder/nestedFolder                 |
-| /folder              | /home              | /home                                |
-| /folder/nestedFolder | ..                 | /folder                              |
-| /folder/nestedFolder | ../folder2/folder3 | /folder/folder2/folder3              |
-| /folder/nestedFolder | folder2/./folder3  | /folder/nestedFolder/folder2/folder3 |
-</code></pre></div></div>
-
-<h3 id="string-tokenizer-logic">String tokenizer logic</h3>
-
-<p>Our <code class="language-plaintext highlighter-rouge">currentPath</code> is a string and we need to manipulate this string and eventually return a new
-string.</p>
-
-<h4 id="data-modelling">Data modelling</h4>
-
-<ol>
-  <li>
-    <p>In order for us to manipulate a string easily, we chunk the string into smaller strings and store
-those smaller string chunks into an array.</p>
-
-    <ul>
-      <li>For example, <code class="language-plaintext highlighter-rouge">"/home/user/folder"</code> would be turned into an array of
-<code class="language-plaintext highlighter-rouge">["home", "user", "folder"]</code> &lt;- Data modelling.</li>
-      <li>We don’t want to store delimiters into our array, this would only complicate manipulating the
-array.</li>
-      <li>We will add the delimiters back to our string later when we are returning output string.</li>
-    </ul>
-  </li>
-  <li>
-    <p>We have a string <code class="language-plaintext highlighter-rouge">currentPath</code> that we know we need to manipulate. But how? Our second argument
-is a <code class="language-plaintext highlighter-rouge">action</code>. <code class="language-plaintext highlighter-rouge">action</code> is a string that tells us how to manipulate our <code class="language-plaintext highlighter-rouge">currentPath</code>.</p>
-
-    <ul>
-      <li>The meaning of <code class="language-plaintext highlighter-rouge">action</code> string command: For example <code class="language-plaintext highlighter-rouge">action</code> can look like this:
-<code class="language-plaintext highlighter-rouge">"../anotherFolder"</code>. This means we want to go up one folder (..) and then go into folder
-called anotherFolder.
-In order for us to understand what this <code class="language-plaintext highlighter-rouge">action</code> string means, we need to break it down into
-smaller strings and store those smaller strings in an array as well.</li>
-      <li>For example, <code class="language-plaintext highlighter-rouge">"../anotherFolder"</code> would be turned into an array of <code class="language-plaintext highlighter-rouge">["..", "anotherFolder"]</code>.</li>
-      <li>If we encounter <code class="language-plaintext highlighter-rouge">"."</code>, then ignore it and go to the next element in the array.</li>
-      <li>If the action starts with <code class="language-plaintext highlighter-rouge">"/"</code> then this means that whatever comes after the <code class="language-plaintext highlighter-rouge">"/"</code> is the
-absolute path and the string output we want to return.</li>
-      <li>❗IMPORTANT: This tells me that when we are chunking our <code class="language-plaintext highlighter-rouge">action</code> into a smaller strings, we
-need to think about how to treat the <code class="language-plaintext highlighter-rouge">"/"</code> character, since we need to account for it (it tells
-us the new path is an absolute path).</li>
-      <li>💡IDEA: We check if the first string character is <code class="language-plaintext highlighter-rouge">"/"</code>, then don’t chunk the string into an
-array and just return the string as output string, since it’s an absolute path.</li>
-    </ul>
-  </li>
-</ol>
-
-<h4 id="assign-meaning-to-each-action">Assign meaning to each action</h4>
-
-<p><img src="/assets/algo-ts-1-images/string-tokenizer-assign-meaning.svg" alt="" /></p>
-
-<ol>
-  <li>
-    <p>Now we have <code class="language-plaintext highlighter-rouge">action</code> string array. In order to apply the <code class="language-plaintext highlighter-rouge">action</code> to our <code class="language-plaintext highlighter-rouge">currentPath</code>, we need
-to go through each array element, check what it means and then manipulate our currentPath
-accordingly. We need to define all of our <code class="language-plaintext highlighter-rouge">action</code> cases:</p>
-
-    <ul>
-      <li>If the first character is <code class="language-plaintext highlighter-rouge">"/"</code>, then we don’t chunk the string into an array and just return
-the string as output string, since it’s an absolute path.</li>
-      <li><code class="language-plaintext highlighter-rouge">".."</code> means go up one directory, which in terms or data structures means, remove the last
-element of our <code class="language-plaintext highlighter-rouge">currentPathArray</code>.</li>
-      <li><code class="language-plaintext highlighter-rouge">"anotherFolder"</code> means go into another folder, which in terms of data structures means, add
-the name of the anotherFolder to the end of our <code class="language-plaintext highlighter-rouge">currentPathArray</code>.</li>
-      <li><code class="language-plaintext highlighter-rouge">"."</code> means do nothing, which in terms of data structures means just go to the next element in
-the array.</li>
-    </ul>
-  </li>
-  <li>
-    <p>Chunking up <code class="language-plaintext highlighter-rouge">currentPath</code> and <code class="language-plaintext highlighter-rouge">action</code> strings to arrays:</p>
-
-    <ul>
-      <li>FOR INTERVIEW I PREFER THIS: When we are chunking up our currentPath, we can use JS <code class="language-plaintext highlighter-rouge">split()</code>
-method and pass in a delimiter <code class="language-plaintext highlighter-rouge">"/"</code>.
-        <ul>
-          <li>The caveat is that it returns an array of strings, but the first string is an empty string.
-            <ul>
-              <li>If we choose to go with this option, we need to remove the first string from our array
-using <code class="language-plaintext highlighter-rouge">shift()</code> (modifies the array, returns the removed element) or <code class="language-plaintext highlighter-rouge">splice(0,1)</code> (0 is
-start index, 1 means how many elements we need to remove from the start index. Splice
-modifies an array, returns removed element).</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-      <li>Another way to chunk up our currentPath is to loop over it and start collecting characters into
-a <code class="language-plaintext highlighter-rouge">currentString</code> variable, when encounter <code class="language-plaintext highlighter-rouge">"/"</code> character, then push the <code class="language-plaintext highlighter-rouge">currentString</code> to
-<code class="language-plaintext highlighter-rouge">currentPathArray</code> and reset the <code class="language-plaintext highlighter-rouge">currentString</code> to empty string.</li>
-    </ul>
-  </li>
-  <li>
-    <p>Manipulating <code class="language-plaintext highlighter-rouge">currentPathArray</code>:</p>
-
-    <ul>
-      <li>Now that we have <code class="language-plaintext highlighter-rouge">cdActionArray</code>, we need to loop over it and for each element we check our use
-cases (see number 3) and manipulate our <code class="language-plaintext highlighter-rouge">currentPathArray</code> accordingly.</li>
-    </ul>
-  </li>
-  <li>
-    <p>Done!</p>
-  </li>
-</ol>
-
-<h2 id="exercise-2-in-memory-rate-limiter">Exercise 2: In Memory Rate Limiter</h2>
-
-<p>Implement a in-memory rate limiter that limits the number of tokens that can be produced in a given
-time period.</p>
-
-<p><img src="/assets/algo-ts-1-images/api-rate-limiter.svg" alt="" />
-<img src="/assets/algo-ts-1-images/api-rate-limiter2.svg" alt="" /></p>
-
-<h3 id="function-signature-1">Function signature</h3>
-
-<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">function</span> <span class="nf">acceptOrDenyRequest</span><span class="p">(</span>
-  <span class="nx">maxRequests</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span>
-  <span class="nx">timeWindowInMs</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span>
-  <span class="nx">successfulRequests</span><span class="p">:</span> <span class="kr">number</span><span class="p">[],</span>
-  <span class="nx">newRequestTimestamp</span><span class="p">:</span> <span class="kr">number</span>
-<span class="p">):</span> <span class="dl">"</span><span class="s2">accept</span><span class="dl">"</span> <span class="o">|</span> <span class="dl">"</span><span class="s2">deny</span><span class="dl">"</span>
-</code></pre></div></div>
-
-<h3 id="test-against-the-following-cases-1">Test against the following cases</h3>
-
-<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>| Request ## | Timestamp | Result |
-| ---------- | --------- | ------ |
-| 1          | 1100      | accept |
-| 2          | 1200      | accept |
-| 3          | 1300      | deny   |
-| 4          | 2100      | accept |
-| 5          | 2150      | deny   |
-| 6          | 2200      | accept |
-</code></pre></div></div>
-
-<h3 id="in-memory-rate-limiter-logic">In Memory Rate Limiter Logic</h3>
-
-<p>We have built and API and made it’s endpoint public. This means that in theory we could have
-millions of requests coming in to our API endpoint. This could be costly or we could have a
-malicious code that could potentially crash our server. We need to protect our API endpoint from
-malicious code and also from too many requests coming in at the same time. We need to implement a
-rate limiter that limits the number of tokens (requests) that can be produced in a given time
-period.</p>
-
-<ol>
-  <li>
-    <p>We are going to create two functions: outer and inner function. Outer function defines all the
-variables and data structures we need to keep track of and the inner function accepts all those
-variables as arguments and checks is there space left in the time window to allow another request
-in or not.</p>
-
-    <p>Things we need to keep track of in our outer function:</p>
-
-    <ul>
-      <li>We need to keep track of all the successful request timestamps. Create an empty array
-<code class="language-plaintext highlighter-rouge">successfulRequests</code> to start tracking the successful request timestamps.</li>
-      <li>We need to define how many requests we want to allow in a given time period. This is the
-<code class="language-plaintext highlighter-rouge">maxRequests</code>.</li>
-      <li>Then we need to define the time period that we count how many requests come in and which
-requests to allow and which to deny. This is the <code class="language-plaintext highlighter-rouge">timeWindowInMs</code>.</li>
-      <li>One more thing. When a new request comes in, we need to create a timestamp for it. This is the
-<code class="language-plaintext highlighter-rouge">newRequestTimestamp</code>. This is the time window endpoint. We use this timestamp to calculate the
-window start point to check if there are less than max requests currently in the time window.</li>
-    </ul>
-  </li>
-  <li>
-    <p>Now we are going to call a function <code class="language-plaintext highlighter-rouge">acceptOrDenyRequest</code> which will accept or deny the request
-to hit the API endpoint. This function will take in the arguments we just defined:</p>
-
-    <div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">maxRequests</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span>
-<span class="nx">timeWindowInMs</span><span class="p">:</span> <span class="kr">number</span><span class="p">,</span>
-<span class="nx">successfulRequests</span><span class="p">:</span> <span class="kr">number</span><span class="p">[],</span>
-<span class="nx">newRequestTimestamp</span><span class="p">:</span> <span class="kr">number</span><span class="p">)</span>
-</code></pre></div>    </div>
-
-    <ul>
-      <li>
-        <p>We need to keep track of request count in the time window. We create a <code class="language-plaintext highlighter-rouge">requestCount</code> variable.
-When the request count is equal to the max requests, we need to deny the request since the time
-window is full.</p>
-      </li>
-      <li>
-        <p>We will loop through the <code class="language-plaintext highlighter-rouge">successfulRequests</code> array from back to front. We will check if the
-previously successful timestamp is still within the time window. If it is, we will increment
-the request count. If it is not, we will stop the loop since we know we have reached outside of
-the window bounds. <img src="/assets/algo-ts-1-images/api-rate-limiter3.svg" alt="" /></p>
-      </li>
-      <li>
-        <p>Now that we know how many requests were successful in the current time window, we can compare
-successful requests number with the max requests allowed in the time window. If successful
-requests number is less than max request allowed, then we can accept the request. If successful
-requests number is equal to max requests allowed, then we need to deny the request since the
-time window is full with successful requests already.
-<img src="/assets/algo-ts-1-images/api-rate-limiter4.svg" alt="" /></p>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <p>In the outer function we check if the request was successful or not. It the request was
-successful, we push the request timestamp to <code class="language-plaintext highlighter-rouge">successfulRequests</code> array and return “accept”. If
-the request was not successful, we return “deny”.</p>
-  </li>
-</ol>]]></content><author><name>Nadia Idris</name></author><category term="TS" /><category term="CS" /><summary type="html"><![CDATA[This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles.]]></summary></entry></feed>
+you take off the stack.</p>]]></content><author><name>Nadia Idris</name></author><category term="TS" /><category term="CS" /><summary type="html"><![CDATA[This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles.]]></summary></entry></feed>

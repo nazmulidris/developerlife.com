@@ -19,7 +19,6 @@ categories:
 
 - [Why use polymorphism in Rust?](#why-use-polymorphism-in-rust)
 - [Short example to illustrate both approaches](#short-example-to-illustrate-both-approaches)
-- [Video of this in action in the real world](#video-of-this-in-action-in-the-real-world)
 - [Build with Naz video series on developerlife.com YouTube channel](#build-with-naz-video-series-on-developerlifecom-youtube-channel)
 
 <!-- /TOC -->
@@ -66,6 +65,24 @@ Here are some helpful links to learn more about this topic:
 - [Sizedness](https://github.com/pretzelhammer/rust-blog/blob/master/posts/sizedness-in-rust.md)
 - [Difference between using `Arc` and `Box` with `dyn`](https://gemini.google.com/app/157980ca7d9b588c)
 - [Book on `dyn` and `Box`](https://rust-unofficial.github.io/too-many-lists/index.html)
+
+## Video of this in action in the real world
+<a id="markdown-video-of-this-in-action-in-the-real-world" name="video-of-this-in-action-in-the-real-world"></a>
+
+This blog post only has a short example to illustrate both approaches to polymorphism in
+Rust. To see how these ideas can be used in production code, with real-world examples,
+please watch the following video on the [developerlife.com YouTube
+channel](https://www.youtube.com/@developerlifecom).
+
+<!-- video on rust polymorphism (no playlist) -->
+<iframe
+    src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
+    title="YouTube video player" frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
+    >
+</iframe>
 
 ## Short example to illustrate both approaches
 <a id="markdown-short-example-to-illustrate-both-approaches" name="short-example-to-illustrate-both-approaches"></a>
@@ -261,23 +278,6 @@ mod dynamic_dispatch {
     }
 }
 ```
-
-## Video of this in action in the real world
-<a id="markdown-video-of-this-in-action-in-the-real-world" name="video-of-this-in-action-in-the-real-world"></a>
-
-
-To learn more about this topic, please watch the following video on the
-[developerlife.com YouTube channel](https://www.youtube.com/@developerlifecom).
-
-<iframe
-    width="560" height="315"
-    src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
-    title="YouTube video player" frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    referrerpolicy="strict-origin-when-cross-origin"
-    allowfullscreen
-    >
-</iframe>
 
 ## Build with Naz video series on developerlife.com YouTube channel
 <a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a>

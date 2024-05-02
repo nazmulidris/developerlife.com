@@ -155,7 +155,11 @@ You can watch a video series on building this crate with Naz on the
 
 Here's the video that is tied to this blog post:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/X5wDVaZENOo?si=yYfXuCxSilWh4Gd5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<iframe
+  src="https://www.youtube.com/embed/X5wDVaZENOo?si=yYfXuCxSilWh4Gd5"
+  title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin"
+  allowfullscreen>
+</iframe>
 
 - [YT channel](https://www.youtube.com/@developerlifecom)
   - [Part 1: Why?](https://youtu.be/6LhVx0xM86c)

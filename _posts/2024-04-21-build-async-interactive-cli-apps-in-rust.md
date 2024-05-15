@@ -1,5 +1,5 @@
 ---
-title: "Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async"
+title: "Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async"
 author: Nazmul Idris
 date: 2024-04-21 15:00:00+00:00
 excerpt: |

@@ -1,4 +1,313 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-05-01T21:17:28-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility</title><link href="http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/" rel="alternate" type="text/html" title="Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility" /><published>2024-04-28T10:00:00-05:00</published><updated>2024-04-28T10:00:00-05:00</updated><id>http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity</id><content type="html" xml:base="http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust_polymorphism.svg" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-05-15T12:21:31-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : tokio tracing &amp;amp; OTel and how to use it in Rust</title><link href="http://developerlife.com/2024/05/15/tokio-tracing-otel-rust/" rel="alternate" type="text/html" title="Build with Naz : tokio tracing &amp;amp; OTel and how to use it in Rust" /><published>2024-05-15T10:00:00-05:00</published><updated>2024-05-15T10:00:00-05:00</updated><id>http://developerlife.com/2024/05/15/tokio-tracing-otel-rust</id><content type="html" xml:base="http://developerlife.com/2024/05/15/tokio-tracing-otel-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/tracing_otel_rust.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#why-use-observability-in-async-rust">Why use observability in async Rust?</a></li>
+  <li><a href="#tokio-tracing-usage">Tokio tracing usage</a></li>
+  <li><a href="#video-of-this-in-action-in-the-real-world">Video of this in action in the real world</a></li>
+  <li><a href="#short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust">Short example to illustrate the use of tracing and OTel in Rust</a></li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+
+<h2 id="why-use-observability-in-async-rust">Why use observability in async Rust?</h2>
+<p><a id="markdown-why-use-observability-in-async-rust%3F" name="why-use-observability-in-async-rust%3F"></a></p>
+
+<p>In synchronous systems, it’s often easy to understand the flow of execution by looking at
+log messages. For example, if a thread walking through a single function ends up calling a whole
+host of other functions, and they all emit log messages, you can often piece together what
+happened by looking at the log messages in order.</p>
+
+<p>However, in asynchronous systems, this is challenging. When using Tokio, for example,
+different threads might be executing the same task, as it goes from being parked, to being
+woken up, to being parked again. Both temporality (when a log event happened) and
+causality (what caused the event) get muddled. This is where observability comes in,
+provided by Tokio <code class="language-plaintext highlighter-rouge">tracing</code> crate and OpenTelemetry (OTel) crates.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">tracing</code> crate expands upon logging-style diagnostics by allowing libraries and
+applications to record structured events with additional information about temporality and
+causality. Unlike a log message, a <code class="language-plaintext highlighter-rouge">Span</code> in tracing has a beginning and end time, may be
+entered and exited by the flow of execution, and may exist within a nested tree of similar
+spans.</p>
+
+<p>For representing things that occur at a single moment in time, tracing provides the
+complementary concept of events. Both <code class="language-plaintext highlighter-rouge">Spans</code> and <code class="language-plaintext highlighter-rouge">Events</code> are structured, with the ability to
+record typed data as well as textual messages.</p>
+
+<h2 id="tokio-tracing-usage">Tokio tracing usage</h2>
+<p><a id="markdown-tokio-tracing-usage" name="tokio-tracing-usage"></a></p>
+
+<p>Code:</p>
+<ul>
+  <li><a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-api-server"><code class="language-plaintext highlighter-rouge">tcp-api-server</code> crate is the sample project that uses <code class="language-plaintext highlighter-rouge">tracing</code> and OTel and the
+modules below (provided by the <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code>
+crate</a>.</li>
+  <li><a href="https://github.com/r3bl-org/r3bl-open-core/blob/nazmulidris/otel/terminal_async/src/public_api/tracing_setup.rs"><code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> Tokio <code class="language-plaintext highlighter-rouge">tracing</code>
+setup</a>.</li>
+  <li><a href="https://github.com/r3bl-org/r3bl-open-core/blob/nazmulidris/otel/terminal_async/src/public_api/jaeger_setup.rs#L1"><code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> Jaeger &amp; OTel
+setup</a>.</li>
+</ul>
+
+<p>Here’s an example of using the <code class="language-plaintext highlighter-rouge">tracing</code> crate. Some key symbols to note are::</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">#[instrument]</code> attribute is used to create a span.</li>
+  <li><code class="language-plaintext highlighter-rouge">Span::current().record()</code> is used to add fields to the span (when the function is
+running, and this information is not known statically beforehand).</li>
+  <li><code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">error!</code>, etc are used to emit log or tracing events. However, these are not
+used to create spans; they are used to emit events within a span.</li>
+  <li><code class="language-plaintext highlighter-rouge">#[tokio::main]</code> is used to run the async main function.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">tracing</span><span class="p">::{</span><span class="n">info</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">Span</span><span class="p">};</span>
+
+<span class="nd">#[tokio::main]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nn">client_task</span><span class="p">::</span><span class="nf">entry_point</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">mod</span> <span class="n">client_task</span> <span class="p">{</span>
+    <span class="nd">#[instrument(name</span> <span class="nd">=</span> <span class="s">"caller"</span><span class="nd">,</span> <span class="nd">skip_all,</span> <span class="nd">fields(</span><span class="err">?</span><span class="nd">client_id))]</span>
+    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">entry_point</span><span class="p">(</span><span class="n">client_id</span><span class="p">:</span> <span class="nb">usize</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nd">info!</span><span class="p">(</span><span class="s">"entry point"</span><span class="p">);</span>
+        <span class="nf">more_context</span><span class="p">(</span><span class="s">"bar"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+        <span class="nf">handle_message</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="s">"foo"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[instrument(name</span> <span class="nd">=</span> <span class="s">"callee"</span><span class="nd">,</span> <span class="nd">skip_all,</span> <span class="nd">fields(</span><span class="err">%</span><span class="nd">message))]</span>
+    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">handle_message</span><span class="p">(</span><span class="n">client_id</span><span class="p">:</span> <span class="nb">usize</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nd">info!</span><span class="p">(</span><span class="s">"handling message"</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[instrument(fields(extra))]</span>
+    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">more_context</span><span class="p">(</span><span class="n">extra</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nn">CurrentSpan</span><span class="p">::</span><span class="nf">current</span><span class="p">()</span><span class="nf">.record</span><span class="p">(</span><span class="s">"extra"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">extra</span><span class="p">);</span>
+        <span class="nd">info!</span><span class="p">(</span><span class="s">"more context"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here are some key points to remember when using <code class="language-plaintext highlighter-rouge">tracing</code> from the code above:</p>
+
+<ul>
+  <li>
+    <p>You have to be careful about recording the same field multiple times, in an async call
+chain. In the example above, <code class="language-plaintext highlighter-rouge">client_task::entry_point()</code> is the entry point, and is the
+only function that should log the <code class="language-plaintext highlighter-rouge">?client_id</code>; <code class="language-plaintext highlighter-rouge">?</code> means debug. And not any other
+functions that it calls, like <code class="language-plaintext highlighter-rouge">handle_message()</code>.</p>
+  </li>
+  <li>
+    <p>When you call <code class="language-plaintext highlighter-rouge">entry_point()</code>, it will call <code class="language-plaintext highlighter-rouge">handle_message()</code>, and the span that is
+generated by <code class="language-plaintext highlighter-rouge">handle_message()</code> will have the <code class="language-plaintext highlighter-rouge">client_id</code> field added to it, because of
+the call chain. So the output of <code class="language-plaintext highlighter-rouge">info!("handling message")</code> will have the <code class="language-plaintext highlighter-rouge">client_id</code>
+included in it (for free). It will also have the <code class="language-plaintext highlighter-rouge">%message</code> field in it; <code class="language-plaintext highlighter-rouge">%</code> means
+display. You don’t have to explicitly add either of these fields to the <code class="language-plaintext highlighter-rouge">info!()</code> call 🎉.</p>
+  </li>
+  <li>
+    <p>If you use the <code class="language-plaintext highlighter-rouge">client_id</code> field in multiple <code class="language-plaintext highlighter-rouge">#[instrument..]</code> attributes in functions
+(that are in the call chain), then this will show up multiple times in the log output
+(when using <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc) of the leaf function in the call chain. So when you
+see the same fields showing up multiple times in the output from <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc,
+then you know that you have to remove that field from the <code class="language-plaintext highlighter-rouge">#[instrument..]</code> attribute
+somewhere in the call chain (that the span covers).</p>
+  </li>
+  <li>
+    <p>You have to be careful about how to use
+<a href="https://docs.rs/tracing/latest/tracing/attr.instrument.html"><code class="language-plaintext highlighter-rouge">[#instrument]</code></a> attribute
+with <code class="language-plaintext highlighter-rouge">tracing::Span::record</code>. You have to call
+<code class="language-plaintext highlighter-rouge">tracing::Span::current().record("foo","bar")</code> in the same function where the
+<code class="language-plaintext highlighter-rouge">#[instrument(fields(foo))]</code> attribute is used.</p>
+  </li>
+</ul>
+
+<p>Here are some helpful links to learn more about this topic:</p>
+
+<ul>
+  <li><a href="https://tokio.rs/tokio/topics/tracing">Tokio tracing docs</a>.</li>
+  <li><a href="https://gemini.google.com/app/5b106a8100c4dcf4">Difference between <code class="language-plaintext highlighter-rouge">#[instrument]</code> (create spans) and emitting events (eg: <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc:</a>.</li>
+  <li><a href="https://tokio.rs/tokio/topics/tracing-next-steps">Tokio and OTel integration docs</a>.</li>
+  <li><a href="https://github.com/tokio-rs/tracing-opentelemetry">Tokio tracing and OTel integration crate</a>.</li>
+  <li><a href="https://broch.tech/posts/rust-tracing-opentelemetry/">Blog post to connect tracing and OTel</a>.</li>
+  <li><a href="https://github.com/open-telemetry/opentelemetry-rust/blob/main/examples/tracing-jaeger/src/main.rs">Code examples for using Jaeger with tracing</a>.</li>
+  <li><a href="https://opentelemetry.io/docs/concepts/observability-primer/#spans">OTel primer</a>.</li>
+  <li><a href="https://www.jaegertracing.io/docs/1.57/getting-started/">Jaeger docs</a>.</li>
+</ul>
+
+<h2 id="video-of-this-in-action-in-the-real-world">Video of this in action in the real world</h2>
+<p><a id="markdown-video-of-this-in-action-in-the-real-world" name="video-of-this-in-action-in-the-real-world"></a></p>
+
+<p>This blog post only has a short example to illustrate how to use Rust tracing and OTel
+with Jaeger. To see how these ideas can be used in production code, with real-world
+examples, please watch the following video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
+channel</a>.</p>
+
+<!-- rust tokio tracing and otel for async rust & playlist -->
+<iframe src="https://www.youtube.com/embed/Wf8JrLgBuKI?si=cmLaUWs-pbJ39lLc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<p>Here’s the code for this real world example:</p>
+
+<ul>
+  <li><a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-api-server">Repo for the <code class="language-plaintext highlighter-rouge">tcp-api-server</code> crate, which is an example of creating a TCP server and
+client that are observable using <code class="language-plaintext highlighter-rouge">tracing</code> and
+OTel</a>.
+    <ul>
+      <li>It uses the <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> crate to allow async, non-blocking readline
+functionality, along with <code class="language-plaintext highlighter-rouge">stdout</code> and <code class="language-plaintext highlighter-rouge">stderr</code> that are also async.</li>
+      <li>This crate is also used to configure Jaeger and tracing subscribers for file, stdout
+logging.</li>
+    </ul>
+  </li>
+  <li>
+    <p><a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-api-server#tokio-tracing-usage">README for <code class="language-plaintext highlighter-rouge">tcp-api-server</code> crate, which shows how to use Jaeger, and configure file
+logging and stdout
+logging</a>.</p>
+  </li>
+  <li>
+    <p><a href="https://github.com/r3bl-org/r3bl-open-core/blob/nazmulidris/refactor-tokio-tracing/terminal_async/src/public_api/tracing_setup.rs">How to build up tracing subscribers using layers (type erasure, decl macros,
+etc)</a>.</p>
+  </li>
+  <li>
+    <p><a href="https://github.com/nazmulidris/rust-scratch/pull/34">How to add an OTel layer to a
+subscriber</a>.</p>
+  </li>
+  <li><a href="https://github.com/r3bl-org/r3bl-open-core/pull/326">How the subscriber is configured with custom layers in <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code>
+crate</a>.</li>
+</ul>
+
+<h2 id="short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust">Short example to illustrate the use of tracing and OTel in Rust</h2>
+<p><a id="markdown-short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust" name="short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust"></a></p>
+
+<p>Let’s look a single example (that fits in one file) that illustrates the use of tracing
+in Rust. You can run <code class="language-plaintext highlighter-rouge">cargo new --lib tracing-otel</code> to create a new library crate, and then run
+the following:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo add miette <span class="nt">--features</span> fancy
+cargo add tracing tracing-subscriber
+cargo add tokio <span class="nt">--features</span> full
+</code></pre></div></div>
+
+<p>Then you can add the following code to the <code class="language-plaintext highlighter-rouge">src/main.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">miette</span><span class="p">::</span><span class="n">IntoDiagnostic</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">tracing</span><span class="p">::</span><span class="n">Span</span><span class="p">;</span>
+
+<span class="nd">#[tokio::main]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">subscriber</span> <span class="o">=</span> <span class="nn">tracing_subscriber</span><span class="p">::</span><span class="nf">fmt</span><span class="p">()</span>
+        <span class="nf">.without_time</span><span class="p">()</span>
+        <span class="nf">.pretty</span><span class="p">()</span>
+        <span class="nf">.with_max_level</span><span class="p">(</span><span class="nn">tracing</span><span class="p">::</span><span class="nn">Level</span><span class="p">::</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="nf">.finish</span><span class="p">();</span>
+
+    <span class="nn">tracing</span><span class="p">::</span><span class="nn">subscriber</span><span class="p">::</span><span class="nf">set_global_default</span><span class="p">(</span><span class="n">subscriber</span><span class="p">)</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="nf">print_message</span><span class="p">(</span><span class="s">"foo"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The first part of the code sets up the tracing subscriber. In this case we are using a formatting
+subscriber that prints logs to the console. This subscriber is configured to not print the time of
+the log message, to pretty print the logs, and to print logs at the <code class="language-plaintext highlighter-rouge">DEBUG</code> level or higher.</p>
+
+<p>When you use <code class="language-plaintext highlighter-rouge">#[attribute]</code> along with <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc, Tokio will emit log events
+that are associated with a span. This is the “emitter” side of the process. The other side
+is the “subscriber” side, which is where the logs are actually printed to the console, or
+sent to a file, or sent to an OTel collector service like Jaeger (using OTLP protocol over
+gRPC).</p>
+
+<p>Tokio <code class="language-plaintext highlighter-rouge">tracing</code> allows us to use this simple default subscriber, or create our own custom
+subscribers. It even allows a subscriber to be composed from layers. We can create our own
+custom layers, or use some default ones (like the level filter layer).</p>
+
+<p>OTel is itself a tracing layer. In the video &amp; <code class="language-plaintext highlighter-rouge">tcp-api-server</code> repo, you will see how to
+use OTel with Jaeger, and how to configure the OTel layer with a custom layer.</p>
+
+<p>Next you can add the following code to the <code class="language-plaintext highlighter-rouge">src/main.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[tracing::instrument(fields(arg</span> <span class="nd">=</span> <span class="err">?</span><span class="nd">arg,</span> <span class="nd">client_id),</span> <span class="nd">ret)]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">print_message</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"log message one"</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="nf">prepare_message</span><span class="p">()</span><span class="k">.await</span><span class="p">);</span>
+
+    <span class="nn">Span</span><span class="p">::</span><span class="nf">current</span><span class="p">()</span><span class="nf">.record</span><span class="p">(</span><span class="s">"client_id"</span><span class="p">,</span> <span class="mi">1234</span><span class="p">);</span>
+
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">warn!</span><span class="p">(</span><span class="s">"log message two"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nd">#[tracing::instrument(ret)]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">prepare_message</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">debug!</span><span class="p">(</span><span class="s">"preparing message"</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="nf">.to_string</span><span class="p">();</span>
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">debug!</span><span class="p">(</span><span class="s">"message prepared"</span><span class="p">);</span>
+    <span class="n">it</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">print_message</code> function is annotated with the <code class="language-plaintext highlighter-rouge">#[tracing::instrument]</code> attribute.
+This attribute creates a span for the function, and adds the <code class="language-plaintext highlighter-rouge">arg</code> field to the span along
+with the <code class="language-plaintext highlighter-rouge">client_id</code> field. In all the log events are emitted within the span, the <code class="language-plaintext highlighter-rouge">arg</code>
+and <code class="language-plaintext highlighter-rouge">client_id</code> field will be included in the log output. This additional context is
+provided by a span. And you don’t have to write any code to the <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">warn!</code>, etc
+calls to include these fields in the log output.</p>
+
+<p>You can run the code using <code class="language-plaintext highlighter-rouge">cargo run</code>. The code will produce the following output.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   INFO tracing_otel: log message one
+    at src/main.rs:38
+    in tracing_otel::print_message with arg: "foo"
+
+  DEBUG tracing_otel: preparing message
+    at src/main.rs:48
+    in tracing_otel::prepare_message
+    in tracing_otel::print_message with arg: "foo"
+
+  DEBUG tracing_otel: message prepared
+    at src/main.rs:50
+    in tracing_otel::prepare_message
+    in tracing_otel::print_message with arg: "foo"
+
+   INFO tracing_otel: return: "Hello, world!"
+    at src/main.rs:46
+    in tracing_otel::prepare_message
+    in tracing_otel::print_message with arg: "foo"
+
+Hello, world!
+
+   WARN tracing_otel: log message two
+    at src/main.rs:43
+    in tracing_otel::print_message with arg: "foo", client_id: 1234
+
+   INFO tracing_otel: return: ()
+    at src/main.rs:36
+    in tracing_otel::print_message with arg: "foo", client_id: 1234
+</code></pre></div></div>
+
+<p>Beyond this simple example, to get started, please check out the video and the
+<code class="language-plaintext highlighter-rouge">tcp-api-server</code> repo to get a sense of how this can all be used in a real world example
+that has lots of moving parts and pieces. Observability here can tell the story of what
+happened in the system, so it can be another way of getting an understanding of the
+system’s behavior.</p>
+
+<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[Learn how to use tokio tracing and OpenTelemetry (with Jaeger) in async Rust to instrument your code and collect telemetry data for observability.]]></summary></entry><entry><title type="html">Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility</title><link href="http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/" rel="alternate" type="text/html" title="Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility" /><published>2024-04-28T10:00:00-05:00</published><updated>2024-04-28T10:00:00-05:00</updated><id>http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity</id><content type="html" xml:base="http://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust_polymorphism.svg" /></p>
 
 <!-- TOC -->
 
@@ -319,7 +628,7 @@ enable runtime polymorphism.</p>
       </li>
     </ul>
   </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[Learn how to implement effective Rust polymorphism, using `dyn`, `impl`, existing traits, and trait objects for testing and extensibility, in real world projects.]]></summary></entry><entry><title type="html">Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async</title><link href="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/" rel="alternate" type="text/html" title="Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async" /><published>2024-04-21T10:00:00-05:00</published><updated>2024-04-21T10:00:00-05:00</updated><id>http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust</id><content type="html" xml:base="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/r3bl_terminal_async-hero.svg" /></p>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[Learn how to implement effective Rust polymorphism, using `dyn`, `impl`, existing traits, and trait objects for testing and extensibility, in real world projects.]]></summary></entry><entry><title type="html">Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async</title><link href="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/" rel="alternate" type="text/html" title="Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async" /><published>2024-04-21T10:00:00-05:00</published><updated>2024-04-21T10:00:00-05:00</updated><id>http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust</id><content type="html" xml:base="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/r3bl_terminal_async-hero.svg" /></p>
 
 <!-- TOC -->
 
@@ -2901,298 +3210,4 @@ that are used to represent the Markdown document model
 (<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs"><code class="language-plaintext highlighter-rouge">Document</code></a>)
 and all the other intermediate types (<code class="language-plaintext highlighter-rouge">Fragment</code>, <code class="language-plaintext highlighter-rouge">Block</code>, etc) &amp; enums required for parsing.</p>
   </li>
-</ol>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><summary type="html"><![CDATA[This tutorial is a guide to parsing with nom. It covers the basics of parsing and how to use nom to parse a string into a data structure. We will cover a variety of different examples ranging from parsing simple CSS like syntax to a full blown Markdown parser.]]></summary></entry><entry><title type="html">Algorithms and data structures in TypeScript: non binary tree traversal</title><link href="http://developerlife.com/2022/12/11/algo-ts-2/" rel="alternate" type="text/html" title="Algorithms and data structures in TypeScript: non binary tree traversal" /><published>2022-12-11T09:00:00-06:00</published><updated>2022-12-11T09:00:00-06:00</updated><id>http://developerlife.com/2022/12/11/algo-ts-2</id><content type="html" xml:base="http://developerlife.com/2022/12/11/algo-ts-2/"><![CDATA[<p><img class="post-hero-image" src="/assets/algo-ts-2-images/pretty-print-html.svg" /></p>
-
-<!-- TOC -->
-
-<ul>
-  <li><a href="#introduction">Introduction</a></li>
-  <li><a href="#pretty-print-and-traverse-an-html-tree">Pretty print and traverse an HTML tree</a>
-    <ul>
-      <li><a href="#clone-the-repo-and-install-dependencies">Clone the repo and install dependencies</a></li>
-      <li><a href="#run-tests">Run tests</a></li>
-    </ul>
-  </li>
-  <li><a href="#problem-statement">Problem statement</a></li>
-  <li><a href="#coming-up-with-a-solution">Coming up with a solution</a>
-    <ul>
-      <li><a href="#data-modeling">Data modeling</a></li>
-      <li><a href="#what-data-structures-could-we-use-to-represent-this">What data structures could we use to represent this?</a></li>
-      <li><a href="#create-an-element">Create an element</a></li>
-      <li><a href="#pretty-print-the-html-tree">Pretty print the HTML tree</a></li>
-      <li><a href="#traversing-the-tree">Traversing the tree</a></li>
-      <li><a href="#queue">Queue</a></li>
-      <li><a href="#stack">Stack</a></li>
-    </ul>
-  </li>
-</ul>
-
-<!-- /TOC -->
-
-<h2 id="introduction">Introduction</h2>
-<p><a id="markdown-introduction" name="introduction"></a></p>
-
-<p>This tutorial is part of a collection of tutorials on basic data structures and algorithms that are
-created using TypeScript. Information is depicted visually using diagrams and code snippets. This
-article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do
-interview prep for software engineering roles.</p>
-<blockquote>
-
-👀 Watch Rust 🦀 live coding videos on our <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
-
-<br />
-<br />
-
-<!-- video on rust polymorphism (no playlist) -->
-<iframe src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
-</iframe>
-
-<br />
-<br />
-
-📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
-(they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
-project):
-<ul>
-  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
-  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
-</ul>
-
-<p>
-<kbd>giti in action</kbd>
-<video width="100%" controls="">
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
-</video>
-</p>
-
-<p>
-<kbd>edi in action</kbd>
-<video width="100%" controls="">
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
-</video>
-</p>
-
-</blockquote>
-<h2 id="pretty-print-and-traverse-an-html-tree">Pretty print and traverse an HTML tree</h2>
-<p><a id="markdown-pretty-print-and-traverse-an-html-tree" name="pretty-print-and-traverse-an-html-tree"></a></p>
-
-<p><img src="/assets/algo-ts-2-images/pretty-print-html.svg" alt="" /></p>
-
-<h3 id="clone-the-repo-and-install-dependencies">Clone the repo and install dependencies</h3>
-<p><a id="markdown-clone-the-repo-and-install-dependencies" name="clone-the-repo-and-install-dependencies"></a></p>
-
-<ul>
-  <li>
-    <p>The source for this tutorial can be found on
-<a href="https://github.com/NadiaIdris/ts-make-html-document-tree">GitHub</a>. Please clone it to your
-computer.</p>
-  </li>
-  <li>
-    <p>In your terminal, go to the root directory of the cloned repo and run the following command
-<code class="language-plaintext highlighter-rouge">npm install</code> to install dependencies.</p>
-  </li>
-</ul>
-
-<h3 id="run-tests">Run tests</h3>
-<p><a id="markdown-run-tests" name="run-tests"></a></p>
-
-<p>All the tests are in the <code class="language-plaintext highlighter-rouge">main.test.ts</code> file. To run jest tests continuously, run
-<code class="language-plaintext highlighter-rouge">npx jest --watchAll</code>.</p>
-
-<h2 id="problem-statement">Problem statement</h2>
-<p><a id="markdown-problem-statement" name="problem-statement"></a></p>
-
-<p>Design and implement a class that can represent a single HTML element and its children. The class
-should have the following methods for tree construction and pretty printing:</p>
-
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">addClass</code> - takes a class name and adds it to the element’s list of classes</li>
-  <li><code class="language-plaintext highlighter-rouge">appendChild</code> - takes an HTML element and adds it to the element’s list of children</li>
-  <li><code class="language-plaintext highlighter-rouge">printTree</code> - returns a string representation of the element and its children in HTML format</li>
-</ul>
-
-<p>The class should also have the following methods for tree traversal:</p>
-
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">findFirstChildBFS</code> - a method that takes an array of two elements (tuple). The first element is a
-parent element selector to start searching the child selector. The second element is the child
-selector. If we find the first child element that has the selector, we return the child element.
-The BFS stands for breadth-first search. This simply defines the order we traverse the tree.</li>
-  <li><code class="language-plaintext highlighter-rouge">findFirstChildDFS</code> - the same as the <code class="language-plaintext highlighter-rouge">findFirstChildBFS</code> method, but the DFS stands for
-depth-first search. We traverse the tree using a depth-first search algorithm. If you are not
-familiar with the difference between BFS and DFS, I have added two images below this section.</li>
-  <li><code class="language-plaintext highlighter-rouge">findDescendantBFS</code> - this method also takes a tuple, except the first element is the ancestor
-selector and the second element is the descendant selector. We traverse the tree using a
-breadth-first search algorithm. If we find the first descendant element that has the selector, we
-return the descendant element. We traverse the tree using BFS.</li>
-  <li><code class="language-plaintext highlighter-rouge">findDescendantDFS</code> - same as the <code class="language-plaintext highlighter-rouge">findDescendantBFS</code> method, except we traverse the tree using
-DFS.</li>
-</ul>
-
-<p>The following image shows the difference between finding the first child vs finding a descendant
-element.</p>
-
-<p><img src="/assets/algo-ts-2-images/find-first-child-find-first-descendant.svg" alt="" /></p>
-
-<p>The following image shows the depth-first search (HTML tree)
-<img src="/assets/algo-ts-2-images/html-tree-depth-first-search.svg" alt="" /></p>
-
-<p>The following image shows the depth-first search
-<img src="/assets/algo-ts-2-images/depth-first-search.svg" alt="" /></p>
-
-<p>The following image shows the breadth-first search
-<img src="/assets/algo-ts-2-images/breadth-first-search.svg" alt="" /></p>
-
-<h2 id="coming-up-with-a-solution">Coming up with a solution</h2>
-<p><a id="markdown-coming-up-with-a-solution" name="coming-up-with-a-solution"></a></p>
-
-<p>Let’s walk through our thought process on the journey to solving the problem statement.</p>
-
-<h3 id="data-modeling">Data modeling</h3>
-<p><a id="markdown-data-modeling" name="data-modeling"></a></p>
-
-<p>Let’s start w/ the output first. Our program should produce the following output (which is a
-string):</p>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"
-<span class="nt">&lt;html&gt;</span>
-  <span class="nt">&lt;head&gt;&lt;/head&gt;</span>
-  <span class="nt">&lt;body&gt;</span>
-    <span class="nt">&lt;h1</span> <span class="na">class=</span><span class="s">"blue-theme"</span><span class="nt">&gt;&lt;/h1&gt;</span>
-    <span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"blue-theme bold-text"</span><span class="nt">&gt;</span>
-      <span class="nt">&lt;li&gt;&lt;/li&gt;</span>
-      <span class="nt">&lt;li&gt;&lt;/li&gt;</span>
-    <span class="nt">&lt;/ul&gt;</span>
-  <span class="nt">&lt;/body&gt;</span>
-<span class="nt">&lt;/html&gt;</span>
-"
-</code></pre></div></div>
-
-<h3 id="what-data-structures-could-we-use-to-represent-this">What data structures could we use to represent this?</h3>
-<p><a id="markdown-what-data-structures-could-we-use-to-represent-this%3F" name="what-data-structures-could-we-use-to-represent-this%3F"></a></p>
-
-<p>Data is all the pieces of information that we need to represent the element. For example each
-element needs:</p>
-
-<ul>
-  <li>Tag name: each element only has one tag name, so we can use a string as type.</li>
-  <li>Classes: each element can have one or more classes. We want to maintain the order of classes, so
-we can use an array as a container to store all the classes. Each class is a type string.</li>
-  <li>Children: each element can have one or more children. We want to maintain the insertion order of
-children, so we can use an array as a container to store all the children. Each child is an
-element, so we can use <code class="language-plaintext highlighter-rouge">MyElement</code> as a type.</li>
-</ul>
-
-<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;ul</span> <span class="na">class=</span><span class="s">"blue-theme bold-text"</span><span class="nt">&gt;</span>
-  <span class="c">&lt;!-- Tag name is "ul". It is an element --&gt;</span>
-  <span class="c">&lt;!-- with two classes and two child elements ("li") --&gt;</span>
-  <span class="nt">&lt;li&gt;</span>item 1<span class="nt">&lt;/li&gt;</span>
-  //
-  <span class="c">&lt;!-- child 1: "li" is an element and a child of "ul" --&gt;</span>
-  <span class="nt">&lt;li&gt;</span>item 2<span class="nt">&lt;/li&gt;</span>
-  //
-  <span class="c">&lt;!-- child 2 (same as the above) --&gt;</span>
-<span class="nt">&lt;/ul&gt;</span>
-</code></pre></div></div>
-
-<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">class</span> <span class="nc">MyElement</span> <span class="k">implements</span> <span class="nx">MyElementInterface</span> <span class="nx">t</span><span class="p">{</span>
-  <span class="nl">tagName</span><span class="p">:</span> <span class="kr">string</span>
-  <span class="k">private</span> <span class="nx">_children</span><span class="p">:</span> <span class="nx">MyElement</span><span class="p">[]</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="k">private</span> <span class="nx">_classList</span><span class="p">:</span> <span class="kr">string</span><span class="p">[]</span> <span class="o">=</span> <span class="p">[]</span>
-  <span class="c1">// For formatting, we need a "depth" property. For each when adding a child to a parent,</span>
-  <span class="c1">// we need to increment the dept of the child by 1. This is how we will know how many</span>
-  <span class="c1">// spaces to add before the child element.</span>
-  <span class="k">private</span> <span class="nx">_depth</span><span class="p">:</span> <span class="kr">number</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Note: when using classes, one doesn’t have to create an interface. I like to do that, so it’s easy
-to read which properties and methods are public and which are private.</p>
-
-<h3 id="create-an-element">Create an element</h3>
-<p><a id="markdown-create-an-element" name="create-an-element"></a></p>
-
-<ul>
-  <li>Instantiate the <code class="language-plaintext highlighter-rouge">MyElement</code> class using a constructor function:
-<code class="language-plaintext highlighter-rouge">new Element(element: string) =&gt; Element</code></li>
-</ul>
-
-<h3 id="pretty-print-the-html-tree">Pretty print the HTML tree</h3>
-<p><a id="markdown-pretty-print-the-html-tree" name="pretty-print-the-html-tree"></a></p>
-
-<p>To pretty print the HTML tree, we need to add a certain amount of spaces in front of each element.
-To know how many spaces, we need to track the depth of each element.</p>
-
-<p>Every time a child element is nested inside the parent element (via the <code class="language-plaintext highlighter-rouge">appendChild</code> method), we
-take the parent element’s depth and increment the child element’s depth by one.</p>
-
-<p>E.g. when we pretty print the HTML tree, each element will have depth * 2 spaces in front of it.
-This means the first level element will have 0 spaces in front of it, the second level element will
-have 2 spaces in front of it, the third level element will have 4 spaces in front of it, etc.</p>
-
-<p><img src="/assets/algo-ts-2-images/calculate-depth.svg" alt="" /></p>
-
-<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">appendChild</span> <span class="o">=</span> <span class="p">(</span><span class="nx">child</span><span class="p">:</span> <span class="nx">MyElement</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="c1">// Increment the dept of the child by taking the current</span>
-  <span class="c1">// element's depth and adding 1 to it.</span>
-  <span class="nx">child</span><span class="p">.</span><span class="nx">depth</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">depth</span> <span class="o">+</span> <span class="mi">1</span>
-  <span class="c1">// We are also tracking the parent element of each element.</span>
-  <span class="c1">// This will help us to traverse to the root element.</span>
-  <span class="nx">child</span><span class="p">.</span><span class="nx">_parentElement</span> <span class="o">=</span> <span class="k">this</span>
-  <span class="k">this</span><span class="p">.</span><span class="nx">_children</span><span class="p">.</span><span class="nf">push</span><span class="p">(</span><span class="nx">child</span><span class="p">)</span>
-  <span class="k">return</span> <span class="k">this</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Method to print the HTML tree:</p>
-
-<div class="language-ts highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">printTree</span> <span class="o">=</span> <span class="p">():</span> <span class="kr">string</span> <span class="o">=&gt;</span> <span class="p">{</span>
-  <span class="kd">let</span> <span class="nx">spaces</span> <span class="o">=</span> <span class="dl">"</span><span class="s2"> </span><span class="dl">"</span><span class="p">.</span><span class="nf">repeat</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">depth</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
-  <span class="kd">const</span> <span class="nx">elementHasChildren</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_children</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">0</span>
-  <span class="kd">const</span> <span class="nx">hasClasses</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_classList</span><span class="p">.</span><span class="nx">size</span> <span class="o">&gt;</span> <span class="mi">0</span>
-  <span class="kd">const</span> <span class="nx">classes</span> <span class="o">=</span> <span class="nx">hasClasses</span> <span class="p">?</span> <span class="s2">` class="</span><span class="p">${[...</span><span class="k">this</span><span class="p">.</span><span class="nx">_classList</span><span class="p">].</span><span class="nf">join</span><span class="p">(</span><span class="dl">"</span><span class="s2"> </span><span class="dl">"</span><span class="p">)}</span><span class="s2">"`</span> <span class="p">:</span> <span class="dl">""</span>
-  <span class="kd">let</span> <span class="na">string</span><span class="p">:</span> <span class="kr">string</span> <span class="o">=</span> <span class="dl">""</span>
-
-  <span class="k">if </span><span class="p">(</span><span class="nx">elementHasChildren</span><span class="p">)</span> <span class="p">{</span>
-    <span class="kd">const</span> <span class="nx">children</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_children</span><span class="p">.</span><span class="nf">map</span><span class="p">((</span><span class="nx">child</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="nx">child</span><span class="p">.</span><span class="nf">printTree</span><span class="p">()).</span><span class="nf">join</span><span class="p">(</span><span class="dl">""</span><span class="p">)</span>
-    <span class="c1">// Print start and end tags to different lines.</span>
-    <span class="kr">string</span> <span class="o">=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">spaces</span><span class="p">}</span><span class="s2">&lt;</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">tagName</span><span class="p">}${</span><span class="nx">classes</span><span class="p">}</span><span class="s2">&gt;\n</span><span class="p">${</span><span class="nx">children</span><span class="p">}${</span><span class="nx">spaces</span><span class="p">}</span><span class="s2">&lt;/</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">tagName</span><span class="p">}</span><span class="s2">&gt;\n`</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="c1">// Print the start and end tags to the same line.</span>
-    <span class="kr">string</span> <span class="o">=</span> <span class="s2">`</span><span class="p">${</span><span class="nx">spaces</span><span class="p">}</span><span class="s2">&lt;</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">tagName</span><span class="p">}${</span><span class="nx">classes</span><span class="p">}</span><span class="s2">&gt;&lt;/</span><span class="p">${</span><span class="k">this</span><span class="p">.</span><span class="nx">tagName</span><span class="p">}</span><span class="s2">&gt;\n`</span>
-  <span class="p">}</span>
-  <span class="k">return</span> <span class="kr">string</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h3 id="traversing-the-tree">Traversing the tree</h3>
-<p><a id="markdown-traversing-the-tree" name="traversing-the-tree"></a></p>
-
-<p>Implement</p>
-
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">findFirstChildBFS</code></li>
-  <li><code class="language-plaintext highlighter-rouge">findFirstChildDFS</code></li>
-  <li><code class="language-plaintext highlighter-rouge">findDescendantBFS</code></li>
-  <li><code class="language-plaintext highlighter-rouge">findDescendantDFS</code></li>
-</ul>
-
-<p>Check out
-<a href="https://github.com/NadiaIdris/ts-make-html-document-tree/blob/main/src/main.ts#L74"><code class="language-plaintext highlighter-rouge">main.ts</code></a> for
-how to implement those methods.</p>
-
-<h3 id="queue">Queue</h3>
-<p><a id="markdown-queue" name="queue"></a></p>
-
-<p>All BFS methods use a queue data structure. In JavaScript queue is an array where we add items, one
-after another, and then remove them from the start of the array. It’s called first-in-first-out
-(FIFO). You could think of it as a line of people waiting in the checkout line at the grocery store.
-The first person in line is the first person to be served.</p>
-
-<h3 id="stack">Stack</h3>
-<p><a id="markdown-stack" name="stack"></a></p>
-
-<p>All DFS methods use stack data structure. In JavaScript stack is an array where we add items one
-after another and then remove them from the end of the array. It’s called last-in-first-out (LIFO).
-You could think of it as a stack of papers. The last paper you put on the stack is the first paper
-you take off the stack.</p>]]></content><author><name>Nadia Idris</name></author><category term="TS" /><category term="CS" /><summary type="html"><![CDATA[This tutorial is part of a collection of tutorials on basic data structures and algorithms that are created using TypeScript. Information is depicted visually using diagrams and code snippets. This article may be useful if you are trying to get more fluency in TypeScript or need a refresher to do interview prep for software engineering roles.]]></summary></entry></feed>
+</ol>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><summary type="html"><![CDATA[This tutorial is a guide to parsing with nom. It covers the basics of parsing and how to use nom to parse a string into a data structure. We will cover a variety of different examples ranging from parsing simple CSS like syntax to a full blown Markdown parser.]]></summary></entry></feed>

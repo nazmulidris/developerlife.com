@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Build with Naz : tokio tracing &amp; OTel and how to use it in Rust | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Build with Naz : tokio tracing &amp; OTel and how to use it in Rust" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Learn how to use tokio tracing and OpenTelemetry (with Jaeger) in async Rust to instrument your code and collect telemetry data for observability." />
+<meta property="og:description" content="Learn how to use tokio tracing and OpenTelemetry (with Jaeger) in async Rust to instrument your code and collect telemetry data for observability." />
+<link rel="canonical" href="http://developerlife.com/2024/05/15/tokio-tracing-otel-rust/" />
+<meta property="og:url" content="http://developerlife.com/2024/05/15/tokio-tracing-otel-rust/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-05-15T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build with Naz : tokio tracing &amp; OTel and how to use it in Rust" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-05-15T10:00:00-05:00","datePublished":"2024-05-15T10:00:00-05:00","description":"Learn how to use tokio tracing and OpenTelemetry (with Jaeger) in async Rust to instrument your code and collect telemetry data for observability.","headline":"Build with Naz : tokio tracing &amp; OTel and how to use it in Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/05/15/tokio-tracing-otel-rust/"},"url":"http://developerlife.com/2024/05/15/tokio-tracing-otel-rust/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /><!-- https://developers.google.com/analytics/devguides/collection/gtagjs -->
+<script async
+        src="https://www.googletagmanager.com/gtag/js?id=G-NQY9ECC58H"></script>
+<script>
+  window.dataLayer = window.dataLayer || []
+
+  function gtag() {
+    window.dataLayer.push(arguments)
+  }
+
+  gtag("js", new Date())
+  gtag("config", "G-NQY9ECC58H")
+</script>
+<!-- https://us14.admin.mailchimp.com/account/connected-sites/site-detail/ -->
+
+<script id="mcjs">
+  !(function (c, h, i, m, p) {
+    ;(m = c.createElement(h)),
+      (p = c.getElementsByTagName(h)[0]),
+      (m.async = 1),
+      (m.src = i),
+      p.parentNode.insertBefore(m, p)
+  })(
+    document,
+    "script",
+    "https://chimpstatic.com/mcjs-connected/js/users/c2470ddfa863eb8ace707651b/2bb3bcad193ef862398700457.js"
+  )
+</script>
+</head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Build with Naz : tokio tracing &amp; OTel and how to use it in Rust&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Build with Naz : tokio tracing & OTel and how to use it in Rust</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build with Naz : tokio tracing &amp; OTel and how to use it in Rust</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->May 15, 2024
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+        <blockquote>
+  👀 Watch Rust 🦀 live coding videos on our
+  <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
+
+  <br />
+
+  <!-- video on rust polymorphism (no playlist) -->
+  <iframe
+      src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      >
+  </iframe>
+
+  <!-- video on intro to testing (with playlist) -->
+  <!-- <iframe
+    src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
+  >
+  </iframe> -->
+
+</blockquote>
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/tracing_otel_rust.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#why-use-observability-in-async-rust">Why use observability in async Rust?</a></li>
+  <li><a href="#tokio-tracing-usage">Tokio tracing usage</a></li>
+  <li><a href="#video-of-this-in-action-in-the-real-world">Video of this in action in the real world</a></li>
+  <li><a href="#short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust">Short example to illustrate the use of tracing and OTel in Rust</a></li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="why-use-observability-in-async-rust">
+        
+        
+          Why use observability in async Rust? <a href="#why-use-observability-in-async-rust">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-why-use-observability-in-async-rust%3F" name="why-use-observability-in-async-rust%3F"></a></p>
+
+<p>In synchronous systems, it’s often easy to understand the flow of execution by looking at
+log messages. For example, if a thread walking through a single function ends up calling a whole
+host of other functions, and they all emit log messages, you can often piece together what
+happened by looking at the log messages in order.</p>
+
+<p>However, in asynchronous systems, this is challenging. When using Tokio, for example,
+different threads might be executing the same task, as it goes from being parked, to being
+woken up, to being parked again. Both temporality (when a log event happened) and
+causality (what caused the event) get muddled. This is where observability comes in,
+provided by Tokio <code class="language-plaintext highlighter-rouge">tracing</code> crate and OpenTelemetry (OTel) crates.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">tracing</code> crate expands upon logging-style diagnostics by allowing libraries and
+applications to record structured events with additional information about temporality and
+causality. Unlike a log message, a <code class="language-plaintext highlighter-rouge">Span</code> in tracing has a beginning and end time, may be
+entered and exited by the flow of execution, and may exist within a nested tree of similar
+spans.</p>
+
+<p>For representing things that occur at a single moment in time, tracing provides the
+complementary concept of events. Both <code class="language-plaintext highlighter-rouge">Spans</code> and <code class="language-plaintext highlighter-rouge">Events</code> are structured, with the ability to
+record typed data as well as textual messages.</p>
+      <h2 id="tokio-tracing-usage">
+        
+        
+          Tokio tracing usage <a href="#tokio-tracing-usage">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-tokio-tracing-usage" name="tokio-tracing-usage"></a></p>
+
+<p>Code:</p>
+<ul>
+  <li><a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-api-server"><code class="language-plaintext highlighter-rouge">tcp-api-server</code> crate is the sample project that uses <code class="language-plaintext highlighter-rouge">tracing</code> and OTel and the
+modules below (provided by the <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code>
+crate</a>.</li>
+  <li><a href="https://github.com/r3bl-org/r3bl-open-core/blob/nazmulidris/otel/terminal_async/src/public_api/tracing_setup.rs"><code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> Tokio <code class="language-plaintext highlighter-rouge">tracing</code>
+setup</a>.</li>
+  <li><a href="https://github.com/r3bl-org/r3bl-open-core/blob/nazmulidris/otel/terminal_async/src/public_api/jaeger_setup.rs#L1"><code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> Jaeger &amp; OTel
+setup</a>.</li>
+</ul>
+
+<p>Here’s an example of using the <code class="language-plaintext highlighter-rouge">tracing</code> crate. Some key symbols to note are::</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">#[instrument]</code> attribute is used to create a span.</li>
+  <li><code class="language-plaintext highlighter-rouge">Span::current().record()</code> is used to add fields to the span (when the function is
+running, and this information is not known statically beforehand).</li>
+  <li><code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">error!</code>, etc are used to emit log or tracing events. However, these are not
+used to create spans; they are used to emit events within a span.</li>
+  <li><code class="language-plaintext highlighter-rouge">#[tokio::main]</code> is used to run the async main function.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">tracing</span><span class="p">::{</span><span class="n">info</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">Span</span><span class="p">};</span>
+
+<span class="nd">#[tokio::main]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nn">client_task</span><span class="p">::</span><span class="nf">entry_point</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">mod</span> <span class="n">client_task</span> <span class="p">{</span>
+    <span class="nd">#[instrument(name</span> <span class="nd">=</span> <span class="s">"caller"</span><span class="nd">,</span> <span class="nd">skip_all,</span> <span class="nd">fields(</span><span class="err">?</span><span class="nd">client_id))]</span>
+    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">entry_point</span><span class="p">(</span><span class="n">client_id</span><span class="p">:</span> <span class="nb">usize</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nd">info!</span><span class="p">(</span><span class="s">"entry point"</span><span class="p">);</span>
+        <span class="nf">more_context</span><span class="p">(</span><span class="s">"bar"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+        <span class="nf">handle_message</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="s">"foo"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[instrument(name</span> <span class="nd">=</span> <span class="s">"callee"</span><span class="nd">,</span> <span class="nd">skip_all,</span> <span class="nd">fields(</span><span class="err">%</span><span class="nd">message))]</span>
+    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">handle_message</span><span class="p">(</span><span class="n">client_id</span><span class="p">:</span> <span class="nb">usize</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nd">info!</span><span class="p">(</span><span class="s">"handling message"</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[instrument(fields(extra))]</span>
+    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">more_context</span><span class="p">(</span><span class="n">extra</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nn">CurrentSpan</span><span class="p">::</span><span class="nf">current</span><span class="p">()</span><span class="nf">.record</span><span class="p">(</span><span class="s">"extra"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">extra</span><span class="p">);</span>
+        <span class="nd">info!</span><span class="p">(</span><span class="s">"more context"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here are some key points to remember when using <code class="language-plaintext highlighter-rouge">tracing</code> from the code above:</p>
+
+<ul>
+  <li>
+    <p>You have to be careful about recording the same field multiple times, in an async call
+chain. In the example above, <code class="language-plaintext highlighter-rouge">client_task::entry_point()</code> is the entry point, and is the
+only function that should log the <code class="language-plaintext highlighter-rouge">?client_id</code>; <code class="language-plaintext highlighter-rouge">?</code> means debug. And not any other
+functions that it calls, like <code class="language-plaintext highlighter-rouge">handle_message()</code>.</p>
+  </li>
+  <li>
+    <p>When you call <code class="language-plaintext highlighter-rouge">entry_point()</code>, it will call <code class="language-plaintext highlighter-rouge">handle_message()</code>, and the span that is
+generated by <code class="language-plaintext highlighter-rouge">handle_message()</code> will have the <code class="language-plaintext highlighter-rouge">client_id</code> field added to it, because of
+the call chain. So the output of <code class="language-plaintext highlighter-rouge">info!("handling message")</code> will have the <code class="language-plaintext highlighter-rouge">client_id</code>
+included in it (for free). It will also have the <code class="language-plaintext highlighter-rouge">%message</code> field in it; <code class="language-plaintext highlighter-rouge">%</code> means
+display. You don’t have to explicitly add either of these fields to the <code class="language-plaintext highlighter-rouge">info!()</code> call 🎉.</p>
+  </li>
+  <li>
+    <p>If you use the <code class="language-plaintext highlighter-rouge">client_id</code> field in multiple <code class="language-plaintext highlighter-rouge">#[instrument..]</code> attributes in functions
+(that are in the call chain), then this will show up multiple times in the log output
+(when using <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc) of the leaf function in the call chain. So when you
+see the same fields showing up multiple times in the output from <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc,
+then you know that you have to remove that field from the <code class="language-plaintext highlighter-rouge">#[instrument..]</code> attribute
+somewhere in the call chain (that the span covers).</p>
+  </li>
+  <li>
+    <p>You have to be careful about how to use
+<a href="https://docs.rs/tracing/latest/tracing/attr.instrument.html"><code class="language-plaintext highlighter-rouge">[#instrument]</code></a> attribute
+with <code class="language-plaintext highlighter-rouge">tracing::Span::record</code>. You have to call
+<code class="language-plaintext highlighter-rouge">tracing::Span::current().record("foo","bar")</code> in the same function where the
+<code class="language-plaintext highlighter-rouge">#[instrument(fields(foo))]</code> attribute is used.</p>
+  </li>
+</ul>
+
+<p>Here are some helpful links to learn more about this topic:</p>
+
+<ul>
+  <li><a href="https://tokio.rs/tokio/topics/tracing">Tokio tracing docs</a>.</li>
+  <li><a href="https://gemini.google.com/app/5b106a8100c4dcf4">Difference between <code class="language-plaintext highlighter-rouge">#[instrument]</code> (create spans) and emitting events (eg: <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc:</a>.</li>
+  <li><a href="https://tokio.rs/tokio/topics/tracing-next-steps">Tokio and OTel integration docs</a>.</li>
+  <li><a href="https://github.com/tokio-rs/tracing-opentelemetry">Tokio tracing and OTel integration crate</a>.</li>
+  <li><a href="https://broch.tech/posts/rust-tracing-opentelemetry/">Blog post to connect tracing and OTel</a>.</li>
+  <li><a href="https://github.com/open-telemetry/opentelemetry-rust/blob/main/examples/tracing-jaeger/src/main.rs">Code examples for using Jaeger with tracing</a>.</li>
+  <li><a href="https://opentelemetry.io/docs/concepts/observability-primer/#spans">OTel primer</a>.</li>
+  <li><a href="https://www.jaegertracing.io/docs/1.57/getting-started/">Jaeger docs</a>.</li>
+</ul>
+      <h2 id="video-of-this-in-action-in-the-real-world">
+        
+        
+          Video of this in action in the real world <a href="#video-of-this-in-action-in-the-real-world">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-video-of-this-in-action-in-the-real-world" name="video-of-this-in-action-in-the-real-world"></a></p>
+
+<p>This blog post only has a short example to illustrate how to use Rust tracing and OTel
+with Jaeger. To see how these ideas can be used in production code, with real-world
+examples, please watch the following video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
+channel</a>.</p>
+
+<!-- rust tokio tracing and otel for async rust & playlist -->
+<iframe src="https://www.youtube.com/embed/Wf8JrLgBuKI?si=cmLaUWs-pbJ39lLc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<p>Here’s the code for this real world example:</p>
+
+<ul>
+  <li><a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-api-server">Repo for the <code class="language-plaintext highlighter-rouge">tcp-api-server</code> crate, which is an example of creating a TCP server and
+client that are observable using <code class="language-plaintext highlighter-rouge">tracing</code> and
+OTel</a>.
+    <ul>
+      <li>It uses the <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> crate to allow async, non-blocking readline
+functionality, along with <code class="language-plaintext highlighter-rouge">stdout</code> and <code class="language-plaintext highlighter-rouge">stderr</code> that are also async.</li>
+      <li>This crate is also used to configure Jaeger and tracing subscribers for file, stdout
+logging.</li>
+    </ul>
+  </li>
+  <li>
+    <p><a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-api-server#tokio-tracing-usage">README for <code class="language-plaintext highlighter-rouge">tcp-api-server</code> crate, which shows how to use Jaeger, and configure file
+logging and stdout
+logging</a>.</p>
+  </li>
+  <li>
+    <p><a href="https://github.com/r3bl-org/r3bl-open-core/blob/nazmulidris/refactor-tokio-tracing/terminal_async/src/public_api/tracing_setup.rs">How to build up tracing subscribers using layers (type erasure, decl macros,
+etc)</a>.</p>
+  </li>
+  <li>
+    <p><a href="https://github.com/nazmulidris/rust-scratch/pull/34">How to add an OTel layer to a
+subscriber</a>.</p>
+  </li>
+  <li><a href="https://github.com/r3bl-org/r3bl-open-core/pull/326">How the subscriber is configured with custom layers in <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code>
+crate</a>.</li>
+</ul>
+      <h2 id="short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust">
+        
+        
+          Short example to illustrate the use of tracing and OTel in Rust <a href="#short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust" name="short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust"></a></p>
+
+<p>Let’s look a single example (that fits in one file) that illustrates the use of tracing
+in Rust. You can run <code class="language-plaintext highlighter-rouge">cargo new --lib tracing-otel</code> to create a new library crate, and then run
+the following:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo add miette <span class="nt">--features</span> fancy
+cargo add tracing tracing-subscriber
+cargo add tokio <span class="nt">--features</span> full
+</code></pre></div></div>
+
+<p>Then you can add the following code to the <code class="language-plaintext highlighter-rouge">src/main.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">miette</span><span class="p">::</span><span class="n">IntoDiagnostic</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">tracing</span><span class="p">::</span><span class="n">Span</span><span class="p">;</span>
+
+<span class="nd">#[tokio::main]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">subscriber</span> <span class="o">=</span> <span class="nn">tracing_subscriber</span><span class="p">::</span><span class="nf">fmt</span><span class="p">()</span>
+        <span class="nf">.without_time</span><span class="p">()</span>
+        <span class="nf">.pretty</span><span class="p">()</span>
+        <span class="nf">.with_max_level</span><span class="p">(</span><span class="nn">tracing</span><span class="p">::</span><span class="nn">Level</span><span class="p">::</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="nf">.finish</span><span class="p">();</span>
+
+    <span class="nn">tracing</span><span class="p">::</span><span class="nn">subscriber</span><span class="p">::</span><span class="nf">set_global_default</span><span class="p">(</span><span class="n">subscriber</span><span class="p">)</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="nf">print_message</span><span class="p">(</span><span class="s">"foo"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The first part of the code sets up the tracing subscriber. In this case we are using a formatting
+subscriber that prints logs to the console. This subscriber is configured to not print the time of
+the log message, to pretty print the logs, and to print logs at the <code class="language-plaintext highlighter-rouge">DEBUG</code> level or higher.</p>
+
+<p>When you use <code class="language-plaintext highlighter-rouge">#[attribute]</code> along with <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc, Tokio will emit log events
+that are associated with a span. This is the “emitter” side of the process. The other side
+is the “subscriber” side, which is where the logs are actually printed to the console, or
+sent to a file, or sent to an OTel collector service like Jaeger (using OTLP protocol over
+gRPC).</p>
+
+<p>Tokio <code class="language-plaintext highlighter-rouge">tracing</code> allows us to use this simple default subscriber, or create our own custom
+subscribers. It even allows a subscriber to be composed from layers. We can create our own
+custom layers, or use some default ones (like the level filter layer).</p>
+
+<p>OTel is itself a tracing layer. In the video &amp; <code class="language-plaintext highlighter-rouge">tcp-api-server</code> repo, you will see how to
+use OTel with Jaeger, and how to configure the OTel layer with a custom layer.</p>
+
+<p>Next you can add the following code to the <code class="language-plaintext highlighter-rouge">src/main.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[tracing::instrument(fields(arg</span> <span class="nd">=</span> <span class="err">?</span><span class="nd">arg,</span> <span class="nd">client_id),</span> <span class="nd">ret)]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">print_message</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"log message one"</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="nf">prepare_message</span><span class="p">()</span><span class="k">.await</span><span class="p">);</span>
+
+    <span class="nn">Span</span><span class="p">::</span><span class="nf">current</span><span class="p">()</span><span class="nf">.record</span><span class="p">(</span><span class="s">"client_id"</span><span class="p">,</span> <span class="mi">1234</span><span class="p">);</span>
+
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">warn!</span><span class="p">(</span><span class="s">"log message two"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nd">#[tracing::instrument(ret)]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">prepare_message</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">debug!</span><span class="p">(</span><span class="s">"preparing message"</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="nf">.to_string</span><span class="p">();</span>
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">debug!</span><span class="p">(</span><span class="s">"message prepared"</span><span class="p">);</span>
+    <span class="n">it</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">print_message</code> function is annotated with the <code class="language-plaintext highlighter-rouge">#[tracing::instrument]</code> attribute.
+This attribute creates a span for the function, and adds the <code class="language-plaintext highlighter-rouge">arg</code> field to the span along
+with the <code class="language-plaintext highlighter-rouge">client_id</code> field. In all the log events are emitted within the span, the <code class="language-plaintext highlighter-rouge">arg</code>
+and <code class="language-plaintext highlighter-rouge">client_id</code> field will be included in the log output. This additional context is
+provided by a span. And you don’t have to write any code to the <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">warn!</code>, etc
+calls to include these fields in the log output.</p>
+
+<p>You can run the code using <code class="language-plaintext highlighter-rouge">cargo run</code>. The code will produce the following output.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   INFO tracing_otel: log message one
+    at src/main.rs:38
+    in tracing_otel::print_message with arg: "foo"
+
+  DEBUG tracing_otel: preparing message
+    at src/main.rs:48
+    in tracing_otel::prepare_message
+    in tracing_otel::print_message with arg: "foo"
+
+  DEBUG tracing_otel: message prepared
+    at src/main.rs:50
+    in tracing_otel::prepare_message
+    in tracing_otel::print_message with arg: "foo"
+
+   INFO tracing_otel: return: "Hello, world!"
+    at src/main.rs:46
+    in tracing_otel::prepare_message
+    in tracing_otel::print_message with arg: "foo"
+
+Hello, world!
+
+   WARN tracing_otel: log message two
+    at src/main.rs:43
+    in tracing_otel::print_message with arg: "foo", client_id: 1234
+
+   INFO tracing_otel: return: ()
+    at src/main.rs:36
+    in tracing_otel::print_message with arg: "foo", client_id: 1234
+</code></pre></div></div>
+
+<p>Beyond this simple example, to get started, please check out the video and the
+<code class="language-plaintext highlighter-rouge">tcp-api-server</code> repo to get a sense of how this can all be used in a real world example
+that has lots of moving parts and pieces. Observability here can tell the story of what
+happened in the system, so it can be another way of getting an understanding of the
+system’s behavior.</p>
+      <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
+        
+        
+          Build with Naz video series on developerlife.com YouTube channel <a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        
+<blockquote>
+
+📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
+(they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
+project):
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+<p>
+<kbd>giti in action</kbd>
+<video width="100%" controls>
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4"/>
+</video>
+</p>
+
+<p>
+<kbd>edi in action</kbd>
+<video width="100%" controls>
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4"/>
+</video>
+</p>
+
+</blockquote>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">
+                        Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/21/build-async-interactive-cli-apps-in-rust/">
+                        Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2024/05/15/tokio-tracing-otel-rust/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Subscribe to our Rust live coding
+      <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a
+      ><span class="heading-emoji"> 🦀</span>
+    </h2>
+
+    <!-- video on intro to testing (with playlist) -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- rust async readline and spinner & playlist -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=i37Ei9nCfvslOoaI&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+  <!-- rust tokio tracing and otel for async rust & playlist -->
+  <iframe
+    src="https://www.youtube.com/embed/Wf8JrLgBuKI?si=cmLaUWs-pbJ39lLc"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+  </iframe>
+
+    <br />
+    <br />
+
+    <h2 class="star-us-github-heading">
+      Use our extensions, apps, binary and library crates<span class="heading-emoji"> 📦</span>
+    </h2>
+
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-apps.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-shortlink.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a
+          href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async"
+          target="_blank"
+        >
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TERMINAL ASYNC LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_terminal_async</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+    <br />
+
+    <h2 class="star-us-github-heading">
+      Join our <a href="https://discord.gg/PhuF4qFpcA">Discord</a>
+      <span class="heading-emoji"> 💬</span>
+    </h2>
+  </section>
+</div>
+</div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

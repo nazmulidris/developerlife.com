@@ -1,6 +1,6 @@
 ---
 title:
-  "Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility"
+  "Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility"
 author: Nazmul Idris
 date: 2024-04-28 15:00:00+00:00
 excerpt: |

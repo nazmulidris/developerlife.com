@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore safe cancellation, when not to use async, and how to think about testing async code." />
+<meta property="og:description" content="Learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore safe cancellation, when not to use async, and how to think about testing async code." />
+<link rel="canonical" href="http://developerlife.com/2024/05/19/effective-async-rust/" />
+<meta property="og:url" content="http://developerlife.com/2024/05/19/effective-async-rust/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-05-19T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-05-19T10:00:00-05:00","datePublished":"2024-05-19T10:00:00-05:00","description":"Learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore safe cancellation, when not to use async, and how to think about testing async code.","headline":"Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/05/19/effective-async-rust/"},"url":"http://developerlife.com/2024/05/19/effective-async-rust/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /><!-- https://developers.google.com/analytics/devguides/collection/gtagjs -->
+<script async
+        src="https://www.googletagmanager.com/gtag/js?id=G-NQY9ECC58H"></script>
+<script>
+  window.dataLayer = window.dataLayer || []
+
+  function gtag() {
+    window.dataLayer.push(arguments)
+  }
+
+  gtag("js", new Date())
+  gtag("config", "G-NQY9ECC58H")
+</script>
+<!-- https://us14.admin.mailchimp.com/account/connected-sites/site-detail/ -->
+
+<script id="mcjs">
+  !(function (c, h, i, m, p) {
+    ;(m = c.createElement(h)),
+      (p = c.getElementsByTagName(h)[0]),
+      (m.async = 1),
+      (m.src = i),
+      p.parentNode.insertBefore(m, p)
+  })(
+    document,
+    "script",
+    "https://chimpstatic.com/mcjs-connected/js/users/c2470ddfa863eb8ace707651b/2bb3bcad193ef862398700457.js"
+  )
+</script>
+</head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->May 19, 2024
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+        <blockquote>
+  👀 Watch Rust 🦀 live coding videos on our
+  <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
+
+  <br />
+
+  <!-- video on rust polymorphism (no playlist) -->
+  <iframe
+      src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      >
+  </iframe>
+
+  <!-- video on intro to testing (with playlist) -->
+  <!-- <iframe
+    src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
+  >
+  </iframe> -->
+
+</blockquote>
+
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/rust_async_event_loops.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#what-is-async-rust-sequential-vs-concurrent-code--parallelism-as-a-resource">What is async Rust? Sequential vs concurrent code &amp; parallelism as a resource</a></li>
+  <li><a href="#what-async-rust-is-not">What async Rust is not</a></li>
+  <li><a href="#youtube-video-for-this-article">YouTube video for this article</a></li>
+  <li><a href="#effective-async-rust-patterns-by-example">Effective async Rust patterns by example</a>
+    <ul>
+      <li><a href="#example-1-build-a-timer-future-using-waker">Example 1: Build a timer future using Waker</a></li>
+      <li><a href="#example-2-build-an-async-runtime-to-run-futures-to-completion">Example 2: Build an async runtime to run futures to completion</a></li>
+      <li><a href="#example-3-running-async-code-concurrently-on-a-single-thread">Example 3: Running async code, concurrently, on a single thread</a></li>
+      <li><a href="#example-4-join-select-spawn-control-flow-constructors">Example 4: join!, select, spawn control flow constructors</a></li>
+      <li><a href="#example-5-async-streams">Example 5: async streams</a></li>
+      <li><a href="#example-6-non-blocking-event-loops-channel-safety-and-safe-cancellation">Example 6: Non-blocking event loops, channel safety, and safe cancellation</a></li>
+      <li><a href="#parting-thoughts">Parting thoughts</a></li>
+    </ul>
+  </li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="what-is-async-rust-sequential-vs-concurrent-code--parallelism-as-a-resource">
+        
+        
+          What is async Rust? Sequential vs concurrent code &amp; parallelism as a resource <a href="#what-is-async-rust-sequential-vs-concurrent-code--parallelism-as-a-resource">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-what-is-async-rust%3F-sequential-vs-concurrent-code-%26-parallelism-as-a-resource" name="what-is-async-rust%3F-sequential-vs-concurrent-code-%26-parallelism-as-a-resource"></a></p>
+
+<p>In Rust, you can write sequential code, and concurrent code:</p>
+<ul>
+  <li>Sequential code can be run sequentially, or in parallel (using <code class="language-plaintext highlighter-rouge">thread::spawn()</code>).</li>
+  <li>Concurrent code can be run on a single thread or multiple threads.</li>
+</ul>
+
+<p>Concurrency is a way to structure code into separate tasks. This does not define the
+resources on a machine that will be used to run or execute tasks.</p>
+
+<p>Parallelism is a way to specify what resources (CPU cores, or threads) will be used on a
+machine’s operating system to run tasks.</p>
+
+<p>These 2 concepts are not the same. They are related but not the same.</p>
+      <h2 id="what-async-rust-is-not">
+        
+        
+          What async Rust is not <a href="#what-async-rust-is-not">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-what-async-rust-is-not" name="what-async-rust-is-not"></a></p>
+
+<p>Generally speaking, using async Rust is not just a matter of attaching <code class="language-plaintext highlighter-rouge">async</code> as a prefix
+to a function, when you define it, and postfix <code class="language-plaintext highlighter-rouge">.await</code> when you call it. In fact, if you
+don’t have at least one <code class="language-plaintext highlighter-rouge">.await</code> in your async function body, then it <a href="https://ryhl.io/blog/async-what-is-blocking/">might not need to
+be async</a>. This article and video are a deep
+dive into what async code is, what Rust <code class="language-plaintext highlighter-rouge">Future</code>s are, along with what async Runtimes are.
+Along with some common patterns and anti-patterns when thinking in async Rust.</p>
+      <h2 id="youtube-video-for-this-article">
+        
+        
+          YouTube video for this article <a href="#youtube-video-for-this-article">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-youtube-video-for-this-article" name="youtube-video-for-this-article"></a></p>
+
+<p>This blog post only has short examples on how to use Rust async effectively. To see how
+these ideas can be used in production code, with real-world examples, please watch the
+following video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
+channel</a>.</p>
+
+<!-- rust tokio tracing and otel for async rust & playlist -->
+<iframe src="https://www.youtube.com/embed/qvIt8MF-pCM?si=S40pbhnvVDAohj-6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<p><br /></p>
+      <h2 id="effective-async-rust-patterns-by-example">
+        
+        
+          Effective async Rust patterns by example <a href="#effective-async-rust-patterns-by-example">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-effective-async-rust-patterns-by-example" name="effective-async-rust-patterns-by-example"></a></p>
+
+<p>Let’s create some examples to illustrate how to use async Rust effectively. You can run
+<code class="language-plaintext highlighter-rouge">cargo new --lib effective-async-rust</code> to create a new library crate.</p>
+
+<blockquote>
+  <p>The code in the video and this tutorial are all in this GitHub repo:
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/async_con_par/">https://github.com/nazmulidris/rust-scratch/blob/main/async_con_par/</a></p>
+</blockquote>
+
+<p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
+dependencies that we need for these examples.</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"effective-async-rust"</span>
+<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
+<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+
+<span class="nn">[dependencies]</span>
+<span class="py">crossterm</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.27.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"event-stream"</span><span class="p">]</span> <span class="p">}</span>
+<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.37.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">,</span> <span class="s">"tracing"</span><span class="p">]</span> <span class="p">}</span>
+<span class="py">tracing</span> <span class="p">=</span> <span class="s">"0.1.40"</span>
+<span class="py">tracing-subscriber</span> <span class="p">=</span> <span class="s">"0.3.18"</span>
+<span class="py">futures</span> <span class="p">=</span> <span class="s">"0.3.30"</span>
+<span class="py">async-stream</span> <span class="p">=</span> <span class="s">"0.3.5"</span>
+</code></pre></div></div>
+      <h3 id="example-1-build-a-timer-future-using-waker">
+        
+        
+          Example 1: Build a timer future using Waker <a href="#example-1-build-a-timer-future-using-waker">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-1%3A-build-a-timer-future-using-waker" name="example-1%3A-build-a-timer-future-using-waker"></a></p>
+
+<p>Then you can add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">pub</span> <span class="k">mod</span> <span class="n">build_a_timer_future_using_waker</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>We will implement the <code class="language-plaintext highlighter-rouge">Future</code> trait manually, in this example. Typically any <code class="language-plaintext highlighter-rouge">async</code> code
+block is converted into a finite state machine which implements the <code class="language-plaintext highlighter-rouge">Future</code> trait.
+Progress on the future only occurs when it is polled by the runtime or executor (eg:
+Tokio).</p>
+
+<ul>
+  <li>When a future is polled and it is <code class="language-plaintext highlighter-rouge">Ready</code> then the future is complete.</li>
+  <li>If it is <code class="language-plaintext highlighter-rouge">Pending</code> then the future is not complete. And when it is ready (at some point
+in the future, due to some event like network IO available via <code class="language-plaintext highlighter-rouge">epoll</code> or <code class="language-plaintext highlighter-rouge">io_uring</code>),
+the runtime expects the future to wake up the, by calling <code class="language-plaintext highlighter-rouge">wake()</code> on the <code class="language-plaintext highlighter-rouge">Waker</code> that
+is passed to this future by the runtime, via the <code class="language-plaintext highlighter-rouge">Context</code> object.</li>
+</ul>
+
+<p>Here are more details on this:</p>
+
+<ol>
+  <li><a href="https://rust-lang.github.io/async-book/01_getting_started/04_async_await_primer.html">Primer on async and await</a>.</li>
+  <li><a href="https://doc.rust-lang.org/std/future/trait.Future.html"><code class="language-plaintext highlighter-rouge">Future</code> trait</a>.</li>
+  <li><a href="https://rust-lang.github.io/async-book/02_execution/03_wakeups.html">Timer example</a>.</li>
+</ol>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/async_con_par/src/build_a_timer_future_using_waker.rs">here</a>.</p>
+</blockquote>
+
+<p>Create a new file <code class="language-plaintext highlighter-rouge">src/build_a_timer_future_using_waker.rs</code>. In this file, we are going
+to:</p>
+<ul>
+  <li>Build a timer that wakes up a task after a certain amount of time, to explore how
+<code class="language-plaintext highlighter-rouge">Waker</code> works.</li>
+  <li>We’ll just spin up a new thread when the timer is created, sleep for the required time,
+and then signal the timer future when the time window has elapsed.</li>
+</ul>
+
+<p>Add the following code to the file, to define a new struct that will implement the
+<code class="language-plaintext highlighter-rouge">Future</code> trait. This struct will have a <code class="language-plaintext highlighter-rouge">SharedState</code> struct that will contain the state
+of the future, and an optional <code class="language-plaintext highlighter-rouge">Waker</code> that will be used to wake up the future when the
+timer has elapsed. This <code class="language-plaintext highlighter-rouge">Waker</code> is not available until the very first time the future is
+polled by the runtime.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Default)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">TimerFuture</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="n">shared_state</span><span class="p">:</span> <span class="nb">Arc</span><span class="o">&lt;</span><span class="n">Mutex</span><span class="o">&lt;</span><span class="n">SharedState</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="nd">#[derive(Default)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">SharedState</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="n">completed</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">waker</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Waker</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Add the following code to implement the <code class="language-plaintext highlighter-rouge">Future</code> trait for the <code class="language-plaintext highlighter-rouge">TimerFuture</code> struct.</p>
+<ul>
+  <li>This code will be used to poll the future, by the runtime, and check if the timer has
+elapsed.</li>
+  <li>If it has, then the future is complete, and the runtime can move on to the next task. If
+the timer has not elapsed, then the future is not complete, and the runtime won’t do
+anything further with this future. And will go on to the next task (top level <code class="language-plaintext highlighter-rouge">Future</code>)
+that it can make progress on.</li>
+</ul>
+
+<p>Something has to wake up this future to let the runtime know that the timer has elapsed,
+and that it needs to call <code class="language-plaintext highlighter-rouge">poll()</code> again on this <code class="language-plaintext highlighter-rouge">Future</code>. This is where the <code class="language-plaintext highlighter-rouge">Waker</code> comes
+in.</p>
+<ul>
+  <li>The first time <code class="language-plaintext highlighter-rouge">poll()</code> is called on this future, the runtime passes in a <code class="language-plaintext highlighter-rouge">Waker</code> and we
+save that to the <code class="language-plaintext highlighter-rouge">SharedState</code> struct.</li>
+  <li>This will be used by the timer thread to wake up the future, when the timer has elapsed
+(which we will do next).</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span> <span class="n">Future</span> <span class="k">for</span> <span class="n">TimerFuture</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">Output</span> <span class="o">=</span> <span class="p">();</span>
+
+    <span class="k">fn</span> <span class="nf">poll</span><span class="p">(</span><span class="k">self</span><span class="p">:</span> <span class="nb">Pin</span><span class="o">&lt;&amp;</span><span class="k">mut</span> <span class="k">Self</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">cx</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">Context</span><span class="o">&lt;</span><span class="nv">'_</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Poll</span><span class="o">&lt;</span><span class="k">Self</span><span class="p">::</span><span class="n">Output</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">shared_state</span> <span class="o">=</span> <span class="k">self</span><span class="py">.shared_state</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+        <span class="k">match</span> <span class="n">shared_state</span><span class="py">.completed</span> <span class="p">{</span>
+            <span class="k">true</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">eprintln!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"TimerFuture is completed"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.green</span><span class="p">());</span>
+                <span class="nn">Poll</span><span class="p">::</span><span class="nf">Ready</span><span class="p">(())</span>
+            <span class="p">}</span>
+            <span class="k">false</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">eprintln!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"TimerFuture is not completed"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.red</span><span class="p">());</span>
+                <span class="c1">// Importantly, we have to update the Waker every time the</span>
+                <span class="c1">// future is polled because the future may have moved to</span>
+                <span class="c1">// a different task with a different Waker. This will happen</span>
+                <span class="c1">// when futures are passed around between tasks after being</span>
+                <span class="c1">// polled.</span>
+                <span class="n">shared_state</span><span class="py">.waker</span> <span class="o">=</span> <span class="nf">Some</span><span class="p">(</span><span class="n">cx</span><span class="nf">.waker</span><span class="p">()</span><span class="nf">.clone</span><span class="p">());</span>
+                <span class="nn">Poll</span><span class="p">::</span><span class="n">Pending</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Add the following code to create a new timer <code class="language-plaintext highlighter-rouge">Future</code>, and start a new thread that will
+sleep for the required time, and then wake up the <code class="language-plaintext highlighter-rouge">Future</code> when the timer has elapsed, by
+using the optional <code class="language-plaintext highlighter-rouge">Waker</code> that was saved in the <code class="language-plaintext highlighter-rouge">SharedState</code> struct (when <code class="language-plaintext highlighter-rouge">poll()</code> is
+called on the <code class="language-plaintext highlighter-rouge">Future</code>, by the runtime).</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span> <span class="n">TimerFuture</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">(</span><span class="n">duration</span><span class="p">:</span> <span class="n">Duration</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="k">Self</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">new_instance</span> <span class="o">=</span> <span class="nn">TimerFuture</span><span class="p">::</span><span class="nf">default</span><span class="p">();</span>
+
+        <span class="k">let</span> <span class="n">shared_state_clone</span> <span class="o">=</span> <span class="n">new_instance</span><span class="py">.shared_state</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+            <span class="nn">thread</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">shared_state</span> <span class="o">=</span> <span class="n">shared_state_clone</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+            <span class="n">shared_state</span><span class="py">.completed</span> <span class="o">=</span> <span class="k">true</span><span class="p">;</span>
+            <span class="n">shared_state</span><span class="py">.waker</span><span class="nf">.take</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.wake</span><span class="p">();</span>
+        <span class="p">});</span>
+
+        <span class="n">new_instance</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Add the following test to run this code. The <code class="language-plaintext highlighter-rouge">#[tokio::test]</code> attribute macro generates
+code to start a single threaded executor to run the test code.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">run_timer_future_with_tokio</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">timer_future</span> <span class="o">=</span> <span class="nn">TimerFuture</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">10</span><span class="p">));</span>
+    <span class="k">let</span> <span class="n">shared_state</span> <span class="o">=</span> <span class="n">timer_future</span><span class="py">.shared_state</span><span class="nf">.clone</span><span class="p">();</span>
+    <span class="nd">assert!</span><span class="p">(</span><span class="o">!</span><span class="n">shared_state</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="py">.completed</span><span class="p">);</span>
+    <span class="n">timer_future</span><span class="k">.await</span><span class="p">;</span>
+    <span class="nd">assert!</span><span class="p">(</span><span class="n">shared_state</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="py">.completed</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When you run this test, it should produce the following output:</p>
+
+<pre class="pre-manual-highlight">
+running 1 test
+<span style="color:#BF616A">TimerFuture is not completed</span>
+<span style="color:#A3BE8C">TimerFuture is completed</span>
+test build_a_timer_future_using_waker::run_timer_future_with_tokio ... ok
+</pre>
+      <h3 id="example-2-build-an-async-runtime-to-run-futures-to-completion">
+        
+        
+          Example 2: Build an async runtime to run futures to completion <a href="#example-2-build-an-async-runtime-to-run-futures-to-completion">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-2%3A-build-an-async-runtime-to-run-futures-to-completion" name="example-2%3A-build-an-async-runtime-to-run-futures-to-completion"></a></p>
+
+<p>For this example, let’s add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">pub</span> <span class="k">mod</span> <span class="n">build_an_executor_to_run_future</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>In the example above, we use <code class="language-plaintext highlighter-rouge">tokio</code> to run the <code class="language-plaintext highlighter-rouge">TimerFuture</code> to completion. But in this
+example, we will implement our own <em>simple</em> async runtime.</p>
+
+<ul>
+  <li>This is a very simple runtime that will run futures to completion, by polling them until
+they are ready.</li>
+  <li>It should highlight how the <code class="language-plaintext highlighter-rouge">Waker</code> and <code class="language-plaintext highlighter-rouge">Context</code> are supplied by the runtime to the
+<code class="language-plaintext highlighter-rouge">Future</code>.</li>
+</ul>
+
+<blockquote>
+  <p>You can get the source code for this example
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/async_con_par/src/build_an_executor_to_run_future.rs">here</a>.</p>
+</blockquote>
+
+<p>We will need a few things to implement this runtime:</p>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">Task</code> struct that will contain the <code class="language-plaintext highlighter-rouge">Future</code> that needs to be run to completion.</li>
+  <li><code class="language-plaintext highlighter-rouge">Task</code> queue that will contain all the tasks that need to be run. This will be a
+<code class="language-plaintext highlighter-rouge">std::sync::mpsc::sync_channel</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">Waker</code> that will be used to wake up the runtime when a task is ready to be polled.
+<code class="language-plaintext highlighter-rouge">Context</code> that will be used to pass the <code class="language-plaintext highlighter-rouge">Waker</code> to the <code class="language-plaintext highlighter-rouge">Future</code> that is being polled.</li>
+  <li><code class="language-plaintext highlighter-rouge">Spawner</code> struct that will be used to spawn new tasks into the runtime.</li>
+  <li><code class="language-plaintext highlighter-rouge">Executor</code> struct that will be used to run the runtime.</li>
+</ol>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">src/build_an_executor_to_run_future.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">fn</span> <span class="nf">new_executor_and_spawner</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="p">(</span><span class="n">Executor</span><span class="p">,</span> <span class="n">Spawner</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">const</span> <span class="n">MAX_TASKS</span><span class="p">:</span> <span class="nb">usize</span> <span class="o">=</span> <span class="mi">10_000</span><span class="p">;</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">task_sender</span><span class="p">,</span> <span class="n">task_receiver</span><span class="p">)</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">mpsc</span><span class="p">::</span><span class="nf">sync_channel</span><span class="p">(</span><span class="n">MAX_TASKS</span><span class="p">);</span>
+    <span class="p">(</span><span class="n">Executor</span> <span class="p">{</span> <span class="n">task_receiver</span> <span class="p">},</span> <span class="n">Spawner</span> <span class="p">{</span> <span class="n">task_sender</span> <span class="p">})</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Executor</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="n">task_receiver</span><span class="p">:</span> <span class="n">Receiver</span><span class="o">&lt;</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Spawner</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="n">task_sender</span><span class="p">:</span> <span class="n">SyncSender</span><span class="o">&lt;</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Task</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="n">future</span><span class="p">:</span> <span class="n">Mutex</span><span class="o">&lt;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="n">BoxFuture</span><span class="o">&lt;</span><span class="k">'static</span><span class="p">,</span> <span class="p">()</span><span class="o">&gt;&gt;&gt;</span><span class="p">,</span>
+    <span class="k">pub</span> <span class="n">task_sender</span><span class="p">:</span> <span class="n">SyncSender</span><span class="o">&lt;</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="n">Task</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">Spawner</code> struct to spawn new tasks into the runtime.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span> <span class="n">Spawner</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">spawn</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">future</span><span class="p">:</span> <span class="k">impl</span> <span class="n">Future</span><span class="o">&lt;</span><span class="n">Output</span> <span class="o">=</span> <span class="p">()</span><span class="o">&gt;</span> <span class="o">+</span> <span class="k">'static</span> <span class="o">+</span> <span class="nb">Send</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">pinned_boxed_future</span> <span class="o">=</span> <span class="n">future</span><span class="nf">.boxed</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">task</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">Task</span> <span class="p">{</span>
+            <span class="n">future</span><span class="p">:</span> <span class="nn">Mutex</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nf">Some</span><span class="p">(</span><span class="n">pinned_boxed_future</span><span class="p">)),</span>
+            <span class="n">task_sender</span><span class="p">:</span> <span class="k">self</span><span class="py">.task_sender</span><span class="nf">.clone</span><span class="p">(),</span>
+        <span class="p">});</span>
+        <span class="nd">eprintln!</span><span class="p">(</span>
+            <span class="s">"{}"</span><span class="p">,</span>
+            <span class="s">"sending task to executor, adding to channel"</span>
+                <span class="nf">.to_string</span><span class="p">()</span>
+                <span class="nf">.blue</span><span class="p">()</span>
+        <span class="p">);</span>
+        <span class="k">self</span><span class="py">.task_sender</span>
+            <span class="nf">.send</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+            <span class="nf">.expect</span><span class="p">(</span><span class="s">"too many tasks in channel"</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">Executor</code> struct to run the runtime. This code will poll
+the task queue, and block until it can get a task to run. Once it has a task, which it has
+removed from the task channel or queue, it polls it (with the <code class="language-plaintext highlighter-rouge">Context</code> and <code class="language-plaintext highlighter-rouge">Waker</code>) to
+check whether it is ready.</p>
+
+<ul>
+  <li>If it is ready, then it is done.</li>
+  <li>If it is not ready, then it does not do anything further with it. When the task is ready
+to be polled (eg: when the duration has passed in the <code class="language-plaintext highlighter-rouge">TimerFuture</code>’s thread), it will
+use the <code class="language-plaintext highlighter-rouge">Waker</code> to wake up the task when it is ready to be polled). The <code class="language-plaintext highlighter-rouge">ArcWake</code>
+implementation for the <code class="language-plaintext highlighter-rouge">Task</code> struct is used for this; all it does is send the task back
+to the task channel, so that it can be polled again by the executor 🎉.</li>
+  <li>Here’s what a real world implementation of <code class="language-plaintext highlighter-rouge">ArcWake</code> might look like using something
+like Linux <code class="language-plaintext highlighter-rouge">epoll</code> or <code class="language-plaintext highlighter-rouge">io_uring</code>:
+<a href="https://rust-lang.github.io/async-book/02_execution/05_io.html">https://rust-lang.github.io/async-book/02_execution/05_io.html</a>.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">impl</span> <span class="n">ArcWake</span> <span class="k">for</span> <span class="n">Task</span> <span class="p">{</span>
+    <span class="cd">/// Implement `wake` by sending this task back onto the task</span>
+    <span class="cd">/// channel so that it will be polled again by the executor,</span>
+    <span class="cd">/// since it is now ready.</span>
+    <span class="k">fn</span> <span class="nf">wake_by_ref</span><span class="p">(</span><span class="n">arc_self</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="k">Self</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">cloned</span> <span class="o">=</span> <span class="n">arc_self</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="n">arc_self</span>
+            <span class="py">.task_sender</span>
+            <span class="nf">.send</span><span class="p">(</span><span class="n">cloned</span><span class="p">)</span>
+            <span class="nf">.expect</span><span class="p">(</span><span class="s">"too many tasks in channel"</span><span class="p">);</span>
+        <span class="nd">eprintln!</span><span class="p">(</span>
+            <span class="s">"{}"</span><span class="p">,</span>
+            <span class="s">"task woken up, added back to channel"</span>
+                <span class="nf">.to_string</span><span class="p">()</span>
+                <span class="nf">.underlined</span><span class="p">()</span>
+                <span class="nf">.green</span><span class="p">()</span>
+                <span class="nf">.bold</span><span class="p">()</span>
+        <span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Executor</span> <span class="p">{</span>
+    <span class="nd">#[allow(clippy::while_let_loop)]</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">run</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// Remove task from receiver, or block if nothing available.</span>
+        <span class="k">loop</span> <span class="p">{</span>
+            <span class="nd">eprintln!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"executor loop"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.red</span><span class="p">());</span>
+            <span class="c1">// Remove the task from the receiver.</span>
+            <span class="c1">// If it is pending, then the ArcWaker</span>
+            <span class="c1">// will add it back to the channel.</span>
+            <span class="k">match</span> <span class="k">self</span><span class="py">.task_receiver</span><span class="nf">.recv</span><span class="p">()</span> <span class="p">{</span>
+                <span class="nf">Ok</span><span class="p">(</span><span class="n">arc_task</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="nd">eprintln!</span><span class="p">(</span>
+                        <span class="s">"{}"</span><span class="p">,</span>
+                        <span class="s">"running task - start, got task from receiver"</span>
+                            <span class="nf">.to_string</span><span class="p">()</span>
+                            <span class="nf">.red</span><span class="p">()</span>
+                    <span class="p">);</span>
+                    <span class="k">let</span> <span class="k">mut</span> <span class="n">future_in_task</span> <span class="o">=</span> <span class="n">arc_task</span><span class="py">.future</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+                    <span class="k">match</span> <span class="n">future_in_task</span><span class="nf">.take</span><span class="p">()</span> <span class="p">{</span>
+                        <span class="nf">Some</span><span class="p">(</span><span class="k">mut</span> <span class="n">future</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                            <span class="k">let</span> <span class="n">waker</span> <span class="o">=</span> <span class="nf">waker_ref</span><span class="p">(</span><span class="o">&amp;</span><span class="n">arc_task</span><span class="p">);</span>
+                            <span class="k">let</span> <span class="n">context</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">Context</span><span class="p">::</span><span class="nf">from_waker</span><span class="p">(</span><span class="o">&amp;</span><span class="n">waker</span><span class="p">);</span>
+                            <span class="k">let</span> <span class="n">poll_result</span> <span class="o">=</span> <span class="n">future</span><span class="nf">.as_mut</span><span class="p">()</span><span class="nf">.poll</span><span class="p">(</span><span class="n">context</span><span class="p">);</span>
+                            <span class="nd">eprintln!</span><span class="p">(</span>
+                                <span class="s">"{}"</span><span class="p">,</span>
+                                <span class="nd">format!</span><span class="p">(</span>
+                                  <span class="s">"poll_result: {:?}"</span><span class="p">,</span> <span class="n">poll_result</span><span class="p">)</span>
+                                  <span class="nf">.to_string</span><span class="p">()</span><span class="nf">.red</span><span class="p">()</span>
+                            <span class="p">);</span>
+                            <span class="k">if</span> <span class="n">poll_result</span><span class="nf">.is_pending</span><span class="p">()</span> <span class="p">{</span>
+                                <span class="c1">// We're not done processing the future, so put it</span>
+                                <span class="c1">// back in its task to be run again in the future.</span>
+                                <span class="o">*</span><span class="n">future_in_task</span> <span class="o">=</span> <span class="nf">Some</span><span class="p">(</span><span class="n">future</span><span class="p">);</span>
+                                <span class="nd">eprintln!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span>
+                                  <span class="s">"putting task back in slot"</span>
+                                  <span class="nf">.to_string</span><span class="p">()</span><span class="nf">.red</span><span class="p">()</span>
+                                <span class="p">);</span>
+                            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                                <span class="nd">eprintln!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"task is done"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.red</span><span class="p">());</span>
+                            <span class="p">}</span>
+                        <span class="p">}</span>
+                        <span class="nb">None</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                            <span class="nd">panic!</span><span class="p">(</span><span class="s">"this never runs"</span><span class="p">);</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                    <span class="nd">eprintln!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"running task - end"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.red</span><span class="p">());</span>
+                <span class="p">}</span>
+                <span class="nf">Err</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="nd">eprintln!</span><span class="p">(</span><span class="s">"no more tasks to run, breaking out of loop"</span><span class="p">);</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>And finally, add this test to run this code. Notice this code does not use <code class="language-plaintext highlighter-rouge">tokio</code> to run
+the <code class="language-plaintext highlighter-rouge">TimerFuture</code> to completion. Instead, it uses the <code class="language-plaintext highlighter-rouge">Executor</code> and <code class="language-plaintext highlighter-rouge">Spawner</code> structs
+that we implemented above.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">run_executor_and_spawner</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="nn">build_a_timer_future_using_waker</span><span class="p">::</span><span class="n">TimerFuture</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="n">results</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">Mutex</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">Vec</span><span class="p">::</span><span class="nf">new</span><span class="p">()));</span>
+
+    <span class="k">let</span> <span class="p">(</span><span class="n">executor</span><span class="p">,</span> <span class="n">spawner</span><span class="p">)</span> <span class="o">=</span> <span class="nf">new_executor_and_spawner</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="n">results_clone</span> <span class="o">=</span> <span class="n">results</span><span class="nf">.clone</span><span class="p">();</span>
+    <span class="n">spawner</span><span class="nf">.spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+        <span class="n">results_clone</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.push</span><span class="p">(</span><span class="s">"hello, start timer!"</span><span class="p">);</span>
+        <span class="nn">TimerFuture</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+        <span class="n">results_clone</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.push</span><span class="p">(</span><span class="s">"bye, timer finished!"</span><span class="p">);</span>
+    <span class="p">});</span>
+
+    <span class="nf">drop</span><span class="p">(</span><span class="n">spawner</span><span class="p">);</span>
+
+    <span class="n">executor</span><span class="nf">.run</span><span class="p">();</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span>
+        <span class="o">*</span><span class="n">results</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">(),</span>
+        <span class="nd">vec!</span><span class="p">[</span><span class="s">"hello, start timer!"</span><span class="p">,</span> <span class="s">"bye, timer finished!"</span><span class="p">]</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This should produce the following output, which maps to the flow that we described above:</p>
+
+<pre class="pre-manual-highlight">running 1 test
+<span style="color:#81A1C1">sending task to executor, adding to channel</span>
+<span style="color:#BF616A">executor loop</span>
+<span style="color:#BF616A">running task - start, got task from receiver</span>
+<span style="color:#BF616A">TimerFuture is not completed</span>
+<span style="color:#BF616A">poll_result: Pending</span>
+<span style="color:#BF616A">putting task back in slot</span>
+<span style="color:#BF616A">running task - end</span>
+<span style="color:#BF616A">executor loop</span>
+<span style="color:#A3BE8C"><u style="text-decoration-style:single"><b>task woken up, added back to channel</b></u></span>
+<span style="color:#BF616A">running task - start, got task from receiver</span>
+<span style="color:#A3BE8C">TimerFuture is completed</span>
+<span style="color:#BF616A">poll_result: Ready(())</span>
+<span style="color:#BF616A">task is done</span>
+<span style="color:#BF616A">running task - end</span>
+<span style="color:#BF616A">executor loop</span>
+no more tasks to run, breaking out of loop
+test build_an_executor_to_run_future::run_executor_and_spawner ... ok
+</pre>
+      <h3 id="example-3-running-async-code-concurrently-on-a-single-thread">
+        
+        
+          Example 3: Running async code, concurrently, on a single thread <a href="#example-3-running-async-code-concurrently-on-a-single-thread">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-3%3A-running-async-code%2C-concurrently%2C-on-a-single-thread" name="example-3%3A-running-async-code%2C-concurrently%2C-on-a-single-thread"></a></p>
+
+<p>For this example, let’s add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">pub</span> <span class="k">mod</span> <span class="n">local_set</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>If you have async code, you can use a <code class="language-plaintext highlighter-rouge">LocalSet</code> to run the async code, in different
+tasks, on a <em>single</em> thread. This ensures that any data that you have to pass between
+these tasks can be <code class="language-plaintext highlighter-rouge">!Send</code>. Instead of wrapping the shared data in a <code class="language-plaintext highlighter-rouge">Arc</code> or
+<code class="language-plaintext highlighter-rouge">Arc&lt;Mutex&gt;</code>, you can just wrap it in an <code class="language-plaintext highlighter-rouge">Rc</code>.</p>
+
+<p>In this example, we will explore how to run async code concurrently, on a single thread.
+This is an important concept to understand, as it is the basis for how async code can be
+run concurrently, using non-blocking event loops.</p>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/async_con_par/src/local_set.rs#L39">here</a>.</p>
+</blockquote>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">src/local_set.rs</code> file.</p>
+<ul>
+  <li>It shows how you can create a <code class="language-plaintext highlighter-rouge">Future</code> that uses a <code class="language-plaintext highlighter-rouge">Rc</code> to share data concurrently,
+running on a single thread.</li>
+  <li>This is why the data is <code class="language-plaintext highlighter-rouge">!Send</code>, and we don’t need to use an <code class="language-plaintext highlighter-rouge">Arc</code> or <code class="language-plaintext highlighter-rouge">Arc&lt;Mutex&gt;</code> to
+share it between tasks.</li>
+  <li>Once the <code class="language-plaintext highlighter-rouge">LocalSet</code> is created, and <code class="language-plaintext highlighter-rouge">local_spawn()</code> is called, the task doesn’t actually
+run until <code class="language-plaintext highlighter-rouge">local_set.run_until(..)</code> is called, or <code class="language-plaintext highlighter-rouge">local_set.await</code> is called.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">run_local_set_and_spawn_local</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Can't send this data across threads (not wrapped in `Arc` or `Arc&lt;Mutex&gt;`).</span>
+    <span class="k">let</span> <span class="n">non_send_data</span> <span class="o">=</span> <span class="nn">Rc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"!SEND DATA"</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">local_set</span> <span class="o">=</span> <span class="nn">LocalSet</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+
+    <span class="c1">// Spawn a local task (bound to same thread) that uses the non-send data.</span>
+    <span class="k">let</span> <span class="n">non_send_data_clone</span> <span class="o">=</span> <span class="n">non_send_data</span><span class="nf">.clone</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="n">async_block_1</span> <span class="o">=</span> <span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+        <span class="nd">println!</span><span class="p">(</span>
+            <span class="c1">// https://doc.rust-lang.org/std/fmt/index.html#fillalignment</span>
+            <span class="s">"{:&lt;7} {}"</span><span class="p">,</span>
+            <span class="s">"start"</span><span class="p">,</span>
+            <span class="n">non_send_data_clone</span><span class="nf">.as_ref</span><span class="p">()</span><span class="nf">.yellow</span><span class="p">()</span><span class="nf">.bold</span><span class="p">(),</span>
+        <span class="p">);</span>
+    <span class="p">};</span>
+    <span class="c1">// Does not run anything.</span>
+    <span class="k">let</span> <span class="n">join_handle_1</span> <span class="o">=</span> <span class="n">local_set</span><span class="nf">.spawn_local</span><span class="p">(</span><span class="n">async_block_1</span><span class="p">);</span>
+
+    <span class="c1">// This is required to run `async_block_1`.</span>
+    <span class="k">let</span> <span class="n">_it</span> <span class="o">=</span> <span class="n">local_set</span><span class="nf">.run_until</span><span class="p">(</span><span class="n">join_handle_1</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">src/local_set.rs</code> file. This is just a different variant
+(from the first example) of creating a new async block, and running it using the
+<code class="language-plaintext highlighter-rouge">LocalSet</code>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="c1">// Create a 2nd async block.</span>
+    <span class="k">let</span> <span class="n">non_send_data_clone</span> <span class="o">=</span> <span class="n">non_send_data</span><span class="nf">.clone</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">async_block_2</span> <span class="o">=</span> <span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+        <span class="nf">sleep</span><span class="p">(</span><span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+        <span class="nd">println!</span><span class="p">(</span>
+            <span class="c1">// https://doc.rust-lang.org/std/fmt/index.html#fillalignment</span>
+            <span class="s">"{:&lt;7} {}"</span><span class="p">,</span>
+            <span class="s">"middle"</span><span class="p">,</span>
+            <span class="n">non_send_data_clone</span><span class="nf">.as_ref</span><span class="p">()</span><span class="nf">.green</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+        <span class="p">);</span>
+    <span class="p">};</span>
+
+    <span class="c1">// This is required to run `async_block_2`.</span>
+    <span class="k">let</span> <span class="n">_it</span> <span class="o">=</span> <span class="n">local_set</span><span class="nf">.run_until</span><span class="p">(</span><span class="n">async_block_2</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Finally add the following code to the <code class="language-plaintext highlighter-rouge">src/local_set.rs</code> file. This yet another way of how
+you can create a new async block, and run it using the <code class="language-plaintext highlighter-rouge">LocalSet</code>. This one uses <code class="language-plaintext highlighter-rouge">local_set.await</code>
+which runs all the futures that are associated with the <code class="language-plaintext highlighter-rouge">local_set</code>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="c1">// Spawn another local task (bound to same thread) that uses</span>
+    <span class="c1">// the non-send data.</span>
+    <span class="k">let</span> <span class="n">non_send_data_clone</span> <span class="o">=</span> <span class="n">non_send_data</span><span class="nf">.clone</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">async_block_3</span> <span class="o">=</span> <span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+        <span class="nf">sleep</span><span class="p">(</span><span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">100</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+        <span class="nd">println!</span><span class="p">(</span>
+            <span class="c1">// https://doc.rust-lang.org/std/fmt/index.html#fillalignment</span>
+            <span class="s">"{:&lt;7} {}"</span><span class="p">,</span>
+            <span class="s">"end"</span><span class="p">,</span>
+            <span class="n">non_send_data_clone</span><span class="nf">.as_ref</span><span class="p">()</span><span class="nf">.cyan</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+        <span class="p">);</span>
+    <span class="p">};</span>
+    <span class="c1">// Does not run anything.</span>
+    <span class="k">let</span> <span class="n">_join_handle_3</span> <span class="o">=</span> <span class="n">local_set</span><span class="nf">.spawn_local</span><span class="p">(</span><span class="n">async_block_3</span><span class="p">);</span>
+
+    <span class="c1">// `async_block_3` won't run until this is called.</span>
+    <span class="n">local_set</span><span class="k">.await</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the output when you run this test:</p>
+
+<pre class="pre-manual-highlight">running 1 test
+start   <span style="color: #EBCB8B"><b>!SEND DATA</b></span>
+middle  <span style="color: #A3BE8C"><b>!SEND DATA</b></span>
+end     <span style="color: #8FBCBB"><b>!SEND DATA</b></span>
+test local_set::run_local_set_and_spawn_local ... ok
+</pre>
+      <h3 id="example-4-join-select-spawn-control-flow-constructors">
+        
+        
+          Example 4: join!, select, spawn control flow constructors <a href="#example-4-join-select-spawn-control-flow-constructors">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-4%3A-join!%2C-select%2C-spawn-control-flow-constructors" name="example-4%3A-join!%2C-select%2C-spawn-control-flow-constructors"></a></p>
+
+<p>For this example, let’s add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">pub</span> <span class="k">mod</span> <span class="n">demo_join_select_spawn</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>You can use <code class="language-plaintext highlighter-rouge">join!</code>, <code class="language-plaintext highlighter-rouge">select!</code>, and <code class="language-plaintext highlighter-rouge">spawn</code> to control the flow of async code. These are
+macros that are provided by the <code class="language-plaintext highlighter-rouge">tokio</code> crate. They are used to run multiple futures
+concurrent, in parallel, and wait for them to complete.</p>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/async_con_par/src/demo_join_select_spawn.rs">here</a>.</p>
+</blockquote>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">src/demo_join_select_spawn.rs</code> file. This code shows how
+you can use <code class="language-plaintext highlighter-rouge">join!</code> to run multiple futures concurrently, and wait for them to complete.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">task_1</span><span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="nb">u64</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">sleep</span><span class="p">(</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">time</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"task_1"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">task_2</span><span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="nb">u64</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">sleep</span><span class="p">(</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">time</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"task_2"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">task_3</span><span class="p">(</span><span class="n">time</span><span class="p">:</span> <span class="nb">u64</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nf">sleep</span><span class="p">(</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">time</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"task_3"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_join</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nd">join!</span><span class="p">(</span><span class="nf">task_1</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="nf">task_2</span><span class="p">(</span><span class="mi">200</span><span class="p">),</span> <span class="nf">task_3</span><span class="p">(</span><span class="mi">300</span><span class="p">));</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"all tasks done"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the output when you run this test:</p>
+<pre class="pre-manual-highlight">running 1 test
+task_1
+task_2
+task_3
+all tasks done
+test demo_join_select_spawn::test_join ... ok
+</pre>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">src/demo_join_select_spawn.rs</code> file. This code shows how
+you can use <code class="language-plaintext highlighter-rouge">select!</code> to run multiple futures concurrently, and wait for the first one to
+complete.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_select</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="nf">task_1</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"task_1 done"</span><span class="p">),</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="nf">task_2</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"task_2 done"</span><span class="p">),</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="nf">task_3</span><span class="p">(</span><span class="mi">300</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">println!</span><span class="p">(</span><span class="s">"task_3 done"</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"one task done"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the output when you run this test:</p>
+<pre class="pre-manual-highlight">running 1 test
+task_1 done
+one task done
+test demo_join_select_spawn::test_select ... ok
+</pre>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">src/demo_join_select_spawn.rs</code> file. This code shows how
+you can use <code class="language-plaintext highlighter-rouge">spawn</code> to run multiple futures in parallel, and wait for them to complete. We
+pass the following to the <code class="language-plaintext highlighter-rouge">#[tokio::test]</code> attribute macro: <code class="language-plaintext highlighter-rouge">flavor = "multi_thread",
+worker_threads = 5</code> which tells it to run the test on multiple threads (max of 5).</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[tokio::test(flavor</span> <span class="nd">=</span> <span class="s">"multi_thread"</span><span class="nd">,</span> <span class="nd">worker_threads</span> <span class="nd">=</span> <span class="mi">5</span><span class="nd">)]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_spawn</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">handle_1</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="nf">task_1</span><span class="p">(</span><span class="mi">100</span><span class="p">));</span>
+    <span class="k">let</span> <span class="n">handle_2</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="nf">task_2</span><span class="p">(</span><span class="mi">100</span><span class="p">));</span>
+    <span class="k">let</span> <span class="n">handle_3</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="nf">task_3</span><span class="p">(</span><span class="mi">100</span><span class="p">));</span>
+
+    <span class="n">handle_1</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="n">handle_2</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="n">handle_3</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"all tasks done"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When you run this test, it should produce the following output (the ordering of the tasks
+which run first, second, and third, will vary):</p>
+
+<pre class="pre-manual-highlight">running 1 test
+task_3
+task_1
+task_2
+all tasks done
+test demo_join_select_spawn::test_spawn ... ok
+</pre>
+      <h3 id="example-5-async-streams">
+        
+        
+          Example 5: async streams <a href="#example-5-async-streams">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-5%3A-async-streams" name="example-5%3A-async-streams"></a></p>
+
+<p>For this example, let’s add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">pub</span> <span class="k">mod</span> <span class="n">async_stream</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>You can use async streams to create a stream of values that are produced asynchronously.
+This is useful for testing, for example in the <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> crate <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/src/readline_impl/readline.rs#L796">in
+<code class="language-plaintext highlighter-rouge">readline.rs</code> in <code class="language-plaintext highlighter-rouge">test_streams</code>
+module</a>.</p>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/async_con_par/src/async_stream.rs">here</a>.</p>
+</blockquote>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">src/async_stream.rs</code> file.</p>
+<ul>
+  <li>This code shows how you can use <code class="language-plaintext highlighter-rouge">async_stream</code> crate’s <code class="language-plaintext highlighter-rouge">stream!</code> macro to create a
+stream of values that are generated from a vector of strings.</li>
+  <li>This stream is then converted into a <code class="language-plaintext highlighter-rouge">PinnedInputStream</code> which is a <code class="language-plaintext highlighter-rouge">Pin&lt;Box&lt;dyn
+Stream&lt;Item = Result&lt;String, String&gt;&gt;&gt;</code>.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">type</span> <span class="n">PinnedInputStream</span> <span class="o">=</span> <span class="nb">Pin</span><span class="o">&lt;</span><span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Stream</span><span class="o">&lt;</span><span class="n">Item</span> <span class="o">=</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span> <span class="nb">String</span><span class="o">&gt;&gt;&gt;&gt;</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">gen_input_stream</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">PinnedInputStream</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="nn">async_stream</span><span class="p">::</span><span class="nd">stream!</span> <span class="p">{</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="k">in</span> <span class="nf">get_input_vec</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">yield</span> <span class="nf">Ok</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+    <span class="nn">Box</span><span class="p">::</span><span class="nf">pin</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_input_vec</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nd">vec!</span><span class="p">[</span>
+        <span class="s">"a"</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="s">"b"</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="s">"c"</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="s">"d"</span><span class="nf">.to_string</span><span class="p">(),</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_stream</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">it</span> <span class="o">=</span> <span class="nf">gen_input_stream</span><span class="p">();</span>
+    <span class="k">while</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">event</span><span class="p">)</span> <span class="o">=</span> <span class="n">it</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">lhs</span> <span class="o">=</span> <span class="n">event</span><span class="nf">.unwrap</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">rhs</span> <span class="o">=</span> <span class="nf">get_input_vec</span><span class="p">()[</span><span class="n">count</span><span class="p">]</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">);</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="example-6-non-blocking-event-loops-channel-safety-and-safe-cancellation">
+        
+        
+          Example 6: Non-blocking event loops, channel safety, and safe cancellation <a href="#example-6-non-blocking-event-loops-channel-safety-and-safe-cancellation">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-6%3A-non-blocking-event-loops%2C-channel-safety%2C-and-safe-cancellation" name="example-6%3A-non-blocking-event-loops%2C-channel-safety%2C-and-safe-cancellation"></a></p>
+
+<p>Let’s add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">pub</span> <span class="k">mod</span> <span class="n">non_blocking_async_event_loops</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>You can use non-blocking event loops to create a loop that runs async code, and waits for
+events to occur. This is useful for creating servers, clients, and other networked
+applications. You can even use the same pattern to create
+<a href="https://crates.io/crates/r3bl_terminal_async">CLI</a> and
+<a href="https://crates.io/crates/r3bl_tui">TUI</a> applications that are non-blocking, and can
+handle multiple events concurrently, such as when you’re creating an interactive async
+REPL.</p>
+
+<blockquote>
+  <p>The source code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/async_con_par/src/non_blocking_async_event_loops.rs">here</a>.</p>
+</blockquote>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">src/non_blocking_async_event_loops.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[tokio::test(flavor</span> <span class="nd">=</span> <span class="s">"multi_thread"</span><span class="nd">,</span> <span class="nd">worker_threads</span> <span class="nd">=</span> <span class="mi">5</span><span class="nd">)]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_main_loop</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Register tracing subscriber.</span>
+    <span class="nn">tracing_subscriber</span><span class="p">::</span><span class="nf">fmt</span><span class="p">()</span>
+        <span class="nf">.without_time</span><span class="p">()</span>
+        <span class="nf">.compact</span><span class="p">()</span>
+        <span class="nf">.with_target</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
+        <span class="nf">.with_line_number</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
+        <span class="nf">.with_thread_ids</span><span class="p">(</span><span class="k">true</span><span class="p">)</span>
+        <span class="nf">.with_thread_names</span><span class="p">(</span><span class="k">true</span><span class="p">)</span>
+        <span class="nf">.init</span><span class="p">();</span>
+
+    <span class="c1">// Create channels for events and shutdown signals.</span>
+    <span class="k">let</span> <span class="n">event_channel</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">mpsc</span><span class="p">::</span><span class="nn">channel</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1_000</span><span class="p">);</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">event_sender</span><span class="p">,</span> <span class="k">mut</span> <span class="n">event_receiver</span><span class="p">)</span> <span class="o">=</span> <span class="n">event_channel</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="n">shutdown_channel</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">broadcast</span><span class="p">::</span><span class="nn">channel</span><span class="p">::</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1_000</span><span class="p">);</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">shutdown_sender</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="n">shutdown_channel</span><span class="p">;</span>
+
+    <span class="c1">// Spawn the main event loop.</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">shutdown_receiver</span> <span class="o">=</span> <span class="n">shutdown_sender</span><span class="nf">.subscribe</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">safe_count</span><span class="p">:</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nb">Arc</span><span class="o">&lt;</span><span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="n">Mutex</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;&gt;</span> <span class="o">=</span> <span class="nn">Default</span><span class="p">::</span><span class="nf">default</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">safe_count_clone</span> <span class="o">=</span> <span class="n">safe_count</span><span class="nf">.clone</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">join_handle</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+        <span class="k">loop</span> <span class="p">{</span>
+            <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+                <span class="n">event</span> <span class="o">=</span> <span class="n">event_receiver</span><span class="nf">.recv</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="o">?</span><span class="n">event</span><span class="p">,</span> <span class="s">"task got event: event"</span><span class="p">);</span>
+                    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="n">safe_count_clone</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+                    <span class="o">*</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="n">shutdown_receiver</span><span class="nf">.recv</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"task got shutdown signal"</span><span class="p">);</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">});</span>
+
+    <span class="c1">// Send events, in parallel.</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">handles</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..</span><span class="mi">10</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">event_sender_clone</span> <span class="o">=</span> <span class="n">event_sender</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">join_handle</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+            <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="s">"sending event"</span><span class="p">);</span>
+            <span class="k">let</span> <span class="n">event</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"event {}"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+            <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">event_sender_clone</span><span class="nf">.send</span><span class="p">(</span><span class="n">event</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+            <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+        <span class="p">});</span>
+        <span class="n">handles</span><span class="nf">.push</span><span class="p">(</span><span class="n">join_handle</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Wait for all events to be sent using tokio.</span>
+    <span class="nn">futures</span><span class="p">::</span><span class="nn">future</span><span class="p">::</span><span class="nf">join_all</span><span class="p">(</span><span class="n">handles</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+
+    <span class="c1">// Shutdown the event loops.</span>
+    <span class="n">shutdown_sender</span><span class="nf">.send</span><span class="p">(())</span><span class="nf">.unwrap</span><span class="p">();</span>
+
+    <span class="c1">// Wait for the event loop to shutdown.</span>
+    <span class="n">join_handle</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
+
+    <span class="c1">// Assertions.</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">shutdown_sender</span><span class="nf">.receiver_count</span><span class="p">(),</span> <span class="mi">1</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="o">*</span><span class="n">safe_count</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">(),</span> <span class="mi">10</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here are key points to note about this code:</p>
+<ul>
+  <li>We use <code class="language-plaintext highlighter-rouge">tokio::sync::mpsc::channel</code> to create a channel for events, and
+<code class="language-plaintext highlighter-rouge">tokio::sync::broadcast::channel</code> to create a channel for shutdown signals.</li>
+  <li>We spawn the main event loop, which listens for events and shutdown signals, and updates
+a shared counter.</li>
+  <li>We spawn multiple tasks that send events to the event channel, in parallel.
+    <ul>
+      <li>The <code class="language-plaintext highlighter-rouge">#[tokio::test(flavor = "multi_thread", worker_threads = 5)]</code> attribute macro
+tells <code class="language-plaintext highlighter-rouge">tokio</code> to run the test on multiple threads (max of 5).</li>
+      <li>You can see this in the output when you run the test. By configuring Tokio <code class="language-plaintext highlighter-rouge">tracing</code>
+subscriber, we can see the thread IDs and names in the output
+(<code class="language-plaintext highlighter-rouge">.with_thread_ids(true)</code>, <code class="language-plaintext highlighter-rouge">.with_thread_names(true)</code>).</li>
+      <li>We wait for all events to be sent using <code class="language-plaintext highlighter-rouge">futures::future::join_all(handles).await</code>.</li>
+    </ul>
+  </li>
+  <li>We shutdown the event loop (using <code class="language-plaintext highlighter-rouge">shutdown_sender.send(())</code>), and wait for it to
+shutdown using <code class="language-plaintext highlighter-rouge">join_handle.await</code>..</li>
+</ul>
+
+<p>When you run this test, it will produce the following output:</p>
+<pre class="pre-manual-highlight">running 1 test
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) sending event <i>i</i><span style="color:#90949B">=2</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(04) sending event <i>i</i><span style="color:#90949B">=6</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(06) sending event <i>i</i><span style="color:#90949B">=0</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(07) sending event <i>i</i><span style="color:#90949B">=4</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(03) sending event <i>i</i><span style="color:#90949B">=7</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(04) sending event <i>i</i><span style="color:#90949B">=8</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(06) sending event <i>i</i><span style="color:#90949B">=1</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got event: event <i>event</i><span style="color:#90949B">=Some(&quot;event 2&quot;)</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(07) sending event <i>i</i><span style="color:#90949B">=5</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(03) sending event <i>i</i><span style="color:#90949B">=9</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got event: event <i>event</i><span style="color:#90949B">=Some(&quot;event 6&quot;)</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(04) sending event <i>i</i><span style="color:#90949B">=3</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got event: event <i>event</i><span style="color:#90949B">=Some(&quot;event 0&quot;)</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got event: event <i>event</i><span style="color:#90949B">=Some(&quot;event 4&quot;)</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got event: event <i>event</i><span style="color:#90949B">=Some(&quot;event 7&quot;)</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got event: event <i>event</i><span style="color:#90949B">=Some(&quot;event 8&quot;)</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got event: event <i>event</i><span style="color:#90949B">=Some(&quot;event 1&quot;)</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got event: event <i>event</i><span style="color:#90949B">=Some(&quot;event 5&quot;)</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got event: event <i>event</i><span style="color:#90949B">=Some(&quot;event 9&quot;)</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got event: event <i>event</i><span style="color:#90949B">=Some(&quot;event 3&quot;)</span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) task got shutdown signal
+test non_blocking_async_event_loops::test_main_loop ... ok
+</pre>
+
+<p>Interesting code links:</p>
+<ul>
+  <li>Testing async code: <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/src/readline_impl/readline.rs#L612">https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/src/readline_impl/readline.rs#L612</a></li>
+  <li>Using dependency injection and dealing with <code class="language-plaintext highlighter-rouge">dyn T</code> (trait objects): <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/src/readline_impl/readline.rs#L344">https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/src/readline_impl/readline.rs#L344</a>.</li>
+  <li>Event <code class="language-plaintext highlighter-rouge">loop</code>s and breaking out of them (lifecycle control mechanisms):
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/tcp-api-server/src/server_task.rs#L43">https://github.com/nazmulidris/rust-scratch/blob/main/tcp-api-server/src/server_task.rs#L43</a>
+and
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/tcp-api-server/src/client_task.rs#L108">https://github.com/nazmulidris/rust-scratch/blob/main/tcp-api-server/src/client_task.rs#L108</a>.</li>
+</ul>
+      <h3 id="parting-thoughts">
+        
+        
+          Parting thoughts <a href="#parting-thoughts">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-parting-thoughts" name="parting-thoughts"></a></p>
+
+<ul>
+  <li>Try not to use cancellation token:
+<a href="https://docs.rs/tokio-util/latest/tokio_util/sync/struct.CancellationToken.html">https://docs.rs/tokio-util/latest/tokio_util/sync/struct.CancellationToken.html</a>,
+instead do this: <a href="https://github.com/nazmulidris/rust-scratch/pull/32">https://github.com/nazmulidris/rust-scratch/pull/32</a> and
+<a href="https://github.com/nazmulidris/rust-scratch/commit/e129b0f681dd1eea1bcdd3372cd08a05081922ff">https://github.com/nazmulidris/rust-scratch/commit/e129b0f681dd1eea1bcdd3372cd08a05081922ff</a></li>
+  <li>Do not use async or Tokio for underlying sync OS file copy:
+<a href="https://users.rust-lang.org/t/tokio-copy-slower-than-std-io-copy/111242">https://users.rust-lang.org/t/tokio-copy-slower-than-std-io-copy/111242</a>.</li>
+  <li>Using the right <code class="language-plaintext highlighter-rouge">Mutex</code> in conjunction with <code class="language-plaintext highlighter-rouge">Arc</code> and holding them across await points
+from <a href="https://docs.rs/tokio/latest/tokio/sync/struct.Mutex.html#which-kind-of-mutex-should-you-use">tokio
+docs</a>.</li>
+  <li>Good videos:
+    <ul>
+      <li><a href="https://www.youtube.com/watch?v=1zOd52_tUWg&amp;t=2088s">Async Rust: the good, the bad, and the ugly - Steve Klabnik</a>.</li>
+      <li><a href="https://www.youtube.com/watch?v=04gTQmLETFI">Nicholas Matsakis - Rust 2024 and beyond</a>.</li>
+    </ul>
+  </li>
+</ul>
+      <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
+        
+        
+          Build with Naz video series on developerlife.com YouTube channel <a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        
+<blockquote>
+
+📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
+(they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
+project):
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+<p>
+<kbd>giti in action</kbd>
+<video width="100%" controls>
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4"/>
+</video>
+</p>
+
+<p>
+<kbd>edi in action</kbd>
+<video width="100%" controls>
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4"/>
+</video>
+</p>
+
+</blockquote>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/15/tokio-tracing-otel-rust/">
+                        Build with Naz : tokio tracing &amp; OTel and how to use it in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">
+                        Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/21/build-async-interactive-cli-apps-in-rust/">
+                        Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2024/05/19/effective-async-rust/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Subscribe to our Rust live coding
+      <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a
+      ><span class="heading-emoji"> 🦀</span>
+    </h2>
+
+    <!-- video on intro to testing (with playlist) -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- rust async readline and spinner & playlist -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=i37Ei9nCfvslOoaI&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+  <!-- rust tokio tracing and otel for async rust & playlist -->
+  <iframe
+    src="https://www.youtube.com/embed/Wf8JrLgBuKI?si=cmLaUWs-pbJ39lLc"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+  </iframe>
+
+    <br />
+    <br />
+
+    <h2 class="star-us-github-heading">
+      Use our extensions, apps, binary and library crates<span class="heading-emoji"> 📦</span>
+    </h2>
+
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-apps.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-shortlink.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a
+          href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async"
+          target="_blank"
+        >
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TERMINAL ASYNC LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_terminal_async</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+    <br />
+
+    <h2 class="star-us-github-heading">
+      Join our <a href="https://discord.gg/PhuF4qFpcA">Discord</a>
+      <span class="heading-emoji"> 💬</span>
+    </h2>
+  </section>
+</div>
+</div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

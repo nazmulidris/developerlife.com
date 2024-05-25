@@ -74,6 +74,14 @@ use tracing::{info, instrument, Span};
 
 #[tokio::main]
 async fn main() {
+    // Set up the tracing subscriber, so you can see the output of log events in stdout.
+    // https://docs.rs/tracing-subscriber/latest/tracing_subscriber/fmt/fn.fmt.html
+    tracing_subscriber::fmt()
+        .with_test_writer()
+        .with_env_filter("info")
+        .init();
+
+    // Call the entry point function.
     client_task::entry_point(1234).await;
 }
 
@@ -83,6 +91,7 @@ mod client_task {
         info!("entry point");
         more_context("bar").await;
         handle_message(client_id, "foo").await;
+        no_instrument("baz").await;
     }
 
     #[instrument(name = "callee", skip_all, fields(%message))]
@@ -95,6 +104,11 @@ mod client_task {
         CurrentSpan::current().record("extra", &extra);
         info!("more context");
     }
+
+    pub async fn no_instrument(arg: &str) {
+        info!("no instrument fn");
+    }
+
 }
 ```
 
@@ -123,6 +137,12 @@ Here are some key points to remember when using `tracing` from the code above:
   with `tracing::Span::record`. You have to call
   `tracing::Span::current().record("foo","bar")` in the same function where the
   `#[instrument(fields(foo))]` attribute is used.
+
+- When a function is called that isn't instrumented, by another one, which is, any log
+  events generated in the un-instrumented function will be associated with the span of the
+  instrumented function. In the `no_instrument` function's log output, you will see
+  addition context from the `entry_point` function that looks something like `INFO
+  caller{client_id=1234}: no instrument fn`.
 
 Here are some helpful links to learn more about this topic:
 

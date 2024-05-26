@@ -227,15 +227,23 @@
 
   <br />
 
+  <!-- effective async rust video & async rust playlist -->
+  <iframe src="https://www.youtube.com/embed/qvIt8MF-pCM?si=hDVrz64pLbTLYe_m"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+  </iframe>
+
   <!-- video on rust polymorphism (no playlist) -->
-  <iframe
+  <!-- <iframe
       src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
       title="YouTube video player" frameborder="0"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       referrerpolicy="strict-origin-when-cross-origin"
       allowfullscreen
       >
-  </iframe>
+  </iframe> -->
 
   <!-- video on intro to testing (with playlist) -->
   <!-- <iframe
@@ -249,7 +257,6 @@
   </iframe> -->
 
 </blockquote>
-
         <!-- If a page has a hero-image defined in it, then show it here -->
 
 
@@ -331,6 +338,14 @@ used to create spans; they are used to emit events within a span.</li>
 
 <span class="nd">#[tokio::main]</span>
 <span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Set up the tracing subscriber, so you can see the output of log events in stdout.</span>
+    <span class="c1">// https://docs.rs/tracing-subscriber/latest/tracing_subscriber/fmt/fn.fmt.html</span>
+    <span class="nn">tracing_subscriber</span><span class="p">::</span><span class="nf">fmt</span><span class="p">()</span>
+        <span class="nf">.with_test_writer</span><span class="p">()</span>
+        <span class="nf">.with_env_filter</span><span class="p">(</span><span class="s">"info"</span><span class="p">)</span>
+        <span class="nf">.init</span><span class="p">();</span>
+
+    <span class="c1">// Call the entry point function.</span>
     <span class="nn">client_task</span><span class="p">::</span><span class="nf">entry_point</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
 <span class="p">}</span>
 
@@ -340,6 +355,7 @@ used to create spans; they are used to emit events within a span.</li>
         <span class="nd">info!</span><span class="p">(</span><span class="s">"entry point"</span><span class="p">);</span>
         <span class="nf">more_context</span><span class="p">(</span><span class="s">"bar"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
         <span class="nf">handle_message</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="s">"foo"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+        <span class="nf">no_instrument</span><span class="p">(</span><span class="s">"baz"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
     <span class="p">}</span>
 
     <span class="nd">#[instrument(name</span> <span class="nd">=</span> <span class="s">"callee"</span><span class="nd">,</span> <span class="nd">skip_all,</span> <span class="nd">fields(</span><span class="err">%</span><span class="nd">message))]</span>
@@ -352,6 +368,11 @@ used to create spans; they are used to emit events within a span.</li>
         <span class="nn">CurrentSpan</span><span class="p">::</span><span class="nf">current</span><span class="p">()</span><span class="nf">.record</span><span class="p">(</span><span class="s">"extra"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">extra</span><span class="p">);</span>
         <span class="nd">info!</span><span class="p">(</span><span class="s">"more context"</span><span class="p">);</span>
     <span class="p">}</span>
+
+    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">no_instrument</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nd">info!</span><span class="p">(</span><span class="s">"no instrument fn"</span><span class="p">);</span>
+    <span class="p">}</span>
+
 <span class="p">}</span>
 </code></pre></div></div>
 
@@ -385,6 +406,13 @@ somewhere in the call chain (that the span covers).</p>
 with <code class="language-plaintext highlighter-rouge">tracing::Span::record</code>. You have to call
 <code class="language-plaintext highlighter-rouge">tracing::Span::current().record("foo","bar")</code> in the same function where the
 <code class="language-plaintext highlighter-rouge">#[instrument(fields(foo))]</code> attribute is used.</p>
+  </li>
+  <li>
+    <p>When a function is called that isn’t instrumented, by another one, which is, any log
+events generated in the un-instrumented function will be associated with the span of the
+instrumented function. In the <code class="language-plaintext highlighter-rouge">no_instrument</code> function’s log output, you will see
+addition context from the <code class="language-plaintext highlighter-rouge">entry_point</code> function that looks something like <code class="language-plaintext highlighter-rouge">INFO
+caller{client_id=1234}: no instrument fn</code>.</p>
   </li>
 </ul>
 
@@ -671,6 +699,15 @@ project):
     
 
     <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/25/tokio-uring-exploration-rust/">
+                        Build with Naz : Linux io_uring and tokio-uring exploration with Rust
+                    </a>
+                </li>
+            
         
             
                 

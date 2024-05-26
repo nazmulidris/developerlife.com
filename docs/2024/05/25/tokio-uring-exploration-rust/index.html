@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Build with Naz : Linux io_uring and tokio-uring exploration with Rust | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Build with Naz : Linux io_uring and tokio-uring exploration with Rust" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article and video will show you how to use the tokio-uring do async file IO at the OS level, and how to use it to build a simple echo TCP server, for use with netcat." />
+<meta property="og:description" content="Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article and video will show you how to use the tokio-uring do async file IO at the OS level, and how to use it to build a simple echo TCP server, for use with netcat." />
+<link rel="canonical" href="http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/" />
+<meta property="og:url" content="http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-05-25T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build with Naz : Linux io_uring and tokio-uring exploration with Rust" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-05-25T10:00:00-05:00","datePublished":"2024-05-25T10:00:00-05:00","description":"Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article and video will show you how to use the tokio-uring do async file IO at the OS level, and how to use it to build a simple echo TCP server, for use with netcat.","headline":"Build with Naz : Linux io_uring and tokio-uring exploration with Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/"},"url":"http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /><!-- https://developers.google.com/analytics/devguides/collection/gtagjs -->
+<script async
+        src="https://www.googletagmanager.com/gtag/js?id=G-NQY9ECC58H"></script>
+<script>
+  window.dataLayer = window.dataLayer || []
+
+  function gtag() {
+    window.dataLayer.push(arguments)
+  }
+
+  gtag("js", new Date())
+  gtag("config", "G-NQY9ECC58H")
+</script>
+<!-- https://us14.admin.mailchimp.com/account/connected-sites/site-detail/ -->
+
+<script id="mcjs">
+  !(function (c, h, i, m, p) {
+    ;(m = c.createElement(h)),
+      (p = c.getElementsByTagName(h)[0]),
+      (m.async = 1),
+      (m.src = i),
+      p.parentNode.insertBefore(m, p)
+  })(
+    document,
+    "script",
+    "https://chimpstatic.com/mcjs-connected/js/users/c2470ddfa863eb8ace707651b/2bb3bcad193ef862398700457.js"
+  )
+</script>
+</head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Build with Naz : Linux io_uring and tokio-uring exploration with Rust&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Build with Naz : Linux io_uring and tokio-uring exploration with Rust</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build with Naz : Linux io_uring and tokio-uring exploration with Rust</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->May 25, 2024
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+        <blockquote>
+  👀 Watch Rust 🦀 live coding videos on our
+  <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
+
+  <br />
+
+  <!-- effective async rust video & async rust playlist -->
+  <iframe src="https://www.youtube.com/embed/qvIt8MF-pCM?si=hDVrz64pLbTLYe_m"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+  </iframe>
+
+  <!-- video on rust polymorphism (no playlist) -->
+  <!-- <iframe
+      src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      >
+  </iframe> -->
+
+  <!-- video on intro to testing (with playlist) -->
+  <!-- <iframe
+    src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
+  >
+  </iframe> -->
+
+</blockquote>
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/rust_tokio_uring.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#what-is-linux-io_uring">What is Linux io_uring?</a></li>
+  <li><a href="#youtube-video-for-this-article">YouTube video for this article</a></li>
+  <li><a href="#examples-of-using-tokio-uring-in-rust">Examples of using tokio-uring in Rust</a>
+    <ul>
+      <li><a href="#example-1-read-a-file-using-tokio-uring-and-async-non-blocking-io">Example 1: Read a file using tokio-uring and async, non-blocking IO</a></li>
+      <li><a href="#example-2-building-a-tcp-echo-server-using-tokio-uring-that-also-uses-tokio">Example 2: Building a TCP echo server using tokio-uring that also uses tokio</a></li>
+      <li><a href="#parting-thoughts">Parting thoughts</a></li>
+    </ul>
+  </li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="what-is-linux-io_uring">
+        
+        
+          What is Linux io_uring? <a href="#what-is-linux-io_uring">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-what-is-linux-io_uring%3F" name="what-is-linux-io_uring%3F"></a></p>
+
+<p>When using async Rust and <code class="language-plaintext highlighter-rouge">tokio</code>, you don’t get async file IO at the OS level. Here are
+links from the official docs that discourage using <code class="language-plaintext highlighter-rouge">tokio</code> for file IO:</p>
+<ul>
+  <li><a href="https://tokio.rs/tokio/tutorial">Tokio tutorial, when not to use Tokio</a>.</li>
+  <li><a href="https://users.rust-lang.org/t/tokio-copy-slower-than-std-io-copy/111242">Tokio::io::copy slower than std
+io::copy</a>.</li>
+</ul>
+
+<p>This is because <code class="language-plaintext highlighter-rouge">tokio</code> uses the <code class="language-plaintext highlighter-rouge">mio</code> crate, which uses <code class="language-plaintext highlighter-rouge">epoll</code> on Linux. These are not
+the most efficient ways to do async IO on Linux. The most efficient way to do async IO on
+Linux is to use the <code class="language-plaintext highlighter-rouge">io_uring</code> syscall. This is a new syscall that was added to the Linux
+kernel in version 5.1. It is a more efficient way to do async IO on Linux, and is used by
+the <code class="language-plaintext highlighter-rouge">tokio-uring</code> crate. Here are some great links to learn more about <code class="language-plaintext highlighter-rouge">io_uring</code>:</p>
+<ul>
+  <li><a href="https://unixism.net/loti/what_is_io_uring.html#the-io-uring-interface">io_uring mental
+model</a>.</li>
+  <li><a href="https://www.scylladb.com/2020/05/05/how-io_uring-and-ebpf-will-revolutionize-programming-in-linux/0/">How io_uring and eBPF Will Revolutionize Programming in
+Linux</a>.</li>
+  <li><a href="https://lore.kernel.org/io-uring/4af91b50-4a9c-8a16-9470-a51430bd7733@kernel.dk/T/#u">io_uring and Intel Optane
+stats</a>.</li>
+  <li><a href="https://tokio.rs/blog/2021-07-tokio-uring">Announcing io_uring support for Tokio -
+tokio-uring</a>.</li>
+</ul>
+
+<p>In this article, we will explore how to use <code class="language-plaintext highlighter-rouge">tokio-uring</code> to do async file IO at the OS
+level, and how to use it to build a simple echo TCP server, for use with <code class="language-plaintext highlighter-rouge">netcat</code>.</p>
+      <h2 id="youtube-video-for-this-article">
+        
+        
+          YouTube video for this article <a href="#youtube-video-for-this-article">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-youtube-video-for-this-article" name="youtube-video-for-this-article"></a></p>
+
+<p>This blog post has short examples on how to use the <code class="language-plaintext highlighter-rouge">tokio-uring</code> crate. If you like to
+learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
+channel</a>.</p>
+
+<!-- rust tokio-uring exploration & async rust playlist -->
+<iframe src="https://www.youtube.com/embed/VKL52XmY6Os?si=RgUKu-CZSXvKpJ7M" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<p><br /></p>
+      <h2 id="examples-of-using-tokio-uring-in-rust">
+        
+        
+          Examples of using tokio-uring in Rust <a href="#examples-of-using-tokio-uring-in-rust">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-examples-of-using-tokio-uring-in-rust" name="examples-of-using-tokio-uring-in-rust"></a></p>
+
+<p>Let’s create some examples to illustrate how to use <code class="language-plaintext highlighter-rouge">tokio-uring</code>. You can run
+<code class="language-plaintext highlighter-rouge">cargo new --bin tokio-uring</code> to create a new binary crate.</p>
+
+<blockquote>
+  <p>The code in the video and this tutorial are all in <a href="https://github.com/nazmulidris/rust-scratch/tree/main/tokio-uring">this GitHub
+repo</a>.</p>
+</blockquote>
+
+<p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
+dependencies that we need for these examples.</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"tokio-uring"</span>
+<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
+<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+
+<span class="nn">[[bin]]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"readfile"</span>
+<span class="py">path</span> <span class="p">=</span> <span class="s">"src/readfile.rs"</span>
+
+<span class="nn">[[bin]]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"socketserver"</span>
+<span class="py">path</span> <span class="p">=</span> <span class="s">"src/socketserver.rs"</span>
+
+<span class="nn">[dependencies]</span>
+<span class="py">tokio-uring</span> <span class="p">=</span> <span class="s">"0.4.0"</span>
+<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.37.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">,</span> <span class="s">"tracing"</span><span class="p">]</span> <span class="p">}</span>
+<span class="py">tokio-util</span> <span class="p">=</span> <span class="s">"0.7.11"</span>
+<span class="py">tracing</span> <span class="p">=</span> <span class="s">"0.1.40"</span>
+<span class="py">tracing-subscriber</span> <span class="p">=</span> <span class="s">"0.3.18"</span>
+
+<span class="py">ctrlc</span> <span class="p">=</span> <span class="s">"3.4.4"</span>
+<span class="py">miette</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"7.2.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span> <span class="p">}</span>
+
+<span class="py">crossterm</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.27.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"event-stream"</span><span class="p">]</span> <span class="p">}</span>
+
+<span class="py">r3bl_terminal_async</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.5.3"</span> <span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="example-1-read-a-file-using-tokio-uring-and-async-non-blocking-io">
+        
+        
+          Example 1: Read a file using tokio-uring and async, non-blocking IO <a href="#example-1-read-a-file-using-tokio-uring-and-async-non-blocking-io">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-1%3A-read-a-file-using-tokio-uring-and-async%2C-non-blocking-io" name="example-1%3A-read-a-file-using-tokio-uring-and-async%2C-non-blocking-io"></a></p>
+
+<p>Then you can add the following code to the <code class="language-plaintext highlighter-rouge">src/readfile.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="n">Stylize</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">miette</span><span class="p">::</span><span class="n">IntoDiagnostic</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">path</span><span class="p">::</span><span class="n">Path</span><span class="p">;</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nn">tokio_uring</span><span class="p">::</span><span class="nf">start</span><span class="p">(</span><span class="nf">read_file</span><span class="p">(</span><span class="s">"Cargo.toml"</span><span class="p">))</span><span class="o">?</span><span class="p">;</span>
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">read_file</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="k">impl</span> <span class="nb">AsRef</span><span class="o">&lt;</span><span class="n">Path</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">file</span> <span class="o">=</span> <span class="nn">tokio_uring</span><span class="p">::</span><span class="nn">fs</span><span class="p">::</span><span class="nn">File</span><span class="p">::</span><span class="nf">open</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="k">.await</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="n">buf_move</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">0</span><span class="p">;</span> <span class="mi">4096</span><span class="p">];</span>
+
+    <span class="c1">// Read some data, the buffer is passed by ownership and submitted</span>
+    <span class="c1">// to the kernel. When the operation completes, we get the buffer</span>
+    <span class="c1">// back.</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">buf_from_kernel</span><span class="p">)</span> <span class="o">=</span> <span class="n">file</span><span class="nf">.read_at</span><span class="p">(</span><span class="n">buf_move</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">bytes_read</span> <span class="o">=</span> <span class="n">result</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"{}"</span><span class="p">,</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"Read {} bytes"</span><span class="p">,</span> <span class="n">bytes_read</span><span class="p">)</span>
+            <span class="nf">.yellow</span><span class="p">()</span>
+            <span class="nf">.underlined</span><span class="p">()</span>
+            <span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"{}</span><span class="se">\n</span><span class="s">{}"</span><span class="p">,</span>
+        <span class="s">"Data (bytes):"</span><span class="nf">.yellow</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">buf_from_kernel</span><span class="p">[</span><span class="o">..</span><span class="n">bytes_read</span><span class="p">])</span>
+            <span class="nf">.blue</span><span class="p">()</span>
+            <span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"{}</span><span class="se">\n</span><span class="s">{}"</span><span class="p">,</span>
+        <span class="s">"Data (string):"</span><span class="nf">.yellow</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buf_from_kernel</span><span class="p">[</span><span class="o">..</span><span class="n">bytes_read</span><span class="p">])</span>
+            <span class="nf">.cyan</span><span class="p">()</span>
+            <span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/tokio-uring/src/readfile.rs">here</a>.</p>
+</blockquote>
+
+<p>The main things to note about this code.</p>
+
+<ul>
+  <li>We use the <code class="language-plaintext highlighter-rouge">tokio_uring::fs::File</code> struct to open a file.</li>
+  <li>We use the <code class="language-plaintext highlighter-rouge">read_at</code> method to read from the file at a specific offset. The buffer is
+passed by ownership to the kernel, and when the operation completes, we get the buffer
+back. This is different than how it works with <code class="language-plaintext highlighter-rouge">tokio</code> and <code class="language-plaintext highlighter-rouge">std</code>.</li>
+  <li>We print out the bytes that were read from the file, and the string representation of
+those bytes.</li>
+</ul>
+
+<p>When you run this code (using <code class="language-plaintext highlighter-rouge">cargo run --bin readfile</code>), it should produce the following
+output:</p>
+
+<pre class="pre-manual-highlight">
+<span style="color:#81A1C1"><u style="text-decoration-style:single">read file using tokio_uring: </u></span><span style="color:#BF616A"><u style="text-decoration-style:single"><b>Cargo.toml</b></u></span>
+<span style="color:#81A1C1"><u style="text-decoration-style:single">read </u></span><span style="color:#EBCB8B"><u style="text-decoration-style:single"><b>604</b></u></span> bytes from file
+<span style="color:#A3BE8C">file contents: [package]</span>
+<span style="color:#A3BE8C">name = &quot;tokio-uring&quot;</span>
+<span style="color:#A3BE8C">version = &quot;0.1.0&quot;</span>
+<span style="color:#A3BE8C">edition = &quot;2021&quot;</span>
+
+<span style="color:#A3BE8C">[[bin]]</span>
+<span style="color:#A3BE8C">name = &quot;readfile&quot;</span>
+<span style="color:#A3BE8C">path = &quot;src/readfile.rs&quot;</span>
+
+<span style="color:#A3BE8C">[[bin]]</span>
+<span style="color:#A3BE8C">name = &quot;socketserver&quot;</span>
+<span style="color:#A3BE8C">path = &quot;src/socketserver.rs&quot;</span>
+
+<span style="color:#A3BE8C">[dependencies]</span>
+<span style="color:#A3BE8C">tokio-uring = &quot;0.4.0&quot;</span>
+<span style="color:#A3BE8C">tokio = { version = &quot;1.37.0&quot;, features = [&quot;full&quot;, &quot;tracing&quot;] }</span>
+<span style="color:#A3BE8C">tokio-util = &quot;0.7.11&quot;</span>
+<span style="color:#A3BE8C">tracing = &quot;0.1.40&quot;</span>
+<span style="color:#A3BE8C">tracing-subscriber = &quot;0.3.18&quot;</span>
+
+<span style="color:#A3BE8C">ctrlc = &quot;3.4.4&quot;</span>
+
+<span style="color:#A3BE8C">miette = { version = &quot;7.2.0&quot;, features = [&quot;fancy&quot;] }</span>
+
+<span style="color:#A3BE8C">crossterm = { version = &quot;0.27.0&quot;, features = [&quot;event-stream&quot;] }</span>
+
+<span style="color:#A3BE8C">r3bl_terminal_async = { version = &quot;0.5.3&quot; }</span>
+<span style="color:#A3BE8C"># r3bl_terminal_async = { path = &quot;../../r3bl-open-core/terminal_async&quot; }</span>
+</pre>
+      <h3 id="example-2-building-a-tcp-echo-server-using-tokio-uring-that-also-uses-tokio">
+        
+        
+          Example 2: Building a TCP echo server using tokio-uring that also uses tokio <a href="#example-2-building-a-tcp-echo-server-using-tokio-uring-that-also-uses-tokio">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-2%3A-building-a-tcp-echo-server-using-tokio-uring-that-also-uses-tokio" name="example-2%3A-building-a-tcp-echo-server-using-tokio-uring-that-also-uses-tokio"></a></p>
+
+<p>For this example, let’s add the following code to the <code class="language-plaintext highlighter-rouge">src/socketserver.rs</code> file.</p>
+<ul>
+  <li>This will simply add the required imports to <code class="language-plaintext highlighter-rouge">tokio_uring</code> for <code class="language-plaintext highlighter-rouge">TcpListener</code> and
+<code class="language-plaintext highlighter-rouge">TcpStream</code>.</li>
+  <li>And we will also configure the <code class="language-plaintext highlighter-rouge">tracing_subscriber</code> to use the formatted subscriber, so
+that we get pretty printed log output to stdout and we have information about what thread
+generated that log event.</li>
+  <li>We use the <code class="language-plaintext highlighter-rouge">tokio_uring::start</code> function to spawn the runtime. This runtime isn’t the
+same as the one that we get from using <code class="language-plaintext highlighter-rouge">#[tokio::main]</code> and later in this example, we
+will see how we can handle both.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="n">Stylize</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">miette</span><span class="p">::</span><span class="n">IntoDiagnostic</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">r3bl_terminal_async</span><span class="p">::</span><span class="n">port_availability</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">net</span><span class="p">::</span><span class="n">SocketAddr</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="n">AbortHandle</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">tokio_uring</span><span class="p">::{</span>
+    <span class="nn">buf</span><span class="p">::</span><span class="n">IoBuf</span><span class="p">,</span>
+    <span class="nn">net</span><span class="p">::{</span><span class="n">TcpListener</span><span class="p">,</span> <span class="n">TcpStream</span><span class="p">},</span>
+<span class="p">};</span>
+<span class="k">use</span> <span class="nn">tokio_util</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="n">CancellationToken</span><span class="p">;</span>
+
+<span class="cd">/// Run `netcat localhost:8080` to test this server (once you run this main function).</span>
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c1">// Register tracing subscriber.</span>
+    <span class="nn">tracing_subscriber</span><span class="p">::</span><span class="nf">fmt</span><span class="p">()</span>
+        <span class="nf">.without_time</span><span class="p">()</span>
+        <span class="nf">.compact</span><span class="p">()</span>
+        <span class="nf">.with_target</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
+        <span class="nf">.with_line_number</span><span class="p">(</span><span class="k">false</span><span class="p">)</span>
+        <span class="nf">.with_thread_ids</span><span class="p">(</span><span class="k">true</span><span class="p">)</span>
+        <span class="nf">.with_thread_names</span><span class="p">(</span><span class="k">true</span><span class="p">)</span>
+        <span class="nf">.init</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="n">cancellation_token</span> <span class="o">=</span> <span class="nn">CancellationToken</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+
+    <span class="c1">// TODO: Add ctrlc handler.</span>
+
+    <span class="c1">// TODO: Add code to use the `tokio` runtime and run some futures on it.</span>
+
+    <span class="nn">tokio_uring</span><span class="p">::</span><span class="nf">start</span><span class="p">(</span><span class="nf">start_server</span><span class="p">(</span><span class="n">cancellation_token</span><span class="p">))</span><span class="o">?</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>You can get the source code for this example
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/tokio-uring/src/socketserver.rs">here</a>.</p>
+</blockquote>
+
+<p>Next, we will add the code to handle the server logic. The following code handles the
+incoming connections (using <code class="language-plaintext highlighter-rouge">tokio_uring</code> structs). This code is very similar to what we
+would write if we were using <code class="language-plaintext highlighter-rouge">tokio</code> directly.</p>
+
+<ul>
+  <li>The main difference is that we are checking for port availability before binding to the
+address, and we are using <code class="language-plaintext highlighter-rouge">tokio_uring::spawn</code> to spawn the futures, to handle incoming
+connections.</li>
+  <li>We will also use <code class="language-plaintext highlighter-rouge">tokio::select!</code> to create the main event loop. Since <code class="language-plaintext highlighter-rouge">tokio_uring</code> is
+in the same family as <code class="language-plaintext highlighter-rouge">tokio</code>, we can do that!</li>
+  <li>The <code class="language-plaintext highlighter-rouge">port_availability</code> module comes from <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> crate, which is a
+dependency in the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file. It allows us to check whether a port is available
+or not, and find a free port in a given port range.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="nf">start_server</span><span class="p">(</span><span class="n">cancellation_token</span><span class="p">:</span> <span class="n">CancellationToken</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">tcp_listener</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">addr</span><span class="p">:</span> <span class="n">SocketAddr</span> <span class="o">=</span> <span class="s">"0.0.0.0:8080"</span><span class="nf">.parse</span><span class="p">()</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+        <span class="c1">// You can bind to the same address repeatedly, and it won't return</span>
+        <span class="c1">// an error! Might have to check to see whether the port is open or</span>
+        <span class="c1">// not before binding to it!</span>
+        <span class="k">match</span> <span class="nn">port_availability</span><span class="p">::</span><span class="nf">check</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span> <span class="p">{</span>
+            <span class="nn">port_availability</span><span class="p">::</span><span class="nn">Status</span><span class="p">::</span><span class="n">Free</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Port {} is available"</span><span class="p">,</span> <span class="n">addr</span><span class="nf">.port</span><span class="p">());</span>
+            <span class="p">}</span>
+            <span class="nn">port_availability</span><span class="p">::</span><span class="nn">Status</span><span class="p">::</span><span class="n">Occupied</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
+                    <span class="s">"Port {} is NOT available, can't bind to it"</span><span class="p">,</span>
+                    <span class="n">addr</span><span class="nf">.port</span><span class="p">()</span>
+                <span class="p">);</span>
+                <span class="k">return</span> <span class="nf">Err</span><span class="p">(</span><span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span>
+                    <span class="s">"Port {} is NOT available, can't bind to it"</span><span class="p">,</span>
+                    <span class="n">addr</span><span class="nf">.port</span><span class="p">()</span>
+                <span class="p">));</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="nn">TcpListener</span><span class="p">::</span><span class="nf">bind</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span>
+    <span class="p">};</span>
+
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"server - started"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">());</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">abort_handles</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">AbortHandle</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">cancellation_token</span><span class="nf">.cancelled</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="n">abort_handles</span><span class="nf">.iter</span><span class="p">()</span><span class="nf">.for_each</span><span class="p">(|</span><span class="n">handle</span><span class="p">|</span> <span class="n">handle</span><span class="nf">.abort</span><span class="p">());</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">it</span> <span class="o">=</span> <span class="n">tcp_listener</span><span class="nf">.accept</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">let</span> <span class="p">(</span><span class="n">tcp_stream</span><span class="p">,</span> <span class="n">_addr</span><span class="p">)</span> <span class="o">=</span> <span class="n">it</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+                <span class="k">let</span> <span class="n">join_handle</span> <span class="o">=</span> <span class="nn">tokio_uring</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span>
+                    <span class="nf">handle_connection</span><span class="p">(</span><span class="n">tcp_stream</span><span class="p">)</span>
+                <span class="p">);</span>
+                <span class="n">abort_handles</span><span class="nf">.push</span><span class="p">(</span><span class="n">join_handle</span><span class="nf">.abort_handle</span><span class="p">());</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"server - stopped"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">());</span>
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Add the following code to handle the echo logic. This code reads from the stream using
+<code class="language-plaintext highlighter-rouge">tokio_uring</code> and its function signature is quite different from what we would write if we
+were using <code class="language-plaintext highlighter-rouge">tokio</code> directly. It is similar to what happens with <code class="language-plaintext highlighter-rouge">read_at</code> in the previous
+example, and it moves ownership to <code class="language-plaintext highlighter-rouge">read</code>. Which returns a tuple:</p>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">Result</code> containing the number of bytes read.</li>
+  <li>Buffer that was passed from the kernel.</li>
+</ol>
+
+<p>The <code class="language-plaintext highlighter-rouge">write_all</code> function also returns a tuple that is similar.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="nf">handle_connection</span><span class="p">(</span><span class="n">stream</span><span class="p">:</span> <span class="n">TcpStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"handle_connection - start"</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">total_bytes_read</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">buf</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">0u8</span><span class="p">;</span> <span class="mi">10</span><span class="p">];</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="c1">// Read from the stream.</span>
+        <span class="c1">// Read some data, the buffer is passed by ownership and submitted</span>
+        <span class="c1">// to the kernel. When the operation completes, we get the buffer</span>
+        <span class="c1">// back.</span>
+        <span class="k">let</span> <span class="p">(</span><span class="n">result_num_bytes_read</span><span class="p">,</span> <span class="n">return_buf</span><span class="p">)</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.read</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">return_buf</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">num_bytes_read</span> <span class="o">=</span> <span class="n">result_num_bytes_read</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// Check for EOF.</span>
+        <span class="k">if</span> <span class="n">num_bytes_read</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// Write to the stream.</span>
+        <span class="k">let</span> <span class="p">(</span><span class="n">result_num_bytes_written</span><span class="p">,</span> <span class="n">slice</span><span class="p">)</span> <span class="o">=</span>
+            <span class="n">stream</span><span class="nf">.write_all</span><span class="p">(</span><span class="n">buf</span><span class="nf">.slice</span><span class="p">(</span><span class="o">..</span><span class="n">num_bytes_read</span><span class="p">))</span><span class="k">.await</span><span class="p">;</span>
+        <span class="n">result_num_bytes_written</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span> <span class="c1">// Make sure no errors.</span>
+
+        <span class="c1">// Update the buffer.</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">slice</span><span class="nf">.into_inner</span><span class="p">();</span>
+        <span class="n">total_bytes_read</span> <span class="o">+=</span> <span class="n">num_bytes_read</span><span class="p">;</span>
+
+        <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
+            <span class="s">"{}: {}"</span><span class="p">,</span>
+            <span class="s">"handle_connection - num_bytes_read"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.red</span><span class="p">(),</span>
+            <span class="n">num_bytes_read</span>
+        <span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
+        <span class="s">"handle_connection - end, total_bytes_read: {}"</span><span class="p">,</span>
+        <span class="n">total_bytes_read</span>
+    <span class="p">);</span>
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>To test this, you can run the server using <code class="language-plaintext highlighter-rouge">cargo run --bin socketserver</code>. Then you can
+connect to the server using <code class="language-plaintext highlighter-rouge">netcat</code> (or <code class="language-plaintext highlighter-rouge">nc</code>) by running <code class="language-plaintext highlighter-rouge">netcat localhost 8080</code>. You can
+type some text and hit enter, and you should see the text echoed back to you.</p>
+
+<p>This is what the output from <code class="language-plaintext highlighter-rouge">netcat</code> might look like:</p>
+
+<pre class="pre-manual-highlight">netcat localhost 8080
+echo echo echo
+echo echo echo
+</pre>
+
+<p>This is what the output from the server might look like:</p>
+
+<pre class="pre-manual-highlight"> cargo run --bin socketserver
+<span style="color:#A3BE8C"> INFO</span> main ThreadId(01) Port is available
+<span style="color:#A3BE8C"> INFO</span> main ThreadId(01) <span style="color:#BF616A"><b>server - started</b></span> - 0.0.0.0:8080
+<span style="color:#A3BE8C"> INFO</span> main ThreadId(01) <span style="color:#BF616A"><b>handle_connection - start</b></span>
+<span style="color:#A3BE8C"> INFO</span> main ThreadId(01) <span style="color:#BF616A">handle_connection - num_bytes_read</span>: 10
+<span style="color:#A3BE8C"> INFO</span> main ThreadId(01) <span style="color:#BF616A">handle_connection - num_bytes_read</span>: 5
+<span style="color:#A3BE8C"> INFO</span> main ThreadId(01) <span style="color:#BF616A"><b>handle_connection - end, total bytes read</b></span> : 15 bytes
+</pre>
+
+<p>There are two more bonus rounds that we can add to this example:</p>
+<ol>
+  <li>Add a <code class="language-plaintext highlighter-rouge">ctrlc</code> handler to gracefully shutdown the server, when the user types
+<kbd>Ctrl+C</kbd>.</li>
+  <li>Add code to use the <code class="language-plaintext highlighter-rouge">tokio</code> runtime and run some futures on it.</li>
+</ol>
+
+<p>In the <code class="language-plaintext highlighter-rouge">socketserver.rs</code> file, you can add the following code to replace
+the comment <kbd>//TODO: Add ctrlc handler.</kbd>.
+The following code will add a <code class="language-plaintext highlighter-rouge">ctrlc</code> handler to gracefully
+shutdown the server, by cancelling the <code class="language-plaintext highlighter-rouge">cancellation_token</code>.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="n">cancellation_token_clone</span> <span class="o">=</span> <span class="n">cancellation_token</span><span class="nf">.clone</span><span class="p">();</span>
+<span class="nn">ctrlc</span><span class="p">::</span><span class="nf">set_handler</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Received Ctrl+C!"</span><span class="p">);</span>
+    <span class="n">cancellation_token_clone</span><span class="nf">.cancel</span><span class="p">();</span>
+<span class="p">})</span>
+<span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>And finally, the following code will replace the comment <kbd>// TODO: Add code to use the `tokio` runtime and run some futures on it.</kbd>.
+This code will spawn a new OS thread (using <code class="language-plaintext highlighter-rouge">std</code>) and then create a new multi-threaded
+<code class="language-plaintext highlighter-rouge">tokio</code> runtime on that thread. We will then run some futures on that runtime by passing an async
+block to the <code class="language-plaintext highlighter-rouge">block_on</code> function of the runtime.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Can't use #[tokio::main] for `main()`, so we have to use the</span>
+<span class="c1">// `tokio::runtime::Builder` API. However, we have to launch this in a separate</span>
+<span class="c1">// thread, because we don't want it to collide with the `tokio_uring::start()`</span>
+<span class="c1">// call.</span>
+<span class="k">let</span> <span class="n">cancellation_token_clone</span> <span class="o">=</span> <span class="n">cancellation_token</span><span class="nf">.clone</span><span class="p">();</span>
+<span class="nn">std</span><span class="p">::</span><span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+    <span class="c1">// If you use `Builder::new_current_thread()`, the runtime will</span>
+    <span class="c1">// use the single / current thread scheduler.</span>
+    <span class="c1">// `Builder::new_multi_thread()` will use a thread pool.</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nn">runtime</span><span class="p">::</span><span class="nn">Builder</span><span class="p">::</span><span class="nf">new_multi_thread</span><span class="p">()</span>
+        <span class="nf">.enable_all</span><span class="p">()</span>
+        <span class="nf">.worker_threads</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+        <span class="nf">.build</span><span class="p">()</span>
+        <span class="nf">.into_diagnostic</span><span class="p">()</span>
+        <span class="nf">.unwrap</span><span class="p">()</span>
+        <span class="nf">.block_on</span><span class="p">(</span><span class="nf">async_main</span><span class="p">(</span><span class="n">cancellation_token_clone</span><span class="p">))</span>
+<span class="p">});</span>
+</code></pre></div></div>
+
+<p>Here’s the <code class="language-plaintext highlighter-rouge">async_main</code> function that we are calling in the code above. This function
+simply runs some futures on the <code class="language-plaintext highlighter-rouge">tokio</code> runtime that we created in the code above. You can
+see from the log output that the tasks are run in parallel (sometimes on the same thread
+and sometimes on different threads), and are scheduled in a non-deterministic order.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="nf">async_main</span><span class="p">(</span><span class="n">cancellation_token</span><span class="p">:</span> <span class="n">CancellationToken</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"async_main - start"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.magenta</span><span class="p">()</span><span class="nf">.bold</span><span class="p">());</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval</span> <span class="o">=</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">interval</span><span class="p">(</span><span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">2_500</span><span class="p">));</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">interval</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
+                    <span class="s">"{}"</span><span class="p">,</span>
+                    <span class="s">"async_main - tick"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.magenta</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+                    <span class="p">);</span>
+
+                <span class="c1">// Notice in the output, that these tasks are NOT spawned</span>
+                <span class="c1">// in the same order repeatedly. They are run in parallel</span>
+                <span class="c1">// on different threads. And these are scheduled in a</span>
+                <span class="c1">// non-deterministic order.</span>
+                <span class="k">let</span> <span class="n">task_1</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="p">{</span>
+                    <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span>
+                        <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+                    <span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+                    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"async_main - tick {} - spawn"</span><span class="p">,</span> <span class="s">"#1"</span>
+                        <span class="nf">.to_string</span><span class="p">()</span><span class="nf">.on_green</span><span class="p">()</span><span class="nf">.black</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+                    <span class="p">);</span>
+                <span class="p">});</span>
+                <span class="k">let</span> <span class="n">task_2</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="p">{</span>
+                    <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span>
+                        <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+                    <span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+                    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"async_main - tick {} - spawn"</span><span class="p">,</span> <span class="s">"#2"</span>
+                        <span class="nf">.to_string</span><span class="p">()</span><span class="nf">.on_red</span><span class="p">()</span><span class="nf">.black</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+                    <span class="p">);</span>
+                <span class="p">});</span>
+                <span class="k">let</span> <span class="n">task_3</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="p">{</span>
+                    <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span>
+                        <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+                    <span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+                    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"async_main - tick {} - spawn"</span><span class="p">,</span> <span class="s">"#3"</span>
+                        <span class="nf">.to_string</span><span class="p">()</span><span class="nf">.on_blue</span><span class="p">()</span><span class="nf">.black</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+                    <span class="p">);</span>
+                <span class="p">});</span>
+                <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nd">join!</span><span class="p">(</span><span class="n">task_1</span><span class="p">,</span> <span class="n">task_2</span><span class="p">,</span> <span class="n">task_3</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">cancellation_token</span><span class="nf">.cancelled</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"async_main - cancelled"</span><span class="p">);</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"async_main - end"</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.magenta</span><span class="p">()</span><span class="nf">.bold</span><span class="p">());</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s what the output from the server might look like, after adding the <code class="language-plaintext highlighter-rouge">ctrlc</code> handler and
+the <code class="language-plaintext highlighter-rouge">tokio</code> runtime code and running it for about 10 seconds.</p>
+
+<pre class="pre-manual-highlight"> cargo run --bin socketserver
+<span style="color:#A3BE8C"> INFO</span> main ThreadId(01) Port is available
+<span style="color:#A3BE8C"> INFO</span> ThreadId(03) <span style="color:#B48EAD"><b>async_main - start</b></span>
+<span style="color:#A3BE8C"> INFO</span> main ThreadId(01) <span style="color:#BF616A"><b>server - started</b></span> - 0.0.0.0:8080
+<span style="color:#A3BE8C"> INFO</span> ThreadId(03) <span style="color:#B48EAD"><b>async_main - tick</b></span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(04) async_main - tick <span style="background-color:#81A1C1"><span style="color:#3B4252"><b>#3</b></span></span> - spawn
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(06) async_main - tick <span style="background-color:#BF616A"><span style="color:#3B4252"><b>#2</b></span></span> - spawn
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) async_main - tick <span style="background-color:#A3BE8C"><span style="color:#3B4252"><b>#1</b></span></span> - spawn
+<span style="color:#A3BE8C"> INFO</span> ThreadId(03) <span style="color:#B48EAD"><b>async_main - tick</b></span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(06) async_main - tick <span style="background-color:#BF616A"><span style="color:#3B4252"><b>#2</b></span></span> - spawn
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) async_main - tick <span style="background-color:#A3BE8C"><span style="color:#3B4252"><b>#1</b></span></span> - spawn
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(04) async_main - tick <span style="background-color:#81A1C1"><span style="color:#3B4252"><b>#3</b></span></span> - spawn
+<span style="color:#A3BE8C"> INFO</span> ThreadId(03) <span style="color:#B48EAD"><b>async_main - tick</b></span>
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(06) async_main - tick <span style="background-color:#81A1C1"><span style="color:#3B4252"><b>#3</b></span></span> - spawn
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(05) async_main - tick <span style="background-color:#A3BE8C"><span style="color:#3B4252"><b>#1</b></span></span> - spawn
+<span style="color:#A3BE8C"> INFO</span> tokio-runtime-worker ThreadId(04) async_main - tick <span style="background-color:#BF616A"><span style="color:#3B4252"><b>#2</b></span></span> - spawn
+<span style="color:#A3BE8C"> INFO</span> ThreadId(03) <span style="color:#B48EAD"><b>async_main - tick</b></span>
+</pre>
+      <h3 id="parting-thoughts">
+        
+        
+          Parting thoughts <a href="#parting-thoughts">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-parting-thoughts" name="parting-thoughts"></a></p>
+
+<p>There are areas of improvement in this codebase, such as port binding issues, and
+connection management issues.</p>
+<ol>
+  <li>If you run more than one instance of the process <code class="language-plaintext highlighter-rouge">cargo run --bin startserver</code> then the
+log output is pretty strange. The 2nd process that’s started seems to trigger the
+<code class="language-plaintext highlighter-rouge">handle_connection</code> function of the first process.</li>
+  <li>When you run the server and connect a client to it using <code class="language-plaintext highlighter-rouge">netcat</code>, and then kill the
+server process, using <kbd>Ctrl+C</kbd>, the client doesn’t drop the connection.</li>
+</ol>
+
+<p>If you can figure out how to fix these issues, please raise a PR on the <a href="https://github.com/nazmulidris/rust-scratch/issues">GitHub
+repo</a>. I’d love to see how you solve
+these problems!</p>
+      <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
+        
+        
+          Build with Naz video series on developerlife.com YouTube channel <a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        
+<blockquote>
+
+📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
+(they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
+project):
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+<p>
+<kbd>giti in action</kbd>
+<video width="100%" controls>
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4"/>
+</video>
+</p>
+
+<p>
+<kbd>edi in action</kbd>
+<video width="100%" controls>
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4"/>
+</video>
+</p>
+
+</blockquote>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/19/effective-async-rust/">
+                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/15/tokio-tracing-otel-rust/">
+                        Build with Naz : tokio tracing &amp; OTel and how to use it in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">
+                        Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/21/build-async-interactive-cli-apps-in-rust/">
+                        Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2024/05/25/tokio-uring-exploration-rust/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Subscribe to our Rust live coding
+      <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a
+      ><span class="heading-emoji"> 🦀</span>
+    </h2>
+
+    <!-- video on intro to testing (with playlist) -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- rust async readline and spinner & playlist -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=i37Ei9nCfvslOoaI&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+  <!-- rust tokio tracing and otel for async rust & playlist -->
+  <iframe
+    src="https://www.youtube.com/embed/Wf8JrLgBuKI?si=cmLaUWs-pbJ39lLc"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+  </iframe>
+
+    <br />
+    <br />
+
+    <h2 class="star-us-github-heading">
+      Use our extensions, apps, binary and library crates<span class="heading-emoji"> 📦</span>
+    </h2>
+
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-apps.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-shortlink.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a
+          href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async"
+          target="_blank"
+        >
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TERMINAL ASYNC LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_terminal_async</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+    <br />
+
+    <h2 class="star-us-github-heading">
+      Join our <a href="https://discord.gg/PhuF4qFpcA">Discord</a>
+      <span class="heading-emoji"> 💬</span>
+    </h2>
+  </section>
+</div>
+</div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

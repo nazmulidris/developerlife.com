@@ -1,4 +1,976 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-05-27T16:10:38-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Linux io_uring and tokio-uring exploration with Rust</title><link href="http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/" rel="alternate" type="text/html" title="Build with Naz : Linux io_uring and tokio-uring exploration with Rust" /><published>2024-05-25T10:00:00-05:00</published><updated>2024-05-25T10:00:00-05:00</updated><id>http://developerlife.com/2024/05/25/tokio-uring-exploration-rust</id><content type="html" xml:base="http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust_tokio_uring.svg" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-05-28T20:12:40-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Rust typestate pattern</title><link href="http://developerlife.com/2024/05/28/typestate-pattern-rust/" rel="alternate" type="text/html" title="Build with Naz : Rust typestate pattern" /><published>2024-05-28T10:00:00-05:00</published><updated>2024-05-28T10:00:00-05:00</updated><id>http://developerlife.com/2024/05/28/typestate-pattern-rust</id><content type="html" xml:base="http://developerlife.com/2024/05/28/typestate-pattern-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust-typestate-pattern.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#what-is-the-typestate-pattern">What is the typestate pattern?</a></li>
+  <li><a href="#more-resources-on-typestate-pattern-and-others-in-rust">More resources on typestate pattern and others in Rust</a></li>
+  <li><a href="#youtube-video-for-this-article">YouTube video for this article</a></li>
+  <li><a href="#examples-of-typestate-pattern-in-rust">Examples of typestate pattern in Rust</a>
+    <ul>
+      <li><a href="#example-1-simple-version-of-this-is-using-enums-to-encapsulate-states-as-variants">Example 1: Simple version of this is using enums to encapsulate states as variants</a></li>
+      <li><a href="#example-2-slightly-more-complex-versions-are-where-one-type--data--another-type">Example 2: Slightly more complex versions are where one type + data = another type</a></li>
+      <li><a href="#example-3-best-of-both-worlds-using-generics-and-struct--enum-with-a-marker-trait">Example 3: Best of both worlds, using generics and struct / enum with a marker trait</a></li>
+      <li><a href="#parting-thoughts">Parting thoughts</a></li>
+    </ul>
+  </li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+
+<h2 id="what-is-the-typestate-pattern">What is the typestate pattern?</h2>
+<p><a id="markdown-what-is-the-typestate-pattern%3F" name="what-is-the-typestate-pattern%3F"></a></p>
+
+<p>The Typestate Pattern in Rust is a way to manage objects that go through different states
+in their lifecycle. It leverages Rust’s powerful type system to enforce these states and
+transitions between them, making your code safer and more predictable.</p>
+
+<p>Here are the key ideas behind the Typestate Pattern:</p>
+
+<ul>
+  <li><em>States as structs</em>: Each possible state of the object is represented by a separate
+struct. This lets you associate specific methods and data with each state.</li>
+  <li><em>Transitions with ownership</em>: Methods that transition the object to a new state consume
+the old state and return a value representing the new state. Rust’s ownership system
+ensures you can’t accidentally use the object in an invalid state.</li>
+  <li><em>Encapsulated functionality</em>: Methods are only available on the structs representing the
+valid states. This prevents you from trying to perform actions that aren’t allowed in
+the current state.</li>
+</ul>
+
+<p>Benefits of using the Typestate Pattern:</p>
+
+<ul>
+  <li><em>Safer code</em>: By statically checking types at compile time, the compiler prevents you from
+accidentally using the object in an invalid state. This leads to fewer runtime errors
+and more robust code.</li>
+  <li><em>Improved readability</em>: The code becomes more self-documenting because the valid state
+transitions are encoded in the types themselves.</li>
+  <li><em>Clearer APIs</em>: By separating functionality based on state, APIs become more intuitive and
+easier to understand.</li>
+</ul>
+
+<h2 id="more-resources-on-typestate-pattern-and-others-in-rust">More resources on typestate pattern and others in Rust</h2>
+<p><a id="markdown-more-resources-on-typestate-pattern-and-others-in-rust" name="more-resources-on-typestate-pattern-and-others-in-rust"></a></p>
+
+<ul>
+  <li><a href="https://arxiv.org/pdf/2307.07069">Functional typed design patterns</a>.</li>
+  <li><a href="https://gemini.google.com/app/5bd7fed51858cb4d">Enums and typestate (and limitations)</a>.</li>
+  <li><a href="https://willcrichton.net/rust-api-type-patterns/typestate.html">Type-Driven API Design in Rust</a>.</li>
+  <li><a href="https://ruk.si/notes/rust/typestate/">Rust typestate notes</a>.</li>
+  <li><a href="https://rustype.github.io/notes/notes/rust-typestate-series/rust-typestate-part-1">Rusty Typestates - Starting Out</a>.</li>
+  <li><a href="https://docs.rust-embedded.org/book/static-guarantees/typestate-programming.html">The Embedded Rust Book - Typestate programming</a>.</li>
+  <li><a href="https://yoric.github.io/post/rust-typestate/">Typestates in Rust</a>.</li>
+</ul>
+
+<h2 id="youtube-video-for-this-article">YouTube video for this article</h2>
+<p><a id="markdown-youtube-video-for-this-article" name="youtube-video-for-this-article"></a></p>
+
+<p>This blog post has short examples on how to use the typestate pattern in Rust. If you like
+to learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
+channel</a>.</p>
+
+<!-- rust typestate pattern -->
+<iframe src="https://www.youtube.com/embed/FTSb0dyDOCA?si=ZdUYIxxGTsaAC1B3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<p><br /></p>
+
+<h2 id="examples-of-typestate-pattern-in-rust">Examples of typestate pattern in Rust</h2>
+<p><a id="markdown-examples-of-typestate-pattern-in-rust" name="examples-of-typestate-pattern-in-rust"></a></p>
+
+<p>Let’s create some examples to illustrate how to use the typestate pattern in Rust. You can run
+<code class="language-plaintext highlighter-rouge">cargo new --bin typestate-pattern</code> to create a new binary crate.</p>
+
+<blockquote>
+  <p>The code in the video and this tutorial are all in <a href="https://github.com/nazmulidris/rust-scratch/blob/main/typestate-pattern/">this GitHub
+repo</a>.</p>
+</blockquote>
+
+<p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
+dependencies that we need for these examples.</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"typestate-pattern"</span>
+<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
+<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+
+<span class="nn">[[bin]]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"ex1"</span>
+<span class="py">path</span> <span class="p">=</span> <span class="s">"src/ex1.rs"</span>
+
+<span class="nn">[[bin]]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"ex2"</span>
+<span class="py">path</span> <span class="p">=</span> <span class="s">"src/ex2.rs"</span>
+
+<span class="nn">[[bin]]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"ex3"</span>
+<span class="py">path</span> <span class="p">=</span> <span class="s">"src/ex3.rs"</span>
+
+<span class="nn">[[bin]]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"ex3_1"</span>
+<span class="py">path</span> <span class="p">=</span> <span class="s">"src/ex3_1.rs"</span>
+
+<span class="c"># See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html</span>
+
+<span class="nn">[dependencies]</span>
+<span class="py">crossterm</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.27.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"event-stream"</span><span class="p">]</span> <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="example-1-simple-version-of-this-is-using-enums-to-encapsulate-states-as-variants">Example 1: Simple version of this is using enums to encapsulate states as variants</h3>
+<p><a id="markdown-example-1%3A-simple-version-of-this-is-using-enums-to-encapsulate-states-as-variants" name="example-1%3A-simple-version-of-this-is-using-enums-to-encapsulate-states-as-variants"></a></p>
+
+<p>Then you can add the following code to the <code class="language-plaintext highlighter-rouge">src/ex1.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Debug)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">InputEvent</span> <span class="p">{</span>
+    <span class="nf">Keyboard</span><span class="p">((</span><span class="n">KeyPress</span><span class="p">,</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="n">Modifier</span><span class="o">&gt;&gt;</span><span class="p">)),</span>
+    <span class="nf">Resize</span><span class="p">(</span><span class="n">Size</span><span class="p">),</span>
+    <span class="nf">Mouse</span><span class="p">(</span><span class="n">MouseEvent</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="nd">#[derive(Debug)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">Modifier</span> <span class="p">{</span>
+    <span class="n">Shift</span><span class="p">,</span>
+    <span class="n">Control</span><span class="p">,</span>
+    <span class="n">Alt</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="nd">#[derive(Debug)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">KeyPress</span> <span class="p">{</span>
+    <span class="nf">Char</span><span class="p">(</span><span class="nb">char</span><span class="p">),</span>
+    <span class="n">Enter</span><span class="p">,</span>
+    <span class="n">Backspace</span><span class="p">,</span>
+    <span class="n">Delete</span><span class="p">,</span>
+    <span class="n">Left</span><span class="p">,</span>
+    <span class="n">Right</span><span class="p">,</span>
+    <span class="n">Up</span><span class="p">,</span>
+    <span class="n">Down</span><span class="p">,</span>
+    <span class="n">Home</span><span class="p">,</span>
+    <span class="n">End</span><span class="p">,</span>
+    <span class="n">PageUp</span><span class="p">,</span>
+    <span class="n">PageDown</span><span class="p">,</span>
+    <span class="n">Tab</span><span class="p">,</span>
+    <span class="nf">F</span><span class="p">(</span><span class="nb">u8</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="nd">#[derive(Debug)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">Size</span> <span class="p">{</span>
+    <span class="nf">Height</span><span class="p">(</span><span class="nb">u16</span><span class="p">),</span>
+    <span class="nf">Width</span><span class="p">(</span><span class="nb">u16</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="nd">#[derive(Debug)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">MouseEvent</span> <span class="p">{</span>
+    <span class="nf">Press</span><span class="p">(</span><span class="n">MouseButton</span><span class="p">,</span> <span class="nb">u16</span><span class="p">,</span> <span class="nb">u16</span><span class="p">),</span>
+    <span class="nf">Release</span><span class="p">(</span><span class="nb">u16</span><span class="p">,</span> <span class="nb">u16</span><span class="p">),</span>
+    <span class="nf">Hold</span><span class="p">(</span><span class="nb">u16</span><span class="p">,</span> <span class="nb">u16</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="nd">#[derive(Debug)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">MouseButton</span> <span class="p">{</span>
+    <span class="n">Left</span><span class="p">,</span>
+    <span class="n">Right</span><span class="p">,</span>
+    <span class="n">Middle</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">InputEvent</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">pretty_print</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="k">match</span> <span class="k">self</span> <span class="p">{</span>
+            <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Keyboard</span><span class="p">((</span><span class="n">keypress</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">let</span> <span class="k">mut</span> <span class="n">result</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">keypress</span><span class="p">);</span>
+                <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">modifiers</span><span class="p">)</span> <span class="o">=</span> <span class="n">modifiers</span> <span class="p">{</span>
+                    <span class="n">result</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">));</span>
+                <span class="p">}</span>
+                <span class="n">result</span>
+            <span class="p">}</span>
+            <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Resize</span><span class="p">(</span><span class="n">size</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span>
+            <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Mouse</span><span class="p">(</span><span class="n">mouse_event</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">mouse_event</span><span class="p">),</span>
+        <span class="p">};</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">it</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">a_pressed</span> <span class="o">=</span> <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Keyboard</span><span class="p">((</span><span class="nn">KeyPress</span><span class="p">::</span><span class="nf">Char</span><span class="p">(</span><span class="sc">'a'</span><span class="p">),</span> <span class="nb">None</span><span class="p">));</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">a_pressed</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">ctrl_c_pressed</span> <span class="o">=</span> <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Keyboard</span><span class="p">(</span>
+        <span class="p">(</span><span class="nn">KeyPress</span><span class="p">::</span><span class="nf">Char</span><span class="p">(</span><span class="sc">'c'</span><span class="p">),</span> <span class="nf">Some</span><span class="p">(</span><span class="nd">vec!</span><span class="p">[</span><span class="nn">Modifier</span><span class="p">::</span><span class="n">Control</span><span class="p">]))</span>
+    <span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">ctrl_c_pressed</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">enter_pressed</span> <span class="o">=</span> <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Keyboard</span><span class="p">((</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Enter</span><span class="p">,</span> <span class="nb">None</span><span class="p">));</span>
+    <span class="n">enter_pressed</span><span class="nf">.pretty_print</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="n">mouse_pressed</span> <span class="o">=</span> <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Mouse</span><span class="p">(</span>
+        <span class="nn">MouseEvent</span><span class="p">::</span><span class="nf">Press</span><span class="p">(</span><span class="nn">MouseButton</span><span class="p">::</span><span class="n">Left</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+    <span class="p">);</span>
+    <span class="n">mouse_pressed</span><span class="nf">.pretty_print</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/typestate-pattern/src/ex1.rs">here</a>.
+Here’s the code for the real
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/terminal_lib_backends/input_event.rs"><code class="language-plaintext highlighter-rouge">InputEvent</code></a>.</p>
+</blockquote>
+
+<p>The main things to note about this code.</p>
+
+<ul>
+  <li>We have a bunch of enums that represent different types of input events.</li>
+  <li>We have a method on the <code class="language-plaintext highlighter-rouge">InputEvent</code> enum that pretty prints the event for all variants.
+We don’t have a way to restrict methods on a specific variant using this approach.</li>
+</ul>
+
+<p>When you run this code (using <code class="language-plaintext highlighter-rouge">cargo run --bin ex1</code>), it should produce the following
+output:</p>
+
+<pre class="pre-manual-highlight">$ cargo run --bin ex1
+Keyboard((Char('a'), None))
+Keyboard((Char('c'), Some([Control])))
+Enter
+Press(Left, 10, 20)
+</pre>
+
+<h3 id="example-2-slightly-more-complex-versions-are-where-one-type--data--another-type">Example 2: Slightly more complex versions are where one type + data = another type</h3>
+<p><a id="markdown-example-2%3A-slightly-more-complex-versions-are-where-one-type-%2B-data-%3D-another-type" name="example-2%3A-slightly-more-complex-versions-are-where-one-type-%2B-data-%3D-another-type"></a></p>
+
+<p>For this example, let’s add the following code to the <code class="language-plaintext highlighter-rouge">src/ex2.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">mod</span> <span class="n">ex1</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">ex1</span><span class="p">::</span><span class="n">InputEvent</span><span class="p">;</span>
+
+<span class="nd">#[derive(Debug)]</span>
+<span class="k">pub</span> <span class="k">enum</span> <span class="n">EditorEvent</span> <span class="p">{</span>
+    <span class="nf">InsertChar</span><span class="p">(</span><span class="nb">char</span><span class="p">),</span>
+    <span class="n">InsertNewLine</span><span class="p">,</span>
+    <span class="n">Delete</span><span class="p">,</span>
+    <span class="n">Backspace</span><span class="p">,</span>
+    <span class="n">MoveCursorLeft</span><span class="p">,</span>
+    <span class="n">MoveCursorRight</span><span class="p">,</span>
+    <span class="n">MoveCursorUp</span><span class="p">,</span>
+    <span class="n">MoveCursorDown</span><span class="p">,</span>
+    <span class="nb">Copy</span><span class="p">,</span>
+    <span class="n">Paste</span><span class="p">,</span>
+    <span class="n">Cut</span><span class="p">,</span>
+    <span class="n">Undo</span><span class="p">,</span>
+    <span class="n">Redo</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="nb">TryFrom</span><span class="o">&lt;</span><span class="n">InputEvent</span><span class="o">&gt;</span> <span class="k">for</span> <span class="n">EditorEvent</span> <span class="p">{</span>
+    <span class="k">type</span> <span class="n">Error</span> <span class="o">=</span> <span class="nb">String</span><span class="p">;</span>
+
+    <span class="k">fn</span> <span class="nf">try_from</span><span class="p">(</span><span class="n">input_event</span><span class="p">:</span> <span class="n">InputEvent</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="k">Self</span><span class="p">,</span> <span class="k">Self</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">match</span> <span class="n">input_event</span> <span class="p">{</span>
+            <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Keyboard</span><span class="p">((</span><span class="n">keypress</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">))</span> <span class="k">=&gt;</span>
+                <span class="k">match</span> <span class="p">(</span><span class="n">keypress</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="nf">Char</span><span class="p">(</span><span class="n">ch</span><span class="p">),</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nf">Ok</span><span class="p">(</span><span class="k">Self</span><span class="p">::</span><span class="nf">InsertChar</span><span class="p">(</span><span class="n">ch</span><span class="p">)),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="nf">Char</span><span class="p">(</span><span class="n">_</span><span class="p">),</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Enter</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nf">Ok</span><span class="p">(</span><span class="k">Self</span><span class="p">::</span><span class="n">InsertNewLine</span><span class="p">),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Enter</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Backspace</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Backspace</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Delete</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Delete</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Left</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Left</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Right</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Right</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Up</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Up</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Down</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Down</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Home</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Home</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">End</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">End</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">PageUp</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">PageUp</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">PageDown</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">PageDown</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Tab</span><span class="p">,</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Tab</span><span class="p">,</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="nf">F</span><span class="p">(</span><span class="n">_</span><span class="p">),</span> <span class="nb">None</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="nf">F</span><span class="p">(</span><span class="n">_</span><span class="p">),</span> <span class="nf">Some</span><span class="p">(</span><span class="n">_</span><span class="p">))</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+            <span class="p">},</span>
+            <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Resize</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+            <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Mouse</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nd">todo!</span><span class="p">(),</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">a_pressed</span> <span class="o">=</span> <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Keyboard</span><span class="p">((</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="nf">Char</span><span class="p">(</span><span class="sc">'a'</span><span class="p">),</span> <span class="nb">None</span><span class="p">));</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="nn">EditorEvent</span><span class="p">::</span><span class="nf">try_from</span><span class="p">(</span><span class="n">a_pressed</span><span class="p">));</span>
+
+    <span class="k">let</span> <span class="n">enter_pressed</span> <span class="o">=</span> <span class="nn">InputEvent</span><span class="p">::</span><span class="nf">Keyboard</span><span class="p">((</span><span class="nn">ex1</span><span class="p">::</span><span class="nn">KeyPress</span><span class="p">::</span><span class="n">Enter</span><span class="p">,</span> <span class="nb">None</span><span class="p">));</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="nn">EditorEvent</span><span class="p">::</span><span class="nf">try_from</span><span class="p">(</span><span class="n">enter_pressed</span><span class="p">));</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<blockquote>
+  <p>You can get the source code for this example
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/typestate-pattern/src/ex2.rs">here</a>.
+Here’s the code for the real
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/editor/editor_component/editor_event.rs#L74"><code class="language-plaintext highlighter-rouge">EditorEvent</code></a>.</p>
+</blockquote>
+
+<p>Here are some notes on this code:</p>
+
+<ul>
+  <li>We have a new enum called <code class="language-plaintext highlighter-rouge">EditorEvent</code> that represents different types of events that
+can happen in an editor.</li>
+  <li>We have a <code class="language-plaintext highlighter-rouge">TryFrom</code> implementation for <code class="language-plaintext highlighter-rouge">InputEvent</code> that converts an <code class="language-plaintext highlighter-rouge">InputEvent</code> into
+an <code class="language-plaintext highlighter-rouge">EditorEvent</code>. This is a way to restrict methods to specific variants of an enum by
+converting it into a totally different type.</li>
+  <li>We still don’t have a way to restrict methods to specific variants of the enum.</li>
+</ul>
+
+<p>When you run this code (using <code class="language-plaintext highlighter-rouge">cargo run --bin ex2</code>), it should produce the following:</p>
+
+<pre class="pre-manual-highlight">$ cargo run --bin ex2
+Ok(InsertChar('a'))
+Ok(InsertNewLine)
+</pre>
+
+<h3 id="example-3-best-of-both-worlds-using-generics-and-struct--enum-with-a-marker-trait">Example 3: Best of both worlds, using generics and struct / enum with a marker trait</h3>
+<p><a id="markdown-example-3%3A-best-of-both-worlds%2C-using-generics-and-struct-%2F-enum-with-a-marker-trait" name="example-3%3A-best-of-both-worlds%2C-using-generics-and-struct-%2F-enum-with-a-marker-trait"></a></p>
+
+<p>Finally we have arrived at the typestate pattern in Rust. With this example:</p>
+<ul>
+  <li>You can now group all the states under a marker.</li>
+  <li>You can have methods that are specific to a variant.</li>
+  <li>You can specify methods that are common to all.</li>
+  <li>It’s like a very sophisticated builder pattern if you’re already familiar with that.</li>
+</ul>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">src/ex3.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="k">self</span><span class="p">::</span><span class="nn">type_state_builder</span><span class="p">::</span><span class="n">HttpResponse</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="n">Stylize</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">String</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">response</span> <span class="o">=</span> <span class="nn">HttpResponse</span><span class="p">::</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"Start state"</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"response size: {}"</span><span class="p">,</span>
+        <span class="n">response</span><span class="nf">.get_size</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Transition to HeaderAndBody state by calling `set_status_line`.</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">response</span> <span class="o">=</span> <span class="n">response</span><span class="nf">.set_status_line</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="s">"OK"</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
+
+    <span class="c1">// Status line is required.</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"HeaderAndBody state"</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response_code: {}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_response_code</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response body: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_body</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"response size: {}"</span><span class="p">,</span>
+        <span class="n">response</span><span class="nf">.get_size</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Body and headers are optional.</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"HeaderAndBody state # 2"</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">());</span>
+    <span class="n">response</span><span class="nf">.add_header</span><span class="p">(</span><span class="s">"Content-Type"</span><span class="p">,</span> <span class="s">"text/html"</span><span class="p">);</span>
+    <span class="n">response</span><span class="nf">.set_body</span><span class="p">(</span><span class="s">"&lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;"</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"response size: {}"</span><span class="p">,</span>
+        <span class="n">response</span><span class="nf">.get_size</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Final state.</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"Final state"</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">());</span>
+    <span class="k">let</span> <span class="n">response</span> <span class="o">=</span> <span class="n">response</span><span class="nf">.finish</span><span class="p">();</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response_code: {}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_response_code</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"status_line: {}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_status_line</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"headers: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_headers</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"body: {}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_body</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"response size: {}"</span><span class="p">,</span>
+        <span class="n">response</span><span class="nf">.get_size</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Note the API that we have built here:</p>
+<ul>
+  <li>You can’t call <code class="language-plaintext highlighter-rouge">get_response_code</code> or <code class="language-plaintext highlighter-rouge">get_body</code> until you’ve called <code class="language-plaintext highlighter-rouge">set_status_line</code>.</li>
+  <li>You can’t call <code class="language-plaintext highlighter-rouge">add_header</code> or <code class="language-plaintext highlighter-rouge">set_body</code> until you’ve called <code class="language-plaintext highlighter-rouge">set_status_line</code>.</li>
+  <li>You can’t call <code class="language-plaintext highlighter-rouge">finish</code> until you’ve called <code class="language-plaintext highlighter-rouge">set_status_line</code>.</li>
+  <li>We have 3 states: <code class="language-plaintext highlighter-rouge">Start</code>, <code class="language-plaintext highlighter-rouge">HeaderAndBody</code>, and <code class="language-plaintext highlighter-rouge">Final</code>. These are meant to be used as
+markers to restrict methods to specific states. Each is a struct with a marker trait.
+And it may or may not contain data / fields.</li>
+  <li>We have a <code class="language-plaintext highlighter-rouge">HttpResponse</code> struct that uses a generic type <code class="language-plaintext highlighter-rouge">T: Marker</code> to represent the
+state. This is a way to restrict methods to specific states.</li>
+  <li>We can transition between states by calling methods that consume the current state and
+return a new state. These methods are specific to the state they transition from. And
+they can be implemented via <code class="language-plaintext highlighter-rouge">impl HttpResponse&lt;T: Marker&gt; { ... }</code> blocks, where <code class="language-plaintext highlighter-rouge">T</code> is
+the <code class="language-plaintext highlighter-rouge">Start</code>, <code class="language-plaintext highlighter-rouge">HeaderAndBody</code>, or <code class="language-plaintext highlighter-rouge">Final</code> state.</li>
+  <li>We can even implement methods that are valid for a non-existent state using <code class="language-plaintext highlighter-rouge">impl
+HttpResponse&lt;()&gt; { ... }</code>. This is the constructor.</li>
+  <li>In the <code class="language-plaintext highlighter-rouge">Final</code> state, the data becomes immutable.</li>
+</ul>
+
+<p>Add the following code to desribe the different state structs.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">mod</span> <span class="n">state</span> <span class="p">{</span>
+    <span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">Default)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">Start</span> <span class="p">{}</span>
+
+    <span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">Default)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">HeaderAndBody</span> <span class="p">{</span>
+        <span class="k">pub</span> <span class="n">response_code</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+        <span class="k">pub</span> <span class="n">status_line</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+        <span class="k">pub</span> <span class="n">headers</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="p">(</span><span class="nb">String</span><span class="p">,</span> <span class="nb">String</span><span class="p">)</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+        <span class="k">pub</span> <span class="n">body</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">Default)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">Final</span> <span class="p">{</span>
+        <span class="k">pub</span> <span class="n">response_code</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+        <span class="k">pub</span> <span class="n">status_line</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+        <span class="k">pub</span> <span class="n">headers</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="p">(</span><span class="nb">String</span><span class="p">,</span> <span class="nb">String</span><span class="p">)</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="k">pub</span> <span class="n">body</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1">// The following marker trait is used to restrict the operations</span>
+    <span class="c1">// that are available in each state. This isn't strictly necessary,</span>
+    <span class="c1">// but it's a nice thing to use in a where clause to restrict types.</span>
+    <span class="k">pub</span> <span class="k">trait</span> <span class="n">Marker</span> <span class="p">{}</span>
+    <span class="k">impl</span> <span class="n">Marker</span> <span class="k">for</span> <span class="p">()</span> <span class="p">{}</span>
+    <span class="k">impl</span> <span class="n">Marker</span> <span class="k">for</span> <span class="n">Start</span> <span class="p">{}</span>
+    <span class="k">impl</span> <span class="n">Marker</span> <span class="k">for</span> <span class="n">HeaderAndBody</span> <span class="p">{}</span>
+    <span class="k">impl</span> <span class="n">Marker</span> <span class="k">for</span> <span class="n">Final</span> <span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here is the code for the <code class="language-plaintext highlighter-rouge">HttpResponse</code> struct.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">mod</span> <span class="n">type_state_builder</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="nn">state</span><span class="p">::{</span><span class="n">Final</span><span class="p">,</span> <span class="n">HeaderAndBody</span><span class="p">,</span> <span class="n">Marker</span><span class="p">,</span> <span class="n">Start</span><span class="p">};</span>
+
+    <span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">Default)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">S</span><span class="p">:</span> <span class="n">Marker</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">pub</span> <span class="n">state</span><span class="p">:</span> <span class="n">S</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Operations that are available in all states.</span>
+    <span class="k">impl</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span>
+    <span class="k">where</span>
+        <span class="n">S</span><span class="p">:</span> <span class="n">Marker</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_size</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">len</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">mem</span><span class="p">::</span><span class="nf">size_of_val</span><span class="p">(</span><span class="k">self</span><span class="p">);</span>
+            <span class="nd">format!</span><span class="p">(</span><span class="s">"{} bytes"</span><span class="p">,</span> <span class="n">len</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Operations that are only valid in `()`.</span>
+    <span class="k">impl</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Start</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="n">HttpResponse</span> <span class="p">{</span> <span class="n">state</span><span class="p">:</span> <span class="n">Start</span> <span class="p">{}</span> <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Operations that are only valid in `Start`.</span>
+    <span class="k">impl</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Start</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">set_status_line</span><span class="p">(</span>
+            <span class="k">self</span><span class="p">,</span>
+            <span class="n">response_code</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+            <span class="n">message</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">-&gt;</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">HeaderAndBody</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="n">HttpResponse</span> <span class="p">{</span>
+                <span class="n">state</span><span class="p">:</span> <span class="n">HeaderAndBody</span> <span class="p">{</span>
+                    <span class="n">response_code</span><span class="p">,</span>
+                    <span class="n">status_line</span><span class="p">:</span> <span class="nd">format!</span><span class="p">(</span>
+                        <span class="s">"HTTP/1.1 {} {}"</span><span class="p">,</span> <span class="n">response_code</span><span class="p">,</span> <span class="n">message</span>
+                    <span class="p">),</span>
+                    <span class="o">..</span><span class="nn">Default</span><span class="p">::</span><span class="nf">default</span><span class="p">()</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Operations that are only valid in `HeaderAndBodyState`.</span>
+    <span class="k">impl</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">HeaderAndBody</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// setter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">add_header</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">if</span> <span class="k">self</span><span class="py">.state.headers</span><span class="nf">.is_none</span><span class="p">()</span> <span class="p">{</span>
+                <span class="k">self</span><span class="py">.state.headers</span><span class="nf">.replace</span><span class="p">(</span><span class="nn">Vec</span><span class="p">::</span><span class="nf">new</span><span class="p">());</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">=</span> <span class="k">self</span><span class="py">.state.headers</span><span class="nf">.as_mut</span><span class="p">()</span> <span class="p">{</span>
+                <span class="n">v</span><span class="nf">.push</span><span class="p">((</span><span class="n">key</span><span class="nf">.to_string</span><span class="p">(),</span> <span class="n">value</span><span class="nf">.to_string</span><span class="p">()))</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c1">// getter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_response_code</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">u8</span> <span class="p">{</span>
+            <span class="k">self</span><span class="py">.state.response_code</span>
+        <span class="p">}</span>
+
+        <span class="c1">// setter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">set_body</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">self</span><span class="py">.state.body</span><span class="nf">.replace</span><span class="p">(</span><span class="n">body</span><span class="nf">.to_string</span><span class="p">());</span>
+        <span class="p">}</span>
+
+        <span class="c1">// getter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_body</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="nb">str</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="k">self</span><span class="py">.state.body</span><span class="nf">.as_deref</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="c1">// transition to Final state.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">finish</span><span class="p">(</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Final</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="n">HttpResponse</span> <span class="p">{</span>
+                <span class="n">state</span><span class="p">:</span> <span class="n">Final</span> <span class="p">{</span>
+                    <span class="n">response_code</span><span class="p">:</span> <span class="k">self</span><span class="py">.state.response_code</span><span class="p">,</span>
+                    <span class="n">status_line</span><span class="p">:</span> <span class="k">self</span><span class="py">.state.status_line</span><span class="nf">.clone</span><span class="p">(),</span>
+                    <span class="n">headers</span><span class="p">:</span> <span class="k">self</span><span class="py">.state.headers</span><span class="nf">.take</span><span class="p">()</span><span class="nf">.unwrap_or_default</span><span class="p">(),</span>
+                    <span class="n">body</span><span class="p">:</span> <span class="k">self</span><span class="py">.state.body</span><span class="nf">.take</span><span class="p">()</span><span class="nf">.unwrap_or_default</span><span class="p">(),</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Operations that are only valid in `Final`.</span>
+    <span class="k">impl</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Final</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// getter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_headers</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="p">(</span><span class="nb">String</span><span class="p">,</span> <span class="nb">String</span><span class="p">)</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="o">&amp;</span><span class="k">self</span><span class="py">.state.headers</span>
+        <span class="p">}</span>
+
+        <span class="c1">// getter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_body</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="p">{</span>
+            <span class="o">&amp;</span><span class="k">self</span><span class="py">.state.body</span>
+        <span class="p">}</span>
+
+        <span class="c1">// getter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_response_code</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">u8</span> <span class="p">{</span>
+            <span class="k">self</span><span class="py">.state.response_code</span>
+        <span class="p">}</span>
+
+        <span class="c1">// getter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_status_line</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="p">{</span>
+            <span class="o">&amp;</span><span class="k">self</span><span class="py">.state.status_line</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When you run the code using <code class="language-plaintext highlighter-rouge">cargo run --bin ex3</code>, it should produce the following output.</p>
+
+<pre class="pre-manual-highlight">$ cargo run --bin ex3
+<span style="color:#BF616A"><u style="text-decoration-style:single"><b>Start state</b></u></span>
+response: HttpResponse {
+    state: Start,
+}
+response size: <span style="color:#81A1C1"><b>0 bytes</b></span>
+response: HttpResponse {
+    state: HeaderAndBody {
+        response_code: 200,
+        status_line: &quot;HTTP/1.1 200 OK&quot;,
+        headers: None,
+        body: None,
+    },
+}
+<span style="color:#BF616A"><u style="text-decoration-style:single"><b>HeaderAndBody state</b></u></span>
+response_code: 200
+response body: None
+response: HttpResponse {
+    state: HeaderAndBody {
+        response_code: 200,
+        status_line: &quot;HTTP/1.1 200 OK&quot;,
+        headers: None,
+        body: None,
+    },
+}
+response size: <span style="color:#81A1C1"><b>80 bytes</b></span>
+<span style="color:#BF616A"><u style="text-decoration-style:single"><b>HeaderAndBody state # 2</b></u></span>
+response: HttpResponse {
+    state: HeaderAndBody {
+        response_code: 200,
+        status_line: &quot;HTTP/1.1 200 OK&quot;,
+        headers: Some(
+            [
+                (
+                    &quot;Content-Type&quot;,
+                    &quot;text/html&quot;,
+                ),
+            ],
+        ),
+        body: Some(
+            &quot;&lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;&quot;,
+        ),
+    },
+}
+response size: <span style="color:#81A1C1"><b>80 bytes</b></span>
+<span style="color:#BF616A"><u style="text-decoration-style:single"><b>Final state</b></u></span>
+response_code: 200
+status_line: HTTP/1.1 200 OK
+headers: [
+    (
+        &quot;Content-Type&quot;,
+        &quot;text/html&quot;,
+    ),
+]
+body: &lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;
+response: HttpResponse {
+    state: Final {
+        response_code: 200,
+        status_line: &quot;HTTP/1.1 200 OK&quot;,
+        headers: [
+            (
+                &quot;Content-Type&quot;,
+                &quot;text/html&quot;,
+            ),
+        ],
+        body: &quot;&lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;&quot;,
+    },
+}
+response size: <span style="color:#81A1C1"><b>80 bytes</b></span>
+</pre>
+
+<h3 id="example-31-using-enum-and-phantomdata-instead-of-struct">Example 3.1: Using enum and PhantomData instead of struct</h3>
+
+<ul>
+  <li>You can use enums instead of structs if you have shared data (inner) that you move with
+state transitions.</li>
+  <li>And you have to use <code class="language-plaintext highlighter-rouge">PhantomData</code> here.</li>
+</ul>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">src/ex3_1.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="k">self</span><span class="p">::</span><span class="nn">type_state_builder</span><span class="p">::</span><span class="n">HttpResponse</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="n">Stylize</span><span class="p">;</span>
+
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">String</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">response</span> <span class="o">=</span> <span class="nn">HttpResponse</span><span class="p">::</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"Start state"</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"response size: {}"</span><span class="p">,</span>
+        <span class="n">response</span><span class="nf">.get_size</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Status line is required.</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"HeaderAndBody state"</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">());</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">response</span> <span class="o">=</span> <span class="n">response</span><span class="nf">.set_status_line</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="s">"OK"</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response_code: {}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_response_code</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response body: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_body</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"response size: {}"</span><span class="p">,</span>
+        <span class="n">response</span><span class="nf">.get_size</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Body and headers are optional.</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"HeaderAndBody state # 2"</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">());</span>
+    <span class="n">response</span><span class="nf">.add_header</span><span class="p">(</span><span class="s">"Content-Type"</span><span class="p">,</span> <span class="s">"text/html"</span><span class="p">);</span>
+    <span class="n">response</span><span class="nf">.set_body</span><span class="p">(</span><span class="s">"&lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;"</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"response size: {}"</span><span class="p">,</span>
+        <span class="n">response</span><span class="nf">.get_size</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Final state.</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"Final state"</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">());</span>
+    <span class="k">let</span> <span class="n">response</span> <span class="o">=</span> <span class="n">response</span><span class="nf">.finish</span><span class="p">();</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response_code: {}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_response_code</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"status_line: {}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_status_line</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"headers: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_headers</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"body: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="nf">.get_body</span><span class="p">());</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"response: {:#?}"</span><span class="p">,</span> <span class="n">response</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"response size: {}"</span><span class="p">,</span>
+        <span class="n">response</span><span class="nf">.get_size</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">()</span>
+    <span class="p">);</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Note that this <code class="language-plaintext highlighter-rouge">main</code> function is the same as the one in the previous example.</p>
+
+<p>The following code will be different. We are adding a new <code class="language-plaintext highlighter-rouge">data</code> module.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">mod</span> <span class="n">data</span> <span class="p">{</span>
+    <span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">Default)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">HttpResponseData</span> <span class="p">{</span>
+        <span class="k">pub</span> <span class="n">response_code</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+        <span class="k">pub</span> <span class="n">status_line</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+        <span class="k">pub</span> <span class="n">headers</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="p">(</span><span class="nb">String</span><span class="p">,</span> <span class="nb">String</span><span class="p">)</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+        <span class="k">pub</span> <span class="n">body</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the new <code class="language-plaintext highlighter-rouge">state</code> module. Note the use of enums and <code class="language-plaintext highlighter-rouge">PhantomData</code> instead of structs.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">mod</span> <span class="n">state</span> <span class="p">{</span>
+    <span class="nd">#[derive(Debug,</span> <span class="nd">Clone)]</span>
+    <span class="k">pub</span> <span class="k">enum</span> <span class="n">Start</span> <span class="p">{}</span>
+
+    <span class="nd">#[derive(Debug,</span> <span class="nd">Clone)]</span>
+    <span class="k">pub</span> <span class="k">enum</span> <span class="n">HeaderAndBody</span> <span class="p">{}</span>
+
+    <span class="nd">#[derive(Debug,</span> <span class="nd">Clone)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">Final</span> <span class="p">{}</span>
+
+    <span class="c1">// The following marker trait is used to restrict the operations</span>
+    <span class="c1">// that are available in each state. This isn't strictly necessary,</span>
+    <span class="c1">// but it's a nice thing to use in a where clause to restrict types.</span>
+    <span class="k">pub</span> <span class="k">trait</span> <span class="n">Marker</span> <span class="p">{}</span>
+    <span class="k">impl</span> <span class="n">Marker</span> <span class="k">for</span> <span class="p">()</span> <span class="p">{}</span>
+    <span class="k">impl</span> <span class="n">Marker</span> <span class="k">for</span> <span class="n">Start</span> <span class="p">{}</span>
+    <span class="k">impl</span> <span class="n">Marker</span> <span class="k">for</span> <span class="n">HeaderAndBody</span> <span class="p">{}</span>
+    <span class="k">impl</span> <span class="n">Marker</span> <span class="k">for</span> <span class="n">Final</span> <span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here is the changed code for the <code class="language-plaintext highlighter-rouge">HttpResponse</code> struct.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">mod</span> <span class="n">type_state_builder</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="k">super</span><span class="p">::{</span>
+        <span class="nn">data</span><span class="p">::</span><span class="n">HttpResponseData</span><span class="p">,</span>
+        <span class="nn">state</span><span class="p">::{</span><span class="n">Final</span><span class="p">,</span> <span class="n">HeaderAndBody</span><span class="p">,</span> <span class="n">Marker</span><span class="p">,</span> <span class="n">Start</span><span class="p">},</span>
+    <span class="p">};</span>
+    <span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">marker</span><span class="p">::</span><span class="n">PhantomData</span><span class="p">;</span>
+
+    <span class="nd">#[derive(Debug,</span> <span class="nd">Clone)]</span>
+    <span class="k">pub</span> <span class="k">struct</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">S</span><span class="p">:</span> <span class="n">Marker</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">pub</span> <span class="n">data</span><span class="p">:</span> <span class="n">HttpResponseData</span><span class="p">,</span>
+        <span class="k">pub</span> <span class="n">state</span><span class="p">:</span> <span class="n">PhantomData</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Operations that are only valid in ().</span>
+    <span class="k">impl</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">new</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Start</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="n">HttpResponse</span> <span class="p">{</span>
+                <span class="n">data</span><span class="p">:</span> <span class="nn">HttpResponseData</span><span class="p">::</span><span class="nf">default</span><span class="p">(),</span>
+                <span class="n">state</span><span class="p">:</span> <span class="nn">PhantomData</span><span class="p">::</span><span class="o">&lt;</span><span class="n">Start</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Operations that are only valid in Start.</span>
+    <span class="k">impl</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Start</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// setter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">set_status_line</span><span class="p">(</span>
+            <span class="k">self</span><span class="p">,</span>
+            <span class="n">response_code</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+            <span class="n">message</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">-&gt;</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">HeaderAndBody</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="n">HttpResponse</span> <span class="p">{</span>
+                <span class="n">data</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="k">let</span> <span class="k">mut</span> <span class="n">data</span> <span class="o">=</span> <span class="k">self</span><span class="py">.data</span><span class="p">;</span>
+                    <span class="n">data</span><span class="py">.response_code</span> <span class="o">=</span> <span class="n">response_code</span><span class="p">;</span>
+                    <span class="n">data</span><span class="py">.status_line</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span>
+                        <span class="s">"HTTP/1.1 {} {}"</span><span class="p">,</span> <span class="n">response_code</span><span class="p">,</span> <span class="n">message</span>
+                    <span class="p">);</span>
+                    <span class="n">data</span>
+                <span class="p">},</span>
+                <span class="n">state</span><span class="p">:</span> <span class="nn">PhantomData</span><span class="p">::</span><span class="o">&lt;</span><span class="n">HeaderAndBody</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Operations that are only valid in HeaderAndBodyState.</span>
+    <span class="k">impl</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">HeaderAndBody</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// setter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">add_header</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">mut_data</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="py">.data</span><span class="p">;</span>
+            <span class="k">if</span> <span class="n">mut_data</span><span class="py">.headers</span><span class="nf">.is_none</span><span class="p">()</span> <span class="p">{</span>
+                <span class="n">mut_data</span><span class="py">.headers</span><span class="nf">.replace</span><span class="p">(</span><span class="nn">Vec</span><span class="p">::</span><span class="nf">new</span><span class="p">());</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span> <span class="o">=</span> <span class="n">mut_data</span><span class="py">.headers</span><span class="nf">.as_mut</span><span class="p">()</span> <span class="p">{</span>
+                <span class="n">headers</span><span class="nf">.push</span><span class="p">((</span><span class="n">key</span><span class="nf">.to_string</span><span class="p">(),</span> <span class="n">value</span><span class="nf">.to_string</span><span class="p">()))</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="c1">// getter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_response_code</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">u8</span> <span class="p">{</span>
+            <span class="k">self</span><span class="py">.data.response_code</span>
+        <span class="p">}</span>
+
+        <span class="c1">// setter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">set_body</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">self</span><span class="py">.data.body</span><span class="nf">.replace</span><span class="p">(</span><span class="n">body</span><span class="nf">.to_string</span><span class="p">());</span>
+        <span class="p">}</span>
+
+        <span class="c1">// getter.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_body</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;&amp;</span><span class="nb">str</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="k">self</span><span class="py">.data.body</span><span class="nf">.as_deref</span><span class="p">()</span>
+        <span class="p">}</span>
+
+        <span class="c1">// transition to Final state.</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">finish</span><span class="p">(</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Final</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">data</span> <span class="o">=</span> <span class="k">self</span><span class="py">.data</span><span class="p">;</span>
+            <span class="n">HttpResponse</span> <span class="p">{</span>
+                <span class="n">data</span><span class="p">:</span> <span class="n">HttpResponseData</span> <span class="p">{</span>
+                    <span class="n">response_code</span><span class="p">:</span> <span class="n">data</span><span class="py">.response_code</span><span class="p">,</span>
+                    <span class="n">status_line</span><span class="p">:</span> <span class="n">data</span><span class="py">.status_line</span><span class="nf">.clone</span><span class="p">(),</span>
+                    <span class="n">headers</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span><span class="n">data</span><span class="py">.headers</span><span class="nf">.take</span><span class="p">()</span><span class="nf">.unwrap_or_default</span><span class="p">()),</span>
+                    <span class="n">body</span><span class="p">:</span> <span class="nf">Some</span><span class="p">(</span><span class="n">data</span><span class="py">.body</span><span class="nf">.take</span><span class="p">()</span><span class="nf">.unwrap_or_default</span><span class="p">()),</span>
+                <span class="p">},</span>
+                <span class="n">state</span><span class="p">:</span> <span class="nn">PhantomData</span><span class="p">::</span><span class="o">&lt;</span><span class="n">Final</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Operations that are only valid in FinalState.</span>
+    <span class="k">impl</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">Final</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_headers</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="p">(</span><span class="nb">String</span><span class="p">,</span> <span class="nb">String</span><span class="p">)</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+            <span class="o">&amp;</span><span class="k">self</span><span class="py">.data.headers</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_body</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="nb">Option</span><span class="o">&lt;</span><span class="nb">String</span><span class="o">&gt;</span> <span class="p">{</span>
+            <span class="o">&amp;</span><span class="k">self</span><span class="py">.data.body</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_response_code</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">u8</span> <span class="p">{</span>
+            <span class="k">self</span><span class="py">.data.response_code</span>
+        <span class="p">}</span>
+
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_status_line</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="p">{</span>
+            <span class="o">&amp;</span><span class="k">self</span><span class="py">.data.status_line</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Operations that are available in all states.</span>
+    <span class="k">impl</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span> <span class="n">HttpResponse</span><span class="o">&lt;</span><span class="n">S</span><span class="o">&gt;</span>
+    <span class="k">where</span>
+        <span class="n">S</span><span class="p">:</span> <span class="n">Marker</span><span class="p">,</span>
+    <span class="p">{</span>
+        <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_size</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">len</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">mem</span><span class="p">::</span><span class="nf">size_of_val</span><span class="p">(</span><span class="k">self</span><span class="p">);</span>
+            <span class="nd">format!</span><span class="p">(</span><span class="s">"{} bytes"</span><span class="p">,</span> <span class="n">len</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the output when you run the code using <code class="language-plaintext highlighter-rouge">cargo run --bin ex3_1</code>.</p>
+
+<pre class="pre-manual-highlight">$ cargo run --bin ex3_1
+<span style="color:#BF616A"><u style="text-decoration-style:single"><b>Start state</b></u></span>
+response: HttpResponse {
+    data: HttpResponseData {
+        response_code: 0,
+        status_line: &quot;&quot;,
+        headers: None,
+        body: None,
+    },
+    state: PhantomData&lt;ex3_1::state::Start&gt;,
+}
+response size: <span style="color:#81A1C1"><b>80 bytes</b></span>
+<span style="color:#BF616A"><u style="text-decoration-style:single"><b>HeaderAndBody state</b></u></span>
+response_code: 200
+response body: None
+response: HttpResponse {
+    data: HttpResponseData {
+        response_code: 200,
+        status_line: &quot;HTTP/1.1 200 OK&quot;,
+        headers: None,
+        body: None,
+    },
+    state: PhantomData&lt;ex3_1::state::HeaderAndBody&gt;,
+}
+response size: <span style="color:#81A1C1"><b>80 bytes</b></span>
+<span style="color:#BF616A"><u style="text-decoration-style:single"><b>HeaderAndBody state # 2</b></u></span>
+response: HttpResponse {
+    data: HttpResponseData {
+        response_code: 200,
+        status_line: &quot;HTTP/1.1 200 OK&quot;,
+        headers: Some(
+            [
+                (
+                    &quot;Content-Type&quot;,
+                    &quot;text/html&quot;,
+                ),
+            ],
+        ),
+        body: Some(
+            &quot;&lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;&quot;,
+        ),
+    },
+    state: PhantomData&lt;ex3_1::state::HeaderAndBody&gt;,
+}
+response size: <span style="color:#81A1C1"><b>80 bytes</b></span>
+<span style="color:#BF616A"><u style="text-decoration-style:single"><b>Final state</b></u></span>
+response_code: 200
+status_line: HTTP/1.1 200 OK
+headers: Some(
+    [
+        (
+            &quot;Content-Type&quot;,
+            &quot;text/html&quot;,
+        ),
+    ],
+)
+body: Some(
+    &quot;&lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;&quot;,
+)
+response: HttpResponse {
+    data: HttpResponseData {
+        response_code: 200,
+        status_line: &quot;HTTP/1.1 200 OK&quot;,
+        headers: Some(
+            [
+                (
+                    &quot;Content-Type&quot;,
+                    &quot;text/html&quot;,
+                ),
+            ],
+        ),
+        body: Some(
+            &quot;&lt;html&gt;&lt;body&gt;Hello World!&lt;/body&gt;&lt;/html&gt;&quot;,
+        ),
+    },
+    state: PhantomData&lt;ex3_1::state::Final&gt;,
+}
+response size: <span style="color:#81A1C1"><b>80 bytes</b></span>
+</pre>
+
+<h3 id="parting-thoughts">Parting thoughts</h3>
+<p><a id="markdown-parting-thoughts" name="parting-thoughts"></a></p>
+
+<p>To get an experiential understanding of the typestate pattern, you should try to build
+something using it. It’s a powerful pattern that can help you write more robust and
+predictable code. And it’s a great way to leverage Rust’s type system to enforce state
+transitions in your code. I encourage you to clone the repo and run the code to see how it
+works. And make changes to it to see if you can make it behave differently and use it in
+your own projects.</p>
+
+<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[The Typestate Pattern in Rust is a way to manage objects that go through different states in their lifecycle. It leverages Rust's powerful type system to enforce these states and transitions between them, making your code safer and more predictable. Learn all about it in this article and its video.]]></summary></entry><entry><title type="html">Build with Naz : Linux io_uring and tokio-uring exploration with Rust</title><link href="http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/" rel="alternate" type="text/html" title="Build with Naz : Linux io_uring and tokio-uring exploration with Rust" /><published>2024-05-25T10:00:00-05:00</published><updated>2024-05-25T10:00:00-05:00</updated><id>http://developerlife.com/2024/05/25/tokio-uring-exploration-rust</id><content type="html" xml:base="http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust_tokio_uring.svg" /></p>
 
 <!-- TOC -->
 
@@ -54,7 +1026,7 @@ level, and how to use it to build a simple echo TCP server, for use with <code c
 learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
 channel</a>.</p>
 
-<!-- rust tokio-uring exploration & async rust playlist -->
+<!-- rust tokio-uring exploration-->
 <iframe src="https://www.youtube.com/embed/VKL52XmY6Os?si=RgUKu-CZSXvKpJ7M" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
 </iframe>
 
@@ -554,6 +1526,7 @@ these problems!</p>
   <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
   <li>Playlists
     <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
       <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
       <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
       <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
@@ -1480,7 +2453,8 @@ docs</a>.</li>
   <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
   <li>Playlists
     <ul>
-      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
       <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
       <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
     </ul>
@@ -1810,7 +2784,8 @@ system’s behavior.</p>
   <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
   <li>Playlists
     <ul>
-      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
       <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
       <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
     </ul>
@@ -2126,12 +3101,14 @@ enable runtime polymorphism.</p>
           <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk">Part 1: Intro</a></li>
           <li><a href="https://www.youtube.com/watch?v=4iM9t5dgvU4">Part 2: Deep dive</a></li>
           <li><a href="https://www.youtube.com/watch?v=kYTgGtJjSro">Part 3: Polymorphism, static and dynamic dispatch</a></li>
-        </ul>
-      </li>
-      <li>Playlists
-        <ul>
-          <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
-          <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+          <li>Playlists
+            <ul>
+              <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+              <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+              <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+              <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+            </ul>
+          </li>
         </ul>
       </li>
     </ul>
@@ -2300,6 +3277,8 @@ non blocking nature of the REPL. Press Ctrl+C, or Ctrl+D to exit this program.</
       </li>
       <li>Playlists
         <ul>
+          <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+          <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
           <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
           <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
         </ul>
@@ -3760,275 +4739,4 @@ if the user does not provide this information, the app exits and provides a help
 <p>There are many more components that need to be added to make it easier to “tuify” lots of
 existing CLI experiences. Things like multi line editor component w/ syntax highlighting,
 scroll view, form input fields, and more. If you would like to contribute to this effort,
-it would be great to have your help.</p>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><summary type="html"><![CDATA[A guide on how to add minimal interactivity to your clap CLI apps using tuify. It doesn't have to be an all or nothing approach w/ going full TUI or CLI.]]></summary></entry><entry><title type="html">Use just to manage project specific commands</title><link href="http://developerlife.com/2023/08/28/justfile/" rel="alternate" type="text/html" title="Use just to manage project specific commands" /><published>2023-08-28T10:00:00-05:00</published><updated>2023-08-28T10:00:00-05:00</updated><id>http://developerlife.com/2023/08/28/justfile</id><content type="html" xml:base="http://developerlife.com/2023/08/28/justfile/"><![CDATA[<p><img class="post-hero-image" src="/assets/justfile.svg" /></p>
-
-<!-- TOC -->
-
-<ul>
-  <li><a href="#introduction">Introduction</a></li>
-  <li><a href="#prerequisites">Prerequisites</a></li>
-  <li><a href="#basic-usage">Basic usage</a></li>
-  <li><a href="#advanced-usage">Advanced usage</a>
-    <ul>
-      <li><a href="#running-many-different-commands">Running many different commands</a></li>
-      <li><a href="#run-on-windows">Run on Windows</a></li>
-      <li><a href="#run-in-ci--cd-environments-github-actions">Run in CI / CD environments Github Actions</a></li>
-      <li><a href="#pass-arguments-into-commands">Pass arguments into commands</a></li>
-    </ul>
-  </li>
-  <li><a href="#next-steps">Next steps</a></li>
-</ul>
-
-<!-- /TOC -->
-
-<h2 id="introduction">Introduction</h2>
-<p><a id="markdown-introduction" name="introduction"></a></p>
-
-<p>In this tutorial we will learn how to use <a href="https://github.com/casey/just"><code class="language-plaintext highlighter-rouge">just</code></a> by example to
-manage project specific commands. <code class="language-plaintext highlighter-rouge">just</code> is like <code class="language-plaintext highlighter-rouge">make</code>, but it is written in Rust, and it works
-with <code class="language-plaintext highlighter-rouge">cargo</code>.</p>
-
-<p>Before we get started, please take a look at the
-<a href="https://github.com/casey/just"><code class="language-plaintext highlighter-rouge">just</code> project README</a>.</p>
-<blockquote>
-
-👀 Watch Rust 🦀 live coding videos on our <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
-
-<br />
-<br />
-
-<!-- video on rust polymorphism (no playlist) -->
-<iframe src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
-</iframe>
-
-<br />
-<br />
-
-📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
-(they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
-project):
-<ul>
-  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
-  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
-</ul>
-
-<p>
-<kbd>giti in action</kbd>
-<video width="100%" controls="">
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4" />
-</video>
-</p>
-
-<p>
-<kbd>edi in action</kbd>
-<video width="100%" controls="">
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4" />
-</video>
-</p>
-
-</blockquote>
-<p>Let’s say you have a <code class="language-plaintext highlighter-rouge">justfile</code> that looks like this, and it has a single recipe called
-<code class="language-plaintext highlighter-rouge">list</code>:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>list:
-  ls -l
-</code></pre></div></div>
-
-<p>And you run it by typing <code class="language-plaintext highlighter-rouge">just list</code>. It just turns around and runs this <code class="language-plaintext highlighter-rouge">sh -c "ls -l"</code>.
-That’s it. So on Windows, this doesn’t work, because <code class="language-plaintext highlighter-rouge">sh</code> isn’t installed by default. So
-you have to install cygwin. And then you have to install <code class="language-plaintext highlighter-rouge">just</code> and then you have to
-install <code class="language-plaintext highlighter-rouge">sh</code>.</p>
-
-<p>Alternatively, you can specify that you want to use <code class="language-plaintext highlighter-rouge">powershell</code> instead by
-adding this to the top of the <code class="language-plaintext highlighter-rouge">justfile</code>: <code class="language-plaintext highlighter-rouge">set shell := ["powershell.exe", "-c"]</code>. Or you
-can just run this <code class="language-plaintext highlighter-rouge">just --shell powershell.exe --shell-arg -c list</code> to run <code class="language-plaintext highlighter-rouge">just</code> itself
-at the command prompt.</p>
-
-<p>You can also supply different shell interpreters like <code class="language-plaintext highlighter-rouge">python</code> or <code class="language-plaintext highlighter-rouge">node</code>. And you can even
-provide <code class="language-plaintext highlighter-rouge">shebang</code> lines like <code class="language-plaintext highlighter-rouge">#!/usr/bin/env python</code> or <code class="language-plaintext highlighter-rouge">#!/usr/bin/env node</code> at the top
-of each recipe.</p>
-
-<h2 id="prerequisites">Prerequisites</h2>
-<p><a id="markdown-prerequisites" name="prerequisites"></a></p>
-
-<p>🌠 In order for our <code class="language-plaintext highlighter-rouge">just</code> file to work, we must first install the Rust toolchain and <code class="language-plaintext highlighter-rouge">just</code> and
-<code class="language-plaintext highlighter-rouge">cargo-watch</code>:</p>
-
-<ol>
-  <li>Install the Rust toolchain using <code class="language-plaintext highlighter-rouge">rustup</code> by following the instructions
-<a href="https://rustup.rs/">here</a>.</li>
-  <li>Install <code class="language-plaintext highlighter-rouge">cargo-watch</code> using <code class="language-plaintext highlighter-rouge">cargo install cargo-watch</code>.</li>
-  <li><a href="https://just.systems/man/en/chapter_4.html">Install</a> <code class="language-plaintext highlighter-rouge">just</code> on your system using
-<code class="language-plaintext highlighter-rouge">cargo install just</code>. It is available for Linux, macOS, and Windows.
-    <ul>
-      <li>If you want shell completions for <code class="language-plaintext highlighter-rouge">just</code> you can follow
-<a href="https://github.com/casey/just#shell-completion-scripts">these instructions</a>.</li>
-      <li>If you install <code class="language-plaintext highlighter-rouge">just</code> using <code class="language-plaintext highlighter-rouge">cargo install just</code> or <code class="language-plaintext highlighter-rouge">brew install just</code> you will not get shell
-completions without doing one extra configuration step. So on Linux it is best to use
-<code class="language-plaintext highlighter-rouge">sudo apt install -y just</code> if you want them.</li>
-    </ul>
-  </li>
-</ol>
-
-<h2 id="basic-usage">Basic usage</h2>
-<p><a id="markdown-basic-usage" name="basic-usage"></a></p>
-
-<p>For Rust projects, typically we will have a build, run, test project specific commands. Let’s start
-with these simple ones first. The benefit of <code class="language-plaintext highlighter-rouge">just</code> is that we can use it to run these commands on
-any platform (Linux, Mac, Windows). And we don’t need to create OS or shell specific scripts to do
-this 🎉.</p>
-
-<p>Let’s start by creating a <code class="language-plaintext highlighter-rouge">justfile</code> in the root of our project. The <code class="language-plaintext highlighter-rouge">justfile</code> is where we will
-define our project specific commands. Here is what it looks like for the
-<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/ansi_color/justfile"><code class="language-plaintext highlighter-rouge">r3bl_ansi_color</code> repo</a>:</p>
-
-<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>build:
-  cargo build
-
-clean:
-  cargo clean
-
-run:
-  cargo run --example main
-</code></pre></div></div>
-
-<p>These are pretty simple commands. The syntax is pretty simple. The first line is the command name.
-And the second line is the command to run. The command can be a single command or a series of
-commands.</p>
-
-<p>Now in order to run this, we can just run <code class="language-plaintext highlighter-rouge">just --list</code> in the root of our project. And it will show
-us the list of commands that we can run.</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>just <span class="nt">--list</span>
-Available recipes:
-    build
-    clean
-    run
-</code></pre></div></div>
-
-<p>Then to run a command, we can just run <code class="language-plaintext highlighter-rouge">just &lt;command_name&gt;</code>. For example, to run the <code class="language-plaintext highlighter-rouge">build</code>
-command, we can run <code class="language-plaintext highlighter-rouge">just build</code>.</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>just build
-</code></pre></div></div>
-
-<h2 id="advanced-usage">Advanced usage</h2>
-<p><a id="markdown-advanced-usage" name="advanced-usage"></a></p>
-
-<h3 id="running-many-different-commands">Running many different commands</h3>
-<p><a id="markdown-running-many-different-commands" name="running-many-different-commands"></a></p>
-
-<p>This is pretty straightforward. You can just list all other other just commands inline.
-Here’s an example.</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>all: clean build test clippy docs rustfmt
-</code></pre></div></div>
-
-<p>The <code class="language-plaintext highlighter-rouge">all</code> command will run the other commands in the order they’re written.</p>
-
-<h3 id="run-on-windows">Run on Windows</h3>
-<p><a id="markdown-run-on-windows" name="run-on-windows"></a></p>
-
-<p>Currently our <code class="language-plaintext highlighter-rouge">justfile</code> will run on Linux and macOS. To make it run on Windows, we can
-run <code class="language-plaintext highlighter-rouge">just</code> itself using <code class="language-plaintext highlighter-rouge">powershell.exe</code>. Here is what it looks like:</p>
-
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>just <span class="nt">--shell</span> powershell.exe <span class="nt">--shell-arg</span> <span class="nt">-c</span> build
-</code></pre></div></div>
-
-<p>Or we can add the line <code class="language-plaintext highlighter-rouge">set shell := ["powershell.exe", "-c"]</code> to the top of the
-<code class="language-plaintext highlighter-rouge">justfile</code>.</p>
-
-<p>Alternatively, we can use <code class="language-plaintext highlighter-rouge">nu</code> shell instead of <code class="language-plaintext highlighter-rouge">powershell.exe</code> since it is written in
-Rust and available via <code class="language-plaintext highlighter-rouge">cargo install nu</code>.</p>
-
-<h3 id="run-in-ci--cd-environments-github-actions">Run in CI / CD environments (Github Actions)</h3>
-<p><a id="markdown-run-in-ci-%2F-cd-environments-github-actions" name="run-in-ci-%2F-cd-environments-github-actions"></a></p>
-
-<p>Let’s add a new command called <code class="language-plaintext highlighter-rouge">all</code> to our <code class="language-plaintext highlighter-rouge">justfile</code>. This will just turn around and run the
-<code class="language-plaintext highlighter-rouge">build</code> and <code class="language-plaintext highlighter-rouge">clean</code> commands. Here is what it looks like:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>all: build clean
-</code></pre></div></div>
-
-<p>Now, we can also use <code class="language-plaintext highlighter-rouge">just</code> in CI / CD environments. For example, here is the <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/ansi_color/.github/workflows/rust.yml"><code class="language-plaintext highlighter-rouge">rust.yml</code>
-file</a>
-for this repo’s Github Actions. It runs <code class="language-plaintext highlighter-rouge">just all</code> in the <code class="language-plaintext highlighter-rouge">build</code> step.</p>
-
-<p>The one thing to note is that we are installing <code class="language-plaintext highlighter-rouge">just</code> in the docker container before we
-run the <code class="language-plaintext highlighter-rouge">just</code> command. We do this by pulling in the prebuilt binary for Ubuntu as shown
-<a href="https://github.com/casey/just#pre-built-binaries">here</a>: <code class="language-plaintext highlighter-rouge">curl --proto '=https' --tlsv1.2
--sSf https://just.systems/install.sh | bash -s -- --to DEST</code></p>
-
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">jobs</span><span class="pi">:</span>
-  <span class="na">build</span><span class="pi">:</span>
-
-    <span class="na">runs-on</span><span class="pi">:</span> <span class="s">ubuntu-latest</span>
-
-    <span class="na">steps</span><span class="pi">:</span>
-
-    <span class="pi">-</span> <span class="na">uses</span><span class="pi">:</span> <span class="s">actions/checkout@v3</span>
-
-    <span class="c1"># Install just before running it below.</span>
-    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">Install just</span>
-      <span class="na">run</span><span class="pi">:</span> <span class="s">curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin</span>
-
-    <span class="c1"># Simply run the `just all` command.</span>
-    <span class="pi">-</span> <span class="na">name</span><span class="pi">:</span> <span class="s">all</span>
-      <span class="na">run</span><span class="pi">:</span> <span class="s">just all</span>
-</code></pre></div></div>
-
-<p>Using <code class="language-plaintext highlighter-rouge">just all</code> is relatively straightforward way to run all our build steps (that would
-run in a CI / CD environment) on our local computer w/out installing docker. While
-ensuring that these same steps are carried out in the CI / CD environment.</p>
-
-<h3 id="pass-arguments-into-commands">Pass arguments into commands</h3>
-<p><a id="markdown-pass-arguments-into-commands" name="pass-arguments-into-commands"></a></p>
-
-<p>We can also pass arguments into our commands. Let’s say that we have a command that we can use to
-run a single test. We can pass the name of the test into the command. Here is what it looks like:</p>
-
-<!--
-  More info on escaping `` in markdown:
-  - https://stackoverflow.com/questions/24102498/escaping-double-curly-braces-inside-a-markdown-code-block-in-jekyll
-  - https://jekyllrb.com/docs/liquid/tags/
- -->
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>watch-one-test test_name:
-  <span class="c"># More info on cargo test: https://doc.rust-lang.org/cargo/commands/cargo-test.html</span>
-  <span class="c"># More info on cargo watch: https://github.com/watchexec/cargo-watch</span>
-  cargo watch <span class="nt">-x</span> check <span class="nt">-x</span> <span class="s1">'test -- --test-threads=1 --nocapture {{test_name}}'</span> <span class="nt">-c</span> <span class="nt">-q</span>
-</code></pre></div></div>
-
-<p>There are a few things to note here:</p>
-
-<ol>
-  <li>The syntax to name the command is still the same as before.</li>
-  <li>However, we have added another string after the command name, which is the argument name
-<code class="language-plaintext highlighter-rouge">test_name</code>. If an argument is not passed in then <code class="language-plaintext highlighter-rouge">just</code> will display an error and print a
-message stating that an argument is required.</li>
-  <li>This argument is used just like a variable would in a <code class="language-plaintext highlighter-rouge">justfile</code>. The `` enclose a
-variable name.</li>
-</ol>
-
-<p>Now we can run this command by passing in the name of the test that we want to run. For example, if
-we want to run the <code class="language-plaintext highlighter-rouge">test_ansi_color</code> test, we can run <code class="language-plaintext highlighter-rouge">just watch-one-test test_ansi_color</code>.</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$ </span>just watch-one-test bold
-</code></pre></div></div>
-
-<p>Here’s an example of a <code class="language-plaintext highlighter-rouge">justfile</code> that has a lot more commands for you to look at:
-<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/ansi_color/justfile">r3bl_ansi_color justfile</a>.</p>
-
-<h2 id="next-steps">Next steps</h2>
-<p><a id="markdown-next-steps" name="next-steps"></a></p>
-
-<p>The <code class="language-plaintext highlighter-rouge">just</code> project <a href="https://github.com/casey/just">README</a> has lots of information on how to use
-<code class="language-plaintext highlighter-rouge">just</code>. It is best to have a specific thing you are looking for before you visit this page. Here are
-some interesting links inside the README:</p>
-
-<ol>
-  <li><a href="https://github.com/casey/just#recipe-parameters">Command line arguments</a>.</li>
-  <li><a href="https://github.com/casey/just#dotenv-integration">Support for .env files</a>.</li>
-  <li><a href="https://github.com/casey/just#conditional-expressions">Conditional expressions</a>.</li>
-  <li><a href="https://github.com/casey/just#setting-variables-from-the-command-line">Setting variables</a>.</li>
-</ol>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><summary type="html"><![CDATA[A guide on how to create just files (which are like make files) to manage project specific commands. In a cross platform way.]]></summary></entry></feed>
+it would be great to have your help.</p>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><summary type="html"><![CDATA[A guide on how to add minimal interactivity to your clap CLI apps using tuify. It doesn't have to be an all or nothing approach w/ going full TUI or CLI.]]></summary></entry></feed>

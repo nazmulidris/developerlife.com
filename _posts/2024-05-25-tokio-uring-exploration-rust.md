@@ -61,7 +61,7 @@ This blog post has short examples on how to use the `tokio-uring` crate. If you 
 learn via video, please watch the companion video on the [developerlife.com YouTube
 channel](https://www.youtube.com/@developerlifecom).
 
-<!-- rust tokio-uring exploration & async rust playlist -->
+<!-- rust tokio-uring exploration-->
 <iframe
     src="https://www.youtube.com/embed/VKL52XmY6Os?si=RgUKu-CZSXvKpJ7M"
     title="YouTube video player"
@@ -555,6 +555,7 @@ You can watch a video series on building this crate with Naz on the
 
 - [YT channel](https://www.youtube.com/@developerlifecom)
 - Playlists
+    - [Build with Naz, fundamental effective Rust](https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz)
     - [Build with Naz, effective async Rust and tokio](https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5)
     - [Build with Naz, async readline and spinner for CLI in Rust](https://www.youtube.com/watch?v=3vQJguti02I&list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE)
     - [Build with Naz, testing in Rust](https://www.youtube.com/watch?v=Xt495QLrFFk&list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8)

@@ -1,0 +1,1247 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Rust error handling with miette | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Rust error handling with miette" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="miette is an excellent crate that can make error handling in Rust powerful, flexible, and easy to use. It provides a way to create custom error types, add context to errors, and display errors in a user-friendly way. In this article, we’ll explore how to use miette to improve error handling in your Rust applications." />
+<meta property="og:description" content="miette is an excellent crate that can make error handling in Rust powerful, flexible, and easy to use. It provides a way to create custom error types, add context to errors, and display errors in a user-friendly way. In this article, we’ll explore how to use miette to improve error handling in your Rust applications." />
+<link rel="canonical" href="http://developerlife.com/2024/06/10/rust-miette-error-handling/" />
+<meta property="og:url" content="http://developerlife.com/2024/06/10/rust-miette-error-handling/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-06-10T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Rust error handling with miette" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-06-10T10:00:00-05:00","datePublished":"2024-06-10T10:00:00-05:00","description":"miette is an excellent crate that can make error handling in Rust powerful, flexible, and easy to use. It provides a way to create custom error types, add context to errors, and display errors in a user-friendly way. In this article, we’ll explore how to use miette to improve error handling in your Rust applications.","headline":"Rust error handling with miette","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/06/10/rust-miette-error-handling/"},"url":"http://developerlife.com/2024/06/10/rust-miette-error-handling/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add font awesome -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  />
+
+  <!-- Add Google fonts-->
+  <link
+    href="https://fonts.googleapis.com/css?family=Spline+Sans|Work+Sans|Fira+Mono|Fira+Sans|Google+Sans|Lexend+Deca&display=swap"
+    rel="stylesheet"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /><!-- https://developers.google.com/analytics/devguides/collection/gtagjs -->
+<script async
+        src="https://www.googletagmanager.com/gtag/js?id=G-NQY9ECC58H"></script>
+<script>
+  window.dataLayer = window.dataLayer || []
+
+  function gtag() {
+    window.dataLayer.push(arguments)
+  }
+
+  gtag("js", new Date())
+  gtag("config", "G-NQY9ECC58H")
+</script>
+<!-- https://us14.admin.mailchimp.com/account/connected-sites/site-detail/ -->
+
+<script id="mcjs">
+  !(function (c, h, i, m, p) {
+    ;(m = c.createElement(h)),
+      (p = c.getElementsByTagName(h)[0]),
+      (m.async = 1),
+      (m.src = i),
+      p.parentNode.insertBefore(m, p)
+  })(
+    document,
+    "script",
+    "https://chimpstatic.com/mcjs-connected/js/users/c2470ddfa863eb8ace707651b/2bb3bcad193ef862398700457.js"
+  )
+</script>
+</head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Rust error handling with miette&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Rust error handling with miette</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Rust error handling with miette</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jun 10, 2024
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is font awesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+        <blockquote>
+  👀 Watch Rust 🦀 live coding videos on our
+  <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
+
+  <br />
+
+  <!-- effective async rust video & async rust playlist -->
+  <iframe src="https://www.youtube.com/embed/qvIt8MF-pCM?si=hDVrz64pLbTLYe_m"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
+  </iframe>
+
+  <!-- video on rust polymorphism (no playlist) -->
+  <!-- <iframe
+      src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      >
+  </iframe> -->
+
+  <!-- video on intro to testing (with playlist) -->
+  <!-- <iframe
+    src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
+  >
+  </iframe> -->
+
+</blockquote>
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/rust-miette.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#rust-error-handling-primer">Rust error handling primer</a></li>
+  <li><a href="#more-resources-on-rust-error-handling">More resources on Rust error handling</a></li>
+  <li><a href="#youtube-video-for-this-article">YouTube video for this article</a></li>
+  <li><a href="#examples-of-rust-error-handling-with-miette">Examples of Rust error handling with miette</a>
+    <ul>
+      <li><a href="#example-1-simple-miette-usage">Example 1: Simple miette usage</a></li>
+      <li><a href="#example-2-complex-miette-usage">Example 2: Complex miette usage</a></li>
+      <li><a href="#parting-thoughts">Parting thoughts</a></li>
+    </ul>
+  </li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="rust-error-handling-primer">
+        
+        
+          Rust error handling primer <a href="#rust-error-handling-primer">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-rust-error-handling-primer" name="rust-error-handling-primer"></a></p>
+
+<p>Rust has a powerful error handling system that is based on the
+<a href="https://doc.rust-lang.org/std/result/"><code class="language-plaintext highlighter-rouge">Result</code></a> and <code class="language-plaintext highlighter-rouge">Option</code> types. For this tutorial we
+will focus on the <code class="language-plaintext highlighter-rouge">Result</code> type, which is an enum that has two variants: <code class="language-plaintext highlighter-rouge">Ok</code> and <code class="language-plaintext highlighter-rouge">Err</code>.
+The <code class="language-plaintext highlighter-rouge">Ok</code> variant is used to represent a successful result, while the <code class="language-plaintext highlighter-rouge">Err</code> variant is used
+to represent an error.</p>
+
+<p>The <a href="https://doc.rust-lang.org/std/error/trait.Error.html"><code class="language-plaintext highlighter-rouge">Error</code></a> trait in Rust has to
+be implemented for types that can be used as errors. The <code class="language-plaintext highlighter-rouge">Error</code> trait has a method called
+<code class="language-plaintext highlighter-rouge">source</code> that returns a reference to the underlying cause of the error. This trait has two
+supertraits: <code class="language-plaintext highlighter-rouge">Debug</code> and <code class="language-plaintext highlighter-rouge">Display</code>. The <code class="language-plaintext highlighter-rouge">Debug</code> trait is used to format the error for
+debugging purposes (for the operator), while the <code class="language-plaintext highlighter-rouge">Display</code> trait is used to format the
+error for displaying to the user.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">?</code> operator can be used in order to propagate errors up the call stack. This operator
+is used to unwrap the <code class="language-plaintext highlighter-rouge">Result</code> type and provide the inner value of the <code class="language-plaintext highlighter-rouge">Ok</code> variant.
+Otherwise it returns from the function with the error, if it is the <code class="language-plaintext highlighter-rouge">Err</code> variant. This
+operator can only be used in functions that return a <code class="language-plaintext highlighter-rouge">Result</code> type. Here’s an example:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Fails and produces output:</span>
+<span class="cd">/// ```text</span>
+<span class="cd">/// Error: ParseIntError { kind: InvalidDigit }</span>
+<span class="cd">/// ```</span>
+<span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">test</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">return_error_result</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">u32</span><span class="p">,</span> <span class="nn">std</span><span class="p">::</span><span class="nn">num</span><span class="p">::</span><span class="n">ParseIntError</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="s">"1.2"</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">u32</span><span class="o">&gt;</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="k">fn</span> <span class="nf">run</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+        <span class="c1">// It is as if the `?` is turned into the following code.</span>
+        <span class="c1">// let result = match result {</span>
+        <span class="c1">//     Ok(value) =&gt; value,</span>
+        <span class="c1">//     Err(err) =&gt; return Err(Box::new(err)),</span>
+        <span class="c1">// }</span>
+        <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">return_error_result</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// The following lines will never be executed, since the previous</span>
+        <span class="c1">// line will return from the function with an error.</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"Result: {}"</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+        <span class="nf">Ok</span><span class="p">(())</span>
+    <span class="p">}</span>
+
+    <span class="nf">run</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>In the rest of the tutorial (and accompanying video), we will build upon this knowledge
+and introduce <code class="language-plaintext highlighter-rouge">miette</code>, a crate that can make error handling in Rust powerful, flexible,
+and easy to use. We will also learn more about the <code class="language-plaintext highlighter-rouge">thiserror</code> crate, which can be used to
+easily create custom error types in Rust.</p>
+      <h2 id="more-resources-on-rust-error-handling">
+        
+        
+          More resources on Rust error handling <a href="#more-resources-on-rust-error-handling">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-more-resources-on-rust-error-handling" name="more-resources-on-rust-error-handling"></a></p>
+
+<ul>
+  <li><a href="https://docs.rs/thiserror/latest/thiserror/"><code class="language-plaintext highlighter-rouge">thiserror</code> crate</a>.</li>
+  <li><a href="https://docs.rs/miette/latest/miette/"><code class="language-plaintext highlighter-rouge">miette</code> crate</a>.</li>
+  <li><a href="https://doc.rust-lang.org/std/error/trait.Error.html"><code class="language-plaintext highlighter-rouge">Error</code> trait</a>.</li>
+  <li><a href="https://doc.rust-lang.org/std/result/"><code class="language-plaintext highlighter-rouge">Result</code> enum</a>.</li>
+</ul>
+      <h2 id="youtube-video-for-this-article">
+        
+        
+          YouTube video for this article <a href="#youtube-video-for-this-article">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-youtube-video-for-this-article" name="youtube-video-for-this-article"></a></p>
+
+<p>This blog post has short examples on how to use <code class="language-plaintext highlighter-rouge">miette</code> to enhance Rust error handling. If
+you like to learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com
+YouTube channel</a>.</p>
+
+<!-- rust error handling with miette -->
+<iframe src="https://www.youtube.com/embed/TmLF7vI8lKk?si=Xh5belp5zD-w-J3P" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<p><br /></p>
+      <h2 id="examples-of-rust-error-handling-with-miette">
+        
+        
+          Examples of Rust error handling with miette <a href="#examples-of-rust-error-handling-with-miette">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-examples-of-rust-error-handling-with-miette" name="examples-of-rust-error-handling-with-miette"></a></p>
+
+<p>Let’s create some examples to illustrate how to use <code class="language-plaintext highlighter-rouge">miette</code> to enhance Rust error
+handling. You can run <code class="language-plaintext highlighter-rouge">cargo new --lib error-miette</code> to create a new library crate.</p>
+
+<blockquote>
+  <p>The code in the video and this tutorial are all in <a href="https://github.com/nazmulidris/rust-scratch/blob/main/error-miette/src/lib.rs">this GitHub
+repo</a>.</p>
+</blockquote>
+
+<p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
+dependencies that we need for these examples.</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"error-miette"</span>
+<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
+<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+
+<span class="nn">[dependencies]</span>
+
+<span class="c"># Pretty terminal output.</span>
+<span class="py">crossterm</span> <span class="p">=</span> <span class="s">"0.27.0"</span>
+
+<span class="c"># Error handling.</span>
+<span class="py">thiserror</span> <span class="p">=</span> <span class="s">"1.0.61"</span>
+<span class="py">miette</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"7.2.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span> <span class="p">}</span>
+<span class="py">pretty_assertions</span> <span class="p">=</span> <span class="s">"1.4.0"</span>
+</code></pre></div></div>
+      <h3 id="example-1-simple-miette-usage">
+        
+        
+          Example 1: Simple miette usage <a href="#example-1-simple-miette-usage">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-1%3A-simple-miette-usage" name="example-1%3A-simple-miette-usage"></a></p>
+
+<p>Then you can add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file. You can note the following things
+in the code:</p>
+<ul>
+  <li>We define a custom error type called <code class="language-plaintext highlighter-rouge">UnderlyingDatabaseError</code> using the <code class="language-plaintext highlighter-rouge">thiserror</code> crate.</li>
+  <li>We define a function called <code class="language-plaintext highlighter-rouge">return_error_result</code> that returns a <code class="language-plaintext highlighter-rouge">Result&lt;u32, std::num::ParseIntError&gt;</code>.</li>
+  <li>We write a test called <code class="language-plaintext highlighter-rouge">test_into_diagnostic</code> that demonstrates how to use <code class="language-plaintext highlighter-rouge">miette</code> to
+add context to errors and display them in a user-friendly way. The test also
+demonstrates how to use the <code class="language-plaintext highlighter-rouge">wrap_err</code> and <code class="language-plaintext highlighter-rouge">context</code> methods to add context to errors.
+And how they are displayed in the error report (in the inverse order in which they were
+added).</li>
+  <li>We also demonstrate how to use the <code class="language-plaintext highlighter-rouge">into_diagnostic</code> method to convert a <code class="language-plaintext highlighter-rouge">Result</code> into a
+<code class="language-plaintext highlighter-rouge">miette::Result</code>.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">pub</span> <span class="k">mod</span> <span class="n">simple_miette_usage</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="n">Stylize</span><span class="p">;</span>
+    <span class="k">use</span> <span class="nn">miette</span><span class="p">::{</span><span class="n">Context</span><span class="p">,</span> <span class="n">IntoDiagnostic</span><span class="p">};</span>
+
+    <span class="nd">#[derive(Debug,</span> <span class="nd">thiserror::Error)]</span>
+    <span class="k">pub</span> <span class="k">enum</span> <span class="n">UnderlyingDatabaseError</span> <span class="p">{</span>
+        <span class="nd">#[error(</span><span class="s">"database corrupted"</span><span class="nd">)]</span>
+        <span class="n">DatabaseCorrupted</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">fn</span> <span class="nf">return_error_result</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">u32</span><span class="p">,</span> <span class="nn">std</span><span class="p">::</span><span class="nn">num</span><span class="p">::</span><span class="n">ParseIntError</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="s">"1.2"</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">u32</span><span class="o">&gt;</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[test]</span>
+    <span class="k">fn</span> <span class="nf">test_into_diagnostic</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">error_result</span><span class="p">:</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">u32</span><span class="p">,</span> <span class="nn">std</span><span class="p">::</span><span class="nn">num</span><span class="p">::</span><span class="n">ParseIntError</span><span class="o">&gt;</span> <span class="o">=</span>
+            <span class="nf">return_error_result</span><span class="p">();</span>
+        <span class="nd">assert!</span><span class="p">(</span><span class="n">error_result</span><span class="nf">.is_err</span><span class="p">());</span>
+
+        <span class="c1">// The following line will return from this test.</span>
+        <span class="c1">// let it: u32 = error_result.into_diagnostic()?;</span>
+
+        <span class="k">let</span> <span class="n">new_miette_result</span><span class="p">:</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="nb">u32</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">error_result</span>
+            <span class="nf">.into_diagnostic</span><span class="p">()</span>
+            <span class="nf">.context</span><span class="p">(</span><span class="s">"🍍 foo bar baz"</span><span class="p">)</span>
+            <span class="nf">.wrap_err</span><span class="p">(</span><span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"custom string error"</span><span class="p">))</span>
+            <span class="nf">.wrap_err</span><span class="p">(</span><span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="nn">ErrorKind</span><span class="p">::</span><span class="n">NotFound</span><span class="p">)</span>
+            <span class="nf">.wrap_err</span><span class="p">(</span><span class="nn">UnderlyingDatabaseError</span><span class="p">::</span><span class="n">DatabaseCorrupted</span><span class="p">)</span>
+            <span class="nf">.wrap_err</span><span class="p">(</span><span class="s">"🎃 this is additional context about the failure"</span><span class="p">);</span>
+
+        <span class="nd">assert!</span><span class="p">(</span><span class="n">new_miette_result</span><span class="nf">.is_err</span><span class="p">());</span>
+
+        <span class="nd">println!</span><span class="p">(</span>
+            <span class="s">"{}:</span><span class="se">\n</span><span class="s">{:?}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+            <span class="s">"debug output"</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">(),</span>
+            <span class="n">new_miette_result</span>
+        <span class="p">);</span>
+
+        <span class="k">if</span> <span class="k">let</span> <span class="nf">Err</span><span class="p">(</span><span class="k">ref</span> <span class="n">miette_report</span><span class="p">)</span> <span class="o">=</span> <span class="n">new_miette_result</span> <span class="p">{</span>
+            <span class="nd">println!</span><span class="p">(</span>
+                <span class="s">"{}:</span><span class="se">\n</span><span class="s">{:?}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+                <span class="s">"miette report"</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">(),</span>
+                <span class="n">miette_report</span><span class="nf">.to_string</span><span class="p">()</span>
+            <span class="p">);</span>
+
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">miette_report</span><span class="nf">.chain</span><span class="p">();</span>
+
+            <span class="c1">// First.</span>
+            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
+                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
+                <span class="s">"🎃 this is additional context about the failure"</span>
+                    <span class="nf">.to_string</span><span class="p">()</span>
+            <span class="p">);</span>
+
+            <span class="c1">// Second.</span>
+            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
+                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
+                <span class="s">"database corrupted"</span><span class="nf">.to_string</span><span class="p">()</span>
+            <span class="p">);</span>
+
+            <span class="c1">// Third.</span>
+            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
+                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
+                <span class="s">"entity not found"</span><span class="nf">.to_string</span><span class="p">()</span>
+            <span class="p">);</span>
+
+            <span class="c1">// Fourth.</span>
+            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
+                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
+                <span class="s">"custom string error"</span><span class="nf">.to_string</span><span class="p">()</span>
+            <span class="p">);</span>
+
+            <span class="c1">// Fifth.</span>
+            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
+                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
+                <span class="s">"🍍 foo bar baz"</span><span class="nf">.to_string</span><span class="p">()</span>
+            <span class="p">);</span>
+
+            <span class="c1">// Final.</span>
+            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
+                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
+                <span class="s">"invalid digit found in string"</span><span class="nf">.to_string</span><span class="p">()</span>
+            <span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="nf">Ok</span><span class="p">(())</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[test]</span>
+    <span class="k">fn</span> <span class="nf">test_convert_report_into_error</span><span class="p">()</span> <span class="k">-&gt;</span>
+        <span class="nn">std</span><span class="p">::</span><span class="nn">result</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">miette_result</span><span class="p">:</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="nb">u32</span><span class="o">&gt;</span> <span class="o">=</span>
+            <span class="nf">return_error_result</span><span class="p">()</span>
+                <span class="nf">.into_diagnostic</span><span class="p">()</span>
+                <span class="nf">.wrap_err</span><span class="p">(</span><span class="nn">miette</span><span class="p">::</span><span class="nn">Report</span><span class="p">::</span><span class="nf">msg</span><span class="p">(</span>
+                    <span class="s">"wrapper for the source parse int error"</span><span class="p">,</span>
+                <span class="p">));</span>
+
+        <span class="c1">// let converted_result: Result&lt;u32, Box&lt;dyn Error&gt;&gt; =</span>
+        <span class="c1">//     miette_result.map_err(|report| report.into());</span>
+
+        <span class="k">let</span> <span class="n">converted_result</span><span class="p">:</span>
+            <span class="nn">std</span><span class="p">::</span><span class="nn">result</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;&gt;</span> <span class="o">=</span>
+            <span class="k">match</span> <span class="n">miette_result</span> <span class="p">{</span>
+                <span class="nf">Ok</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nf">Ok</span><span class="p">(()),</span>
+                <span class="nf">Err</span><span class="p">(</span><span class="n">miette_report</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="k">let</span> <span class="n">boxed_error</span><span class="p">:</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;</span> <span class="o">=</span>
+                        <span class="n">miette_report</span><span class="nf">.into</span><span class="p">();</span>
+                    <span class="nf">Err</span><span class="p">(</span><span class="n">boxed_error</span><span class="p">)</span>
+                <span class="p">}</span>
+            <span class="p">};</span>
+
+        <span class="nd">println!</span><span class="p">(</span>
+            <span class="s">"{}:</span><span class="se">\n</span><span class="s">{:?}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+            <span class="s">"debug output"</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">(),</span>
+            <span class="n">converted_result</span>
+        <span class="p">);</span>
+
+        <span class="nd">assert!</span><span class="p">(</span><span class="n">converted_result</span><span class="nf">.is_err</span><span class="p">());</span>
+
+        <span class="nf">Ok</span><span class="p">(())</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="example-2-complex-miette-usage">
+        
+        
+          Example 2: Complex miette usage <a href="#example-2-complex-miette-usage">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-2%3A-complex-miette-usage" name="example-2%3A-complex-miette-usage"></a></p>
+
+<p>Next, we will add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file. You can note the following
+things in the code:</p>
+
+<ul>
+  <li>We define a custom error type called <code class="language-plaintext highlighter-rouge">KvStoreError</code> using the <code class="language-plaintext highlighter-rouge">thiserror</code> crate.</li>
+  <li>We define two variants for the <code class="language-plaintext highlighter-rouge">KvStoreError</code> enum: <code class="language-plaintext highlighter-rouge">CouldNotCreateDbFolder</code> and
+<code class="language-plaintext highlighter-rouge">CouldNotGetOrCreateEnvOrOpenStore</code>. The latter variant has a field called <code class="language-plaintext highlighter-rouge">source</code> that
+is of type <code class="language-plaintext highlighter-rouge">UnderlyingDatabaseError</code>, which is defined in the previous example.</li>
+  <li>We define two functions called <code class="language-plaintext highlighter-rouge">return_flat_err</code> and <code class="language-plaintext highlighter-rouge">return_nested_err</code> that return
+<code class="language-plaintext highlighter-rouge">miette::Result&lt;(), KvStoreError&gt;</code>.</li>
+  <li>We write two tests called <code class="language-plaintext highlighter-rouge">fails_with_flat_err</code> and <code class="language-plaintext highlighter-rouge">fails_with_nested_err</code> that
+demonstrate how to use <code class="language-plaintext highlighter-rouge">miette</code> to add context to errors and display them in a
+user-friendly way. The tests also demonstrate how to use the <code class="language-plaintext highlighter-rouge">from</code> attribute to convert
+an error of one type into an error of another type.</li>
+  <li>We also demonstrate how to use the <code class="language-plaintext highlighter-rouge">#[diagnostic]</code> attribute to add a code and help URL
+to the error type.</li>
+  <li>We also demonstrate how to use the <code class="language-plaintext highlighter-rouge">#[from]</code> attribute to convert an error of one type
+into an error of another type.</li>
+  <li>We also demonstrate how to use the <code class="language-plaintext highlighter-rouge">#[error]</code> attribute to add a custom error message to
+the error type.</li>
+</ul>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">pub</span> <span class="k">mod</span> <span class="n">complex_miette_usage</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="p">;</span>
+
+    <span class="k">use</span> <span class="k">crate</span><span class="p">::</span><span class="nn">simple_miette_usage</span><span class="p">::</span><span class="n">UnderlyingDatabaseError</span><span class="p">;</span>
+    <span class="k">use</span> <span class="nn">pretty_assertions</span><span class="p">::</span><span class="n">assert_eq</span><span class="p">;</span>
+
+    <span class="nd">#[derive(thiserror::Error,</span> <span class="nd">Debug,</span> <span class="nd">miette::Diagnostic)]</span>
+    <span class="k">pub</span> <span class="k">enum</span> <span class="n">KvStoreError</span> <span class="p">{</span>
+        <span class="nd">#[diagnostic(</span>
+            <span class="nd">code(MyErrorCode::FileSystemError),</span>
+            <span class="nd">help(</span><span class="s">"https://docs.rs/rkv/latest/rkv/enum.StoreError.html"</span><span class="nd">),</span>
+            <span class="c1">// url(docsrs) /* Works if this code was on crates.io / docs.rs */</span>
+        <span class="nd">)]</span>
+        <span class="nd">#[error(</span><span class="s">"📂 Could not create db folder: '{db_folder_path}' on disk"</span><span class="nd">)]</span>
+        <span class="n">CouldNotCreateDbFolder</span> <span class="p">{</span> <span class="n">db_folder_path</span><span class="p">:</span> <span class="nb">String</span> <span class="p">},</span>
+
+        <span class="nd">#[diagnostic(</span>
+            <span class="nd">code(MyErrorCode::StoreCreateOrAccessError),</span>
+            <span class="nd">help(</span><span class="s">"https://docs.rs/rkv/latest/rkv/enum.StoreError.html"</span><span class="nd">),</span>
+            <span class="c1">// url(docsrs) /* Works if this code was on crates.io / docs.rs */</span>
+        <span class="nd">)]</span>
+        <span class="nd">#[error(</span><span class="s">"💾 Could not get or create environment, or open store"</span><span class="nd">)]</span>
+        <span class="n">CouldNotGetOrCreateEnvOrOpenStore</span> <span class="p">{</span>
+            <span class="nd">#[from]</span>
+            <span class="n">source</span><span class="p">:</span> <span class="n">UnderlyingDatabaseError</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+    <span class="k">fn</span> <span class="nf">return_flat_err</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="n">KvStoreError</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="nn">Result</span><span class="p">::</span><span class="nf">Err</span><span class="p">(</span><span class="nn">KvStoreError</span><span class="p">::</span><span class="n">CouldNotCreateDbFolder</span> <span class="p">{</span>
+            <span class="n">db_folder_path</span><span class="p">:</span> <span class="s">"some/path/to/db"</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="p">})</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// This test will not run! It will fail and demonstrate the default</span>
+    <span class="cd">/// [report handler](miette::ReportHandler) of the `miette` crate.</span>
+    <span class="nd">#[test]</span>
+    <span class="k">fn</span> <span class="nf">fails_with_flat_err</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">return_flat_err</span><span class="p">();</span>
+
+        <span class="k">if</span> <span class="k">let</span> <span class="nf">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">result</span> <span class="p">{</span>
+            <span class="nd">assert_eq!</span><span class="p">(</span>
+                <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">),</span>
+                <span class="s">"CouldNotCreateDbFolder { db_folder_path: </span><span class="se">\"</span><span class="s">some/path/to/db</span><span class="se">\"</span><span class="s"> }"</span>
+            <span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">result</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="nf">Ok</span><span class="p">(())</span>
+    <span class="p">}</span>
+
+    <span class="k">fn</span> <span class="nf">return_nested_err</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="n">KvStoreError</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// Variant 1 - Very verbose.</span>
+        <span class="k">let</span> <span class="n">store_error</span> <span class="o">=</span> <span class="nn">UnderlyingDatabaseError</span><span class="p">::</span><span class="n">DatabaseCorrupted</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">rkv_error</span> <span class="o">=</span> <span class="nn">KvStoreError</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="n">store_error</span><span class="p">);</span>
+        <span class="nn">Result</span><span class="p">::</span><span class="nf">Err</span><span class="p">(</span><span class="n">rkv_error</span><span class="p">)</span>
+
+        <span class="c1">// Variant 2.</span>
+        <span class="c1">// Result::Err(KvStoreError::CouldNotGetOrCreateEnvOrOpenStore {</span>
+        <span class="c1">//     source: UnderlyingDatabaseError::DatabaseCorrupted,</span>
+        <span class="c1">// })</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// This test will not run! It will fail and demonstrate the default</span>
+    <span class="cd">/// [report handler](miette::ReportHandler) of the `miette` crate.</span>
+    <span class="nd">#[test]</span>
+    <span class="k">fn</span> <span class="nf">fails_with_nested_err</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">return_nested_err</span><span class="p">();</span>
+
+        <span class="k">if</span> <span class="k">let</span> <span class="nf">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">result</span> <span class="p">{</span>
+            <span class="nd">assert_eq!</span><span class="p">(</span>
+                <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">),</span>
+                <span class="s">"CouldNotGetOrCreateEnvOrOpenStore { source: DatabaseCorrupted }"</span>
+            <span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">result</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="nf">Ok</span><span class="p">(())</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="parting-thoughts">
+        
+        
+          Parting thoughts <a href="#parting-thoughts">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-parting-thoughts" name="parting-thoughts"></a></p>
+
+<p>For more sophisticated error handling examples, please check out the following links:</p>
+
+<ul>
+  <li><a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/src/public_api/terminal_async.rs#L57"><code class="language-plaintext highlighter-rouge">terminal_async.rs</code> in <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code>
+crate</a>.</li>
+  <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/tcp-api-server/src/standalone/kv.rs#L137"><code class="language-plaintext highlighter-rouge">kv.rs</code> in <code class="language-plaintext highlighter-rouge">tcp-api-server</code>
+crate</a>.</li>
+  <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/tcp-api-server/src/standalone/miette_setup_global_report_handler.rs">Custom global report handler for <code class="language-plaintext highlighter-rouge">miette</code> in <code class="language-plaintext highlighter-rouge">tcp-api-server</code>
+crate</a>.</li>
+</ul>
+      <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
+        
+        
+          Build with Naz video series on developerlife.com YouTube channel <a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        
+<blockquote>
+
+📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
+(they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
+project):
+<ul>
+  <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+  <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+</ul>
+
+<p>
+<kbd>giti in action</kbd>
+<video width="100%" controls>
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4"/>
+</video>
+</p>
+
+<p>
+<kbd>edi in action</kbd>
+<video width="100%" controls>
+  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4"/>
+</video>
+</p>
+
+</blockquote>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/28/typestate-pattern-rust/">
+                        Build with Naz : Rust typestate pattern
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/25/tokio-uring-exploration-rust/">
+                        Build with Naz : Linux io_uring and tokio-uring exploration with Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/19/effective-async-rust/">
+                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/15/tokio-tracing-otel-rust/">
+                        Build with Naz : tokio tracing &amp; OTel and how to use it in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">
+                        Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/21/build-async-interactive-cli-apps-in-rust/">
+                        Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Guide to parsing with nom
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2024/06/10/rust-miette-error-handling/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <h2 class="star-us-github-heading">
+      Subscribe to our Rust live coding
+      <a href="https://www.youtube.com/@developerlifecom">YouTube Channel</a
+      ><span class="heading-emoji"> 🦀</span>
+    </h2>
+
+    <!-- video on intro to testing (with playlist) -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- rust async readline and spinner & playlist -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=i37Ei9nCfvslOoaI&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+  <!-- rust tokio tracing and otel for async rust & playlist -->
+  <iframe
+    src="https://www.youtube.com/embed/Wf8JrLgBuKI?si=cmLaUWs-pbJ39lLc"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+  </iframe>
+
+    <br />
+    <br />
+
+    <h2 class="star-us-github-heading">
+      Use our extensions, apps, binary and library crates<span class="heading-emoji"> 📦</span>
+    </h2>
+
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-apps.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/shortlink" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-shortlink.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a
+          href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async"
+          target="_blank"
+        >
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TERMINAL ASYNC LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_terminal_async</code></h3>
+          </div>
+        </a>
+      </li>
+    </ul>
+
+    <br />
+
+    <h2 class="star-us-github-heading">
+      Join our <a href="https://discord.gg/PhuF4qFpcA">Discord</a>
+      <span class="heading-emoji"> 💬</span>
+    </h2>
+  </section>
+</div>
+</div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

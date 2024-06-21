@@ -1,5 +1,5 @@
 ---
-title: "Rust error handling with miette"
+title: "Build with Naz : Rust error handling with miette"
 author: Nazmul Idris
 date: 2024-06-10 15:00:00+00:00
 excerpt: |

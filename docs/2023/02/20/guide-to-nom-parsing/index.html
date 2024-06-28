@@ -1203,6 +1203,15 @@ that parses natural language sentences.</p>
 be useful to learn the basics of Markdown parsing before delving into the more complex parser that is
 used in <code class="language-plaintext highlighter-rouge">r3bl_tui</code>.</p>
 
+<p>The production
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/tui/md_parser"><code class="language-plaintext highlighter-rouge">md_parser</code></a>
+module in the <code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo contains a fully functional Markdown parser (that you
+can use in your projects that need a Markdown parser). This parser supports standard
+Markdown syntax as well as some extensions that are
+added to make it work w/ <a href="https://r3bl.com">R3BL</a> products. It makes a great starting
+point to study how a relatively complex parser is written. There are lots of tests that
+you can follow along to understand what the code is doing.</p>
+
 <blockquote>
   <p>💡 You can get the source code for the production Markdown parser used in <code class="language-plaintext highlighter-rouge">r3bl_tui</code> from the
 <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/tui/md_parser"><code class="language-plaintext highlighter-rouge">r3bl-open-core</code></a>
@@ -1211,44 +1220,38 @@ repo.</p>
   <p>🌟 Please star this repo on github if you like it 🙏.</p>
 </blockquote>
 
-<p>The production
-<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/tui/md_parser"><code class="language-plaintext highlighter-rouge">md_parser</code></a>
-module in the <code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo contains a fully functional Markdown parser (and isn’t
-written as a test but a real module that you can use in your projects that need a Markdown
-parser). This parser supports standard Markdown syntax as well as some extensions that are
-added to make it work w/ R3BL products. It makes a great starting point to study how a
-relatively complex parser is written. There are lots of tests that you can follow along to
-understand what the code is doing.</p>
+<p>The main entry point (function) for this Markdown parsing module is
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/parse_markdown.rs"><code class="language-plaintext highlighter-rouge">parse_markdown()</code></a>.</p>
+<ul>
+  <li>It takes a string slice.</li>
+  <li>And returns a vector of <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs"><code class="language-plaintext highlighter-rouge">MdBlock</code>s</a>.</li>
+</ul>
 
 <p>Here are some entry points into the codebase.</p>
 
 <ol>
-  <li>
-    <p>The main function
-<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/parser.rs"><code class="language-plaintext highlighter-rouge">parse_markdown()</code></a>
+  <li>The main function
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/parse_markdown.rs"><code class="language-plaintext highlighter-rouge">parse_markdown()</code></a>
 that does the parsing of a string slice into a
-<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs"><code class="language-plaintext highlighter-rouge">Document</code></a>.
-The tests are provided alongside the code itself. And you can follow along to see how other
-smaller parsers are used to build up this big one that parses the whole of the Markdown document.</p>
-
-    <ol>
-      <li>All the parsers related to parsing metadata specific for R3BL applications which are not
-standard Markdown can be found in
-<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/parser_impl_metadata.rs"><code class="language-plaintext highlighter-rouge">parser_impl_metadata</code></a>.</li>
-      <li>All the parsers that are related to parsing the main “blocks” of Markdown, such as order
-lists, unordered lists, code blocks, text blocks, heading blocks, can be found
-<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/parser_impl_block.rs"><code class="language-plaintext highlighter-rouge">parser_impl_block</code></a></li>
-      <li>All the parsers that are related to parsing a single line of Markdown text, such as links,
-bold, italic, etc. can be found
-<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/parser_impl_element.rs"><code class="language-plaintext highlighter-rouge">parser_impl_element</code></a></li>
-    </ol>
-  </li>
-  <li>
-    <p>The <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs">types</a>
-that are used to represent the Markdown document model
-(<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs"><code class="language-plaintext highlighter-rouge">Document</code></a>)
-and all the other intermediate types (<code class="language-plaintext highlighter-rouge">Fragment</code>, <code class="language-plaintext highlighter-rouge">Block</code>, etc) &amp; enums required for parsing.</p>
-  </li>
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs"><code class="language-plaintext highlighter-rouge">MdDocument</code></a>.
+The tests are provided alongside the code itself. And you can follow along to see how
+other smaller parsers are used to build up this big one that parses the whole of the
+Markdown document.</li>
+  <li>The
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/types.rs"><code class="language-plaintext highlighter-rouge">types</code></a> module
+contain all the types that are used to represent the Markdown document model, such as <code class="language-plaintext highlighter-rouge">MdDocument</code>, <code class="language-plaintext highlighter-rouge">MdBlock</code>,
+<code class="language-plaintext highlighter-rouge">MdLineFragment</code> and all the other intermediate types &amp; enums required for parsing.</li>
+  <li>All the parsers related to parsing metadata specific for <a href="https://r3bl.com">R3BL</a>
+applications which are not standard Markdown can be found in
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/extended/parse_metadata_kv.rs#L1"><code class="language-plaintext highlighter-rouge">parse_metadata_kv</code></a>
+and
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/extended/parse_metadata_kcsv.rs#L1"><code class="language-plaintext highlighter-rouge">parse_metadata_kcsv</code></a>.</li>
+  <li>All the parsers that are related to parsing the main “blocks” of Markdown, such as
+order lists, unordered lists, code blocks, text blocks, heading blocks, can be
+found <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/block/mod.rs#L3"><code class="language-plaintext highlighter-rouge">block</code></a>.</li>
+  <li>All the parsers that are related to parsing a single line of Markdown text, such as
+links, bold, italic, etc. can be found
+<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/md_parser/fragment/mod.rs#L1"><code class="language-plaintext highlighter-rouge">fragment</code></a>.</li>
 </ol>
       <h2 id="references">
         
@@ -1325,8 +1328,23 @@ how the <code class="language-plaintext highlighter-rouge">nom</code> library wo
     
     
     <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
             <a href="/category/Rust">
                 #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TUI">
+                #tui</a>
         </span>
     
 </div>
@@ -1386,8 +1404,17 @@ project):
             
                 
                 <li>
+                    <a class="post-list" href="/2024/06/28/md-parser-rust-from-r3bl-tui/">
+                        Build with Naz : Markdown parser in Rust and nom from r3bl_tui
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
                     <a class="post-list" href="/2024/06/10/rust-miette-error-handling/">
-                        Rust error handling with miette
+                        Build with Naz : Rust error handling with miette
                     </a>
                 </li>
             
@@ -1467,6 +1494,15 @@ project):
             
                 
                 <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
                     <a class="post-list" href="/2023/09/17/tuify-clap/">
                         tuify your clap CLI apps and make them more interactive
                     </a>
@@ -1489,15 +1525,6 @@ project):
                 <li>
                     <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
                         Create a simple DSL for CSS like syntax for TUIs
-                    </a>
-                </li>
-            
-        
-            
-                
-                <li>
-                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
-                        Guide to Rust procedural macros
                     </a>
                 </li>
             
@@ -1534,6 +1561,114 @@ project):
                 <li>
                     <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
                         Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
                     </a>
                 </li>
             

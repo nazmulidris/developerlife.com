@@ -47,8 +47,6 @@ Before we get started, here are some good references to take a look at:
 > [Chrome Extension](https://chrome.google.com/webstore/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial?hl=en-US&gl=US)
 > 🛠️
 
-{%- include featured.html -%}
-
 ## Step 1: Create a new Chrome Extension
 <a id="markdown-step-1%3A-create-a-new-chrome-extension" name="step-1%3A-create-a-new-chrome-extension"></a>
 

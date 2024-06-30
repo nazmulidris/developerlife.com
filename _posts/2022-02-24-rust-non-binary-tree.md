@@ -56,8 +56,6 @@ will be allow us to make the tree thread safe and parallel friendly (we will nam
 > 📜 You can take a look the source code of this thread safe non-binary tree data structure named
 > `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/utils).
 
-{%- include featured.html -%}
-
 ## Naive approach using weak and strong references
 
 Our first attempt at implementing this data structure will involve using a struct that can hold

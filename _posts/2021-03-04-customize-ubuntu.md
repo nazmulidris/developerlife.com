@@ -47,8 +47,6 @@ interacting w/ a desktop OS as fun and productive as possible (for me). I've com
 change that I've made to my Ubuntu desktop environment to make it a pleasure for me to use and I'm
 sharing them here. YMMV 🙂.
 
-{%- include featured.html -%}
-
 ## Fonts
 
 I tend to install a collection of fonts that I've been curating over the years on every system that

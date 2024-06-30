@@ -50,8 +50,6 @@ tasks. But the reducer functions will be run in sequence (not in separate Tokio 
 > 📜 The source code for the finished Redux library can be found
 > [here](https://github.com/r3bl-org/r3bl-rs-utils).
 
-{%- include featured.html -%}
-
 This article is getting us ready to building more complex TUI apps next using crates like `termion`
 and `tui`.
 

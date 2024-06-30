@@ -49,8 +49,6 @@ arguments, stdin, stdout, and piping.
 > object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
 > by Will Crichton demonstrating Typed Design Patterns with Rust.
 
-{%- include featured.html -%}
-
 ## Building the main function
 
 The first thing we need to do is build the main function. This is where we will be routing

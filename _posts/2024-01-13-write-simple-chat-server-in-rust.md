@@ -54,8 +54,6 @@ Source: https://github.com/nazmulidris/developerlife.com/issues/4
 >   <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/14ce32ce-0988-4853-acd5-1174b1864d57" type="video/mp4"/>
 > </video>
 
-{%- include featured.html -%}
-
 > You can find the finished source code for this tutorial
 > [here](https://github.com/nazmulidris/rust-scratch/tree/main/tcp-server-netcat-client).
 

@@ -47,8 +47,6 @@ Source: https://github.com/nazmulidris/developerlife.com/issues/3
 >   <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/ffe83b3e-6997-4afc-bdf3-5d867f995611" type="video/mp4"/>
 > </video>
 
-{%- include featured.html -%}
-
 > You can find the finished source code for this tutorial
 > [here](https://github.com/nazmulidris/rust-scratch/tree/main/rtelnet).
 

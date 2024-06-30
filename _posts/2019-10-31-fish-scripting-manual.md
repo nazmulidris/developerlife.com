@@ -48,8 +48,6 @@ categories:
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-{%- include featured.html -%}
-
 ## Shebang line at the top of your scripts
 
 To be able to run fish scripts from your terminal, you have to do two things.

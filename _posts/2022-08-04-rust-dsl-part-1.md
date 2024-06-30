@@ -45,8 +45,6 @@ The motivation for doing this comes from having built a TUI library in the
 ergonomic for developers, so that it is easier to use and familiar to declarative styling from CSS,
 etc.
 
-{%- include featured.html -%}
-
 ### A TUI brings GUI features to terminal apps
 <a id="markdown-a-tui-brings-gui-features-to-terminal-apps" name="a-tui-brings-gui-features-to-terminal-apps"></a>
 

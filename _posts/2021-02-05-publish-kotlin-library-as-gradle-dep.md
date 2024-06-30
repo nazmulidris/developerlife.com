@@ -50,8 +50,6 @@ In this tutorial I will create the `color-console` library that allows console m
 colorized using ANSI color codes. Here is the end result snippet that we are looking to enable for
 our `color-console` library.
 
-{%- include featured.html -%}
-
 ## Using JitPack 👍
 
 > ✨ This is much simpler than [GPR](#using-github-package-registry-gpr-) and the way to go for

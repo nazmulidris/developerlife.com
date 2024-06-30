@@ -40,8 +40,6 @@ TUIs, or even conversational interfaces.
 But that's not the focus of this article which is all about the CLI experience of inducing
 and resolving merge conflicts. So let's get started.
 
-{%- include featured.html -%}
-
 ## Setting the stage for a merge conflict
 <a id="markdown-setting-the-stage-for-a-merge-conflict" name="setting-the-stage-for-a-merge-conflict"></a>
 

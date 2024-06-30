@@ -48,8 +48,6 @@ CLI apps to make them more ergonomic to use. And we can do this without going fu
 this in a way that is additive to the existing CLI experience. We can "tuify" our CLI apps that are
 built using `clap`.
 
-{%- include featured.html -%}
-
 > For more information on general Rust type system design (functional approach rather than
 > object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
 > by Will Crichton demonstrating Typed Design Patterns with Rust.

@@ -120,8 +120,6 @@ In order to be successful creating advanced plugins, this is what I suggest:
    find some functionality in IDEA that is similar to what you are looking to build, and then locate
    the source code for that feature in the repo and see how JetBrains has done it.
 
-{%- include featured.html -%}
-
 ## IDEA threading model
 
 For the most part, the code that you write in your plugins is executed on the main thread. Some

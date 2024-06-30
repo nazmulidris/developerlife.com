@@ -45,8 +45,6 @@ It comes with a full featured Markdown editor component, and the parser that's t
 on this tutorial is used by that editor component to parse an input string slice into a
 Markdown document model (AST representation in memory).
 
-{%- include featured.html -%}
-
 ## nom crate review
 <a id="markdown-nom-crate-review" name="nom-crate-review"></a>
 

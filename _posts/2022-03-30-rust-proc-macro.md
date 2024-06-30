@@ -220,8 +220,6 @@ crates as well. This won't happen automatically when publishing the public crate
 and run `cargo publish` on each and every dependent crate and they will be their own installable
 crate on crates.io.
 
-{%- include featured.html -%}
-
 ## What does a syn AST look like?
 <a id="markdown-what-does-a-syn-ast-look-like%3F" name="what-does-a-syn-ast-look-like%3F"></a>
 

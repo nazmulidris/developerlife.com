@@ -50,8 +50,6 @@ more complex TUI apps next using crates like `termion` and `tui`.
 > object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)
 > by Will Crichton demonstrating Typed Design Patterns with Rust.
 
-{%- include featured.html -%}
-
 ## Concurrency and async/await, vs parallelism
 <a id="markdown-concurrency-and-async%2Fawait%2C-vs-parallelism" name="concurrency-and-async%2Fawait%2C-vs-parallelism"></a>
 

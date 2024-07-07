@@ -8,8 +8,8 @@
 <meta property="og:title" content="Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety" />
 <meta name="author" content="Nazmul Idris" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="Learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore safe cancellation, when not to use async, and how to think about testing async code." />
-<meta property="og:description" content="Learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore safe cancellation, when not to use async, and how to think about testing async code." />
+<meta name="description" content="Learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore graceful shutdown, when not to use async, and how to think about testing async code." />
+<meta property="og:description" content="Learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore graceful shutdown, when not to use async, and how to think about testing async code." />
 <link rel="canonical" href="http://developerlife.com/2024/05/19/effective-async-rust/" />
 <meta property="og:url" content="http://developerlife.com/2024/05/19/effective-async-rust/" />
 <meta property="og:site_name" content="developerlife.com" />
@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-05-19T10:00:00-05:00","datePublished":"2024-05-19T10:00:00-05:00","description":"Learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore safe cancellation, when not to use async, and how to think about testing async code.","headline":"Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/05/19/effective-async-rust/"},"url":"http://developerlife.com/2024/05/19/effective-async-rust/"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-05-19T10:00:00-05:00","datePublished":"2024-05-19T10:00:00-05:00","description":"Learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore graceful shutdown, when not to use async, and how to think about testing async code.","headline":"Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/05/19/effective-async-rust/"},"url":"http://developerlife.com/2024/05/19/effective-async-rust/"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css" />
 
@@ -233,7 +233,7 @@
       <li><a href="#example-3-running-async-code-concurrently-on-a-single-thread">Example 3: Running async code, concurrently, on a single thread</a></li>
       <li><a href="#example-4-join-select-spawn-control-flow-constructors">Example 4: join!, select, spawn control flow constructors</a></li>
       <li><a href="#example-5-async-streams">Example 5: async streams</a></li>
-      <li><a href="#example-6-non-blocking-event-loops-channel-safety-and-safe-cancellation">Example 6: Non-blocking event loops, channel safety, and safe cancellation</a></li>
+      <li><a href="#example-6-non-blocking-event-loops-channel-safety-and-graceful-shutdown">Example 6: Non-blocking event loops, channel safety, and graceful shutdown</a></li>
       <li><a href="#parting-thoughts">Parting thoughts</a></li>
     </ul>
   </li>
@@ -1014,15 +1014,15 @@ Stream&lt;Item = Result&lt;String, String&gt;&gt;&gt;</code>.</li>
     <span class="p">}</span>
 <span class="p">}</span>
 </code></pre></div></div>
-      <h3 id="example-6-non-blocking-event-loops-channel-safety-and-safe-cancellation">
+      <h3 id="example-6-non-blocking-event-loops-channel-safety-and-graceful-shutdown">
         
         
-          Example 6: Non-blocking event loops, channel safety, and safe cancellation <a href="#example-6-non-blocking-event-loops-channel-safety-and-safe-cancellation">#</a>
+          Example 6: Non-blocking event loops, channel safety, and graceful shutdown <a href="#example-6-non-blocking-event-loops-channel-safety-and-graceful-shutdown">#</a>
         
         
       </h3>
     
-<p><a id="markdown-example-6%3A-non-blocking-event-loops%2C-channel-safety%2C-and-safe-cancellation" name="example-6%3A-non-blocking-event-loops%2C-channel-safety%2C-and-safe-cancellation"></a></p>
+<p><a id="markdown-example-6%3A-non-blocking-event-loops%2C-channel-safety%2C-and-graceful-shutdown" name="example-6%3A-non-blocking-event-loops%2C-channel-safety%2C-and-graceful-shutdown"></a></p>
 
 <p>Let’s add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file.</p>
 

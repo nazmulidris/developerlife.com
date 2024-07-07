@@ -6,7 +6,7 @@ date: 2024-05-19 15:00:00+00:00
 excerpt: |
   Learn effective async Rust using real world patterns that show up consistently when creating
   non blocking, async, event loops, using channels. Delve into implementing the Future trait and
-  async executor manually. Also explore safe cancellation, when not to use
+  async executor manually. Also explore graceful shutdown, when not to use
   async, and how to think about testing async code.
 layout: post
 categories:
@@ -28,7 +28,7 @@ categories:
   - [Example 3: Running async code, concurrently, on a single thread](#example-3-running-async-code-concurrently-on-a-single-thread)
   - [Example 4: join!, select, spawn control flow constructors](#example-4-join-select-spawn-control-flow-constructors)
   - [Example 5: async streams](#example-5-async-streams)
-  - [Example 6: Non-blocking event loops, channel safety, and safe cancellation](#example-6-non-blocking-event-loops-channel-safety-and-safe-cancellation)
+  - [Example 6: Non-blocking event loops, channel safety, and graceful shutdown](#example-6-non-blocking-event-loops-channel-safety-and-graceful-shutdown)
   - [Parting thoughts](#parting-thoughts)
 - [Build with Naz video series on developerlife.com YouTube channel](#build-with-naz-video-series-on-developerlifecom-youtube-channel)
 
@@ -748,8 +748,8 @@ async fn test_stream() {
 }
 ```
 
-### Example 6: Non-blocking event loops, channel safety, and safe cancellation
-<a id="markdown-example-6%3A-non-blocking-event-loops%2C-channel-safety%2C-and-safe-cancellation" name="example-6%3A-non-blocking-event-loops%2C-channel-safety%2C-and-safe-cancellation"></a>
+### Example 6: Non-blocking event loops, channel safety, and graceful shutdown
+<a id="markdown-example-6%3A-non-blocking-event-loops%2C-channel-safety%2C-and-graceful-shutdown" name="example-6%3A-non-blocking-event-loops%2C-channel-safety%2C-and-graceful-shutdown"></a>
 
 Let's add the following code to the `src/lib.rs` file.
 

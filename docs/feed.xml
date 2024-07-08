@@ -1,4 +1,277 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-07-06T20:43:09-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Markdown parser in Rust and nom from r3bl_tui</title><link href="http://developerlife.com/2024/06/28/md-parser-rust-from-r3bl-tui/" rel="alternate" type="text/html" title="Build with Naz : Markdown parser in Rust and nom from r3bl_tui" /><published>2024-06-28T10:00:00-05:00</published><updated>2024-06-28T10:00:00-05:00</updated><id>http://developerlife.com/2024/06/28/md-parser-rust-from-r3bl-tui</id><content type="html" xml:base="http://developerlife.com/2024/06/28/md-parser-rust-from-r3bl-tui/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust-tui-md-parser.svg" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-07-08T16:05:34-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Ubuntu 24.04 setup and config for dev productivity</title><link href="http://developerlife.com/2024/07/08/ubuntu24/" rel="alternate" type="text/html" title="Build with Naz : Ubuntu 24.04 setup and config for dev productivity" /><published>2024-07-08T10:00:00-05:00</published><updated>2024-07-08T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/08/ubuntu24</id><content type="html" xml:base="http://developerlife.com/2024/07/08/ubuntu24/"><![CDATA[<p><img class="post-hero-image" src="/assets/ubuntu24.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#related-video">Related video</a></li>
+  <li><a href="#what-comes-with-the-scripts">What comes with the scripts</a></li>
+  <li><a href="#running-the-scripts">Running the scripts</a></li>
+  <li><a href="#gnome-extensions">Gnome Extensions</a></li>
+  <li><a href="#keyboard-remapping">Keyboard remapping</a>
+    <ul>
+      <li><a href="#tilix-and-quake-mode">Tilix and quake mode</a></li>
+      <li><a href="#remap-superq">Remap Super+Q</a></li>
+      <li><a href="#remap-caps-lock-to-ctrl">Remap Caps Lock to Ctrl</a></li>
+    </ul>
+  </li>
+  <li><a href="#chrome-issues-w-wayland">Chrome issues w/ Wayland</a></li>
+  <li><a href="#libfuse2-and-appimage-issues">libfuse2 and AppImage issues</a>
+    <ul>
+      <li><a href="#approach-1---simple">Approach 1 - simple</a></li>
+      <li><a href="#approach-2---complex">Approach 2 - complex</a></li>
+    </ul>
+  </li>
+  <li><a href="#settings---key-mappings">Settings -&gt; Key mappings</a></li>
+  <li><a href="#obs-studio-issues">OBS Studio issues</a></li>
+  <li><a href="#fontconfig">Fontconfig</a></li>
+</ul>
+
+<!-- /TOC -->
+
+<h2 id="introduction">Introduction</h2>
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>I’ve provided scripts for setting up a new Ubuntu 24.04 desktop machine. They have been
+tested on a fresh install of Ubuntu 24.04 LTS. They contain all the software that is
+needed for Rust development, OBS Studio use, and general developer productivity. They are
+highly opinionated for my use case, but you can modify them to suit your needs. I’ve also
+recently migrated from Pop_OS! 22.04.</p>
+
+<h2 id="related-video">Related video</h2>
+<p><a id="markdown-related-video" name="related-video"></a></p>
+
+<p>This video shows what the scripts do after you run them, and how they make your Ubuntu
+24.04 desktop environment look and feel. This article is really a companion to the video.</p>
+
+<!-- video on ubuntu24 -->
+<iframe src="https://www.youtube.com/embed/zGljNewTc0I?si=D5-5P0afPVBw-3IB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<blockquote>
+  <p>💡 You can get the scripts from the
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/ubuntu24"><code class="language-plaintext highlighter-rouge">rust-scratch</code></a> repo.</p>
+</blockquote>
+
+<h2 id="what-comes-with-the-scripts">What comes with the scripts</h2>
+<p><a id="markdown-what-comes-with-the-scripts" name="what-comes-with-the-scripts"></a></p>
+
+<p>Here is a non exhaustive list of software that will be installed:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">fish</code> as the default login shell. All the configuration scripts are written in <code class="language-plaintext highlighter-rouge">fish</code>.
+ <code class="language-plaintext highlighter-rouge">bass</code> is also installed to allow for running <code class="language-plaintext highlighter-rouge">bash</code> scripts in <code class="language-plaintext highlighter-rouge">fish</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">rustup</code>, <code class="language-plaintext highlighter-rouge">brew</code>, and <code class="language-plaintext highlighter-rouge">flatpak</code> with <code class="language-plaintext highlighter-rouge">flathub</code> as package managers.</li>
+  <li><code class="language-plaintext highlighter-rouge">docker</code> and <code class="language-plaintext highlighter-rouge">docker-compose</code> for containerization.</li>
+  <li><code class="language-plaintext highlighter-rouge">obs-studio</code> for screen recording and streaming.</li>
+  <li><code class="language-plaintext highlighter-rouge">vlc</code>, <code class="language-plaintext highlighter-rouge">mpv</code> for media playback.</li>
+  <li><code class="language-plaintext highlighter-rouge">chrome</code> for web browsing.</li>
+  <li><code class="language-plaintext highlighter-rouge">vscode</code> for code editing.</li>
+  <li>Lots of Gnome extensions for desktop customization.</li>
+  <li><code class="language-plaintext highlighter-rouge">nerd-fonts</code> for terminal font customization. Along with <code class="language-plaintext highlighter-rouge">guake</code> and <code class="language-plaintext highlighter-rouge">tilix</code> for
+ terminal emulators. Along with <code class="language-plaintext highlighter-rouge">tmux</code> for terminal multiplexing.</li>
+</ol>
+
+<blockquote>
+  <p>To download Ubuntu 24.04, visit the <a href="https://ubuntu.com/download/desktop">Ubuntu
+website</a> and prepare a USB drive with the ISO file
+for installation. You can use <a href="https://flathub.org/apps/com.system76.Popsicle">Popsicle</a>
+to create a bootable USB drive.</p>
+</blockquote>
+
+<h2 id="running-the-scripts">Running the scripts</h2>
+<p><a id="markdown-running-the-scripts" name="running-the-scripts"></a></p>
+
+<p>Lots of customized font configurations are included in the scripts. You can clone the repo
+and run the scripts, or just copy the links below and run them in your terminal.</p>
+
+<p>The scripts can be run in the following order. Really the only one that is required to be
+run first is the
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/0-bootstrap.bash"><code class="language-plaintext highlighter-rouge">0-bootstrap.bash</code></a>
+script. The rest can be run in any order.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/0-bootstrap.bash | bash</code></li>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/1-install.fish | fish</code></li>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/2-install-docker.bash | bash</code></li>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/3-install-fonts.fish | fish</code></li>
+</ol>
+
+<p>Optional scripts:</p>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/install-agent-into-bin.fish | fish</code></li>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/fix-gnome-session-path-env-var-linuxbrew.fish | fish</code></li>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/fix-usr-local-bin-symlinks.fish | fish</code></li>
+</ol>
+
+<h2 id="gnome-extensions">Gnome Extensions</h2>
+<p><a id="markdown-gnome-extensions" name="gnome-extensions"></a></p>
+
+<ul>
+  <li><a href="https://extensions.gnome.org/extension/4548/tactile/">Tactile tiling support</a></li>
+  <li><a href="https://extensions.gnome.org/extension/7065/tiling-shell/">Tiling shell tiling support</a></li>
+  <li><a href="https://extensions.gnome.org/extension/5660/weather-or-not/">Weather in top bar</a></li>
+  <li><a href="https://extensions.gnome.org/extension/1460/vitals/">Vitals in top bar</a></li>
+  <li><a href="https://extensions.gnome.org/extension/6242/emoji-copy/">Emoji chooser in top bar</a></li>
+  <li><a href="https://extensions.gnome.org/extension/4839/clipboard-history/">Clipboard history</a></li>
+  <li><a href="https://extensions.gnome.org/extension/4679/burn-my-windows/">Burn my windows animation for window open and close</a></li>
+  <li><a href="https://extensions.gnome.org/extension/3843/just-perfection/">Just Perfection ultra GNOME customization</a></li>
+</ul>
+
+<h2 id="keyboard-remapping">Keyboard remapping</h2>
+<p><a id="markdown-keyboard-remapping" name="keyboard-remapping"></a></p>
+
+<h3 id="tilix-and-quake-mode">Tilix and quake mode</h3>
+<p><a id="markdown-tilix-and-quake-mode" name="tilix-and-quake-mode"></a></p>
+
+<p><code class="language-plaintext highlighter-rouge">tilix</code> and its <code class="language-plaintext highlighter-rouge">quake mode</code> is disabled in Wayland. So I installed <code class="language-plaintext highlighter-rouge">guake</code>. You can use
+<a href="https://lukaszwrobel.pl/blog/tmux-tutorial-split-terminal-windows-easily/"><code class="language-plaintext highlighter-rouge">tmux</code></a> to
+manage the panes in this <code class="language-plaintext highlighter-rouge">guake</code> terminal with ease.</p>
+
+<h3 id="remap-superq">Remap Super+Q</h3>
+<p><a id="markdown-remap-super%2Bq" name="remap-super%2Bq"></a></p>
+
+<p>The following links show you how to remove the default binding for the <kbd>Super+Q</kbd>
+key to close the current window. This is useful if you want to use that binding to launch
+the <code class="language-plaintext highlighter-rouge">guake</code> terminal. I used to use <code class="language-plaintext highlighter-rouge">tilix</code> in <code class="language-plaintext highlighter-rouge">quake mode</code>, but that doesn’t work in
+Wayland, so I am using <code class="language-plaintext highlighter-rouge">guake</code> for that now. But I’m still using <code class="language-plaintext highlighter-rouge">tilix</code>.</p>
+
+<ul>
+  <li><a href="https://askubuntu.com/questions/977876/changing-command-super-q">https://askubuntu.com/questions/977876/changing-command-super-q</a></li>
+  <li><a href="https://flameshot.org/docs/guide/wayland-help/">https://flameshot.org/docs/guide/wayland-help/</a></li>
+  <li><a href="https://github.com/Ulauncher/Ulauncher/wiki/Hotkey-In-Wayland">https://github.com/Ulauncher/Ulauncher/wiki/Hotkey-In-Wayland</a></li>
+  <li><a href="https://askubuntu.com/questions/26056/where-are-gnome-keyboard-shortcuts-stored">https://askubuntu.com/questions/26056/where-are-gnome-keyboard-shortcuts-stored</a></li>
+</ul>
+
+<h3 id="remap-caps-lock-to-ctrl">Remap Caps Lock to Ctrl</h3>
+<p><a id="markdown-remap-caps-lock-to-ctrl" name="remap-caps-lock-to-ctrl"></a></p>
+
+<p>Here’s a snippet to allow you map your <kbd>Caps Lock</kbd> key to the <kbd>Ctrl</kbd>
+key:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>remapCapsLockKey
+    <span class="nb">echo</span> <span class="s2">"Remapping caps lock key"</span>
+    <span class="c"># https://opensource.com/article/21/5/remap-caps-lock-key-linux</span>
+    dconf write /org/gnome/desktop/input-sources/xkb-options <span class="s2">"['caps:ctrl_modifier']"</span>
+    <span class="c"># dconf write /org/gnome/desktop/input-sources/xkb-options "['caps:ctrl']"</span>
+end
+</code></pre></div></div>
+
+<h2 id="chrome-issues-w-wayland">Chrome issues w/ Wayland</h2>
+<p><a id="markdown-chrome-issues-w%2F-wayland" name="chrome-issues-w%2F-wayland"></a></p>
+
+<p>If you find Chrome to be blurry (or AppImages or Electron apps), then you may need to
+do the following to fix this in Wayland:</p>
+
+<ul>
+  <li>Navigate to <code class="language-plaintext highlighter-rouge">chrome://flags</code></li>
+  <li>Change <code class="language-plaintext highlighter-rouge">Preferred Ozone Platform</code> from <code class="language-plaintext highlighter-rouge">default</code> to <code class="language-plaintext highlighter-rouge">wayland</code></li>
+  <li><a href="https://askubuntu.com/a/1502896/872482">More info</a></li>
+</ul>
+
+<h2 id="libfuse2-and-appimage-issues">libfuse2 and AppImage issues</h2>
+<p><a id="markdown-libfuse2-and-appimage-issues" name="libfuse2-and-appimage-issues"></a></p>
+
+<p>On Ubuntu 24.04 I ran into some issues w/ <code class="language-plaintext highlighter-rouge">libfuse2</code> and running <code class="language-plaintext highlighter-rouge">AppImage</code>s.</p>
+
+<ul>
+  <li>Ubuntu 24 does not come w/ <code class="language-plaintext highlighter-rouge">libfuse2</code> out of the box (for good reasons), and instead it
+has <code class="language-plaintext highlighter-rouge">libfuse3</code>.</li>
+  <li>And <code class="language-plaintext highlighter-rouge">AppImage</code> currently only supports <code class="language-plaintext highlighter-rouge">libfuse2</code>.</li>
+</ul>
+
+<h3 id="approach-1---simple">Approach 1 - simple</h3>
+<p><a id="markdown-approach-1---simple" name="approach-1---simple"></a></p>
+
+<p>Instead of installing <code class="language-plaintext highlighter-rouge">libfuse2</code>, however, if you don’t want to do that you can simply run
+the your <code class="language-plaintext highlighter-rouge">XYZ.AppImage</code> using the following command (once it’s been marked as executable):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod +x XYZ.AppImage
+./XYZ.AppImage \
+  --no-sandbox --enable-features=UseOzonePlatform,WaylandWindowDecorations \
+  --ozone-platform-hint=auto
+</code></pre></div></div>
+
+<p>Explanation of the flags:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">--no-sandbox</code> - removes the need for libfuse2</li>
+  <li><code class="language-plaintext highlighter-rouge">--enable-features=UseOzonePlatform,WaylandWindowDecorations</code> - tells chromium in
+electron to do things for Wayland.</li>
+  <li><code class="language-plaintext highlighter-rouge">--ozone-platform-hint=auto</code> - tells chromium to use Wayland if it is available. This
+setting is set to <code class="language-plaintext highlighter-rouge">X11</code> by default. If you see blurry windows in Chrome, you may need to set
+this in your Chrome too (using <code class="language-plaintext highlighter-rouge">chrome://flags/</code>).</li>
+</ul>
+
+<p>Here’s an example of my <code class="language-plaintext highlighter-rouge">~/.local/share/applications/uhk-agent.desktop</code> file, which I use
+to run the <a href="https://forum.ultimatehackingkeyboard.com/t/run-agent-appimage-in-wayland-eg-on-ubuntu-24/1364"><code class="language-plaintext highlighter-rouge">uhk-agent</code>
+AppImage</a>
+w/ the above flags:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[Desktop Entry]
+Type=Application
+Name=UHK Agent
+Comment=Launch UHK Agent
+Categories=Utilities;
+Icon=/home/nazmul/bin/uhk-agent.png
+Exec=/home/nazmul/bin/UHK.Agent.AppImage --no-sandbox --enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform-hint=auto
+Terminal=false
+</code></pre></div></div>
+
+<h3 id="approach-2---complex">Approach 2 - complex</h3>
+<p><a id="markdown-approach-2---complex" name="approach-2---complex"></a></p>
+
+<p>Here’s another approach to run <code class="language-plaintext highlighter-rouge">AppImage</code>s, which is more complex:</p>
+
+<ul>
+  <li><a href="https://github.com/AppImage/AppImageKit/wiki/FUSE"><code class="language-plaintext highlighter-rouge">libfuse2</code></a> is not included with
+Ubuntu 24.04. <code class="language-plaintext highlighter-rouge">AppImage</code>s are difficult to run (since they need <code class="language-plaintext highlighter-rouge">libfuse2</code> installed).</li>
+  <li>To run them, have to pass an extra flag in the terminal or <code class="language-plaintext highlighter-rouge">.desktop</code> file(eg for
+<code class="language-plaintext highlighter-rouge">uhk-agent</code>). here’s a workaround (to keep from installing <code class="language-plaintext highlighter-rouge">libfuse2</code>).</li>
+</ul>
+
+<p>Here’s an example of the command to run the <a href="https://ultimatehackingkeyboard.com/agent"><code class="language-plaintext highlighter-rouge">uhk-agent</code>
+AppImage</a>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/UHK.Agent-4.2.0-linux-x86_64.AppImage <span class="nt">--appimage-extract</span>
+<span class="nb">cd </span>squashfs-root
+./uhk-agent <span class="nt">--no-sandox</span>
+</code></pre></div></div>
+
+<p>Here’s a
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/install-agent-into-bin.fish">script</a>
+that uses this complex approach to unpack an <code class="language-plaintext highlighter-rouge">AppImage</code> into the <code class="language-plaintext highlighter-rouge">~/bin</code> folder so you can
+run it.</p>
+
+<h2 id="settings---key-mappings">Settings -&gt; Key mappings</h2>
+<p><a id="markdown-settings--%3E-key-mappings" name="settings--%3E-key-mappings"></a></p>
+
+<ul>
+  <li>To create keyboard shortcuts that launch a shell command, wrap it in <code class="language-plaintext highlighter-rouge">sh -c $CMD</code>. This
+is what must be done for <code class="language-plaintext highlighter-rouge">flameshot</code>, and <code class="language-plaintext highlighter-rouge">ulauncher</code>.</li>
+  <li>Bind <code class="language-plaintext highlighter-rouge">ulauncher-toggle</code> to the settings -&gt; keyboard shortcuts in gnome.</li>
+</ul>
+
+<h2 id="obs-studio-issues">OBS Studio issues</h2>
+<p><a id="markdown-obs-studio-issues" name="obs-studio-issues"></a></p>
+
+<p><code class="language-plaintext highlighter-rouge">obs-studio</code> has some UI issues, and dialog boxes are quite glitchy and don’t display
+properly. keyboard shortcuts can’t be reliably used when the <code class="language-plaintext highlighter-rouge">obs-studio</code> window is not in
+focus. can’t really bind to settings -&gt; keyboard shortcuts either, since there’s no
+command to stop recording; start recording will spawn a new process.</p>
+
+<h2 id="fontconfig">Fontconfig</h2>
+<p><a id="markdown-fontconfig" name="fontconfig"></a></p>
+
+<p>Custom font install using script. optional - <code class="language-plaintext highlighter-rouge">~/.config/fontconfig/fonts.conf</code> change
+for system fonts that affect all apps. also <code class="language-plaintext highlighter-rouge">gnome-tweaks</code> to change fonts, and other
+settings.</p>
+
+<ul>
+  <li><a href="https://jichu4n.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux/">https://jichu4n.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux/</a></li>
+  <li><a href="https://www.freedesktop.org/software/fontconfig/fontconfig-user.html">https://www.freedesktop.org/software/fontconfig/fontconfig-user.html</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Fontconfig">https://en.wikipedia.org/wiki/Fontconfig</a></li>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="Linux" /><category term="Misc" /><category term="Productivity" /><summary type="html"><![CDATA[I've provided scripts for setting up a new Ubuntu 24.04 desktop machine. They have been tested on a fresh install of Ubuntu 24.04 LTS. They contain all the software that is needed for Rust development, OBS Studio use, and general developer productivity. They are highly opinionated for my use case, but you can modify them to suit your needs.]]></summary></entry><entry><title type="html">Build with Naz : Markdown parser in Rust and nom from r3bl_tui</title><link href="http://developerlife.com/2024/06/28/md-parser-rust-from-r3bl-tui/" rel="alternate" type="text/html" title="Build with Naz : Markdown parser in Rust and nom from r3bl_tui" /><published>2024-06-28T10:00:00-05:00</published><updated>2024-06-28T10:00:00-05:00</updated><id>http://developerlife.com/2024/06/28/md-parser-rust-from-r3bl-tui</id><content type="html" xml:base="http://developerlife.com/2024/06/28/md-parser-rust-from-r3bl-tui/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust-tui-md-parser.svg" /></p>
 
 <!-- TOC -->
 
@@ -4700,456 +4973,4 @@ and drop the other task.</p>
 </code></pre></div></div>
 
 <h2 id="next-steps">Next steps</h2>
-<p><a id="markdown-next-steps" name="next-steps"></a></p>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[A guide on how to create write a simple TCP chat server in Rust using Tokio]]></summary></entry><entry><title type="html">Write a simple netcat client and server in Rust</title><link href="http://developerlife.com/2024/01/13/write-simple-netcat-in-rust/" rel="alternate" type="text/html" title="Write a simple netcat client and server in Rust" /><published>2024-01-13T09:00:00-06:00</published><updated>2024-01-13T09:00:00-06:00</updated><id>http://developerlife.com/2024/01/13/write-simple-netcat-in-rust</id><content type="html" xml:base="http://developerlife.com/2024/01/13/write-simple-netcat-in-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/netcat-hero.svg" /></p>
-
-<!-- TOC -->
-
-<ul>
-  <li><a href="#build-a-swiss-army-knife-for-networking">Build a Swiss Army knife for networking</a></li>
-  <li><a href="#add-dependencies-to-cargotoml">Add dependencies to Cargo.toml</a></li>
-  <li><a href="#configure-clap-to-parse-command-line-arguments">Configure clap to parse command line arguments</a></li>
-  <li><a href="#create-the-client">Create the client</a></li>
-  <li><a href="#create-the-server">Create the server</a></li>
-  <li><a href="#next-steps">Next steps</a></li>
-</ul>
-
-<!-- /TOC -->
-
-<h2 id="build-a-swiss-army-knife-for-networking">Build a Swiss Army knife for networking</h2>
-<p><a id="markdown-build-a-swiss-army-knife-for-networking" name="build-a-swiss-army-knife-for-networking"></a></p>
-
-<p>In this tutorial we will learn how to use Rust to write a simple netcat client and server
-using the standard library only. A netcat client is like a Swiss Army knife for
-networking. It is similar to PuTTY and telnet. You can use it to connect to a server and
-send and receive data. We will create an app that can behave both as a client and server.</p>
-
-<ol>
-  <li>Our client will allow the user to type a message and send it to any TCP socket server,
-and display the response from the server, in an endless loop.</li>
-  <li>Our server will listen for incoming TCP connections from clients, and display the
-message from the client, and send a response back to the client.</li>
-</ol>
-
-<!--
-simple-netcat-in-rust video
-Source: https://github.com/nazmulidris/developerlife.com/issues/3
--->
-<blockquote>
-  <p>Here’s a video of the app that we are going to build in action.</p>
-  <video width="100%" controls="">
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/ffe83b3e-6997-4afc-bdf3-5d867f995611" type="video/mp4" />
-</video>
-</blockquote>
-
-<blockquote>
-  <p>You can find the finished source code for this tutorial
-<a href="https://github.com/nazmulidris/rust-scratch/tree/main/rtelnet">here</a>.</p>
-</blockquote>
-
-<h2 id="add-dependencies-to-cargotoml">Add dependencies to Cargo.toml</h2>
-<p><a id="markdown-add-dependencies-to-cargo.toml" name="add-dependencies-to-cargo.toml"></a></p>
-
-<p>Let’s create a new project by running <code class="language-plaintext highlighter-rouge">cargo create --bin rtelnet</code>. Then we will add the
-following dependencies to our <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file.</p>
-
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Command line argument parsing.</span>
-<span class="py">clap</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"4.4.13"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"derive"</span><span class="p">]</span> <span class="p">}</span>
-
-<span class="c"># Pretty logging.</span>
-<span class="py">femme</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"2.2.1"</span> <span class="p">}</span>
-<span class="py">log</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.4.20"</span> <span class="p">}</span>
-
-<span class="c"># Colorization and ANSI escape sequence codes.</span>
-<span class="py">r3bl_tui</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.5.1"</span> <span class="p">}</span>
-<span class="py">r3bl_ansi_color</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.6.9"</span> <span class="p">}</span>
-</code></pre></div></div>
-
-<h2 id="configure-clap-to-parse-command-line-arguments">Configure clap to parse command line arguments</h2>
-<p><a id="markdown-configure-clap-to-parse-command-line-arguments" name="configure-clap-to-parse-command-line-arguments"></a></p>
-
-<p>This Rust app has a single binary, and depending on the command line arguments, it will behave
-either as a client or server. We will use the <code class="language-plaintext highlighter-rouge">clap</code> crate to parse the command line arguments.</p>
-
-<p>We will configure <code class="language-plaintext highlighter-rouge">clap</code> so that the following commands will work:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run server
-cargo run client
-</code></pre></div></div>
-
-<p>We want to allow the user to specify the following options and chose their own address and
-port. If the user does not specify any options, we will use the default values. The
-default value for <code class="language-plaintext highlighter-rouge">--address</code> is <code class="language-plaintext highlighter-rouge">127.0.0.1</code>, and the default value for <code class="language-plaintext highlighter-rouge">--port</code> is
-<code class="language-plaintext highlighter-rouge">3000</code>.</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run server <span class="nt">--address</span> 127.0.0.1 <span class="nt">--port</span> 8080
-cargo run server <span class="nt">--address</span> 127.0.0.1
-cargo run server <span class="nt">--port</span> 8080
-
-cargo run client <span class="nt">--address</span> 127.0.0.1 <span class="nt">--port</span> 8080
-cargo run client <span class="nt">--address</span> 127.0.0.1
-cargo run client <span class="nt">--port</span> 8080
-</code></pre></div></div>
-
-<p>Let’s also add an option that we can use to disable log output to stdout. By default, we
-will log to stdout. But if the user specifies the <code class="language-plaintext highlighter-rouge">--log-disable</code> flag, then we disable
-all log output.</p>
-
-<p>Here’s the clap configuration that gives us this behavior.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">clap</span><span class="p">::{</span><span class="n">Parser</span><span class="p">,</span> <span class="n">Subcommand</span><span class="p">};</span>
-
-<span class="k">pub</span> <span class="k">use</span> <span class="nn">defaults</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
-<span class="k">mod</span> <span class="n">defaults</span> <span class="p">{</span>
-    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
-
-    <span class="k">pub</span> <span class="k">const</span> <span class="n">DEFAULT_PORT</span><span class="p">:</span> <span class="nb">u16</span> <span class="o">=</span> <span class="mi">3000</span><span class="p">;</span>
-    <span class="k">pub</span> <span class="k">const</span> <span class="n">DEFAULT_ADDRESS</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"127.0.0.1"</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="k">pub</span> <span class="k">use</span> <span class="nn">clap_config</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
-<span class="k">mod</span> <span class="n">clap_config</span> <span class="p">{</span>
-    <span class="k">use</span> <span class="k">super</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
-
-    <span class="nd">#[derive(Parser,</span> <span class="nd">Debug)]</span>
-    <span class="k">pub</span> <span class="k">struct</span> <span class="n">CLIArg</span> <span class="p">{</span>
-        <span class="cd">/// IP Address to connect to or start a server on</span>
-        <span class="nd">#[clap(long,</span> <span class="nd">short,</span> <span class="nd">default_value</span> <span class="nd">=</span> <span class="nd">DEFAULT_ADDRESS,</span> <span class="nd">global</span> <span class="nd">=</span> <span class="kc">true</span><span class="nd">)]</span>
-        <span class="k">pub</span> <span class="n">address</span><span class="p">:</span> <span class="n">IpAddr</span><span class="p">,</span>
-
-        <span class="cd">/// TCP Port to connect to or start a server on</span>
-        <span class="nd">#[clap(long,</span> <span class="nd">short,</span> <span class="nd">default_value_t</span> <span class="nd">=</span> <span class="nd">DEFAULT_PORT,</span> <span class="nd">global</span> <span class="nd">=</span> <span class="kc">true</span><span class="nd">)]</span>
-        <span class="k">pub</span> <span class="n">port</span><span class="p">:</span> <span class="nb">u16</span><span class="p">,</span>
-
-        <span class="cd">/// Logs to stdout by default, set this flag to disable it</span>
-        <span class="nd">#[clap(long,</span> <span class="nd">short</span> <span class="nd">=</span> <span class="sc">'d'</span><span class="nd">,</span> <span class="nd">global</span> <span class="nd">=</span> <span class="kc">true</span><span class="nd">)]</span>
-        <span class="k">pub</span> <span class="n">log_disable</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-
-        <span class="cd">/// The subcommand to run</span>
-        <span class="nd">#[clap(subcommand)]</span>
-        <span class="k">pub</span> <span class="n">subcommand</span><span class="p">:</span> <span class="n">CLISubcommand</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="nd">#[derive(Subcommand,</span> <span class="nd">Debug)]</span>
-    <span class="k">pub</span> <span class="k">enum</span> <span class="n">CLISubcommand</span> <span class="p">{</span>
-        <span class="cd">/// Start a server on the given address and port</span>
-        <span class="n">Server</span><span class="p">,</span>
-        <span class="cd">/// Connect to a server running on the given address and port</span>
-        <span class="n">Client</span><span class="p">,</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h2 id="create-the-client">Create the client</h2>
-<p><a id="markdown-create-the-client" name="create-the-client"></a></p>
-
-<p>Let’s start with the simpler of the two, the client. We will use <code class="language-plaintext highlighter-rouge">std::net::TcpStream</code> to
-create a TCP socket client. We will need an IP address and port in order to make a TCP
-connection. And to run the client we will need to run the following command:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run client
-</code></pre></div></div>
-
-<p>Here’s what the main function of our app looks like:</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"Welcome to rtelnet"</span><span class="p">);</span>
-
-    <span class="k">let</span> <span class="n">cli_arg</span> <span class="o">=</span> <span class="nn">CLIArg</span><span class="p">::</span><span class="nf">parse</span><span class="p">();</span>
-    <span class="k">let</span> <span class="n">address</span> <span class="o">=</span> <span class="n">cli_arg</span><span class="py">.address</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">port</span> <span class="o">=</span> <span class="n">cli_arg</span><span class="py">.port</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">socket_address</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}:{}"</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">port</span><span class="p">);</span>
-
-    <span class="k">if</span> <span class="o">!</span><span class="n">cli_arg</span><span class="py">.log_disable</span> <span class="p">{</span>
-        <span class="nn">femme</span><span class="p">::</span><span class="nf">start</span><span class="p">()</span>
-    <span class="p">}</span>
-
-    <span class="k">match</span> <span class="k">match</span> <span class="n">cli_arg</span><span class="py">.subcommand</span> <span class="p">{</span>
-        <span class="nn">CLISubcommand</span><span class="p">::</span><span class="n">Server</span> <span class="k">=&gt;</span> <span class="nf">start_server</span><span class="p">(</span><span class="n">socket_address</span><span class="p">),</span>
-        <span class="nn">CLISubcommand</span><span class="p">::</span><span class="n">Client</span> <span class="k">=&gt;</span> <span class="nf">start_client</span><span class="p">(</span><span class="n">socket_address</span><span class="p">),</span>
-    <span class="p">}</span> <span class="p">{</span>
-        <span class="nf">Ok</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-            <span class="nd">println!</span><span class="p">(</span><span class="s">"Program exited successfully"</span><span class="p">);</span>
-        <span class="p">}</span>
-        <span class="nf">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-            <span class="nd">println!</span><span class="p">(</span><span class="s">"Program exited with an error: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>The function that performs the client logic looks like this.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">start_client</span><span class="p">(</span><span class="n">socket_address</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Start client connection"</span><span class="p">);</span>
-    <span class="k">let</span> <span class="n">tcp_stream</span> <span class="o">=</span> <span class="nn">TcpStream</span><span class="p">::</span><span class="nf">connect</span><span class="p">(</span><span class="n">socket_address</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-    <span class="k">let</span> <span class="p">(</span><span class="k">mut</span> <span class="n">reader</span><span class="p">,</span> <span class="k">mut</span> <span class="n">writer</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="nn">BufReader</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tcp_stream</span><span class="p">),</span> <span class="nn">BufWriter</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tcp_stream</span><span class="p">));</span>
-
-    <span class="c1">// Client loop.</span>
-    <span class="k">loop</span> <span class="p">{</span>
-        <span class="c1">// Read user input.</span>
-        <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="k">let</span> <span class="k">mut</span> <span class="n">it</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
-            <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="nf">stdin</span><span class="p">()</span><span class="nf">.read_line</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">it</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-            <span class="n">it</span><span class="nf">.as_bytes</span><span class="p">()</span><span class="nf">.to_vec</span><span class="p">()</span>
-        <span class="p">};</span>
-
-        <span class="c1">// Tx user input to writer.</span>
-        <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">writer</span><span class="nf">.write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outgoing</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-        <span class="n">writer</span><span class="nf">.flush</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-
-        <span class="c1">// Rx response from reader.</span>
-        <span class="k">let</span> <span class="n">incoming</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="k">let</span> <span class="k">mut</span> <span class="n">it</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
-            <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">reader</span><span class="nf">.read_until</span><span class="p">(</span><span class="sc">b'\n'</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">it</span><span class="p">);</span>
-            <span class="n">it</span>
-        <span class="p">};</span>
-
-        <span class="k">let</span> <span class="n">display_msg</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming</span><span class="p">);</span>
-        <span class="k">let</span> <span class="n">display_msg</span> <span class="o">=</span> <span class="n">display_msg</span><span class="nf">.trim</span><span class="p">();</span>
-
-        <span class="k">let</span> <span class="n">reset</span> <span class="o">=</span> <span class="nn">SgrCode</span><span class="p">::</span><span class="n">Reset</span><span class="nf">.to_string</span><span class="p">();</span>
-        <span class="k">let</span> <span class="n">display_msg</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}{}"</span><span class="p">,</span> <span class="n">display_msg</span><span class="p">,</span> <span class="n">reset</span><span class="p">);</span>
-        <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">display_msg</span><span class="p">);</span>
-
-        <span class="c1">// Print debug.</span>
-        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
-            <span class="s">"-&gt; Tx: '{}', size: {} bytes{}"</span><span class="p">,</span>
-            <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outgoing</span><span class="p">)</span><span class="nf">.trim</span><span class="p">(),</span>
-            <span class="n">outgoing</span><span class="nf">.len</span><span class="p">(),</span>
-            <span class="n">reset</span><span class="p">,</span>
-        <span class="p">);</span>
-        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
-            <span class="s">"&lt;- Rx: '{}', size: {} bytes{}"</span><span class="p">,</span>
-            <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming</span><span class="p">)</span><span class="nf">.trim</span><span class="p">(),</span>
-            <span class="n">incoming</span><span class="nf">.len</span><span class="p">(),</span>
-            <span class="n">reset</span><span class="p">,</span>
-        <span class="p">);</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Here are a few things to note about the client code:</p>
-<ul>
-  <li>We create a <code class="language-plaintext highlighter-rouge">BufReader</code> and <code class="language-plaintext highlighter-rouge">BufWriter</code> for the <code class="language-plaintext highlighter-rouge">TcpStream</code> that we get from
-<code class="language-plaintext highlighter-rouge">TcpStream::connect()</code>. This is because we want to read and write data in chunks, and
-not one byte at a time, for performance reasons, and to simplify the logic. These two
-structs allow us to read and write data very easily in chunks that are delimited by new
-lines (<code class="language-plaintext highlighter-rouge">\n</code>).</li>
-  <li>There’s a client loop that runs forever. This is because we want to keep the client
-running forever, so that the user can type a message and send it to the server, and
-receive a response from the server.</li>
-  <li>How do we exit this infinite client loop? Only when the user presses <code class="language-plaintext highlighter-rouge">Ctrl+C</code> will the
-client exit. The <a href="https://g.co/bard/share/ac5d3480eb37">default behavior</a> for Rust is to
-exit the process when this happens. This drops the TCP connection causing the server to exit as
-well.</li>
-  <li>When we read data from user input, it too uses a stream, not a <code class="language-plaintext highlighter-rouge">TcpStream</code>, but the
-<code class="language-plaintext highlighter-rouge">stdin()</code> stream. This behaves very similarly to the <code class="language-plaintext highlighter-rouge">TcpStream</code> stream. We can read
-data from it in chunks delimited by new lines (<code class="language-plaintext highlighter-rouge">\n</code>). Once the user types a message and
-presses enter that message, eg: <code class="language-plaintext highlighter-rouge">"hi"</code>, and the new line are stored in the <code class="language-plaintext highlighter-rouge">it</code>
-variable, eg: <code class="language-plaintext highlighter-rouge">"hi\n"</code>. We then convert the String into a byte array, eg: <code class="language-plaintext highlighter-rouge">[104, 105,
-10]</code>, and then convert it into a <code class="language-plaintext highlighter-rouge">Vec&lt;u8&gt;</code>. We then send it to the server. We must call
-<code class="language-plaintext highlighter-rouge">flush()</code> since <code class="language-plaintext highlighter-rouge">BufWriter</code> buffers the data and does not send it to the server until we
-call <code class="language-plaintext highlighter-rouge">flush()</code> for IO performance reasons. It queue’s up the data and sends it in
-chunks, instead of sending it one byte at a time.</li>
-  <li>Reading there response from the server is similar to reading it from <code class="language-plaintext highlighter-rouge">stdin()</code> as we
-have already seen. The main thread blocks until there is some data that can be read from
-the server. Or if the TCP connection errors out in any way (timeout or closed by various
-means). If there is an error, then this function returns an error, and the main thread
-exits. Note that the <code class="language-plaintext highlighter-rouge">start_client()</code> function itself returns an <code class="language-plaintext highlighter-rouge">IOResult</code>, which is
-just a type alias for <code class="language-plaintext highlighter-rouge">pub type IOResult&lt;T&gt; = std::io::Result&lt;T&gt;;</code>. The error handling
-is quite simple. If there is an error, we print it out and exit the program.</li>
-  <li>We read the data from the server into the <code class="language-plaintext highlighter-rouge">incoming</code> variable using
-<code class="language-plaintext highlighter-rouge">reader.read_until(b'\n', &amp;mut it);)</code>. This is because we expect the server to send us
-data that is terminated by a new line (<code class="language-plaintext highlighter-rouge">\n</code>). So we read the data until we encounter a
-new line. This is a blocking call, so the main thread blocks until there is some data
-that can be read from the server. Note that the <code class="language-plaintext highlighter-rouge">\n</code> is included in <code class="language-plaintext highlighter-rouge">incoming</code> variable,
-much like it is in <code class="language-plaintext highlighter-rouge">stdin()</code>.
-    <ul>
-      <li>We use this function <code class="language-plaintext highlighter-rouge">String::from_utf8_lossy(&amp;incoming);</code> to convert this <code class="language-plaintext highlighter-rouge">incoming:
-Vec&lt;u8&gt;</code> into a <code class="language-plaintext highlighter-rouge">String</code>. We call <code class="language-plaintext highlighter-rouge">.trim()</code> on the String, so that the trailing <code class="language-plaintext highlighter-rouge">\n</code>
-is removed.</li>
-      <li>Note that <code class="language-plaintext highlighter-rouge">trim()</code> returns a <code class="language-plaintext highlighter-rouge">&amp;str</code>, so if you want to turn it into a String, you have
-to run in through this expression <code class="language-plaintext highlighter-rouge">format!("{}",
-String::from_utf8_lossy(&amp;incoming).trim())</code> function.</li>
-    </ul>
-  </li>
-  <li>This is a pedagogical example and this algorithm is somewhat contrived to demonstrate
-how to send bytes back and forth between client and server and have them interpret the
-bytes in a certain way. A more formalized version of this “dance” is called a
-“protocol”, eg: HTTP, SMTP, etc.</li>
-  <li>In the final step of the <code class="language-plaintext highlighter-rouge">loop</code>, after the incoming data has been read from the server,
-we print it out to the terminal. Since the server will send us ANSI escape sequence
-codes that colorize the text that we print to the terminal, we want to reset the color
-after we print the text, so it does not pollute our <code class="language-plaintext highlighter-rouge">stdout()</code> output stream. We use the
-<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/ansi_color/src/ansi_escape_codes.rs#L23"><code class="language-plaintext highlighter-rouge">SgrCode::Reset</code> code to reset the
-color</a>
-of the text that we print to the terminal.</li>
-</ul>
-
-<h2 id="create-the-server">Create the server</h2>
-<p><a id="markdown-create-the-server" name="create-the-server"></a></p>
-
-<p>Now let’s create the server. We will use <code class="language-plaintext highlighter-rouge">std::net::TcpListener</code> to create a TCP socket
-server. We will need an IP address and port in order to make a TCP connection. To run the
-server we will need to run the following command:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run server
-</code></pre></div></div>
-
-<p>The server code is very similar to the client code. We need a server loop that runs
-forever, and we need to first read (blocking until there is any data available) and then
-write data in chunks delimited by new lines (<code class="language-plaintext highlighter-rouge">\n</code>). When there is no data available to
-read <code class="language-plaintext highlighter-rouge">EOF</code> is reached on the reader (aka, input TCP stream) then we break out of this loop
-and exit. When data comes in (delimited by <code class="language-plaintext highlighter-rouge">\n</code>) we process it and send a response back to
-the client. We process this data by applying a <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/color_wheel/color_wheel_struct.rs#L457">lolcat
-effect</a>
-on it, so the client will get a very colorful version of whatever text message that they
-sent to the server.</p>
-
-<p>One more thing we will see when implementing the server is having to spawn multiple
-threads to handle each incoming client connection. While the client is a single threaded
-app, the server is a multi-threaded app. The client is only concerned w/ a single TCP
-connection, but the server is concerned with multiple TCP connections, each connection
-emanating from a different client process running the <code class="language-plaintext highlighter-rouge">cargo run client</code> and creating a
-new OS process. Fortunately Rust is built for fearless concurrency and parallelism from
-the ground up.</p>
-
-<p>Here’s the main function of our server app:</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">fn</span> <span class="nf">start_server</span><span class="p">(</span><span class="n">socket_address</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="n">tcp_listener</span> <span class="o">=</span> <span class="nn">TcpListener</span><span class="p">::</span><span class="nf">bind</span><span class="p">(</span><span class="n">socket_address</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-    <span class="c1">// Server connection accept loop.</span>
-    <span class="k">loop</span> <span class="p">{</span>
-        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Waiting for a incoming connection..."</span><span class="p">);</span>
-        <span class="k">let</span> <span class="p">(</span><span class="n">tcp_stream</span><span class="p">,</span> <span class="o">..</span><span class="p">)</span> <span class="o">=</span> <span class="n">tcp_listener</span><span class="nf">.accept</span><span class="p">()</span><span class="o">?</span><span class="p">;</span> <span class="c1">// This is a blocking call.</span>
-
-        <span class="c1">// Spawn a new thread to handle this connection.</span>
-        <span class="nn">thread</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(||</span> <span class="k">match</span> <span class="nf">handle_connection</span><span class="p">(</span><span class="n">tcp_stream</span><span class="p">)</span> <span class="p">{</span>
-            <span class="nf">Ok</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Successfully closed connection to client..."</span><span class="p">);</span>
-            <span class="p">}</span>
-            <span class="nf">Err</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="k">log</span><span class="p">::</span><span class="nd">error!</span><span class="p">(</span><span class="s">"Problem with client connection..."</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">});</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Here are a few things to note about the server code:</p>
-<ul>
-  <li>We are using <code class="language-plaintext highlighter-rouge">IOResult</code> just like the client code. There are frequent calls to the <code class="language-plaintext highlighter-rouge">?</code>
-operator, which is shorthand for matching on the <code class="language-plaintext highlighter-rouge">Result</code> and returning early if there’s
-an error. This is rudimentary error handling, and its good enough for this pedagogical
-example. Note that even in this pedagogical example, we don’t use the <code class="language-plaintext highlighter-rouge">unwrap()</code> method
-which will induce a panic if there’s an error. We always use the <code class="language-plaintext highlighter-rouge">?</code> operator, which
-will return early if there’s an error. It isn’t a good idea to get into the habit of
-using <code class="language-plaintext highlighter-rouge">unwrap()</code> outside of tests. These habits are hard to break once they’re formed.
-You can even add the following
-<a href="https://rust-lang.github.io/rust-clippy/master/index.html#/unwrap_used"><code class="language-plaintext highlighter-rouge">#![warn(clippy::unwrap_in_result)]</code></a>
-in the top level module of your project to have the compiler warn you if you use
-<code class="language-plaintext highlighter-rouge">unwrap()</code> outside of tests. Here’s an
-<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/ansi_color/src/lib.rs#L171">example</a>.</li>
-  <li>The first thing the server has to do is reserve a port on the given address. This is called
-binding, and we do it using <code class="language-plaintext highlighter-rouge">TcpListener::bind(socket_address)?;</code>. This does not start a server
-yet. It just reserves a port on the given address, assuming that it is available. If some other
-process has already bound to that port, then this will return an error.</li>
-  <li>Once we have a <code class="language-plaintext highlighter-rouge">TcpListener</code> instance, we can call <code class="language-plaintext highlighter-rouge">accept()</code> on it to start listening
-for incoming connections. This is a blocking call, so the main thread blocks until there
-is an incoming connection. Once there is an incoming connection, we get a <code class="language-plaintext highlighter-rouge">TcpStream</code>
-instance, which we can use to read and write data to the client. This is a blocking
-call. Which means that the main thread won’t be able to do anything else, like process
-other incoming connections, while it is waiting here, for a connection to come in.</li>
-  <li>This is why we use <code class="language-plaintext highlighter-rouge">thread::spawn()</code> to create a new thread and have it handle the
-incoming connection. We spawn a new thread for each incoming connection. This is <a href="https://g.co/bard/share/74f433bad400">not a
-scalable solution</a>, but it is good enough for this
-pedagogical example. We will learn about more scalable solutions in a the <a href="/2024/01/13/write-simple-chat-server-in-rust/">Write a
-simple TCP chat server in Rust</a> tutorial.</li>
-</ul>
-
-<p>Now, let’s look at the <code class="language-plaintext highlighter-rouge">handle_connection()</code> function that is called by the spawned
-thread. This is the function that handles the incoming connection from the client. And it
-defines our “protocol”, along with the client code. We aren’t using any formalized
-protocol like HTTP or SMTP. We are just sending bytes back and forth between the client
-and server, and interpreting them in a certain way, which is our informal protocol. This
-code is very similar to the client side code, including the <code class="language-plaintext highlighter-rouge">loop</code> and the <code class="language-plaintext highlighter-rouge">BufReader</code> and
-<code class="language-plaintext highlighter-rouge">BufWriter</code> structs. And even looking for <code class="language-plaintext highlighter-rouge">EOF</code> to break out of the loop. Except that we
-don’t block on <code class="language-plaintext highlighter-rouge">stdin()</code> for input here.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">handle_connection</span><span class="p">(</span><span class="n">tcp_stream</span><span class="p">:</span> <span class="n">TcpStream</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Start handle connection"</span><span class="p">);</span>
-
-    <span class="k">let</span> <span class="n">reader</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">BufReader</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tcp_stream</span><span class="p">);</span>
-    <span class="k">let</span> <span class="n">write</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">BufWriter</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tcp_stream</span><span class="p">);</span>
-
-    <span class="c1">// Process client connection loop.</span>
-    <span class="k">loop</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="k">mut</span> <span class="n">incoming</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">u8</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
-
-        <span class="c1">// Read from reader.</span>
-        <span class="k">let</span> <span class="n">num_bytes_read</span> <span class="o">=</span> <span class="n">reader</span><span class="nf">.read_until</span><span class="p">(</span><span class="sc">b'\n'</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">incoming</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-
-        <span class="c1">// Check for EOF. The stream is closed.</span>
-        <span class="k">if</span> <span class="n">num_bytes_read</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-            <span class="k">break</span><span class="p">;</span>
-        <span class="p">}</span>
-
-        <span class="c1">// Process.</span>
-        <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="nf">process</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming</span><span class="p">);</span>
-
-        <span class="c1">// Write to writer.</span>
-        <span class="n">write</span><span class="nf">.write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outgoing</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
-        <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">write</span><span class="nf">.flush</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-
-        <span class="c1">// Print debug.</span>
-        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"-&gt; Rx(bytes) : {:?}"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">incoming</span><span class="p">);</span>
-        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
-            <span class="s">"-&gt; Rx(string): '{}', size: {} bytes"</span><span class="p">,</span>
-            <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming</span><span class="p">)</span><span class="nf">.trim</span><span class="p">(),</span>
-            <span class="n">incoming</span><span class="nf">.len</span><span class="p">(),</span>
-        <span class="p">);</span>
-        <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
-            <span class="s">"&lt;- Tx(string): '{}', size: {} bytes"</span><span class="p">,</span>
-            <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outgoing</span><span class="p">)</span><span class="nf">.trim</span><span class="p">(),</span>
-            <span class="n">outgoing</span><span class="nf">.len</span><span class="p">()</span>
-        <span class="p">);</span>
-    <span class="p">}</span>
-
-    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"End handle connection - connection closed"</span><span class="p">);</span>
-
-    <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Finally, let’s look at the <code class="language-plaintext highlighter-rouge">process()</code> function that takes the incoming bytes to the
-outgoing bytes. This is where we add some fun and color and flair to our app. We colorize
-the incoming bytes using a lolcat effect and send it back to the client.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">r3bl_tui</span><span class="p">::</span><span class="n">ColorWheel</span><span class="p">;</span>
-
-<span class="k">fn</span> <span class="nf">process</span><span class="p">(</span><span class="n">incoming</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">u8</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">u8</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="c1">// Convert incoming to String, and remove any trailing whitespace (includes newline).</span>
-    <span class="k">let</span> <span class="n">incoming</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="n">incoming</span><span class="p">);</span>
-    <span class="k">let</span> <span class="n">incoming</span> <span class="o">=</span> <span class="n">incoming</span><span class="nf">.trim</span><span class="p">();</span>
-
-    <span class="c1">// Prepare outgoing payload.</span>
-    <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="n">incoming</span><span class="nf">.to_string</span><span class="p">();</span>
-
-    <span class="c1">// Colorize it w/ a gradient.</span>
-    <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="nn">ColorWheel</span><span class="p">::</span><span class="nf">lolcat_into_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">outgoing</span><span class="p">);</span>
-
-    <span class="c1">// Generate outgoing response. Add newline to the end of output (so client can process it).</span>
-    <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">outgoing</span><span class="p">);</span>
-
-    <span class="c1">// Return outgoing payload.</span>
-    <span class="n">outgoing</span><span class="nf">.as_bytes</span><span class="p">()</span><span class="nf">.to_vec</span><span class="p">()</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h2 id="next-steps">Next steps</h2>
-<p><a id="markdown-next-steps" name="next-steps"></a></p>
-
-<p>Now that you have a handle on the basics of writing a simple netcat client and server, you
-can read <a href="/2024/01/13/write-simple-chat-server-in-rust/">this tutorial</a> to learn more about creating a more advanced TCP server that netcat,
-telnet, or PuTTY clients can connect to, in order to have multiple client apps chat with
-each other.</p>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[A guide on how to a simple Rust netcat client and server]]></summary></entry></feed>
+<p><a id="markdown-next-steps" name="next-steps"></a></p>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[A guide on how to create write a simple TCP chat server in Rust using Tokio]]></summary></entry></feed>

@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Build with Naz : Ubuntu 24.04 setup and config for dev productivity | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Build with Naz : Ubuntu 24.04 setup and config for dev productivity" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="I’ve provided scripts for setting up a new Ubuntu 24.04 desktop machine. They have been tested on a fresh install of Ubuntu 24.04 LTS. They contain all the software that is needed for Rust development, OBS Studio use, and general developer productivity. They are highly opinionated for my use case, but you can modify them to suit your needs." />
+<meta property="og:description" content="I’ve provided scripts for setting up a new Ubuntu 24.04 desktop machine. They have been tested on a fresh install of Ubuntu 24.04 LTS. They contain all the software that is needed for Rust development, OBS Studio use, and general developer productivity. They are highly opinionated for my use case, but you can modify them to suit your needs." />
+<link rel="canonical" href="http://developerlife.com/2024/07/08/ubuntu24/" />
+<meta property="og:url" content="http://developerlife.com/2024/07/08/ubuntu24/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-07-08T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build with Naz : Ubuntu 24.04 setup and config for dev productivity" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-07-08T10:00:00-05:00","datePublished":"2024-07-08T10:00:00-05:00","description":"I’ve provided scripts for setting up a new Ubuntu 24.04 desktop machine. They have been tested on a fresh install of Ubuntu 24.04 LTS. They contain all the software that is needed for Rust development, OBS Studio use, and general developer productivity. They are highly opinionated for my use case, but you can modify them to suit your needs.","headline":"Build with Naz : Ubuntu 24.04 setup and config for dev productivity","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/07/08/ubuntu24/"},"url":"http://developerlife.com/2024/07/08/ubuntu24/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add fontawesome (only for bio.html page) -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /><!-- https://developers.google.com/analytics/devguides/collection/gtagjs -->
+<script async
+        src="https://www.googletagmanager.com/gtag/js?id=G-NQY9ECC58H"></script>
+<script>
+  window.dataLayer = window.dataLayer || []
+
+  function gtag() {
+    window.dataLayer.push(arguments)
+  }
+
+  gtag("js", new Date())
+  gtag("config", "G-NQY9ECC58H")
+</script>
+<!-- https://us14.admin.mailchimp.com/account/connected-sites/site-detail/ -->
+
+<script id="mcjs">
+  !(function (c, h, i, m, p) {
+    ;(m = c.createElement(h)),
+      (p = c.getElementsByTagName(h)[0]),
+      (m.async = 1),
+      (m.src = i),
+      p.parentNode.insertBefore(m, p)
+  })(
+    document,
+    "script",
+    "https://chimpstatic.com/mcjs-connected/js/users/c2470ddfa863eb8ace707651b/2bb3bcad193ef862398700457.js"
+  )
+</script>
+</head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Build with Naz : Ubuntu 24.04 setup and config for dev productivity&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Build with Naz : Ubuntu 24.04 setup and config for dev productivity</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build with Naz : Ubuntu 24.04 setup and config for dev productivity</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jul 8, 2024
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is fontawesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/ubuntu24.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#related-video">Related video</a></li>
+  <li><a href="#what-comes-with-the-scripts">What comes with the scripts</a></li>
+  <li><a href="#running-the-scripts">Running the scripts</a></li>
+  <li><a href="#gnome-extensions">Gnome Extensions</a></li>
+  <li><a href="#keyboard-remapping">Keyboard remapping</a>
+    <ul>
+      <li><a href="#tilix-and-quake-mode">Tilix and quake mode</a></li>
+      <li><a href="#remap-superq">Remap Super+Q</a></li>
+      <li><a href="#remap-caps-lock-to-ctrl">Remap Caps Lock to Ctrl</a></li>
+    </ul>
+  </li>
+  <li><a href="#chrome-issues-w-wayland">Chrome issues w/ Wayland</a></li>
+  <li><a href="#libfuse2-and-appimage-issues">libfuse2 and AppImage issues</a>
+    <ul>
+      <li><a href="#approach-1---simple">Approach 1 - simple</a></li>
+      <li><a href="#approach-2---complex">Approach 2 - complex</a></li>
+    </ul>
+  </li>
+  <li><a href="#settings---key-mappings">Settings -&gt; Key mappings</a></li>
+  <li><a href="#obs-studio-issues">OBS Studio issues</a></li>
+  <li><a href="#fontconfig">Fontconfig</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>I’ve provided scripts for setting up a new Ubuntu 24.04 desktop machine. They have been
+tested on a fresh install of Ubuntu 24.04 LTS. They contain all the software that is
+needed for Rust development, OBS Studio use, and general developer productivity. They are
+highly opinionated for my use case, but you can modify them to suit your needs. I’ve also
+recently migrated from Pop_OS! 22.04.</p>
+      <h2 id="related-video">
+        
+        
+          Related video <a href="#related-video">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-related-video" name="related-video"></a></p>
+
+<p>This video shows what the scripts do after you run them, and how they make your Ubuntu
+24.04 desktop environment look and feel. This article is really a companion to the video.</p>
+
+<!-- video on ubuntu24 -->
+<iframe src="https://www.youtube.com/embed/zGljNewTc0I?si=D5-5P0afPVBw-3IB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<blockquote>
+  <p>💡 You can get the scripts from the
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/ubuntu24"><code class="language-plaintext highlighter-rouge">rust-scratch</code></a> repo.</p>
+</blockquote>
+      <h2 id="what-comes-with-the-scripts">
+        
+        
+          What comes with the scripts <a href="#what-comes-with-the-scripts">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-what-comes-with-the-scripts" name="what-comes-with-the-scripts"></a></p>
+
+<p>Here is a non exhaustive list of software that will be installed:</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">fish</code> as the default login shell. All the configuration scripts are written in <code class="language-plaintext highlighter-rouge">fish</code>.
+ <code class="language-plaintext highlighter-rouge">bass</code> is also installed to allow for running <code class="language-plaintext highlighter-rouge">bash</code> scripts in <code class="language-plaintext highlighter-rouge">fish</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">rustup</code>, <code class="language-plaintext highlighter-rouge">brew</code>, and <code class="language-plaintext highlighter-rouge">flatpak</code> with <code class="language-plaintext highlighter-rouge">flathub</code> as package managers.</li>
+  <li><code class="language-plaintext highlighter-rouge">docker</code> and <code class="language-plaintext highlighter-rouge">docker-compose</code> for containerization.</li>
+  <li><code class="language-plaintext highlighter-rouge">obs-studio</code> for screen recording and streaming.</li>
+  <li><code class="language-plaintext highlighter-rouge">vlc</code>, <code class="language-plaintext highlighter-rouge">mpv</code> for media playback.</li>
+  <li><code class="language-plaintext highlighter-rouge">chrome</code> for web browsing.</li>
+  <li><code class="language-plaintext highlighter-rouge">vscode</code> for code editing.</li>
+  <li>Lots of Gnome extensions for desktop customization.</li>
+  <li><code class="language-plaintext highlighter-rouge">nerd-fonts</code> for terminal font customization. Along with <code class="language-plaintext highlighter-rouge">guake</code> and <code class="language-plaintext highlighter-rouge">tilix</code> for
+ terminal emulators. Along with <code class="language-plaintext highlighter-rouge">tmux</code> for terminal multiplexing.</li>
+</ol>
+
+<blockquote>
+  <p>To download Ubuntu 24.04, visit the <a href="https://ubuntu.com/download/desktop">Ubuntu
+website</a> and prepare a USB drive with the ISO file
+for installation. You can use <a href="https://flathub.org/apps/com.system76.Popsicle">Popsicle</a>
+to create a bootable USB drive.</p>
+</blockquote>
+      <h2 id="running-the-scripts">
+        
+        
+          Running the scripts <a href="#running-the-scripts">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-running-the-scripts" name="running-the-scripts"></a></p>
+
+<p>Lots of customized font configurations are included in the scripts. You can clone the repo
+and run the scripts, or just copy the links below and run them in your terminal.</p>
+
+<p>The scripts can be run in the following order. Really the only one that is required to be
+run first is the
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/0-bootstrap.bash"><code class="language-plaintext highlighter-rouge">0-bootstrap.bash</code></a>
+script. The rest can be run in any order.</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/0-bootstrap.bash | bash</code></li>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/1-install.fish | fish</code></li>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/2-install-docker.bash | bash</code></li>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/3-install-fonts.fish | fish</code></li>
+</ol>
+
+<p>Optional scripts:</p>
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/install-agent-into-bin.fish | fish</code></li>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/fix-gnome-session-path-env-var-linuxbrew.fish | fish</code></li>
+  <li><code class="language-plaintext highlighter-rouge">curl -s https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/fix-usr-local-bin-symlinks.fish | fish</code></li>
+</ol>
+      <h2 id="gnome-extensions">
+        
+        
+          Gnome Extensions <a href="#gnome-extensions">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-gnome-extensions" name="gnome-extensions"></a></p>
+
+<ul>
+  <li><a href="https://extensions.gnome.org/extension/4548/tactile/">Tactile tiling support</a></li>
+  <li><a href="https://extensions.gnome.org/extension/7065/tiling-shell/">Tiling shell tiling support</a></li>
+  <li><a href="https://extensions.gnome.org/extension/5660/weather-or-not/">Weather in top bar</a></li>
+  <li><a href="https://extensions.gnome.org/extension/1460/vitals/">Vitals in top bar</a></li>
+  <li><a href="https://extensions.gnome.org/extension/6242/emoji-copy/">Emoji chooser in top bar</a></li>
+  <li><a href="https://extensions.gnome.org/extension/4839/clipboard-history/">Clipboard history</a></li>
+  <li><a href="https://extensions.gnome.org/extension/4679/burn-my-windows/">Burn my windows animation for window open and close</a></li>
+  <li><a href="https://extensions.gnome.org/extension/3843/just-perfection/">Just Perfection ultra GNOME customization</a></li>
+</ul>
+      <h2 id="keyboard-remapping">
+        
+        
+          Keyboard remapping <a href="#keyboard-remapping">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-keyboard-remapping" name="keyboard-remapping"></a></p>
+      <h3 id="tilix-and-quake-mode">
+        
+        
+          Tilix and quake mode <a href="#tilix-and-quake-mode">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-tilix-and-quake-mode" name="tilix-and-quake-mode"></a></p>
+
+<p><code class="language-plaintext highlighter-rouge">tilix</code> and its <code class="language-plaintext highlighter-rouge">quake mode</code> is disabled in Wayland. So I installed <code class="language-plaintext highlighter-rouge">guake</code>. You can use
+<a href="https://lukaszwrobel.pl/blog/tmux-tutorial-split-terminal-windows-easily/"><code class="language-plaintext highlighter-rouge">tmux</code></a> to
+manage the panes in this <code class="language-plaintext highlighter-rouge">guake</code> terminal with ease.</p>
+      <h3 id="remap-superq">
+        
+        
+          Remap Super+Q <a href="#remap-superq">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-remap-super%2Bq" name="remap-super%2Bq"></a></p>
+
+<p>The following links show you how to remove the default binding for the <kbd>Super+Q</kbd>
+key to close the current window. This is useful if you want to use that binding to launch
+the <code class="language-plaintext highlighter-rouge">guake</code> terminal. I used to use <code class="language-plaintext highlighter-rouge">tilix</code> in <code class="language-plaintext highlighter-rouge">quake mode</code>, but that doesn’t work in
+Wayland, so I am using <code class="language-plaintext highlighter-rouge">guake</code> for that now. But I’m still using <code class="language-plaintext highlighter-rouge">tilix</code>.</p>
+
+<ul>
+  <li><a href="https://askubuntu.com/questions/977876/changing-command-super-q">https://askubuntu.com/questions/977876/changing-command-super-q</a></li>
+  <li><a href="https://flameshot.org/docs/guide/wayland-help/">https://flameshot.org/docs/guide/wayland-help/</a></li>
+  <li><a href="https://github.com/Ulauncher/Ulauncher/wiki/Hotkey-In-Wayland">https://github.com/Ulauncher/Ulauncher/wiki/Hotkey-In-Wayland</a></li>
+  <li><a href="https://askubuntu.com/questions/26056/where-are-gnome-keyboard-shortcuts-stored">https://askubuntu.com/questions/26056/where-are-gnome-keyboard-shortcuts-stored</a></li>
+</ul>
+      <h3 id="remap-caps-lock-to-ctrl">
+        
+        
+          Remap Caps Lock to Ctrl <a href="#remap-caps-lock-to-ctrl">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-remap-caps-lock-to-ctrl" name="remap-caps-lock-to-ctrl"></a></p>
+
+<p>Here’s a snippet to allow you map your <kbd>Caps Lock</kbd> key to the <kbd>Ctrl</kbd>
+key:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>remapCapsLockKey
+    <span class="nb">echo</span> <span class="s2">"Remapping caps lock key"</span>
+    <span class="c"># https://opensource.com/article/21/5/remap-caps-lock-key-linux</span>
+    dconf write /org/gnome/desktop/input-sources/xkb-options <span class="s2">"['caps:ctrl_modifier']"</span>
+    <span class="c"># dconf write /org/gnome/desktop/input-sources/xkb-options "['caps:ctrl']"</span>
+end
+</code></pre></div></div>
+      <h2 id="chrome-issues-w-wayland">
+        
+        
+          Chrome issues w/ Wayland <a href="#chrome-issues-w-wayland">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-chrome-issues-w%2F-wayland" name="chrome-issues-w%2F-wayland"></a></p>
+
+<p>If you find Chrome to be blurry (or AppImages or Electron apps), then you may need to
+do the following to fix this in Wayland:</p>
+
+<ul>
+  <li>Navigate to <code class="language-plaintext highlighter-rouge">chrome://flags</code></li>
+  <li>Change <code class="language-plaintext highlighter-rouge">Preferred Ozone Platform</code> from <code class="language-plaintext highlighter-rouge">default</code> to <code class="language-plaintext highlighter-rouge">wayland</code></li>
+  <li><a href="https://askubuntu.com/a/1502896/872482">More info</a></li>
+</ul>
+      <h2 id="libfuse2-and-appimage-issues">
+        
+        
+          libfuse2 and AppImage issues <a href="#libfuse2-and-appimage-issues">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-libfuse2-and-appimage-issues" name="libfuse2-and-appimage-issues"></a></p>
+
+<p>On Ubuntu 24.04 I ran into some issues w/ <code class="language-plaintext highlighter-rouge">libfuse2</code> and running <code class="language-plaintext highlighter-rouge">AppImage</code>s.</p>
+
+<ul>
+  <li>Ubuntu 24 does not come w/ <code class="language-plaintext highlighter-rouge">libfuse2</code> out of the box (for good reasons), and instead it
+has <code class="language-plaintext highlighter-rouge">libfuse3</code>.</li>
+  <li>And <code class="language-plaintext highlighter-rouge">AppImage</code> currently only supports <code class="language-plaintext highlighter-rouge">libfuse2</code>.</li>
+</ul>
+      <h3 id="approach-1---simple">
+        
+        
+          Approach 1 - simple <a href="#approach-1---simple">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-approach-1---simple" name="approach-1---simple"></a></p>
+
+<p>Instead of installing <code class="language-plaintext highlighter-rouge">libfuse2</code>, however, if you don’t want to do that you can simply run
+the your <code class="language-plaintext highlighter-rouge">XYZ.AppImage</code> using the following command (once it’s been marked as executable):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod +x XYZ.AppImage
+./XYZ.AppImage \
+  --no-sandbox --enable-features=UseOzonePlatform,WaylandWindowDecorations \
+  --ozone-platform-hint=auto
+</code></pre></div></div>
+
+<p>Explanation of the flags:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">--no-sandbox</code> - removes the need for libfuse2</li>
+  <li><code class="language-plaintext highlighter-rouge">--enable-features=UseOzonePlatform,WaylandWindowDecorations</code> - tells chromium in
+electron to do things for Wayland.</li>
+  <li><code class="language-plaintext highlighter-rouge">--ozone-platform-hint=auto</code> - tells chromium to use Wayland if it is available. This
+setting is set to <code class="language-plaintext highlighter-rouge">X11</code> by default. If you see blurry windows in Chrome, you may need to set
+this in your Chrome too (using <code class="language-plaintext highlighter-rouge">chrome://flags/</code>).</li>
+</ul>
+
+<p>Here’s an example of my <code class="language-plaintext highlighter-rouge">~/.local/share/applications/uhk-agent.desktop</code> file, which I use
+to run the <a href="https://forum.ultimatehackingkeyboard.com/t/run-agent-appimage-in-wayland-eg-on-ubuntu-24/1364"><code class="language-plaintext highlighter-rouge">uhk-agent</code>
+AppImage</a>
+w/ the above flags:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[Desktop Entry]
+Type=Application
+Name=UHK Agent
+Comment=Launch UHK Agent
+Categories=Utilities;
+Icon=/home/nazmul/bin/uhk-agent.png
+Exec=/home/nazmul/bin/UHK.Agent.AppImage --no-sandbox --enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform-hint=auto
+Terminal=false
+</code></pre></div></div>
+      <h3 id="approach-2---complex">
+        
+        
+          Approach 2 - complex <a href="#approach-2---complex">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-approach-2---complex" name="approach-2---complex"></a></p>
+
+<p>Here’s another approach to run <code class="language-plaintext highlighter-rouge">AppImage</code>s, which is more complex:</p>
+
+<ul>
+  <li><a href="https://github.com/AppImage/AppImageKit/wiki/FUSE"><code class="language-plaintext highlighter-rouge">libfuse2</code></a> is not included with
+Ubuntu 24.04. <code class="language-plaintext highlighter-rouge">AppImage</code>s are difficult to run (since they need <code class="language-plaintext highlighter-rouge">libfuse2</code> installed).</li>
+  <li>To run them, have to pass an extra flag in the terminal or <code class="language-plaintext highlighter-rouge">.desktop</code> file(eg for
+<code class="language-plaintext highlighter-rouge">uhk-agent</code>). here’s a workaround (to keep from installing <code class="language-plaintext highlighter-rouge">libfuse2</code>).</li>
+</ul>
+
+<p>Here’s an example of the command to run the <a href="https://ultimatehackingkeyboard.com/agent"><code class="language-plaintext highlighter-rouge">uhk-agent</code>
+AppImage</a>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/UHK.Agent-4.2.0-linux-x86_64.AppImage <span class="nt">--appimage-extract</span>
+<span class="nb">cd </span>squashfs-root
+./uhk-agent <span class="nt">--no-sandox</span>
+</code></pre></div></div>
+
+<p>Here’s a
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/install-agent-into-bin.fish">script</a>
+that uses this complex approach to unpack an <code class="language-plaintext highlighter-rouge">AppImage</code> into the <code class="language-plaintext highlighter-rouge">~/bin</code> folder so you can
+run it.</p>
+      <h2 id="settings---key-mappings">
+        
+        
+          Settings -&gt; Key mappings <a href="#settings---key-mappings">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-settings--%3E-key-mappings" name="settings--%3E-key-mappings"></a></p>
+
+<ul>
+  <li>To create keyboard shortcuts that launch a shell command, wrap it in <code class="language-plaintext highlighter-rouge">sh -c $CMD</code>. This
+is what must be done for <code class="language-plaintext highlighter-rouge">flameshot</code>, and <code class="language-plaintext highlighter-rouge">ulauncher</code>.</li>
+  <li>Bind <code class="language-plaintext highlighter-rouge">ulauncher-toggle</code> to the settings -&gt; keyboard shortcuts in gnome.</li>
+</ul>
+      <h2 id="obs-studio-issues">
+        
+        
+          OBS Studio issues <a href="#obs-studio-issues">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-obs-studio-issues" name="obs-studio-issues"></a></p>
+
+<p><code class="language-plaintext highlighter-rouge">obs-studio</code> has some UI issues, and dialog boxes are quite glitchy and don’t display
+properly. keyboard shortcuts can’t be reliably used when the <code class="language-plaintext highlighter-rouge">obs-studio</code> window is not in
+focus. can’t really bind to settings -&gt; keyboard shortcuts either, since there’s no
+command to stop recording; start recording will spawn a new process.</p>
+      <h2 id="fontconfig">
+        
+        
+          Fontconfig <a href="#fontconfig">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-fontconfig" name="fontconfig"></a></p>
+
+<p>Custom font install using script. optional - <code class="language-plaintext highlighter-rouge">~/.config/fontconfig/fonts.conf</code> change
+for system fonts that affect all apps. also <code class="language-plaintext highlighter-rouge">gnome-tweaks</code> to change fonts, and other
+settings.</p>
+
+<ul>
+  <li><a href="https://jichu4n.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux/">https://jichu4n.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux/</a></li>
+  <li><a href="https://www.freedesktop.org/software/fontconfig/fontconfig-user.html">https://www.freedesktop.org/software/fontconfig/fontconfig-user.html</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/Fontconfig">https://en.wikipedia.org/wiki/Fontconfig</a></li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/Linux">
+                #linux</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Misc">
+                #misc</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Productivity">
+                #productivity</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+</div>
+
+        
+<blockquote>
+
+  👀 Watch Rust 🦀 live coding videos on our <a
+  href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
+
+  <br/>
+  <br/>
+
+  <!-- video on rust polymorphism (no playlist) -->
+  <iframe
+      src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      >
+  </iframe>
+
+  <br/>
+  <br/>
+
+  📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
+  (they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
+  project):
+  <ul>
+    <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+    <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+  </ul>
+
+  <p>
+  <kbd>giti in action</kbd>
+  <video width="100%" controls>
+    <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4"/>
+  </video>
+  </p>
+
+  <p>
+  <kbd>edi in action</kbd>
+  <video width="100%" controls>
+    <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4"/>
+  </video>
+  </p>
+
+  </blockquote>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/04/06/mechanical-keyboard-dygma-raise-review/">
+                        Mechanical keyboard review - Dygma Raise
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/09/mechanical-keyboard-review/">
+                        Mechanical keyboard review - UHK v1, Mistel BAROCCO MD770, Drop Alt Captain
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/09/linux-hardware-review/">
+                        Linux (Ubuntu) desktop and laptop hardware review for software engineers (early 2021)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/03/04/customize-ubuntu/">
+                        Customizing Ubuntu UI
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/01/19/fish-scripting-manual/">
+                        fish shell scripting manual
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/12/automatically-updating-copyright-messages-in-jetbrains-ides/">
+                        Automatically updating copyright messages in JetBrains IDEs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/07/12/setting-environment-variables-on-macos/">
+                        Setting environment variables on macOS
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/06/28/md-parser-rust-from-r3bl-tui/">
+                        Build with Naz : Markdown parser in Rust and nom from r3bl_tui
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/06/10/rust-miette-error-handling/">
+                        Build with Naz : Rust error handling with miette
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/28/typestate-pattern-rust/">
+                        Build with Naz : Rust typestate pattern
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/25/tokio-uring-exploration-rust/">
+                        Build with Naz : Linux io_uring and tokio-uring exploration with Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/19/effective-async-rust/">
+                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/15/tokio-tracing-otel-rust/">
+                        Build with Naz : tokio tracing &amp; OTel and how to use it in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">
+                        Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/21/build-async-interactive-cli-apps-in-rust/">
+                        Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Build with Naz : Comprehensive guide to nom parsing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2024/07/08/ubuntu24/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <!-- video on intro to testing (with playlist) -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- rust async readline and spinner & playlist -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=i37Ei9nCfvslOoaI&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- effective async rust & playlist -->
+    <iframe
+    src="https://www.youtube.com/embed/qvIt8MF-pCM?si=S40pbhnvVDAohj-6"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen>
+    </iframe>
+    <h2 class="star-us-github-heading">
+      Subscribe to our
+      <a href="https://www.youtube.com/@developerlifecom">YT Channel</a
+      ><span class="heading-emoji"> 🦀</span>
+    </h2>
+
+    <hr />
+
+    <h2 class="star-us-github-heading">
+      Use our crates & apps<span class="heading-emoji"> 📦</span>
+    </h2>
+
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-apps.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://chromewebstore.google.com/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial?hl=en-US&gl=US" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-shortlink.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <!-- <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a
+          href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async"
+          target="_blank"
+        >
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TERMINAL ASYNC LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_terminal_async</code></h3>
+          </div>
+        </a>
+      </li> -->
+    </ul>
+
+    <hr />
+
+    <h2 class="star-us-github-heading">
+      Join our <a href="https://discord.gg/PhuF4qFpcA">Discord</a>
+      <span class="heading-emoji"> 💬</span>
+    </h2>
+
+  </section>
+</div>
+</div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

@@ -17,8 +17,7 @@ categories:
 
 <img class="post-hero-image" src="{{ 'assets/rust-redux.svg' | relative_url }}"/>
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<!-- TOC -->
 
 - [Introduction](#introduction)
 - [Architecture](#architecture)
@@ -29,10 +28,13 @@ categories:
 - [Middleware functions](#middleware-functions)
 - [Subscriber functions](#subscriber-functions)
 - [Wrapping up](#wrapping-up)
+- [Build with Naz video series on developerlife.com YouTube channel](#build-with-naz-video-series-on-developerlifecom-youtube-channel)
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<!-- /TOC -->
+
 
 ## Introduction
+<a id="markdown-introduction" name="introduction"></a>
 
 This article illustrates how we can build a Redux library in Rust. This library is thread safe and
 asynchronous (using Tokio). The middleware and subscribers will be run in asynchronously via Tokio
@@ -44,7 +46,6 @@ tasks. But the reducer functions will be run in sequence (not in separate Tokio 
 >   reducer functions, `async` middleware, and subscribers. Along w/ the idea of finite state
 >   machines as an effective way to manage your application's state.
 > - Tokio [from our article](https://developerlife.com/2022/03/12/rust-tokio/). You can get familiar
->   with the `async` programming model and the Tokio runtime. And get some insights into writing
 >   macros that help you write `async` code.
 
 > 📜 The source code for the finished Redux library can be found
@@ -58,6 +59,7 @@ and `tui`.
 > by Will Crichton demonstrating Typed Design Patterns with Rust.
 
 ## Architecture
+<a id="markdown-architecture" name="architecture"></a>
 
 Before we start, let's get familiar with the Redux architecture.
 
@@ -111,6 +113,7 @@ To make things even more flexible, we will provide 2 ways of dispatching actions
    complete.
 
 ## Of "things" and their "managers"
+<a id="markdown-of-%22things%22-and-their-%22managers%22" name="of-%22things%22-and-their-%22managers%22"></a>
 
 This brings us into the implementation of the Redux library. The first thing we will need is a Redux
 store that is shareable between threads / tasks and also allows thread safe interior mutability. We
@@ -272,6 +275,7 @@ With this, we can now dive into the Redux library implementation 🚀.
 > you like it 🙏.
 
 ## Using the Redux library
+<a id="markdown-using-the-redux-library" name="using-the-redux-library"></a>
 
 > 🚀 You can find a CLI app that uses this Redux library to manage an address book
 > [here](https://github.com/nazmulidris/rust_scratch/tree/main/address-book-with-redux) called
@@ -434,6 +438,7 @@ assert_eq!(shared_object.lock().unwrap().pop(), Some(-4));
 ```
 
 ## The Store struct
+<a id="markdown-the-store-struct" name="the-store-struct"></a>
 
 The `Store` is actually a "manager" for the "thing" which is `SafeStoreStateMachineWrapper`. The
 "thing" that it manages actually has all the good stuff like the following:
@@ -475,6 +480,7 @@ are some of these methods.
 4. `add_reducer` which allows us to add a reducer function.
 
 ## Reducer functions
+<a id="markdown-reducer-functions" name="reducer-functions"></a>
 
 > With `0.7.12` of the library, the codebase has been refactored to make all the things `async`.
 > Please read the [README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) for
@@ -528,6 +534,7 @@ the state is updated. These happen sequentially (not in separate Tokio tasks). B
 are run the middleware functions are run.
 
 ## Middleware functions
+<a id="markdown-middleware-functions" name="middleware-functions"></a>
 
 > With `0.7.12` of the library, the codebase has been refactored to make all the things `async`.
 > Please read the [README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) for
@@ -581,6 +588,7 @@ the final state is ready, it is then passed to each subscriber function; each su
 run in a separate Tokio task).
 
 ## Subscriber functions
+<a id="markdown-subscriber-functions" name="subscriber-functions"></a>
 
 > With `0.7.12` of the library, the codebase has been refactored to make all the things `async`.
 > Please read the [README](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) for
@@ -619,6 +627,7 @@ The last stage of action dispatch is to call each subscriber function. These hap
 Tokio tasks.
 
 ## Wrapping up
+<a id="markdown-wrapping-up" name="wrapping-up"></a>
 
 > 🚀 You can find a CLI app that uses this Redux library to manage an address book
 > [here](https://github.com/nazmulidris/rust_scratch/tree/main/address-book-with-redux) called
@@ -630,3 +639,20 @@ Tokio tasks.
 > [here](https://github.com/r3bl-org/r3bl-rs-utils). You can always find the most up to date
 > information on this library in it's
 > [`README`](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux) file.
+
+## Build with Naz video series on developerlife.com YouTube channel
+<a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a>
+
+> If you have comments and feedback on this content, or would like to request new content
+> (articles & videos) on developerlife.com, please join our [discord
+> server](https://discord.gg/8M2ePAevaMi).
+
+You can watch a video series on building this crate with Naz on the
+[developerlife.com YouTube channel](https://www.youtube.com/@developerlifecom).
+
+- [YT channel](https://www.youtube.com/@developerlifecom)
+- Playlists
+    - [Build with Naz, fundamental effective Rust](https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz)
+    - [Build with Naz, effective async Rust and tokio](https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5)
+    - [Build with Naz, async readline and spinner for CLI in Rust](https://www.youtube.com/watch?v=3vQJguti02I&list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE)
+    - [Build with Naz, testing in Rust](https://www.youtube.com/watch?v=Xt495QLrFFk&list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8)

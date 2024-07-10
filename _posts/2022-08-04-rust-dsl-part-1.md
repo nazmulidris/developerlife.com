@@ -30,6 +30,7 @@ categories:
 - [Generate the code](#generate-the-code)
 - [Exporting it](#exporting-it)
 - [Wrapping up](#wrapping-up)
+- [Build with Naz video series on developerlife.com YouTube channel](#build-with-naz-video-series-on-developerlifecom-youtube-channel)
 
 <!-- /TOC -->
 
@@ -683,3 +684,20 @@ handle variables that hold color values in them).
 In the future we will expand this DSL to include more features like generating the entire stylesheet
 declaratively. And then move on to creating JSX like syntax in Rust for layout stuff in the `tui`
 module as well. More articles to follow based on this work.
+
+## Build with Naz video series on developerlife.com YouTube channel
+<a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a>
+
+> If you have comments and feedback on this content, or would like to request new content
+> (articles & videos) on developerlife.com, please join our [discord
+> server](https://discord.gg/8M2ePAevaMi).
+
+You can watch a video series on building this crate with Naz on the
+[developerlife.com YouTube channel](https://www.youtube.com/@developerlifecom).
+
+- [YT channel](https://www.youtube.com/@developerlifecom)
+- Playlists
+    - [Build with Naz, fundamental effective Rust](https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz)
+    - [Build with Naz, effective async Rust and tokio](https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5)
+    - [Build with Naz, async readline and spinner for CLI in Rust](https://www.youtube.com/watch?v=3vQJguti02I&list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE)
+    - [Build with Naz, testing in Rust](https://www.youtube.com/watch?v=Xt495QLrFFk&list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8)

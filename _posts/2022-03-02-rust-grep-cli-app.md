@@ -18,18 +18,19 @@ categories:
 
 <img class="post-hero-image" src="{{ 'assets/rust-grep-cli-app.svg' | relative_url }}"/>
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<!-- TOC -->
 
 - [Introduction](#introduction)
 - [Building the main function](#building-the-main-function)
-- [Reading piped input from stdin (mode 1)](#reading-piped-input-from-stdin-mode-1)
-- [Reading a file and searching thru it (mode 2)](#reading-a-file-and-searching-thru-it-mode-2)
+- [Reading piped input from stdin mode 1](#reading-piped-input-from-stdin-mode-1)
+- [Reading a file and searching thru it mode 2](#reading-a-file-and-searching-thru-it-mode-2)
 - [Wrapping up](#wrapping-up)
+- [Build with Naz video series on developerlife.com YouTube channel](#build-with-naz-video-series-on-developerlifecom-youtube-channel)
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<!-- /TOC -->
 
 ## Introduction
+<a id="markdown-introduction" name="introduction"></a>
 
 This article illustrates how we can build a CLI app in Rust that is a very basic
 implementation of grep. This app will have 2 modes of operation: piping lines in from
@@ -50,6 +51,7 @@ arguments, stdin, stdout, and piping.
 > by Will Crichton demonstrating Typed Design Patterns with Rust.
 
 ## Building the main function
+<a id="markdown-building-the-main-function" name="building-the-main-function"></a>
 
 The first thing we need to do is build the main function. This is where we will be routing
 our app to be in mode 1 or mode 2. We have to detect whether the terminal is in `tty` mode
@@ -104,6 +106,7 @@ Please note the following things in the `run()` function:
    calls) to propagate any `Error` that may have been produced to the caller (`main()` function).
 
 ## Reading piped input from stdin (mode 1)
+<a id="markdown-reading-piped-input-from-stdin-mode-1" name="reading-piped-input-from-stdin-mode-1"></a>
 
 The arguments that our app will take are different for each mode. In this mode, we need to know what
 our search term is, and whether to apply case-sensitive or insensitive search. We don't need a file
@@ -190,6 +193,7 @@ Let's break down each line of the above code:
 Next, we will look at implementing mode 2.
 
 ## Reading a file and searching thru it (mode 2)
+<a id="markdown-reading-a-file-and-searching-thru-it-mode-2" name="reading-a-file-and-searching-thru-it-mode-2"></a>
 
 The arguments that our app will take in this mode are the search term, the file path, and whether to
 apply case-sensitive or case-insensitive search. These are different than the arguments for
@@ -252,6 +256,7 @@ and finally replace the search term with the formatted version. Then print the r
 console.
 
 ## Wrapping up
+<a id="markdown-wrapping-up" name="wrapping-up"></a>
 
 You can get the code for this app
 [here](https://github.com/nazmulidris/rust_scratch/tree/main/rust-grep-cli).
@@ -262,3 +267,20 @@ Here are a list of crates that are used in this app.
 2. `atty` - <https://crates.io/crates/atty>
 
 We will explore more complex TUIs built w/ Rust in the future.
+
+## Build with Naz video series on developerlife.com YouTube channel
+<a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a>
+
+> If you have comments and feedback on this content, or would like to request new content
+> (articles & videos) on developerlife.com, please join our [discord
+> server](https://discord.gg/8M2ePAevaMi).
+
+You can watch a video series on building this crate with Naz on the
+[developerlife.com YouTube channel](https://www.youtube.com/@developerlifecom).
+
+- [YT channel](https://www.youtube.com/@developerlifecom)
+- Playlists
+    - [Build with Naz, fundamental effective Rust](https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz)
+    - [Build with Naz, effective async Rust and tokio](https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5)
+    - [Build with Naz, async readline and spinner for CLI in Rust](https://www.youtube.com/watch?v=3vQJguti02I&list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE)
+    - [Build with Naz, testing in Rust](https://www.youtube.com/watch?v=Xt495QLrFFk&list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8)

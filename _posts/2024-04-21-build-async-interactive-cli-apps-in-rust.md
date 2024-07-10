@@ -147,8 +147,11 @@ You can then run this program using `cargo run`. Play with it to get a sense of 
 non blocking nature of the REPL. Press Ctrl+C, or Ctrl+D to exit this program.
 
 ## Video series on developerlife.com YouTube channel on building this crate with Naz
-
 <a id="markdown-video-series-on-developerlife.com-youtube-channel-on-building-this-crate-with-naz" name="video-series-on-developerlife.com-youtube-channel-on-building-this-crate-with-naz"></a>
+
+> If you have comments and feedback on this content, or would like to request new content
+> (articles & videos) on developerlife.com, please join our [discord
+> server](https://discord.gg/8M2ePAevaMi).
 
 You can watch a video series on building this crate with Naz on the
 [developerlife.com YouTube channel](https://www.youtube.com/@developerlifecom).

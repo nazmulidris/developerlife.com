@@ -220,8 +220,7 @@
 
         <p><img class="post-hero-image" src="/assets/rust-redux.svg" /></p>
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<!-- TOC -->
 
 <ul>
   <li><a href="#introduction">Introduction</a></li>
@@ -233,9 +232,10 @@
   <li><a href="#middleware-functions">Middleware functions</a></li>
   <li><a href="#subscriber-functions">Subscriber functions</a></li>
   <li><a href="#wrapping-up">Wrapping up</a></li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
 </ul>
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<!-- /TOC -->
       <h2 id="introduction">
         
         
@@ -244,6 +244,7 @@
         
       </h2>
     
+<p><a id="markdown-introduction" name="introduction"></a></p>
 
 <p>This article illustrates how we can build a Redux library in Rust. This library is thread safe and
 asynchronous (using Tokio). The middleware and subscribers will be run in asynchronously via Tokio
@@ -257,7 +258,6 @@ tasks. But the reducer functions will be run in sequence (not in separate Tokio 
 reducer functions, <code class="language-plaintext highlighter-rouge">async</code> middleware, and subscribers. Along w/ the idea of finite state
 machines as an effective way to manage your application’s state.</li>
     <li>Tokio <a href="https://developerlife.com/2022/03/12/rust-tokio/">from our article</a>. You can get familiar
-with the <code class="language-plaintext highlighter-rouge">async</code> programming model and the Tokio runtime. And get some insights into writing
 macros that help you write <code class="language-plaintext highlighter-rouge">async</code> code.</li>
   </ul>
 </blockquote>
@@ -283,6 +283,7 @@ by Will Crichton demonstrating Typed Design Patterns with Rust.</p>
         
       </h2>
     
+<p><a id="markdown-architecture" name="architecture"></a></p>
 
 <p>Before we start, let’s get familiar with the Redux architecture.</p>
 
@@ -350,6 +351,7 @@ complete.</li>
         
       </h2>
     
+<p><a id="markdown-of-%22things%22-and-their-%22managers%22" name="of-%22things%22-and-their-%22managers%22"></a></p>
 
 <p>This brings us into the implementation of the Redux library. The first thing we will need is a Redux
 store that is shareable between threads / tasks and also allows thread safe interior mutability. We
@@ -543,6 +545,7 @@ you like it 🙏.</p>
         
       </h2>
     
+<p><a id="markdown-using-the-redux-library" name="using-the-redux-library"></a></p>
 
 <blockquote>
   <p>🚀 You can find a CLI app that uses this Redux library to manage an address book
@@ -713,6 +716,7 @@ that’s what you would like using <code class="language-plaintext highlighter-r
         
       </h2>
     
+<p><a id="markdown-the-store-struct" name="the-store-struct"></a></p>
 
 <p>The <code class="language-plaintext highlighter-rouge">Store</code> is actually a “manager” for the “thing” which is <code class="language-plaintext highlighter-rouge">SafeStoreStateMachineWrapper</code>. The
 “thing” that it manages actually has all the good stuff like the following:</p>
@@ -765,6 +769,7 @@ asynchronously.</li>
         
       </h2>
     
+<p><a id="markdown-reducer-functions" name="reducer-functions"></a></p>
 
 <blockquote>
   <p>With <code class="language-plaintext highlighter-rouge">0.7.12</code> of the library, the codebase has been refactored to make all the things <code class="language-plaintext highlighter-rouge">async</code>.
@@ -830,6 +835,7 @@ are run the middleware functions are run.</p>
         
       </h2>
     
+<p><a id="markdown-middleware-functions" name="middleware-functions"></a></p>
 
 <blockquote>
   <p>With <code class="language-plaintext highlighter-rouge">0.7.12</code> of the library, the codebase has been refactored to make all the things <code class="language-plaintext highlighter-rouge">async</code>.
@@ -898,6 +904,7 @@ run in a separate Tokio task).</p>
         
       </h2>
     
+<p><a id="markdown-subscriber-functions" name="subscriber-functions"></a></p>
 
 <blockquote>
   <p>With <code class="language-plaintext highlighter-rouge">0.7.12</code> of the library, the codebase has been refactored to make all the things <code class="language-plaintext highlighter-rouge">async</code>.
@@ -947,6 +954,7 @@ Tokio tasks.</p>
         
       </h2>
     
+<p><a id="markdown-wrapping-up" name="wrapping-up"></a></p>
 
 <blockquote>
   <p>🚀 You can find a CLI app that uses this Redux library to manage an address book
@@ -962,6 +970,36 @@ you a list of commands you can use. Try <code class="language-plaintext highligh
 information on this library in it’s
 <a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/README.md#redux"><code class="language-plaintext highlighter-rouge">README</code></a> file.</p>
 </blockquote>
+      <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
+        
+        
+          Build with Naz video series on developerlife.com YouTube channel <a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>
 
         <!--
     Display all the categories for this page
@@ -1192,6 +1230,15 @@ information on this library in it’s
             
                 
                 <li>
+                    <a class="post-list" href="/2024/07/10/rust-async-cancellation-safety-tokio/">
+                        Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
                     <a class="post-list" href="/2024/06/28/md-parser-rust-from-r3bl-tui/">
                         Build with Naz : Markdown parser in Rust and nom from r3bl_tui
                     </a>
@@ -1229,7 +1276,7 @@ information on this library in it’s
                 
                 <li>
                     <a class="post-list" href="/2024/05/19/effective-async-rust/">
-                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety
+                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, graceful shutdown
                     </a>
                 </li>
             

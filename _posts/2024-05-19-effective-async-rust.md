@@ -1,6 +1,6 @@
 ---
 title:
-  "Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety"
+  "Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, graceful shutdown"
 author: Nazmul Idris
 date: 2024-05-19 15:00:00+00:00
 excerpt: |
@@ -906,6 +906,10 @@ Interesting code links:
 
 ## Build with Naz video series on developerlife.com YouTube channel
 <a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a>
+
+> If you have comments and feedback on this content, or would like to request new content
+> (articles & videos) on developerlife.com, please join our [discord
+> server](https://discord.gg/8M2ePAevaMi).
 
 You can watch a video series on building this crate with Naz on the
 [developerlife.com YouTube channel](https://www.youtube.com/@developerlifecom).

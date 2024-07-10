@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.3" />
+<meta property="og:title" content="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This tutorial is a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them." />
+<meta property="og:description" content="This tutorial is a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them." />
+<link rel="canonical" href="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" />
+<meta property="og:url" content="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-07-10T10:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-07-10T10:00:00-05:00","datePublished":"2024-07-10T10:00:00-05:00","description":"This tutorial is a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them.","headline":"Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"},"url":"http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add fontawesome (only for bio.html page) -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /><!-- https://developers.google.com/analytics/devguides/collection/gtagjs -->
+<script async
+        src="https://www.googletagmanager.com/gtag/js?id=G-NQY9ECC58H"></script>
+<script>
+  window.dataLayer = window.dataLayer || []
+
+  function gtag() {
+    window.dataLayer.push(arguments)
+  }
+
+  gtag("js", new Date())
+  gtag("config", "G-NQY9ECC58H")
+</script>
+<!-- https://us14.admin.mailchimp.com/account/connected-sites/site-detail/ -->
+
+<script id="mcjs">
+  !(function (c, h, i, m, p) {
+    ;(m = c.createElement(h)),
+      (p = c.getElementsByTagName(h)[0]),
+      (m.async = 1),
+      (m.src = i),
+      p.parentNode.insertBefore(m, p)
+  })(
+    document,
+    "script",
+    "https://chimpstatic.com/mcjs-connected/js/users/c2470ddfa863eb8ace707651b/2bb3bcad193ef862398700457.js"
+  )
+</script>
+</head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Build with Naz : Rust async in practice tokio::select!, actor pattern & cancel safety</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Jul 10, 2024
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is fontawesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, empowerment, lifelong learning,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="/subscribe.html" target="_blank"
+    ><kbd>Subscribe for updates</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/tokio-async-cancel-safety.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#what-can-go-wrong-when-racing-futures">What can go wrong when racing futures?</a></li>
+  <li><a href="#youtube-video-for-this-article">YouTube video for this article</a></li>
+  <li><a href="#examples-of-cancellation-safety-in-async-rust-using-tokioselect">Examples of cancellation safety in async Rust using tokio::select!</a>
+    <ul>
+      <li><a href="#example-1-right-and-wrong-way-to-sleep-and-interval">Example 1: Right and wrong way to sleep, and interval</a>
+        <ul>
+          <li><a href="#difference-between-interval-and-sleep">Difference between interval and sleep</a></li>
+        </ul>
+      </li>
+      <li><a href="#example-2-safe-cancel-of-a-future-using-interval-and-mpsc-channel">Example 2: Safe cancel of a future using interval and mpsc channel</a></li>
+      <li><a href="#example-3-inducing-cancellation-safety-issues">Example 3: Inducing cancellation safety issues</a></li>
+    </ul>
+  </li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>This tutorial is a deep dive into the concept of cancellation safety in async code using
+Tokio and Rust. It affects the <code class="language-plaintext highlighter-rouge">tokio::select!</code> macro, and what happens to the racing
+<code class="language-plaintext highlighter-rouge">Future</code>s that don’t win. The examples provided here, along with the video, will go over
+both code that is is cancellation safe and code that is not. These examples reflect
+real-world patterns, and are a generalized form of them.</p>
+
+<p><code class="language-plaintext highlighter-rouge">tokio::select!</code> might as well have been called <code class="language-plaintext highlighter-rouge">tokio::race!</code> (there’s a <a href="https://en.wikipedia.org/wiki/The_Fast_and_the_Furious:_Tokyo_Drift">The Fast and
+Furious : Tokyo
+Drift</a> joke in there
+somewhere). Here’s the basic setup:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">loop</span> <span class="p">{</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span><span class="p">{</span>
+        <span class="n">branch_1_result</span> <span class="o">=</span> <span class="n">future_1</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="c1">// handle branch_1_result</span>
+        <span class="p">},</span>
+        <span class="n">branch_2_result</span> <span class="o">=</span> <span class="n">future_2</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="c1">// handle branch_2_result</span>
+        <span class="p">},</span>
+        <span class="c1">// and so on</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>A classic example is that you’re reading something from an <em>async</em> network or file stream.
+And you want to have a timeout that breaks out of the <code class="language-plaintext highlighter-rouge">loop</code> if it takes too long. In this
+case you might have two branches:</p>
+<ol>
+  <li>A <code class="language-plaintext highlighter-rouge">tokio::time::sleep()</code> <code class="language-plaintext highlighter-rouge">Future</code> in the timeout branch.</li>
+  <li>Some code to get the data asynchronously from the stream in the other branch.</li>
+</ol>
+
+<p>Note that all branches must have a <code class="language-plaintext highlighter-rouge">Future</code> to call <code class="language-plaintext highlighter-rouge">.await</code> on. The macro does not
+require you to call <code class="language-plaintext highlighter-rouge">.await</code>. The code it generates take care of this.</p>
+
+<blockquote>
+  <p>It might be worth your time (if you haven’t already) to read the <a href="https://docs.rs/tokio/latest/tokio/macro.select.html#cancellation-safety">official Tokio
+docs</a> on
+<code class="language-plaintext highlighter-rouge">tokio::select!</code> macro and the concept of cancellation safety before diving into the
+examples below.</p>
+</blockquote>
+      <h2 id="what-can-go-wrong-when-racing-futures">
+        
+        
+          What can go wrong when racing futures? <a href="#what-can-go-wrong-when-racing-futures">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-what-can-go-wrong-when-racing-futures%3F" name="what-can-go-wrong-when-racing-futures%3F"></a></p>
+
+<p>If you recall, in Rust, a <code class="language-plaintext highlighter-rouge">Future</code> is just a data structure that doesn’t really do
+anything until you <code class="language-plaintext highlighter-rouge">.await</code> it.</p>
+<ul>
+  <li>The Tokio runtime actually does work on the <code class="language-plaintext highlighter-rouge">Future</code>s by polling them to see whether
+they are <code class="language-plaintext highlighter-rouge">Ready</code> or <code class="language-plaintext highlighter-rouge">Pending</code>.</li>
+  <li>If they’re not <code class="language-plaintext highlighter-rouge">Ready</code> they go back to waiting until their <code class="language-plaintext highlighter-rouge">Waker</code> is called, and then
+Tokio will <code class="language-plaintext highlighter-rouge">poll()</code> them again.</li>
+  <li>They are cheap to create, they are stateful, and they can be nested (easily composed).</li>
+</ul>
+
+<blockquote>
+  <p>Please read our article on <a href="https://developerlife.com/2024/05/19/effective-async-rust/">effective async
+Rust</a> to get a better
+understanding of how async Rust, and <code class="language-plaintext highlighter-rouge">Future</code>s works and how runtimes are implemented.</p>
+</blockquote>
+
+<p>These are some of the great things about Rust <code class="language-plaintext highlighter-rouge">Future</code>s. However, the nature of a Rust
+<code class="language-plaintext highlighter-rouge">Future</code> is what may cause a problem with “cancellation safety” in the <code class="language-plaintext highlighter-rouge">tokio::select!</code>
+macro.</p>
+
+<p>So what happens to <code class="language-plaintext highlighter-rouge">future_2</code> (the branch reading or writing from an async stream) if the
+timeout branch (for <code class="language-plaintext highlighter-rouge">future_1</code>) wins the race?</p>
+<ul>
+  <li>Is the <code class="language-plaintext highlighter-rouge">future_2</code> in the middle of doing something when this happens?</li>
+  <li>And if so, what happens to the work it was doing when it hits the <code class="language-plaintext highlighter-rouge">.await</code> point in its
+code, and then stops?</li>
+</ul>
+
+<p>This is the crux of the issue with cancellation safety in async Rust code. Lots of <code class="language-plaintext highlighter-rouge">tokio</code>
+code is built to be cancellation safe, so if you’re using <code class="language-plaintext highlighter-rouge">mpsc</code> or <code class="language-plaintext highlighter-rouge">broadcast</code> channels,
+async streams, etc. you will be fine. However if you’re maintaining state inside the
+<code class="language-plaintext highlighter-rouge">future_2</code> and then it is dropped, then this article will help you understand what
+happens.</p>
+      <h2 id="youtube-video-for-this-article">
+        
+        
+          YouTube video for this article <a href="#youtube-video-for-this-article">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-youtube-video-for-this-article" name="youtube-video-for-this-article"></a></p>
+
+<p>This blog post has examples from this live coding video. If you like
+to learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
+channel</a>.</p>
+
+<!-- video on tokio-async-cancel-safety -->
+<iframe src="https://www.youtube.com/embed/cQq5i8J1ELg?si=UDgJdFFQn0-yNXsS" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<p><br /></p>
+      <h2 id="examples-of-cancellation-safety-in-async-rust-using-tokioselect">
+        
+        
+          Examples of cancellation safety in async Rust using tokio::select! <a href="#examples-of-cancellation-safety-in-async-rust-using-tokioselect">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-examples-of-cancellation-safety-in-async-rust-using-tokio%3A%3Aselect!" name="examples-of-cancellation-safety-in-async-rust-using-tokio%3A%3Aselect!"></a></p>
+
+<p>Let’s create some examples to illustrate how to use the typestate pattern in Rust. You can run
+<code class="language-plaintext highlighter-rouge">cargo new --lib async_cancel_safe</code> to create a new library crate.</p>
+
+<blockquote>
+  <p>💡 You can get the code from the
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/async_cancel_safe"><code class="language-plaintext highlighter-rouge">rust-scratch</code></a> repo.</p>
+</blockquote>
+
+<p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
+dependencies that we need for these examples.</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"async_cancel_safe"</span>
+<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
+<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+
+<span class="nn">[dependencies]</span>
+<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.38.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
+
+<span class="c"># Async stream for DI and testing.</span>
+<span class="py">async-stream</span> <span class="p">=</span> <span class="s">"0.3.5"</span>
+<span class="py">futures-core</span> <span class="p">=</span> <span class="s">"0.3"</span>
+<span class="py">futures-util</span> <span class="p">=</span> <span class="s">"0.3.30"</span>
+</code></pre></div></div>
+
+<p>We are going to add all the examples below as tests to the <code class="language-plaintext highlighter-rouge">lib.rs</code> file in this crate.</p>
+      <h3 id="example-1-right-and-wrong-way-to-sleep-and-interval">
+        
+        
+          Example 1: Right and wrong way to sleep, and interval <a href="#example-1-right-and-wrong-way-to-sleep-and-interval">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-1%3A-right-and-wrong-way-to-sleep%2C-and-interval" name="example-1%3A-right-and-wrong-way-to-sleep%2C-and-interval"></a></p>
+
+<p>Add the following code to your <code class="language-plaintext highlighter-rouge">lib.rs</code> file. Both these examples show similar ways of using
+<code class="language-plaintext highlighter-rouge">tokio::time::sleep(..)</code> incorrectly in a <code class="language-plaintext highlighter-rouge">tokio::select!</code> block.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Equivalent to [test_sleep_right_and_wrong_ways_v2]. This test uses</span>
+<span class="cd">/// [`tokio::pin`] and [`tokio::time::sleep`].</span>
+<span class="cd">/// Run the test using:</span>
+<span class="cd">/// `cargo test -- --nocapture test_sleep_right_and_wrong_ways_v1`</span>
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_sleep_right_and_wrong_ways_v1</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">sleep</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nd">pin!</span><span class="p">(</span><span class="n">sleep</span><span class="p">);</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="c1">// Branch 1 (right way)</span>
+            <span class="c1">// This branch executes a deterministic number of times. The same</span>
+            <span class="c1">// sleep future is re-used on each iteration.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">sleep</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - tick : {count}"</span><span class="p">);</span>
+                <span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="c1">// Branch 2 (wrong way)</span>
+            <span class="c1">// This branch is executed a non deterministic number of times.</span>
+            <span class="c1">// This is because the sleep future is not pinned. It is dropped</span>
+            <span class="c1">// when the other branch is executed. Then on the next iteration,</span>
+            <span class="c1">// a new sleep future is created.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 - sleep"</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cd">/// Equivalent to [test_sleep_right_and_wrong_ways_v1]. This test uses</span>
+<span class="cd">/// [`tokio::time::interval()`]</span>
+<span class="cd">/// Run the test using:</span>
+<span class="cd">/// `cargo test -- --nocapture test_sleep_right_and_wrong_ways_v2`</span>
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_sleep_right_and_wrong_ways_v2</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">interval</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="c1">// Branch 1 (right way)</span>
+            <span class="c1">// This branch executes a deterministic number of times. The same</span>
+            <span class="c1">// sleep future is re-used on each iteration.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">interval</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - tick : {count}"</span><span class="p">);</span>
+                <span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="c1">// Branch 2 (wrong way)</span>
+            <span class="c1">// This branch is executed a non deterministic number of times.</span>
+            <span class="c1">// This is because the sleep future is not pinned. It is dropped</span>
+            <span class="c1">// when the other branch is executed. Then on the next iteration,</span>
+            <span class="c1">// a new sleep future is created.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 - sleep"</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You can run these tests to see what they do by running the following in your terminal:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_sleep_right_and_wrong_ways_v1</code></li>
+  <li><code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_sleep_right_and_wrong_ways_v2</code></li>
+</ul>
+
+<p>They are flaky and its not possible to really make accurate assertions at the end of
+each of these tests.</p>
+
+<p>Let’s break down <code class="language-plaintext highlighter-rouge">v1</code> first to see what is happening.</p>
+
+<ul>
+  <li>Branch 1 (right way): This branch executes a deterministic number of times. The same
+sleep future is re-used on each iteration. This is achieved using the <code class="language-plaintext highlighter-rouge">tokio::pin!</code>
+macro. Since futures are stateful, ensuring that the same one is re-used between
+iterations of the <code class="language-plaintext highlighter-rouge">loop</code> ensures that state isn’t lost when the other branch is
+executed, or when this branch finishes and its future is dropped.</li>
+  <li>Branch 2 (wrong way): This branch is executed a non deterministic number of times. This
+is because the sleep future is not pinned. It is dropped when the other branch is
+executed. Then on the next iteration, a <strong>new</strong> sleep future is created. This means that
+the state of the future is lost, and its behavior with providing a reliable delay is
+non deterministic.</li>
+</ul>
+
+<p>Let’s break down <code class="language-plaintext highlighter-rouge">v2</code> next.</p>
+
+<ul>
+  <li>Branch 1 (right way): This branch executes a deterministic number of times. However, we
+are using <code class="language-plaintext highlighter-rouge">tokio::time::interval()</code> this time around. It is re-used between many
+iterations of the <code class="language-plaintext highlighter-rouge">loop</code>. This function returns a <code class="language-plaintext highlighter-rouge">Interval</code> struct that has a <code class="language-plaintext highlighter-rouge">tick()</code>
+method that returns a <code class="language-plaintext highlighter-rouge">Future</code> that resolves when the interval has elapsed.</li>
+  <li>Branch 2 (wrong way): Same as before.</li>
+</ul>
+      <h4 id="difference-between-interval-and-sleep">
+        
+        
+          Difference between interval and sleep <a href="#difference-between-interval-and-sleep">#</a>
+        
+        
+      </h4>
+    
+<p><a id="markdown-difference-between-interval-and-sleep" name="difference-between-interval-and-sleep"></a></p>
+
+<p>This is the mental model that I’ve developed for using these.</p>
+
+<ol>
+  <li>If your intention is to have a single timeout then, <code class="language-plaintext highlighter-rouge">sleep</code> might be the way to go. You
+create and <code class="language-plaintext highlighter-rouge">tokio::pin!</code> the <code class="language-plaintext highlighter-rouge">sleep</code> future, and then re-use it in the <code class="language-plaintext highlighter-rouge">loop</code>. Once
+this timeout expires, then you can handle your timeout condition in that branch.</li>
+  <li>If your intention is to have a re-usable timer that ticks on a regular interval, then
+<code class="language-plaintext highlighter-rouge">interval</code> is the way to go. You create the <code class="language-plaintext highlighter-rouge">interval</code> outside the <code class="language-plaintext highlighter-rouge">loop</code>, and then
+call <code class="language-plaintext highlighter-rouge">tick()</code> on it in the <code class="language-plaintext highlighter-rouge">loop</code>. This will give you a <code class="language-plaintext highlighter-rouge">Future</code> that resolves when the
+interval has elapsed. And you can safely use this same <code class="language-plaintext highlighter-rouge">Interval</code> repeatedly in the
+loop. And even accumulate how many times it runs to decide when to break.</li>
+</ol>
+      <h3 id="example-2-safe-cancel-of-a-future-using-interval-and-mpsc-channel">
+        
+        
+          Example 2: Safe cancel of a future using interval and mpsc channel <a href="#example-2-safe-cancel-of-a-future-using-interval-and-mpsc-channel">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-2%3A-safe-cancel-of-a-future-using-interval-and-mpsc-channel" name="example-2%3A-safe-cancel-of-a-future-using-interval-and-mpsc-channel"></a></p>
+
+<p>Add the following snippet to your <code class="language-plaintext highlighter-rouge">lib.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Run the test using:</span>
+<span class="cd">/// `cargo test -- --nocapture test_safe_cancel_example`</span>
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_safe_cancel_example</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">interval</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
+
+    <span class="c1">// Shutdown channel.</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">tx</span><span class="p">,</span> <span class="k">mut</span> <span class="n">rx</span><span class="p">)</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">mpsc</span><span class="p">::</span><span class="nf">channel</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">vec</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="c1">// Branch 1.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">interval</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - tick : count {}"</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+
+                <span class="n">vec</span><span class="nf">.push</span><span class="p">(</span><span class="n">count</span><span class="p">);</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="n">count</span><span class="nf">.saturating_sub</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+                    <span class="n">_</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.try_send</span><span class="p">(());</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="c1">// Branch 2.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">rx</span><span class="nf">.recv</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; shut down"</span><span class="p">);</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When you run this test using <code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_safe_cancel_example</code>, you should
+get this output in your terminal:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>running 1 test
+branch 1 - tick : count 5
+branch 1 - tick : count 4
+branch 1 - tick : count 3
+branch 1 - tick : count 2
+branch 1 - tick : count 1
+branch 2 =&gt; shut down
+</code></pre></div></div>
+
+<p>Let’s break down what’s happening in this test.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Branch 1</code> - The <code class="language-plaintext highlighter-rouge">interval</code> is created outside the <code class="language-plaintext highlighter-rouge">loop</code> and is used to create a
+<code class="language-plaintext highlighter-rouge">Future</code> that resolves when the interval has elapsed. This happens in <code class="language-plaintext highlighter-rouge">Branch 1</code> and we
+let this branch run <code class="language-plaintext highlighter-rouge">5</code> times before sending a message on the <code class="language-plaintext highlighter-rouge">tx</code> channel.</li>
+  <li><code class="language-plaintext highlighter-rouge">Branch 2</code> - The <code class="language-plaintext highlighter-rouge">tx</code> channel is used to send a message to the <code class="language-plaintext highlighter-rouge">rx</code> channel. This is
+done in <code class="language-plaintext highlighter-rouge">Branch 1</code> when <code class="language-plaintext highlighter-rouge">count</code> reaches <code class="language-plaintext highlighter-rouge">0</code>. The <code class="language-plaintext highlighter-rouge">rx</code> channel is used to receive a
+message. This is done in <code class="language-plaintext highlighter-rouge">Branch 2</code> and when a message is received, we break out of the
+<code class="language-plaintext highlighter-rouge">loop</code>.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Branch 1</code> runs 5 times, and <code class="language-plaintext highlighter-rouge">Branch 1</code> runs 1 time and breaks out of the loop. If you
+look at the <code class="language-plaintext highlighter-rouge">vec</code> that we accumulate outside of the <code class="language-plaintext highlighter-rouge">loop</code> this contains what we expect.</p>
+      <h3 id="example-3-inducing-cancellation-safety-issues">
+        
+        
+          Example 3: Inducing cancellation safety issues <a href="#example-3-inducing-cancellation-safety-issues">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-example-3%3A-inducing-cancellation-safety-issues" name="example-3%3A-inducing-cancellation-safety-issues"></a></p>
+
+<p>This is the example we have all been waiting for. Let’s start with copying the
+following snippet in your <code class="language-plaintext highlighter-rouge">lib.rs</code> file. We will create a new module here.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">pub</span> <span class="k">mod</span> <span class="n">test_unsafe_cancel_example</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="nn">async_stream</span><span class="p">::</span><span class="n">stream</span><span class="p">;</span>
+    <span class="k">use</span> <span class="nn">futures_core</span><span class="p">::</span><span class="n">Stream</span><span class="p">;</span>
+    <span class="k">use</span> <span class="nn">futures_util</span><span class="p">::</span><span class="n">StreamExt</span><span class="p">;</span>
+
+    <span class="k">use</span> <span class="nn">std</span><span class="p">::{</span><span class="nn">io</span><span class="p">::</span><span class="n">Error</span><span class="p">,</span> <span class="nn">pin</span><span class="p">::</span><span class="nb">Pin</span><span class="p">};</span>
+    <span class="k">pub</span> <span class="k">type</span> <span class="n">MyResult</span> <span class="o">=</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">usize</span><span class="p">,</span> <span class="n">Error</span><span class="o">&gt;</span><span class="p">;</span>
+    <span class="k">pub</span> <span class="k">type</span> <span class="n">PinnedInputStream</span> <span class="o">=</span> <span class="nb">Pin</span><span class="o">&lt;</span><span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Stream</span><span class="o">&lt;</span><span class="n">Item</span> <span class="o">=</span> <span class="n">MyResult</span><span class="o">&gt;&gt;&gt;</span><span class="p">;</span>
+
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_input_vec</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="nd">vec!</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// There's a 100ms delay between each event.</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">gen_input_stream</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">PinnedInputStream</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+        <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="nd">stream!</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="k">in</span> <span class="nf">get_input_vec</span><span class="p">()</span> <span class="p">{</span>
+                <span class="c1">// wait for 100ms</span>
+                <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"yielding item: {item}"</span><span class="p">);</span>
+                <span class="k">yield</span> <span class="nf">Ok</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">};</span>
+        <span class="nn">Box</span><span class="p">::</span><span class="nf">pin</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// This is just to see how to use the async stream [gen_input_stream()].</span>
+    <span class="nd">#[tokio::test]</span>
+    <span class="k">async</span> <span class="k">fn</span> <span class="nf">test_generate_event_stream_pinned</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nf">gen_input_stream</span><span class="p">();</span>
+
+        <span class="k">while</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">lhs</span> <span class="o">=</span> <span class="n">item</span><span class="nf">.unwrap</span><span class="p">();</span>
+            <span class="k">let</span> <span class="n">rhs</span> <span class="o">=</span> <span class="nf">get_input_vec</span><span class="p">()[</span><span class="n">count</span><span class="p">];</span>
+            <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">);</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">// &lt;more stuff to add later&gt;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Let’s break down what’s happening here.</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">get_input_vec()</code> - This function returns a <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code> that we will use to generate
+events in the <code class="language-plaintext highlighter-rouge">gen_input_stream()</code> function. This is meant to simulate the stream of
+<code class="language-plaintext highlighter-rouge">usize</code> values that may be generated from reading a file or a network source. Or even
+write to a file or network source. We could have just made these <code class="language-plaintext highlighter-rouge">u8</code>, but this is a
+made up test, so we are using <code class="language-plaintext highlighter-rouge">usize</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">gen_input_stream()</code> - This is where things get interesting. This function creates an
+async stream that yields the values from the <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code> returned by <code class="language-plaintext highlighter-rouge">get_input_vec()</code>.
+It waits for <code class="language-plaintext highlighter-rouge">100ms</code> between each value that it yields. This is to simulate the delay
+that might be present when reading from a file or network source. Note the trait magic
+and imports that are used to make this work; to get the details on this, check our
+article on <a href="https://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">trait pointers and
+testing</a>.</li>
+  <li>These two functions are our test fixture to simulate a slow async stream. Now, let’s
+test the test fixtures in <code class="language-plaintext highlighter-rouge">test_generate_event_stream_pinned()</code>. This test simply reads
+from the async stream and compares the values that it reads with the values that are
+expected from the <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code> returned by <code class="language-plaintext highlighter-rouge">get_input_vec()</code>.</li>
+</ul>
+
+<p>In <code class="language-plaintext highlighter-rouge">lib.rs</code> replace the <code class="language-plaintext highlighter-rouge">// &lt;more stuff to add later&gt;</code> with the following code:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">async</span> <span class="k">fn</span> <span class="nf">read_3_items_not_cancel_safe</span><span class="p">(</span><span class="n">stream</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">PinnedInputStream</span><span class="p">)</span>
+        <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span>
+    <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">vec</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
+
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; entering read_3_items_not_cancel_safe"</span><span class="p">);</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..</span><span class="mi">3</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">item</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+            <span class="nd">println!</span><span class="p">(</span>
+                <span class="s">"branch 2 =&gt; read_3_items_not_cancel_safe got item: {item}"</span><span class="p">);</span>
+            <span class="n">vec</span><span class="nf">.push</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; vec so far contains: {vec:?}"</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">vec</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[tokio::test]</span>
+    <span class="k">async</span> <span class="k">fn</span> <span class="nf">test_unsafe_cancel_stream</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nf">gen_input_stream</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">300</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
+        <span class="k">let</span> <span class="n">sleep</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">pin!</span><span class="p">(</span><span class="n">sleep</span><span class="p">);</span>
+
+        <span class="k">loop</span> <span class="p">{</span>
+            <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+                <span class="c1">// Branch 1 - Timeout.</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">sleep</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - time is up - end"</span><span class="p">);</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="c1">// Branch 2 - Read from stream.</span>
+                <span class="n">it</span> <span class="o">=</span> <span class="nf">read_3_items_not_cancel_safe</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">stream</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 - got 3 items: {it:?}"</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"loop exited"</span><span class="p">);</span>
+
+        <span class="c1">// Only [1, 2] is consumed by Branch 2 before the timeout happens</span>
+        <span class="c1">// in Branch 1.</span>
+        <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+        <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>When you run this test using <code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_unsafe_cancel_stream</code>, you
+can expect the following output in your terminal.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>branch 2 =&gt; entering read_3_items_not_cancel_safe
+yielding item: 1
+branch 2 =&gt; read_3_items_not_cancel_safe got item: 1
+branch 2 =&gt; vec so far contains: [1]
+yielding item: 2
+branch 2 =&gt; read_3_items_not_cancel_safe got item: 2
+branch 2 =&gt; vec so far contains: [1, 2]
+branch 1 - time is up - end
+loop exited
+yielding item: 3
+</code></pre></div></div>
+
+<p>So let’s break down what’s happening in this test.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Branch 1</code> - This branch is a timeout branch. It waits for <code class="language-plaintext highlighter-rouge">300ms</code> before breaking out
+of the loop. This is to simulate a timeout that might happen when reading from a file or
+network source. With this delay, we ensure that <code class="language-plaintext highlighter-rouge">Branch 2</code> doesn’t get to read all the
+values from the async stream. And thus we induce a cancellation safety issue, due the
+way <code class="language-plaintext highlighter-rouge">read_3_items_not_cancel_safe()</code> is implemented.</li>
+  <li><code class="language-plaintext highlighter-rouge">Branch 2</code> - This branch needs to reads <code class="language-plaintext highlighter-rouge">3</code> items from the async stream before
+resolving. This is done in a loop that reads <code class="language-plaintext highlighter-rouge">3</code> items in
+<code class="language-plaintext highlighter-rouge">read_3_items_not_cancel_safe()</code>. This is not safe because if the timeout branch wins
+the race, then the stream is dropped and the <code class="language-plaintext highlighter-rouge">read_3_items_not_cancel_safe()</code> future is
+dropped, along with the contained <code class="language-plaintext highlighter-rouge">vec</code>! This means that the stream is dropped before
+all the items are read from it. This is the cancellation safety issue that we are
+inducing in this test.</li>
+</ul>
+
+<p>There are many ways to resolve this. The key is not to hold state inside of a <code class="language-plaintext highlighter-rouge">Future</code>
+that you don’t want to lose if the <code class="language-plaintext highlighter-rouge">Future</code> is dropped. You can use <code class="language-plaintext highlighter-rouge">mpsc</code> channels or a
+pinned <code class="language-plaintext highlighter-rouge">Vec</code> to get around this issue.</p>
+
+<blockquote>
+  <p>Note that in the case of a graceful shutdown, where you might not care about what data
+in some buffer is dropped, then this is not a problem.</p>
+</blockquote>
+      <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
+        
+        
+          Build with Naz video series on developerlife.com YouTube channel <a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/TUI">
+                #tui</a>
+        </span>
+    
+</div>
+
+        
+<blockquote>
+
+  👀 Watch Rust 🦀 live coding videos on our <a
+  href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
+
+  <br/>
+  <br/>
+
+  <!-- video on rust polymorphism (no playlist) -->
+  <iframe
+      src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      >
+  </iframe>
+
+  <br/>
+  <br/>
+
+  📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
+  (they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
+  project):
+  <ul>
+    <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+    <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+  </ul>
+
+  <p>
+  <kbd>giti in action</kbd>
+  <video width="100%" controls>
+    <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4"/>
+  </video>
+  </p>
+
+  <p>
+  <kbd>edi in action</kbd>
+  <video width="100%" controls>
+    <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4"/>
+  </video>
+  </p>
+
+  </blockquote>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/06/28/md-parser-rust-from-r3bl-tui/">
+                        Build with Naz : Markdown parser in Rust and nom from r3bl_tui
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/06/10/rust-miette-error-handling/">
+                        Build with Naz : Rust error handling with miette
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/28/typestate-pattern-rust/">
+                        Build with Naz : Rust typestate pattern
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/25/tokio-uring-exploration-rust/">
+                        Build with Naz : Linux io_uring and tokio-uring exploration with Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/19/effective-async-rust/">
+                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, graceful shutdown
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/15/tokio-tracing-otel-rust/">
+                        Build with Naz : tokio tracing &amp; OTel and how to use it in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">
+                        Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/21/build-async-interactive-cli-apps-in-rust/">
+                        Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Build with Naz : Comprehensive guide to nom parsing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/07/08/ubuntu24/">
+                        Build with Naz : Ubuntu 24.04 setup and config for dev productivity
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2024/07/10/rust-async-cancellation-safety-tokio/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <!-- video on intro to testing (with playlist) -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- rust async readline and spinner & playlist -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=i37Ei9nCfvslOoaI&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- effective async rust & playlist -->
+    <iframe
+    src="https://www.youtube.com/embed/qvIt8MF-pCM?si=S40pbhnvVDAohj-6"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen>
+    </iframe>
+    <h2 class="star-us-github-heading">
+      Subscribe to our
+      <a href="https://www.youtube.com/@developerlifecom">YT Channel</a
+      ><span class="heading-emoji"> 🦀</span>
+    </h2>
+
+    <hr />
+
+    <h2 class="star-us-github-heading">
+      Use our crates & apps<span class="heading-emoji"> 📦</span>
+    </h2>
+
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-apps.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://chromewebstore.google.com/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial?hl=en-US&gl=US" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-shortlink.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <!-- <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a
+          href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async"
+          target="_blank"
+        >
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TERMINAL ASYNC LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_terminal_async</code></h3>
+          </div>
+        </a>
+      </li> -->
+    </ul>
+
+    <hr />
+
+    <h2 class="star-us-github-heading">
+      Join our <a href="https://discord.gg/PhuF4qFpcA">Discord</a>
+      <span class="heading-emoji"> 💬</span>
+    </h2>
+
+  </section>
+</div>
+</div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Subscribe for updates</a
+      >
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com" target="_blank">Sponsored by R3BL</a>
+    </kbd>
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

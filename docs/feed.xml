@@ -1,4 +1,543 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-07-08T16:05:34-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Ubuntu 24.04 setup and config for dev productivity</title><link href="http://developerlife.com/2024/07/08/ubuntu24/" rel="alternate" type="text/html" title="Build with Naz : Ubuntu 24.04 setup and config for dev productivity" /><published>2024-07-08T10:00:00-05:00</published><updated>2024-07-08T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/08/ubuntu24</id><content type="html" xml:base="http://developerlife.com/2024/07/08/ubuntu24/"><![CDATA[<p><img class="post-hero-image" src="/assets/ubuntu24.svg" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-07-10T12:04:19-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety</title><link href="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" rel="alternate" type="text/html" title="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety" /><published>2024-07-10T10:00:00-05:00</published><updated>2024-07-10T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio</id><content type="html" xml:base="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"><![CDATA[<p><img class="post-hero-image" src="/assets/tokio-async-cancel-safety.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#what-can-go-wrong-when-racing-futures">What can go wrong when racing futures?</a></li>
+  <li><a href="#youtube-video-for-this-article">YouTube video for this article</a></li>
+  <li><a href="#examples-of-cancellation-safety-in-async-rust-using-tokioselect">Examples of cancellation safety in async Rust using tokio::select!</a>
+    <ul>
+      <li><a href="#example-1-right-and-wrong-way-to-sleep-and-interval">Example 1: Right and wrong way to sleep, and interval</a>
+        <ul>
+          <li><a href="#difference-between-interval-and-sleep">Difference between interval and sleep</a></li>
+        </ul>
+      </li>
+      <li><a href="#example-2-safe-cancel-of-a-future-using-interval-and-mpsc-channel">Example 2: Safe cancel of a future using interval and mpsc channel</a></li>
+      <li><a href="#example-3-inducing-cancellation-safety-issues">Example 3: Inducing cancellation safety issues</a></li>
+    </ul>
+  </li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+
+<h2 id="introduction">Introduction</h2>
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>This tutorial is a deep dive into the concept of cancellation safety in async code using
+Tokio and Rust. It affects the <code class="language-plaintext highlighter-rouge">tokio::select!</code> macro, and what happens to the racing
+<code class="language-plaintext highlighter-rouge">Future</code>s that don’t win. The examples provided here, along with the video, will go over
+both code that is is cancellation safe and code that is not. These examples reflect
+real-world patterns, and are a generalized form of them.</p>
+
+<p><code class="language-plaintext highlighter-rouge">tokio::select!</code> might as well have been called <code class="language-plaintext highlighter-rouge">tokio::race!</code> (there’s a <a href="https://en.wikipedia.org/wiki/The_Fast_and_the_Furious:_Tokyo_Drift">The Fast and
+Furious : Tokyo
+Drift</a> joke in there
+somewhere). Here’s the basic setup:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">loop</span> <span class="p">{</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span><span class="p">{</span>
+        <span class="n">branch_1_result</span> <span class="o">=</span> <span class="n">future_1</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="c1">// handle branch_1_result</span>
+        <span class="p">},</span>
+        <span class="n">branch_2_result</span> <span class="o">=</span> <span class="n">future_2</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="c1">// handle branch_2_result</span>
+        <span class="p">},</span>
+        <span class="c1">// and so on</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>A classic example is that you’re reading something from an <em>async</em> network or file stream.
+And you want to have a timeout that breaks out of the <code class="language-plaintext highlighter-rouge">loop</code> if it takes too long. In this
+case you might have two branches:</p>
+<ol>
+  <li>A <code class="language-plaintext highlighter-rouge">tokio::time::sleep()</code> <code class="language-plaintext highlighter-rouge">Future</code> in the timeout branch.</li>
+  <li>Some code to get the data asynchronously from the stream in the other branch.</li>
+</ol>
+
+<p>Note that all branches must have a <code class="language-plaintext highlighter-rouge">Future</code> to call <code class="language-plaintext highlighter-rouge">.await</code> on. The macro does not
+require you to call <code class="language-plaintext highlighter-rouge">.await</code>. The code it generates take care of this.</p>
+
+<blockquote>
+  <p>It might be worth your time (if you haven’t already) to read the <a href="https://docs.rs/tokio/latest/tokio/macro.select.html#cancellation-safety">official Tokio
+docs</a> on
+<code class="language-plaintext highlighter-rouge">tokio::select!</code> macro and the concept of cancellation safety before diving into the
+examples below.</p>
+</blockquote>
+
+<h2 id="what-can-go-wrong-when-racing-futures">What can go wrong when racing futures?</h2>
+<p><a id="markdown-what-can-go-wrong-when-racing-futures%3F" name="what-can-go-wrong-when-racing-futures%3F"></a></p>
+
+<p>If you recall, in Rust, a <code class="language-plaintext highlighter-rouge">Future</code> is just a data structure that doesn’t really do
+anything until you <code class="language-plaintext highlighter-rouge">.await</code> it.</p>
+<ul>
+  <li>The Tokio runtime actually does work on the <code class="language-plaintext highlighter-rouge">Future</code>s by polling them to see whether
+they are <code class="language-plaintext highlighter-rouge">Ready</code> or <code class="language-plaintext highlighter-rouge">Pending</code>.</li>
+  <li>If they’re not <code class="language-plaintext highlighter-rouge">Ready</code> they go back to waiting until their <code class="language-plaintext highlighter-rouge">Waker</code> is called, and then
+Tokio will <code class="language-plaintext highlighter-rouge">poll()</code> them again.</li>
+  <li>They are cheap to create, they are stateful, and they can be nested (easily composed).</li>
+</ul>
+
+<blockquote>
+  <p>Please read our article on <a href="https://developerlife.com/2024/05/19/effective-async-rust/">effective async
+Rust</a> to get a better
+understanding of how async Rust, and <code class="language-plaintext highlighter-rouge">Future</code>s works and how runtimes are implemented.</p>
+</blockquote>
+
+<p>These are some of the great things about Rust <code class="language-plaintext highlighter-rouge">Future</code>s. However, the nature of a Rust
+<code class="language-plaintext highlighter-rouge">Future</code> is what may cause a problem with “cancellation safety” in the <code class="language-plaintext highlighter-rouge">tokio::select!</code>
+macro.</p>
+
+<p>So what happens to <code class="language-plaintext highlighter-rouge">future_2</code> (the branch reading or writing from an async stream) if the
+timeout branch (for <code class="language-plaintext highlighter-rouge">future_1</code>) wins the race?</p>
+<ul>
+  <li>Is the <code class="language-plaintext highlighter-rouge">future_2</code> in the middle of doing something when this happens?</li>
+  <li>And if so, what happens to the work it was doing when it hits the <code class="language-plaintext highlighter-rouge">.await</code> point in its
+code, and then stops?</li>
+</ul>
+
+<p>This is the crux of the issue with cancellation safety in async Rust code. Lots of <code class="language-plaintext highlighter-rouge">tokio</code>
+code is built to be cancellation safe, so if you’re using <code class="language-plaintext highlighter-rouge">mpsc</code> or <code class="language-plaintext highlighter-rouge">broadcast</code> channels,
+async streams, etc. you will be fine. However if you’re maintaining state inside the
+<code class="language-plaintext highlighter-rouge">future_2</code> and then it is dropped, then this article will help you understand what
+happens.</p>
+
+<h2 id="youtube-video-for-this-article">YouTube video for this article</h2>
+<p><a id="markdown-youtube-video-for-this-article" name="youtube-video-for-this-article"></a></p>
+
+<p>This blog post has examples from this live coding video. If you like
+to learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
+channel</a>.</p>
+
+<!-- video on tokio-async-cancel-safety -->
+<iframe src="https://www.youtube.com/embed/cQq5i8J1ELg?si=UDgJdFFQn0-yNXsS" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<p><br /></p>
+
+<h2 id="examples-of-cancellation-safety-in-async-rust-using-tokioselect">Examples of cancellation safety in async Rust using tokio::select!</h2>
+<p><a id="markdown-examples-of-cancellation-safety-in-async-rust-using-tokio%3A%3Aselect!" name="examples-of-cancellation-safety-in-async-rust-using-tokio%3A%3Aselect!"></a></p>
+
+<p>Let’s create some examples to illustrate how to use the typestate pattern in Rust. You can run
+<code class="language-plaintext highlighter-rouge">cargo new --lib async_cancel_safe</code> to create a new library crate.</p>
+
+<blockquote>
+  <p>💡 You can get the code from the
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/async_cancel_safe"><code class="language-plaintext highlighter-rouge">rust-scratch</code></a> repo.</p>
+</blockquote>
+
+<p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
+dependencies that we need for these examples.</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"async_cancel_safe"</span>
+<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
+<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+
+<span class="nn">[dependencies]</span>
+<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.38.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
+
+<span class="c"># Async stream for DI and testing.</span>
+<span class="py">async-stream</span> <span class="p">=</span> <span class="s">"0.3.5"</span>
+<span class="py">futures-core</span> <span class="p">=</span> <span class="s">"0.3"</span>
+<span class="py">futures-util</span> <span class="p">=</span> <span class="s">"0.3.30"</span>
+</code></pre></div></div>
+
+<p>We are going to add all the examples below as tests to the <code class="language-plaintext highlighter-rouge">lib.rs</code> file in this crate.</p>
+
+<h3 id="example-1-right-and-wrong-way-to-sleep-and-interval">Example 1: Right and wrong way to sleep, and interval</h3>
+<p><a id="markdown-example-1%3A-right-and-wrong-way-to-sleep%2C-and-interval" name="example-1%3A-right-and-wrong-way-to-sleep%2C-and-interval"></a></p>
+
+<p>Add the following code to your <code class="language-plaintext highlighter-rouge">lib.rs</code> file. Both these examples show similar ways of using
+<code class="language-plaintext highlighter-rouge">tokio::time::sleep(..)</code> incorrectly in a <code class="language-plaintext highlighter-rouge">tokio::select!</code> block.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Equivalent to [test_sleep_right_and_wrong_ways_v2]. This test uses</span>
+<span class="cd">/// [`tokio::pin`] and [`tokio::time::sleep`].</span>
+<span class="cd">/// Run the test using:</span>
+<span class="cd">/// `cargo test -- --nocapture test_sleep_right_and_wrong_ways_v1`</span>
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_sleep_right_and_wrong_ways_v1</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">sleep</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nd">pin!</span><span class="p">(</span><span class="n">sleep</span><span class="p">);</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="c1">// Branch 1 (right way)</span>
+            <span class="c1">// This branch executes a deterministic number of times. The same</span>
+            <span class="c1">// sleep future is re-used on each iteration.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">sleep</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - tick : {count}"</span><span class="p">);</span>
+                <span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="c1">// Branch 2 (wrong way)</span>
+            <span class="c1">// This branch is executed a non deterministic number of times.</span>
+            <span class="c1">// This is because the sleep future is not pinned. It is dropped</span>
+            <span class="c1">// when the other branch is executed. Then on the next iteration,</span>
+            <span class="c1">// a new sleep future is created.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 - sleep"</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cd">/// Equivalent to [test_sleep_right_and_wrong_ways_v1]. This test uses</span>
+<span class="cd">/// [`tokio::time::interval()`]</span>
+<span class="cd">/// Run the test using:</span>
+<span class="cd">/// `cargo test -- --nocapture test_sleep_right_and_wrong_ways_v2`</span>
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_sleep_right_and_wrong_ways_v2</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">interval</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="c1">// Branch 1 (right way)</span>
+            <span class="c1">// This branch executes a deterministic number of times. The same</span>
+            <span class="c1">// sleep future is re-used on each iteration.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">interval</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - tick : {count}"</span><span class="p">);</span>
+                <span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
+                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="c1">// Branch 2 (wrong way)</span>
+            <span class="c1">// This branch is executed a non deterministic number of times.</span>
+            <span class="c1">// This is because the sleep future is not pinned. It is dropped</span>
+            <span class="c1">// when the other branch is executed. Then on the next iteration,</span>
+            <span class="c1">// a new sleep future is created.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 - sleep"</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>You can run these tests to see what they do by running the following in your terminal:</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_sleep_right_and_wrong_ways_v1</code></li>
+  <li><code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_sleep_right_and_wrong_ways_v2</code></li>
+</ul>
+
+<p>They are flaky and its not possible to really make accurate assertions at the end of
+each of these tests.</p>
+
+<p>Let’s break down <code class="language-plaintext highlighter-rouge">v1</code> first to see what is happening.</p>
+
+<ul>
+  <li>Branch 1 (right way): This branch executes a deterministic number of times. The same
+sleep future is re-used on each iteration. This is achieved using the <code class="language-plaintext highlighter-rouge">tokio::pin!</code>
+macro. Since futures are stateful, ensuring that the same one is re-used between
+iterations of the <code class="language-plaintext highlighter-rouge">loop</code> ensures that state isn’t lost when the other branch is
+executed, or when this branch finishes and its future is dropped.</li>
+  <li>Branch 2 (wrong way): This branch is executed a non deterministic number of times. This
+is because the sleep future is not pinned. It is dropped when the other branch is
+executed. Then on the next iteration, a <strong>new</strong> sleep future is created. This means that
+the state of the future is lost, and its behavior with providing a reliable delay is
+non deterministic.</li>
+</ul>
+
+<p>Let’s break down <code class="language-plaintext highlighter-rouge">v2</code> next.</p>
+
+<ul>
+  <li>Branch 1 (right way): This branch executes a deterministic number of times. However, we
+are using <code class="language-plaintext highlighter-rouge">tokio::time::interval()</code> this time around. It is re-used between many
+iterations of the <code class="language-plaintext highlighter-rouge">loop</code>. This function returns a <code class="language-plaintext highlighter-rouge">Interval</code> struct that has a <code class="language-plaintext highlighter-rouge">tick()</code>
+method that returns a <code class="language-plaintext highlighter-rouge">Future</code> that resolves when the interval has elapsed.</li>
+  <li>Branch 2 (wrong way): Same as before.</li>
+</ul>
+
+<h4 id="difference-between-interval-and-sleep">Difference between interval and sleep</h4>
+<p><a id="markdown-difference-between-interval-and-sleep" name="difference-between-interval-and-sleep"></a></p>
+
+<p>This is the mental model that I’ve developed for using these.</p>
+
+<ol>
+  <li>If your intention is to have a single timeout then, <code class="language-plaintext highlighter-rouge">sleep</code> might be the way to go. You
+create and <code class="language-plaintext highlighter-rouge">tokio::pin!</code> the <code class="language-plaintext highlighter-rouge">sleep</code> future, and then re-use it in the <code class="language-plaintext highlighter-rouge">loop</code>. Once
+this timeout expires, then you can handle your timeout condition in that branch.</li>
+  <li>If your intention is to have a re-usable timer that ticks on a regular interval, then
+<code class="language-plaintext highlighter-rouge">interval</code> is the way to go. You create the <code class="language-plaintext highlighter-rouge">interval</code> outside the <code class="language-plaintext highlighter-rouge">loop</code>, and then
+call <code class="language-plaintext highlighter-rouge">tick()</code> on it in the <code class="language-plaintext highlighter-rouge">loop</code>. This will give you a <code class="language-plaintext highlighter-rouge">Future</code> that resolves when the
+interval has elapsed. And you can safely use this same <code class="language-plaintext highlighter-rouge">Interval</code> repeatedly in the
+loop. And even accumulate how many times it runs to decide when to break.</li>
+</ol>
+
+<h3 id="example-2-safe-cancel-of-a-future-using-interval-and-mpsc-channel">Example 2: Safe cancel of a future using interval and mpsc channel</h3>
+<p><a id="markdown-example-2%3A-safe-cancel-of-a-future-using-interval-and-mpsc-channel" name="example-2%3A-safe-cancel-of-a-future-using-interval-and-mpsc-channel"></a></p>
+
+<p>Add the following snippet to your <code class="language-plaintext highlighter-rouge">lib.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Run the test using:</span>
+<span class="cd">/// `cargo test -- --nocapture test_safe_cancel_example`</span>
+<span class="nd">#[tokio::test]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_safe_cancel_example</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">interval</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
+
+    <span class="c1">// Shutdown channel.</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">tx</span><span class="p">,</span> <span class="k">mut</span> <span class="n">rx</span><span class="p">)</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">mpsc</span><span class="p">::</span><span class="nf">channel</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">vec</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
+
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="c1">// Branch 1.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">interval</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - tick : count {}"</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
+
+                <span class="n">vec</span><span class="nf">.push</span><span class="p">(</span><span class="n">count</span><span class="p">);</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="n">count</span><span class="nf">.saturating_sub</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+                    <span class="n">_</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.try_send</span><span class="p">(());</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="c1">// Branch 2.</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">rx</span><span class="nf">.recv</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; shut down"</span><span class="p">);</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When you run this test using <code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_safe_cancel_example</code>, you should
+get this output in your terminal:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>running 1 test
+branch 1 - tick : count 5
+branch 1 - tick : count 4
+branch 1 - tick : count 3
+branch 1 - tick : count 2
+branch 1 - tick : count 1
+branch 2 =&gt; shut down
+</code></pre></div></div>
+
+<p>Let’s break down what’s happening in this test.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Branch 1</code> - The <code class="language-plaintext highlighter-rouge">interval</code> is created outside the <code class="language-plaintext highlighter-rouge">loop</code> and is used to create a
+<code class="language-plaintext highlighter-rouge">Future</code> that resolves when the interval has elapsed. This happens in <code class="language-plaintext highlighter-rouge">Branch 1</code> and we
+let this branch run <code class="language-plaintext highlighter-rouge">5</code> times before sending a message on the <code class="language-plaintext highlighter-rouge">tx</code> channel.</li>
+  <li><code class="language-plaintext highlighter-rouge">Branch 2</code> - The <code class="language-plaintext highlighter-rouge">tx</code> channel is used to send a message to the <code class="language-plaintext highlighter-rouge">rx</code> channel. This is
+done in <code class="language-plaintext highlighter-rouge">Branch 1</code> when <code class="language-plaintext highlighter-rouge">count</code> reaches <code class="language-plaintext highlighter-rouge">0</code>. The <code class="language-plaintext highlighter-rouge">rx</code> channel is used to receive a
+message. This is done in <code class="language-plaintext highlighter-rouge">Branch 2</code> and when a message is received, we break out of the
+<code class="language-plaintext highlighter-rouge">loop</code>.</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">Branch 1</code> runs 5 times, and <code class="language-plaintext highlighter-rouge">Branch 1</code> runs 1 time and breaks out of the loop. If you
+look at the <code class="language-plaintext highlighter-rouge">vec</code> that we accumulate outside of the <code class="language-plaintext highlighter-rouge">loop</code> this contains what we expect.</p>
+
+<h3 id="example-3-inducing-cancellation-safety-issues">Example 3: Inducing cancellation safety issues</h3>
+<p><a id="markdown-example-3%3A-inducing-cancellation-safety-issues" name="example-3%3A-inducing-cancellation-safety-issues"></a></p>
+
+<p>This is the example we have all been waiting for. Let’s start with copying the
+following snippet in your <code class="language-plaintext highlighter-rouge">lib.rs</code> file. We will create a new module here.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
+<span class="k">pub</span> <span class="k">mod</span> <span class="n">test_unsafe_cancel_example</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="nn">async_stream</span><span class="p">::</span><span class="n">stream</span><span class="p">;</span>
+    <span class="k">use</span> <span class="nn">futures_core</span><span class="p">::</span><span class="n">Stream</span><span class="p">;</span>
+    <span class="k">use</span> <span class="nn">futures_util</span><span class="p">::</span><span class="n">StreamExt</span><span class="p">;</span>
+
+    <span class="k">use</span> <span class="nn">std</span><span class="p">::{</span><span class="nn">io</span><span class="p">::</span><span class="n">Error</span><span class="p">,</span> <span class="nn">pin</span><span class="p">::</span><span class="nb">Pin</span><span class="p">};</span>
+    <span class="k">pub</span> <span class="k">type</span> <span class="n">MyResult</span> <span class="o">=</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">usize</span><span class="p">,</span> <span class="n">Error</span><span class="o">&gt;</span><span class="p">;</span>
+    <span class="k">pub</span> <span class="k">type</span> <span class="n">PinnedInputStream</span> <span class="o">=</span> <span class="nb">Pin</span><span class="o">&lt;</span><span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Stream</span><span class="o">&lt;</span><span class="n">Item</span> <span class="o">=</span> <span class="n">MyResult</span><span class="o">&gt;&gt;&gt;</span><span class="p">;</span>
+
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_input_vec</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="nd">vec!</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// There's a 100ms delay between each event.</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">gen_input_stream</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">PinnedInputStream</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+        <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="nd">stream!</span> <span class="p">{</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="k">in</span> <span class="nf">get_input_vec</span><span class="p">()</span> <span class="p">{</span>
+                <span class="c1">// wait for 100ms</span>
+                <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
+                <span class="nd">println!</span><span class="p">(</span><span class="s">"yielding item: {item}"</span><span class="p">);</span>
+                <span class="k">yield</span> <span class="nf">Ok</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">};</span>
+        <span class="nn">Box</span><span class="p">::</span><span class="nf">pin</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// This is just to see how to use the async stream [gen_input_stream()].</span>
+    <span class="nd">#[tokio::test]</span>
+    <span class="k">async</span> <span class="k">fn</span> <span class="nf">test_generate_event_stream_pinned</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nf">gen_input_stream</span><span class="p">();</span>
+
+        <span class="k">while</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">lhs</span> <span class="o">=</span> <span class="n">item</span><span class="nf">.unwrap</span><span class="p">();</span>
+            <span class="k">let</span> <span class="n">rhs</span> <span class="o">=</span> <span class="nf">get_input_vec</span><span class="p">()[</span><span class="n">count</span><span class="p">];</span>
+            <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">);</span>
+            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">// &lt;more stuff to add later&gt;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Let’s break down what’s happening here.</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">get_input_vec()</code> - This function returns a <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code> that we will use to generate
+events in the <code class="language-plaintext highlighter-rouge">gen_input_stream()</code> function. This is meant to simulate the stream of
+<code class="language-plaintext highlighter-rouge">usize</code> values that may be generated from reading a file or a network source. Or even
+write to a file or network source. We could have just made these <code class="language-plaintext highlighter-rouge">u8</code>, but this is a
+made up test, so we are using <code class="language-plaintext highlighter-rouge">usize</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">gen_input_stream()</code> - This is where things get interesting. This function creates an
+async stream that yields the values from the <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code> returned by <code class="language-plaintext highlighter-rouge">get_input_vec()</code>.
+It waits for <code class="language-plaintext highlighter-rouge">100ms</code> between each value that it yields. This is to simulate the delay
+that might be present when reading from a file or network source. Note the trait magic
+and imports that are used to make this work; to get the details on this, check our
+article on <a href="https://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">trait pointers and
+testing</a>.</li>
+  <li>These two functions are our test fixture to simulate a slow async stream. Now, let’s
+test the test fixtures in <code class="language-plaintext highlighter-rouge">test_generate_event_stream_pinned()</code>. This test simply reads
+from the async stream and compares the values that it reads with the values that are
+expected from the <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code> returned by <code class="language-plaintext highlighter-rouge">get_input_vec()</code>.</li>
+</ul>
+
+<p>In <code class="language-plaintext highlighter-rouge">lib.rs</code> replace the <code class="language-plaintext highlighter-rouge">// &lt;more stuff to add later&gt;</code> with the following code:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">async</span> <span class="k">fn</span> <span class="nf">read_3_items_not_cancel_safe</span><span class="p">(</span><span class="n">stream</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">PinnedInputStream</span><span class="p">)</span>
+        <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span>
+    <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">vec</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
+
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; entering read_3_items_not_cancel_safe"</span><span class="p">);</span>
+
+        <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..</span><span class="mi">3</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="n">item</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+            <span class="nd">println!</span><span class="p">(</span>
+                <span class="s">"branch 2 =&gt; read_3_items_not_cancel_safe got item: {item}"</span><span class="p">);</span>
+            <span class="n">vec</span><span class="nf">.push</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; vec so far contains: {vec:?}"</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">vec</span>
+    <span class="p">}</span>
+
+    <span class="nd">#[tokio::test]</span>
+    <span class="k">async</span> <span class="k">fn</span> <span class="nf">test_unsafe_cancel_stream</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nf">gen_input_stream</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">300</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
+        <span class="k">let</span> <span class="n">sleep</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">pin!</span><span class="p">(</span><span class="n">sleep</span><span class="p">);</span>
+
+        <span class="k">loop</span> <span class="p">{</span>
+            <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+                <span class="c1">// Branch 1 - Timeout.</span>
+                <span class="n">_</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">sleep</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - time is up - end"</span><span class="p">);</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="c1">// Branch 2 - Read from stream.</span>
+                <span class="n">it</span> <span class="o">=</span> <span class="nf">read_3_items_not_cancel_safe</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">stream</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                    <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 - got 3 items: {it:?}"</span><span class="p">);</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"loop exited"</span><span class="p">);</span>
+
+        <span class="c1">// Only [1, 2] is consumed by Branch 2 before the timeout happens</span>
+        <span class="c1">// in Branch 1.</span>
+        <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+        <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+    <span class="p">}</span>
+</code></pre></div></div>
+
+<p>When you run this test using <code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_unsafe_cancel_stream</code>, you
+can expect the following output in your terminal.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>branch 2 =&gt; entering read_3_items_not_cancel_safe
+yielding item: 1
+branch 2 =&gt; read_3_items_not_cancel_safe got item: 1
+branch 2 =&gt; vec so far contains: [1]
+yielding item: 2
+branch 2 =&gt; read_3_items_not_cancel_safe got item: 2
+branch 2 =&gt; vec so far contains: [1, 2]
+branch 1 - time is up - end
+loop exited
+yielding item: 3
+</code></pre></div></div>
+
+<p>So let’s break down what’s happening in this test.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Branch 1</code> - This branch is a timeout branch. It waits for <code class="language-plaintext highlighter-rouge">300ms</code> before breaking out
+of the loop. This is to simulate a timeout that might happen when reading from a file or
+network source. With this delay, we ensure that <code class="language-plaintext highlighter-rouge">Branch 2</code> doesn’t get to read all the
+values from the async stream. And thus we induce a cancellation safety issue, due the
+way <code class="language-plaintext highlighter-rouge">read_3_items_not_cancel_safe()</code> is implemented.</li>
+  <li><code class="language-plaintext highlighter-rouge">Branch 2</code> - This branch needs to reads <code class="language-plaintext highlighter-rouge">3</code> items from the async stream before
+resolving. This is done in a loop that reads <code class="language-plaintext highlighter-rouge">3</code> items in
+<code class="language-plaintext highlighter-rouge">read_3_items_not_cancel_safe()</code>. This is not safe because if the timeout branch wins
+the race, then the stream is dropped and the <code class="language-plaintext highlighter-rouge">read_3_items_not_cancel_safe()</code> future is
+dropped, along with the contained <code class="language-plaintext highlighter-rouge">vec</code>! This means that the stream is dropped before
+all the items are read from it. This is the cancellation safety issue that we are
+inducing in this test.</li>
+</ul>
+
+<p>There are many ways to resolve this. The key is not to hold state inside of a <code class="language-plaintext highlighter-rouge">Future</code>
+that you don’t want to lose if the <code class="language-plaintext highlighter-rouge">Future</code> is dropped. You can use <code class="language-plaintext highlighter-rouge">mpsc</code> channels or a
+pinned <code class="language-plaintext highlighter-rouge">Vec</code> to get around this issue.</p>
+
+<blockquote>
+  <p>Note that in the case of a graceful shutdown, where you might not care about what data
+in some buffer is dropped, then this is not a problem.</p>
+</blockquote>
+
+<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><category term="TUI" /><summary type="html"><![CDATA[This tutorial is a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing futures that don't win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them.]]></summary></entry><entry><title type="html">Build with Naz : Ubuntu 24.04 setup and config for dev productivity</title><link href="http://developerlife.com/2024/07/08/ubuntu24/" rel="alternate" type="text/html" title="Build with Naz : Ubuntu 24.04 setup and config for dev productivity" /><published>2024-07-08T10:00:00-05:00</published><updated>2024-07-08T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/08/ubuntu24</id><content type="html" xml:base="http://developerlife.com/2024/07/08/ubuntu24/"><![CDATA[<p><img class="post-hero-image" src="/assets/ubuntu24.svg" /></p>
 
 <!-- TOC -->
 
@@ -271,6 +810,30 @@ settings.</p>
   <li><a href="https://jichu4n.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux/">https://jichu4n.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux/</a></li>
   <li><a href="https://www.freedesktop.org/software/fontconfig/fontconfig-user.html">https://www.freedesktop.org/software/fontconfig/fontconfig-user.html</a></li>
   <li><a href="https://en.wikipedia.org/wiki/Fontconfig">https://en.wikipedia.org/wiki/Fontconfig</a></li>
+</ul>
+
+<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
 </ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="Linux" /><category term="Misc" /><category term="Productivity" /><summary type="html"><![CDATA[I've provided scripts for setting up a new Ubuntu 24.04 desktop machine. They have been tested on a fresh install of Ubuntu 24.04 LTS. They contain all the software that is needed for Rust development, OBS Studio use, and general developer productivity. They are highly opinionated for my use case, but you can modify them to suit your needs.]]></summary></entry><entry><title type="html">Build with Naz : Markdown parser in Rust and nom from r3bl_tui</title><link href="http://developerlife.com/2024/06/28/md-parser-rust-from-r3bl-tui/" rel="alternate" type="text/html" title="Build with Naz : Markdown parser in Rust and nom from r3bl_tui" /><published>2024-06-28T10:00:00-05:00</published><updated>2024-06-28T10:00:00-05:00</updated><id>http://developerlife.com/2024/06/28/md-parser-rust-from-r3bl-tui</id><content type="html" xml:base="http://developerlife.com/2024/06/28/md-parser-rust-from-r3bl-tui/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust-tui-md-parser.svg" /></p>
 
 <!-- TOC -->
@@ -858,6 +1421,30 @@ how the <code class="language-plaintext highlighter-rouge">nom</code> library wo
       <li><a href="https://crates.io/crates/nom"><code class="language-plaintext highlighter-rouge">nom</code> crate</a></li>
     </ul>
   </li>
+</ul>
+
+<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
 </ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><category term="TUI" /><summary type="html"><![CDATA[This tutorial is a deep dive in a real Markdown parser written using nom in Rust. This MD Parser is part of the r3bl_tui crate, which is part of the r3bl-open-core repo. It goes over the architecture of thinking about building complex parsers and the nitty gritty details the runtime nature and behavior when combining nom parsers.]]></summary></entry><entry><title type="html">Build with Naz : Rust error handling with miette</title><link href="http://developerlife.com/2024/06/10/rust-miette-error-handling/" rel="alternate" type="text/html" title="Build with Naz : Rust error handling with miette" /><published>2024-06-10T10:00:00-05:00</published><updated>2024-06-10T10:00:00-05:00</updated><id>http://developerlife.com/2024/06/10/rust-miette-error-handling</id><content type="html" xml:base="http://developerlife.com/2024/06/10/rust-miette-error-handling/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust-miette.svg" /></p>
 
 <!-- TOC -->
@@ -1257,6 +1844,12 @@ crate</a>.</li>
 
 <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
 <p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
 
 <p>You can watch a video series on building this crate with Naz on the
 <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
@@ -2230,6 +2823,12 @@ your own projects.</p>
 <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
 <p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
 
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
 <p>You can watch a video series on building this crate with Naz on the
 <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
 
@@ -2792,6 +3391,12 @@ these problems!</p>
 <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
 <p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
 
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
 <p>You can watch a video series on building this crate with Naz on the
 <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
 
@@ -2805,7 +3410,7 @@ these problems!</p>
       <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
     </ul>
   </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article and video will show you how to use the tokio-uring do async file IO at the OS level, and how to use it to build a simple echo TCP server, for use with netcat.]]></summary></entry><entry><title type="html">Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety</title><link href="http://developerlife.com/2024/05/19/effective-async-rust/" rel="alternate" type="text/html" title="Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety" /><published>2024-05-19T10:00:00-05:00</published><updated>2024-05-19T10:00:00-05:00</updated><id>http://developerlife.com/2024/05/19/effective-async-rust</id><content type="html" xml:base="http://developerlife.com/2024/05/19/effective-async-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust_async_event_loops.svg" /></p>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article and video will show you how to use the tokio-uring do async file IO at the OS level, and how to use it to build a simple echo TCP server, for use with netcat.]]></summary></entry><entry><title type="html">Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, graceful shutdown</title><link href="http://developerlife.com/2024/05/19/effective-async-rust/" rel="alternate" type="text/html" title="Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, graceful shutdown" /><published>2024-05-19T10:00:00-05:00</published><updated>2024-05-19T10:00:00-05:00</updated><id>http://developerlife.com/2024/05/19/effective-async-rust</id><content type="html" xml:base="http://developerlife.com/2024/05/19/effective-async-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust_async_event_loops.svg" /></p>
 
 <!-- TOC -->
 
@@ -3719,6 +4324,12 @@ docs</a>.</li>
 <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
 <p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
 
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
 <p>You can watch a video series on building this crate with Naz on the
 <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
 
@@ -4050,6 +4661,12 @@ system’s behavior.</p>
 <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
 <p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
 
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
 <p>You can watch a video series on building this crate with Naz on the
 <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
 
@@ -4357,6 +4974,12 @@ enable runtime polymorphism.</p>
 <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
 <p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
 
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
 <p>You can watch a video series on building this crate with Naz on the
 <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
 
@@ -4522,8 +5145,13 @@ cargo add tokio <span class="nt">--features</span> full
 non blocking nature of the REPL. Press Ctrl+C, or Ctrl+D to exit this program.</p>
 
 <h2 id="video-series-on-developerlifecom-youtube-channel-on-building-this-crate-with-naz">Video series on developerlife.com YouTube channel on building this crate with Naz</h2>
-
 <p><a id="markdown-video-series-on-developerlife.com-youtube-channel-on-building-this-crate-with-naz" name="video-series-on-developerlife.com-youtube-channel-on-building-this-crate-with-naz"></a></p>
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
 
 <p>You can watch a video series on building this crate with Naz on the
 <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
@@ -4558,419 +5186,4 @@ non blocking nature of the REPL. Press Ctrl+C, or Ctrl+D to exit this program.</
       </li>
     </ul>
   </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[The r3bl_terminal_async library lets your CLI program be asynchronous and interactive without blocking the main thread. Your spawned tasks can use it to concurrently write to the display output, pause and resume it. You can also display of colorful animated spinners ⌛🌈 for long running tasks. With it, you can create beautiful, powerful, and interactive REPLs (read execute print loops) with ease.]]></summary></entry><entry><title type="html">Write a simple TCP chat server in Rust</title><link href="http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/" rel="alternate" type="text/html" title="Write a simple TCP chat server in Rust" /><published>2024-01-13T09:00:00-06:00</published><updated>2024-01-13T09:00:00-06:00</updated><id>http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust</id><content type="html" xml:base="http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/chatserver-hero.svg" /></p>
-
-<!-- TOC -->
-
-<ul>
-  <li><a href="#build-a-chat-server-using-tokio">Build a chat server using Tokio</a></li>
-  <li><a href="#the-chat-server-comprises-all-these-pieces">The chat server comprises all these pieces</a></li>
-  <li><a href="#add-dependencies-to-cargotoml">Add dependencies to Cargo.toml</a></li>
-  <li><a href="#main-function">Main function</a>
-    <ul>
-      <li><a href="#tokiospawn-does-not-spawn-a-new-thread-so-what-does-it-actually-do">tokio::spawn does not spawn a new thread, so what does it actually do?</a></li>
-    </ul>
-  </li>
-  <li><a href="#handle-client-task-function">Handle client task function</a>
-    <ul>
-      <li><a href="#two-concurrent-tasks-in-the-tokioselect-block">Two concurrent tasks in the tokio::select! block</a></li>
-      <li><a href="#handle-read-from-broadcast-channel-function">Handle read from broadcast channel function</a></li>
-      <li><a href="#handle-socket-read-function">Handle socket read function</a></li>
-    </ul>
-  </li>
-  <li><a href="#next-steps">Next steps</a></li>
-</ul>
-
-<!-- /TOC -->
-
-<h2 id="build-a-chat-server-using-tokio">Build a chat server using Tokio</h2>
-<p><a id="markdown-build-a-chat-server-using-tokio" name="build-a-chat-server-using-tokio"></a></p>
-
-<p>In this tutorial we will build a simple chat server using Tokio. The server will be able
-to handle multiple clients, and each client will be able to send messages to the server,
-which will then broadcast the message to all other connected clients.</p>
-
-<ul>
-  <li>We will use Tokio’s <code class="language-plaintext highlighter-rouge">tokio::net::TcpListener</code> and <code class="language-plaintext highlighter-rouge">tokio::net::TcpStream</code> to create a
-TCP server that listens for incoming connections and handles them concurrently.</li>
-  <li>We will also use Tokio’s <code class="language-plaintext highlighter-rouge">tokio::sync::broadcast</code> to broadcast messages to all connected
-clients.</li>
-</ul>
-
-<p>Read <a href="/2024/01/13/write-simple-netcat-in-rust/">this tutorial</a> to
-learn more about the basics of TCP client and server programming in Rust (without using
-Tokio).</p>
-
-<!--
-simple-netcat-in-rust video
-Source: https://github.com/nazmulidris/developerlife.com/issues/4
--->
-<blockquote>
-  <p>Here’s a video of the app that we are going to build in action.</p>
-  <video width="100%" controls="">
-  <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/14ce32ce-0988-4853-acd5-1174b1864d57" type="video/mp4" />
-</video>
-</blockquote>
-
-<blockquote>
-  <p>You can find the finished source code for this tutorial
-<a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-server-netcat-client">here</a>.</p>
-</blockquote>
-
-<h2 id="the-chat-server-comprises-all-these-pieces">The chat server comprises all these pieces</h2>
-<p><a id="markdown-the-chat-server-comprises-all-these-pieces" name="the-chat-server-comprises-all-these-pieces"></a></p>
-
-<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   ┌─CLIENT-1───────┐      ┌─CLIENT─2───────┐        ┌─CLIENT─3──────┐
-   │                │      │                │        │               │
-   └───────┼────────┘      └──────┼─────────┘        └─────┼─────────┘
-           │                      │                        │
-┌─SERVER───┼──────────────────────┼────────────────────────┼────────────┐
-│          │                      │                        │            │
-│                                                                       │
-│ handle_client_task()   handle_client_task()    handle_client_task()   │
-│ ┌───────────────────┐ ┌────────────────────┐  ┌─────────────────────┐ │
-│ │   ┌────┐ ┌────┐   │ │   ┌────┐ ┌────┐    │  │    ┌────┐ ┌────┐    │ │
-│ │   │ TX │ │ RX │   │ │   │ TX │ │ RX │    │  │    │ TX │ │ RX │    │ │
-│ │   └─┬──┘ └─▲──┘   │ │   └─┬──┘ └─▲──┘    │  │    └─┬──┘ └─▲──┘    │ │
-│ │     │      │      │ │     │      │       │  │      │      │       │ │
-│ └─────┼──────┼──────┘ └─────┼──────┼───────┘  └──────┼──────┼───────┘ │
-│       │      │              │      │                 │      │         │
-│       │      │              │      │                 │      │         │
-│ ┌─────▼──────┴──────────────▼──────┴─────────────────▼──────┴───────┐ │
-│ │                    (TX, RX) = channel::broadcast()                │ │
-│ └───────────────────────────────────────────────────────────────────┘ │
-└───────────────────────────────────────────────────────────────────────┘
-</code></pre></div></div>
-
-<!-- Diagram source
-https://asciiflow.com/#/share/eJztVs1Kw0AQfpVlTy1E0ApiA54kB0E8xCI5LJTYBhRjhDZCSylIzh56CCXP4TlP0ydxwzbtbnY2bdL1p9VhApOdmW9mv0yWneDAffawGbz6voF9d%2BwNsIknBI8INtvnxwbBY2q1ztrUCr1RSF8IRpks4pTq5fWVddM5OmFvsqKlLOL3RfzGoqnRog%2BkM0X8qSqekCDvBhVEqB7J3qjcexjIAqCMzbcAoRf8B4RfQ9dAMTSLqWJGmSa7ZeedA2QUpcSV%2BSgS286tZd9Zdj0q9kXZZvUQp%2BRSmVRTeOAHN%2Bj7XrfnP3pB2A3d4VOjyaKUHnUKD6yFXpQf1LvpTBtMcYsl3xI4QZfeaIPzZ4oA7IMfRCwu8TqDlgpNVU6CmkUdZ2XaDoKbi1gUM22Ho4RrZkNQBabmH2VMxeJBnORLWVa%2BJDVXMQmYnVUzwijx86OKiLYI%2BC%2F45QU1naP8tSAVf7aSRV4TbTDCFpGSDrSNV%2B389iIC7XOtdw2NaHWh5M3KJGbS6DgGPUeb6AL16GUh8HzTvB%2B8uP2eOwzzuwLArvax%2F7UKzKY22WPgP6gET%2FH0Ex1Q3VY%3D)
--->
-
-<p>The server has a <code class="language-plaintext highlighter-rouge">main</code> function that creates a <code class="language-plaintext highlighter-rouge">tokio::net::TcpListener</code> and listens for
-incoming connections. When a new connection is received, it spawns a new task to handle
-the connection using <code class="language-plaintext highlighter-rouge">tokio::spawn()</code>.</p>
-
-<p>Using <code class="language-plaintext highlighter-rouge">tokio::select!</code>, the task tries to do the following concurrently, and waits until
-one of them completes:</p>
-<ol>
-  <li>The task reads messages from its client and broadcasts them to all other connected
-clients. It also echoes the message back to its client.</li>
-  <li>The task listens for messages from other clients and sends them to its client.</li>
-</ol>
-
-<p>When one task above completes, the other is dropped. Then the code path with the completed
-task executes. Then the code returns to the infinite loop, if it hasn’t returned already.</p>
-
-<p>A client can be any TCP client, such as <code class="language-plaintext highlighter-rouge">telnet</code>, <code class="language-plaintext highlighter-rouge">nc</code>, or PuTTY.</p>
-
-<h2 id="add-dependencies-to-cargotoml">Add dependencies to Cargo.toml</h2>
-<p><a id="markdown-add-dependencies-to-cargo.toml" name="add-dependencies-to-cargo.toml"></a></p>
-
-<p>Let’s create a new project by running <code class="language-plaintext highlighter-rouge">cargo create --bin tcp-server-netcat-client</code>. Then
-we will add the following dependencies to our <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file.</p>
-
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># tokio.</span>
-<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.35.1"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
-
-<span class="c"># stdout logging.</span>
-<span class="py">femme</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"2.2.1"</span> <span class="p">}</span>
-<span class="py">log</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.4.20"</span> <span class="p">}</span>
-
-<span class="c"># r3bl_rs_utils_core - friendly name generator.</span>
-<span class="py">r3bl_rs_utils_core</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.9.12"</span> <span class="p">}</span>
-<span class="py">r3bl_tui</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.5.1"</span> <span class="p">}</span>
-</code></pre></div></div>
-
-<h2 id="main-function">Main function</h2>
-<p><a id="markdown-main-function" name="main-function"></a></p>
-
-<p>We will implement the following algorithm for our server in our main function:</p>
-<ol>
-  <li>Create a broadcast channel. It will be shared by all the client tasks.</li>
-  <li>Create <code class="language-plaintext highlighter-rouge">TcpListener</code> and bind to an address &amp; port.</li>
-  <li>Loop:
-    <ul>
-      <li>Accept socket connection, and get its <code class="language-plaintext highlighter-rouge">TCPStream</code>.</li>
-      <li>Use <code class="language-plaintext highlighter-rouge">tokio::spawn()</code> to spawn a task to handle this client connection and its
-<code class="language-plaintext highlighter-rouge">TCPStream</code>.</li>
-    </ul>
-  </li>
-</ol>
-
-<p>In the task that handles the connection:</p>
-<ol>
-  <li>Get <code class="language-plaintext highlighter-rouge">BufReader</code> &amp; <code class="language-plaintext highlighter-rouge">BufWriter</code> from the <code class="language-plaintext highlighter-rouge">TCPStream</code>. The reader and writer allow us to
-read data from and write data to the client socket.</li>
-  <li>Loop:
-    <ul>
-      <li>Use <code class="language-plaintext highlighter-rouge">tokio::select!</code> to concurrently:
-        <ul>
-          <li>Read from broadcast channel (via <code class="language-plaintext highlighter-rouge">recv()</code>):
-            <ul>
-              <li>Send the message to the client (only if it is from a different client) over the
-socket (use <code class="language-plaintext highlighter-rouge">BufWriter</code> to write the message).</li>
-            </ul>
-          </li>
-          <li>Read from socket (via <code class="language-plaintext highlighter-rouge">BufReader::read_line()</code>):
-            <ul>
-              <li>Read <code class="language-plaintext highlighter-rouge">incoming</code> from reader.</li>
-              <li>Call <code class="language-plaintext highlighter-rouge">process(incoming)</code> and generate <code class="language-plaintext highlighter-rouge">outgoing</code>. This colorizes the <code class="language-plaintext highlighter-rouge">incoming</code>
-message with a lolcat effect to generate the <code class="language-plaintext highlighter-rouge">outgoing</code> message.</li>
-              <li>Send <code class="language-plaintext highlighter-rouge">incoming</code> message to other connected clients (via the broadcast channel).</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ol>
-
-<blockquote>
-  <p>You can find the finished source code for this tutorial
-<a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-server-netcat-client">here</a>.</p>
-</blockquote>
-
-<p>Here’s the code for the main function, and some supporting type aliases and structs:</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">type</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
-
-<span class="nd">#[derive(Debug,</span> <span class="nd">Clone)]</span>
-<span class="k">pub</span> <span class="k">struct</span> <span class="n">MsgType</span> <span class="p">{</span>
-    <span class="k">pub</span> <span class="n">socket_addr</span><span class="p">:</span> <span class="n">SocketAddr</span><span class="p">,</span>
-    <span class="k">pub</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
-    <span class="k">pub</span> <span class="n">from_id</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="nd">#[tokio::main]</span>
-<span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="n">addr</span> <span class="o">=</span> <span class="s">"127.0.0.1:3000"</span><span class="p">;</span>
-
-    <span class="c1">// Start logging.</span>
-    <span class="nn">femme</span><span class="p">::</span><span class="nf">start</span><span class="p">();</span>
-
-    <span class="c1">// Create TCP listener.</span>
-    <span class="k">let</span> <span class="n">tcp_listener</span> <span class="o">=</span> <span class="nn">TcpListener</span><span class="p">::</span><span class="nf">bind</span><span class="p">(</span><span class="n">addr</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Server is ready to accept connections on {}"</span><span class="p">,</span> <span class="n">addr</span><span class="p">);</span>
-
-    <span class="c1">// Create channel shared among all clients that connect to the server loop.</span>
-    <span class="k">let</span> <span class="p">(</span><span class="n">tx</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="o">=</span> <span class="nn">broadcast</span><span class="p">::</span><span class="nn">channel</span><span class="p">::</span><span class="o">&lt;</span><span class="n">MsgType</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
-
-    <span class="c1">// Server loop.</span>
-    <span class="k">loop</span> <span class="p">{</span>
-        <span class="c1">// Accept incoming socket connections.</span>
-        <span class="k">let</span> <span class="p">(</span><span class="n">tcp_stream</span><span class="p">,</span> <span class="n">socket_addr</span><span class="p">)</span> <span class="o">=</span> <span class="n">tcp_listener</span><span class="nf">.accept</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-
-        <span class="k">let</span> <span class="n">tx</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.clone</span><span class="p">();</span>
-        <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
-            <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">handle_client_task</span><span class="p">(</span><span class="n">tcp_stream</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">socket_addr</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-            <span class="k">match</span> <span class="n">result</span> <span class="p">{</span>
-                <span class="nf">Ok</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"handle_client_task() terminated gracefully"</span><span class="p">)</span>
-                <span class="p">}</span>
-                <span class="nf">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="k">log</span><span class="p">::</span><span class="nd">error!</span><span class="p">(</span><span class="s">"handle_client_task() encountered error: {}"</span><span class="p">,</span> <span class="n">error</span><span class="p">),</span>
-            <span class="p">}</span>
-        <span class="p">});</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>To run the server, you can run <code class="language-plaintext highlighter-rouge">cargo run</code>. There are no command line arguments to pass or
-parse.</p>
-
-<h3 id="tokiospawn-does-not-spawn-a-new-thread-so-what-does-it-actually-do">tokio::spawn does not spawn a new thread, so what does it actually do?</h3>
-<p><a id="markdown-tokio%3A%3Aspawn-does-not-spawn-a-new-thread%2C-so-what-does-it-actually-do%3F" name="tokio%3A%3Aspawn-does-not-spawn-a-new-thread%2C-so-what-does-it-actually-do%3F"></a></p>
-
-<p>Since <code class="language-plaintext highlighter-rouge">tokio::spawn</code> sounds similar to <code class="language-plaintext highlighter-rouge">thread::spawn</code> it might be easy to assume that
-<code class="language-plaintext highlighter-rouge">tokio::spawn</code> creates a new thread. This would go against the idea of even using tokio
-(which is all about concurrency and non blocking IO), since handling one connection per
-thread isn’t <a href="https://g.co/bard/share/74f433bad400">scalable</a>, which is what we did in
-this tutorial: <a href="/2024/01/13/write-simple-netcat-in-rust/">Write a simple TCP chat server in Rust</a>.</p>
-
-<p><code class="language-plaintext highlighter-rouge">tokio::spawn</code> does not create a thread; it creates a Tokio task, which is a
-co-operatively scheduled entity that Tokio knows how to schedule on the Tokio runtime (in
-turn, the Tokio runtime can have as many worker threads as you want - from 1 upwards).</p>
-
-<p>By using <code class="language-plaintext highlighter-rouge">tokio::spawn</code>, you allow the Tokio runtime to switch to another task at points
-in the task where it has a <code class="language-plaintext highlighter-rouge">.await</code>, and only those points. Your alternative, if you don’t
-want multiple tasks, is to use things like <code class="language-plaintext highlighter-rouge">select!</code>, <code class="language-plaintext highlighter-rouge">join!</code> and functions with <code class="language-plaintext highlighter-rouge">select</code>
-or ` join` in their name to have concurrent I/O in a single task.</p>
-
-<p>The point of spawning in Tokio is twofold:</p>
-
-<ol>
-  <li>If your runtime has multiple threads, then two tasks can execute in parallel on
-different threads, reducing latency.</li>
-  <li>It is almost always easier to understand a complex program in terms of different tasks
-doing their work, than in terms of a single large task doing lots of work concurrently
-(e.g. using <code class="language-plaintext highlighter-rouge">select</code> to wait for one of many options, or <code class="language-plaintext highlighter-rouge">join</code> to wait for all options
-to finish).</li>
-</ol>
-
-<p>More information:</p>
-<ol>
-  <li>You can get more info on this topic
- <a href="https://users.rust-lang.org/t/socket-per-thread-in-tokio/83712/7">here</a>.</li>
-  <li>For an even deeper dive into how Tokio tasks themselves are implemented for intra-task
-concurrency, please take a look at this <a href="https://without.boats/blog/let-futures-be-futures/">excellent
-article</a>.</li>
-</ol>
-
-<h2 id="handle-client-task-function">Handle client task function</h2>
-<p><a id="markdown-handle-client-task-function" name="handle-client-task-function"></a></p>
-
-<p>The <code class="language-plaintext highlighter-rouge">handle_client_task</code> function is where all the magic happens.</p>
-<ol>
-  <li>It reads messages from its client (over TCP socket) and broadcasts them to all other
-connected clients.</li>
-  <li>It processes the message from its client and echoes it back to its client (over TCP
-socket).</li>
-  <li>It reads messages from other clients (over broadcast channel) and sends them to its
-client (over socket).</li>
-</ol>
-
-<p>Here’s the code for the <code class="language-plaintext highlighter-rouge">handle_client_task()</code> function:</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="nf">handle_client_task</span><span class="p">(</span>
-    <span class="k">mut</span> <span class="n">tcp_stream</span><span class="p">:</span> <span class="n">TcpStream</span><span class="p">,</span>
-    <span class="n">tx</span><span class="p">:</span> <span class="n">Sender</span><span class="o">&lt;</span><span class="n">MsgType</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="n">socket_addr</span><span class="p">:</span> <span class="n">SocketAddr</span><span class="p">,</span>
-<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"Handle socket connection from client"</span><span class="p">);</span>
-
-    <span class="k">let</span> <span class="n">id</span> <span class="o">=</span> <span class="nn">friendly_random_id</span><span class="p">::</span><span class="nf">generate_friendly_random_id</span><span class="p">();</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">rx</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.subscribe</span><span class="p">();</span>
-
-    <span class="c1">// Set up buf reader and writer.</span>
-    <span class="k">let</span> <span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">writer</span><span class="p">)</span> <span class="o">=</span> <span class="n">tcp_stream</span><span class="nf">.split</span><span class="p">();</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">reader</span> <span class="o">=</span> <span class="nn">BufReader</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">reader</span><span class="p">);</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">writer</span> <span class="o">=</span> <span class="nn">BufWriter</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">writer</span><span class="p">);</span>
-
-    <span class="c1">// Send welcome message to client w/ ids.</span>
-    <span class="k">let</span> <span class="n">welcome_msg_for_client</span> <span class="o">=</span>
-        <span class="nn">ColorWheel</span><span class="p">::</span><span class="nf">lolcat_into_string</span><span class="p">(</span><span class="o">&amp;</span><span class="nd">format!</span><span class="p">(</span><span class="s">"addr: {}, id: {}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">socket_addr</span><span class="p">,</span> <span class="n">id</span><span class="p">));</span>
-    <span class="n">writer</span><span class="nf">.write</span><span class="p">(</span><span class="n">welcome_msg_for_client</span><span class="nf">.as_bytes</span><span class="p">())</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">writer</span><span class="nf">.flush</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">incoming</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
-
-    <span class="k">loop</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="n">tx</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.clone</span><span class="p">();</span>
-        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
-            <span class="c1">// Read from broadcast channel.</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">rx</span><span class="nf">.recv</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="nf">read_from_broadcast_channel</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">socket_addr</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">writer</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">id</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-            <span class="p">}</span>
-
-            <span class="c1">// Read from socket.</span>
-            <span class="n">network_read_result</span> <span class="o">=</span> <span class="n">reader</span><span class="nf">.read_line</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">incoming</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="k">let</span> <span class="n">num_bytes_read</span><span class="p">:</span> <span class="nb">usize</span> <span class="o">=</span> <span class="n">network_read_result</span><span class="o">?</span><span class="p">;</span>
-                <span class="c1">// EOF check.</span>
-                <span class="k">if</span> <span class="n">num_bytes_read</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-                    <span class="k">break</span><span class="p">;</span>
-                <span class="p">}</span>
-                <span class="nf">handle_socket_read</span><span class="p">(</span><span class="n">num_bytes_read</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">id</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">incoming</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">writer</span><span class="p">,</span> <span class="n">tx</span><span class="p">,</span> <span class="n">socket_addr</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-                <span class="n">incoming</span><span class="nf">.clear</span><span class="p">();</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h3 id="two-concurrent-tasks-in-the-tokioselect-block">Two concurrent tasks in the tokio::select! block</h3>
-<p><a id="markdown-two-concurrent-tasks-in-the-tokio%3A%3Aselect!-block" name="two-concurrent-tasks-in-the-tokio%3A%3Aselect!-block"></a></p>
-
-<ol>
-  <li>Read from broadcast channel. The function <code class="language-plaintext highlighter-rouge">read_from_broadcast_channel()</code> does this work.</li>
-  <li>Read from socket. The function <code class="language-plaintext highlighter-rouge">handle_socket_read()</code> does this work.</li>
-</ol>
-
-<p>Whichever task completes first, the <code class="language-plaintext highlighter-rouge">tokio::select!</code> block will go down that code path,
-and drop the other task.</p>
-
-<h3 id="handle-read-from-broadcast-channel-function">Handle read from broadcast channel function</h3>
-<p><a id="markdown-handle-read-from-broadcast-channel-function" name="handle-read-from-broadcast-channel-function"></a></p>
-
-<p>Here’s the code for the <code class="language-plaintext highlighter-rouge">read_from_broadcast_channel()</code> function:</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="nf">read_from_broadcast_channel</span><span class="p">(</span>
-    <span class="n">result</span><span class="p">:</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="n">MsgType</span><span class="p">,</span> <span class="n">RecvError</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="n">socket_addr</span><span class="p">:</span> <span class="n">SocketAddr</span><span class="p">,</span>
-    <span class="n">writer</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">BufWriter</span><span class="o">&lt;</span><span class="n">WriteHalf</span><span class="o">&lt;</span><span class="nv">'_</span><span class="o">&gt;&gt;</span><span class="p">,</span>
-    <span class="n">id</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span>
-<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">match</span> <span class="n">result</span> <span class="p">{</span>
-        <span class="nf">Ok</span><span class="p">(</span><span class="n">it</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-            <span class="k">let</span> <span class="n">msg</span><span class="p">:</span> <span class="n">MsgType</span> <span class="o">=</span> <span class="n">it</span><span class="p">;</span>
-            <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"[{}]: channel: {:?}"</span><span class="p">,</span> <span class="n">id</span><span class="p">,</span> <span class="n">msg</span><span class="p">);</span>
-            <span class="k">if</span> <span class="n">msg</span><span class="py">.socket_addr</span> <span class="o">!=</span> <span class="n">socket_addr</span> <span class="p">{</span>
-                <span class="n">writer</span><span class="nf">.write</span><span class="p">(</span><span class="n">msg</span><span class="py">.payload</span><span class="nf">.as_bytes</span><span class="p">())</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-                <span class="n">writer</span><span class="nf">.flush</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-        <span class="nf">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-            <span class="k">log</span><span class="p">::</span><span class="nd">error!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">);</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h3 id="handle-socket-read-function">Handle socket read function</h3>
-<p><a id="markdown-handle-socket-read-function" name="handle-socket-read-function"></a></p>
-
-<p>Here’s the code for the <code class="language-plaintext highlighter-rouge">handle_socket_read()</code> function:</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">async</span> <span class="k">fn</span> <span class="nf">handle_socket_read</span><span class="p">(</span>
-    <span class="n">num_bytes_read</span><span class="p">:</span> <span class="nb">usize</span><span class="p">,</span>
-    <span class="n">id</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span>
-    <span class="n">incoming</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span>
-    <span class="n">writer</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">BufWriter</span><span class="o">&lt;</span><span class="n">WriteHalf</span><span class="o">&lt;</span><span class="nv">'_</span><span class="o">&gt;&gt;</span><span class="p">,</span>
-    <span class="n">tx</span><span class="p">:</span> <span class="n">Sender</span><span class="o">&lt;</span><span class="n">MsgType</span><span class="o">&gt;</span><span class="p">,</span>
-    <span class="n">socket_addr</span><span class="p">:</span> <span class="n">SocketAddr</span><span class="p">,</span>
-<span class="p">)</span> <span class="k">-&gt;</span> <span class="n">IOResult</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
-        <span class="s">"[{}]: incoming: {}, size: {}"</span><span class="p">,</span>
-        <span class="n">id</span><span class="p">,</span>
-        <span class="n">incoming</span><span class="nf">.trim</span><span class="p">(),</span>
-        <span class="n">num_bytes_read</span>
-    <span class="p">);</span>
-
-    <span class="c1">// Process incoming -&gt; outgoing.</span>
-    <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="nf">process</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming</span><span class="p">);</span>
-
-    <span class="c1">// outgoing -&gt; Writer.</span>
-    <span class="n">writer</span><span class="nf">.write</span><span class="p">(</span><span class="n">outgoing</span><span class="nf">.as_bytes</span><span class="p">())</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-    <span class="n">writer</span><span class="nf">.flush</span><span class="p">()</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-
-    <span class="c1">// Broadcast outgoing to the channel.</span>
-    <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.send</span><span class="p">(</span><span class="n">MsgType</span> <span class="p">{</span>
-        <span class="n">socket_addr</span><span class="p">,</span>
-        <span class="n">payload</span><span class="p">:</span> <span class="n">incoming</span><span class="nf">.to_string</span><span class="p">(),</span>
-        <span class="n">from_id</span><span class="p">:</span> <span class="n">id</span><span class="nf">.to_string</span><span class="p">(),</span>
-    <span class="p">});</span>
-
-    <span class="k">log</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span>
-        <span class="s">"[{}]: outgoing: {}, size: {}"</span><span class="p">,</span>
-        <span class="n">id</span><span class="p">,</span>
-        <span class="n">outgoing</span><span class="nf">.trim</span><span class="p">(),</span>
-        <span class="n">num_bytes_read</span>
-    <span class="p">);</span>
-
-    <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-
-<span class="k">fn</span> <span class="nf">process</span><span class="p">(</span><span class="n">incoming</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
-    <span class="c1">// Remove new line from incoming.</span>
-    <span class="k">let</span> <span class="n">incoming_trimmed</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">incoming</span><span class="nf">.trim</span><span class="p">());</span>
-    <span class="c1">// Colorize it.</span>
-    <span class="k">let</span> <span class="n">outgoing</span> <span class="o">=</span> <span class="nn">ColorWheel</span><span class="p">::</span><span class="nf">lolcat_into_string</span><span class="p">(</span><span class="o">&amp;</span><span class="n">incoming_trimmed</span><span class="p">);</span>
-    <span class="c1">// Add new line back to outgoing.</span>
-    <span class="nd">format!</span><span class="p">(</span><span class="s">"{}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">outgoing</span><span class="p">)</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h2 id="next-steps">Next steps</h2>
-<p><a id="markdown-next-steps" name="next-steps"></a></p>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[A guide on how to create write a simple TCP chat server in Rust using Tokio]]></summary></entry></feed>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[The r3bl_terminal_async library lets your CLI program be asynchronous and interactive without blocking the main thread. Your spawned tasks can use it to concurrently write to the display output, pause and resume it. You can also display of colorful animated spinners ⌛🌈 for long running tasks. With it, you can create beautiful, powerful, and interactive REPLs (read execute print loops) with ease.]]></summary></entry></feed>

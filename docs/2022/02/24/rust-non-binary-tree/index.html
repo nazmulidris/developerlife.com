@@ -220,8 +220,7 @@
 
         <p><img class="post-hero-image" src="/assets/rust-non-binary-tree.svg" /></p>
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+<!-- TOC -->
 
 <ul>
   <li><a href="#introduction">Introduction</a></li>
@@ -235,14 +234,15 @@
     <ul>
       <li><a href="#traits">Traits</a></li>
       <li><a href="#arena-implementation-details">Arena implementation details</a></li>
-      <li><a href="#basic-usage-of-the-arena-tree">Basic usage of the arena (tree)</a></li>
+      <li><a href="#basic-usage-of-the-arena-tree">Basic usage of the arena tree</a></li>
       <li><a href="#multithreading">Multithreading</a></li>
     </ul>
   </li>
   <li><a href="#wrapping-up">Wrapping up</a></li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
 </ul>
 
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+<!-- /TOC -->
       <h2 id="introduction">
         
         
@@ -251,6 +251,7 @@
         
       </h2>
     
+<p><a id="markdown-introduction" name="introduction"></a></p>
 
 <p>This article illustrates how we can build a non-binary tree in Rust using various approaches until
 we end up with a version that is thread safe and supports parallel tree walking as well. Topics like
@@ -287,6 +288,7 @@ will be allow us to make the tree thread safe and parallel friendly (we will nam
         
       </h2>
     
+<p><a id="markdown-naive-approach-using-weak-and-strong-references" name="naive-approach-using-weak-and-strong-references"></a></p>
 
 <p>Our first attempt at implementing this data structure will involve using a struct that can hold
 references to children that it owns. And also a reference to a parent that it does not own, but has
@@ -322,6 +324,7 @@ ownership, interior mutability, weak, and strong references.</p>
         
       </h3>
     
+<p><a id="markdown-thread-safety" name="thread-safety"></a></p>
 
 <p>While this is a good start, we haven’t dealt with thread safety. Rust makes it very easy to handle
 this paralellism, we simply do the following:</p>
@@ -340,6 +343,7 @@ rather than new nodes added to the tree).</li>
         
       </h3>
     
+<p><a id="markdown-implementation" name="implementation"></a></p>
 
 <p>Here’s some code that we will use to implement this data structure. Let’s start w/ describing the
 struct that holds the value or payload, the children, and parent references.</p>
@@ -529,6 +533,7 @@ trait for <code class="language-plaintext highlighter-rouge">Node</code>.</p>
         
       </h2>
     
+<p><a id="markdown-sophisticated-approach-using-memory-arena" name="sophisticated-approach-using-memory-arena"></a></p>
 
 <p>In our naive example, we manage references that are strong (owned, children) and weak (not owned,
 parent). And we have to wrap the <code class="language-plaintext highlighter-rouge">NodeData</code> inside of a <code class="language-plaintext highlighter-rouge">Node</code> in order to be able to share it. This
@@ -559,6 +564,7 @@ implementing this.</p>
         
       </h3>
     
+<p><a id="markdown-traits" name="traits"></a></p>
 
 <p>Traits are like TypeScript, Java, or Kotlin interfaces. They also act like Kotlin extension
 functions. Traits come into play when we want to pass an argument to a function that takes something
@@ -687,6 +693,7 @@ in Rust playground.</p>
         
       </h3>
     
+<p><a id="markdown-arena-implementation-details" name="arena-implementation-details"></a></p>
 
 <blockquote>
   <p>📦 You can get <code class="language-plaintext highlighter-rouge">Arena</code>, <code class="language-plaintext highlighter-rouge">Node</code> and <code class="language-plaintext highlighter-rouge">style_primary</code> from
@@ -730,6 +737,7 @@ is just <code class="language-plaintext highlighter-rouge">usize</code>. However
         
       </h3>
     
+<p><a id="markdown-basic-usage-of-the-arena-tree" name="basic-usage-of-the-arena-tree"></a></p>
 
 <p>The first step to using this tree is adding the dependency for <code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> to your <code class="language-plaintext highlighter-rouge">Cargo.toml</code>.</p>
 
@@ -820,6 +828,7 @@ tests that put the <code class="language-plaintext highlighter-rouge">Arena</cod
         
       </h3>
     
+<p><a id="markdown-multithreading" name="multithreading"></a></p>
 
 <p><code class="language-plaintext highlighter-rouge">Arena</code> is thread-safe by design. However, there’s another struct called <code class="language-plaintext highlighter-rouge">MTArena</code> that allow for
 parallel tree walking, and even sharing <code class="language-plaintext highlighter-rouge">Arena</code> instances between threads &amp; shared ownership of the
@@ -940,6 +949,7 @@ closure that is passed to this function <code class="language-plaintext highligh
         
       </h2>
     
+<p><a id="markdown-wrapping-up" name="wrapping-up"></a></p>
 
 <p>There are lots of other useful library functions that you can check out in <code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> crate.
 There are functions that make it easy to unwrap things in Rust that are wrapped in an <code class="language-plaintext highlighter-rouge">&lt;Option&gt;</code>, or
@@ -954,6 +964,36 @@ There are functions that make it easy to unwrap things in Rust that are wrapped 
   <p>📜 You can take a look the source code of this thread safe non-binary tree data structure named
 <code class="language-plaintext highlighter-rouge">Arena</code> in its github <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/utils">repo</a>.</p>
 </blockquote>
+      <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
+        
+        
+          Build with Naz video series on developerlife.com YouTube channel <a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">#</a>
+        
+        
+      </h2>
+    
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>
 
         <!--
     Display all the categories for this page
@@ -1055,6 +1095,15 @@ There are functions that make it easy to unwrap things in Rust that are wrapped 
             
                 
                 <li>
+                    <a class="post-list" href="/2024/07/10/rust-async-cancellation-safety-tokio/">
+                        Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
                     <a class="post-list" href="/2024/06/28/md-parser-rust-from-r3bl-tui/">
                         Build with Naz : Markdown parser in Rust and nom from r3bl_tui
                     </a>
@@ -1092,7 +1141,7 @@ There are functions that make it easy to unwrap things in Rust that are wrapped 
                 
                 <li>
                     <a class="post-list" href="/2024/05/19/effective-async-rust/">
-                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, cancellation safety
+                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, graceful shutdown
                     </a>
                 </li>
             

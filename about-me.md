@@ -12,10 +12,11 @@ exclude: false
         <img src="{{ '/assets/nazmul.png' | relative_url }}"/>
     </div>
     <div class="avatar-text">
-        Hi, I'm <a href="http://www.google.com/search?hl=en&q=nazmul+idris">
-        Nazmul</a> 😃. I am an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
-        TaiChi-er, racer, storyteller. I 💓 leadership, authenticity,
-        empowerment & lifelong learning.
+        Hi, I'm <a href="https://duckduckgo.com/?q=nazmul+idris&ia=web">
+        Nazmul</a> 😃. I am an ex-Googler,
+        <a href="https://github.com/r3bl-org/r3bl-open-core/" target="_blank">founder, engineer, maintainer</a>,
+        designer, leader, HsingI-er, racer, storyteller.
+        I 💓 leadership, authenticity, learning, empowerment.
     </div>
 </div>
 
@@ -44,7 +45,8 @@ exclude: false
 
 ## My story
 
-I am equal parts: coder, management, and product; both hands-on and in leadership.
+I am equal parts: engineer, management, and product person; both hands-on and in
+leadership.
 
 I've brought products to life from a glimmer of a vision to a team building it, to having
 customers, and eventually seeing the product come to an end. I've worked as part of large
@@ -59,16 +61,22 @@ As a multifaceted engineer, designer, and communicator, I’ve focused on creati
 designing, building, and collaborating with people to bring amazing user experiences to
 life across multiple platforms.
 
+> ✨ You can read all my articles on [developerlife.com](https://developerlife.com) and
+> watch my videos on [YouTube](https://www.youtube.com/@developerlifecom).
+
+
 Highlights:
 
-- Coding in Rust, Kotlin, TypeScript, React, WASM, WASI, TUI / CLI, GUI, Node.js, Java.
+- Currently a Rustacean 🦀 coding in Rust and working on all things TUI & CLI! Along w/
+  WASM, WASI, fast and efficient desktop and web apps. Coding in Rust, TypeScript, React,
+  WASM, WASI, Node.js.
 - Worked on Android Studio IDE (JetBrains based) in Kotlin & Java.
 - Was principal SWE, founder, and CEO of a startup (TRNQL) in 2015.
   - Raised 1.5M in venture funding.
   - Successfully built and launched developer-facing SDKs for Android & iOS.
   - Created & led teams that served many users & developers on Android & iOS.
 - Currently create content for prominent developer tutorial site developerlife.com (est
-  1998).
+  1998) and its YouTube Channel.
 
 ## Leadership and Resourcefulness
 

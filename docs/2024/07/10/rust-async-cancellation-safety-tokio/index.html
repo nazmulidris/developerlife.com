@@ -260,7 +260,14 @@ real-world patterns, and are a generalized form of them.</p>
 <p><code class="language-plaintext highlighter-rouge">tokio::select!</code> might as well have been called <code class="language-plaintext highlighter-rouge">tokio::race!</code> (there’s a <a href="https://en.wikipedia.org/wiki/The_Fast_and_the_Furious:_Tokyo_Drift">The Fast and
 Furious : Tokyo
 Drift</a> joke in there
-somewhere). Here’s the basic setup:</p>
+somewhere).</p>
+
+<p>It races the given futures in the branches of the macro, and the first one to resolve wins
+(it is <code class="language-plaintext highlighter-rouge">Ready</code> when <code class="language-plaintext highlighter-rouge">poll()</code>ed). The other futures are dropped. These futures are run
+concurrently, not in parallel, on the same worker thread, since we are not using
+<code class="language-plaintext highlighter-rouge">tokio::spawn!</code> or its variants.</p>
+
+<p>Here’s the basic setup:</p>
 
 <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">loop</span> <span class="p">{</span>
     <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span><span class="p">{</span>
@@ -282,6 +289,15 @@ case you might have two branches:</p>
   <li>A <code class="language-plaintext highlighter-rouge">tokio::time::sleep()</code> <code class="language-plaintext highlighter-rouge">Future</code> in the timeout branch.</li>
   <li>Some code to get the data asynchronously from the stream in the other branch.</li>
 </ol>
+
+<blockquote>
+  <p>Another example is that you might be waiting for the user to type something from the
+keyboard or mouse (such as a TUI app) and also listen for signals to shut down the app,
+or other signals to perform re-rendering of the TUI. You can see this <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/terminal_window/main_event_loop.rs#L94">in <code class="language-plaintext highlighter-rouge">r3bl_tui</code>
+here</a>
+and <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/src/readline_impl/readline.rs#L468">in <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code>
+here</a>.</p>
+</blockquote>
 
 <p>Note that all branches must have a <code class="language-plaintext highlighter-rouge">Future</code> to call <code class="language-plaintext highlighter-rouge">.await</code> on. The macro does not
 require you to call <code class="language-plaintext highlighter-rouge">.await</code>. The code it generates take care of this.</p>

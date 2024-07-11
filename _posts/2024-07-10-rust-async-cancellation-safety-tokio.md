@@ -44,7 +44,14 @@ real-world patterns, and are a generalized form of them.
 `tokio::select!` might as well have been called `tokio::race!` (there's a [The Fast and
 Furious : Tokyo
 Drift](https://en.wikipedia.org/wiki/The_Fast_and_the_Furious:_Tokyo_Drift) joke in there
-somewhere). Here's the basic setup:
+somewhere).
+
+It races the given futures in the branches of the macro, and the first one to resolve wins
+(it is `Ready` when `poll()`ed). The other futures are dropped. These futures are run
+concurrently, not in parallel, on the same worker thread, since we are not using
+`tokio::spawn!` or its variants.
+
+Here's the basic setup:
 
 ```rust
 loop {
@@ -65,6 +72,13 @@ And you want to have a timeout that breaks out of the `loop` if it takes too lon
 case you might have two branches:
 1. A `tokio::time::sleep()` `Future` in the timeout branch.
 2. Some code to get the data asynchronously from the stream in the other branch.
+
+> Another example is that you might be waiting for the user to type something from the
+> keyboard or mouse (such as a TUI app) and also listen for signals to shut down the app,
+> or other signals to perform re-rendering of the TUI. You can see this [in `r3bl_tui`
+> here](https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/terminal_window/main_event_loop.rs#L94)
+> and [in `r3bl_terminal_async`
+> here](https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/src/readline_impl/readline.rs#L468).
 
 Note that all branches must have a `Future` to call `.await` on. The macro does not
 require you to call `.await`. The code it generates take care of this.

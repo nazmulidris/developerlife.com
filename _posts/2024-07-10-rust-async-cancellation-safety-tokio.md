@@ -438,53 +438,64 @@ Let's break down what's happening here.
 In `lib.rs` replace the `// <more stuff to add later>` with the following code:
 
 ```rust
-    async fn read_3_items_not_cancel_safe(stream: &mut PinnedInputStream)
-        -> Vec<usize>
-    {
-        let mut vec = vec![];
+/// There is no need to [futures_util::FutureExt::fuse()] the items in each
+/// [tokio::select!] branch. This is because Tokio's event loop is designed
+/// to handle this efficiently by remembering the state of each future across
+/// iterations.
+///
+/// More info: <https://gemini.google.com/app/e55fd62339b674fb>
+async fn read_3_items_not_cancel_safe(stream: &mut PinnedInputStream)
+    -> Vec<usize>
+{
+    let mut vec = vec![];
 
-        println!("branch 2 => entering read_3_items_not_cancel_safe");
+    println!("branch 2 => entering read_3_items_not_cancel_safe");
 
-        for _ in 0..3 {
-            let item = stream.next().await.unwrap().unwrap();
-            println!(
-                "branch 2 => read_3_items_not_cancel_safe got item: {item}");
-            vec.push(item);
-            println!("branch 2 => vec so far contains: {vec:?}");
-        }
-
-        vec
+    for _ in 0..3 {
+        let item = stream.next() /* .fuse() */ .await.unwrap().unwrap();
+        println!("branch 2 => read_3_items_not_cancel_safe got item: {item}");
+        vec.push(item);
+        println!("branch 2 => vec so far contains: {vec:?}");
     }
 
-    #[tokio::test]
-    async fn test_unsafe_cancel_stream() {
-        let mut stream = gen_input_stream();
-        let sleep_time = 300;
-        let duration = std::time::Duration::from_millis(sleep_time);
-        let sleep = tokio::time::sleep(duration);
-        tokio::pin!(sleep);
+    vec
+}
 
-        loop {
-            tokio::select! {
-                // Branch 1 - Timeout.
-                _ = &mut sleep => {
-                    println!("branch 1 - time is up - end");
-                    break;
-                }
-                // Branch 2 - Read from stream.
-                it = read_3_items_not_cancel_safe(&mut stream) => {
-                    println!("branch 2 - got 3 items: {it:?}");
-                }
+/// There is no need to [futures_util::FutureExt::fuse()] the items in each
+/// [tokio::select!] branch. This is because Tokio's event loop is designed
+/// to handle this efficiently by remembering the state of each future across
+/// iterations.
+///
+/// More info: <https://gemini.google.com/app/e55fd62339b674fb>
+#[tokio::test]
+async fn test_unsafe_cancel_stream() {
+    let mut stream = gen_input_stream();
+    let sleep_time = 300;
+    let duration = std::time::Duration::from_millis(sleep_time);
+    let sleep = tokio::time::sleep(duration);
+    tokio::pin!(sleep);
+
+    loop {
+        tokio::select! {
+            // Branch 1 - Timeout.
+            _ = &mut sleep => {
+                println!("branch 1 - time is up - end");
+                break;
+            }
+            // Branch 2 - Read from stream.
+            it = read_3_items_not_cancel_safe(&mut stream) /* .fuse() */ => {
+                println!("branch 2 - got 3 items: {it:?}");
             }
         }
-
-        println!("loop exited");
-
-        // Only [1, 2] is consumed by Branch 2 before the timeout happens
-        // in Branch 1.
-        let it = stream.next().await.unwrap().unwrap();
-        assert_eq!(it, 3);
     }
+
+    println!("loop exited");
+
+    // Only [1, 2] is consumed by Branch 2 before the timeout happens
+    // in Branch 1.
+    let it = stream.next().await.unwrap().unwrap();
+    assert_eq!(it, 3);
+}
 ```
 
 When you run this test using `cargo test -- --nocapture test_unsafe_cancel_stream`, you

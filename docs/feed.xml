@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-07-11T17:17:26-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety</title><link href="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" rel="alternate" type="text/html" title="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety" /><published>2024-07-10T10:00:00-05:00</published><updated>2024-07-10T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio</id><content type="html" xml:base="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"><![CDATA[<p><img class="post-hero-image" src="/assets/tokio-async-cancel-safety.svg" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-07-13T11:51:06-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety</title><link href="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" rel="alternate" type="text/html" title="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety" /><published>2024-07-10T10:00:00-05:00</published><updated>2024-07-10T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio</id><content type="html" xml:base="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"><![CDATA[<p><img class="post-hero-image" src="/assets/tokio-async-cancel-safety.svg" /></p>
 
 <!-- TOC -->
 
@@ -155,9 +155,8 @@ dependencies that we need for these examples.</p>
 <span class="nn">[dependencies]</span>
 <span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.38.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
 
-<span class="c"># Async stream for DI and testing.</span>
-<span class="py">async-stream</span> <span class="p">=</span> <span class="s">"0.3.5"</span>
-<span class="py">futures-core</span> <span class="p">=</span> <span class="s">"0.3"</span>
+<span class="c"># Async stream testing.</span>
+<span class="py">r3bl_test_fixtures</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.0.2"</span> <span class="p">}</span>
 <span class="py">futures-util</span> <span class="p">=</span> <span class="s">"0.3.30"</span>
 </code></pre></div></div>
 
@@ -376,40 +375,30 @@ following snippet in your <code class="language-plaintext highlighter-rouge">lib
 
 <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
 <span class="k">pub</span> <span class="k">mod</span> <span class="n">test_unsafe_cancel_example</span> <span class="p">{</span>
-    <span class="k">use</span> <span class="nn">async_stream</span><span class="p">::</span><span class="n">stream</span><span class="p">;</span>
-    <span class="k">use</span> <span class="nn">futures_core</span><span class="p">::</span><span class="n">Stream</span><span class="p">;</span>
-    <span class="k">use</span> <span class="nn">futures_util</span><span class="p">::</span><span class="n">StreamExt</span><span class="p">;</span>
-
-    <span class="k">use</span> <span class="nn">std</span><span class="p">::{</span><span class="nn">io</span><span class="p">::</span><span class="n">Error</span><span class="p">,</span> <span class="nn">pin</span><span class="p">::</span><span class="nb">Pin</span><span class="p">};</span>
-    <span class="k">pub</span> <span class="k">type</span> <span class="n">MyResult</span> <span class="o">=</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">usize</span><span class="p">,</span> <span class="n">Error</span><span class="o">&gt;</span><span class="p">;</span>
-    <span class="k">pub</span> <span class="k">type</span> <span class="n">PinnedInputStream</span> <span class="o">=</span> <span class="nb">Pin</span><span class="o">&lt;</span><span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="n">Stream</span><span class="o">&lt;</span><span class="n">Item</span> <span class="o">=</span> <span class="n">MyResult</span><span class="o">&gt;&gt;&gt;</span><span class="p">;</span>
+    <span class="k">use</span> <span class="nn">r3bl_test_fixtures</span><span class="p">::{</span><span class="n">gen_input_stream_with_delay</span><span class="p">,</span> <span class="n">PinnedInputStream</span><span class="p">};</span>
 
     <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_input_vec</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span> <span class="p">{</span>
         <span class="nd">vec!</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
     <span class="p">}</span>
 
-    <span class="cd">/// There's a 100ms delay between each event.</span>
-    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">gen_input_stream</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">PinnedInputStream</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
-        <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="nd">stream!</span> <span class="p">{</span>
-            <span class="k">for</span> <span class="n">item</span> <span class="k">in</span> <span class="nf">get_input_vec</span><span class="p">()</span> <span class="p">{</span>
-                <span class="c1">// wait for 100ms</span>
-                <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-                <span class="nd">println!</span><span class="p">(</span><span class="s">"yielding item: {item}"</span><span class="p">);</span>
-                <span class="k">yield</span> <span class="nf">Ok</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">};</span>
-        <span class="nn">Box</span><span class="p">::</span><span class="nf">pin</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_stream_delay</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="n">Duration</span> <span class="p">{</span>
+        <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">fn</span> <span class="nf">get_input_stream</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">PinnedInputStream</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="nf">gen_input_stream_with_delay</span><span class="p">(</span><span class="nf">get_input_vec</span><span class="p">(),</span> <span class="nf">get_stream_delay</span><span class="p">())</span>
     <span class="p">}</span>
 
     <span class="cd">/// This is just to see how to use the async stream [gen_input_stream()].</span>
     <span class="nd">#[tokio::test]</span>
     <span class="k">async</span> <span class="k">fn</span> <span class="nf">test_generate_event_stream_pinned</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">use</span> <span class="nn">futures_util</span><span class="p">::</span><span class="n">StreamExt</span><span class="p">;</span>
+
         <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nf">gen_input_stream</span><span class="p">();</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nf">get_stream</span><span class="p">();</span>
 
         <span class="k">while</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span> <span class="p">{</span>
-            <span class="k">let</span> <span class="n">lhs</span> <span class="o">=</span> <span class="n">item</span><span class="nf">.unwrap</span><span class="p">();</span>
+            <span class="k">let</span> <span class="n">lhs</span> <span class="o">=</span> <span class="n">item</span><span class="p">;</span>
             <span class="k">let</span> <span class="n">rhs</span> <span class="o">=</span> <span class="nf">get_input_vec</span><span class="p">()[</span><span class="n">count</span><span class="p">];</span>
             <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">);</span>
             <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
@@ -439,23 +428,30 @@ from the async stream and compares the values that it reads with the values that
 expected from the <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code> returned by <code class="language-plaintext highlighter-rouge">get_input_vec()</code>.</li>
 </ul>
 
+<blockquote>
+  <p>You can get the <code class="language-plaintext highlighter-rouge">r3bl_test_fixtures</code> <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/test_fixtures">source
+here</a>. You can get
+the crate from <a href="https://crates.io/crates/r3bl_test_fixtures">crates.io</a>.</p>
+</blockquote>
+
 <p>In <code class="language-plaintext highlighter-rouge">lib.rs</code> replace the <code class="language-plaintext highlighter-rouge">// &lt;more stuff to add later&gt;</code> with the following code:</p>
 
 <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// There is no need to [futures_util::FutureExt::fuse()] the items in each</span>
-<span class="cd">/// [tokio::select!] branch. This is because Tokio's event loop is designed</span>
-<span class="cd">/// to handle this efficiently by remembering the state of each future across</span>
-<span class="cd">/// iterations.</span>
+<span class="cd">/// [tokio::select!] branch. This is because Tokio's event loop is designed to handle</span>
+<span class="cd">/// this efficiently by remembering the state of each future across iterations.</span>
 <span class="cd">///</span>
 <span class="cd">/// More info: &lt;https://gemini.google.com/app/e55fd62339b674fb&gt;</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">read_3_items_not_cancel_safe</span><span class="p">(</span><span class="n">stream</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">PinnedInputStream</span><span class="p">)</span>
+<span class="nd">#[rustfmt::skip]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">read_3_items_not_cancel_safe</span><span class="p">(</span><span class="n">stream</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">PinnedInputStream</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span><span class="p">)</span>
     <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span>
 <span class="p">{</span>
+    <span class="k">use</span> <span class="nn">futures_util</span><span class="p">::</span><span class="n">StreamExt</span><span class="p">;</span>
     <span class="k">let</span> <span class="k">mut</span> <span class="n">vec</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
 
     <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; entering read_3_items_not_cancel_safe"</span><span class="p">);</span>
 
     <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..</span><span class="mi">3</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="n">item</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span> <span class="cm">/* .fuse() */</span> <span class="k">.await</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">item</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span> <span class="cm">/* .fuse() */</span> <span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
         <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; read_3_items_not_cancel_safe got item: {item}"</span><span class="p">);</span>
         <span class="n">vec</span><span class="nf">.push</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
         <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; vec so far contains: {vec:?}"</span><span class="p">);</span>
@@ -465,14 +461,15 @@ expected from the <code class="language-plaintext highlighter-rouge">Vec&lt;usiz
 <span class="p">}</span>
 
 <span class="cd">/// There is no need to [futures_util::FutureExt::fuse()] the items in each</span>
-<span class="cd">/// [tokio::select!] branch. This is because Tokio's event loop is designed</span>
-<span class="cd">/// to handle this efficiently by remembering the state of each future across</span>
-<span class="cd">/// iterations.</span>
+<span class="cd">/// [tokio::select!] branch. This is because Tokio's event loop is designed to handle</span>
+<span class="cd">/// this efficiently by remembering the state of each future across iterations.</span>
 <span class="cd">///</span>
 <span class="cd">/// More info: &lt;https://gemini.google.com/app/e55fd62339b674fb&gt;</span>
 <span class="nd">#[tokio::test]</span>
 <span class="k">async</span> <span class="k">fn</span> <span class="nf">test_unsafe_cancel_stream</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nf">gen_input_stream</span><span class="p">();</span>
+    <span class="k">use</span> <span class="nn">futures_util</span><span class="p">::</span><span class="n">StreamExt</span><span class="p">;</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nf">get_input_stream</span><span class="p">();</span>
     <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">300</span><span class="p">;</span>
     <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
     <span class="k">let</span> <span class="n">sleep</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
@@ -496,7 +493,7 @@ expected from the <code class="language-plaintext highlighter-rouge">Vec&lt;usiz
 
     <span class="c1">// Only [1, 2] is consumed by Branch 2 before the timeout happens</span>
     <span class="c1">// in Branch 1.</span>
-    <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
     <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
 <span class="p">}</span>
 </code></pre></div></div>

@@ -1,4 +1,465 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-07-13T11:51:06-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety</title><link href="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" rel="alternate" type="text/html" title="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety" /><published>2024-07-10T10:00:00-05:00</published><updated>2024-07-10T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio</id><content type="html" xml:base="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"><![CDATA[<p><img class="post-hero-image" src="/assets/tokio-async-cancel-safety.svg" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-07-16T21:18:33-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Box and Pin exploration in Rust</title><link href="http://developerlife.com/2024/07/16/pin-box-dynamic-duo/" rel="alternate" type="text/html" title="Build with Naz : Box and Pin exploration in Rust" /><published>2024-07-16T10:00:00-05:00</published><updated>2024-07-16T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/16/pin-box-dynamic-duo</id><content type="html" xml:base="http://developerlife.com/2024/07/16/pin-box-dynamic-duo/"><![CDATA[<p><img class="post-hero-image" src="/assets/box-and-pin.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#why-do-we-need-both-box-and-pin">Why do we need both Box and Pin?</a></li>
+  <li><a href="#formatting-pointers">Formatting pointers</a></li>
+  <li><a href="#what-is-a-smart-pointer">What is a smart pointer?</a></li>
+  <li><a href="#youtube-video-for-this-article">YouTube video for this article</a></li>
+  <li><a href="#examples-rust-box-smart-pointer-and-pin">Examples Rust Box smart pointer, and Pin</a>
+    <ul>
+      <li><a href="#example-1-getting-the-address-of-variables-on-the-stack-and-heap">Example 1: Getting the address of variables on the stack and heap</a></li>
+      <li><a href="#example-2-what-does-box-move-do">Example 2: What does Box move do?</a></li>
+      <li><a href="#example-3-how-do-we-swap-the-contents-of-two-boxes">Example 3: How do we swap the contents of two boxes?</a></li>
+      <li><a href="#example-4-what-does-pining-a-box-do">Example 4: What does pining a box do?</a></li>
+    </ul>
+  </li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+
+<h2 id="introduction">Introduction</h2>
+<p><a id="markdown-introduction" name="introduction"></a></p>
+
+<p>This tutorial is a deep dive into Rust <code class="language-plaintext highlighter-rouge">Pin</code> and <code class="language-plaintext highlighter-rouge">Box</code> types, along with concepts of
+ownership and borrowing. We will also cover a lot of background information on the
+concepts of operating system process, memory allocation and access, stack, and heap. The
+examples we create are designed to demonstrate  the different semantics around the use of
+boxes and pinned boxes in Rust.</p>
+
+<h2 id="why-do-we-need-both-box-and-pin">Why do we need both Box and Pin?</h2>
+<p><a id="markdown-why-do-we-need-both-box-and-pin%3F" name="why-do-we-need-both-box-and-pin%3F"></a></p>
+
+<p>It is common to use <code class="language-plaintext highlighter-rouge">Pin</code> for <code class="language-plaintext highlighter-rouge">tokio::select!</code> macro branches in <a href="https://developerlife.com/2024/05/19/effective-async-rust/">Rust async
+code</a>. And <code class="language-plaintext highlighter-rouge">Box</code> is used
+commonly for <a href="https://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">trait
+pointers</a>.</p>
+
+<p>This article, video, and repo illustrate the concepts (moving a box, swapping box
+contents, and pinning a box) by example. Lots of pretty formatted output is generated so
+that you can run tests and see what’s happening (and make sense of it).</p>
+
+<h2 id="formatting-pointers">Formatting pointers</h2>
+<p><a id="markdown-formatting-pointers" name="formatting-pointers"></a></p>
+
+<p>To format pointers in Rust, we can use the formatting trait
+<a href="https://doc.rust-lang.org/std/fmt/#formatting-traits"><code class="language-plaintext highlighter-rouge">{:p}</code></a>. You can format a
+pointer by using two approaches:</p>
+<ol>
+  <li>Get the address of the pointer using [<code class="language-plaintext highlighter-rouge">std::ptr::addr_of!</code>] and then format it
+using <code class="language-plaintext highlighter-rouge">{:p}</code>. Eg: <code class="language-plaintext highlighter-rouge">let x = 1; println!("{:p}", std::ptr::addr_of!(x));</code></li>
+  <li>Get a reference to the pointer using <code class="language-plaintext highlighter-rouge">&amp;</code> and then format it using <code class="language-plaintext highlighter-rouge">{:p}</code>. Eg: <code class="language-plaintext highlighter-rouge">let
+x = 1; println!("{:p}", &amp;x);</code></li>
+</ol>
+
+<h2 id="what-is-a-smart-pointer">What is a smart pointer?</h2>
+<p><a id="markdown-what-is-a-smart-pointer%3F" name="what-is-a-smart-pointer%3F"></a></p>
+
+<p>Smart pointers in Rust are data structures that act like pointers but also have additional
+metadata and capabilities. They provide a level of abstraction over raw pointers, offering
+features like ownership management, reference counting, and more. Smart pointers often
+manage ownership of the data they point to, ensuring proper deallocation when no longer
+needed.</p>
+
+<blockquote>
+  <p>For a great visualization of memory allocation, stack and heap please read this
+<a href="https://courses.grainger.illinois.edu/cs225/fa2022/resources/stack-heap/">article</a>.</p>
+</blockquote>
+
+<h2 id="youtube-video-for-this-article">YouTube video for this article</h2>
+<p><a id="markdown-youtube-video-for-this-article" name="youtube-video-for-this-article"></a></p>
+
+<p>This blog post has examples from this live coding video. If you like
+to learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
+channel</a>.</p>
+
+<!-- video on tokio-async-cancel-safety -->
+<iframe src="https://www.youtube.com/embed/SZtZkM2Ujhs?si=6wtfI_Q8ORpKUU_G" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<p><br /></p>
+
+<h2 id="examples-rust-box-smart-pointer-and-pin">Examples Rust Box smart pointer, and Pin</h2>
+<p><a id="markdown-examples-rust-box-smart-pointer%2C-and-pin" name="examples-rust-box-smart-pointer%2C-and-pin"></a></p>
+
+<p>Let’s create some examples to illustrate how <code class="language-plaintext highlighter-rouge">Box</code> and <code class="language-plaintext highlighter-rouge">Pin</code> and pointers to stack
+allocations and heap allocations work in Rust. You can run <code class="language-plaintext highlighter-rouge">cargo new --lib box-and-pin</code>
+to create a new library crate.</p>
+
+<blockquote>
+  <p>💡 You can get the code from the
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/box-and-pin/"><code class="language-plaintext highlighter-rouge">rust-scratch</code></a> repo.</p>
+</blockquote>
+
+<p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
+dependencies that we need for these examples.</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"box-and-pin"</span>
+<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
+<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+
+<span class="nn">[dependencies]</span>
+<span class="py">crossterm</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.27.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"event-stream"</span><span class="p">]</span> <span class="p">}</span>
+<span class="py">serial_test</span> <span class="p">=</span> <span class="s">"3.1.1"</span>
+</code></pre></div></div>
+
+<p>Here are the dependencies we are using:</p>
+<ol>
+  <li>The <code class="language-plaintext highlighter-rouge">serial_test</code> dep allows us to run Rust tests serially, so that we can examine the
+output of each test, without it being clobbered by other test output running in
+parallel.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">crossterm</code> dep allows us to generate colorful <code class="language-plaintext highlighter-rouge">println!</code> output in the terminal
+which will help us visualize what is going on with the pointers and memory allocations.</li>
+</ol>
+
+<p>We are going to add all the examples below as tests to the <code class="language-plaintext highlighter-rouge">lib.rs</code> file in this crate.</p>
+
+<h3 id="example-1-getting-the-address-of-variables-on-the-stack-and-heap">Example 1: Getting the address of variables on the stack and heap</h3>
+<p><a id="markdown-example-1%3A-getting-the-address-of-variables-on-the-stack-and-heap" name="example-1%3A-getting-the-address-of-variables-on-the-stack-and-heap"></a></p>
+
+<p>Let’s add the following imports and macros to the top of the <code class="language-plaintext highlighter-rouge">lib.rs</code> file. These will
+help us print output from the tests, so that we can track where a pointer is located in
+memory and what the size of the thing it points to is. There are two macros, one for a
+reference or pointer, and another one for pinned pointers. And we have an assertion
+function that can return true if all 3 arguments are equal.</p>
+
+<div class="language-rs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="n">Stylize</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">serial_test</span><span class="p">::</span><span class="n">serial</span><span class="p">;</span>
+
+<span class="cd">/// Given a pointer `$p`, it prints:</span>
+<span class="cd">/// 1. it's address,</span>
+<span class="cd">/// 2. and size of the thing it points to (in bytes).</span>
+<span class="nd">macro_rules!</span> <span class="n">print_ptr_addr_size</span> <span class="p">{</span>
+    <span class="p">(</span><span class="nv">$p</span><span class="p">:</span> <span class="n">expr</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"{:p}┆{}b"</span><span class="p">,</span> <span class="nv">$p</span><span class="p">,</span> <span class="nn">std</span><span class="p">::</span><span class="nn">mem</span><span class="p">::</span><span class="nf">size_of_val</span><span class="p">(</span><span class="nv">$p</span><span class="p">))</span>
+    <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="cd">/// Given a pinned pointer `$p`, it prints:</span>
+<span class="cd">/// 1. it's address,</span>
+<span class="cd">/// 2. and size of the thing it points to (in bytes).</span>
+<span class="nd">macro_rules!</span> <span class="n">print_pin_addr_size</span> <span class="p">{</span>
+    <span class="p">(</span><span class="nv">$p</span><span class="p">:</span> <span class="n">expr</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"{:p}┆{}b"</span><span class="p">,</span> <span class="nv">$p</span><span class="p">,</span> <span class="nn">std</span><span class="p">::</span><span class="nn">mem</span><span class="p">::</span><span class="nf">size_of_val</span><span class="p">(</span><span class="o">&amp;</span><span class="p">(</span><span class="o">*</span><span class="nv">$p</span><span class="p">)))</span>
+    <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="n">assert_three_equal</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="nb">PartialEq</span> <span class="o">+</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Debug</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">T</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">T</span><span class="p">,</span> <span class="n">c</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="s">"a and b are not equal"</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="s">"a and c are not equal"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>So, before we start with the examples, let’s add a test that demonstrates how to get the
+address of a variable on the stack and heap. Add the following code to your <code class="language-plaintext highlighter-rouge">lib.rs</code> file.</p>
+
+<div class="language-rs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[test]</span>
+<span class="nd">#[serial]</span>
+<span class="k">fn</span> <span class="nf">print_ptr_addr_size</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Using `std::ptr::addr_of!` to get the memory address of a variable.</span>
+    <span class="k">let</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">100u8</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">x_addr</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">ptr</span><span class="p">::</span><span class="nd">addr_of!</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"x: {}, x_addr  : {}"</span><span class="p">,</span>
+        <span class="n">x</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">x_addr</span><span class="p">)</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.italic</span><span class="p">(),</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Using `format!` to get the memory address of a variable.</span>
+    <span class="k">let</span> <span class="n">x_addr_2</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{:p}"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"x: {}, x_addr_2: {}"</span><span class="p">,</span>
+        <span class="n">x</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="n">x_addr_2</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Get size of `x` in bytes.</span>
+    <span class="k">let</span> <span class="n">x_size</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">mem</span><span class="p">::</span><span class="nf">size_of_val</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"x: {}, x_size  : {}b"</span><span class="p">,</span>
+        <span class="n">x</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="n">x_size</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.magenta</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Using `print_ptr_addr_size!` to get the memory address of a variable.</span>
+    <span class="k">let</span> <span class="n">x_addr_3</span> <span class="o">=</span> <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="o">&amp;</span><span class="n">x</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"x: {}, x_addr_3: {}"</span><span class="p">,</span>
+        <span class="n">x</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="n">x_addr_3</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the output of the test above, after you run <code class="language-plaintext highlighter-rouge">cargo watch -x "test --lib -- --show-output print"</code>.</p>
+
+<pre class="pre-manual-highlight">
+---- print_ptr_addr_size stdout ----
+x: <span style="color:#81A1C1"><u style="text-decoration-style:solid">100</u></span>, x_addr  : <span style="color:#BF616A"><i>0x7e17cd9feb97</i></span>
+x: <span style="color:#81A1C1"><u style="text-decoration-style:solid">100</u></span>, x_addr_2: <span style="background-color:#3B4252"><span style="color:#BF616A"><i>0x7e17cd9feb97</i></span></span>
+x: <span style="color:#81A1C1"><u style="text-decoration-style:solid">100</u></span>, x_size  : <span style="background-color:#3B4252"><span style="color:#B48EAD"><i>1</i></span></span>b
+x: <span style="color:#81A1C1"><u style="text-decoration-style:solid">100</u></span>, x_addr_3: <span style="background-color:#3B4252"><span style="color:#BF616A"><i>0x7e17cd9feb97┆1b</i></span></span>
+</pre>
+
+<p>Let’s walk through the output above:</p>
+<ol>
+  <li>We have a variable <code class="language-plaintext highlighter-rouge">x</code> that is a <code class="language-plaintext highlighter-rouge">u8</code> with a value of <code class="language-plaintext highlighter-rouge">100</code>. This is a stack
+allocation. It occupies 1 byte of memory (its size).</li>
+  <li>We get the address of <code class="language-plaintext highlighter-rouge">x</code> using <code class="language-plaintext highlighter-rouge">std::ptr::addr_of!(x)</code> and <code class="language-plaintext highlighter-rouge">format!("{:p}", &amp;x)</code>.</li>
+  <li>We get the size of <code class="language-plaintext highlighter-rouge">x</code> in bytes using <code class="language-plaintext highlighter-rouge">std::mem::size_of_val(&amp;x)</code>. The size is 1 byte.</li>
+  <li>We get the address of <code class="language-plaintext highlighter-rouge">x</code> and the size of <code class="language-plaintext highlighter-rouge">x</code> using the <code class="language-plaintext highlighter-rouge">print_ptr_addr_size!</code> macro.</li>
+</ol>
+
+<h3 id="example-2-what-does-box-move-do">Example 2: What does Box move do?</h3>
+<p><a id="markdown-example-2%3A-what-does-box-move-do%3F" name="example-2%3A-what-does-box-move-do%3F"></a></p>
+
+<p>Add the following snippet to the <code class="language-plaintext highlighter-rouge">lib.rs</code> file next. This
+<a href="https://courses.grainger.illinois.edu/cs225/fa2022/resources/stack-heap/">link</a> provids
+lots of great diagrams on how stack and heap memory works in an operating system.</p>
+
+<div class="language-rs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// &lt;https://courses.grainger.illinois.edu/cs225/fa2022/resources/stack-heap/&gt;</span>
+<span class="nd">#[test]</span>
+<span class="nd">#[serial]</span>
+<span class="k">fn</span> <span class="nf">move_a_box</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">b_1</span> <span class="o">=</span> <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">255u8</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">b_1_addr</span> <span class="o">=</span> <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="n">b_1</span><span class="nf">.as_ref</span><span class="p">());</span> <span class="c1">// Pointee (heap)</span>
+    <span class="k">let</span> <span class="n">b_1_ptr_addr</span> <span class="o">=</span> <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b_1</span><span class="p">);</span> <span class="c1">// Pointer (stack)</span>
+
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"1. {}: {}, {} (pointee, heap): {}, {} (ptr, stack): {}"</span><span class="p">,</span>
+        <span class="s">"b_1"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">b_1</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="s">"b_1_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">b_1_addr</span><span class="nf">.clone</span><span class="p">()</span><span class="nf">.magenta</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+        <span class="s">"b_1_ptr_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">b_1_ptr_addr</span><span class="nf">.clone</span><span class="p">()</span><span class="nf">.magenta</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+    <span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">b_2</span> <span class="o">=</span> <span class="n">b_1</span><span class="p">;</span>
+    <span class="c1">// println!("{b_1:p}"); // ⛔ error: use of moved value: `b_1`</span>
+    <span class="k">let</span> <span class="n">b_2_addr</span> <span class="o">=</span> <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="n">b_2</span><span class="nf">.as_ref</span><span class="p">());</span> <span class="c1">// Pointee (heap)</span>
+    <span class="k">let</span> <span class="n">b_2_ptr_addr</span> <span class="o">=</span> <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b_2</span><span class="p">);</span> <span class="c1">// Pointer (stack)</span>
+
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"2. {}: {}, {} (pointee, heap): {}, {} (ptr, stack): {}"</span><span class="p">,</span>
+        <span class="s">"b_2"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">b_2</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="s">"b_2_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">b_2_addr</span><span class="nf">.clone</span><span class="p">()</span><span class="nf">.magenta</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+        <span class="s">"b_2_ptr_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">b_2_ptr_addr</span><span class="nf">.clone</span><span class="p">()</span><span class="nf">.magenta</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+    <span class="p">);</span>
+
+    <span class="c1">// The heap memory allocation does not change (does not move). Pointee does not move.</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">b_1_addr</span><span class="p">,</span> <span class="n">b_2_addr</span><span class="p">);</span>
+
+    <span class="c1">// The stack memory allocation does change (does move). Boxes aka pointers have move.</span>
+    <span class="nd">assert_ne!</span><span class="p">(</span><span class="n">b_1_ptr_addr</span><span class="p">,</span> <span class="n">b_2_ptr_addr</span><span class="p">);</span>
+
+    <span class="c1">// When b_2 is dropped, the heap allocation is deallocated. This is why Box is a smart pointer.</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Let’s walk through the output above:</p>
+<ol>
+  <li>We have a <code class="language-plaintext highlighter-rouge">Box</code> <code class="language-plaintext highlighter-rouge">b_1</code> that points to a heap allocation of a <code class="language-plaintext highlighter-rouge">u8</code> with a value of <code class="language-plaintext highlighter-rouge">255</code>.
+<code class="language-plaintext highlighter-rouge">b_1</code> is a variable on the stack that points to a heap allocation. We get the address
+of the pointee and the pointer using the <code class="language-plaintext highlighter-rouge">print_ptr_addr_size!</code> macro with
+<code class="language-plaintext highlighter-rouge">b_1.as_ref()</code>. And we get the address of the pointer by passing <code class="language-plaintext highlighter-rouge">&amp;b_1</code> to
+<code class="language-plaintext highlighter-rouge">print_ptr_addr_size!</code>.</li>
+  <li>We move <code class="language-plaintext highlighter-rouge">b_1</code> into <code class="language-plaintext highlighter-rouge">b_2</code>. The heap memory allocation does not change (does not move).
+The pointee does not move. But the stack memory allocation does change (does move).
+Boxes aka pointers have moved. The <code class="language-plaintext highlighter-rouge">b_1</code> variable gets dropped. We can get the address
+of the pointee using <code class="language-plaintext highlighter-rouge">print_ptr_addr_size!</code> macro with <code class="language-plaintext highlighter-rouge">b_2.as_ref()</code>. We can get the
+address of the pointer using <code class="language-plaintext highlighter-rouge">print_ptr_addr_size!</code> macro with <code class="language-plaintext highlighter-rouge">&amp;b_2</code>.</li>
+  <li>In the assertions, we check that the heap memory allocation does <strong>not</strong> change (does
+not move). And we check that the stack memory allocation <strong>does</strong> change (does move).</li>
+</ol>
+
+<h3 id="example-3-how-do-we-swap-the-contents-of-two-boxes">Example 3: How do we swap the contents of two boxes?</h3>
+<p><a id="markdown-example-3%3A-how-do-we-swap-the-contents-of-two-boxes%3F" name="example-3%3A-how-do-we-swap-the-contents-of-two-boxes%3F"></a></p>
+
+<p>Add the following snippet to the <code class="language-plaintext highlighter-rouge">lib.rs</code> file next.</p>
+
+<div class="language-rs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[test]</span>
+<span class="nd">#[serial]</span>
+<span class="k">fn</span> <span class="nf">swap_box_contents</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">b_1</span> <span class="o">=</span> <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">100u8</span><span class="p">);</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">b_2</span> <span class="o">=</span> <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">200u8</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">og_b_1_addr</span> <span class="o">=</span> <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="n">b_1</span><span class="nf">.as_ref</span><span class="p">());</span>
+    <span class="k">let</span> <span class="n">og_b_2_addr</span> <span class="o">=</span> <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="n">b_2</span><span class="nf">.as_ref</span><span class="p">());</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="o">*</span><span class="n">b_1</span><span class="p">,</span> <span class="mi">100u8</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="o">*</span><span class="n">b_2</span><span class="p">,</span> <span class="mi">200u8</span><span class="p">);</span>
+
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"1. {}: {}, {} (pointee, heap): {}, {} (ptr, stack): {}"</span><span class="p">,</span>
+        <span class="s">"b_1"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">b_1</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="s">"b_1_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">og_b_1_addr</span><span class="nf">.clone</span><span class="p">()</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+        <span class="s">"b_1_ptr_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b_1</span><span class="p">)</span>
+            <span class="nf">.clone</span><span class="p">()</span>
+            <span class="nf">.magenta</span><span class="p">()</span>
+            <span class="nf">.italic</span><span class="p">()</span>
+            <span class="nf">.on_black</span><span class="p">(),</span>
+    <span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"2. {}: {}, {} (pointee, heap): {}, {} (ptr, stack): {}"</span><span class="p">,</span>
+        <span class="s">"b_2"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">b_2</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="s">"b_2_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">og_b_2_addr</span><span class="nf">.clone</span><span class="p">()</span><span class="nf">.magenta</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+        <span class="s">"b_2_ptr_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b_2</span><span class="p">)</span>
+            <span class="nf">.clone</span><span class="p">()</span>
+            <span class="nf">.cyan</span><span class="p">()</span>
+            <span class="nf">.italic</span><span class="p">()</span>
+            <span class="nf">.on_black</span><span class="p">(),</span>
+    <span class="p">);</span>
+
+    <span class="nn">std</span><span class="p">::</span><span class="nn">mem</span><span class="p">::</span><span class="nf">swap</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">b_1</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">b_2</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="s">"Swapped b_1 and b_2"</span><span class="nf">.cyan</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">());</span>
+
+    <span class="k">let</span> <span class="n">new_b_1_addr</span> <span class="o">=</span> <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="n">b_1</span><span class="nf">.as_ref</span><span class="p">());</span>
+    <span class="k">let</span> <span class="n">new_b_2_addr</span> <span class="o">=</span> <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="n">b_2</span><span class="nf">.as_ref</span><span class="p">());</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="o">*</span><span class="n">b_1</span><span class="p">,</span> <span class="mi">200u8</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="o">*</span><span class="n">b_2</span><span class="p">,</span> <span class="mi">100u8</span><span class="p">);</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">og_b_1_addr</span><span class="p">,</span> <span class="n">new_b_2_addr</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">og_b_2_addr</span><span class="p">,</span> <span class="n">new_b_1_addr</span><span class="p">);</span>
+
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"3. {}: {}, {} (pointee, heap): {}, {} (ptr, stack): {}"</span><span class="p">,</span>
+        <span class="s">"b_1"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">b_1</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="s">"b_1_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">new_b_1_addr</span><span class="nf">.clone</span><span class="p">()</span><span class="nf">.magenta</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+        <span class="s">"b_1_ptr_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b_1</span><span class="p">)</span>
+            <span class="nf">.clone</span><span class="p">()</span>
+            <span class="nf">.magenta</span><span class="p">()</span>
+            <span class="nf">.italic</span><span class="p">()</span>
+            <span class="nf">.on_black</span><span class="p">(),</span>
+    <span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"4. {}: {}, {} (pointee, heap): {}, {} (ptr, stack): {}"</span><span class="p">,</span>
+        <span class="s">"b_2"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">b_2</span><span class="nf">.to_string</span><span class="p">()</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.underlined</span><span class="p">(),</span>
+        <span class="s">"b_2_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="n">new_b_2_addr</span><span class="nf">.clone</span><span class="p">()</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.italic</span><span class="p">()</span><span class="nf">.on_black</span><span class="p">(),</span>
+        <span class="s">"b_2_ptr_addr"</span><span class="nf">.green</span><span class="p">(),</span>
+        <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b_2</span><span class="p">)</span>
+            <span class="nf">.clone</span><span class="p">()</span>
+            <span class="nf">.cyan</span><span class="p">()</span>
+            <span class="nf">.italic</span><span class="p">()</span>
+            <span class="nf">.on_black</span><span class="p">(),</span>
+    <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here’s the output of the test above, after you run <code class="language-plaintext highlighter-rouge">cargo watch -x "test --lib -- --show-output swap"</code>.</p>
+
+<pre class="pre-manual-highlight">
+---- swap_box_contents stdout ----
+1. <span style="color:#A3BE8C">b_1</span>: <span style="color:#81A1C1"><u style="text-decoration-style:solid">100</u></span>, <span style="color:#A3BE8C">b_1_addr</span> (pointee, heap): <span style="background-color:#3B4252"><span style="color:#BF616A"><i>0x722b38000d10┆1b</i></span></span>, <span style="color:#A3BE8C">b_1_ptr_addr</span> (ptr, stack): <span style="background-color:#3B4252"><span style="color:#B48EAD"><i>0x722b3cbfdad0┆8b</i></span></span>
+2. <span style="color:#A3BE8C">b_2</span>: <span style="color:#81A1C1"><u style="text-decoration-style:solid">200</u></span>, <span style="color:#A3BE8C">b_2_addr</span> (pointee, heap): <span style="background-color:#3B4252"><span style="color:#B48EAD"><i>0x722b38001f30┆1b</i></span></span>, <span style="color:#A3BE8C">b_2_ptr_addr</span> (ptr, stack): <span style="background-color:#3B4252"><span style="color:#8FBCBB"><i>0x722b3cbfdad8┆8b</i></span></span>
+<span style="color:#8FBCBB"><u style="text-decoration-style:solid">Swapped b_1 and b_2</u></span>
+3. <span style="color:#A3BE8C">b_1</span>: <span style="color:#81A1C1"><u style="text-decoration-style:solid">200</u></span>, <span style="color:#A3BE8C">b_1_addr</span> (pointee, heap): <span style="background-color:#3B4252"><span style="color:#B48EAD"><i>0x722b38001f30┆1b</i></span></span>, <span style="color:#A3BE8C">b_1_ptr_addr</span> (ptr, stack): <span style="background-color:#3B4252"><span style="color:#B48EAD"><i>0x722b3cbfdad0┆8b</i></span></span>
+4. <span style="color:#A3BE8C">b_2</span>: <span style="color:#81A1C1"><u style="text-decoration-style:solid">100</u></span>, <span style="color:#A3BE8C">b_2_addr</span> (pointee, heap): <span style="background-color:#3B4252"><span style="color:#BF616A"><i>0x722b38000d10┆1b</i></span></span>, <span style="color:#A3BE8C">b_2_ptr_addr</span> (ptr, stack): <span style="background-color:#3B4252"><span style="color:#8FBCBB"><i>0x722b3cbfdad8┆8b</i></span></span>
+</pre>
+
+<p>Let’s walk through the output above:</p>
+<ol>
+  <li>We have two <code class="language-plaintext highlighter-rouge">Box</code>es <code class="language-plaintext highlighter-rouge">b_1</code> and <code class="language-plaintext highlighter-rouge">b_2</code> that point to heap allocations of <code class="language-plaintext highlighter-rouge">u8</code> with values
+<code class="language-plaintext highlighter-rouge">100</code> and <code class="language-plaintext highlighter-rouge">200</code> respectively. We get the address of the pointees using
+the <code class="language-plaintext highlighter-rouge">print_ptr_addr_size!</code> macro with <code class="language-plaintext highlighter-rouge">b_1.as_ref()</code> and <code class="language-plaintext highlighter-rouge">b_2.as_ref()</code>. We get the
+address of the pointers using the <code class="language-plaintext highlighter-rouge">print_ptr_addr_size!</code> macro with <code class="language-plaintext highlighter-rouge">&amp;b_1</code> and <code class="language-plaintext highlighter-rouge">&amp;b_2</code>.</li>
+  <li>We swap the contents of <code class="language-plaintext highlighter-rouge">b_1</code> and <code class="language-plaintext highlighter-rouge">b_2</code> using <code class="language-plaintext highlighter-rouge">std::mem::swap(&amp;mut b_1, &amp;mut b_2)</code>.
+The values of <code class="language-plaintext highlighter-rouge">b_1</code> and <code class="language-plaintext highlighter-rouge">b_2</code> are now <code class="language-plaintext highlighter-rouge">200</code> and <code class="language-plaintext highlighter-rouge">100</code> respectively.</li>
+  <li>We get the new addresses of the pointees using the <code class="language-plaintext highlighter-rouge">print_ptr_addr_size!</code> macro with
+<code class="language-plaintext highlighter-rouge">b_1.as_ref()</code> and <code class="language-plaintext highlighter-rouge">b_2.as_ref()</code>. We get the new addresses of the pointers using the
+<code class="language-plaintext highlighter-rouge">print_ptr_addr_size!</code> macro with <code class="language-plaintext highlighter-rouge">&amp;b_1</code> and <code class="language-plaintext highlighter-rouge">&amp;b_2</code>.</li>
+  <li>In the assertions, we check that the values of <code class="language-plaintext highlighter-rouge">b_1</code> and <code class="language-plaintext highlighter-rouge">b_2</code> are <code class="language-plaintext highlighter-rouge">200</code> and <code class="language-plaintext highlighter-rouge">100</code>
+respectively. We check that the addresses of the pointees <strong>have</strong> swapped. And we check
+that the addresses of the pointers have <strong>not</strong> swapped.</li>
+</ol>
+
+<h3 id="example-4-what-does-pining-a-box-do">Example 4: What does pining a box do?</h3>
+<p><a id="markdown-example-4%3A-what-does-pining-a-box-do%3F" name="example-4%3A-what-does-pining-a-box-do%3F"></a></p>
+
+<p>Add the following code to your <code class="language-plaintext highlighter-rouge">lib.rs</code> file.</p>
+
+<div class="language-rs highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">box_and_pin_dynamic_duo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">b_1</span> <span class="o">=</span> <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">100u8</span><span class="p">);</span>
+    <span class="c1">// Pointee.</span>
+    <span class="k">let</span> <span class="n">b_1_addr</span> <span class="o">=</span> <span class="nd">print_ptr_addr_size!</span><span class="p">(</span><span class="n">b_1</span><span class="nf">.as_ref</span><span class="p">());</span>
+
+    <span class="k">let</span> <span class="n">p_b_1</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">boxed</span><span class="p">::</span><span class="nn">Box</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">u8</span><span class="o">&gt;</span><span class="p">::</span><span class="nf">into_pin</span><span class="p">(</span><span class="n">b_1</span><span class="p">);</span>
+    <span class="c1">// Pinned.</span>
+    <span class="k">let</span> <span class="n">p_b_1_addr</span> <span class="o">=</span> <span class="nd">print_pin_addr_size!</span><span class="p">(</span><span class="n">p_b_1</span><span class="p">);</span>
+
+    <span class="k">let</span> <span class="n">b_2</span> <span class="o">=</span> <span class="n">p_b_1</span><span class="p">;</span>
+    <span class="c1">// println!("{}", p_b_1); // ⛔ error: use of moved value: `p_b_1`</span>
+
+    <span class="c1">// Pin does not move.</span>
+    <span class="k">let</span> <span class="n">b_2_addr</span> <span class="o">=</span> <span class="nd">print_pin_addr_size!</span><span class="p">(</span><span class="n">b_2</span><span class="p">);</span>
+
+    <span class="c1">// Pointee has not moved!</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">b_1_addr</span><span class="p">,</span> <span class="n">b_2_addr</span><span class="p">);</span>
+
+    <span class="c1">// Pointer has not moved!</span>
+    <span class="nf">assert_three_equal</span><span class="p">(</span><span class="o">&amp;</span><span class="n">b_1_addr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">p_b_1_addr</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b_2_addr</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>When you run the command <code class="language-plaintext highlighter-rouge">cargo watch -x "test --lib -- --show-output dynamic"</code> it doesn’t
+really produce any output.</p>
+
+<p>Let’s walk through the code above:</p>
+<ol>
+  <li>We have a <code class="language-plaintext highlighter-rouge">Box</code> <code class="language-plaintext highlighter-rouge">b_1</code> that points to a heap allocation of a <code class="language-plaintext highlighter-rouge">u8</code> with a value of <code class="language-plaintext highlighter-rouge">100</code>.
+We get the address of the pointee using the <code class="language-plaintext highlighter-rouge">print_ptr_addr_size!</code> macro with
+<code class="language-plaintext highlighter-rouge">b_1.as_ref()</code>.</li>
+  <li>We pin <code class="language-plaintext highlighter-rouge">b_1</code> into <code class="language-plaintext highlighter-rouge">p_b_1</code> using <code class="language-plaintext highlighter-rouge">std::boxed::Box::&lt;u8&gt;::into_pin(b_1)</code>. The pointee
+does not move. We get the address of the pinned pointer using the
+<code class="language-plaintext highlighter-rouge">print_pin_addr_size!</code> macro with <code class="language-plaintext highlighter-rouge">p_b_1</code>.</li>
+  <li>We move <code class="language-plaintext highlighter-rouge">p_b_1</code> into <code class="language-plaintext highlighter-rouge">b_2</code>. The pin does not move. We get the address of the pinned
+pointer using the <code class="language-plaintext highlighter-rouge">print_pin_addr_size!</code> macro with <code class="language-plaintext highlighter-rouge">b_2</code>.</li>
+  <li>In the assertions, we check that the pointee has <strong>not</strong> moved. And we check that the
+pointer has <strong>not</strong> moved.</li>
+</ol>
+
+<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><category term="TUI" /><summary type="html"><![CDATA[This tutorial is a deep dive into Rust `Pin` and `Box` types, along with concepts of ownership and borrowing. We will also cover a lot of background information on the concepts of operating system process, memory allocation and access, stack, and heap. The examples we create are designed to demonstrate the different semantics around the use of boxes and pinned boxes in Rust.]]></summary></entry><entry><title type="html">Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety</title><link href="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" rel="alternate" type="text/html" title="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety" /><published>2024-07-10T10:00:00-05:00</published><updated>2024-07-10T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio</id><content type="html" xml:base="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"><![CDATA[<p><img class="post-hero-image" src="/assets/tokio-async-cancel-safety.svg" /></p>
 
 <!-- TOC -->
 
@@ -5033,181 +5494,4 @@ server</a>.</p>
       </li>
     </ul>
   </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[Learn how to implement effective Rust polymorphism, using `dyn`, `impl`, existing traits, and trait objects for testing and extensibility, in real world projects.]]></summary></entry><entry><title type="html">Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async</title><link href="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/" rel="alternate" type="text/html" title="Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async" /><published>2024-04-21T10:00:00-05:00</published><updated>2024-04-21T10:00:00-05:00</updated><id>http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust</id><content type="html" xml:base="http://developerlife.com/2024/04/21/build-async-interactive-cli-apps-in-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/r3bl_terminal_async-hero.svg" /></p>
-
-<!-- TOC -->
-
-<ul>
-  <li><a href="#why-use-this-crate">Why use this crate</a></li>
-  <li><a href="#demo-of-this-in-action">Demo of this in action</a></li>
-  <li><a href="#example-of-using-this-crate">Example of using this crate</a></li>
-  <li><a href="#video-series-on-developerlifecom-youtube-channel-on-building-this-crate-with-naz">Video series on developerlife.com YouTube channel on building this crate with Naz</a></li>
-</ul>
-
-<!-- /TOC -->
-
-<p>The <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> library lets your CLI program be asynchronous and interactive without
-blocking the main thread. Your spawned tasks can use it to concurrently write to the display output,
-pause and resume it. You can also display of colorful animated spinners ⌛🌈 for long running tasks.
-With it, you can create beautiful, powerful, and interactive REPLs (read execute print loops) with
-ease.</p>
-
-<h2 id="why-use-this-crate">Why use this crate</h2>
-
-<p><a id="markdown-why-use-this-crate" name="why-use-this-crate"></a></p>
-
-<ul>
-  <li>Because <a href="https://doc.rust-lang.org/std/io/struct.Stdin.html#method.read_line">read_line()</a> is
-blocking. And there is no way to terminate an OS thread that is blocking in Rust. To do this you
-have to exit the process (who’s thread is blocked in <code class="language-plaintext highlighter-rouge">read_line()</code>).</li>
-  <li>Another annoyance is that when a thread is blocked in <code class="language-plaintext highlighter-rouge">read_line()</code>, and you have to display
-output to stdout concurrently, this poses some challenges.</li>
-</ul>
-
-<h2 id="demo-of-this-in-action">Demo of this in action</h2>
-
-<p><a id="markdown-demo-of-this-in-action" name="demo-of-this-in-action"></a></p>
-
-<p>Here’s a screen capture of the types of interactive REPLs that you can expect to build in Rust,
-using this crate.</p>
-
-<p><img src="https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/docs/r3bl_terminal_async_clip_ffmpeg.gif?raw=true" alt="" /></p>
-
-<p>A couple of things to note about this demo:</p>
-
-<ol>
-  <li>You can use up, down to access history in the multi-line editor.</li>
-  <li>You can use left, right, ctrl+left, ctrl+right, to jump around in the multi-line editor.</li>
-  <li>You can edit content in this multi-line editor without blocking the main thread, and while other
-tasks (started via <code class="language-plaintext highlighter-rouge">tokio::spawn</code> are concurrently producing output to the display.</li>
-  <li>You can pause the output while spinners are being displayed, and these spinners support many
-different kinds of animations!</li>
-</ol>
-
-<h2 id="example-of-using-this-crate">Example of using this crate</h2>
-
-<p><a id="markdown-example-of-using-this-crate" name="example-of-using-this-crate"></a></p>
-
-<p>There are great examples in the <code class="language-plaintext highlighter-rouge">examples</code> folder of the repo
-<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async/examples">here</a>. Let’s walk
-through a simple example of using this crate. Let’s create a new example using the following
-commands:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo new <span class="nt">--bin</span> async-cli
-<span class="nb">cd </span>async-cli
-cargo add r3bl_terminal_async
-cargo add miette <span class="nt">--features</span> fancy
-cargo add tokio <span class="nt">--features</span> full
-</code></pre></div></div>
-
-<p>Now, let’s add a <code class="language-plaintext highlighter-rouge">main.rs</code> file in the <code class="language-plaintext highlighter-rouge">src</code> folder.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="n">Duration</span><span class="p">;</span>
-
-<span class="k">use</span> <span class="nn">r3bl_terminal_async</span><span class="p">::{</span><span class="n">tracing_setup</span><span class="p">,</span> <span class="n">TerminalAsync</span><span class="p">,</span> <span class="n">TracingConfig</span><span class="p">};</span>
-<span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="n">interval</span><span class="p">;</span>
-
-<span class="nd">#[tokio::main]</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="n">maybe_terminal_async</span> <span class="o">=</span> <span class="nn">TerminalAsync</span><span class="p">::</span><span class="nf">try_new</span><span class="p">(</span><span class="s">"&gt; "</span><span class="p">)</span><span class="k">.await</span><span class="o">?</span><span class="p">;</span>
-
-    <span class="c1">// If the terminal is not fully interactive, then return early.</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">terminal_async</span> <span class="o">=</span> <span class="k">match</span> <span class="n">maybe_terminal_async</span> <span class="p">{</span>
-        <span class="nb">None</span> <span class="k">=&gt;</span> <span class="k">return</span> <span class="nf">Ok</span><span class="p">(()),</span>
-        <span class="n">_</span> <span class="k">=&gt;</span> <span class="n">maybe_terminal_async</span><span class="nf">.unwrap</span><span class="p">(),</span>
-    <span class="p">};</span>
-
-    <span class="c1">// Initialize tracing w/ the "async stdout".</span>
-    <span class="nn">tracing_setup</span><span class="p">::</span><span class="nf">init</span><span class="p">(</span><span class="nn">TracingConfig</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="nf">Some</span><span class="p">(</span>
-        <span class="n">terminal_async</span><span class="nf">.clone_shared_writer</span><span class="p">(),</span>
-    <span class="p">)))</span><span class="o">?</span><span class="p">;</span>
-
-    <span class="c1">// Start tasks.</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval_1_task</span> <span class="o">=</span> <span class="nf">interval</span><span class="p">(</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_secs</span><span class="p">(</span><span class="mi">1</span><span class="p">));</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval_2_task</span> <span class="o">=</span> <span class="nf">interval</span><span class="p">(</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_secs</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span>
-
-    <span class="n">terminal_async</span>
-        <span class="nf">.println</span><span class="p">(</span><span class="s">"Welcome to your async repl! press Ctrl+D or Ctrl+C to exit."</span><span class="p">)</span>
-        <span class="k">.await</span><span class="p">;</span>
-
-    <span class="k">loop</span> <span class="p">{</span>
-        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">interval_1_task</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="n">terminal_async</span><span class="nf">.println</span><span class="p">(</span><span class="s">"interval_1_task ticked"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-            <span class="p">},</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">interval_2_task</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="n">terminal_async</span><span class="nf">.println</span><span class="p">(</span><span class="s">"interval_1_task ticked"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-            <span class="p">},</span>
-            <span class="n">user_input</span> <span class="o">=</span> <span class="n">terminal_async</span><span class="nf">.get_readline_event</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="k">match</span> <span class="n">user_input</span> <span class="p">{</span>
-                <span class="nf">Ok</span><span class="p">(</span><span class="n">readline_event</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                    <span class="k">match</span> <span class="n">readline_event</span> <span class="p">{</span>
-                        <span class="nn">r3bl_terminal_async</span><span class="p">::</span><span class="nn">ReadlineEvent</span><span class="p">::</span><span class="n">Eof</span> <span class="k">=&gt;</span> <span class="k">break</span><span class="p">,</span>
-                        <span class="nn">r3bl_terminal_async</span><span class="p">::</span><span class="nn">ReadlineEvent</span><span class="p">::</span><span class="n">Interrupted</span> <span class="k">=&gt;</span> <span class="k">break</span><span class="p">,</span>
-                        <span class="n">_</span> <span class="k">=&gt;</span> <span class="p">(),</span>
-                    <span class="p">}</span>
-
-                    <span class="k">let</span> <span class="n">msg</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">readline_event</span><span class="p">);</span>
-                    <span class="n">terminal_async</span><span class="nf">.println</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-                <span class="p">},</span>
-                <span class="nf">Err</span><span class="p">(</span><span class="n">err</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                    <span class="k">let</span> <span class="n">msg</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"Received err: {:?}. Exiting."</span><span class="p">,</span> <span class="n">err</span><span class="p">);</span>
-                    <span class="n">terminal_async</span><span class="nf">.println</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-                    <span class="k">break</span><span class="p">;</span>
-                <span class="p">},</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="c1">// Flush all writers to stdout</span>
-    <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">terminal_async</span><span class="nf">.flush</span><span class="p">()</span><span class="k">.await</span><span class="p">;</span>
-
-    <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>You can then run this program using <code class="language-plaintext highlighter-rouge">cargo run</code>. Play with it to get a sense of the asynchronous and
-non blocking nature of the REPL. Press Ctrl+C, or Ctrl+D to exit this program.</p>
-
-<h2 id="video-series-on-developerlifecom-youtube-channel-on-building-this-crate-with-naz">Video series on developerlife.com YouTube channel on building this crate with Naz</h2>
-<p><a id="markdown-video-series-on-developerlife.com-youtube-channel-on-building-this-crate-with-naz" name="video-series-on-developerlife.com-youtube-channel-on-building-this-crate-with-naz"></a></p>
-
-<blockquote>
-  <p>If you have comments and feedback on this content, or would like to request new content
-(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
-server</a>.</p>
-</blockquote>
-
-<p>You can watch a video series on building this crate with Naz on the
-<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
-
-<p>Here’s the video that is tied to this blog post:</p>
-
-<iframe src="https://www.youtube.com/embed/X5wDVaZENOo?si=yYfXuCxSilWh4Gd5" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
-</iframe>
-
-<ul>
-  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a>
-    <ul>
-      <li><a href="https://youtu.be/6LhVx0xM86c">Part 1: Why?</a></li>
-      <li><a href="https://youtu.be/3vQJguti02I">Part 2: What?</a></li>
-      <li><a href="https://youtu.be/uxgyZzOmVIw">Part 3: Do the refactor and rename the crate</a></li>
-      <li><a href="https://www.youtube.com/watch?v=fcb6rstRniI">Part 4: Build the spinner</a></li>
-      <li><a href="https://www.youtube.com/watch?v=_QjsGDds270">Part 5: Add color gradient animation to spinner</a></li>
-      <li><a href="https://youtu.be/X5wDVaZENOo">Part 6: Publish the crate and overview</a></li>
-      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Testing playlist</a>
-        <ul>
-          <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk">Part 1: Intro</a></li>
-          <li><a href="https://www.youtube.com/watch?v=4iM9t5dgvU4">Part 2: Deep dive</a></li>
-        </ul>
-      </li>
-      <li>Playlists
-        <ul>
-          <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
-          <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
-          <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
-          <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[The r3bl_terminal_async library lets your CLI program be asynchronous and interactive without blocking the main thread. Your spawned tasks can use it to concurrently write to the display output, pause and resume it. You can also display of colorful animated spinners ⌛🌈 for long running tasks. With it, you can create beautiful, powerful, and interactive REPLs (read execute print loops) with ease.]]></summary></entry></feed>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[Learn how to implement effective Rust polymorphism, using `dyn`, `impl`, existing traits, and trait objects for testing and extensibility, in real world projects.]]></summary></entry></feed>

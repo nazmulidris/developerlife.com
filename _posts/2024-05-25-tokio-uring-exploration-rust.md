@@ -4,8 +4,8 @@ title:
 author: Nazmul Idris
 date: 2024-05-25 15:00:00+00:00
 excerpt: |
-  Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article
-  and video will show you how to use the tokio-uring do async file IO at the OS level,
+  Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article,
+  video, and repo will show you how to use the tokio-uring do async file IO at the OS level,
   and how to use it to build a simple echo TCP server, for use with netcat.
 layout: post
 categories:

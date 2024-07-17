@@ -4,8 +4,9 @@ title:
 author: Nazmul Idris
 date: 2024-05-15 15:00:00+00:00
 excerpt: |
-  Learn how to use tokio tracing and OpenTelemetry (with Jaeger) in async Rust to instrument your code and collect
-  telemetry data for observability.
+  In this article, video, and repo learn how to use tokio tracing and OpenTelemetry
+  (with Jaeger) in async Rust to instrument your code and collect telemetry data
+  for observability.
 layout: post
 categories:
   - Rust
@@ -24,6 +25,12 @@ categories:
 - [Build with Naz video series on developerlife.com YouTube channel](#build-with-naz-video-series-on-developerlifecom-youtube-channel)
 
 <!-- /TOC -->
+
+## Introduction
+
+In this article, video, and repo learn how to use tokio tracing and OpenTelemetry
+(with Jaeger) in async Rust to instrument your code and collect telemetry data
+for observability.
 
 ## Why use observability in async Rust?
 <a id="markdown-why-use-observability-in-async-rust%3F" name="why-use-observability-in-async-rust%3F"></a>

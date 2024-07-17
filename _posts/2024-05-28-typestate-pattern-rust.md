@@ -7,7 +7,7 @@ excerpt: |
   The Typestate Pattern in Rust is a way to manage objects that go through different states
   in their lifecycle. It leverages Rust's powerful type system to enforce these states and
   transitions between them, making your code safer and more predictable. Learn all about it
-  in this article and its video.
+  in this article, its video, and repo.
 layout: post
 categories:
   - Rust
@@ -26,6 +26,7 @@ categories:
   - [Example 1: Simple version of this is using enums to encapsulate states as variants](#example-1-simple-version-of-this-is-using-enums-to-encapsulate-states-as-variants)
   - [Example 2: Slightly more complex versions are where one type + data = another type](#example-2-slightly-more-complex-versions-are-where-one-type--data--another-type)
   - [Example 3: Best of both worlds, using generics and struct / enum with a marker trait](#example-3-best-of-both-worlds-using-generics-and-struct--enum-with-a-marker-trait)
+  - [Example 3.1: Using enum and PhantomData instead of struct](#example-31-using-enum-and-phantomdata-instead-of-struct)
   - [Parting thoughts](#parting-thoughts)
 - [Build with Naz video series on developerlife.com YouTube channel](#build-with-naz-video-series-on-developerlifecom-youtube-channel)
 
@@ -36,7 +37,8 @@ categories:
 
 The Typestate Pattern in Rust is a way to manage objects that go through different states
 in their lifecycle. It leverages Rust's powerful type system to enforce these states and
-transitions between them, making your code safer and more predictable.
+transitions between them, making your code safer and more predictable. Learn all about it
+in this article, its video, and repo.
 
 Here are the key ideas behind the Typestate Pattern:
 
@@ -647,6 +649,7 @@ response size: <span style="color:#81A1C1"><b>80 bytes</b></span>
 </pre>
 
 ### Example 3.1: Using enum and PhantomData instead of struct
+<a id="markdown-example-3.1%3A-using-enum-and-phantomdata-instead-of-struct" name="example-3.1%3A-using-enum-and-phantomdata-instead-of-struct"></a>
 
 - You can use enums instead of structs if you have shared data (inner) that you move with
   state transitions.

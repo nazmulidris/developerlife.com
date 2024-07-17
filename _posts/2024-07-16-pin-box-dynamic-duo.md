@@ -3,11 +3,11 @@ title: "Build with Naz : Box and Pin exploration in Rust"
 author: Nazmul Idris
 date: 2024-07-16 15:00:00+00:00
 excerpt: |
-    This tutorial is a deep dive into Rust `Pin` and `Box` types, along with concepts of
-    ownership and borrowing. We will also cover a lot of background information on the
-    concepts of operating system process, memory allocation and access, stack, and heap. The
-    examples we create are designed to demonstrate  the different semantics around the use of
-    boxes and pinned boxes in Rust.
+    This tutorial, video, and repo are a deep dive into Rust `Pin` and `Box` types, along with
+    concepts of ownership and borrowing. We will also cover a lot of background information on
+    the concepts of operating system process, memory allocation and access, stack, and heap.
+    The examples we create are designed to demonstrate  the different semantics around the use
+    of boxes and pinned boxes in Rust.
 layout: post
 categories:
   - Rust
@@ -37,11 +37,11 @@ categories:
 ## Introduction
 <a id="markdown-introduction" name="introduction"></a>
 
-This tutorial is a deep dive into Rust `Pin` and `Box` types, along with concepts of
-ownership and borrowing. We will also cover a lot of background information on the
-concepts of operating system process, memory allocation and access, stack, and heap. The
-examples we create are designed to demonstrate  the different semantics around the use of
-boxes and pinned boxes in Rust.
+This tutorial, video, and repo are a deep dive into Rust `Pin` and `Box` types, along with
+concepts of ownership and borrowing. We will also cover a lot of background information on
+the concepts of operating system process, memory allocation and access, stack, and heap.
+The examples we create are designed to demonstrate  the different semantics around the use
+of boxes and pinned boxes in Rust.
 
 ## Why do we need both Box and Pin?
 <a id="markdown-why-do-we-need-both-box-and-pin%3F" name="why-do-we-need-both-box-and-pin%3F"></a>

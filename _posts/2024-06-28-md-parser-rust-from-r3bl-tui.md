@@ -3,11 +3,11 @@ title: "Build with Naz : Markdown parser in Rust and nom from r3bl_tui"
 author: Nazmul Idris
 date: 2024-06-28 15:00:00+00:00
 excerpt: |
-  This tutorial is a deep dive in a real Markdown parser written using nom in Rust.
-  This MD Parser is part of the r3bl_tui crate, which is part of the r3bl-open-core
-  repo. It goes over the architecture of thinking about building complex parsers
-  and the nitty gritty details the runtime nature and behavior when combining
-  nom parsers.
+    This tutorial and video are a deep dive in a real Markdown parser written using nom in Rust.
+    This MD Parser is part of the r3bl_tui crate, which is part of the r3bl-open-core
+    repo. It goes over the architecture of thinking about building complex parsers
+    and the nitty gritty details the runtime nature and behavior when combining
+    nom parsers.
 layout: post
 categories:
   - Rust
@@ -32,11 +32,11 @@ categories:
 ## Introduction
 <a id="markdown-introduction" name="introduction"></a>
 
-This tutorial is a deep dive in a real Markdown parser written using nom in Rust. This MD
-Parser is part of the [`r3bl_tui`](https://crates.io/crates/r3bl_tui) crate, which is part
-of the `r3bl-open-core` repo. It goes over the architecture of thinking about building
-complex parsers and the nitty gritty details the runtime nature and behavior when
-combining nom parsers.
+This tutorial, and video are a deep dive in a real Markdown parser written using nom in
+Rust. This MD Parser is part of the [`r3bl_tui`](https://crates.io/crates/r3bl_tui) crate,
+which is part of the `r3bl-open-core` repo. It goes over the architecture of thinking
+about building complex parsers and the nitty gritty details the runtime nature and
+behavior when combining nom parsers.
 
 The [`r3bl_tui`](https://crates.io/crates/r3bl_tui) crate is a Text User Interface (TUI)
 crate that is used in the [R3BL](https://r3bl.com) suite of products. It is a very

@@ -8,8 +8,8 @@
 <meta property="og:title" content="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety" />
 <meta name="author" content="Nazmul Idris" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="This tutorial is a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them." />
-<meta property="og:description" content="This tutorial is a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them." />
+<meta name="description" content="This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing Futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them." />
+<meta property="og:description" content="This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing Futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them." />
 <link rel="canonical" href="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" />
 <meta property="og:url" content="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" />
 <meta property="og:site_name" content="developerlife.com" />
@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-07-10T10:00:00-05:00","datePublished":"2024-07-10T10:00:00-05:00","description":"This tutorial is a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them.","headline":"Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"},"url":"http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-07-10T10:00:00-05:00","datePublished":"2024-07-10T10:00:00-05:00","description":"This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing Futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them.","headline":"Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"},"url":"http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css" />
 
@@ -251,11 +251,11 @@
     
 <p><a id="markdown-introduction" name="introduction"></a></p>
 
-<p>This tutorial is a deep dive into the concept of cancellation safety in async code using
-Tokio and Rust. It affects the <code class="language-plaintext highlighter-rouge">tokio::select!</code> macro, and what happens to the racing
-<code class="language-plaintext highlighter-rouge">Future</code>s that don’t win. The examples provided here, along with the video, will go over
-both code that is is cancellation safe and code that is not. These examples reflect
-real-world patterns, and are a generalized form of them.</p>
+<p>This tutorial, video, and repo are a deep dive into the concept of cancellation safety in
+async code using Tokio and Rust. It affects the <code class="language-plaintext highlighter-rouge">tokio::select!</code> macro, and what happens
+to the racing <code class="language-plaintext highlighter-rouge">Future</code>s that don’t win. The examples provided here, along with the video,
+will go over both code that is is cancellation safe and code that is not. These examples
+reflect real-world patterns, and are a generalized form of them.</p>
 
 <p><code class="language-plaintext highlighter-rouge">tokio::select!</code> might as well have been called <code class="language-plaintext highlighter-rouge">tokio::race!</code> (there’s a <a href="https://en.wikipedia.org/wiki/The_Fast_and_the_Furious:_Tokyo_Drift">The Fast and
 Furious : Tokyo

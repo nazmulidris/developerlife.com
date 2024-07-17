@@ -4,10 +4,10 @@ title:
 author: Nazmul Idris
 date: 2024-05-19 15:00:00+00:00
 excerpt: |
-  Learn effective async Rust using real world patterns that show up consistently when creating
-  non blocking, async, event loops, using channels. Delve into implementing the Future trait and
-  async executor manually. Also explore graceful shutdown, when not to use
-  async, and how to think about testing async code.
+    In this article, video, and repo learn effective async Rust using real world patterns that
+    show up consistently when creating non blocking, async, event loops, using channels. Delve
+    into implementing the Future trait and async executor manually. Also explore graceful
+    shutdown, when not to use async, and how to think about testing async code.
 layout: post
 categories:
   - Rust
@@ -19,6 +19,7 @@ categories:
 
 <!-- TOC -->
 
+- [Introduction](#introduction)
 - [What is async Rust? Sequential vs concurrent code & parallelism as a resource](#what-is-async-rust-sequential-vs-concurrent-code--parallelism-as-a-resource)
 - [What async Rust is not](#what-async-rust-is-not)
 - [YouTube video for this article](#youtube-video-for-this-article)
@@ -33,6 +34,14 @@ categories:
 - [Build with Naz video series on developerlife.com YouTube channel](#build-with-naz-video-series-on-developerlifecom-youtube-channel)
 
 <!-- /TOC -->
+
+## Introduction
+<a id="markdown-introduction" name="introduction"></a>
+
+In this article, video, and repo learn effective async Rust using real world patterns that
+show up consistently when creating non blocking, async, event loops, using channels. Delve
+into implementing the Future trait and async executor manually. Also explore graceful
+shutdown, when not to use async, and how to think about testing async code.
 
 ## What is async Rust? Sequential vs concurrent code & parallelism as a resource
 <a id="markdown-what-is-async-rust%3F-sequential-vs-concurrent-code-%26-parallelism-as-a-resource" name="what-is-async-rust%3F-sequential-vs-concurrent-code-%26-parallelism-as-a-resource"></a>

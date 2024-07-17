@@ -3,11 +3,11 @@ title: "Build with Naz : Rust async in practice tokio::select!, actor pattern & 
 author: Nazmul Idris
 date: 2024-07-10 15:00:00+00:00
 excerpt: |
-  This tutorial is a deep dive into the concept of cancellation safety in async code using
-  Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing
-  futures that don't win. The examples provided here, along with the video, will go over
-  both code that is is cancellation safe and code that is not. These examples reflect
-  real-world patterns, and are a generalized form of them.
+    This tutorial, video, and repo are a deep dive into the concept of cancellation safety in
+    async code using Tokio and Rust. It affects the `tokio::select!` macro, and what happens
+    to the racing `Future`s that don't win. The examples provided here, along with the video,
+    will go over both code that is is cancellation safe and code that is not. These examples
+    reflect real-world patterns, and are a generalized form of them.
 layout: post
 categories:
   - Rust
@@ -35,11 +35,11 @@ categories:
 ## Introduction
 <a id="markdown-introduction" name="introduction"></a>
 
-This tutorial is a deep dive into the concept of cancellation safety in async code using
-Tokio and Rust. It affects the `tokio::select!` macro, and what happens to the racing
-`Future`s that don't win. The examples provided here, along with the video, will go over
-both code that is is cancellation safe and code that is not. These examples reflect
-real-world patterns, and are a generalized form of them.
+This tutorial, video, and repo are a deep dive into the concept of cancellation safety in
+async code using Tokio and Rust. It affects the `tokio::select!` macro, and what happens
+to the racing `Future`s that don't win. The examples provided here, along with the video,
+will go over both code that is is cancellation safe and code that is not. These examples
+reflect real-world patterns, and are a generalized form of them.
 
 `tokio::select!` might as well have been called `tokio::race!` (there's a [The Fast and
 Furious : Tokyo

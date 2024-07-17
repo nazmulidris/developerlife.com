@@ -5,8 +5,8 @@ date: 2024-06-10 15:00:00+00:00
 excerpt: |
   miette is an excellent crate that can make error handling in Rust powerful, flexible,
   and easy to use. It provides a way to create custom error types, add context to errors,
-  and display errors in a user-friendly way. In this article, we'll explore how to use
-  miette to improve error handling in your Rust applications.
+  and display errors in a user-friendly way. In this article, video, and repo, we'll
+  explore how to use miette to improve error handling in your Rust applications.
 layout: post
 categories:
   - Rust
@@ -18,6 +18,7 @@ categories:
 
 <!-- TOC -->
 
+- [Introduction](#introduction)
 - [Rust error handling primer](#rust-error-handling-primer)
 - [More resources on Rust error handling](#more-resources-on-rust-error-handling)
 - [YouTube video for this article](#youtube-video-for-this-article)
@@ -28,6 +29,14 @@ categories:
 - [Build with Naz video series on developerlife.com YouTube channel](#build-with-naz-video-series-on-developerlifecom-youtube-channel)
 
 <!-- /TOC -->
+
+## Introduction
+<a id="markdown-introduction" name="introduction"></a>
+
+miette is an excellent crate that can make error handling in Rust powerful, flexible,
+and easy to use. It provides a way to create custom error types, add context to errors,
+and display errors in a user-friendly way. In this article, video, and repo, we'll
+explore how to use miette to improve error handling in your Rust applications.
 
 ## Rust error handling primer
 <a id="markdown-rust-error-handling-primer" name="rust-error-handling-primer"></a>

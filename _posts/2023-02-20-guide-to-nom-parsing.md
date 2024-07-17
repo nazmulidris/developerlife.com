@@ -4,10 +4,11 @@ author: Nazmul Idris
 date: 2023-02-20 15:00:00+00:00
 update: 2024-06-19 15:00:00+00:00
 excerpt: |
-  This tutorial is a comprehensive guide to parsing with nom. It covers the basics of parsing and
-  how to use nom to parse a string into a data structure. It also covers more complex topics like
-  human readable error reporting, and building up complex parsers. We will cover a variety of different
-  examples ranging from parsing simple CSS like syntax to a full blown Markdown parser.
+    This tutorial and video are a comprehensive guide to parsing with nom. We cover the basics
+    of parsing and how to use nom to parse a string into a data structure. And more complex
+    topics like human readable error reporting, and building up complex parsers. We will
+    create a variety of different examples ranging from parsing simple CSS like syntax to a
+    full blown Markdown parser.
 layout: post
 categories:
   - Rust
@@ -43,10 +44,11 @@ categories:
 ## Introduction
 <a id="markdown-introduction" name="introduction"></a>
 
-This tutorial is a comprehensive guide to parsing with nom. It covers the basics of parsing and
-how to use nom to parse a string into a data structure. It also covers more complex topics like
-human readable error reporting, and building up complex parsers. We will cover a variety of different
-examples ranging from parsing simple CSS like syntax to a full blown Markdown parser.
+This tutorial and video are a comprehensive guide to parsing with nom. We cover the basics
+of parsing and how to use nom to parse a string into a data structure. And more complex
+topics like human readable error reporting, and building up complex parsers. We will
+create a variety of different examples ranging from parsing simple CSS like syntax to a
+full blown Markdown parser.
 
 > For more information on general Rust type system design (functional approach rather than
 > object oriented), please take a look at this [paper](https://arxiv.org/pdf/2307.07069.pdf)

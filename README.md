@@ -32,7 +32,10 @@ Here are the instructions.
 2) Commit the changes to the `docs` folder. And push to `main`.
 3) If you want to run the changes locally, you can run `npm install -g serve && serve
    docs` and open `http://localhost:3000` in your browser. There is no need to use
-   `webrick` and `bundle exec jekyll serve` anymore.
+   `webrick` and `bundle exec jekyll serve` anymore. You can also do the following
+   in 2 terminals (eg in VSCode):
+   1. Run `watch-build.fish` to rebuild the site every 30 sec
+   2. Run `serve docs/` to serve the site on `http://localhost:3000`
 
 # I don't have Jekyll and Ruby installed
 

@@ -64,32 +64,15 @@ function main
     bundle install
     bundle update
 
-    if test -d _site/
-        rm -rf _site/
-    end
-
-    if test -d docs/
-        rm -rf docs/
-    end
-
-    echo "Build the site."
-    # Generate the site (in the _site/ folder)
-    bundle exec jekyll build
-
-    # Move _site folder to docs/ folder
-    mv _site/ docs/
-
-    # Copy CNAME file to docs/ folder.
-    cp CNAME docs/
-
     if _promptUserForConfirmation "Do you want to run the local dev server"
         npm install -g serve
-        serve docs/
+        ./build-site.fish
+        killall -9 node # Kill all the node processes (serve runs on node)
+        serve docs/ & # Run serve in the background, allows `./watch-build.fish` to run in a loop
     else
         echo "Ok, bye!"
         return
     end
-
 
     # Run the local dev server (this will hardcode all the links to be localhost:4000)
     # bundle exec jekyll serve

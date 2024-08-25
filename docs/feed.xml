@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-08-24T18:59:19-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Explore Linux TTY, process, signals w/ Rust</title><link href="http://developerlife.com/2024/08/20/tty-linux-async-rust/" rel="alternate" type="text/html" title="Build with Naz : Explore Linux TTY, process, signals w/ Rust" /><published>2024-08-20T10:00:00-05:00</published><updated>2024-08-20T10:00:00-05:00</updated><id>http://developerlife.com/2024/08/20/tty-linux-async-rust</id><content type="html" xml:base="http://developerlife.com/2024/08/20/tty-linux-async-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/linux-tty-proc-async-rust.svg" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-08-24T23:08:50-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Explore Linux TTY, process, signals w/ Rust</title><link href="http://developerlife.com/2024/08/20/tty-linux-async-rust/" rel="alternate" type="text/html" title="Build with Naz : Explore Linux TTY, process, signals w/ Rust" /><published>2024-08-20T10:00:00-05:00</published><updated>2024-08-20T10:00:00-05:00</updated><id>http://developerlife.com/2024/08/20/tty-linux-async-rust</id><content type="html" xml:base="http://developerlife.com/2024/08/20/tty-linux-async-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/linux-tty-proc-async-rust.svg" /></p>
 
 <!-- TOC -->
 
@@ -521,7 +521,7 @@ you do this? This is where subshells come into play. If you’re using <code cla
 running <code class="language-plaintext highlighter-rouge">fish -c</code> with whatever is typed in between <code class="language-plaintext highlighter-rouge">""</code>.</p>
 
 <h5 id="how-do-subshells-work-in-the-case-where-i-dont-the-shells-environment-to-be-affected-at-all">How do subshells work, in the case where I don’t the shell’s environment to be affected at all?</h5>
-<p><a id="markdown-how-do-subshells-work%2C-in-the-case-where-i-don't-the-shell's-environment-to-be-affected-at-all%3F" name="how-do-subshells-work%2C-in-the-case-where-i-don't-the-shell's-environment-to-be-affected-at-all%3F"></a></p>
+<p><a id="markdown-how-do-subshells-work%2C-in-the-case-where-i-don%E2%80%99t-the-shell%E2%80%99s-environment-to-be-affected-at-all%3F" name="how-do-subshells-work%2C-in-the-case-where-i-don%E2%80%99t-the-shell%E2%80%99s-environment-to-be-affected-at-all%3F"></a></p>
 
 <p>In a Linux shell, a subshell is a separate instance of the shell that is spawned to execute a
 command or a group of commands. When a user types a command to execute, the shell creates a subshell
@@ -979,16 +979,16 @@ them.</p>
 
 <ul>
   <li><code class="language-plaintext highlighter-rouge">tokio::signal::ctrl_c</code> is a utility function that creates a future that completes
-when <code class="language-plaintext highlighter-rouge">ctrl-c</code> is pressed. There is no need to write a signal stream for this like
+when <code class="language-plaintext highlighter-rouge">ctrl-c</code> is pressed. There is <strong>NO</strong> need to write a signal stream for this like
 so:
-    <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="k">mut</span> <span class="n">stream_sigterm</span> <span class="o">=</span>
-    <span class="nn">tokio</span><span class="p">::</span><span class="nn">signal</span><span class="p">::</span><span class="nn">unix</span><span class="p">::</span><span class="nf">signal</span><span class="p">(</span>
-        <span class="nn">tokio</span><span class="p">::</span><span class="nn">signal</span><span class="p">::</span><span class="nn">unix</span><span class="p">::</span><span class="nn">SignalKind</span><span class="p">::</span><span class="nf">terminate</span><span class="p">())</span>
+    <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="n">signal</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">signal</span><span class="p">::</span><span class="nn">unix</span><span class="p">::</span><span class="nn">SignalKind</span><span class="p">::</span><span class="nf">interrupt</span><span class="p">();</span>
+<span class="k">let</span> <span class="k">mut</span> <span class="n">stream_sigterm</span> <span class="o">=</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nn">signal</span><span class="p">::</span><span class="nn">unix</span><span class="p">::</span><span class="nf">signal</span><span class="p">(</span><span class="n">signal</span><span class="p">)</span>
         <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
 <span class="k">loop</span> <span class="p">{</span>
     <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
         <span class="n">_</span> <span class="o">=</span> <span class="n">stream_sigterm</span><span class="nf">.recv</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
-            <span class="nd">println!</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">SIGTERM received"</span><span class="p">);</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">SIGINT received"</span><span class="p">);</span>
             <span class="k">break</span><span class="p">;</span>
         <span class="p">}</span>
     <span class="p">}</span>

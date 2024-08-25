@@ -64,9 +64,10 @@ function main
     bundle install
     bundle update
 
+    ./build-site.fish
+
     if _promptUserForConfirmation "Do you want to run the local dev server"
         npm install -g serve
-        ./build-site.fish
         killall -9 node # Kill all the node processes (serve runs on node)
         serve docs/ & # Run serve in the background, allows `./watch-build.fish` to run in a loop
     else

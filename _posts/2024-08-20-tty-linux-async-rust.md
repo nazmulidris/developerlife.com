@@ -43,7 +43,7 @@ categories:
       - [What is the relationship between linux shells, subshells, and fork, exec, and wait patterns?](#what-is-the-relationship-between-linux-shells-subshells-and-fork-exec-and-wait-patterns)
       - [Does exec change the current working directory or affect environment variables in the parent?](#does-exec-change-the-current-working-directory-or-affect-environment-variables-in-the-parent)
       - [Then how does the cd command change the current working directory of a shell?](#then-how-does-the-cd-command-change-the-current-working-directory-of-a-shell)
-      - [How do subshells work, in the case where I don't the shell's environment to be affected at all?](#how-do-subshells-work-in-the-case-where-i-dont-the-shells-environment-to-be-affected-at-all)
+      - [How do subshells work, in the case where I don’t the shell’s environment to be affected at all?](#how-do-subshells-work-in-the-case-where-i-dont-the-shells-environment-to-be-affected-at-all)
       - [Deep dive of all this information in video format](#deep-dive-of-all-this-information-in-video-format)
     - [Processes, sessions, jobs, PTYs, signals using C](#processes-sessions-jobs-ptys-signals-using-c)
 - [What is /dev/tty?](#what-is-devtty)
@@ -493,7 +493,7 @@ you do this? This is where subshells come into play. If you're using `fish`, the
 running `fish -c` with whatever is typed in between `""`.
 
 ##### How do subshells work, in the case where I don't the shell's environment to be affected at all?
-<a id="markdown-how-do-subshells-work%2C-in-the-case-where-i-don't-the-shell's-environment-to-be-affected-at-all%3F" name="how-do-subshells-work%2C-in-the-case-where-i-don't-the-shell's-environment-to-be-affected-at-all%3F"></a>
+<a id="markdown-how-do-subshells-work%2C-in-the-case-where-i-don%E2%80%99t-the-shell%E2%80%99s-environment-to-be-affected-at-all%3F" name="how-do-subshells-work%2C-in-the-case-where-i-don%E2%80%99t-the-shell%E2%80%99s-environment-to-be-affected-at-all%3F"></a>
 
 In a Linux shell, a subshell is a separate instance of the shell that is spawned to execute a
 command or a group of commands. When a user types a command to execute, the shell creates a subshell
@@ -861,17 +861,17 @@ async fn main() -> miette::Result<()> {
 Here are some notes on the code:
 
 - `tokio::signal::ctrl_c` is a utility function that creates a future that completes
-  when `ctrl-c` is pressed. There is no need to write a signal stream for this like
+  when `ctrl-c` is pressed. There is **NO** need to write a signal stream for this like
   so:
   ```rust
+  let signal = tokio::signal::unix::SignalKind::interrupt();
   let mut stream_sigterm =
-      tokio::signal::unix::signal(
-          tokio::signal::unix::SignalKind::terminate())
+      tokio::signal::unix::signal(signal)
           .into_diagnostic()?;
   loop {
       tokio::select! {
           _ = stream_sigterm.recv() => {
-              println!("\nSIGTERM received");
+              println!("\nSIGINT received");
               break;
           }
       }

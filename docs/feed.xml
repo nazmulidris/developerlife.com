@@ -1,4 +1,963 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-08-26T13:50:37-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Explore Linux TTY, process, signals w/ Rust</title><link href="http://developerlife.com/2024/08/20/tty-linux-async-rust/" rel="alternate" type="text/html" title="Build with Naz : Explore Linux TTY, process, signals w/ Rust" /><published>2024-08-20T10:00:00-05:00</published><updated>2024-08-20T10:00:00-05:00</updated><id>http://developerlife.com/2024/08/20/tty-linux-async-rust</id><content type="html" xml:base="http://developerlife.com/2024/08/20/tty-linux-async-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/linux-tty-proc-async-rust.svg" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.3">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2024-09-02T16:40:16-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Rust lifetimes</title><link href="http://developerlife.com/2024/09/02/rust-lifetimes/" rel="alternate" type="text/html" title="Build with Naz : Rust lifetimes" /><published>2024-09-02T00:00:00-05:00</published><updated>2024-09-02T00:00:00-05:00</updated><id>http://developerlife.com/2024/09/02/rust-lifetimes</id><content type="html" xml:base="http://developerlife.com/2024/09/02/rust-lifetimes/"><![CDATA[<p><img class="post-hero-image" src="/assets/lifetimes.svg" /></p>
+
+<!-- TOC -->
+
+<ul>
+  <li><a href="#what-is-subtyping-and-variance">What is subtyping and variance?</a>
+    <ul>
+      <li><a href="#subtyping">Subtyping</a></li>
+      <li><a href="#variance">Variance</a></li>
+    </ul>
+  </li>
+  <li><a href="#more-resources-on-rust-lifetimes">More resources on Rust lifetimes</a></li>
+  <li><a href="#youtube-videos-for-this-article">YouTube videos for this article</a></li>
+  <li><a href="#learn-rust-lifetimes-by-example">Learn Rust lifetimes by example</a>
+    <ul>
+      <li><a href="#example-1-references">Example 1: References</a></li>
+      <li><a href="#example-2-aliasing">Example 2: Aliasing</a></li>
+      <li><a href="#example-3-lifetimes">Example 3: Lifetimes</a></li>
+      <li><a href="#example-4-input-slices">Example 4: Input slices</a></li>
+      <li><a href="#example-5-splitting-borrows-on-structs">Example 5: Splitting borrows on structs</a></li>
+      <li><a href="#example-6-clone-on-write-cow">Example 6: Clone on write Cow</a></li>
+      <li><a href="#example-7-subtyping-and-variance">Example 7: Subtyping and variance</a></li>
+    </ul>
+  </li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- /TOC -->
+
+<h2 id="what-is-subtyping-and-variance">What is subtyping and variance?</h2>
+<p><a id="markdown-what-is-subtyping-and-variance%3F" name="what-is-subtyping-and-variance%3F"></a></p>
+
+<p>Subtyping and variance are important concepts in Rust’s algebraic type system. They allow
+us to express relationships between types, and equivalence without using inheritance. Rust
+also includes lifetimes in the type definitions themselves! So they become an integral
+part of the a type.</p>
+
+<h3 id="subtyping">Subtyping</h3>
+<p><a id="markdown-subtyping" name="subtyping"></a></p>
+
+<p>In Rust, subtyping refers to the relationship between two types where one type can be used
+in place of the other.</p>
+
+<ol>
+  <li>This means that if a type <code class="language-plaintext highlighter-rouge">Sub</code> is a subtype of type <code class="language-plaintext highlighter-rouge">Super</code>, then any code that
+expects a <code class="language-plaintext highlighter-rouge">Super</code> can also accept an <code class="language-plaintext highlighter-rouge">Sub</code>. They are equivalent.</li>
+  <li>Just like inheritance, the opposite is not true. Any code expecting a <code class="language-plaintext highlighter-rouge">Sub</code> cannot
+accept a <code class="language-plaintext highlighter-rouge">Super</code>. They are not equivalent.</li>
+</ol>
+
+<p>Consider the following code snippet:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Display</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">Cat</span> <span class="p">{</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+    <span class="n">breed</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Display</span> <span class="k">for</span> <span class="n">Cat</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">fmt</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Formatter</span><span class="o">&lt;</span><span class="nv">'_</span><span class="o">&gt;</span><span class="p">)</span>
+    <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="nb">Result</span>
+    <span class="p">{</span>
+        <span class="nd">write!</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s">"Cat: {} ({})"</span><span class="p">,</span> <span class="k">self</span><span class="py">.name</span><span class="p">,</span> <span class="k">self</span><span class="py">.breed</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">struct</span> <span class="n">Dog</span> <span class="p">{</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+    <span class="n">breed</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Display</span> <span class="k">for</span> <span class="n">Dog</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">fmt</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">f</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Formatter</span><span class="o">&lt;</span><span class="nv">'_</span><span class="o">&gt;</span><span class="p">)</span>
+    <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="nb">Result</span>
+    <span class="p">{</span>
+        <span class="nd">write!</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="s">"Dog: {} ({})"</span><span class="p">,</span> <span class="k">self</span><span class="py">.name</span><span class="p">,</span> <span class="k">self</span><span class="py">.breed</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cd">/// Since Display is a trait bound in the print_animal function,</span>
+<span class="cd">/// both &amp;Cat and &amp;Dog can be used as arguments because they are</span>
+<span class="cd">/// both subtypes of &amp;dyn Display.</span>
+<span class="k">fn</span> <span class="n">print_animal</span><span class="o">&lt;</span><span class="n">T</span><span class="p">:</span> <span class="n">Display</span><span class="o">&gt;</span><span class="p">(</span><span class="n">animal</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">T</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">animal</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">cat</span> <span class="o">=</span> <span class="n">Cat</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="s">"Sparky"</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="n">breed</span><span class="p">:</span> <span class="s">"Siamese"</span><span class="nf">.to_string</span><span class="p">()</span> <span class="p">};</span>
+    <span class="k">let</span> <span class="n">dog</span> <span class="o">=</span> <span class="n">Dog</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="s">"Buddy"</span><span class="nf">.to_string</span><span class="p">(),</span>
+        <span class="n">breed</span><span class="p">:</span> <span class="s">"Golden Retriever"</span><span class="nf">.to_string</span><span class="p">()</span> <span class="p">};</span>
+
+    <span class="nf">print_animal</span><span class="p">(</span><span class="o">&amp;</span><span class="n">cat</span><span class="p">);</span> <span class="c1">// Prints "Cat: Sparky (Siamese)"</span>
+    <span class="nf">print_animal</span><span class="p">(</span><span class="o">&amp;</span><span class="n">dog</span><span class="p">);</span> <span class="c1">// Prints "Dog: Buddy (Golden Retriever)"</span>
+
+    <span class="k">let</span> <span class="n">animals</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="k">dyn</span> <span class="n">Display</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[</span><span class="o">&amp;</span><span class="n">cat</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">dog</span><span class="p">];</span>
+    <span class="k">for</span> <span class="n">animal</span> <span class="k">in</span> <span class="n">animals</span> <span class="p">{</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">animal</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>In this example:</p>
+
+<ul>
+  <li>In the function <code class="language-plaintext highlighter-rouge">print_animal&lt;T&gt;(animal: &amp;T)</code>, the super type of <code class="language-plaintext highlighter-rouge">T</code> is <code class="language-plaintext highlighter-rouge">Display</code>. This
+means that this function accepts any type that implements the <code class="language-plaintext highlighter-rouge">Display</code> trait.</li>
+  <li>So, we can pass both <code class="language-plaintext highlighter-rouge">&amp;Cat</code> and <code class="language-plaintext highlighter-rouge">&amp;Dog</code> to the <code class="language-plaintext highlighter-rouge">print_animal()</code> function. Since both
+<code class="language-plaintext highlighter-rouge">Cat</code> and <code class="language-plaintext highlighter-rouge">Dog</code> implement the <code class="language-plaintext highlighter-rouge">Display</code> trait.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">animals</code> vector can hold references to any type that implements the <code class="language-plaintext highlighter-rouge">Display</code>
+trait, so we can store both <code class="language-plaintext highlighter-rouge">Cat</code> and <code class="language-plaintext highlighter-rouge">Dog</code> instances in it.
+    <ul>
+      <li>We use <code class="language-plaintext highlighter-rouge">&amp;dyn Display</code> as the type since we want to use <a href="https://doc.rust-lang.org/stable/book/ch17-02-trait-objects.html#using-trait-objects-that-allow-for-values-of-different-types">trait
+objects</a>.</li>
+      <li>And we can’t use <code class="language-plaintext highlighter-rouge">&amp;impl Animal</code> since <a href="https://doc.rust-lang.org/stable/book/ch10-02-traits.html#clearer-trait-bounds-with-where-clauses">this
+syntax</a>
+expects only a single type.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>A real world example of this is the <code class="language-plaintext highlighter-rouge">Copy</code> and <code class="language-plaintext highlighter-rouge">Clone</code> traits:</p>
+
+<ul>
+  <li><a href="https://doc.rust-lang.org/1.80.1/src/core/marker.rs.html#403">https://doc.rust-lang.org/1.80.1/src/core/marker.rs.html#403</a></li>
+  <li>A type that is <code class="language-plaintext highlighter-rouge">Copy</code> is also <code class="language-plaintext highlighter-rouge">Clone</code>.</li>
+  <li>But a type that is <code class="language-plaintext highlighter-rouge">Clone</code> is not necessarily <code class="language-plaintext highlighter-rouge">Copy</code>.</li>
+</ul>
+
+<h3 id="variance">Variance</h3>
+<p><a id="markdown-variance" name="variance"></a></p>
+
+<p>In Rust, variance describes how subtyping relationships are preserved when dealing with
+<strong>generic</strong> types. Lifetime annotations are part of the generics system. There are three
+types of variance:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Covariance</code>: A generic type <code class="language-plaintext highlighter-rouge">T</code> is covariant if, when <code class="language-plaintext highlighter-rouge">Sub</code> is a subtype of <code class="language-plaintext highlighter-rouge">Super</code>,
+<code class="language-plaintext highlighter-rouge">T&lt;Sub&gt;</code> is also a subtype of <code class="language-plaintext highlighter-rouge">T&lt;Super&gt;</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">Invariance</code>: A generic type <code class="language-plaintext highlighter-rouge">T</code> is invariant if there is <strong>no</strong> subtyping relationship
+ between <code class="language-plaintext highlighter-rouge">T&lt;Sub&gt;</code> and <code class="language-plaintext highlighter-rouge">T&lt;Super&gt;</code> when <code class="language-plaintext highlighter-rouge">Sub</code> is a subtype of <code class="language-plaintext highlighter-rouge">Super</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">Contravariance</code>: A generic type <code class="language-plaintext highlighter-rouge">T</code> is contravariant if, when <code class="language-plaintext highlighter-rouge">Sub</code> is a subtype of <code class="language-plaintext highlighter-rouge">Super</code>,
+<code class="language-plaintext highlighter-rouge">T&lt;Super&gt;</code> is a subtype of <code class="language-plaintext highlighter-rouge">T&lt;Sub&gt;</code>.</li>
+</ul>
+
+<p>Here are some examples:</p>
+
+<ul>
+  <li><strong>Covariance:</strong> The <code class="language-plaintext highlighter-rouge">&amp;T</code> type is covariant. This means that if <code class="language-plaintext highlighter-rouge">Sub</code> is a subtype of
+<code class="language-plaintext highlighter-rouge">Super</code>, then <code class="language-plaintext highlighter-rouge">&amp;Sub</code> is a subtype of <code class="language-plaintext highlighter-rouge">&amp;Super</code>. This is useful for references. In the
+code, <code class="language-plaintext highlighter-rouge">Cat</code> and <code class="language-plaintext highlighter-rouge">Dog</code> both implement the <code class="language-plaintext highlighter-rouge">Display</code> trait. Since <code class="language-plaintext highlighter-rouge">Display</code> is a trait
+bound in the <code class="language-plaintext highlighter-rouge">print_animal</code> function, both <code class="language-plaintext highlighter-rouge">&amp;Cat</code> and <code class="language-plaintext highlighter-rouge">&amp;Dog</code> can be used as arguments
+because they are both subtypes of <code class="language-plaintext highlighter-rouge">&amp;dyn Display</code>.</li>
+  <li><strong>Invariance:</strong> The <code class="language-plaintext highlighter-rouge">&amp;mut T</code> type is invariant. This means that if <code class="language-plaintext highlighter-rouge">Sub</code> is a subtype of
+<code class="language-plaintext highlighter-rouge">Super</code>, there is no subtyping relationship between <code class="language-plaintext highlighter-rouge">&amp;mut Sub</code> and <code class="language-plaintext highlighter-rouge">&amp;mut Super</code>. Also,
+the <code class="language-plaintext highlighter-rouge">UnsafeCell&lt;T&gt;</code> type is invariant. This means that there is no subtyping
+relationship between <code class="language-plaintext highlighter-rouge">UnsafeCell&lt;Sub&gt;</code> and <code class="language-plaintext highlighter-rouge">UnsafeCell&lt;Super&gt;</code> when <code class="language-plaintext highlighter-rouge">Sub</code> is a subtype
+of <code class="language-plaintext highlighter-rouge">Super</code>. This is because <code class="language-plaintext highlighter-rouge">UnsafeCell</code> is used to bypass Rust’s safety checks, so it
+must be invariant. Both <code class="language-plaintext highlighter-rouge">&amp;mut T</code> and <code class="language-plaintext highlighter-rouge">UnsafeCell&lt;T&gt;</code> are invariant in Rust because they
+are related to unsafe operations or mutable references, which require stricter type
+constraints to ensure safety.</li>
+  <li><strong>Contravariance:</strong> The <code class="language-plaintext highlighter-rouge">Fn(T)</code> type is contravariant. This means that if <code class="language-plaintext highlighter-rouge">Sub</code> is a
+subtype of <code class="language-plaintext highlighter-rouge">Super</code>, then <code class="language-plaintext highlighter-rouge">Fn(Super)</code> is a subtype of <code class="language-plaintext highlighter-rouge">Fn(Sub)</code>. This is useful for
+functions that take a callback as an argument.</li>
+</ul>
+
+<p>Here is a table of some other generic types and their variances:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th style="text-align: center">‘a</th>
+      <th style="text-align: center">T</th>
+      <th style="text-align: center">U</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&amp;'a T </code></td>
+      <td style="text-align: center">covariant</td>
+      <td style="text-align: center">covariant</td>
+      <td style="text-align: center"> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">&amp;'a mut T</code></td>
+      <td style="text-align: center">covariant</td>
+      <td style="text-align: center">invariant</td>
+      <td style="text-align: center"> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Box&lt;T&gt;</code></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">covariant</td>
+      <td style="text-align: center"> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Vec&lt;T&gt;</code></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">covariant</td>
+      <td style="text-align: center"> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">UnsafeCell&lt;T&gt;</code></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">invariant</td>
+      <td style="text-align: center"> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">Cell&lt;T&gt;</code></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">invariant</td>
+      <td style="text-align: center"> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">fn(T) -&gt; U</code></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center"><strong>contra</strong>variant</td>
+      <td style="text-align: center">covariant</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">*const T</code></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">covariant</td>
+      <td style="text-align: center"> </td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">*mut T</code></td>
+      <td style="text-align: center"> </td>
+      <td style="text-align: center">invariant</td>
+      <td style="text-align: center"> </td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>This table is from <a href="https://doc.rust-lang.org/nomicon/subtyping.html#variance">Rustonomicon -
+Variance</a>.</p>
+</blockquote>
+
+<h2 id="more-resources-on-rust-lifetimes">More resources on Rust lifetimes</h2>
+<p><a id="markdown-more-resources-on-rust-lifetimes" name="more-resources-on-rust-lifetimes"></a></p>
+
+<ul>
+  <li><a href="https://doc.rust-lang.org/nomicon/subtyping.html">Rustonomicon - Subtyping and variance with lifetimes</a>.</li>
+  <li><a href="https://rustc-dev-guide.rust-lang.org/variance.html">Rust compiler - Subtyping and variance implementation in the compiler</a>.</li>
+  <li><a href="https://doc.rust-lang.org/nomicon/ownership.html">Rustonomicon - Ownership</a>.</li>
+</ul>
+
+<h2 id="youtube-videos-for-this-article">YouTube videos for this article</h2>
+<p><a id="markdown-youtube-videos-for-this-article" name="youtube-videos-for-this-article"></a></p>
+
+<p>This article has short examples on how to get to know Rust lifetimes deeply. If you like
+to learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
+channel</a>.</p>
+
+<!-- rust subtyping and variance -->
+<iframe src="https://www.youtube.com/embed/HRlpYXi4E-M?si=cSc_Ew5RHQ-ffFWJ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<!-- rust lifetimes -->
+<iframe src="https://www.youtube.com/embed/eIJxAEcle7E?si=4Wn3X2mT7Pd8uvGx" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<p><br /></p>
+
+<h2 id="learn-rust-lifetimes-by-example">Learn Rust lifetimes by example</h2>
+<p><a id="markdown-learn-rust-lifetimes-by-example" name="learn-rust-lifetimes-by-example"></a></p>
+
+<p>Let’s create some examples to illustrate how to use Rust lifetimes. You can run
+<code class="language-plaintext highlighter-rouge">cargo new --bin lifetimes</code> to create a new binary crate.</p>
+
+<blockquote>
+  <p>The code in the video and this tutorial are all in <a href="https://github.com/nazmulidris/rust-scratch/blob/main/lifetimes/">this GitHub
+repo</a>.</p>
+</blockquote>
+
+<h3 id="example-1-references">Example 1: References</h3>
+<p><a id="markdown-example-1%3A-references" name="example-1%3A-references"></a></p>
+
+<p>First add <code class="language-plaintext highlighter-rouge">mod ex_1_references;</code> to <code class="language-plaintext highlighter-rouge">lib.rs</code>. Then you can add the following code to the
+<code class="language-plaintext highlighter-rouge">src/ex_1_references.rs</code> file.</p>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/lifetimes/src/ex_1_references.rs">here</a>.</p>
+</blockquote>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">ex_1_references</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">try_to_use_after_free</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="nb">usize</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="k">'static</span> <span class="nb">str</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">s</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{} is a number"</span><span class="p">,</span> <span class="n">arg</span><span class="p">);</span>
+        <span class="c1">// return &amp;s; /* 🧨 won't compile! */</span>
+        <span class="nd">unreachable!</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="k">fn</span> <span class="nf">try_to_modify_referent</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">data</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">];</span> <span class="cm">/* referent */</span>
+        <span class="k">let</span> <span class="n">ref_to_first_item</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span> <span class="cm">/* reference */</span>
+        <span class="c1">// data.push(4); /* 🧨 won't compile */</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"first_item: {}"</span><span class="p">,</span> <span class="n">ref_to_first_item</span><span class="p">);</span>
+        <span class="cm">/* ref_to_first_item reference still in scope */</span>
+        <span class="c1">// drop(ref_to_first_item);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The main things to note about this code:</p>
+
+<ul>
+  <li>Rust requires any <em>references</em> to freeze:
+    <ul>
+      <li>the referent and its owners.</li>
+    </ul>
+  </li>
+  <li>While a <em>reference</em> is <strong>in scope</strong>, Rust will not allow you to:
+    <ul>
+      <li>change the referent and its owners.</li>
+    </ul>
+  </li>
+  <li><a href="https://doc.rust-lang.org/nomicon/ownership.html">More info</a>.</li>
+</ul>
+
+<h3 id="example-2-aliasing">Example 2: Aliasing</h3>
+<p><a id="markdown-example-2%3A-aliasing" name="example-2%3A-aliasing"></a></p>
+
+<p>Let’s review some background info on references. There are two kinds of reference:</p>
+
+<ol>
+  <li>Shared reference: <code class="language-plaintext highlighter-rouge">&amp;</code></li>
+  <li>Mutable reference: <code class="language-plaintext highlighter-rouge">&amp;mut</code></li>
+</ol>
+
+<p>Here are the rules of references:</p>
+
+<ol>
+  <li>A reference cannot outlive its referent.</li>
+  <li>A <strong>mutable reference</strong> cannot be aliased.</li>
+</ol>
+
+<p>Aliasing:</p>
+
+<ol>
+  <li>Variables and pointers alias if they refer to overlapping regions of memory.</li>
+  <li>The definition of “alias” that Rust will use likely involves some notion of
+ <strong>liveness</strong> and <strong>mutation</strong>: we don’t actually care if aliasing occurs if there
+ aren’t any actual writes to memory happening.</li>
+</ol>
+
+<p>Here’s more info:</p>
+<ul>
+  <li><a href="https://doc.rust-lang.org/nomicon/references.html">https://doc.rust-lang.org/nomicon/references.html</a></li>
+  <li><a href="https://doc.rust-lang.org/nomicon/aliasing.html">https://doc.rust-lang.org/nomicon/aliasing.html</a></li>
+</ul>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/lifetimes/src/ex_2_aliasing.rs">here</a>.</p>
+</blockquote>
+
+<p>Add <code class="language-plaintext highlighter-rouge">mod ex_2_aliasing;</code> to <code class="language-plaintext highlighter-rouge">lib.rs</code>. Then you can add the following code to the
+<code class="language-plaintext highlighter-rouge">src/ex_2_aliasing.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">ex_2_aliasing</span><span class="p">()</span> <span class="p">{</span>
+    <span class="cd">/// `input_ref` and `output_ref` can't overlap or alias, and thus</span>
+    <span class="cd">/// can't clobber each other.</span>
+    <span class="k">fn</span> <span class="nf">compute</span><span class="p">(</span><span class="n">input_ref</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">usize</span><span class="p">,</span> <span class="n">output_ref</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nb">usize</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="o">*</span><span class="n">input_ref</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="p">{</span>
+            <span class="o">*</span><span class="n">output_ref</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="o">*</span><span class="n">input_ref</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="p">{</span>
+            <span class="o">*</span><span class="n">output_ref</span> <span class="o">*=</span> <span class="mi">2</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="c1">// This is safe to do because `input` and `output` don't overlap.</span>
+    <span class="p">{</span>
+        <span class="k">let</span> <span class="n">input</span> <span class="o">=</span> <span class="mi">10usize</span><span class="p">;</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">output</span> <span class="o">=</span> <span class="mi">1usize</span><span class="p">;</span>
+
+        <span class="k">let</span> <span class="n">input_address</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">input</span> <span class="k">as</span> <span class="o">*</span><span class="k">const</span> <span class="nb">usize</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">output_address</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">output</span> <span class="k">as</span> <span class="o">*</span><span class="k">const</span> <span class="nb">usize</span><span class="p">;</span>
+
+        <span class="nf">compute</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">,</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">output</span><span class="p">);</span>
+
+        <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+        <span class="nd">assert_ne!</span><span class="p">(</span><span class="n">input_address</span><span class="p">,</span> <span class="n">output_address</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Try and clobber `input` with `output`.</span>
+    <span class="c1">// - Rust won't allow `input` and `output` to overlap aka alias.</span>
+    <span class="c1">// - Rust won't allow the `&amp;mut output` to be aliased!</span>
+    <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">output</span> <span class="o">=</span> <span class="mi">1usize</span><span class="p">;</span>
+        <span class="c1">// compute(&amp;output, &amp;mut output); /* 🧨 won't compile! */</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="example-3-lifetimes">Example 3: Lifetimes</h3>
+<p><a id="markdown-example-3%3A-lifetimes" name="example-3%3A-lifetimes"></a></p>
+
+<p>Rust enforces a set of rules that govern how references are used via <strong>lifetimes</strong>.</p>
+
+<p>Lifetimes are named regions of code that a reference must be valid for.</p>
+<ul>
+  <li>For simple programs, lifetimes coincide with lexical scope.</li>
+  <li>Those regions may be fairly complex, as they correspond to paths of execution in the
+  program.</li>
+  <li>There may even be holes in these paths of execution, as it’s possible to invalidate
+  a reference as long as it’s reinitialized before it’s used again.</li>
+  <li>Types which contain references (or pretend to) may also be tagged with lifetimes so
+  that Rust can prevent them from being invalidated as well.</li>
+</ul>
+
+<p>Inside a function, Rust doesn’t let you explicitly name lifetimes. And each let
+statement implicitly introduces a scope. However, once you cross the function
+boundary, you need to start talking about lifetimes.</p>
+
+<p>More info:</p>
+<ul>
+  <li><a href="https://doc.rust-lang.org/nomicon/lifetimes.html#the-area-covered-by-a-lifetime">https://doc.rust-lang.org/nomicon/lifetimes.html#the-area-covered-by-a-lifetime</a></li>
+  <li><a href="https://doc.rust-lang.org/nomicon/lifetime-mismatch.html">https://doc.rust-lang.org/nomicon/lifetime-mismatch.html</a></li>
+</ul>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/lifetimes/src/ex_3_lifetimes.rs">here</a>.</p>
+</blockquote>
+
+<p>Add <code class="language-plaintext highlighter-rouge">mod ex_3_lifetimes;</code> to <code class="language-plaintext highlighter-rouge">lib.rs</code>. Then you can add the following code to the
+<code class="language-plaintext highlighter-rouge">src/ex_3_lifetimes.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[rustfmt::skip]</span>
+<span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">ex_3_lifetimes_1</span><span class="p">()</span> <span class="p">{</span>
+    <span class="cd">/// 'fn is          &lt;  'input.</span>
+    <span class="cd">/// 'fn needs to be &gt;= 'input.</span>
+    <span class="cd">///</span>
+    <span class="cd">/// - 'fn is the lifetime of the referent. It is short.</span>
+    <span class="cd">/// - 'input is the lifetime of the reference. It is long.</span>
+    <span class="k">fn</span> <span class="n">try_to_make_reference_outlive_referent</span><span class="o">&lt;</span><span class="nv">'input</span><span class="o">&gt;</span><span class="p">(</span>
+        <span class="n">param</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'input</span> <span class="nb">usize</span>
+    <span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="nv">'input</span> <span class="nb">str</span> <span class="p">{</span>
+        <span class="c1">// 'fn: {</span>
+            <span class="k">let</span> <span class="n">referent</span> <span class="o">=</span> <span class="nd">format!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">param</span><span class="p">);</span>
+            <span class="k">let</span> <span class="n">reference</span> <span class="o">=</span> <span class="o">&amp;</span><span class="cm">/*'fn*/</span><span class="n">referent</span><span class="p">;</span>
+            <span class="c1">// return reference; /* 🧨 does not compile! */</span>
+            <span class="nd">unreachable!</span><span class="p">()</span>
+        <span class="c1">// }</span>
+    <span class="p">}</span>
+
+    <span class="k">fn</span> <span class="n">fix_try_to_make_reference_outlive_referent</span><span class="o">&lt;</span><span class="nv">'input</span><span class="o">&gt;</span><span class="p">(</span>
+        <span class="n">param</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'input</span> <span class="nb">usize</span>
+    <span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="nv">'input</span> <span class="nb">str</span> <span class="p">{</span>
+        <span class="k">match</span> <span class="n">param</span> <span class="p">{</span>
+            <span class="mi">0</span> <span class="k">=&gt;</span> <span class="cm">/* &amp;'static */</span> <span class="s">"zero"</span><span class="p">,</span>
+            <span class="mi">1</span> <span class="k">=&gt;</span> <span class="cm">/* &amp;'static */</span> <span class="s">"one"</span><span class="p">,</span>
+            <span class="n">_</span> <span class="k">=&gt;</span> <span class="cm">/* &amp;'static */</span> <span class="s">"many"</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span>
+        <span class="nf">fix_try_to_make_reference_outlive_referent</span><span class="p">(</span><span class="o">&amp;</span><span class="mi">0</span><span class="p">),</span> <span class="s">"zero"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Notes on the code above:</p>
+
+<ul>
+  <li>The string literals “zero”, “one”, and “many” are stored in a special section of memory
+that is accessible throughout the entire program execution. This means that these string
+literals are available for the entire duration of the program, hence they have the
+<code class="language-plaintext highlighter-rouge">'static</code> lifetime.</li>
+</ul>
+
+<p>Add the following code to the <code class="language-plaintext highlighter-rouge">ex_3_lifetimes.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[rustfmt::skip]</span>
+<span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">ex_3_lifetimes_2</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">try_to_modify_referent</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">data</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">];</span> <span class="cm">/* referent */</span>
+        <span class="c1">// 'first: {</span>
+            <span class="cm">/* reference */</span>
+            <span class="k">let</span> <span class="n">ref_to_first_item</span> <span class="o">=</span> <span class="o">&amp;</span><span class="cm">/*'first*/</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+            <span class="c1">//   'second: {</span>
+            <span class="c1">//        /* 🧨 won't compile */</span>
+            <span class="c1">//        Vec::push(&amp;/*'second*/mut data, 4);</span>
+            <span class="c1">//    }</span>
+            <span class="nd">println!</span><span class="p">(</span><span class="s">"first_item: {}"</span><span class="p">,</span> <span class="n">ref_to_first_item</span><span class="p">);</span>
+            <span class="cm">/* reference still in scope */</span>
+        <span class="c1">// }</span>
+        <span class="c1">// drop(ref_to_first_item);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Notes on the code above:</p>
+
+<ul>
+  <li>
+    <p>Rust doesn’t understand that <code class="language-plaintext highlighter-rouge">ref_to_first_item</code> is a reference to a subpath of
+<code class="language-plaintext highlighter-rouge">data</code>. It doesn’t understand [<code class="language-plaintext highlighter-rouge">Vec</code>] at all. 🤯</p>
+  </li>
+  <li>Here’s what it sees:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">ref_to_first_item</code> which is <code class="language-plaintext highlighter-rouge">&amp;'first data</code> has to live for <code class="language-plaintext highlighter-rouge">'first</code> in order to
+be printed.</li>
+      <li>When we try to call push, it then sees us try to make an <code class="language-plaintext highlighter-rouge">&amp;'second mut data</code>.</li>
+      <li>It knows that <code class="language-plaintext highlighter-rouge">'second</code> is contained within <code class="language-plaintext highlighter-rouge">'first</code>, and rejects our program
+because the <code class="language-plaintext highlighter-rouge">&amp;'first data</code> must still be alive! And we can’t alias a <strong>mutable
+reference</strong>.</li>
+    </ul>
+  </li>
+  <li>The lifetime system is much more coarse than the reference semantics we’re
+actually interested in preserving.</li>
+</ul>
+
+<h3 id="example-4-input-slices">Example 4: Input slices</h3>
+<p><a id="markdown-example-4%3A-input-slices" name="example-4%3A-input-slices"></a></p>
+
+<p>We can use lifetimes and slices to work with data without modifying it. This pattern shows
+up a lot when working with parsers (eg: <code class="language-plaintext highlighter-rouge">nom</code>) and general string manipulation.</p>
+
+<p>Real world examples:</p>
+<ul>
+  <li><a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/core/src/tui_core/graphemes">https://github.com/r3bl-org/r3bl-open-core/tree/main/core/src/tui_core/graphemes</a></li>
+  <li><a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/core/src/tui_core/graphemes/access.rs#L173">https://github.com/r3bl-org/r3bl-open-core/blob/main/core/src/tui_core/graphemes/access.rs#L173</a></li>
+</ul>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/lifetimes/src/ex_4_input_slices.rs">here</a>.</p>
+</blockquote>
+
+<p>First add <code class="language-plaintext highlighter-rouge">mod ex_4_input_slices;</code> to <code class="language-plaintext highlighter-rouge">lib.rs</code>. Then you can add the following code to the
+<code class="language-plaintext highlighter-rouge">src/ex_4_input_slices.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[rustfmt::skip]</span>
+<span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">ex_4_input_slices</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// 'fn {</span>
+        <span class="k">let</span> <span class="n">data</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="s">"foo bar baz"</span><span class="p">);</span>
+        <span class="k">let</span> <span class="n">middle_word</span><span class="p">:</span> <span class="o">&amp;</span> <span class="cm">/*'fn*/</span> <span class="nb">str</span> <span class="o">=</span> <span class="nf">middle_word</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">);</span>
+        <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">middle_word</span><span class="p">,</span> <span class="s">"bar"</span><span class="p">);</span>
+    <span class="c1">// }</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="n">middle_word</span><span class="o">&lt;</span><span class="nv">'input</span><span class="o">&gt;</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'input</span> <span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="nv">'input</span> <span class="nb">str</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">input</span><span class="nf">.split_whitespace</span><span class="p">();</span>
+
+    <span class="k">let</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">middle_word_index</span><span class="p">)</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">iter_clone</span> <span class="o">=</span> <span class="n">iter</span><span class="nf">.clone</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">word_count</span> <span class="o">=</span> <span class="n">iter_clone</span><span class="nf">.count</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">middle_word_index</span> <span class="o">=</span> <span class="n">word_count</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+        <span class="p">(</span><span class="n">word_count</span><span class="p">,</span> <span class="n">middle_word_index</span><span class="p">)</span>
+    <span class="p">};</span>
+
+    <span class="k">let</span> <span class="p">(</span><span class="n">middle_word_len</span><span class="p">,</span> <span class="n">len_until_middle_word</span><span class="p">)</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">middle_word_len</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">len_until_middle_word</span> <span class="o">=</span> <span class="n">iter</span>
+            <span class="nf">.enumerate</span><span class="p">()</span>
+            <span class="c1">// Go as far as the middle word.</span>
+            <span class="nf">.take_while</span><span class="p">(|(</span><span class="n">index</span><span class="p">,</span> <span class="n">_</span><span class="p">)|</span> <span class="o">*</span><span class="n">index</span> <span class="o">&lt;=</span> <span class="n">middle_word_index</span><span class="p">)</span>
+            <span class="nf">.map</span><span class="p">(|(</span><span class="n">index</span><span class="p">,</span> <span class="n">word</span><span class="p">)|</span> <span class="p">{</span>
+                <span class="c1">// At middle word.</span>
+                <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">middle_word_index</span> <span class="p">{</span>
+                    <span class="n">middle_word_len</span> <span class="o">=</span> <span class="n">word</span><span class="nf">.len</span><span class="p">();</span>
+                    <span class="mi">0</span>
+                <span class="p">}</span>
+                <span class="c1">// Before middle word.</span>
+                <span class="k">else</span> <span class="p">{</span>
+                    <span class="n">word</span><span class="nf">.len</span><span class="p">()</span>
+                <span class="p">}</span>
+            <span class="p">})</span>
+            <span class="py">.sum</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span><span class="p">();</span>
+
+        <span class="p">(</span><span class="n">middle_word_len</span><span class="p">,</span> <span class="n">len_until_middle_word</span><span class="p">)</span>
+    <span class="p">};</span>
+
+    <span class="k">let</span> <span class="p">(</span><span class="n">start_index</span><span class="p">,</span> <span class="n">end_index</span><span class="p">)</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">start_index</span> <span class="o">=</span> <span class="n">len_until_middle_word</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">end_index</span> <span class="o">=</span> <span class="n">len_until_middle_word</span> <span class="o">+</span> <span class="n">middle_word_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">(</span><span class="n">start_index</span><span class="p">,</span> <span class="n">end_index</span><span class="p">)</span>
+    <span class="p">};</span>
+
+    <span class="o">&amp;</span><span class="cm">/*'input*/</span><span class="n">input</span><span class="p">[</span><span class="n">start_index</span><span class="o">..</span><span class="n">end_index</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="example-5-splitting-borrows-on-structs">Example 5: Splitting borrows on structs</h3>
+<p><a id="markdown-example-5%3A-splitting-borrows-on-structs" name="example-5%3A-splitting-borrows-on-structs"></a></p>
+
+<p>The mutual exclusion property of mutable references can be very limiting when working with
+a composite structure.</p>
+
+<p>The borrow checker understand structs sufficiently to know that it’s possible to borrow
+disjoint fields of a struct simultaneously.</p>
+
+<p><code class="language-plaintext highlighter-rouge">ex_5_splitting_borrows_on_structs.rs</code> will demonstrate this.</p>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/lifetimes/src/ex_5_splitting_borrows_on_structs.rs">here</a>.</p>
+</blockquote>
+
+<p>First add <code class="language-plaintext highlighter-rouge">mod ex_5_splitting_borrows_on_structs;</code> to <code class="language-plaintext highlighter-rouge">lib.rs</code>. Then you can add the
+following code to the <code class="language-plaintext highlighter-rouge">src/ex_5_splitting_borrows_on_structs.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">ex_5_splitting_borrows_on_structs</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">Data</span> <span class="p">{</span>
+        <span class="n">a</span><span class="p">:</span> <span class="nb">usize</span><span class="p">,</span>
+        <span class="n">b</span><span class="p">:</span> <span class="nb">usize</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">fn</span> <span class="nf">change_field_by_ref</span><span class="p">(</span><span class="n">field</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nb">usize</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">*</span><span class="n">field</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">data</span> <span class="o">=</span> <span class="n">Data</span> <span class="p">{</span> <span class="n">a</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="mi">2</span> <span class="p">};</span>
+
+    <span class="k">let</span> <span class="n">a_ref</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">data</span><span class="py">.a</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">b_ref</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">data</span><span class="py">.b</span><span class="p">;</span>
+
+    <span class="nf">change_field_by_ref</span><span class="p">(</span><span class="n">a_ref</span><span class="p">);</span>
+    <span class="nf">change_field_by_ref</span><span class="p">(</span><span class="n">b_ref</span><span class="p">);</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">data</span><span class="py">.a</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">data</span><span class="py">.b</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The next example shows a struct that only contains references. As long as the owned struct
+and the references live for the same lifetime, it all works. Add the following code to the
+same file:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">ex_5_splitting_borrows_on_structs_2</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="n">Data</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="n">field_usize</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="k">mut</span> <span class="nb">usize</span><span class="p">,</span>
+        <span class="n">field_str</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">impl</span> <span class="n">Data</span><span class="o">&lt;</span><span class="nv">'_</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">fn</span> <span class="n">new</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span><span class="p">(</span>
+            <span class="n">str_param</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="nb">str</span><span class="p">,</span> <span class="n">usize_param</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="k">mut</span> <span class="nb">usize</span>
+        <span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Data</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span>
+        <span class="p">{</span>
+            <span class="n">Data</span> <span class="p">{</span>
+                <span class="n">field_usize</span><span class="p">:</span> <span class="n">usize_param</span><span class="p">,</span>
+                <span class="n">field_str</span><span class="p">:</span> <span class="n">str_param</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">fn</span> <span class="nf">change_field_usize</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+            <span class="o">*</span><span class="k">self</span><span class="py">.field_usize</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">fn</span> <span class="nf">change_field_str</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">self</span><span class="py">.field_str</span> <span class="o">=</span> <span class="s">"new value"</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">let</span> <span class="n">str_arg</span> <span class="o">=</span> <span class="s">"old value"</span><span class="p">;</span>
+    <span class="k">let</span> <span class="n">usize_arg</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">data</span> <span class="o">=</span> <span class="nn">Data</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="n">str_arg</span><span class="p">,</span> <span class="n">usize_arg</span><span class="p">);</span>
+
+    <span class="n">data</span><span class="nf">.change_field_usize</span><span class="p">();</span>
+    <span class="n">data</span><span class="nf">.change_field_str</span><span class="p">();</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="o">*</span><span class="n">data</span><span class="py">.field_usize</span><span class="p">,</span> <span class="mi">2</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">data</span><span class="py">.field_str</span><span class="p">,</span> <span class="s">"new value"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="example-6-clone-on-write-cow">Example 6: Clone on write (Cow)</h3>
+<p><a id="markdown-example-6%3A-clone-on-write-cow" name="example-6%3A-clone-on-write-cow"></a></p>
+
+<p>The <a href="https://doc.rust-lang.org/std/borrow/enum.Cow.html"><code class="language-plaintext highlighter-rouge">Cow</code></a> type is a smart pointer
+that can be used to work with both owned and borrowed data.</p>
+<ul>
+  <li>It is useful when you want to avoid unnecessary allocations and copying.</li>
+  <li>You can also use it in functions where you might need to mutate the argument; in which
+case the data will be <strong>lazily cloned</strong> when mutation or ownership is required.</li>
+</ul>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/lifetimes/src/ex_6_cow.rs">here</a>.</p>
+</blockquote>
+
+<p>First add <code class="language-plaintext highlighter-rouge">mod ex_6_cow;</code> to <code class="language-plaintext highlighter-rouge">lib.rs</code>. Then you can add the following code to the
+<code class="language-plaintext highlighter-rouge">src/ex_6_cow.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">ex_6_cow</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">borrow</span><span class="p">::</span><span class="n">Cow</span><span class="p">;</span>
+
+    <span class="k">fn</span> <span class="n">capitalize</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="n">Cow</span><span class="o">&lt;</span><span class="nv">'a</span><span class="p">,</span> <span class="nb">str</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="n">Cow</span><span class="o">&lt;</span><span class="nv">'a</span><span class="p">,</span> <span class="nb">str</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="n">input</span><span class="nf">.is_empty</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">input</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">input</span><span class="nf">.chars</span><span class="p">()</span><span class="nf">.all</span><span class="p">(</span><span class="nn">char</span><span class="p">::</span><span class="n">is_uppercase</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="n">input</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">cloned</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">with_capacity</span><span class="p">(</span><span class="n">input</span><span class="nf">.len</span><span class="p">());</span>
+        <span class="n">cloned</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">[</span><span class="o">..</span><span class="mi">1</span><span class="p">]</span><span class="nf">.to_uppercase</span><span class="p">());</span>
+        <span class="n">cloned</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">]);</span>
+        <span class="nn">Cow</span><span class="p">::</span><span class="nf">Owned</span><span class="p">(</span><span class="n">cloned</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">let</span> <span class="n">borrowed_data</span> <span class="o">=</span> <span class="nn">Cow</span><span class="p">::</span><span class="nf">Borrowed</span><span class="p">(</span><span class="s">"hello"</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">owned_data</span> <span class="o">=</span> <span class="nn">Cow</span><span class="p">::</span><span class="nf">Owned</span><span class="p">(</span><span class="nn">String</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="s">"world"</span><span class="p">));</span>
+
+    <span class="k">let</span> <span class="n">capitalized_borrowed_data</span> <span class="o">=</span> <span class="nf">capitalize</span><span class="p">(</span><span class="n">borrowed_data</span><span class="p">);</span>
+    <span class="k">let</span> <span class="n">capitalized_owned_data</span> <span class="o">=</span> <span class="nf">capitalize</span><span class="p">(</span><span class="n">owned_data</span><span class="p">);</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">capitalized_borrowed_data</span><span class="p">,</span> <span class="s">"Hello"</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">capitalized_owned_data</span><span class="p">,</span> <span class="s">"World"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Notes on the code:</p>
+
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">capitalize</code> function takes a <code class="language-plaintext highlighter-rouge">Cow</code> as an argument. It also returns a <code class="language-plaintext highlighter-rouge">Cow</code>.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">Cow</code> type is an enum that can hold either a borrowed reference or an owned value.</li>
+  <li>The <code class="language-plaintext highlighter-rouge">capitalize</code> function will return the input unchanged if it is already capitalized.
+Otherwise it allocates a new capitalized string, moves into into a <code class="language-plaintext highlighter-rouge">Cow</code> and returns it
+as an owned value.</li>
+</ul>
+
+<p>Next, add the following code to the same file:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">ex_6_cow_2</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">borrow</span><span class="p">::</span><span class="n">Cow</span><span class="p">;</span>
+
+    <span class="k">fn</span> <span class="n">capitalize_mut</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span><span class="p">(</span><span class="n">input</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">Cow</span><span class="o">&lt;</span><span class="nv">'a</span><span class="p">,</span> <span class="nb">str</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="n">input</span><span class="nf">.is_empty</span><span class="p">()</span> <span class="p">{</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="n">input</span><span class="nf">.chars</span><span class="p">()</span><span class="nf">.all</span><span class="p">(</span><span class="nn">char</span><span class="p">::</span><span class="n">is_uppercase</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">cloned</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">with_capacity</span><span class="p">(</span><span class="n">input</span><span class="nf">.len</span><span class="p">());</span>
+        <span class="n">cloned</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">[</span><span class="o">..</span><span class="mi">1</span><span class="p">]</span><span class="nf">.to_uppercase</span><span class="p">());</span>
+        <span class="n">cloned</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="n">input</span><span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="p">]);</span>
+        <span class="o">*</span><span class="n">input</span> <span class="o">=</span> <span class="nn">Cow</span><span class="p">::</span><span class="nf">Owned</span><span class="p">(</span><span class="n">cloned</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">borrowed_data</span> <span class="o">=</span> <span class="nn">Cow</span><span class="p">::</span><span class="nf">Borrowed</span><span class="p">(</span><span class="s">"hello"</span><span class="p">);</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">owned_data</span> <span class="o">=</span> <span class="nn">Cow</span><span class="p">::</span><span class="nf">Owned</span><span class="p">(</span><span class="nn">String</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="s">"world"</span><span class="p">));</span>
+
+    <span class="nf">capitalize_mut</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">borrowed_data</span><span class="p">);</span>
+    <span class="nf">capitalize_mut</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">owned_data</span><span class="p">);</span>
+
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">borrowed_data</span><span class="p">,</span> <span class="s">"Hello"</span><span class="p">);</span>
+    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">owned_data</span><span class="p">,</span> <span class="s">"World"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Notes on the code:</p>
+
+<ul>
+  <li>The <code class="language-plaintext highlighter-rouge">capitalize_mut</code> function takes a mutable reference to a <code class="language-plaintext highlighter-rouge">Cow</code> as an argument.</li>
+  <li>It will mutate the input in place if it is not already capitalized. This requires
+cloning the input string.</li>
+</ul>
+
+<h3 id="example-7-subtyping-and-variance">Example 7: Subtyping and variance</h3>
+<p><a id="markdown-example-7%3A-subtyping-and-variance" name="example-7%3A-subtyping-and-variance"></a></p>
+
+<blockquote>
+  <p>Please refer to the <a href="#what-is-subtyping-and-variance">Subtyping and variance</a> section for
+more information, before following this example.</p>
+</blockquote>
+
+<p>Let’s define that <code class="language-plaintext highlighter-rouge">Sub</code> is a subtype of Super (ie <code class="language-plaintext highlighter-rouge">Sub : Super</code>).</p>
+<ul>
+  <li>What this is suggesting to us is that the set of requirements that <code class="language-plaintext highlighter-rouge">Super</code> defines
+are completely satisfied by <code class="language-plaintext highlighter-rouge">Sub</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">Sub</code> may then have more requirements.</li>
+  <li>That is, <code class="language-plaintext highlighter-rouge">Sub</code> &gt; <code class="language-plaintext highlighter-rouge">Super</code>.</li>
+</ul>
+
+<p>Replacing this with lifetimes, <code class="language-plaintext highlighter-rouge">'long : 'short</code> if and only if</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">'long</code> defines a region of code that completely contains <code class="language-plaintext highlighter-rouge">'short</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">'long</code> may define a region larger than <code class="language-plaintext highlighter-rouge">'short</code>, but that still fits our
+definition.</li>
+  <li>That is, <code class="language-plaintext highlighter-rouge">'long</code> &gt; <code class="language-plaintext highlighter-rouge">'short</code>.</li>
+</ul>
+
+<p>More info:</p>
+<ul>
+  <li><a href="https://doc.rust-lang.org/nomicon/subtyping.html">https://doc.rust-lang.org/nomicon/subtyping.html</a></li>
+</ul>
+
+<blockquote>
+  <p>The code for this example is
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/lifetimes/src/ex_7_subtyping_and_variance.rs">here</a>.</p>
+</blockquote>
+
+<p>First add <code class="language-plaintext highlighter-rouge">mod ex_7_subtyping_and_variance;</code> to <code class="language-plaintext highlighter-rouge">lib.rs</code>. Then you can add the following code to the
+<code class="language-plaintext highlighter-rouge">src/ex_7_subtyping_and_variance.rs</code> file.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[rustfmt::skip]</span>
+<span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">subtyping</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="n">debug</span><span class="o">&lt;</span><span class="nv">'a</span><span class="p">,</span> <span class="n">T</span><span class="p">:</span> <span class="nn">std</span><span class="p">::</span><span class="nn">fmt</span><span class="p">::</span><span class="n">Display</span> <span class="o">+</span> <span class="o">?</span><span class="nb">Sized</span><span class="o">&gt;</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">T</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="n">T</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"a: {}, b: {}"</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">let</span> <span class="n">hello</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">'static</span> <span class="nb">str</span> <span class="o">=</span> <span class="s">"hello"</span><span class="p">;</span>
+
+    <span class="c1">// 'short {</span>
+    <span class="p">{</span>
+        <span class="k">let</span> <span class="n">world</span> <span class="o">=</span> <span class="s">"world"</span><span class="nf">.to_string</span><span class="p">();</span>
+        <span class="nf">debug</span><span class="p">(</span>
+            <span class="cm">/*&amp;'static*/</span> <span class="n">hello</span><span class="p">,</span>
+            <span class="o">&amp;</span><span class="cm">/*'short*/</span>  <span class="n">world</span>
+        <span class="p">);</span>
+        <span class="c1">// Why does this work?</span>
+        <span class="c1">// 1) `&amp;'static str` : `&amp;'short str`</span>
+        <span class="c1">//       ↑                ↑</span>
+        <span class="c1">//     Subtype          Super type</span>
+        <span class="c1">// 2) `hello` silently downgrades from `&amp;'static str`</span>
+        <span class="c1">//    into `&amp;'short str`</span>
+    <span class="p">}</span>
+    <span class="c1">// }</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Notes on the code above:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">fn debug(a, b)</code>:
+    <ul>
+      <li>Since: <code class="language-plaintext highlighter-rouge">&amp;'a T</code> is covariant over <code class="language-plaintext highlighter-rouge">'a</code>, we are allowed to perform subtyping.</li>
+      <li>And: <code class="language-plaintext highlighter-rouge">&amp;'static str</code> is a subtype of <code class="language-plaintext highlighter-rouge">&amp;'short str</code>.</li>
+      <li>And since:
+        <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'static : 'short
+  ↑       ↑
+ Sub     Super
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Here’s a short table with the rules:</p>
+
+    <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>|                 | `'a`     | `T` |
+|-----------------|----------|-----|
+| `&amp;'a T`         | C        | C   |
+| `&amp;'a mut T`     | C        | I   |
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>Now, add the following code to the same file:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// More info:</span>
+<span class="cd">/// - &lt;https://doc.rust-lang.org/nomicon/subtyping.html&gt;</span>
+<span class="nd">#[rustfmt::skip]</span>
+<span class="nd">#[test]</span>
+<span class="k">fn</span> <span class="nf">variance</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="n">assign</span><span class="o">&lt;</span><span class="nv">'a</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">reference</span><span class="p">:</span> <span class="o">&amp;</span><span class="nv">'a</span> <span class="k">mut</span> <span class="n">T</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="p">{</span>
+        <span class="o">*</span><span class="n">reference</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">hello</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">'static</span> <span class="nb">str</span> <span class="o">=</span> <span class="s">"hello"</span><span class="p">;</span>
+
+    <span class="c1">// 'short {</span>
+    <span class="p">{</span>
+        <span class="k">let</span> <span class="n">world</span> <span class="o">=</span> <span class="s">"world"</span><span class="nf">.to_string</span><span class="p">();</span>
+        <span class="cm">/* 🧨 does not compile! Due to invariance, the 2 args are
+           different types!
+        */</span>
+        <span class="c1">// assign(</span>
+        <span class="c1">//     &amp;mut/*&amp;'static*/ hello,</span>
+        <span class="c1">//     &amp;/*'short*/      world</span>
+        <span class="c1">// );</span>
+
+        <span class="c1">// `&amp;mut T` is invariant over `T`, meaning, these are</span>
+        <span class="c1">// incompatible:</span>
+        <span class="c1">//</span>
+        <span class="c1">// 1. 1st arg: `&amp;mut &amp;'static str`, which is `&amp;mut T`</span>
+        <span class="c1">//    where `T = &amp;'static str`.</span>
+        <span class="c1">// 2. 2nd arg: `&amp;'short str`, and it is expecting</span>
+        <span class="c1">//    `T = &amp;'static str`. This `T` does not match!</span>
+        <span class="c1">//</span>
+        <span class="c1">// This means that:</span>
+        <span class="c1">// - `&amp;mut &amp;'static str` cannot be a subtype of `&amp;'short str`</span>
+        <span class="c1">// - even if `'static` **is** a subtype of `'short`</span>
+    <span class="p">}</span>
+    <span class="c1">// }</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Notes on the code:</p>
+
+<ol>
+  <li>Take a mutable reference and a value and overwrite the <strong>referent</strong> with it.</li>
+  <li>It clearly says in its signature the referent and the value must be the
+ <strong>exact</strong> same type.
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">&amp;mut T</code> is invariant over <code class="language-plaintext highlighter-rouge">T</code>, meaning,</li>
+      <li><code class="language-plaintext highlighter-rouge">&amp;mut &amp;'long T</code> is <strong>NOT</strong> a subtype of <code class="language-plaintext highlighter-rouge">&amp;'short T</code>,</li>
+      <li>Even when:
+        <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>'long : 'short
+↑       ↑
+Sub     Super
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+  <li>Here’s a short table with the rules:
+    <div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>|                 | `'a`     | `T` |
+|-----------------|----------|-----|
+| `&amp;'a T`         | C        | C   |
+| `&amp;'a mut T`     | C        | I   |
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
+<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/watch?v=bolScvh4x7I&amp;list=PLofhE49PEwmw3MKOU1Kn3xbP4FRQR4Mb3">Build with Naz, Linux TTY, process, signals, commands in async Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[Rust lifetimes are key part of the type system which allows the Rust compiler to make its memory safety guarantees. We will explore subtyping, variance, references, memory aliasing, splitting borrows, and clone on write in this article, its video, and repo.]]></summary></entry><entry><title type="html">Build with Naz : Explore Linux TTY, process, signals w/ Rust</title><link href="http://developerlife.com/2024/08/20/tty-linux-async-rust/" rel="alternate" type="text/html" title="Build with Naz : Explore Linux TTY, process, signals w/ Rust" /><published>2024-08-20T10:00:00-05:00</published><updated>2024-08-20T10:00:00-05:00</updated><id>http://developerlife.com/2024/08/20/tty-linux-async-rust</id><content type="html" xml:base="http://developerlife.com/2024/08/20/tty-linux-async-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/linux-tty-proc-async-rust.svg" /></p>
 
 <!-- TOC -->
 
@@ -7080,348 +8039,4 @@ server</a>.</p>
       <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
     </ul>
   </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[In this article, video, and repo learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore graceful shutdown, when not to use async, and how to think about testing async code.]]></summary></entry><entry><title type="html">Build with Naz : tokio tracing &amp;amp; OTel and how to use it in Rust</title><link href="http://developerlife.com/2024/05/15/tokio-tracing-otel-rust/" rel="alternate" type="text/html" title="Build with Naz : tokio tracing &amp;amp; OTel and how to use it in Rust" /><published>2024-05-15T10:00:00-05:00</published><updated>2024-05-15T10:00:00-05:00</updated><id>http://developerlife.com/2024/05/15/tokio-tracing-otel-rust</id><content type="html" xml:base="http://developerlife.com/2024/05/15/tokio-tracing-otel-rust/"><![CDATA[<p><img class="post-hero-image" src="/assets/tracing_otel_rust.svg" /></p>
-
-<!-- TOC -->
-
-<ul>
-  <li><a href="#why-use-observability-in-async-rust">Why use observability in async Rust?</a></li>
-  <li><a href="#tokio-tracing-usage">Tokio tracing usage</a></li>
-  <li><a href="#video-of-this-in-action-in-the-real-world">Video of this in action in the real world</a></li>
-  <li><a href="#short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust">Short example to illustrate the use of tracing and OTel in Rust</a></li>
-  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
-</ul>
-
-<!-- /TOC -->
-
-<h2 id="introduction">Introduction</h2>
-
-<p>In this article, video, and repo learn how to use tokio tracing and OpenTelemetry
-(with Jaeger) in async Rust to instrument your code and collect telemetry data
-for observability.</p>
-
-<h2 id="why-use-observability-in-async-rust">Why use observability in async Rust?</h2>
-<p><a id="markdown-why-use-observability-in-async-rust%3F" name="why-use-observability-in-async-rust%3F"></a></p>
-
-<p>In synchronous systems, it’s often easy to understand the flow of execution by looking at
-log messages. For example, if a thread walking through a single function ends up calling a whole
-host of other functions, and they all emit log messages, you can often piece together what
-happened by looking at the log messages in order.</p>
-
-<p>However, in asynchronous systems, this is challenging. When using Tokio, for example,
-different threads might be executing the same task, as it goes from being parked, to being
-woken up, to being parked again. Both temporality (when a log event happened) and
-causality (what caused the event) get muddled. This is where observability comes in,
-provided by Tokio <code class="language-plaintext highlighter-rouge">tracing</code> crate and OpenTelemetry (OTel) crates.</p>
-
-<p>The <code class="language-plaintext highlighter-rouge">tracing</code> crate expands upon logging-style diagnostics by allowing libraries and
-applications to record structured events with additional information about temporality and
-causality. Unlike a log message, a <code class="language-plaintext highlighter-rouge">Span</code> in tracing has a beginning and end time, may be
-entered and exited by the flow of execution, and may exist within a nested tree of similar
-spans.</p>
-
-<p>For representing things that occur at a single moment in time, tracing provides the
-complementary concept of events. Both <code class="language-plaintext highlighter-rouge">Spans</code> and <code class="language-plaintext highlighter-rouge">Events</code> are structured, with the ability to
-record typed data as well as textual messages.</p>
-
-<h2 id="tokio-tracing-usage">Tokio tracing usage</h2>
-<p><a id="markdown-tokio-tracing-usage" name="tokio-tracing-usage"></a></p>
-
-<p>Code:</p>
-<ul>
-  <li><a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-api-server"><code class="language-plaintext highlighter-rouge">tcp-api-server</code> crate is the sample project that uses <code class="language-plaintext highlighter-rouge">tracing</code> and OTel and the
-modules below (provided by the <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code>
-crate</a>.</li>
-  <li><a href="https://github.com/r3bl-org/r3bl-open-core/blob/nazmulidris/otel/terminal_async/src/public_api/tracing_setup.rs"><code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> Tokio <code class="language-plaintext highlighter-rouge">tracing</code>
-setup</a>.</li>
-  <li><a href="https://github.com/r3bl-org/r3bl-open-core/blob/nazmulidris/otel/terminal_async/src/public_api/jaeger_setup.rs#L1"><code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> Jaeger &amp; OTel
-setup</a>.</li>
-</ul>
-
-<p>Here’s an example of using the <code class="language-plaintext highlighter-rouge">tracing</code> crate. Some key symbols to note are::</p>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">#[instrument]</code> attribute is used to create a span.</li>
-  <li><code class="language-plaintext highlighter-rouge">Span::current().record()</code> is used to add fields to the span (when the function is
-running, and this information is not known statically beforehand).</li>
-  <li><code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">error!</code>, etc are used to emit log or tracing events. However, these are not
-used to create spans; they are used to emit events within a span.</li>
-  <li><code class="language-plaintext highlighter-rouge">#[tokio::main]</code> is used to run the async main function.</li>
-</ul>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">tracing</span><span class="p">::{</span><span class="n">info</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">Span</span><span class="p">};</span>
-
-<span class="nd">#[tokio::main]</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="c1">// Set up the tracing subscriber, so you can see the output of log events in stdout.</span>
-    <span class="c1">// https://docs.rs/tracing-subscriber/latest/tracing_subscriber/fmt/fn.fmt.html</span>
-    <span class="nn">tracing_subscriber</span><span class="p">::</span><span class="nf">fmt</span><span class="p">()</span>
-        <span class="nf">.with_test_writer</span><span class="p">()</span>
-        <span class="nf">.with_env_filter</span><span class="p">(</span><span class="s">"info"</span><span class="p">)</span>
-        <span class="nf">.init</span><span class="p">();</span>
-
-    <span class="c1">// Call the entry point function.</span>
-    <span class="nn">client_task</span><span class="p">::</span><span class="nf">entry_point</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-<span class="p">}</span>
-
-<span class="k">mod</span> <span class="n">client_task</span> <span class="p">{</span>
-    <span class="nd">#[instrument(name</span> <span class="nd">=</span> <span class="s">"caller"</span><span class="nd">,</span> <span class="nd">skip_all,</span> <span class="nd">fields(</span><span class="err">?</span><span class="nd">client_id))]</span>
-    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">entry_point</span><span class="p">(</span><span class="n">client_id</span><span class="p">:</span> <span class="nb">usize</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nd">info!</span><span class="p">(</span><span class="s">"entry point"</span><span class="p">);</span>
-        <span class="nf">more_context</span><span class="p">(</span><span class="s">"bar"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-        <span class="nf">handle_message</span><span class="p">(</span><span class="n">client_id</span><span class="p">,</span> <span class="s">"foo"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-        <span class="nf">no_instrument</span><span class="p">(</span><span class="s">"baz"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-    <span class="p">}</span>
-
-    <span class="nd">#[instrument(name</span> <span class="nd">=</span> <span class="s">"callee"</span><span class="nd">,</span> <span class="nd">skip_all,</span> <span class="nd">fields(</span><span class="err">%</span><span class="nd">message))]</span>
-    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">handle_message</span><span class="p">(</span><span class="n">client_id</span><span class="p">:</span> <span class="nb">usize</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">String</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nd">info!</span><span class="p">(</span><span class="s">"handling message"</span><span class="p">);</span>
-    <span class="p">}</span>
-
-    <span class="nd">#[instrument(fields(extra))]</span>
-    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">more_context</span><span class="p">(</span><span class="n">extra</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nn">CurrentSpan</span><span class="p">::</span><span class="nf">current</span><span class="p">()</span><span class="nf">.record</span><span class="p">(</span><span class="s">"extra"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">extra</span><span class="p">);</span>
-        <span class="nd">info!</span><span class="p">(</span><span class="s">"more context"</span><span class="p">);</span>
-    <span class="p">}</span>
-
-    <span class="k">pub</span> <span class="k">async</span> <span class="k">fn</span> <span class="nf">no_instrument</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
-        <span class="nd">info!</span><span class="p">(</span><span class="s">"no instrument fn"</span><span class="p">);</span>
-    <span class="p">}</span>
-
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Here are some key points to remember when using <code class="language-plaintext highlighter-rouge">tracing</code> from the code above:</p>
-
-<ul>
-  <li>
-    <p>You have to be careful about recording the same field multiple times, in an async call
-chain. In the example above, <code class="language-plaintext highlighter-rouge">client_task::entry_point()</code> is the entry point, and is the
-only function that should log the <code class="language-plaintext highlighter-rouge">?client_id</code>; <code class="language-plaintext highlighter-rouge">?</code> means debug. And not any other
-functions that it calls, like <code class="language-plaintext highlighter-rouge">handle_message()</code>.</p>
-  </li>
-  <li>
-    <p>When you call <code class="language-plaintext highlighter-rouge">entry_point()</code>, it will call <code class="language-plaintext highlighter-rouge">handle_message()</code>, and the span that is
-generated by <code class="language-plaintext highlighter-rouge">handle_message()</code> will have the <code class="language-plaintext highlighter-rouge">client_id</code> field added to it, because of
-the call chain. So the output of <code class="language-plaintext highlighter-rouge">info!("handling message")</code> will have the <code class="language-plaintext highlighter-rouge">client_id</code>
-included in it (for free). It will also have the <code class="language-plaintext highlighter-rouge">%message</code> field in it; <code class="language-plaintext highlighter-rouge">%</code> means
-display. You don’t have to explicitly add either of these fields to the <code class="language-plaintext highlighter-rouge">info!()</code> call 🎉.</p>
-  </li>
-  <li>
-    <p>If you use the <code class="language-plaintext highlighter-rouge">client_id</code> field in multiple <code class="language-plaintext highlighter-rouge">#[instrument..]</code> attributes in functions
-(that are in the call chain), then this will show up multiple times in the log output
-(when using <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc) of the leaf function in the call chain. So when you
-see the same fields showing up multiple times in the output from <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc,
-then you know that you have to remove that field from the <code class="language-plaintext highlighter-rouge">#[instrument..]</code> attribute
-somewhere in the call chain (that the span covers).</p>
-  </li>
-  <li>
-    <p>You have to be careful about how to use
-<a href="https://docs.rs/tracing/latest/tracing/attr.instrument.html"><code class="language-plaintext highlighter-rouge">[#instrument]</code></a> attribute
-with <code class="language-plaintext highlighter-rouge">tracing::Span::record</code>. You have to call
-<code class="language-plaintext highlighter-rouge">tracing::Span::current().record("foo","bar")</code> in the same function where the
-<code class="language-plaintext highlighter-rouge">#[instrument(fields(foo))]</code> attribute is used.</p>
-  </li>
-  <li>
-    <p>When a function is called that isn’t instrumented, by another one, which is, any log
-events generated in the un-instrumented function will be associated with the span of the
-instrumented function. In the <code class="language-plaintext highlighter-rouge">no_instrument</code> function’s log output, you will see
-addition context from the <code class="language-plaintext highlighter-rouge">entry_point</code> function that looks something like <code class="language-plaintext highlighter-rouge">INFO
-caller{client_id=1234}: no instrument fn</code>.</p>
-  </li>
-</ul>
-
-<p>Here are some helpful links to learn more about this topic:</p>
-
-<ul>
-  <li><a href="https://tokio.rs/tokio/topics/tracing">Tokio tracing docs</a>.</li>
-  <li><a href="https://gemini.google.com/app/5b106a8100c4dcf4">Difference between <code class="language-plaintext highlighter-rouge">#[instrument]</code> (create spans) and emitting events (eg: <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc:</a>.</li>
-  <li><a href="https://tokio.rs/tokio/topics/tracing-next-steps">Tokio and OTel integration docs</a>.</li>
-  <li><a href="https://github.com/tokio-rs/tracing-opentelemetry">Tokio tracing and OTel integration crate</a>.</li>
-  <li><a href="https://broch.tech/posts/rust-tracing-opentelemetry/">Blog post to connect tracing and OTel</a>.</li>
-  <li><a href="https://github.com/open-telemetry/opentelemetry-rust/blob/main/examples/tracing-jaeger/src/main.rs">Code examples for using Jaeger with tracing</a>.</li>
-  <li><a href="https://opentelemetry.io/docs/concepts/observability-primer/#spans">OTel primer</a>.</li>
-  <li><a href="https://www.jaegertracing.io/docs/1.57/getting-started/">Jaeger docs</a>.</li>
-</ul>
-
-<h2 id="video-of-this-in-action-in-the-real-world">Video of this in action in the real world</h2>
-<p><a id="markdown-video-of-this-in-action-in-the-real-world" name="video-of-this-in-action-in-the-real-world"></a></p>
-
-<p>This blog post only has a short example to illustrate how to use Rust tracing and OTel
-with Jaeger. To see how these ideas can be used in production code, with real-world
-examples, please watch the following video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
-channel</a>.</p>
-
-<!-- rust tokio tracing and otel for async rust & playlist -->
-<iframe src="https://www.youtube.com/embed/Wf8JrLgBuKI?si=cmLaUWs-pbJ39lLc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
-</iframe>
-
-<p>Here’s the code for this real world example:</p>
-
-<ul>
-  <li><a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-api-server">Repo for the <code class="language-plaintext highlighter-rouge">tcp-api-server</code> crate, which is an example of creating a TCP server and
-client that are observable using <code class="language-plaintext highlighter-rouge">tracing</code> and
-OTel</a>.
-    <ul>
-      <li>It uses the <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code> crate to allow async, non-blocking readline
-functionality, along with <code class="language-plaintext highlighter-rouge">stdout</code> and <code class="language-plaintext highlighter-rouge">stderr</code> that are also async.</li>
-      <li>This crate is also used to configure Jaeger and tracing subscribers for file, stdout
-logging.</li>
-    </ul>
-  </li>
-  <li>
-    <p><a href="https://github.com/nazmulidris/rust-scratch/tree/main/tcp-api-server#tokio-tracing-usage">README for <code class="language-plaintext highlighter-rouge">tcp-api-server</code> crate, which shows how to use Jaeger, and configure file
-logging and stdout
-logging</a>.</p>
-  </li>
-  <li>
-    <p><a href="https://github.com/r3bl-org/r3bl-open-core/blob/nazmulidris/refactor-tokio-tracing/terminal_async/src/public_api/tracing_setup.rs">How to build up tracing subscribers using layers (type erasure, decl macros,
-etc)</a>.</p>
-  </li>
-  <li>
-    <p><a href="https://github.com/nazmulidris/rust-scratch/pull/34">How to add an OTel layer to a
-subscriber</a>.</p>
-  </li>
-  <li><a href="https://github.com/r3bl-org/r3bl-open-core/pull/326">How the subscriber is configured with custom layers in <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code>
-crate</a>.</li>
-</ul>
-
-<h2 id="short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust">Short example to illustrate the use of tracing and OTel in Rust</h2>
-<p><a id="markdown-short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust" name="short-example-to-illustrate-the-use-of-tracing-and-otel-in-rust"></a></p>
-
-<p>Let’s look a single example (that fits in one file) that illustrates the use of tracing
-in Rust. You can run <code class="language-plaintext highlighter-rouge">cargo new --lib tracing-otel</code> to create a new library crate, and then run
-the following:</p>
-
-<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo add miette <span class="nt">--features</span> fancy
-cargo add tracing tracing-subscriber
-cargo add tokio <span class="nt">--features</span> full
-</code></pre></div></div>
-
-<p>Then you can add the following code to the <code class="language-plaintext highlighter-rouge">src/main.rs</code> file.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">miette</span><span class="p">::</span><span class="n">IntoDiagnostic</span><span class="p">;</span>
-<span class="k">use</span> <span class="nn">tracing</span><span class="p">::</span><span class="n">Span</span><span class="p">;</span>
-
-<span class="nd">#[tokio::main]</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="n">subscriber</span> <span class="o">=</span> <span class="nn">tracing_subscriber</span><span class="p">::</span><span class="nf">fmt</span><span class="p">()</span>
-        <span class="nf">.without_time</span><span class="p">()</span>
-        <span class="nf">.pretty</span><span class="p">()</span>
-        <span class="nf">.with_max_level</span><span class="p">(</span><span class="nn">tracing</span><span class="p">::</span><span class="nn">Level</span><span class="p">::</span><span class="n">DEBUG</span><span class="p">)</span>
-        <span class="nf">.finish</span><span class="p">();</span>
-
-    <span class="nn">tracing</span><span class="p">::</span><span class="nn">subscriber</span><span class="p">::</span><span class="nf">set_global_default</span><span class="p">(</span><span class="n">subscriber</span><span class="p">)</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-
-    <span class="nf">print_message</span><span class="p">(</span><span class="s">"foo"</span><span class="p">)</span><span class="k">.await</span><span class="p">;</span>
-
-    <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>The first part of the code sets up the tracing subscriber. In this case we are using a formatting
-subscriber that prints logs to the console. This subscriber is configured to not print the time of
-the log message, to pretty print the logs, and to print logs at the <code class="language-plaintext highlighter-rouge">DEBUG</code> level or higher.</p>
-
-<p>When you use <code class="language-plaintext highlighter-rouge">#[attribute]</code> along with <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">debug!</code>, etc, Tokio will emit log events
-that are associated with a span. This is the “emitter” side of the process. The other side
-is the “subscriber” side, which is where the logs are actually printed to the console, or
-sent to a file, or sent to an OTel collector service like Jaeger (using OTLP protocol over
-gRPC).</p>
-
-<p>Tokio <code class="language-plaintext highlighter-rouge">tracing</code> allows us to use this simple default subscriber, or create our own custom
-subscribers. It even allows a subscriber to be composed from layers. We can create our own
-custom layers, or use some default ones (like the level filter layer).</p>
-
-<p>OTel is itself a tracing layer. In the video &amp; <code class="language-plaintext highlighter-rouge">tcp-api-server</code> repo, you will see how to
-use OTel with Jaeger, and how to configure the OTel layer with a custom layer.</p>
-
-<p>Next you can add the following code to the <code class="language-plaintext highlighter-rouge">src/main.rs</code> file.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[tracing::instrument(fields(arg</span> <span class="nd">=</span> <span class="err">?</span><span class="nd">arg,</span> <span class="nd">client_id),</span> <span class="nd">ret)]</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">print_message</span><span class="p">(</span><span class="n">arg</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nn">tracing</span><span class="p">::</span><span class="nd">info!</span><span class="p">(</span><span class="s">"log message one"</span><span class="p">);</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="nf">prepare_message</span><span class="p">()</span><span class="k">.await</span><span class="p">);</span>
-
-    <span class="nn">Span</span><span class="p">::</span><span class="nf">current</span><span class="p">()</span><span class="nf">.record</span><span class="p">(</span><span class="s">"client_id"</span><span class="p">,</span> <span class="mi">1234</span><span class="p">);</span>
-
-    <span class="nn">tracing</span><span class="p">::</span><span class="nd">warn!</span><span class="p">(</span><span class="s">"log message two"</span><span class="p">);</span>
-<span class="p">}</span>
-
-<span class="nd">#[tracing::instrument(ret)]</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">prepare_message</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">String</span> <span class="p">{</span>
-    <span class="nn">tracing</span><span class="p">::</span><span class="nd">debug!</span><span class="p">(</span><span class="s">"preparing message"</span><span class="p">);</span>
-    <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="s">"Hello, world!"</span><span class="nf">.to_string</span><span class="p">();</span>
-    <span class="nn">tracing</span><span class="p">::</span><span class="nd">debug!</span><span class="p">(</span><span class="s">"message prepared"</span><span class="p">);</span>
-    <span class="n">it</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>The <code class="language-plaintext highlighter-rouge">print_message</code> function is annotated with the <code class="language-plaintext highlighter-rouge">#[tracing::instrument]</code> attribute.
-This attribute creates a span for the function, and adds the <code class="language-plaintext highlighter-rouge">arg</code> field to the span along
-with the <code class="language-plaintext highlighter-rouge">client_id</code> field. In all the log events are emitted within the span, the <code class="language-plaintext highlighter-rouge">arg</code>
-and <code class="language-plaintext highlighter-rouge">client_id</code> field will be included in the log output. This additional context is
-provided by a span. And you don’t have to write any code to the <code class="language-plaintext highlighter-rouge">info!</code>, <code class="language-plaintext highlighter-rouge">warn!</code>, etc
-calls to include these fields in the log output.</p>
-
-<p>You can run the code using <code class="language-plaintext highlighter-rouge">cargo run</code>. The code will produce the following output.</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   INFO tracing_otel: log message one
-    at src/main.rs:38
-    in tracing_otel::print_message with arg: "foo"
-
-  DEBUG tracing_otel: preparing message
-    at src/main.rs:48
-    in tracing_otel::prepare_message
-    in tracing_otel::print_message with arg: "foo"
-
-  DEBUG tracing_otel: message prepared
-    at src/main.rs:50
-    in tracing_otel::prepare_message
-    in tracing_otel::print_message with arg: "foo"
-
-   INFO tracing_otel: return: "Hello, world!"
-    at src/main.rs:46
-    in tracing_otel::prepare_message
-    in tracing_otel::print_message with arg: "foo"
-
-Hello, world!
-
-   WARN tracing_otel: log message two
-    at src/main.rs:43
-    in tracing_otel::print_message with arg: "foo", client_id: 1234
-
-   INFO tracing_otel: return: ()
-    at src/main.rs:36
-    in tracing_otel::print_message with arg: "foo", client_id: 1234
-</code></pre></div></div>
-
-<p>Beyond this simple example, to dive deeper, please check out the video and the
-<code class="language-plaintext highlighter-rouge">tcp-api-server</code> repo to get a sense of how this can all be used in a real world example
-that has lots of moving parts and pieces. Observability here can tell the story of what
-happened in the system, so it can be another way of getting an understanding of the
-system’s behavior.</p>
-
-<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
-<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
-
-<blockquote>
-  <p>If you have comments and feedback on this content, or would like to request new content
-(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
-server</a>.</p>
-</blockquote>
-
-<p>You can watch a video series on building this crate with Naz on the
-<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
-
-<ul>
-  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
-  <li>Playlists
-    <ul>
-      <li><a href="https://www.youtube.com/watch?v=bolScvh4x7I&amp;list=PLofhE49PEwmw3MKOU1Kn3xbP4FRQR4Mb3">Build with Naz, Linux TTY, process, signals, commands in async Rust</a></li>
-      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
-      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
-      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
-      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
-    </ul>
-  </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[In this article, video, and repo learn how to use tokio tracing and OpenTelemetry (with Jaeger) in async Rust to instrument your code and collect telemetry data for observability.]]></summary></entry></feed>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[In this article, video, and repo learn effective async Rust using real world patterns that show up consistently when creating non blocking, async, event loops, using channels. Delve into implementing the Future trait and async executor manually. Also explore graceful shutdown, when not to use async, and how to think about testing async code.]]></summary></entry></feed>

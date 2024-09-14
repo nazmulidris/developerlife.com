@@ -85,6 +85,10 @@ Read all about TTY history and implementation in Linux
 the exercises here. There is so much background history and information in this article
 that is a prerequisite to understanding anything in this repo.
 
+This is a great [YouTube video](https://youtu.be/juGNPLdjLH4?si=0gg4ZPbPbnL2_rQx) that
+explains the fundamentals of the Linux kernel and device drivers, and how `char` device
+drivers work. TTYs are `char` devices.
+
 ## GitHub repo for this article
 <a id="markdown-github-repo-for-this-article" name="github-repo-for-this-article"></a>
 

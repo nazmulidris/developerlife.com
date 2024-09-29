@@ -292,7 +292,6 @@
         
       </h2>
     
-<p><a id="markdown-what-are-procedural-macros" name="what-are-procedural-macros"></a></p>
 
 <p><strong>Procedural macros</strong> are a way for you to extend the Rust compiler and provide plugins that you can
 use to extend the language. They are really powerful and require some more work to setup in an
@@ -316,7 +315,6 @@ Kotlin and babel and JavaScript.</li>
         
       </h3>
     
-<p><a id="markdown-declarative-macros-have-limitations" name="declarative-macros-have-limitations"></a></p>
 
 <p>For example they can’t work with generics. They are easier to write than procedural
 macros. If you have simple use cases they work great, since they are so easy to write.
@@ -336,7 +334,6 @@ Here are some resources to help you w/ learning declarative macros.</p>
         
       </h3>
     
-<p><a id="markdown-summary-of-proc-vs-decl-macros" name="summary-of-proc-vs-decl-macros"></a></p>
 
 <table>
   <thead>
@@ -372,13 +369,13 @@ Here are some resources to help you w/ learning declarative macros.</p>
         
       </h3>
     
-<p><a id="markdown-source-code-examples" name="source-code-examples"></a></p>
 
 <ol>
   <li>You can find “real world” examples of both declarative and procedural macros in the
 <code class="language-plaintext highlighter-rouge">r3bl-open-core</code> <a href="https://github.com/r3bl-org/r3bl-open-core">repo</a>.
     <ul>
       <li><a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/macro">proc macros</a></li>
+      <li><a href="https://github.com/r3bl-org/r3bl-open-core-archive/tree/main/macro">proc macros</a></li>
       <li><a href="https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules">decl macros</a></li>
     </ul>
   </li>
@@ -399,7 +396,6 @@ by Will Crichton demonstrating Typed Design Patterns with Rust.</p>
         
       </h2>
     
-<p><a id="markdown-how-to-add-a-proc-macro-lib-crate-to-your-existing-project" name="how-to-add-a-proc-macro-lib-crate-to-your-existing-project"></a></p>
 
 <p>Rust has two kinds of macros: declarative and procedural. Declarative macros are made using
 <code class="language-plaintext highlighter-rouge">macro_rules!</code> inline in your code w/out creating a new lib crate. This article is about procedural
@@ -513,7 +509,6 @@ and then runs the test you give that script as an argument.</li>
         
       </h3>
     
-<p><a id="markdown-add-an-internal-or-core-crate" name="add-an-internal-or-core-crate"></a></p>
 
 <p>There are situations where you will need to share code between your public crate and your procedural
 macro crate. In this case you can add an internal or core crate to your project. The shared files
@@ -556,7 +551,6 @@ crate on crates.io.</p>
         
       </h2>
     
-<p><a id="markdown-what-does-a-syn-ast-look-like%3F" name="what-does-a-syn-ast-look-like%3F"></a></p>
 
 <p>Before writing macros, let’s talk about how we need to think about things:</p>
 
@@ -654,7 +648,6 @@ a syn AST:
         
       </h2>
     
-<p><a id="markdown-how-to-write-a-proc-macro-of-any-kind" name="how-to-write-a-proc-macro-of-any-kind"></a></p>
 
 <p>There are 3 kinds of proc macros. Once you’ve created a new library crate for them inside your
 project, you write macros like the ones shown below.</p>
@@ -705,7 +698,6 @@ which goes into visual descriptions of the AST, token tree, etc.</p>
         
       </h3>
     
-<p><a id="markdown-strategy" name="strategy"></a></p>
 
 <p>The rough idea is that we will have to parse “things” into this <code class="language-plaintext highlighter-rouge">proc_macro2::TokenStream</code> in order
 to manipulate them. They can be parsed into this AST from:</p>
@@ -738,7 +730,6 @@ an <code class="language-plaintext highlighter-rouge">ItemFn</code> AST and then
         
       </h3>
     
-<p><a id="markdown-examples" name="examples"></a></p>
 
 <p>So here are some examples of what this looks like.</p>
 
@@ -783,7 +774,6 @@ implement which allows you greater control over the parsing process.</p>
         
       </h3>
     
-<p><a id="markdown-writing-your-own-parse-trait-impl-in-different-ways" name="writing-your-own-parse-trait-impl-in-different-ways"></a></p>
 
 <p>This might not be intuitive, but you can parse the <strong>same</strong> <code class="language-plaintext highlighter-rouge">TokenStream</code> using various different
 parsers. You can parse a <code class="language-plaintext highlighter-rouge">TokenStream</code> as a <code class="language-plaintext highlighter-rouge">Type</code> or <code class="language-plaintext highlighter-rouge">Ident</code> or whatever else depending on what you
@@ -886,7 +876,6 @@ team is also quite helpful.</p>
         
       </h2>
     
-<p><a id="markdown-eg-1---function-like-macro-that-dumps-the-ast" name="eg-1---function-like-macro-that-dumps-the-ast"></a></p>
 
 <p>Let’s start our procedural macro journey w/ something very simple. It’s a macro that doesn’t really
 emit any token stream. It just prints out the AST of the input as debug. So we won’t be using
@@ -1007,7 +996,6 @@ parse a custom syntax.</p>
         
       </h2>
     
-<p><a id="markdown-eg-2---function-like-macro-that-parses-custom-syntax" name="eg-2---function-like-macro-that-parses-custom-syntax"></a></p>
 
 <p>There are times when you need to create your own syntax or domain specific language. Examples of
 this are JSX for React. Or DAO generators for a database. In these cases, it’s not just about
@@ -1024,13 +1012,9 @@ procedural macro will do the rest.</p>
 
 <blockquote>
   <p>📦 To see a real world example of a custom syntax parser, please check out
-<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/my_proc_macros_lib/src/manager_of_things.rs"><code class="language-plaintext highlighter-rouge">manager_of_things.rs</code></a>.</p>
+<a href="https://github.com/r3bl-org/r3bl-open-core-archive/blob/main/macro/src/manager_of_things.rs"><code class="language-plaintext highlighter-rouge">manager_of_things.rs</code></a>.</p>
 
   <ul>
-    <li>This is part of the <a href="https://crates.io/crates/r3bl_rs_utils"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate.</li>
-    <li>You can also look at the
-<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/tests/test_manager_of_things_macro.rs">tests</a>
-to see how this macro is used.</li>
     <li>You can create your own custom keywords using syn via the
 <a href="https://docs.rs/syn/latest/syn/macro.custom_keyword.html"><code class="language-plaintext highlighter-rouge">syn::custom_keyword!()</code></a> macro.</li>
     <li>The code that’s generated also uses <a href="https://github.com/dtolnay/async-trait">async traits</a> which
@@ -1051,7 +1035,6 @@ ideas on custom syntax parsing and creating custom error messages for the compil
         
       </h3>
     
-<p><a id="markdown-desired-syntax-and-behavior" name="desired-syntax-and-behavior"></a></p>
 
 <p>Let’s say that we want to parse a custom syntax like the following, which basically is a declaration
 of how a manager for the struct <code class="language-plaintext highlighter-rouge">HashMap&lt;K, V&gt;</code> should be created.</p>
@@ -1115,7 +1098,6 @@ auto-magically 🪄.</p>
         
       </h3>
     
-<p><a id="markdown-implementing-the-syntax-parser" name="implementing-the-syntax-parser"></a></p>
 
 <p>So how would we implement this macro? The first thing is to create a custom parser for the syntax.
 There are 2 main things we have to do:</p>
@@ -1226,7 +1208,6 @@ provided to <code class="language-plaintext highlighter-rouge">ThingManager</cod
         
       </h3>
     
-<p><a id="markdown-implementing-the-code-generator" name="implementing-the-code-generator"></a></p>
 
 <p>In this example almost all the work goes into parsing the custom syntax. The code generator we are
 going to implement is trivial. Here’s what it looks like.</p>
@@ -1278,7 +1259,6 @@ in its repo.</p>
         
       </h2>
     
-<p><a id="markdown-eg-3---derive-macro-that-adds-a-method-to-a-struct" name="eg-3---derive-macro-that-adds-a-method-to-a-struct"></a></p>
 
 <p>We are going to come up w/ a made-up derive macro called <code class="language-plaintext highlighter-rouge">Describe</code> just for our pedagogical
 purposes.</p>
@@ -1296,7 +1276,6 @@ which simply returns a <code class="language-plaintext highlighter-rouge">String
         
       </h3>
     
-<p><a id="markdown-test-for-expected-output" name="test-for-expected-output"></a></p>
 
 <p>Here are some simple cases that we should be able to handle in our initial implementation.</p>
 
@@ -1343,7 +1322,6 @@ in watch mode you can execute the following script:
         
       </h3>
     
-<p><a id="markdown-watch-macro-expansion" name="watch-macro-expansion"></a></p>
 
 <p>As we are developing this macro it is really useful not only to have the tests running (in watch
 mode) but also have the macro expansion running in watch mode.</p>
@@ -1362,7 +1340,6 @@ in watch mode you can execute the following script:
         
       </h3>
     
-<p><a id="markdown-naive-implementation" name="naive-implementation"></a></p>
 
 <p>Let’s implement this derive macro in a naive way. We won’t handle generics, that will happen
 <a href="#better-implementation-that-handles-generics">later</a>.</p>
@@ -1478,7 +1455,6 @@ when we implement generics support next.</p>
         
       </h3>
     
-<p><a id="markdown-better-implementation-that-handles-generics" name="better-implementation-that-handles-generics"></a></p>
 
 <p>Here’s an example of what a simple <code class="language-plaintext highlighter-rouge">Generics</code> object looks like when generated from
 <code class="language-plaintext highlighter-rouge">struct Point&lt;T&gt; { ... }</code>.</p>
@@ -1573,7 +1549,6 @@ need to do any of this, since <code class="language-plaintext highlighter-rouge"
         
       </h3>
     
-<p><a id="markdown-using-quote!" name="using-quote!"></a></p>
 
 <p>Here’s a mental model for using <code class="language-plaintext highlighter-rouge">quote!()</code>:</p>
 
@@ -1652,7 +1627,6 @@ generating <code class="language-plaintext highlighter-rouge">TokenStream</code>
         
       </h2>
     
-<p><a id="markdown-eg-4---derive-macro-that-generates-a-builder" name="eg-4---derive-macro-that-generates-a-builder"></a></p>
 
 <p>Now that we have seen a relatively simple derive procedural macro, let’s look at a more complex one
 that implements the builder pattern and supports generics. There are two things this macro has to
@@ -1683,7 +1657,6 @@ And you can get the source for the test
         
       </h3>
     
-<p><a id="markdown-stub-out-the-implementation" name="stub-out-the-implementation"></a></p>
 
 <p>We need to make an entry in <code class="language-plaintext highlighter-rouge">lib.rs</code> for it, like so:</p>
 
@@ -1773,7 +1746,6 @@ And you can get the source for the test
         
       </h3>
     
-<p><a id="markdown-testing-the-macro" name="testing-the-macro"></a></p>
 
 <p>Here’s the test for the derive macro, <code class="language-plaintext highlighter-rouge">test_derive_macro_builder.rs</code>. They have to cover all the
 different kinds of structs that we might encounter, some that have generics, some that don’t.</p>
@@ -1842,7 +1814,6 @@ different kinds of structs that we might encounter, some that have generics, som
         
       </h3>
     
-<p><a id="markdown-implementation-details" name="implementation-details"></a></p>
 
 <p>Now that we have the skeleton of the entire thing, let’s look at some details of how this is
 implemented. It’s worth taking a closer look at the
@@ -1936,7 +1907,6 @@ changes.</p>
         
       </h2>
     
-<p><a id="markdown-eg-5---attribute-macro-that-adds-logging-to-a-function" name="eg-5---attribute-macro-that-adds-logging-to-a-function"></a></p>
 
 <p><a href="https://doc.rust-lang.org/reference/procedural-macros.html#attribute-macros">Attribute procedural macros</a>
 are very similar to derive procedural macros, with a few key differences.</p>
@@ -1994,7 +1964,6 @@ the <code class="language-plaintext highlighter-rouge">List</code> variant of <c
         
       </h3>
     
-<p><a id="markdown-create-entry-in-lib.rs" name="create-entry-in-lib.rs"></a></p>
 
 <p>Let’s start by creating an entry in <code class="language-plaintext highlighter-rouge">lib.rs</code> for these attribute macros.</p>
 
@@ -2060,7 +2029,6 @@ were passed into this attribute macro.</p>
         
       </h3>
     
-<p><a id="markdown-how-to-parse-item%3F" name="how-to-parse-item%3F"></a></p>
 
 <p>How do we parse the <code class="language-plaintext highlighter-rouge">item</code> parameter? We can use <code class="language-plaintext highlighter-rouge">syn::ItemFn</code> and <code class="language-plaintext highlighter-rouge">parse_macro_input!()</code> to parse
 it into something usable. Here’s an example.</p>
@@ -2085,7 +2053,6 @@ it into something usable. Here’s an example.</p>
         
       </h3>
     
-<p><a id="markdown-how-to-parse-args-containing-attributes-for-variant-1%3F" name="how-to-parse-args-containing-attributes-for-variant-1%3F"></a></p>
 
 <p>How do we parse <code class="language-plaintext highlighter-rouge">args</code> parameter into something we can use? We can use
 <a href="https://docs.rs/syn/latest/syn/type.AttributeArgs.html"><code class="language-plaintext highlighter-rouge">syn::AttributeArgs</code></a> along w/
@@ -2185,7 +2152,6 @@ macro.</p>
         
       </h3>
     
-<p><a id="markdown-how-to-parse-args-containing-set-of-identifiers-for-variant-2%3F" name="how-to-parse-args-containing-set-of-identifiers-for-variant-2%3F"></a></p>
 
 <p>We can also provide our own custom implementation of the <code class="language-plaintext highlighter-rouge">Parse</code> trait if we want to. Here’s an
 example of this based on syn’s
@@ -2297,7 +2263,6 @@ stable):</p>
         
       </h2>
     
-<p><a id="markdown-learning-resources" name="learning-resources"></a></p>
 
 <ul>
   <li>Overview
@@ -2337,6 +2302,7 @@ stable):</p>
   <code class="language-plaintext highlighter-rouge">r3bl-open-core</code> <a href="https://github.com/r3bl-org/r3bl-open-core">repo</a>.
         <ul>
           <li><a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/macro">proc macros</a></li>
+          <li><a href="https://github.com/r3bl-org/r3bl-open-core-archive/tree/main/macro">proc macros</a></li>
           <li><a href="https://github.com/r3bl-org/r3bl-open-core/search?q=macro_rules">decl macros</a></li>
         </ul>
       </li>
@@ -2353,7 +2319,6 @@ stable):</p>
         
       </h2>
     
-<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
 
 <blockquote>
   <p>If you have comments and feedback on this content, or would like to request new content

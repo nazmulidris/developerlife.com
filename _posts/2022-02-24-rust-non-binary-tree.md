@@ -33,7 +33,6 @@ categories:
 <!-- /TOC -->
 
 ## Introduction
-<a id="markdown-introduction" name="introduction"></a>
 
 This article illustrates how we can build a non-binary tree in Rust using various approaches until
 we end up with a version that is thread safe and supports parallel tree walking as well. Topics like
@@ -54,11 +53,12 @@ will be allow us to make the tree thread safe and parallel friendly (we will nam
 > 📦 The tree (`Arena` & `Node`) is available for you to use in your projects via the
 > [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate.
 
-> 📜 You can take a look the source code of this thread safe non-binary tree data structure named
-> `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/utils).
+> 📜 You can take a look the source code of this thread safe non-binary tree data
+> structure named `Arena` in this
+> [`r3bl-open-core-archive`](https://github.com/r3bl-org/r3bl-open-core-archive/tree/main/utils)
+> repo.
 
 ## Naive approach using weak and strong references
-<a id="markdown-naive-approach-using-weak-and-strong-references" name="naive-approach-using-weak-and-strong-references"></a>
 
 Our first attempt at implementing this data structure will involve using a struct that can hold
 references to children that it owns. And also a reference to a parent that it does not own, but has
@@ -67,7 +67,7 @@ a weak reference to. Also this opens up this data structure to 2 things:
 1. Shared ownership - While the children are owned by the struct, it is necessary to provide access
    to these children node to other code that use this tree data structure. Moving these references
    out of the tree isn't desirable. And cloning the entire node before moving it out of the tree
-   isn't optimal either. This is where shared onwnership comes into play. In order to do that, we
+   isn't optimal either. This is where shared ownership comes into play. In order to do that, we
    wrap the underlying node in a `Rc`. This is a reference counted pointer. However, that isn't
    enough, since once we pass a (shared) reference to other code (that is using this tree), we need
    to provide the ability to mutate what is inside the node itself, which leads us to interior
@@ -84,10 +84,9 @@ a weak reference to. Also this opens up this data structure to 2 things:
 > ownership, interior mutability, weak, and strong references.
 
 ### Thread safety
-<a id="markdown-thread-safety" name="thread-safety"></a>
 
 While this is a good start, we haven't dealt with thread safety. Rust makes it very easy to handle
-this paralellism, we simply do the following:
+this parallelism, we simply do the following:
 
 1. Replace `Rc` with `Arc`.
 2. Replace `RefCell` with `RwLock` (note that we could have also used `Mutex` but we are using
@@ -95,7 +94,6 @@ this paralellism, we simply do the following:
    rather than new nodes added to the tree).
 
 ### Implementation
-<a id="markdown-implementation" name="implementation"></a>
 
 Here's some code that we will use to implement this data structure. Let's start w/ describing the
 struct that holds the value or payload, the children, and parent references.
@@ -109,7 +107,7 @@ struct that holds the value or payload, the children, and parent references.
 ///  | | |
 ///  | | +- value: T ---------------------------------------+
 ///  | |                                                    |
-///  | |                                        Simple onwership of value
+///  | |                                        Simple ownership of value
 ///  | |
 ///  | +-- parent: RwLock<WeakNodeNodeRef<T>> --------+
 ///  |                                            |
@@ -280,7 +278,6 @@ where
 > [in the Rust playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=b194d56e5dcd538d88dc4e490c39862b).
 
 ## Sophisticated approach using memory arena
-<a id="markdown-sophisticated-approach-using-memory-arena" name="sophisticated-approach-using-memory-arena"></a>
 
 In our naive example, we manage references that are strong (owned, children) and weak (not owned,
 parent). And we have to wrap the `NodeData` inside of a `Node` in order to be able to share it. This
@@ -305,7 +302,6 @@ must have an `id`, so the following section goes into quite a bit of detail on h
 implementing this.
 
 ### Traits
-<a id="markdown-traits" name="traits"></a>
 
 Traits are like TypeScript, Java, or Kotlin interfaces. They also act like Kotlin extension
 functions. Traits come into play when we want to pass an argument to a function that takes something
@@ -355,7 +351,7 @@ impl HasId for i32 {
 ```
 
 Here are the various forms of using the `HasId` trait as an argument to a function. You can see that
-arguments of type `Node` and `i32` are passed interchangably to the functions 🪄. There is event a
+arguments of type `Node` and `i32` are passed interchangeably to the functions 🪄. There is event a
 variant that takes a `Node` or `i32` wrapped in a `Box`.
 
 ```rust
@@ -427,13 +423,6 @@ fn fun_4(node: Box<dyn HasId<Id = i32>>) {
 > in Rust playground.
 
 ### Arena implementation details
-<a id="markdown-arena-implementation-details" name="arena-implementation-details"></a>
-
-> 📦 You can get `Arena`, `Node` and `style_primary` from
-> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate.
-
-> 🌟 Please star the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core) on github if
-> you like it 🙏.
 
 `Arena` provides a trait called `HasId` that represents the `id` of a node in the tree. Both a
 `usize` and `Node` can be an instance of this trait.
@@ -457,7 +446,6 @@ fn fun_4(node: Box<dyn HasId<Id = i32>>) {
 > <img class="post-hero-image" src="{{ 'assets/tree-approaches.drawio.svg' | relative_url }}"/>
 
 ### Basic usage of the arena (tree)
-<a id="markdown-basic-usage-of-the-arena-tree" name="basic-usage-of-the-arena-tree"></a>
 
 The first step to using this tree is adding the dependency for `r3bl_rs_utils` to your `Cargo.toml`.
 
@@ -537,12 +525,11 @@ fn test_can_add_nodes_to_tree() {
 }
 ```
 
-> 📜 There are more complex ways of using this `Arena`. Please look at these extensive integration
-> tests that put the `Arena` API thru its paces
-> [here](https://github.com/r3bl-org/r3bl-rs-utils/blob/main/tests/tree_memory_arena_test.rs).
+> 📜 There are more complex ways of using this `Arena`. Please look at these extensive
+> integration tests that put the `Arena` API thru its paces
+> [here](https://github.com/r3bl-org/r3bl-open-core-archive/blob/main/utils/tests/test_tree_memory_arena.rs).
 
 ### Multithreading
-<a id="markdown-multithreading" name="multithreading"></a>
 
 `Arena` is thread-safe by design. However, there's another struct called `MTArena` that allow for
 parallel tree walking, and even sharing `Arena` instances between threads & shared ownership of the
@@ -622,7 +609,7 @@ fn test_mt_arena_insert_and_walk_in_parallel() {
   });
   println!("{:#?}", &arena);
 
-  // Perform tree walking in parallel. Note the lamda does capture many enclosing variable context.
+  // Perform tree walking in parallel. Note the lambda does capture many enclosing variable context.
   {
     let arena_arc = arena.get_arena_arc();
     let fn_arc = Arc::new(move |uid, payload| {
@@ -658,20 +645,12 @@ fn test_mt_arena_insert_and_walk_in_parallel() {
 ```
 
 ## Wrapping up
-<a id="markdown-wrapping-up" name="wrapping-up"></a>
 
 There are lots of other useful library functions that you can check out in `r3bl_rs_utils` crate.
 There are functions that make it easy to unwrap things in Rust that are wrapped in an `<Option>`, or
 `<Arc<RwLock>>`, etc. There are Kotlin inspired scope functions if you like that type of thing.
 
-> 📦 The tree (`Arena` & `Node`) is available for you to use in your projects via the
-> [`r3bl_rs_utils`](https://crates.io/crates/r3bl_rs_utils) crate.
-
-> 📜 You can take a look the source code of this thread safe non-binary tree data structure named
-> `Arena` in its github [repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/utils).
-
 ## Build with Naz video series on developerlife.com YouTube channel
-<a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a>
 
 > If you have comments and feedback on this content, or would like to request new content
 > (articles & videos) on developerlife.com, please join our [discord

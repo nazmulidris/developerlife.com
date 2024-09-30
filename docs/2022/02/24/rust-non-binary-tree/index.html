@@ -255,7 +255,6 @@
         
       </h2>
     
-<p><a id="markdown-introduction" name="introduction"></a></p>
 
 <p>This article illustrates how we can build a non-binary tree in Rust using various approaches until
 we end up with a version that is thread safe and supports parallel tree walking as well. Topics like
@@ -281,8 +280,10 @@ will be allow us to make the tree thread safe and parallel friendly (we will nam
 </blockquote>
 
 <blockquote>
-  <p>📜 You can take a look the source code of this thread safe non-binary tree data structure named
-<code class="language-plaintext highlighter-rouge">Arena</code> in its github <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/utils">repo</a>.</p>
+  <p>📜 You can take a look the source code of this thread safe non-binary tree data
+structure named <code class="language-plaintext highlighter-rouge">Arena</code> in this
+<a href="https://github.com/r3bl-org/r3bl-open-core-archive/tree/main/utils"><code class="language-plaintext highlighter-rouge">r3bl-open-core-archive</code></a>
+repo.</p>
 </blockquote>
       <h2 id="naive-approach-using-weak-and-strong-references">
         
@@ -292,7 +293,6 @@ will be allow us to make the tree thread safe and parallel friendly (we will nam
         
       </h2>
     
-<p><a id="markdown-naive-approach-using-weak-and-strong-references" name="naive-approach-using-weak-and-strong-references"></a></p>
 
 <p>Our first attempt at implementing this data structure will involve using a struct that can hold
 references to children that it owns. And also a reference to a parent that it does not own, but has
@@ -302,7 +302,7 @@ a weak reference to. Also this opens up this data structure to 2 things:</p>
   <li>Shared ownership - While the children are owned by the struct, it is necessary to provide access
 to these children node to other code that use this tree data structure. Moving these references
 out of the tree isn’t desirable. And cloning the entire node before moving it out of the tree
-isn’t optimal either. This is where shared onwnership comes into play. In order to do that, we
+isn’t optimal either. This is where shared ownership comes into play. In order to do that, we
 wrap the underlying node in a <code class="language-plaintext highlighter-rouge">Rc</code>. This is a reference counted pointer. However, that isn’t
 enough, since once we pass a (shared) reference to other code (that is using this tree), we need
 to provide the ability to mutate what is inside the node itself, which leads us to interior
@@ -328,10 +328,9 @@ ownership, interior mutability, weak, and strong references.</p>
         
       </h3>
     
-<p><a id="markdown-thread-safety" name="thread-safety"></a></p>
 
 <p>While this is a good start, we haven’t dealt with thread safety. Rust makes it very easy to handle
-this paralellism, we simply do the following:</p>
+this parallelism, we simply do the following:</p>
 
 <ol>
   <li>Replace <code class="language-plaintext highlighter-rouge">Rc</code> with <code class="language-plaintext highlighter-rouge">Arc</code>.</li>
@@ -347,7 +346,6 @@ rather than new nodes added to the tree).</li>
         
       </h3>
     
-<p><a id="markdown-implementation" name="implementation"></a></p>
 
 <p>Here’s some code that we will use to implement this data structure. Let’s start w/ describing the
 struct that holds the value or payload, the children, and parent references.</p>
@@ -360,7 +358,7 @@ struct that holds the value or payload, the children, and parent references.</p>
 <span class="cd">///  | | |</span>
 <span class="cd">///  | | +- value: T ---------------------------------------+</span>
 <span class="cd">///  | |                                                    |</span>
-<span class="cd">///  | |                                        Simple onwership of value</span>
+<span class="cd">///  | |                                        Simple ownership of value</span>
 <span class="cd">///  | |</span>
 <span class="cd">///  | +-- parent: RwLock&lt;WeakNodeNodeRef&lt;T&gt;&gt; --------+</span>
 <span class="cd">///  |                                            |</span>
@@ -537,7 +535,6 @@ trait for <code class="language-plaintext highlighter-rouge">Node</code>.</p>
         
       </h2>
     
-<p><a id="markdown-sophisticated-approach-using-memory-arena" name="sophisticated-approach-using-memory-arena"></a></p>
 
 <p>In our naive example, we manage references that are strong (owned, children) and weak (not owned,
 parent). And we have to wrap the <code class="language-plaintext highlighter-rouge">NodeData</code> inside of a <code class="language-plaintext highlighter-rouge">Node</code> in order to be able to share it. This
@@ -568,7 +565,6 @@ implementing this.</p>
         
       </h3>
     
-<p><a id="markdown-traits" name="traits"></a></p>
 
 <p>Traits are like TypeScript, Java, or Kotlin interfaces. They also act like Kotlin extension
 functions. Traits come into play when we want to pass an argument to a function that takes something
@@ -619,7 +615,7 @@ derived from this.</p>
 </code></pre></div></div>
 
 <p>Here are the various forms of using the <code class="language-plaintext highlighter-rouge">HasId</code> trait as an argument to a function. You can see that
-arguments of type <code class="language-plaintext highlighter-rouge">Node</code> and <code class="language-plaintext highlighter-rouge">i32</code> are passed interchangably to the functions 🪄. There is event a
+arguments of type <code class="language-plaintext highlighter-rouge">Node</code> and <code class="language-plaintext highlighter-rouge">i32</code> are passed interchangeably to the functions 🪄. There is event a
 variant that takes a <code class="language-plaintext highlighter-rouge">Node</code> or <code class="language-plaintext highlighter-rouge">i32</code> wrapped in a <code class="language-plaintext highlighter-rouge">Box</code>.</p>
 
 <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="n">my_node</span> <span class="o">=</span> <span class="n">Node</span> <span class="p">{</span>
@@ -697,17 +693,6 @@ in Rust playground.</p>
         
       </h3>
     
-<p><a id="markdown-arena-implementation-details" name="arena-implementation-details"></a></p>
-
-<blockquote>
-  <p>📦 You can get <code class="language-plaintext highlighter-rouge">Arena</code>, <code class="language-plaintext highlighter-rouge">Node</code> and <code class="language-plaintext highlighter-rouge">style_primary</code> from
-<a href="https://crates.io/crates/r3bl_rs_utils"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate.</p>
-</blockquote>
-
-<blockquote>
-  <p>🌟 Please star the <a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo</a> on github if
-you like it 🙏.</p>
-</blockquote>
 
 <p><code class="language-plaintext highlighter-rouge">Arena</code> provides a trait called <code class="language-plaintext highlighter-rouge">HasId</code> that represents the <code class="language-plaintext highlighter-rouge">id</code> of a node in the tree. Both a
 <code class="language-plaintext highlighter-rouge">usize</code> and <code class="language-plaintext highlighter-rouge">Node</code> can be an instance of this trait.</p>
@@ -741,7 +726,6 @@ is just <code class="language-plaintext highlighter-rouge">usize</code>. However
         
       </h3>
     
-<p><a id="markdown-basic-usage-of-the-arena-tree" name="basic-usage-of-the-arena-tree"></a></p>
 
 <p>The first step to using this tree is adding the dependency for <code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> to your <code class="language-plaintext highlighter-rouge">Cargo.toml</code>.</p>
 
@@ -820,9 +804,9 @@ then performs a tree walk (which returns a list of <code class="language-plainte
 </code></pre></div></div>
 
 <blockquote>
-  <p>📜 There are more complex ways of using this <code class="language-plaintext highlighter-rouge">Arena</code>. Please look at these extensive integration
-tests that put the <code class="language-plaintext highlighter-rouge">Arena</code> API thru its paces
-<a href="https://github.com/r3bl-org/r3bl-rs-utils/blob/main/tests/tree_memory_arena_test.rs">here</a>.</p>
+  <p>📜 There are more complex ways of using this <code class="language-plaintext highlighter-rouge">Arena</code>. Please look at these extensive
+integration tests that put the <code class="language-plaintext highlighter-rouge">Arena</code> API thru its paces
+<a href="https://github.com/r3bl-org/r3bl-open-core-archive/blob/main/utils/tests/test_tree_memory_arena.rs">here</a>.</p>
 </blockquote>
       <h3 id="multithreading">
         
@@ -832,7 +816,6 @@ tests that put the <code class="language-plaintext highlighter-rouge">Arena</cod
         
       </h3>
     
-<p><a id="markdown-multithreading" name="multithreading"></a></p>
 
 <p><code class="language-plaintext highlighter-rouge">Arena</code> is thread-safe by design. However, there’s another struct called <code class="language-plaintext highlighter-rouge">MTArena</code> that allow for
 parallel tree walking, and even sharing <code class="language-plaintext highlighter-rouge">Arena</code> instances between threads &amp; shared ownership of the
@@ -911,7 +894,7 @@ closure that is passed to this function <code class="language-plaintext highligh
   <span class="p">});</span>
   <span class="nd">println!</span><span class="p">(</span><span class="s">"{:#?}"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">arena</span><span class="p">);</span>
 
-  <span class="c1">// Perform tree walking in parallel. Note the lamda does capture many enclosing variable context.</span>
+  <span class="c1">// Perform tree walking in parallel. Note the lambda does capture many enclosing variable context.</span>
   <span class="p">{</span>
     <span class="k">let</span> <span class="n">arena_arc</span> <span class="o">=</span> <span class="n">arena</span><span class="nf">.get_arena_arc</span><span class="p">();</span>
     <span class="k">let</span> <span class="n">fn_arc</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="k">move</span> <span class="p">|</span><span class="n">uid</span><span class="p">,</span> <span class="n">payload</span><span class="p">|</span> <span class="p">{</span>
@@ -953,21 +936,10 @@ closure that is passed to this function <code class="language-plaintext highligh
         
       </h2>
     
-<p><a id="markdown-wrapping-up" name="wrapping-up"></a></p>
 
 <p>There are lots of other useful library functions that you can check out in <code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code> crate.
 There are functions that make it easy to unwrap things in Rust that are wrapped in an <code class="language-plaintext highlighter-rouge">&lt;Option&gt;</code>, or
 <code class="language-plaintext highlighter-rouge">&lt;Arc&lt;RwLock&gt;&gt;</code>, etc. There are Kotlin inspired scope functions if you like that type of thing.</p>
-
-<blockquote>
-  <p>📦 The tree (<code class="language-plaintext highlighter-rouge">Arena</code> &amp; <code class="language-plaintext highlighter-rouge">Node</code>) is available for you to use in your projects via the
-<a href="https://crates.io/crates/r3bl_rs_utils"><code class="language-plaintext highlighter-rouge">r3bl_rs_utils</code></a> crate.</p>
-</blockquote>
-
-<blockquote>
-  <p>📜 You can take a look the source code of this thread safe non-binary tree data structure named
-<code class="language-plaintext highlighter-rouge">Arena</code> in its github <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/utils">repo</a>.</p>
-</blockquote>
       <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
         
         
@@ -976,7 +948,6 @@ There are functions that make it easy to unwrap things in Rust that are wrapped 
         
       </h2>
     
-<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
 
 <blockquote>
   <p>If you have comments and feedback on this content, or would like to request new content

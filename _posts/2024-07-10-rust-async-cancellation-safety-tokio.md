@@ -33,7 +33,6 @@ categories:
 <!-- /TOC -->
 
 ## Introduction
-<a id="markdown-introduction" name="introduction"></a>
 
 This tutorial, video, and repo are a deep dive into the concept of cancellation safety in
 async code using Tokio and Rust. It affects the `tokio::select!` macro, and what happens
@@ -89,7 +88,6 @@ require you to call `.await`. The code it generates take care of this.
 > examples below.
 
 ## What can go wrong when racing futures?
-<a id="markdown-what-can-go-wrong-when-racing-futures%3F" name="what-can-go-wrong-when-racing-futures%3F"></a>
 
 If you recall, in Rust, a `Future` is just a data structure that doesn't really do
 anything until you `.await` it.
@@ -120,7 +118,6 @@ async streams, etc. you will be fine. However if you're maintaining state inside
 happens.
 
 ## YouTube video for this article
-<a id="markdown-youtube-video-for-this-article" name="youtube-video-for-this-article"></a>
 
 This blog post has examples from this live coding video. If you like
 to learn via video, please watch the companion video on the [developerlife.com YouTube
@@ -139,7 +136,6 @@ channel](https://www.youtube.com/@developerlifecom).
 <br/>
 
 ## Examples of cancellation safety in async Rust using tokio::select!
-<a id="markdown-examples-of-cancellation-safety-in-async-rust-using-tokio%3A%3Aselect!" name="examples-of-cancellation-safety-in-async-rust-using-tokio%3A%3Aselect!"></a>
 
 Let's create some examples to illustrate how to use the typestate pattern in Rust. You can run
 `cargo new --lib async_cancel_safe` to create a new library crate.
@@ -167,7 +163,6 @@ futures-util = "0.3.30"
 We are going to add all the examples below as tests to the `lib.rs` file in this crate.
 
 ### Example 1: Right and wrong way to sleep, and interval
-<a id="markdown-example-1%3A-right-and-wrong-way-to-sleep%2C-and-interval" name="example-1%3A-right-and-wrong-way-to-sleep%2C-and-interval"></a>
 
 Add the following code to your `lib.rs` file. Both these examples show similar ways of using
 `tokio::time::sleep(..)` incorrectly in a `tokio::select!` block.
@@ -191,7 +186,9 @@ async fn test_sleep_right_and_wrong_ways_v1() {
         tokio::select! {
             // Branch 1 (right way)
             // This branch executes a deterministic number of times. The same
-            // sleep future is re-used on each iteration.
+            // sleep future is re-used on each iteration. Once the sleep "expires"
+            // it stays "expired"! This is the desired behavior:
+            // https://docs.rs/tokio/latest/tokio/time/struct.Sleep.html
             _ = &mut sleep => {
                 println!("branch 1 - tick : {count}");
                 count -= 1;
@@ -258,13 +255,29 @@ You can run these tests to see what they do by running the following in your ter
 They are flaky and its not possible to really make accurate assertions at the end of
 each of these tests.
 
-Let's break down `v1` first to see what is happening.
+Let's break down `v1` first to see what is happening. Here's the output:
+
+```
+---- test_sleep_right_and_wrong_ways_v1 stdout ----
+branch 2 - sleep : 5, elapsed: 101 ms
+branch 1 - tick : 5, elapsed: 101 ms
+branch 1 - tick : 4, elapsed: 101 ms
+branch 1 - tick : 3, elapsed: 101 ms
+branch 1 - tick : 2, elapsed: 101 ms
+branch 1 - tick : 1, elapsed: 101 msk
+```
 
 - Branch 1 (right way): This branch executes a deterministic number of times. The same
   sleep future is re-used on each iteration. This is achieved using the `tokio::pin!`
-  macro. Since futures are stateful, ensuring that the same one is re-used between
-  iterations of the `loop` ensures that state isn't lost when the other branch is
-  executed, or when this branch finishes and its future is dropped.
+  macro. Here are the [docs](https://docs.rs/tokio/latest/tokio/time/struct.Sleep.html) on
+  how to use `Sleep` in `tokio::select!` blocks. Since futures are stateful, ensuring that
+  the same one is re-used between iterations of the `loop` ensures that state isn't lost
+  when the other branch is executed, or when this branch finishes and its future is
+  dropped. Notice that the first time in `branch 1` the code waits for 100ms, and then the
+  subsequent 4 iterations of the loop do not wait at all! This is because the `sleep`
+  future is in a `Ready` state after the first iteration, and effectively, we only wait
+  100ms in this loop. For those familiar with Javascript, this is akin to `setTimeout` and
+  not `setInterval` semantics.
 - Branch 2 (wrong way): This branch is executed a non deterministic number of times. This
   is because the sleep future is not pinned. It is dropped when the other branch is
   executed. Then on the next iteration, a **new** sleep future is created. This means that
@@ -280,7 +293,6 @@ Let's break down `v2` next.
 - Branch 2 (wrong way): Same as before.
 
 #### Difference between interval and sleep
-<a id="markdown-difference-between-interval-and-sleep" name="difference-between-interval-and-sleep"></a>
 
 This is the mental model that I've developed for using these.
 
@@ -294,7 +306,6 @@ This is the mental model that I've developed for using these.
    loop. And even accumulate how many times it runs to decide when to break.
 
 ### Example 2: Safe cancel of a future using interval and mpsc channel
-<a id="markdown-example-2%3A-safe-cancel-of-a-future-using-interval-and-mpsc-channel" name="example-2%3A-safe-cancel-of-a-future-using-interval-and-mpsc-channel"></a>
 
 Add the following snippet to your `lib.rs` file.
 
@@ -365,7 +376,6 @@ Let's break down what's happening in this test.
 look at the `vec` that we accumulate outside of the `loop` this contains what we expect.
 
 ### Example 3: Inducing cancellation safety issues
-<a id="markdown-example-3%3A-inducing-cancellation-safety-issues" name="example-3%3A-inducing-cancellation-safety-issues"></a>
 
 This is the example we have all been waiting for. Let's start with copying the
 following snippet in your `lib.rs` file. We will create a new module here.
@@ -532,7 +542,6 @@ pinned `Vec` to get around this issue.
 > in some buffer is dropped, then this is not a problem.
 
 ## Build with Naz video series on developerlife.com YouTube channel
-<a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a>
 
 > If you have comments and feedback on this content, or would like to request new content
 > (articles & videos) on developerlife.com, please join our [discord

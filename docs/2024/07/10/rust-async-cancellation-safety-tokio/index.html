@@ -253,7 +253,6 @@
         
       </h2>
     
-<p><a id="markdown-introduction" name="introduction"></a></p>
 
 <p>This tutorial, video, and repo are a deep dive into the concept of cancellation safety in
 async code using Tokio and Rust. It affects the <code class="language-plaintext highlighter-rouge">tokio::select!</code> macro, and what happens
@@ -320,7 +319,6 @@ examples below.</p>
         
       </h2>
     
-<p><a id="markdown-what-can-go-wrong-when-racing-futures%3F" name="what-can-go-wrong-when-racing-futures%3F"></a></p>
 
 <p>If you recall, in Rust, a <code class="language-plaintext highlighter-rouge">Future</code> is just a data structure that doesn’t really do
 anything until you <code class="language-plaintext highlighter-rouge">.await</code> it.</p>
@@ -363,7 +361,6 @@ happens.</p>
         
       </h2>
     
-<p><a id="markdown-youtube-video-for-this-article" name="youtube-video-for-this-article"></a></p>
 
 <p>This blog post has examples from this live coding video. If you like
 to learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
@@ -382,7 +379,6 @@ channel</a>.</p>
         
       </h2>
     
-<p><a id="markdown-examples-of-cancellation-safety-in-async-rust-using-tokio%3A%3Aselect!" name="examples-of-cancellation-safety-in-async-rust-using-tokio%3A%3Aselect!"></a></p>
 
 <p>Let’s create some examples to illustrate how to use the typestate pattern in Rust. You can run
 <code class="language-plaintext highlighter-rouge">cargo new --lib async_cancel_safe</code> to create a new library crate.</p>
@@ -417,7 +413,6 @@ dependencies that we need for these examples.</p>
         
       </h3>
     
-<p><a id="markdown-example-1%3A-right-and-wrong-way-to-sleep%2C-and-interval" name="example-1%3A-right-and-wrong-way-to-sleep%2C-and-interval"></a></p>
 
 <p>Add the following code to your <code class="language-plaintext highlighter-rouge">lib.rs</code> file. Both these examples show similar ways of using
 <code class="language-plaintext highlighter-rouge">tokio::time::sleep(..)</code> incorrectly in a <code class="language-plaintext highlighter-rouge">tokio::select!</code> block.</p>
@@ -440,7 +435,9 @@ dependencies that we need for these examples.</p>
         <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
             <span class="c1">// Branch 1 (right way)</span>
             <span class="c1">// This branch executes a deterministic number of times. The same</span>
-            <span class="c1">// sleep future is re-used on each iteration.</span>
+            <span class="c1">// sleep future is re-used on each iteration. Once the sleep "expires"</span>
+            <span class="c1">// it stays "expired"! This is the desired behavior:</span>
+            <span class="c1">// https://docs.rs/tokio/latest/tokio/time/struct.Sleep.html</span>
             <span class="n">_</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">sleep</span> <span class="k">=&gt;</span> <span class="p">{</span>
                 <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - tick : {count}"</span><span class="p">);</span>
                 <span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
@@ -509,14 +506,29 @@ dependencies that we need for these examples.</p>
 <p>They are flaky and its not possible to really make accurate assertions at the end of
 each of these tests.</p>
 
-<p>Let’s break down <code class="language-plaintext highlighter-rouge">v1</code> first to see what is happening.</p>
+<p>Let’s break down <code class="language-plaintext highlighter-rouge">v1</code> first to see what is happening. Here’s the output:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>---- test_sleep_right_and_wrong_ways_v1 stdout ----
+branch 2 - sleep : 5, elapsed: 101 ms
+branch 1 - tick : 5, elapsed: 101 ms
+branch 1 - tick : 4, elapsed: 101 ms
+branch 1 - tick : 3, elapsed: 101 ms
+branch 1 - tick : 2, elapsed: 101 ms
+branch 1 - tick : 1, elapsed: 101 msk
+</code></pre></div></div>
 
 <ul>
   <li>Branch 1 (right way): This branch executes a deterministic number of times. The same
 sleep future is re-used on each iteration. This is achieved using the <code class="language-plaintext highlighter-rouge">tokio::pin!</code>
-macro. Since futures are stateful, ensuring that the same one is re-used between
-iterations of the <code class="language-plaintext highlighter-rouge">loop</code> ensures that state isn’t lost when the other branch is
-executed, or when this branch finishes and its future is dropped.</li>
+macro. Here are the <a href="https://docs.rs/tokio/latest/tokio/time/struct.Sleep.html">docs</a> on
+how to use <code class="language-plaintext highlighter-rouge">Sleep</code> in <code class="language-plaintext highlighter-rouge">tokio::select!</code> blocks. Since futures are stateful, ensuring that
+the same one is re-used between iterations of the <code class="language-plaintext highlighter-rouge">loop</code> ensures that state isn’t lost
+when the other branch is executed, or when this branch finishes and its future is
+dropped. Notice that the first time in <code class="language-plaintext highlighter-rouge">branch 1</code> the code waits for 100ms, and then the
+subsequent 4 iterations of the loop do not wait at all! This is because the <code class="language-plaintext highlighter-rouge">sleep</code>
+future is in a <code class="language-plaintext highlighter-rouge">Ready</code> state after the first iteration, and effectively, we only wait
+100ms in this loop. For those familiar with Javascript, this is akin to <code class="language-plaintext highlighter-rouge">setTimeout</code> and
+not <code class="language-plaintext highlighter-rouge">setInterval</code> semantics.</li>
   <li>Branch 2 (wrong way): This branch is executed a non deterministic number of times. This
 is because the sleep future is not pinned. It is dropped when the other branch is
 executed. Then on the next iteration, a <strong>new</strong> sleep future is created. This means that
@@ -541,7 +553,6 @@ method that returns a <code class="language-plaintext highlighter-rouge">Future<
         
       </h4>
     
-<p><a id="markdown-difference-between-interval-and-sleep" name="difference-between-interval-and-sleep"></a></p>
 
 <p>This is the mental model that I’ve developed for using these.</p>
 
@@ -563,7 +574,6 @@ loop. And even accumulate how many times it runs to decide when to break.</li>
         
       </h3>
     
-<p><a id="markdown-example-2%3A-safe-cancel-of-a-future-using-interval-and-mpsc-channel" name="example-2%3A-safe-cancel-of-a-future-using-interval-and-mpsc-channel"></a></p>
 
 <p>Add the following snippet to your <code class="language-plaintext highlighter-rouge">lib.rs</code> file.</p>
 
@@ -640,7 +650,6 @@ look at the <code class="language-plaintext highlighter-rouge">vec</code> that w
         
       </h3>
     
-<p><a id="markdown-example-3%3A-inducing-cancellation-safety-issues" name="example-3%3A-inducing-cancellation-safety-issues"></a></p>
 
 <p>This is the example we have all been waiting for. Let’s start with copying the
 following snippet in your <code class="language-plaintext highlighter-rouge">lib.rs</code> file. We will create a new module here.</p>
@@ -818,7 +827,6 @@ in some buffer is dropped, then this is not a problem.</p>
         
       </h2>
     
-<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
 
 <blockquote>
   <p>If you have comments and feedback on this content, or would like to request new content

@@ -1,11 +1,15 @@
+@use "sass:color";
+@use "colors";
+@use "globals";
+
 // Scrollbar styling.
 
 $scrollbarWidth: 11px;
 $scrollbarHeight: 7px;
 $colorChange: 10%;
 $scrollbarBorderRadius: 50px;
-$scrollbarThumbColor: darken($brandColor, $colorChange);
-$scrollbarThumbColorOnHover: $globalLinkHoverColor;
+$scrollbarThumbColor: color.adjust(colors.$brandColor, $lightness: -$colorChange);
+$scrollbarThumbColorOnHover: colors.$globalLinkHoverColor;
 
 ::-webkit-scrollbar {
   height: $scrollbarHeight; /* Height of horizontal scrollbar. */
@@ -15,8 +19,8 @@ $scrollbarThumbColorOnHover: $globalLinkHoverColor;
 
 ::-webkit-scrollbar-track {
   $margin: 1ch;
-  background: $colorBlueDark;
-  border-radius: $globalBorderRadius;
+  background: colors.$colorBlueDark;
+  border-radius: globals.$globalBorderRadius;
   margin-left: $margin;
   margin-right: $margin;
 }

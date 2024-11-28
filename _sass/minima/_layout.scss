@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2022 Nazmul Idris
+ *   Copyright (c) 2024 Nazmul Idris
  *   All rights reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,29 +15,34 @@
  *   limitations under the License.
  */
 
+@use "sass:math";
+@use "sass:color";
+@use "../colors";
+@use "../globals";
+
 /**
  * Site header
  */
 .site-header {
-  border-top: 5px solid $colorGreyLighter;
-  border-bottom: 1px solid $colorGreyLight;
-  min-height: $spacingUnit * 1.865;
+  border-top: 5px solid colors.$colorGreyLighter;
+  border-bottom: 1px solid colors.$colorGreyLight;
+  min-height: globals.$spacingUnit * 1.865;
 
   // Positioning context for the mobile navigation icon
   position: relative;
 }
 
 .site-title {
-  @include relative-font-size(1.625);
+  @include globals.relative-font-size(1.625);
   font-weight: 300;
-  line-height: $baseLineHeight * $baseFontSize * 2.25;
+  line-height: globals.$baseLineHeight * globals.$baseFontSize * 2.25;
   letter-spacing: -1px;
   margin-bottom: 0;
   float: left;
 
   &,
   &:visited {
-    color: $colorGreyLighter;
+    color: colors.$colorGreyLighter;
   }
 }
 
@@ -55,8 +60,8 @@
   }
 
   .page-link {
-    color: $textColor;
-    line-height: $baseLineHeight;
+    color: colors.$textColor;
+    line-height: globals.$baseLineHeight;
 
     // Gaps between nav items, but not on the last one
     &:not(:last-child) {
@@ -64,12 +69,12 @@
     }
   }
 
-  @include media-query($onPalm) {
+  @include globals.media-query(globals.$onPalm) {
     position: absolute;
     top: 9px;
-    right: $spacingUnit / 2;
-    background-color: transparentize($backgroundColor, 0.2);
-    border: 1px solid $colorGreyLight;
+    right: math.div(globals.$spacingUnit, 2);
+    background-color: color.adjust(globals.$backgroundColor, $alpha: -0.2);
+    border: 1px solid colors.$colorGreyLight;
     border-radius: 5px;
     text-align: right;
 
@@ -91,17 +96,17 @@
       padding-top: 10px;
       text-align: center;
 
-      > svg {
-        fill: $brandColor;
+      >svg {
+        fill: colors.$brandColor;
       }
     }
 
-    input ~ .trigger {
+    input~.trigger {
       clear: both;
       display: none;
     }
 
-    input:checked ~ .trigger {
+    input:checked~.trigger {
       $paddingHorizontal: 1ch;
 
       display: flex;
@@ -120,6 +125,7 @@
       &:not(:last-child) {
         margin-right: 0;
       }
+
       margin-left: 20px;
     }
   }
@@ -129,13 +135,13 @@
  * Site footer
  */
 .site-footer {
-  border-top: 1px solid $colorGreyLight;
-  padding: $spacingUnit 0;
+  border-top: 1px solid colors.$colorGreyLight;
+  padding: globals.$spacingUnit 0;
 }
 
 .footer-heading {
-  @include relative-font-size(1.125);
-  margin-bottom: $spacingUnit / 2;
+  @include globals.relative-font-size(1.125);
+  margin-bottom: math.div(globals.$spacingUnit, 2);
 }
 
 .contact-list,
@@ -145,51 +151,52 @@
 }
 
 .footer-col-wrapper {
-  @include relative-font-size(0.9375);
-  color: $colorGrey;
-  margin-left: -$spacingUnit / 2;
-  @extend %clearfix;
+  @include globals.relative-font-size(0.9375);
+  color: colors.$colorGrey;
+  margin-left: math.div(globals.$spacingUnit, -2);
+  @extend %clearfix !optional;
 }
 
 .footer-col {
   float: left;
-  margin-bottom: $spacingUnit / 2;
-  padding-left: $spacingUnit / 2;
+  margin-bottom: math.div(globals.$spacingUnit, 2);
+  padding-left: math.div(globals.$spacingUnit, 2);
 }
 
 .footer-col-1 {
-  width: -webkit-calc(35% - (#{$spacingUnit} / 2));
-  width: calc(35% - (#{$spacingUnit} / 2));
+  width: -webkit-calc(35% - #{math.div(globals.$spacingUnit, 2)});
+  width: calc(35% - #{math.div(globals.$spacingUnit, 2)});
 }
 
 .footer-col-2 {
-  width: -webkit-calc(20% - (#{$spacingUnit} / 2));
-  width: calc(20% - (#{$spacingUnit} / 2));
+  width: -webkit-calc(20% - #{math.div(globals.$spacingUnit, 2)});
+  width: calc(20% - #{math.div(globals.$spacingUnit, 2)});
 }
 
 .footer-col-3 {
-  width: -webkit-calc(45% - (#{$spacingUnit} / 2));
-  width: calc(45% - (#{$spacingUnit} / 2));
+  width: -webkit-calc(45% - #{math.div(globals.$spacingUnit, 2)});
+  width: calc(45% - #{math.div(globals.$spacingUnit, 2)});
 }
 
-@include media-query($onLaptop) {
+@include globals.media-query(globals.$onLaptop) {
+
   .footer-col-1,
   .footer-col-2 {
-    width: -webkit-calc(50% - (#{$spacingUnit} / 2));
-    width: calc(50% - (#{$spacingUnit} / 2));
+    width: -webkit-calc(50% - #{math.div(globals.$spacingUnit, 2)});
+    width: calc(50% - #{math.div(globals.$spacingUnit, 2)});
   }
 
   .footer-col-3 {
-    width: -webkit-calc(100% - (#{$spacingUnit} / 2));
-    width: calc(100% - (#{$spacingUnit} / 2));
+    width: -webkit-calc(100% - #{math.div(globals.$spacingUnit, 2)});
+    width: calc(100% - #{math.div(globals.$spacingUnit, 2)});
   }
 }
 
-@include media-query($onPalm) {
+@include globals.media-query(globals.$onPalm) {
   .footer-col {
     float: none;
-    width: -webkit-calc(100% - (#{$spacingUnit} / 2));
-    width: calc(100% - (#{$spacingUnit} / 2));
+    width: -webkit-calc(100% - #{math.div(globals.$spacingUnit, 2)});
+    width: calc(100% - #{math.div(globals.$spacingUnit, 2)});
   }
 }
 
@@ -197,79 +204,79 @@
  * Page content
  */
 .page-content {
-  padding: $spacingUnit 0;
+  padding: globals.$spacingUnit 0;
   max-width: 760px;
 }
 
 .page-heading {
-  @include relative-font-size(2);
+  @include globals.relative-font-size(2);
 }
 
 .post-list-heading {
-  @include relative-font-size(1.75);
+  @include globals.relative-font-size(1.75);
 }
 
 .post-list {
   margin-left: 0;
   list-style: none;
 
-  > li {
-    margin-bottom: $spacingUnit;
+  >li {
+    margin-bottom: globals.$spacingUnit;
   }
 }
 
 .post-meta {
-  font-size: $smallFontSize;
-  color: $colorGrey;
+  font-size: globals.$smallFontSize;
+  color: colors.$colorGrey;
 }
 
 .post-link {
   display: block;
   word-break: break-word;
-  @include relative-font-size(1.5);
+  @include globals.relative-font-size(1.5);
 }
 
 /**
  * Posts
  */
 .post-header {
-  margin-bottom: $spacingUnit;
+  margin-bottom: globals.$spacingUnit;
 }
 
 .post-title {
-  @include relative-font-size(2.625);
+  @include globals.relative-font-size(2.625);
   letter-spacing: -1px;
   line-height: 1;
 
-  @include media-query($onLaptop) {
-    @include relative-font-size(2.25);
+  @include globals.media-query(globals.$onLaptop) {
+    @include globals.relative-font-size(2.25);
   }
 }
 
 .post-content {
-  margin-bottom: $spacingUnit;
+  margin-bottom: globals.$spacingUnit;
 
   h2 {
-    @include relative-font-size(2);
+    @include globals.relative-font-size(2);
 
-    @include media-query($onLaptop) {
-      @include relative-font-size(1.75);
+    @include globals.media-query(globals.$onLaptop) {
+      @include globals.relative-font-size(1.75);
     }
   }
 
   h3 {
-    @include relative-font-size(1.625);
+    @include globals.relative-font-size(1.625);
 
-    @include media-query($onLaptop) {
-      @include relative-font-size(1.375);
+    @include globals.media-query(globals.$onLaptop) {
+      @include globals.relative-font-size(1.375);
     }
   }
 
   h4 {
-    @include relative-font-size(1.25);
+    @include globals.relative-font-size(1.25);
 
-    @include media-query($onLaptop) {
-      @include relative-font-size(1.125);
+    @include globals.media-query(globals.$onLaptop) {
+      @include globals.relative-font-size(1.125);
     }
   }
 }

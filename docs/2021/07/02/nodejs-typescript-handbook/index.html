@@ -431,18 +431,18 @@ dev deps will be added when you start importing various modules in your code.</l
 <a href="https://github.com/nazmulidris/ts-scratch/blob/main/nodejs-beginner-course/tsconfig.json"><code class="language-plaintext highlighter-rouge">tsconfig.json</code></a>
 file which enables strict mode, and dumps compiled output to a <code class="language-plaintext highlighter-rouge">build</code> folder. Also compile
 TypeScript files located in the <code class="language-plaintext highlighter-rouge">src</code> folder and its sub-folders only.
-    <pre><code class="language-json5">{
-  exclude: ["node_modules"],
-  include: ["./src/**/*"],
-  compilerOptions: {
-    strict: true,
-    module: "CommonJS",
-    target: "ES6",
-    sourceMap: true,
-    outDir: "build", // More info https://stackoverflow.com/a/49687441/2085356
-  },
-}
-</code></pre>
+    <div class="language-json5 highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+  </span><span class="nl">exclude</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"node_modules"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">include</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"./src/**/*"</span><span class="p">],</span><span class="w">
+  </span><span class="nl">compilerOptions</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nl">strict</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nl">module</span><span class="p">:</span><span class="w"> </span><span class="s2">"CommonJS"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">target</span><span class="p">:</span><span class="w"> </span><span class="s2">"ES6"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">sourceMap</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+    </span><span class="nl">outDir</span><span class="p">:</span><span class="w"> </span><span class="s2">"build"</span><span class="p">,</span><span class="w"> </span><span class="c">// More info https://stackoverflow.com/a/49687441/2085356</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div>    </div>
   </li>
 </ol>
       <h2 id="nodejs-threading-model">
@@ -831,7 +831,7 @@ function before returning a <code class="language-plaintext highlighter-rouge">p
 
 <div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#!/usr/bin/env ts-node
 </span>
-<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">chalk</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">chalk</span><span class="dl">"</span>
+<span class="k">import</span> <span class="o">*</span> <span class="kd">as </span><span class="nx">chalk</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">chalk</span><span class="dl">"</span>
 
 <span class="kd">type</span> <span class="nx">ResolveFnType</span><span class="o">&lt;</span><span class="nx">T</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">(</span><span class="nx">value</span><span class="p">:</span> <span class="nx">T</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">void</span>
 <span class="kd">type</span> <span class="nx">RejectFnType</span> <span class="o">=</span> <span class="p">(</span><span class="nx">reason</span><span class="p">?:</span> <span class="kr">any</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="k">void</span>
@@ -1060,7 +1060,7 @@ shape of an interface.</p>
 <span class="p">}</span>
 
 <span class="kd">function</span> <span class="nf">isArticle</span><span class="p">(</span><span class="nx">param</span><span class="p">:</span> <span class="nx">unknown</span><span class="p">):</span> <span class="nx">boolean</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">myParam</span> <span class="o">=</span> <span class="nx">param</span> <span class="k">as</span> <span class="nx">Article</span>
+  <span class="kd">const</span> <span class="nx">myParam</span> <span class="o">=</span> <span class="nx">param</span> <span class="kd">as </span><span class="nx">Article</span>
   <span class="c1">// 👍 One way of writing this without using string literals.</span>
   <span class="k">if </span><span class="p">(</span><span class="nx">myParam</span><span class="p">.</span><span class="nx">title</span> <span class="o">!=</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="nx">myParam</span><span class="p">.</span><span class="nx">body</span> <span class="o">!=</span> <span class="kc">undefined</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// The following works too.</span>
@@ -1073,7 +1073,7 @@ shape of an interface.</p>
 <span class="kd">function</span> <span class="nf">doSomething</span><span class="p">(</span><span class="nx">bar</span><span class="p">:</span> <span class="nx">unknown</span><span class="p">)</span> <span class="p">{</span>
   <span class="k">if </span><span class="p">(</span><span class="nf">isArticle</span><span class="p">(</span><span class="nx">bar</span><span class="p">))</span> <span class="p">{</span>
     <span class="c1">// 👎 You have to cast bar to Article as it does not narrow automatically.</span>
-    <span class="kd">const</span> <span class="nx">article</span> <span class="o">=</span> <span class="nx">bar</span> <span class="k">as</span> <span class="nx">Article</span>
+    <span class="kd">const</span> <span class="nx">article</span> <span class="o">=</span> <span class="nx">bar</span> <span class="kd">as </span><span class="nx">Article</span>
     <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">Article interface type: </span><span class="dl">"</span><span class="p">,</span> <span class="nx">article</span><span class="p">.</span><span class="nx">title</span><span class="p">,</span> <span class="nx">article</span><span class="p">.</span><span class="nx">body</span><span class="p">)</span>
   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
     <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="dl">"</span><span class="s2">unknown type</span><span class="dl">"</span><span class="p">,</span> <span class="nx">bar</span><span class="p">)</span>
@@ -1118,7 +1118,7 @@ shape of an interface.</p>
 <span class="p">}</span>
 
 <span class="kd">function</span> <span class="nf">isArticle</span><span class="p">(</span><span class="nx">param</span><span class="p">:</span> <span class="kr">any</span><span class="p">):</span> <span class="nx">param</span> <span class="k">is</span> <span class="nx">Article</span> <span class="p">{</span>
-  <span class="kd">const</span> <span class="nx">myParam</span> <span class="o">=</span> <span class="nx">param</span> <span class="k">as</span> <span class="nx">Article</span>
+  <span class="kd">const</span> <span class="nx">myParam</span> <span class="o">=</span> <span class="nx">param</span> <span class="kd">as </span><span class="nx">Article</span>
   <span class="k">return </span><span class="p">(</span>
     <span class="nx">myParam</span><span class="p">.</span><span class="nx">title</span> <span class="o">!=</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span>
     <span class="nx">myParam</span><span class="p">.</span><span class="nx">body</span> <span class="o">!=</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span>
@@ -1565,7 +1565,7 @@ middle of executing the <code class="language-plaintext highlighter-rouge">quest
 <p>The following are examples of functions to demonstrate the above. Here’s a function that kicks off
 the CLI Node.js sample.</p>
 
-<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">readline</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">readline</span><span class="dl">"</span>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="kd">as </span><span class="nx">readline</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">readline</span><span class="dl">"</span>
 
 <span class="kd">const</span> <span class="nx">main</span> <span class="o">=</span> <span class="k">async </span><span class="p">(</span><span class="nx">argv</span><span class="p">:</span> <span class="nb">Array</span><span class="o">&lt;</span><span class="kr">string</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">=&gt;</span> <span class="p">{</span>
   <span class="nx">console</span><span class="p">.</span><span class="nf">log</span><span class="p">(</span><span class="s2">`Please type "</span><span class="p">${</span><span class="nx">Messages</span><span class="p">.</span><span class="nx">closeCommand</span><span class="p">}</span><span class="s2">" or </span><span class="p">${</span><span class="nx">chalk</span><span class="p">.</span><span class="nf">red</span><span class="p">(</span><span class="dl">"</span><span class="s2">Ctrl+C</span><span class="dl">"</span><span class="p">)}</span><span class="s2"> to exit 🐾`</span><span class="p">)</span>
@@ -1638,8 +1638,8 @@ the <code class="language-plaintext highlighter-rouge">close</code> event (which
 <p>Here’s an OOP version of the code above that uses this pattern (I think the code is much cleaner
 w/out using <code class="language-plaintext highlighter-rouge">question</code>).</p>
 
-<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">readline</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">readline</span><span class="dl">"</span>
-<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">chalk</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">chalk</span><span class="dl">"</span>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="kd">as </span><span class="nx">readline</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">readline</span><span class="dl">"</span>
+<span class="k">import</span> <span class="o">*</span> <span class="kd">as </span><span class="nx">chalk</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">chalk</span><span class="dl">"</span>
 
 <span class="kd">class</span> <span class="nc">UIStrings</span> <span class="p">{</span>
   <span class="k">public</span> <span class="k">static</span> <span class="k">readonly</span> <span class="nx">closeCommand</span> <span class="o">=</span> <span class="dl">"</span><span class="s2">quit</span><span class="dl">"</span>
@@ -1748,8 +1748,8 @@ will be handled by the garbage collector.</p>
 receiving that in the event listener in the correct way.</li>
 </ul>
 
-<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">chalk</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">chalk</span><span class="dl">"</span>
-<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">utils</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">r3bl-ts-utils</span><span class="dl">"</span>
+<div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="o">*</span> <span class="kd">as </span><span class="nx">chalk</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">chalk</span><span class="dl">"</span>
+<span class="k">import</span> <span class="o">*</span> <span class="kd">as </span><span class="nx">utils</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">r3bl-ts-utils</span><span class="dl">"</span>
 <span class="k">import</span> <span class="p">{</span> <span class="nx">printHeader</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">r3bl-ts-utils</span><span class="dl">"</span>
 <span class="k">import</span> <span class="p">{</span> <span class="nx">EventEmitter</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">events</span><span class="dl">"</span>
 
@@ -2042,8 +2042,8 @@ use of backpressure, in other words:</p>
 
 <div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">ColorConsole</span><span class="p">,</span> <span class="nx">sleep</span><span class="p">,</span> <span class="nx">StyledColorConsole</span><span class="p">,</span> <span class="nx">Styles</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">r3bl-ts-utils</span><span class="dl">"</span>
 <span class="k">import</span> <span class="p">{</span> <span class="nx">Constants</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">./Constants</span><span class="dl">"</span>
-<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">fs</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">fs</span><span class="dl">"</span>
-<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">zlib</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">zlib</span><span class="dl">"</span>
+<span class="k">import</span> <span class="o">*</span> <span class="kd">as </span><span class="nx">fs</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">fs</span><span class="dl">"</span>
+<span class="k">import</span> <span class="o">*</span> <span class="kd">as </span><span class="nx">zlib</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">zlib</span><span class="dl">"</span>
 <span class="k">import</span> <span class="p">{</span> <span class="nx">pipeline</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">stream/promises</span><span class="dl">"</span>
 
 <span class="k">export</span> <span class="kd">class</span> <span class="nc">CompressLargeFileEfficiently</span> <span class="p">{</span>
@@ -2595,7 +2595,7 @@ end
 <p>Now, here’s the equivalent script written in Node.js using <code class="language-plaintext highlighter-rouge">spawn()</code>.</p>
 
 <div class="language-typescript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">import</span> <span class="p">{</span> <span class="nx">_also</span><span class="p">,</span> <span class="nx">ColorConsole</span><span class="p">,</span> <span class="nx">Optional</span><span class="p">,</span> <span class="nx">StyledColorConsole</span><span class="p">,</span> <span class="nx">Styles</span> <span class="p">}</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">r3bl-ts-utils</span><span class="dl">"</span>
-<span class="k">import</span> <span class="o">*</span> <span class="k">as</span> <span class="nx">fs</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">fs</span><span class="dl">"</span>
+<span class="k">import</span> <span class="o">*</span> <span class="kd">as </span><span class="nx">fs</span> <span class="k">from</span> <span class="dl">"</span><span class="s2">fs</span><span class="dl">"</span>
 
 <span class="cm">/**
  * Using constant object instead of enum (better choice here since it allows computed values).
@@ -2607,7 +2607,7 @@ end
   <span class="na">gnomeDotProfileFile</span><span class="p">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">HOME</span> <span class="o">+</span> <span class="dl">"</span><span class="s2">/.profile</span><span class="dl">"</span><span class="p">,</span>
   <span class="na">linuxbrewSearchTerm</span><span class="p">:</span> <span class="dl">"</span><span class="s2">linuxbrew</span><span class="dl">"</span><span class="p">,</span>
   <span class="na">defaultLinuxbrewPath</span><span class="p">:</span> <span class="dl">"</span><span class="s2">/home/linuxbrew/.linuxbrew</span><span class="dl">"</span><span class="p">,</span>
-<span class="p">}</span> <span class="k">as</span> <span class="kd">const</span>
+<span class="p">}</span> <span class="kd">as const</span>
 
 <span class="k">export</span> <span class="kd">class</span> <span class="nc">SpawnCProcToReplaceFunctionalityOfFishScript</span> <span class="p">{</span>
   <span class="nx">run</span> <span class="o">=</span> <span class="k">async </span><span class="p">():</span> <span class="nb">Promise</span><span class="o">&lt;</span><span class="k">void</span><span class="o">&gt;</span> <span class="o">=&gt;</span> <span class="p">{</span>

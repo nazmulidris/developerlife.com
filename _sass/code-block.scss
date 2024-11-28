@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2022 Nazmul Idris
+ *   Copyright (c) 2024 Nazmul Idris
  *   All rights reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,26 +15,30 @@
  *   limitations under the License.
  */
 
+@use "sass:color";
+@use "colors";
+@use "globals";
+
 // Code block styling.
 pre,
 code {
-  @include relative-font-size(1);
-  font-family: $codeFontFamily;
-  font-weight: $codeFontWeight;
-  font-size: $codeFontSize;
+  @include globals.relative-font-size(1);
+  font-family: globals.$codeFontFamily;
+  font-weight: globals.$codeFontWeight;
+  font-size: globals.$codeFontSize;
 }
 
 code {
   $paddingWidth: 0.6ch;
   $darkenBy: 17%;
   $alpha: 0.8;
-  $backgroundColor: darken($colorPurple, $darkenBy);
+  $backgroundColor: color.adjust(colors.$colorPurple, $lightness: -$darkenBy);
 
-  border: 0.2ch solid transparentize(black, $alpha);
+  border: 0.2ch solid color.adjust(black, $alpha: -$alpha);
   padding-left: $paddingWidth;
   padding-right: $paddingWidth;
-  border-radius: $globalBorderRadius;
-  background: transparentize($backgroundColor, 0.8);
+  border-radius: globals.$globalBorderRadius;
+  background: color.adjust($backgroundColor, $alpha: -0.8);
 }
 
 // Unfortunately, <code> tags are nested in <pre> containers, and this removes any unwanted
@@ -46,8 +50,8 @@ pre code {
 }
 
 pre {
-  background-color: $syntaxHighlightBackgroundColor;
-  border-radius: $globalBorderRadius;
+  background-color: globals.$syntaxHighlightBackgroundColor;
+  border-radius: globals.$globalBorderRadius;
   text-wrap: wrap;
 }
 

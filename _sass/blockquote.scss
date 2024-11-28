@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2022 Nazmul Idris
+ *   Copyright (c) 2024 Nazmul Idris
  *   All rights reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +15,18 @@
  *   limitations under the License.
  */
 
+@use "sass:color";
+@use "colors";
+@use "globals";
+
 // Blockquote styling.
-$blockquote-bg-color: transparentize(#272930, $globalAlpha);
+$blockquote-bg-color: color.adjust(#272930, $alpha: -(globals.$globalAlpha));
 blockquote {
-  border-radius: $globalBorderRadius;
-  border: $globalBorderStyle;
-  font-size: $baseFontSize;
+  border-radius: globals.$globalBorderRadius;
+  border: globals.$globalBorderStyle;
+  font-size: globals.$baseFontSize;
   font-style: normal;
-  color: darken($textColor, 20%);
+  color: color.adjust(colors.$textColor, $lightness: -20%);
   background-color: $blockquote-bg-color;
-  padding: $globalPadding;
+  padding: globals.$globalPadding;
 }

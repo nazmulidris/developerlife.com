@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2022 Nazmul Idris
+ *   Copyright (c) 2024 Nazmul Idris
  *   All rights reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,17 +15,21 @@
  *   limitations under the License.
  */
 
+@use "sass:color";
+@use "colors";
+@use "globals";
+
 // Variables used in this file.
-$modifiedBackgroundColorForHeaders: lighten($backgroundColor, 5%);
-$modifiedBackgroundColorForBorder: lighten($backgroundColor, 10%);
-$modifiedBackgroundColorForSearch: darken($textColor, 20%);
+$modifiedBackgroundColorForHeaders: color.adjust(globals.$backgroundColor, $lightness: 5%);
+$modifiedBackgroundColorForBorder: color.adjust(globals.$backgroundColor, $lightness: 10%);
+$modifiedBackgroundColorForSearch: color.adjust(colors.$textColor, $lightness: -20%);
 $borderOutline: 1.125pt;
 $searchPostBorder: 4pt;
 
 body {
   // More info on background image on viewport.
   // https://www.freecodecamp.org/news/css-full-page-background-image-tutorial/
-  $bodyBackgroundSemiTransparentColor: rgba($backgroundColor, 0.85);
+  $bodyBackgroundSemiTransparentColor: rgba(globals.$backgroundColor, 0.85);
   background-image: linear-gradient($bodyBackgroundSemiTransparentColor,
       $bodyBackgroundSemiTransparentColor ),
     url("/assets/background-image-1.jpg");
@@ -51,7 +55,7 @@ body {
 }
 
 .plain-text-smaller {
-  font-family: $baseFontFamily;
+  font-family: globals.$baseFontFamily;
   font-size: 0.9em;
 }
 
@@ -61,14 +65,14 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: $headingFontFamily;
+  font-family: globals.$headingFontFamily;
   font-weight: 700;
   letter-spacing: 1pt;
 }
 
 header h1,
 .page-heading {
-  font-family: $specialHeadingFontFamily;
+  font-family: globals.$specialHeadingFontFamily;
 }
 
 hr {
@@ -76,11 +80,11 @@ hr {
   margin-bottom: 1rem / 2;
   border: 0;
   height: 1rem / 2;
-  border-radius: $globalBorderRadius;
+  border-radius: globals.$globalBorderRadius;
   background-image: linear-gradient(to right,
-      transparentize($brandColor, 0.7),
-      transparentize($brandColor, 0.4),
-      transparentize($brandColor, 0.7));
+      color.adjust(colors.$brandColor, $alpha: -0.7),
+      color.adjust(colors.$brandColor, $alpha: -0.4),
+      color.adjust(colors.$brandColor, $alpha: -0.7));
 }
 
 // Youtube video embeds.
@@ -135,20 +139,20 @@ iframe {
 }
 
 .footer-col-half {
-  width: -webkit-calc(50% - (#{$spacingUnit} / 2));
-  width: calc(50% - (#{$spacingUnit} / 2));
+  width: -webkit-calc(50% - (#{globals.$spacingUnit} / 2));
+  width: calc(50% - (#{globals.$spacingUnit} / 2));
 }
 
-@include media-query($onLaptop) {
+@include globals.media-query(globals.$onLaptop) {
   .footer-col-half {
-    width: -webkit-calc(100% - (#{$spacingUnit} / 2));
-    width: calc(100% - (#{$spacingUnit} / 2));
+    width: -webkit-calc(100% - (#{globals.$spacingUnit} / 2));
+    width: calc(100% - (#{globals.$spacingUnit} / 2));
   }
 }
 
 // In the header, when a category is selected, this is applied
 .category-selected {
-  border-bottom: 3px solid $brandColor;
+  border-bottom: 3px solid colors.$brandColor;
 }
 
 .search-block {
@@ -166,14 +170,14 @@ iframe {
   padding: $searchPostBorder * 2 $searchPostBorder * 2;
   margin: $searchPostBorder * 2 0;
   box-sizing: border-box;
-  font-family: $baseFontFamily;
-  font-size: $baseFontSize;
+  font-family: globals.$baseFontFamily;
+  font-size: globals.$baseFontSize;
   background: $modifiedBackgroundColorForSearch;
   border: none;
 }
 
 ::placeholder {
-  color: $backgroundColor;
+  color: globals.$backgroundColor;
 }
 
 .result-block {

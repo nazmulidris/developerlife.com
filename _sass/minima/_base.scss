@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2022 Nazmul Idris
+ *   Copyright (c) 2024 Nazmul Idris
  *   All rights reserved.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,11 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
+
+@use "sass:math";
+@use "sass:color";
+@use "../colors";
+@use "../globals";
 
 /**
  * Reset some basic elements
@@ -42,12 +47,12 @@ figure {
  * Basic styling
  */
 body {
-  font-weight: $baseFontWeight;
-  font-family: $baseFontFamily;
-  font-size: $baseFontSize;
-  line-height: $baseLineHeight;
-  color: $textColor;
-  background-color: $backgroundColor;
+  font-weight: globals.$baseFontWeight;
+  font-family: globals.$baseFontFamily;
+  font-size: globals.$baseFontSize;
+  line-height: globals.$baseLineHeight;
+  color: colors.$textColor;
+  background-color: globals.$backgroundColor;
   -webkit-text-size-adjust: 100%;
   -webkit-font-feature-settings: "kern" 1;
   -moz-font-feature-settings: "kern" 1;
@@ -76,7 +81,7 @@ ol,
 dl,
 figure,
 %vertical-rhythm {
-  margin-bottom: $spacingUnit / 2;
+  margin-bottom: math.div(globals.$spacingUnit, 2);
 }
 
 /** If you want wider fonts */
@@ -113,7 +118,7 @@ figure>img {
 }
 
 figcaption {
-  font-size: $smallFontSize;
+  font-size: globals.$smallFontSize;
 }
 
 /**
@@ -121,7 +126,7 @@ figcaption {
  */
 ul,
 ol {
-  margin-left: $spacingUnit;
+  margin-left: globals.$spacingUnit;
   word-break: break-word;
 }
 
@@ -143,19 +148,19 @@ h3,
 h4,
 h5,
 h6 {
-  font-weight: $baseFontWeight;
+  font-weight: globals.$baseFontWeight;
 }
 
 /**
  * Blockquotes
  */
 blockquote {
-  color: $colorGrey;
+  color: colors.$colorGrey;
   /*
   border-left: 4px solid $grey-color-light;
   */
-  padding-left: $spacingUnit / 2;
-  @include relative-font-size(1.125);
+  padding-left: math.div(globals.$spacingUnit, 2);
+  @include globals.relative-font-size(1.125);
   letter-spacing: -1px;
   font-style: italic;
 
@@ -168,19 +173,19 @@ blockquote {
  * Wrapper
  */
 .wrapper {
-  max-width: -webkit-calc(#{$contentWidth} - (#{$spacingUnit} * 2));
-  max-width: calc(#{$contentWidth} - (#{$spacingUnit} * 2));
+  max-width: -webkit-calc(#{globals.$contentWidth} - (#{globals.$spacingUnit} * 2));
+  max-width: calc(#{globals.$contentWidth} - (#{globals.$spacingUnit} * 2));
   margin-right: auto;
   margin-left: auto;
-  padding-right: $spacingUnit;
-  padding-left: $spacingUnit;
+  padding-right: globals.$spacingUnit;
+  padding-left: globals.$spacingUnit;
   @extend %clearfix;
 
-  @include media-query($onLaptop) {
-    max-width: -webkit-calc(#{$contentWidth} - (#{$spacingUnit}));
-    max-width: calc(#{$contentWidth} - (#{$spacingUnit}));
-    padding-right: $spacingUnit / 2;
-    padding-left: $spacingUnit / 2;
+  @include globals.media-query(globals.$onLaptop) {
+    max-width: -webkit-calc(#{globals.$contentWidth} - (#{globals.$spacingUnit}));
+    max-width: calc(#{globals.$contentWidth} - (#{globals.$spacingUnit}));
+    padding-right: math.div(globals.$spacingUnit, 2);
+    padding-left: math.div(globals.$spacingUnit, 2);
   }
 }
 
@@ -301,7 +306,7 @@ h3 code {
   width: 16px;
   height: 16px;
   display: inline-block;
-  fill: #{$colorGrey};
+  fill: #{colors.$colorGrey};
   // padding-right: 5px;
   vertical-align: text-top;
 }
@@ -316,10 +321,10 @@ h3 code {
  * Tables
  */
 table {
-  margin-bottom: $spacingUnit;
+  margin-bottom: globals.$spacingUnit;
   width: 100%;
-  text-align: $tableTextAlign;
-  color: lighten($textColor, 18%);
+  text-align: globals.$tableTextAlign;
+  color: color.adjust(colors.$textColor, $lightness: 18%);
 
   /*
   border-collapse: collapse;
@@ -332,7 +337,7 @@ table {
   */
   th,
   td {
-    padding: ($spacingUnit / 3) ($spacingUnit / 2);
+    padding: math.div(globals.$spacingUnit, 3) math.div(globals.$spacingUnit, 2);
   }
 
   th {

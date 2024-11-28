@@ -67,7 +67,14 @@ function main
     ./build-site.fish
 
     if _promptUserForConfirmation "Do you want to run the local dev server"
-        npm install -g serve
+        npm list -g --depth=0 | rg -q 'serve@'
+        # if $status is 0 then serve is installed, else install serve
+        if test $status -ne 0
+            echo (set_color green)"Installing serve..."(set_color normal)
+            npm install -g serve
+        else
+            echo (set_color blue)"serve is already installed."(set_color normal)
+        end
         killall -9 node # Kill all the node processes (serve runs on node)
         serve docs/ & # Run serve in the background, allows `./watch-build.fish` to run in a loop
     else

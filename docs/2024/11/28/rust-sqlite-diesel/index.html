@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Build with Naz : Diesel ORM, SQLite, and Rust | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.3.4" />
+<meta property="og:title" content="Build with Naz : Diesel ORM, SQLite, and Rust" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="SQLite is a great in-process database that supports concurrent processes. We will use Rust and Diesel ORM to create and run migrations, generate schemas and create more than one migration. We will also use Rust to perform CRUD operations and perform auto migrations." />
+<meta property="og:description" content="SQLite is a great in-process database that supports concurrent processes. We will use Rust and Diesel ORM to create and run migrations, generate schemas and create more than one migration. We will also use Rust to perform CRUD operations and perform auto migrations." />
+<link rel="canonical" href="http://developerlife.com/2024/11/28/rust-sqlite-diesel/" />
+<meta property="og:url" content="http://developerlife.com/2024/11/28/rust-sqlite-diesel/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-11-28T00:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build with Naz : Diesel ORM, SQLite, and Rust" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-11-28T00:00:00-06:00","datePublished":"2024-11-28T00:00:00-06:00","description":"SQLite is a great in-process database that supports concurrent processes. We will use Rust and Diesel ORM to create and run migrations, generate schemas and create more than one migration. We will also use Rust to perform CRUD operations and perform auto migrations.","headline":"Build with Naz : Diesel ORM, SQLite, and Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/11/28/rust-sqlite-diesel/"},"url":"http://developerlife.com/2024/11/28/rust-sqlite-diesel/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add fontawesome (only for bio.html page) -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /><!-- https://developers.google.com/analytics/devguides/collection/gtagjs -->
+<script async
+        src="https://www.googletagmanager.com/gtag/js?id=G-NQY9ECC58H"></script>
+<script>
+  window.dataLayer = window.dataLayer || []
+
+  function gtag() {
+    window.dataLayer.push(arguments)
+  }
+
+  gtag("js", new Date())
+  gtag("config", "G-NQY9ECC58H")
+</script>
+<!-- https://us14.admin.mailchimp.com/account/connected-sites/site-detail/ -->
+
+<script id="mcjs">
+  !(function (c, h, i, m, p) {
+    ;(m = c.createElement(h)),
+      (p = c.getElementsByTagName(h)[0]),
+      (m.async = 1),
+      (m.src = i),
+      p.parentNode.insertBefore(m, p)
+  })(
+    document,
+    "script",
+    "https://chimpstatic.com/mcjs-connected/js/users/c2470ddfa863eb8ace707651b/2bb3bcad193ef862398700457.js"
+  )
+</script>
+</head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Build with Naz : Diesel ORM, SQLite, and Rust&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Build with Naz : Diesel ORM, SQLite, and Rust</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build with Naz : Diesel ORM, SQLite, and Rust</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Nov 28, 2024
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is fontawesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, play,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <a href="https://r3bl.com#services" target="_blank"
+    ><kbd>Need help with code?</kbd></a
+  ><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="https://www.github.com/nazmulidris" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p><a href="/subscribe.html" target="_blank"
+    ><kbd>Newsletter</kbd></a
+  >
+
+</div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/rust-sqlite-diesel.svg" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#rusqlite-and-sqlite-example">rusqlite and SQLite example</a></li>
+  <li><a href="#diesel-and-sqlite-example">diesel and SQLite example</a>
+    <ul>
+      <li><a href="#why-diesel-and-not-sqlx">Why Diesel and not SQLx?</a></li>
+      <li><a href="#youtube-videos-for-this-article">YouTube videos for this article</a></li>
+      <li><a href="#1-add-the-cargo-dependencies">1. Add the Cargo dependencies</a></li>
+      <li><a href="#2-add-linux-packages-sqlite-dev-and-diesel-cli">2. Add Linux packages (sqlite-dev) and Diesel CLI</a></li>
+      <li><a href="#3-use-the-diesel-cli-to-create-database-file-and-migrations">3. Use the Diesel CLI to create database file and migrations</a></li>
+      <li><a href="#4-write-sql-migrations-then-run-them-to-create-tables-and-generate-schemars">4. Write SQL migrations, then run them to create tables and generate schema.rs</a>
+        <ul>
+          <li><a href="#41-what-is-the-difference-between-redo-and-run">4.1 What is the difference between redo and run?</a></li>
+          <li><a href="#42-location-of-the-generated-schemars-file">4.2. Location of the generated schema.rs file</a></li>
+          <li><a href="#43-for-the-current-migration-change-the-upsql-file-and-run-it-again">4.3. For the current migration, change the up.sql file and run it again</a></li>
+        </ul>
+      </li>
+      <li><a href="#5-use-the-script-luke">5. Use the script, Luke</a>
+        <ul>
+          <li><a href="#51-instead-of-raw-sql-write-rust-for-migrations">5.1. Instead of raw SQL, write Rust for migrations</a></li>
+          <li><a href="#52-include-migrations-in-the-final-binary">5.2. Include migrations in the final binary</a></li>
+        </ul>
+      </li>
+      <li><a href="#6-add-a-new-migration-that-changes-existing-tables-by-adding-a-new-column-and-preserve-data">6. Add a new migration that changes existing tables by adding a new column and preserve data</a></li>
+      <li><a href="#7-diesel-and-rust">7. Diesel and Rust</a>
+        <ul>
+          <li><a href="#create-a-connection">Create a connection</a></li>
+          <li><a href="#crud-operations">CRUD operations</a></li>
+          <li><a href="#timestamps">Timestamps</a></li>
+          <li><a href="#automatically-run-migrations">Automatically run migrations</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#vscode-and-sqlite-extension">VSCode and SQLite extension</a></li>
+  <li><a href="#history">History</a></li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="introduction">
+        
+        
+          Introduction <a href="#introduction">#</a>
+        
+        
+      </h2>
+    
+
+<p>This crate is an exploration of SQL in Rust. All the examples use SQLite as the database.
+However, the driver / ORM used is different in each example.</p>
+
+<ol>
+  <li><a href="#rusqlite-and-sqlite-example"><code class="language-plaintext highlighter-rouge">rusqlite</code> and SQLite example</a></li>
+  <li><a href="#diesel-and-sqlite-example"><code class="language-plaintext highlighter-rouge">diesel</code> and SQLite example</a></li>
+</ol>
+
+<blockquote>
+  <p>The code in the video and this tutorial are all in <a href="https://github.com/nazmulidris/rust-scratch/tree/main/sql">this GitHub
+repo</a>.</p>
+</blockquote>
+      <h2 id="rusqlite-and-sqlite-example">
+        
+        
+          rusqlite and SQLite example <a href="#rusqlite-and-sqlite-example">#</a>
+        
+        
+      </h2>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">rusqlite</code> library is a low-level SQLite driver for Rust.</p>
+
+<ul>
+  <li>It is a thin wrapper around the SQLite C API.</li>
+  <li>And it bundles the SQLite C library, so there is no need to install <code class="language-plaintext highlighter-rouge">sqlite3</code> on the
+system.</li>
+</ul>
+
+<p>The primary use case that this example addresses is storing an application’s settings that
+are a mix of binary and JSON formatted text data. Using the filesystem naively where we
+have a separate file for each, can cause problems in scenarios where multiple processes of
+this binary run concurrently. Instead we will use a SQLite database to store this data.</p>
+
+<p>This example works with 2 tables:</p>
+
+<ol>
+  <li>One contains JSON Text formatted data, and the</li>
+  <li>The other contains binary data that’s read for a file.</li>
+</ol>
+
+<p>This is meant to demonstrate how to work with JSON encoded data and binary data in SQLite
+using Rust. The example
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/sql/src/bin/rusqlite_ex.rs">here</a>
+does the following:</p>
+
+<ul>
+  <li>This will create a <code class="language-plaintext highlighter-rouge">rusqlite.db</code> file in the current directory.</li>
+  <li>It will use the <code class="language-plaintext highlighter-rouge">rusqlite</code> Rust crate to interact with it to perform some simple CRUD
+operations on the database.</li>
+  <li>The code is very simple, there is no ORM, or SQL syntax checking, or migrations. The SQL
+is just written as Rust strings.</li>
+  <li>There are 2 tables, one containing JSON text data, and the other containing binary data.</li>
+</ul>
+
+<p>To run this example, use:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run <span class="nt">--bin</span> rusqlite
+</code></pre></div></div>
+      <h2 id="diesel-and-sqlite-example">
+        
+        
+          diesel and SQLite example <a href="#diesel-and-sqlite-example">#</a>
+        
+        
+      </h2>
+    
+
+<p>The <code class="language-plaintext highlighter-rouge">diesel</code> library is a high-level ORM for Rust.</p>
+
+<blockquote>
+  <p>The main instructions are from the
+<a href="https://diesel.rs/guides/getting-started.html"><code class="language-plaintext highlighter-rouge">diesel</code> official getting started guide</a>
+for use with SQLite.</p>
+</blockquote>
+
+<p>In this example we will work with Rust, Diesel, and SQLite to setup databases, using
+migrations, and do CRUD operations in Rust code. Here are the details:</p>
+
+<ol>
+  <li>We will create a migration to setup the database.</li>
+  <li>Then create the models.</li>
+  <li>And write some code to do CRUD operations in Rust.</li>
+  <li>Then we will add another migration to alter the database, then migrate any existing
+data, and then update the models to reflect the changes.</li>
+  <li>Finally, we will automate these migrations so that they don’t have to be run manually.
+And they will be done in your binary target when it starts.</li>
+</ol>
+
+<p>The example
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/sql/src/bin/diesel_sqlite_ex.rs">here</a>
+does the following:</p>
+
+<ul>
+  <li>This will create a <code class="language-plaintext highlighter-rouge">diesel.db</code> file in the current directory. It runs migrations as well
+programmatically when the binary runs, at the very start.</li>
+  <li>It will use the <code class="language-plaintext highlighter-rouge">diesel</code> Rust crate (and ORM) to interact with it to perform some simple
+CRUD operations on the database.</li>
+  <li>There are 2 tables, one containing JSON text data, and the other containing binary data.</li>
+</ul>
+
+<p>To run this example, use:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run <span class="nt">--bin</span> diesel
+</code></pre></div></div>
+      <h3 id="why-diesel-and-not-sqlx">
+        
+        
+          Why Diesel and not SQLx? <a href="#why-diesel-and-not-sqlx">#</a>
+        
+        
+      </h3>
+    
+
+<p><a href="https://users.rust-lang.org/t/which-one-to-use-postgres-vs-sqlx/63680/6">Here</a> are some
+reasons to use Diesel over SQLx.</p>
+      <h3 id="youtube-videos-for-this-article">
+        
+        
+          YouTube videos for this article <a href="#youtube-videos-for-this-article">#</a>
+        
+        
+      </h3>
+    
+<p><a id="markdown-youtube-videos-for-this-article" name="youtube-videos-for-this-article"></a></p>
+
+<p>If you like to learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com
+YouTube channel</a>. You can follow along with the video,
+this article, and code in the <a href="https://github.com/nazmulidris/rust-scratch/tree/main/sql">repo</a>.</p>
+
+<!-- rust diesel sqlite -->
+<iframe src="https://www.youtube.com/embed/d9x_5X9R5LI?si=DiNiF8GVG3aoNdig" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
+</iframe>
+
+<blockquote>
+  <p>The code in the video and this tutorial are all in <a href="https://github.com/nazmulidris/rust-scratch/tree/main/sql">this GitHub
+repo</a>.</p>
+</blockquote>
+      <h3 id="1-add-the-cargo-dependencies">
+        
+        
+          1. Add the Cargo dependencies <a href="#1-add-the-cargo-dependencies">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here are the commands to add the required dependencies in <code class="language-plaintext highlighter-rouge">Cargo.toml</code>:</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">diesel</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"2.2.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"sqlite"</span><span class="p">,</span> <span class="s">"returning_clauses_for_sqlite_3_35"</span><span class="p">]</span> <span class="p">}</span>
+<span class="py">dotenvy</span> <span class="p">=</span> <span class="s">"0.15"</span>
+</code></pre></div></div>
+      <h3 id="2-add-linux-packages-sqlite-dev-and-diesel-cli">
+        
+        
+          2. Add Linux packages (sqlite-dev) and Diesel CLI <a href="#2-add-linux-packages-sqlite-dev-and-diesel-cli">#</a>
+        
+        
+      </h3>
+    
+
+<blockquote>
+  <p>All the steps between 2 and 5 can be automated by running the <code class="language-plaintext highlighter-rouge">diesel_setup.sh</code> script.</p>
+</blockquote>
+
+<p>Here are the commands to setup the Diesel CLI for SQLite for Linux:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt <span class="nb">install </span>libsqlite3-dev
+cargo <span class="nb">install </span>diesel_cli <span class="nt">--no-default-features</span> <span class="nt">--features</span> sqlite
+</code></pre></div></div>
+      <h3 id="3-use-the-diesel-cli-to-create-database-file-and-migrations">
+        
+        
+          3. Use the Diesel CLI to create database file and migrations <a href="#3-use-the-diesel-cli-to-create-database-file-and-migrations">#</a>
+        
+        
+      </h3>
+    
+
+<p>There are a few ways to run <code class="language-plaintext highlighter-rouge">diesel setup</code>. The <code class="language-plaintext highlighter-rouge">path/to/your/database.db</code> is the value
+for <code class="language-plaintext highlighter-rouge">DATABASE_URL</code>.</p>
+
+<ol>
+  <li>
+    <p>Use the <code class="language-plaintext highlighter-rouge">.env</code> file to store the <code class="language-plaintext highlighter-rouge">DATABASE_URL</code> environment variable. Run
+<code class="language-plaintext highlighter-rouge">echo DATABASE_URL=diesel.db &gt; .env</code>. Then you can run <code class="language-plaintext highlighter-rouge">diesel setup</code>.</p>
+  </li>
+  <li>
+    <p>If you don’t want to set this environment variable, you can just pass it inline to the
+shell <code class="language-plaintext highlighter-rouge">DATABASE_URL=diesel.db diesel setup</code>.</p>
+  </li>
+  <li>
+    <p>You can use the <code class="language-plaintext highlighter-rouge">--database-url</code> flag to specify the path to the database directly. For
+example: <code class="language-plaintext highlighter-rouge">diesel --database-url=diesel.db setup</code>.</p>
+  </li>
+</ol>
+
+<p>We are going to use the 3rd option. Here are the commands to setup the database file.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>diesel <span class="nt">--database-url</span><span class="o">=</span>diesel.db setup
+</code></pre></div></div>
+
+<p>This command actually creates the database file. The <code class="language-plaintext highlighter-rouge">diesel.db</code> file is created in the
+current directory. If the migrations are already present (as can be gleaned from the
+<code class="language-plaintext highlighter-rouge">diesel.toml</code> file), then the <code class="language-plaintext highlighter-rouge">schema.rs</code> file is generated and the <code class="language-plaintext highlighter-rouge">diesel.db</code> file is
+generated.</p>
+      <h3 id="4-write-sql-migrations-then-run-them-to-create-tables-and-generate-schemars">
+        
+        
+          4. Write SQL migrations, then run them to create tables and generate schema.rs <a href="#4-write-sql-migrations-then-run-them-to-create-tables-and-generate-schemars">#</a>
+        
+        
+      </h3>
+    
+
+<p>Now that the database file is created, we have to define our migration, that will actually
+run some SQL that we provide and generate the <code class="language-plaintext highlighter-rouge">schema.rs</code> file. This process can also
+happen in reverse, where we can write the <code class="language-plaintext highlighter-rouge">schema.rs</code> file first and ask the Diesel CLI to
+generate the SQL migrations folder, and the <code class="language-plaintext highlighter-rouge">up.sql</code> and <code class="language-plaintext highlighter-rouge">down.sql</code> files.</p>
+
+<p>The following commands will create a folder called <code class="language-plaintext highlighter-rouge">migrations</code> at the top level of the
+project. Inside this folder, there will be one folder, for the migration called
+<code class="language-plaintext highlighter-rouge">create_tables</code>. The folder will look like <code class="language-plaintext highlighter-rouge">&lt;timestamp&gt;_create_tables</code> and will contain an
+<code class="language-plaintext highlighter-rouge">up.sql</code> and <code class="language-plaintext highlighter-rouge">down.sql</code> file.</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>diesel <span class="nt">--database-url</span><span class="o">=</span>diesel.db migration generate create_tables
+</code></pre></div></div>
+
+<p>Migrations allow us to evolve the database schema over time. Each migration consists of an
+<code class="language-plaintext highlighter-rouge">up.sql</code> file to apply the changes and a <code class="language-plaintext highlighter-rouge">down.sql</code> file to revert them. Applying and
+immediately reverting a migration should leave your database schema unchanged.</p>
+
+<blockquote>
+  <p>If you have multiple migrations, they will be applied in the order they were created.
+They are additive. In this example, we create a single migration, and the <code class="language-plaintext highlighter-rouge">up.sql</code> in it
+creates two tables. However, we could have split this into two migrations, one for each
+table. The <code class="language-plaintext highlighter-rouge">down.sql</code> does not get run when there are multiple migrations. It only gets
+run when you run <code class="language-plaintext highlighter-rouge">diesel migration redo</code> or <code class="language-plaintext highlighter-rouge">diesel migration revert</code>.</p>
+</blockquote>
+
+<p>Once migrations are created they can be checked into version control. The folder structure
+for each table has a timestamp in it, and contains a <code class="language-plaintext highlighter-rouge">up.sql</code> and <code class="language-plaintext highlighter-rouge">down.sql</code> file.</p>
+
+<p>Here’s the <code class="language-plaintext highlighter-rouge">up.sql</code>:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">create</span> <span class="k">table</span> <span class="n">if</span> <span class="k">not</span> <span class="k">exists</span> <span class="n">data_table</span> <span class="p">(</span>
+  <span class="n">id</span> <span class="nb">text</span> <span class="k">primary</span> <span class="k">key</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+  <span class="n">name</span> <span class="nb">text</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+  <span class="k">data</span> <span class="nb">text</span> <span class="k">not</span> <span class="k">null</span>
+<span class="p">);</span>
+
+<span class="k">create</span> <span class="k">table</span> <span class="n">if</span> <span class="k">not</span> <span class="k">exists</span> <span class="n">file_table</span> <span class="p">(</span>
+  <span class="n">id</span> <span class="nb">text</span> <span class="k">primary</span> <span class="k">key</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+  <span class="n">name</span> <span class="nb">text</span> <span class="k">not</span> <span class="k">null</span><span class="p">,</span>
+  <span class="k">data</span> <span class="nb">blob</span> <span class="k">not</span> <span class="k">null</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<p>Here’s the <code class="language-plaintext highlighter-rouge">down.sql</code>:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">drop</span> <span class="k">table</span> <span class="n">if</span> <span class="k">exists</span> <span class="n">data_table</span><span class="p">;</span>
+
+<span class="k">drop</span> <span class="k">table</span> <span class="n">if</span> <span class="k">exists</span> <span class="n">file_table</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Then execute the migrations:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># This executes the `up.sql` file.</span>
+diesel <span class="nt">--database-url</span><span class="o">=</span>diesel.db migration run
+<span class="c"># This executes the `down.sql`, then `up.sql`.</span>
+diesel <span class="nt">--database-url</span><span class="o">=</span>diesel.db migration redo
+</code></pre></div></div>
+
+<p>The commands above will create a <code class="language-plaintext highlighter-rouge">diesel.db</code> file in the current directory if it does not
+exist.</p>
+
+<p>Note that the <code class="language-plaintext highlighter-rouge">redo</code> command does not work unless the <code class="language-plaintext highlighter-rouge">run</code> command has been executed at
+least once. Just to be safe, it is also best to delete the <code class="language-plaintext highlighter-rouge">diesel.db</code> file in order to do
+a total reset; then run <code class="language-plaintext highlighter-rouge">run</code> and then <code class="language-plaintext highlighter-rouge">redo</code>.</p>
+      <h4 id="41-what-is-the-difference-between-redo-and-run">
+        
+        
+          4.1 What is the difference between redo and run? <a href="#41-what-is-the-difference-between-redo-and-run">#</a>
+        
+        
+      </h4>
+    
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">redo</code> will run the <code class="language-plaintext highlighter-rouge">down.sql</code> and then the <code class="language-plaintext highlighter-rouge">up.sql</code> file.</li>
+  <li><code class="language-plaintext highlighter-rouge">run</code> will only run the <code class="language-plaintext highlighter-rouge">up.sql</code> file.</li>
+</ul>
+
+<blockquote>
+  <p>Both commands will preserve any existing data in the <code class="language-plaintext highlighter-rouge">diesel.db</code> file. Migrations will
+not destroy the data in the tables, unless you explicitly write SQL to do so.</p>
+</blockquote>
+
+<p>Let’s say you have <code class="language-plaintext highlighter-rouge">run</code> the migration and then you make a change to <code class="language-plaintext highlighter-rouge">up.sql</code> above, and
+add a new column. If you run <code class="language-plaintext highlighter-rouge">run</code> again you will <strong>not</strong> see these changes in your
+<code class="language-plaintext highlighter-rouge">schema.rs</code> file!</p>
+
+<p>You could run <code class="language-plaintext highlighter-rouge">redo</code>, which will run <code class="language-plaintext highlighter-rouge">down.sql</code> and then <code class="language-plaintext highlighter-rouge">up.sql</code>, and this should drop
+the table from the <code class="language-plaintext highlighter-rouge">diesel.db</code> file and then recreate it with the new column.</p>
+
+<p>However, in this scenario it might be best to create a new migration and not modify the
+existing one. This way you can keep track of the changes you made to the database schema
+over time. Once you create the
+<a href="#6-add-a-new-migration-that-changes-existing-tables-by-adding-a-new-column-and-preserve-data">new migration</a>,
+you can run <code class="language-plaintext highlighter-rouge">diesel --database-url=diesel.db migration run</code> to apply the changes.</p>
+      <h4 id="42-location-of-the-generated-schemars-file">
+        
+        
+          4.2. Location of the generated schema.rs file <a href="#42-location-of-the-generated-schemars-file">#</a>
+        
+        
+      </h4>
+    
+
+<p>This will also generate the <code class="language-plaintext highlighter-rouge">schema.rs</code> file in the <code class="language-plaintext highlighter-rouge">src</code> directory. This file will have
+the Rust representation of the tables in the database. You can change the location of this
+file by changing the <code class="language-plaintext highlighter-rouge">diesel.toml</code> file and setting the path for the <code class="language-plaintext highlighter-rouge">print_schema:file</code>
+key. Here’s an example:</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[print_schema]</span>
+<span class="py">file</span> <span class="p">=</span> <span class="s">"src/diesel_sqlite_ex/schema.rs"</span>
+</code></pre></div></div>
+      <h4 id="43-for-the-current-migration-change-the-upsql-file-and-run-it-again">
+        
+        
+          4.3. For the current migration, change the up.sql file and run it again <a href="#43-for-the-current-migration-change-the-upsql-file-and-run-it-again">#</a>
+        
+        
+      </h4>
+    
+
+<p>If you want to change the current migration, you can edit the <code class="language-plaintext highlighter-rouge">up.sql</code> file and then run
+the migration again. You can do this as many times as you want, without having to create a
+new migration. This will simply regenerate the <code class="language-plaintext highlighter-rouge">schema.rs</code> file.</p>
+
+<p>Here’s how you can do that:</p>
+
+<div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Edit the up.sql file.</span>
+<span class="c"># Run the migration again.</span>
+diesel <span class="nt">--database-url</span><span class="o">=</span>diesel.db migration run
+</code></pre></div></div>
+      <h3 id="5-use-the-script-luke">
+        
+        
+          5. Use the script, Luke <a href="#5-use-the-script-luke">#</a>
+        
+        
+      </h3>
+    
+
+<p>In steps 1 through 5, there are a lot of manual steps. Use the script as follows:</p>
+
+<ol>
+  <li>Remove the following files &amp; folders: <code class="language-plaintext highlighter-rouge">diesel.toml</code>, <code class="language-plaintext highlighter-rouge">diesel.db</code>, <code class="language-plaintext highlighter-rouge">migrations</code>,
+<code class="language-plaintext highlighter-rouge">src/schema.rs</code>.</li>
+  <li>Run <code class="language-plaintext highlighter-rouge">./diesel_setup.sh</code> and it will create the database file, create a migration, which
+will generate the <code class="language-plaintext highlighter-rouge">up.sql</code> and <code class="language-plaintext highlighter-rouge">down.sql</code> files. However, the migration will not be run
+and no <code class="language-plaintext highlighter-rouge">.db</code> file will be created.</li>
+  <li>Edit the <code class="language-plaintext highlighter-rouge">up.sql</code> and <code class="language-plaintext highlighter-rouge">down.sql</code> files to add the SQL for creating and dropping tables.</li>
+  <li>Run <code class="language-plaintext highlighter-rouge">./diesel_setup.sh</code> again, and tell it to run the migrations and generate the
+<code class="language-plaintext highlighter-rouge">diesel.db</code> and <code class="language-plaintext highlighter-rouge">schema.rs</code> file.
+    <ol>
+      <li>This runs the <code class="language-plaintext highlighter-rouge">diesel migration run</code> command to exercise the <code class="language-plaintext highlighter-rouge">up.sql</code> file.</li>
+      <li>And then runs the <code class="language-plaintext highlighter-rouge">diesel migration redo</code> command to exercise the <code class="language-plaintext highlighter-rouge">down.sql</code> file,
+and then the <code class="language-plaintext highlighter-rouge">up.sql</code> file.</li>
+      <li>If you want to manually generate the <code class="language-plaintext highlighter-rouge">schema.rs</code> file, you can run
+<code class="language-plaintext highlighter-rouge">diesel print-schema &gt; src/schema.rs</code>.</li>
+    </ol>
+  </li>
+</ol>
+      <h4 id="51-instead-of-raw-sql-write-rust-for-migrations">
+        
+        
+          5.1. Instead of raw SQL, write Rust for migrations <a href="#51-instead-of-raw-sql-write-rust-for-migrations">#</a>
+        
+        
+      </h4>
+    
+
+<p>Alternatively, if you don’t want to write raw SQL to do the migrations, you can just start
+with writing the <code class="language-plaintext highlighter-rouge">src/schema.rs</code> file instead and then run
+<code class="language-plaintext highlighter-rouge">diesel migration generate --diff-schema create_tables</code> to have it generate the <code class="language-plaintext highlighter-rouge">up.sql</code>
+and <code class="language-plaintext highlighter-rouge">down.sql</code> files for you. The script does not currently support this.</p>
+      <h4 id="52-include-migrations-in-the-final-binary">
+        
+        
+          5.2. Include migrations in the final binary <a href="#52-include-migrations-in-the-final-binary">#</a>
+        
+        
+      </h4>
+    
+
+<p>When preparing your app for use in production, you may want to run your migrations during
+the application’s initialization phase. You may also want to include the migration scripts
+as a part of your code, to avoid having to copy them to your deployment location/image
+etc.</p>
+
+<p>You can also include the migrations in the final binary of the application you’re building
+by using the <a href="https://docs.rs/diesel_migrations/2.2.0/diesel_migrations/macro.embed_migrations.html"><code class="language-plaintext highlighter-rouge">diesel_migration</code> crate’s <code class="language-plaintext highlighter-rouge">embed_migrations!</code>
+macro</a>.
+This way there is no manual setup required to run the migrations and can be handled by the
+binary itself.</p>
+      <h3 id="6-add-a-new-migration-that-changes-existing-tables-by-adding-a-new-column-and-preserve-data">
+        
+        
+          6. Add a new migration that changes existing tables by adding a new column and preserve data <a href="#6-add-a-new-migration-that-changes-existing-tables-by-adding-a-new-column-and-preserve-data">#</a>
+        
+        
+      </h3>
+    
+
+<p>Let’s say you have everything working so far, and you want to alter the existing tables by
+adding a new column, there are few things to keep in mind:</p>
+
+<ul>
+  <li>There’s might be data in the tables, which are in the <code class="language-plaintext highlighter-rouge">diesel.db</code> file.</li>
+  <li>You want to preserve this data when you add a new column.</li>
+  <li>When you add a new column, you have to backfill the data in the existing rows which were
+created when this column didn’t exist.</li>
+</ul>
+
+<p>Here are the steps to create a new migration to alter existing tables by adding a new
+column <code class="language-plaintext highlighter-rouge">created_at</code>:</p>
+
+<ol>
+  <li>
+    <p>Create a new migration using:</p>
+
+    <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>diesel <span class="nt">--database-url</span><span class="o">=</span>diesel.db migration generate add_new_column_to_both_tables
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Populate <code class="language-plaintext highlighter-rouge">up.sql</code> file in the new migration with the following SQL:</p>
+
+    <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- Add a new column created_at to data_table. This can't be current_timestamp because</span>
+<span class="c1">-- SQLite doesn't support that. The default value must be a constant.</span>
+<span class="k">alter</span> <span class="k">table</span>
+   <span class="n">data_table</span>
+<span class="k">add</span>
+   <span class="k">column</span> <span class="n">created_at</span> <span class="nb">timestamp</span> <span class="k">not</span> <span class="k">null</span> <span class="k">default</span> <span class="s1">'1900-01-01 12:12:12'</span><span class="p">;</span>
+
+<span class="c1">-- Add a new column created_at to file_table. This can't be current_timestamp because</span>
+<span class="c1">-- SQLite doesn't support that. The default value must be a constant.</span>
+<span class="k">alter</span> <span class="k">table</span>
+   <span class="n">file_table</span>
+<span class="k">add</span>
+   <span class="k">column</span> <span class="n">created_at</span> <span class="nb">timestamp</span> <span class="k">not</span> <span class="k">null</span> <span class="k">default</span> <span class="s1">'1900-01-01 12:12:12'</span><span class="p">;</span>
+
+<span class="c1">-- Update the created_at column in data_table &amp; file_table if needed (it is needed if the</span>
+<span class="c1">-- row's date is hard coded to '1900-01-01 12:12:12'.</span>
+<span class="k">update</span>
+   <span class="n">data_table</span>
+<span class="k">set</span>
+   <span class="n">created_at</span> <span class="o">=</span> <span class="k">current_timestamp</span>
+<span class="k">where</span>
+   <span class="n">created_at</span> <span class="k">is</span> <span class="s1">'1900-01-01 12:12:12'</span><span class="p">;</span>
+
+<span class="k">update</span>
+   <span class="n">file_table</span>
+<span class="k">set</span>
+   <span class="n">created_at</span> <span class="o">=</span> <span class="k">current_timestamp</span>
+<span class="k">where</span>
+   <span class="n">created_at</span> <span class="k">is</span> <span class="s1">'1900-01-01 12:12:12'</span><span class="p">;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Populate the <code class="language-plaintext highlighter-rouge">down.sql</code> file in the new migration with the following SQL:</p>
+
+    <div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- Drop the created_at column from data_table.</span>
+<span class="k">alter</span> <span class="k">table</span>
+   <span class="n">data_table</span>
+<span class="k">drop</span>
+   <span class="k">column</span> <span class="n">created_at</span><span class="p">;</span>
+
+<span class="c1">-- Drop the created_at column from file_table.</span>
+<span class="k">alter</span> <span class="k">table</span>
+   <span class="n">file_table</span>
+<span class="k">drop</span>
+   <span class="k">column</span> <span class="n">created_at</span><span class="p">;</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Finally run:</p>
+
+    <pre><code class="language-sh1">diesel --database-url=diesel.db migration run
+</code></pre>
+  </li>
+</ol>
+
+<p>Once all this is done, your <code class="language-plaintext highlighter-rouge">diesel.db</code> file will have the new column <code class="language-plaintext highlighter-rouge">created_at</code> in both
+tables. However, the <code class="language-plaintext highlighter-rouge">models</code> are still not updated to reflect this change. You can update
+the structs in the <code class="language-plaintext highlighter-rouge">models</code> module manually to accommodate these changes. Since the change
+is SQL column type <code class="language-plaintext highlighter-rouge">TIMESTAMP</code> related, you can add the following field:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">struct</span> <span class="n">DataTableRecord</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span> <span class="p">{</span>
+   <span class="k">pub</span> <span class="n">created_at</span><span class="p">:</span> <span class="nn">chrono</span><span class="p">::</span><span class="n">NaiveDateTime</span><span class="p">,</span>
+   <span class="o">...</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">FileTableRecord</span><span class="o">&lt;</span><span class="nv">'a</span><span class="o">&gt;</span> <span class="p">{</span>
+   <span class="k">pub</span> <span class="n">created_at</span><span class="p">:</span> <span class="nn">chrono</span><span class="p">::</span><span class="n">NaiveDateTime</span><span class="p">,</span>
+   <span class="o">...</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>See the <a href="#timestamps">timestamps</a> section for more information on handling timestamps in
+Diesel, SQLite and Rust.</p>
+      <h3 id="7-diesel-and-rust">
+        
+        
+          7. Diesel and Rust <a href="#7-diesel-and-rust">#</a>
+        
+        
+      </h3>
+    
+      <h4 id="create-a-connection">
+        
+        
+          Create a connection <a href="#create-a-connection">#</a>
+        
+        
+      </h4>
+    
+
+<p>We can just specify the path to the database directly when needed, instead of using the
+<code class="language-plaintext highlighter-rouge">DATABASE_URL</code> environment variable (and using <code class="language-plaintext highlighter-rouge">.env</code> and and <code class="language-plaintext highlighter-rouge">dotenvy</code> crate). There are
+a few ways in which you can specify the database URL:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">path/to/your/file.db</code> - Save the database file in the given path.</li>
+  <li><code class="language-plaintext highlighter-rouge">file://file.db</code> - Save the database file in given path.</li>
+  <li><code class="language-plaintext highlighter-rouge">:memory:</code> - Create an in-memory database.</li>
+</ul>
+
+<p>Here’s an example of this in Rust:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">diesel</span><span class="p">::</span><span class="nn">prelude</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">miette</span><span class="p">::</span><span class="o">*</span><span class="p">;</span>
+
+<span class="cd">/// Specify your database URL, eg:</span>
+<span class="cd">/// - `path/to/your/file.db` - Save the database file in the given path.</span>
+<span class="cd">/// - `file://file.db` - Save the database file in given path.</span>
+<span class="cd">/// - `:memory:` - Create an in-memory database.</span>
+<span class="cd">///</span>
+<span class="cd">/// See [SqliteConnection] for more details.</span>
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">create_connection</span><span class="p">(</span><span class="n">database_url</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="n">SqliteConnection</span><span class="o">&gt;</span> <span class="p">{</span>
+   <span class="nn">SqliteConnection</span><span class="p">::</span><span class="nf">establish</span><span class="p">(</span><span class="n">database_url</span><span class="p">)</span><span class="nf">.into_diagnostic</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h4 id="crud-operations">
+        
+        
+          CRUD operations <a href="#crud-operations">#</a>
+        
+        
+      </h4>
+    
+
+<p>This <a href="https://diesel.rs/guides/getting-started.html">example</a> demonstrates how to do CRUD
+operations with Diesel and Sqlite. The
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/sql/src/diesel_sqlite_ex/diesel_impl.rs">example</a>
+provides examples of implementing CRUD on two different tables, one that holds structured
+JSON text data, and another that holds binary data.</p>
+      <h4 id="timestamps">
+        
+        
+          Timestamps <a href="#timestamps">#</a>
+        
+        
+      </h4>
+    
+
+<p>To handle SQLite <code class="language-plaintext highlighter-rouge">TIMESTAMP</code> column type in Rust, add the <code class="language-plaintext highlighter-rouge">chrono</code> feature in Diesel (in
+your <code class="language-plaintext highlighter-rouge">Cargo.toml</code>). Also add a dependency on the <code class="language-plaintext highlighter-rouge">chrono</code> crate. Here’s a full listing of
+the required dependencies for your <code class="language-plaintext highlighter-rouge">Cargo.toml</code>:</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">diesel</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"2.2.4"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span>
+  <span class="c"># For SQLite support.</span>
+  <span class="s">"sqlite"</span><span class="p">,</span>
+  <span class="c"># The enables returning clauses for SQLite 3.35 and later.</span>
+  <span class="s">"returning_clauses_for_sqlite_3_35"</span><span class="p">,</span>
+  <span class="c"># For timestamp support.</span>
+  <span class="s">"chrono"</span><span class="p">,</span>
+<span class="p">]</span> <span class="p">}</span>
+
+<span class="py">chrono</span> <span class="p">=</span> <span class="s">"0.4"</span>
+</code></pre></div></div>
+
+<p>In the code, you can handle timestamps as follows:</p>
+
+<ul>
+  <li><kbd>Save</kbd> - Get the timestamp for current time in UTC. Do this in Rust, to create a new
+timestamp that will be inserted or updated into the database.
+    <ul>
+      <li><a href="https://docs.rs/chrono/latest/chrono/offset/struct.Utc.html">chrono::Utc::now()</a>
+returns a
+<a href="https://docs.rs/chrono/latest/chrono/struct.DateTime.html">chrono::DateTime::naive_utc()</a>s
+which is a
+<a href="https://docs.rs/chrono/latest/chrono/naive/struct.NaiveDateTime.html">chrono::NaiveDateTime</a>.</li>
+    </ul>
+  </li>
+  <li><kbd>Load</kbd> - Convert the timestamp in the database to a
+<a href="https://docs.rs/chrono/latest/chrono/struct.DateTime.html#">chrono::DateTime</a>. Do this
+in Rust, to read the timestamp from the database.
+    <ul>
+      <li>Use
+<a href="https://docs.rs/chrono/latest/chrono/struct.DateTime.html#method.from_naive_utc_and_offset">chrono::DateTime::from_naive_utc_and_offset</a>
+with the following args:
+        <ol>
+          <li><a href="https://docs.rs/chrono/latest/chrono/naive/struct.NaiveDateTime.html">chrono::NaiveDateTime</a>
+from the previous step.</li>
+          <li><code class="language-plaintext highlighter-rouge">0</code> offset for the timezone.</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li><kbd>Human readable format</kbd> - Convert a
+<a href="https://docs.rs/chrono/latest/chrono/naive/struct.NaiveDateTime.html">chrono::NaiveDateTime</a>
+to a human readable string.
+    <ul>
+      <li>Use the format options in
+<a href="https://docs.rs/chrono/latest/chrono/format/strftime/index.html">chrome::NaiveDateTime::format()</a>
+to format the timestamp. To get the output <code class="language-plaintext highlighter-rouge">around 10:44pm UTC on Nov 11</code>, you can
+use:
+        <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">record</span><span class="py">.created_at</span><span class="nf">.format</span><span class="p">(</span><span class="s">"around %I:%M%P UTC on %b %-d"</span><span class="p">)</span>
+</code></pre></div>        </div>
+      </li>
+    </ul>
+  </li>
+</ul>
+      <h4 id="automatically-run-migrations">
+        
+        
+          Automatically run migrations <a href="#automatically-run-migrations">#</a>
+        
+        
+      </h4>
+    
+
+<p>Let’s say that the <code class="language-plaintext highlighter-rouge">diesel.db</code> file is not present, since you have <strong>NOT</strong> done any of the
+following:</p>
+
+<ul>
+  <li>Run the <code class="language-plaintext highlighter-rouge">diesel_setup.fish</code> script file.</li>
+  <li>Run the <code class="language-plaintext highlighter-rouge">diesel setup</code> command.</li>
+  <li>Run the <code class="language-plaintext highlighter-rouge">diesel migration run</code> command.</li>
+</ul>
+
+<p>Or a <code class="language-plaintext highlighter-rouge">diesel.db</code> file is present, and you just added a new migration <strong>BUT</strong> you didn’t
+run it yet.</p>
+
+<p>In this case your application will not work, since the database file is not present, or it
+is out of date 🤦.</p>
+
+<p>Thankfully, you can have the migrations run automatically when the application starts, if
+the database file is not present, it will be created. If the database file is old, it will
+be updated to the latest version 🎉.</p>
+
+<p>In order to make this happen you have to do the following things.</p>
+
+<ol>
+  <li>
+    <p>Add the <code class="language-plaintext highlighter-rouge">diesel_migrations</code> crate to your <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file:</p>
+
+    <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># For automatic migrations.</span>
+<span class="py">diesel_migrations</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"2.2.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"sqlite"</span><span class="p">]</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Add a procedural macro and this function:</p>
+
+    <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">diesel_migrations</span><span class="p">::{</span><span class="n">embed_migrations</span><span class="p">,</span> <span class="n">EmbeddedMigrations</span><span class="p">,</span> <span class="n">MigrationHarness</span><span class="p">};</span>
+<span class="k">pub</span> <span class="k">const</span> <span class="n">MIGRATIONS</span><span class="p">:</span> <span class="n">EmbeddedMigrations</span> <span class="o">=</span> <span class="nd">embed_migrations!</span><span class="p">();</span>
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">try_run_migrations</span><span class="p">(</span>
+    <span class="n">connection</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">SqliteConnection</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">result</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span>
+    <span class="nb">Vec</span><span class="o">&lt;</span><span class="nn">diesel</span><span class="p">::</span><span class="nn">migration</span><span class="p">::</span><span class="n">MigrationVersion</span><span class="o">&lt;</span><span class="nv">'_</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+    <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span> <span class="o">+</span> <span class="nb">Send</span> <span class="o">+</span> <span class="nb">Sync</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="o">&gt;</span> <span class="p">{</span>
+    <span class="n">connection</span><span class="nf">.run_pending_migrations</span><span class="p">(</span><span class="n">MIGRATIONS</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Finally, to your <code class="language-plaintext highlighter-rouge">main.rs</code> file, or whatever file and function you want to run before
+any database operations are run in your binary, call the function above. For example:</p>
+
+    <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="n">connection</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nn">general_ops</span><span class="p">::</span><span class="nf">create_connection</span><span class="p">(</span><span class="n">DATABASE_URL</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+<span class="k">if</span> <span class="nn">migration_ops</span><span class="p">::</span><span class="nf">try_run_migrations</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span><span class="nf">.is_err</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"Error running migrations"</span><span class="p">);</span>
+    <span class="nn">miette</span><span class="p">::</span><span class="nd">bail!</span><span class="p">(</span><span class="s">"Error running migrations"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Optionally, you can add a <code class="language-plaintext highlighter-rouge">build.rs</code> file at the root of your project to get around
+current limitations in Rust’s <code class="language-plaintext highlighter-rouge">proc-macro</code> API. There is currently no way to signal
+that a specific proc macro should be rerun if some external file changes or is added.
+Which means that <code class="language-plaintext highlighter-rouge">embed_migrations!</code> cannot regenerate the list of embedded migrations
+if <strong>ONLY</strong> the migrations are changed. To get around this you can add the following to
+your <code class="language-plaintext highlighter-rouge">build.rs</code> file:</p>
+
+    <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+   <span class="nd">println!</span><span class="p">(</span><span class="s">"cargo:rerun-if-changed=migrations"</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>That’s it! Now your application will automatically run migrations when it starts 🚀.</p>
+      <h2 id="vscode-and-sqlite-extension">
+        
+        
+          VSCode and SQLite extension <a href="#vscode-and-sqlite-extension">#</a>
+        
+        
+      </h2>
+    
+
+<ol>
+  <li>
+    <p>You can install
+<a href="https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer"><code class="language-plaintext highlighter-rouge">qwtel.sqlite-viewer</code></a>
+to view SQLite databases in VSCode. Alternatively you can use RustRover as db explorer
+is built in.</p>
+  </li>
+  <li>
+    <p>You can install
+<a href="https://marketplace.visualstudio.com/items?itemName=adpyke.vscode-sql-formatter"><code class="language-plaintext highlighter-rouge">adpyke.vscode-sql-formatter</code></a>
+to format SQL queries in VSCode.</p>
+  </li>
+</ol>
+      <h2 id="history">
+        
+        
+          History <a href="#history">#</a>
+        
+        
+      </h2>
+    
+
+<p>This <a href="https://github.com/r3bl-org/r3bl-private-planning/issues/16">tracking bug</a> has lots
+of background information regarding the exploration of SQL, Rust, the best database to
+use, and the best driver &amp; ORM combo.</p>
+      <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
+        
+        
+          Build with Naz video series on developerlife.com YouTube channel <a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <p>If you have comments and feedback on this content, or would like to request new content
+(articles &amp; videos) on developerlife.com, please join our <a href="https://discord.gg/8M2ePAevaMi">discord
+server</a>.</p>
+</blockquote>
+
+<p>You can watch a video series on building this crate with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/watch?v=bolScvh4x7I&amp;list=PLofhE49PEwmw3MKOU1Kn3xbP4FRQR4Mb3">Build with Naz, Linux TTY, process, signals, commands in async Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/DB">
+                #db</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        
+<blockquote>
+
+  👀 Watch Rust 🦀 live coding videos on our <a
+  href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
+
+  <br/>
+  <br/>
+
+  <!-- video on rust polymorphism (no playlist) -->
+  <iframe
+      src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      >
+  </iframe>
+
+  <br/>
+  <br/>
+
+  📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
+  (they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
+  project):
+  <ul>
+    <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+    <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+  </ul>
+
+  <p>
+  <kbd>giti in action</kbd>
+  <video width="100%" controls>
+    <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4"/>
+  </video>
+  </p>
+
+  <p>
+  <kbd>edi in action</kbd>
+  <video width="100%" controls>
+    <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4"/>
+  </video>
+  </p>
+
+  </blockquote>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/11/28/rust-tls-rustls/">
+                        Build with Naz : TLS (Transport Layer Security) in Rust with tokio, rustls, CFSSL
+                    </a>
+                </li>
+            
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/09/02/rust-lifetimes/">
+                        Build with Naz : Rust lifetimes
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/08/20/tty-linux-async-rust/">
+                        Build with Naz : Explore Linux TTY, process, signals w/ Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/07/16/pin-box-dynamic-duo/">
+                        Build with Naz : Box and Pin exploration in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/07/10/rust-async-cancellation-safety-tokio/">
+                        Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/06/28/md-parser-rust-from-r3bl-tui/">
+                        Build with Naz : Markdown parser in Rust and nom from r3bl_tui
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/06/10/rust-miette-error-handling/">
+                        Build with Naz : Rust error handling with miette
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/28/typestate-pattern-rust/">
+                        Build with Naz : Rust typestate pattern
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/25/tokio-uring-exploration-rust/">
+                        Build with Naz : Linux io_uring and tokio-uring exploration with Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/19/effective-async-rust/">
+                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, graceful shutdown
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/15/tokio-tracing-otel-rust/">
+                        Build with Naz : tokio tracing &amp; OTel and how to use it in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">
+                        Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/21/build-async-interactive-cli-apps-in-rust/">
+                        Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Build with Naz : Comprehensive guide to nom parsing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/05/25/redux-react-navigation-and-react-native/">
+                        Redux, React Navigation, and React Native
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2017/01/27/native-android-redux-and-firebase/">
+                        Android, Redux, Firebase Auth &amp; Database, and Material Design
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/12/firebase-presence/">
+                        Using Firebase for user presence tracking
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/06/getting-started-with-react-redux-and-firebase/">
+                        Building a real world app using React, Redux, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2016/10/02/getting-started-with-react-and-firebase/">
+                        Building a real world app using React, Firebase, and Typescript
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/07/08/ubuntu24/">
+                        Build with Naz : Ubuntu 24.04 setup and config for dev productivity
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2024/11/28/rust-sqlite-diesel/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <!-- video on intro to testing (with playlist) -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- rust async readline and spinner & playlist -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=i37Ei9nCfvslOoaI&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- effective async rust & playlist -->
+    <h2 class="star-us-github-heading">
+      Subscribe to our
+      <a href="https://www.youtube.com/@developerlifecom">YT Channel</a
+      ><span class="heading-emoji"> 🦀</span>
+    </h2>
+
+    <iframe
+    src="https://www.youtube.com/embed/qvIt8MF-pCM?si=S40pbhnvVDAohj-6"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen>
+    </iframe>
+
+    <hr />
+
+    <h2 class="star-us-github-heading">
+      <a href="https://r3bl.com#services">Need help with code?</a>
+      <span class="heading-emoji"> 💼</span>
+    </h2>
+
+    <hr />
+
+    <h2 class="star-us-github-heading">
+      Use our crates & apps<span class="heading-emoji"> 📦</span>
+    </h2>
+
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-apps.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://chromewebstore.google.com/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial?hl=en-US&gl=US" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-shortlink.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <!-- <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a
+          href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async"
+          target="_blank"
+        >
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TERMINAL ASYNC LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_terminal_async</code></h3>
+          </div>
+        </a>
+      </li> -->
+    </ul>
+
+    <hr />
+
+    <h2 class="star-us-github-heading">
+      To provide feedback & comments, join our <a href="https://discord.gg/PhuF4qFpcA">Discord</a>
+      <span class="heading-emoji"> 💬</span>
+    </h2>
+
+    <h2 class="star-us-github-heading">
+      Sign up for our <a href="subscribe.html">newsletter</a>
+      <span class="heading-emoji"> 📧</span>
+    </h2>
+
+  </section>
+</div>
+</div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 2022. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics related to Java, XML,
+    and web and desktop technologies. Today it covers Rust, TUI, CLI, Kotlin, TypeScript, Node.js, React, Android,
+    JDK, Web, Cloud technologies, User Experience Engineering (UXE) and design topics. © Nazmul
+    Idris 2022. All rights reserved.
+  </p>
+  <div class="footer-container">
+
+    <!-- element 1 -->
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com#services" target="_blank">Need help with code?</a>
+    </kbd>
+
+    <!-- element 2 -->
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Newsletter</a
+      >
+    </kbd>
+
+  </div>
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

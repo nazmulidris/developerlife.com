@@ -53,18 +53,17 @@ I've brought products to life from a glimmer of a vision to a team building it, 
 customers, and eventually seeing the product come to an end. I've worked as part of large
 and small teams and led them to make impossible things possible.
 
-I have over 20 years of leadership:
+I have over 30 years of work experience in the tech sector:
 
-- 12 years in software engineering.
-- 8 years in design and product management experience.
+- 22 years in software engineering.
+- 8 years in executive leadership, design, product management experience.
 
-As a multifaceted engineer, designer, and communicator, I’ve focused on creating,
+As a multifaceted entrepreneur, leader, engineer, designer, and communicator, I’ve focused on creating,
 designing, building, and collaborating with people to bring amazing user experiences to
 life across multiple platforms.
 
 > ✨ You can read all my articles on [developerlife.com](https://developerlife.com) and
 > watch my videos on [YouTube](https://www.youtube.com/@developerlifecom).
-
 
 Highlights:
 

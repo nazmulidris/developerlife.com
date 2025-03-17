@@ -16,7 +16,7 @@ categories:
   - DB
 ---
 
-<img class="post-hero-image" src="{{ 'assets/rust-sqlite-diesel.svg' | relative_url }}"/>
+<img class="post-hero-image" src="{{ 'assets/rust-sqlite-diesel.png' | relative_url }}"/>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

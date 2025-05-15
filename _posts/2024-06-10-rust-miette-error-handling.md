@@ -418,10 +418,6 @@ For more sophisticated error handling examples, please check out the following l
 ## Build with Naz video series on developerlife.com YouTube channel
 <a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a>
 
-> If you have comments and feedback on this content, or would like to request new content
-> (articles & videos) on developerlife.com, please join our [discord
-> server](https://discord.gg/8M2ePAevaMi).
-
 You can watch a video series on building this crate with Naz on the
 [developerlife.com YouTube channel](https://www.youtube.com/@developerlifecom).
 

@@ -652,10 +652,6 @@ There are functions that make it easy to unwrap things in Rust that are wrapped 
 
 ## Build with Naz video series on developerlife.com YouTube channel
 
-> If you have comments and feedback on this content, or would like to request new content
-> (articles & videos) on developerlife.com, please join our [discord
-> server](https://discord.gg/8M2ePAevaMi).
-
 You can watch a video series on building this crate with Naz on the
 [developerlife.com YouTube channel](https://www.youtube.com/@developerlifecom).
 

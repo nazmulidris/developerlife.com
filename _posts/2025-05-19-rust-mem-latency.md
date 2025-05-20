@@ -24,6 +24,7 @@ categories:
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Rest In Peace, Moore's Law](#rest-in-peace-moores-law)
+- [YouTube video for this article](#youtube-video-for-this-article)
 - [Memory latency and cache lines](#memory-latency-and-cache-lines)
   - [Order of magnitude latency differences](#order-of-magnitude-latency-differences)
   - [Cache line](#cache-line)
@@ -82,6 +83,26 @@ software performance.
       Servo): Store small numbers of elements on the stack.
     - [`smallstr`](https://docs.rs/smallstr/0.3.0/smallstr/) (based on smallvec): Store
       small strings on the stack.
+
+## YouTube video for this article
+
+If you like to learn via video, please watch the companion video on the [developerlife.com
+YouTube channel](https://www.youtube.com/@developerlifecom) where I live code all the
+examples from scratch. You can follow along there, step by step if you like, in addition
+to this article and [repo](https://github.com/nazmulidris/rust-scratch/tree/main/memory_locality_latency).
+
+<!-- rust tls -->
+<iframe
+    src="https://www.youtube.com/embed/ywkEmwkX0Lc?si=YyAXwID029WlQkt9"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+</iframe>
+
+> The code in the video and this tutorial are all in [this GitHub
+> repo](https://github.com/nazmulidris/rust-scratch/tree/main/memory_locality_latency).
 
 ## Memory latency and cache lines
 
@@ -527,6 +548,53 @@ fn main() {
 }
 ```
 
+One would expect that the size of this struct would be 7 bytes (1 + 4 + 2), but it is
+actually 8 bytes. In Rust, the size of `Demo` is **8 bytes** instead of 7 due to
+**alignment and padding**.
+
+Here’s how it’s laid out:
+
+- `a: u8` (1 byte)
+- **3 bytes padding** (to align `b` to a 4-byte boundary)
+- `b: u32` (4 bytes)
+- `c: u16` (2 bytes)
+
+But after `c`, the struct size must be a multiple of the largest alignment (which is 4 bytes for `u32`).
+So, the layout is:
+
+| Field | Size | Offset |
+|-------|------|--------|
+| a     | 1    | 0      |
+| pad   | 3    | 1-3    |
+| b     | 4    | 4-7    |
+| c     | 2    | 8-9    |
+| pad   | 2    | 10-11  |
+
+But since the struct is declared as:
+
+```rs
+struct Demo {
+    a: u8,
+    b: u32,
+    c: u16,
+}
+```
+
+Rust will reorder and pad as needed, but in this case, the minimum size to fit all fields
+with correct alignment is **8 bytes**:
+
+- Field `a`: 1 byte at offset 0
+- Padding: 3 bytes after `a` (to align `b` to a 4-byte boundary)
+- Field `b`: 4 bytes at offset 4
+- Field `c`: 2 bytes at offset 8
+- Padding: 2 bytes after `c` (to make the total size a multiple of the largest alignment, which is 4)
+- **Total size:** 12 bytes (not 7), due to alignment and padding
+
+**Summary:** Rust adds padding to ensure each field is properly aligned, so the struct
+size is 8 bytes, not 7. If you want to see the actual layout, you can use:
+- the `repr(C)` attribute
+- and tools like `cargo rustc -- -Zprint-type-sizes`.
+
 Here's what this would like if we used C alignment rules instead of Rust:
 
 ```rs
@@ -534,9 +602,9 @@ use std::mem::{size_of, align_of};
 use r3bl_tui::{fg_light_yellow_green, fg_lizard_green};
 #[repr(C)]
 struct Demo {
-    a: u8,  // 1 byte, alignment 1
+    a: u8,  // 1 byte, alignment 4
     b: u32, // 4 bytes, alignment 4
-    c: u16, // 2 bytes, alignment 2
+    c: u16, // 2 bytes, alignment 4
 }
 
 fn main() {
@@ -550,6 +618,11 @@ fn main() {
     fg_light_yellow_green(format!("Alignment of Demo: {align}")).println();
 }
 ```
+
+This yields the expected struct size of 12 bytes, with 4 byte alignment, since the
+compiler does not reorder any of the fields.
+
+Now, let's take a look at the alignment of different types in Rust.
 
 The default alignment of 4 bytes for many types (like `u32` or `i32`) is based on their
 size and the requirements of most modern CPUs, especially 32-bit architectures. The
@@ -716,19 +789,20 @@ impl<T, const N: usize> RingBuffer<T, N> {
 mod ring_buffer_inline_tests {
     use super::*;
 
+    /// Add to the tail of the queue and remove from the head of the queue.
     #[test]
     pub fn test_queue_api() {
         let mut rb = RingBuffer::<u8, 4>::new();
 
         // Partially fill the ring buffer.
         {
-            rb.add(1);
+            rb.add(1); // Add to the tail of the queue.
             rb.add(2);
             rb.add(3);
             assert_eq!(rb.len(), 3);
             assert_eq!(rb.cap(), 4);
 
-            let a = rb.remove();
+            let a = rb.remove(); // Remove from the head of the queue.
             let b = rb.remove();
             let c = rb.remove();
 

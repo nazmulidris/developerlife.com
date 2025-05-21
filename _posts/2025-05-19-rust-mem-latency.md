@@ -170,16 +170,14 @@ of the components. However, they provide a good sense of the performance hierarc
     - **Relative Order of Magnitude:** **~10,000x - 100,000x** slower than register
       access.
 
-> | Unit Name   | Symbol | Value in Seconds                  |
-> | ----------- | ------ | --------------------------------- |
-> | second      | s      | 1                                 |
-> | millisecond | ms     | 1/1,000 = 10⁻³ s                  |
-> | microsecond | μs     | 1/1,000,000 = 10⁻⁶ s              |
-> | nanosecond  | ns     | 1/1,000,000,000 = 10⁻⁹ s          |
-> | picosecond  | ps     | 1/1,000,000,000,000 = 10⁻¹² s     |
-> | femtosecond | fs     | 1/1,000,000,000,000,000 = 10⁻¹⁵ s |
-
-### Cache line
+> | Unit Name | Symbol | Value in Seconds           |
+> |----------|--------|----------------------------|
+> | second   | s      | 1                          |
+> | milli    | ms     | 1/1K = 10⁻³ s              |
+> | micro    | μs     | 1/1M = 10⁻⁶ s              |
+> | nano     | ns     | 1/1G = 10⁻⁹ s              |
+> | pico     | ps     | 1/1,000G = 10⁻¹² s         |
+> | femto    | fs     | 1/1,000,000G = 10⁻¹⁵ s     |
 
 A **cache line** is the fundamental unit of data transfer between the CPU's cache
 hierarchy and the main memory. On the 14th gen Intel CPUs it is 64 bytes, its primary

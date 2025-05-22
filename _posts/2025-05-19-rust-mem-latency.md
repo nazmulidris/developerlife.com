@@ -93,7 +93,7 @@ to this article and [repo](https://github.com/nazmulidris/rust-scratch/tree/main
 
 <!-- rust tls -->
 <iframe
-    src="https://www.youtube.com/embed/ywkEmwkX0Lc?si=YyAXwID029WlQkt9"
+    src="https://www.youtube.com/embed/zOLjEEjCJdY?si=55l1Nv6pNBWtatI0"
     title="YouTube video player"
     frameborder="0"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

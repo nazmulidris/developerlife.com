@@ -283,29 +283,29 @@ This is configurable through several mechanisms:
 
 1. Check current stack size in a terminal with:
 
-  ```bash
-  # Displays the current stack size limit in KB.
-  ulimit -s
-  ```
+```shell
+# Displays the current stack size limit in KB.
+ulimit -s
+```
 
 2. Modify stack size temporarily:
 
-  ```bash
-  # Set stack size to 8192 KB.
-  ulimit -s 8192
-  ```
+```shell
+# Set stack size to 8192 KB.
+ulimit -s 8192
+```
 
 3. For permanent changes, edit `/etc/security/limits.conf`:
 
-  ```conf
-  # <domain> <type> <item> <value>
-  # - domain: * means all users.
-  # - type: soft and hard are the limit types.
-  # - item: stack is the resource.
-  # - value: The value is in kilobytes (KB).
-  * soft stack 8192
-  * hard stack 16384
-  ```
+```conf
+# <domain> <type> <item> <value>
+# - domain: * means all users.
+# - type: soft and hard are the limit types.
+# - item: stack is the resource.
+# - value: The value is in kilobytes (KB).
+* soft stack 8192
+* hard stack 16384
+```
 
 ### Allocation and drop
 
@@ -349,7 +349,7 @@ into owned data somewhere else (like a `String`).
 
 First add the following dependencies to your project:
 
-```bash
+```shell
 cargo add r3bl_tui
 ```
 
@@ -519,7 +519,7 @@ layout of a struct in memory.
 
 First add the following dependencies to your project:
 
-```bash
+```shell
 cargo add r3bl_tui
 ```
 
@@ -637,7 +637,7 @@ Next, let's work with an example that shows the alignment of different types.
 
 First add the following dependencies to your project:
 
-```bash
+```shell
 cargo add r3bl_tui
 ```
 
@@ -688,7 +688,7 @@ Here's an example of how to use `jemalloc` as the global allocator in a Rust pro
 
 First add the following dependencies to your project:
 
-```bash
+```shell
 cargo add tikv-jemallocator r3bl_tui
 ```
 
@@ -862,7 +862,7 @@ with items that are provided inline to the macro.
 
 To run the example below, first add the following dependencies to your project:
 
-```bash
+```shell
 cargo add smallvec r3bl_tui
 ```
 
@@ -1057,7 +1057,7 @@ The `r3bl_tui` crate provides a `InlineString` type that is a wrapper around
 
 To run the example below, first add the following dependencies to your project:
 
-```bash
+```shell
 cargo add smallstr r3bl_tui
 ```
 

@@ -66,14 +66,15 @@ life across multiple platforms.
 
 Highlights:
 
-- Currently a Rustacean 🦀 coding in Rust every day for 4 years, working on systems programming,
-  performance, memory latency, and response times on complex system, related to all things TUI (text
-  user interface) & CLI (command line interface)! Along w/ WASM, WASI, fast and efficient desktop
-  and web apps. Many years coding experience in TypeScript, React, WASM, WASI, Node.js, Kotlin, and
-  Java.
+- Currently a Rustacean 🦀 coding in Rust every day for 4 years, working on systems
+  programming, performance, memory latency, and response times on complex system, related
+  to all things TUI (text user interface) & CLI (command line interface)! Along w/
+  conceiving, architecting, and building fast and efficient desktop and web apps, and
+  local and cloud server infrastructure. Extensive experience coding in TypeScript,
+  React, Node.js, browser extensions, IDE plugins and extensions, Kotlin, Java.
   - My crates on crates.io have accumulated over 2M downloads in the last 2 years
   - My YouTube channel on Rust live coding covers advanced topics on systems programming and Rust
-    advanced concepts, like async, tokio, design patterns (type state, newtype, etc), concurrent and
+    advanced concepts, like async, tokio, design patterns (typestate, newtype, etc), concurrent and
     parallel programming, parsing, code generation, and more:
     [youtube.com/@developerlifecom](https://www.youtube.com/@developerlifecom).
   - My website developerlife.com has a section on Rust with articles and tutorials covering the same
@@ -106,8 +107,8 @@ Highlights:
 
 - Experienced in building mobile apps and SDKs, web apps and APIs, IDEs, and web services
 
-- Well versed in Kotlin, Java, Android, Test driven development, TypeScript, Rust, Node.js, WASM,
-  WASI, JavaScript, Jest, React, Redux, Python, React Native, Firebase, databases (SQL & NoSQL), CLI
+- Well versed in Rust, Kotlin, Java, Android, Test driven development, TypeScript, Node.js,
+  JavaScript, Jest, React, Redux, Python, React Native, Firebase, databases (SQL & NoSQL), CLI
   apps, GUI desktop apps
 
 ### Mobile app development toolkits & infrastructure

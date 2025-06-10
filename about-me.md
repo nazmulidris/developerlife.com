@@ -45,38 +45,49 @@ exclude: false
 
 ## My story
 
-I am equal parts: engineer, management, and product person; both hands-on and in
-leadership. I move fluidly between the realms of desktop, web, mobile, cloud,
-infrastructure, server, client.
+I am equal parts: engineer, management, and product person; both hands-on and in leadership. I move
+fluidly between the realms of desktop, web, mobile, cloud, infrastructure, server, client.
 
-I've brought products to life from a glimmer of a vision to a team building it, to having
-customers, and eventually seeing the product come to an end. I've worked as part of large
-and small teams and led them to make impossible things possible.
+I've brought products to life from a glimmer of a vision to a team building it, to having customers,
+and eventually seeing the product come to an end. I've worked as part of large and small teams and
+led them to make impossible things possible.
 
 I have over 30 years of work experience in the tech sector:
 
 - 22 years in software engineering.
 - 8 years in executive leadership, design, product management experience.
 
-As a multifaceted entrepreneur, leader, engineer, designer, and communicator, I’ve focused on creating,
-designing, building, and collaborating with people to bring amazing user experiences to
+As a multifaceted entrepreneur, leader, engineer, designer, and communicator, I’ve focused on
+creating, designing, building, and collaborating with people to bring amazing user experiences to
 life across multiple platforms.
 
-> ✨ You can read all my articles on [developerlife.com](https://developerlife.com) and
-> watch my videos on [YouTube](https://www.youtube.com/@developerlifecom).
+> ✨ You can read all my articles on [developerlife.com](https://developerlife.com) and watch my
+> videos on [YouTube](https://www.youtube.com/@developerlifecom).
 
 Highlights:
 
-- Currently a Rustacean 🦀 coding in Rust and working on all things TUI & CLI! Along w/
-  WASM, WASI, fast and efficient desktop and web apps. Coding in Rust, TypeScript, React,
-  WASM, WASI, Node.js.
-- Worked on Android Studio IDE (JetBrains based) in Kotlin & Java.
+- Currently a Rustacean 🦀 coding in Rust every day for 4 years, working on systems programming,
+  performance, memory latency, and response times on complex system, related to all things TUI (text
+  user interface) & CLI (command line interface)! Along w/ WASM, WASI, fast and efficient desktop
+  and web apps. Many years coding experience in TypeScript, React, WASM, WASI, Node.js, Kotlin, and
+  Java.
+  - My crates on crates.io have accumulated over 2M downloads in the last 2 years
+  - My YouTube channel on Rust live coding covers advanced topics on systems programming and Rust
+    advanced concepts, like async, tokio, design patterns (type state, newtype, etc), concurrent and
+    parallel programming, parsing, code generation, and more:
+    [youtube.com/@developerlifecom](https://www.youtube.com/@developerlifecom).
+  - My website developerlife.com has a section on Rust with articles and tutorials covering the same
+    topics as the videos above:
+    [developerlife.com/category/rust](https://developerlife.com/category/Rust/)
+- Worked on Android Studio IDE (JetBrains based) in Kotlin & Java. Worked on the platform team,
+  focusing on system performance, relativity, response times, and stability. While rapidly
+  integrating and adapting to the latest JetBrains IDE platform changes.
 - Was principal SWE, founder, and CEO of a startup (TRNQL) in 2015.
   - Raised 1.5M in venture funding.
   - Successfully built and launched developer-facing SDKs for Android & iOS.
   - Created & led teams that served many users & developers on Android & iOS.
-- Currently create content for prominent developer tutorial site developerlife.com (est
-  1998) and its YouTube Channel.
+- Currently create content for prominent developer tutorial site developerlife.com (est 1998) and
+  its YouTube Channel.
 
 ## Leadership and Resourcefulness
 
@@ -86,8 +97,8 @@ Highlights:
 
 - Recruited and managed team of 6 people
 
-- Created and shipped SDKs that collects valuable signals from Android and iOS devices
-  that fed ML to better understand human behavior
+- Created and shipped SDKs that collects valuable signals from Android and iOS devices that fed ML
+  to better understand human behavior
 
 ## Software Engineering
 
@@ -95,40 +106,39 @@ Highlights:
 
 - Experienced in building mobile apps and SDKs, web apps and APIs, IDEs, and web services
 
-- Well versed in Kotlin, Java, Android, Test driven development, TypeScript, Rust,
-  Node.js, WASM, WASI, JavaScript, Jest, React, Redux, Python, React Native, Firebase,
-  databases (SQL & NoSQL), CLI apps, GUI desktop apps
+- Well versed in Kotlin, Java, Android, Test driven development, TypeScript, Rust, Node.js, WASM,
+  WASI, JavaScript, Jest, React, Redux, Python, React Native, Firebase, databases (SQL & NoSQL), CLI
+  apps, GUI desktop apps
 
 ### Mobile app development toolkits & infrastructure
 
-- Created Android app development container and SDK (built on top of Android framework to
-  expose contextual awareness to any app for TRNQL)
+- Created Android app development container and SDK (built on top of Android framework to expose
+  contextual awareness to any app for TRNQL)
 
-- Created BlackBerry app development container (with custom UI toolkits, animation
-  libraries, networking, and app lifecycle management)
+- Created BlackBerry app development container (with custom UI toolkits, animation libraries,
+  networking, and app lifecycle management)
 
-- Created Java desktop app development containers (with custom UI toolkits, animation
-  libraries, networking, and app lifecycle management) for Rich Internet Applications
+- Created Java desktop app development containers (with custom UI toolkits, animation libraries,
+  networking, and app lifecycle management) for Rich Internet Applications
 
 ### Cloud Infrastructure
 
-- Created a cross platform PaaS service in Java, built on top of Tomcat, similar to Google
-  App Engine that powered ScreamingToaster BlackBerry apps (from 2006 to 2011. and then
-  became the server backend for TRNQL SDK offering (from 2015-2016)
+- Created a cross platform PaaS service in Java, built on top of Tomcat, similar to Google App
+  Engine that powered ScreamingToaster BlackBerry apps from 2006 to 2011, and then became the server
+  backend for TRNQL SDK offering (from 2015-2016)
 
-- Created DSLs to declaratively generate persistence, networking, data models, and data
-  binding. Created source code generators to take DSLs and generate code in Java for
-  server, Android, and BlackBerry, and even JavaScript for web
+- Created DSLs to declaratively generate persistence, networking, data models, and data binding.
+  Created source code generators to take DSLs and generate code in Java for server, Android, and
+  BlackBerry, and even JavaScript for web
 
 - This server supported web, iOS, Android, BlackBerry clients
 
-- It also supported payments integration and issuing app licenses and managing app
-  subscriptions
+- It also supported payments integration and issuing app licenses and managing app subscriptions
 
 ### Cross platform development toolkits & infrastructure
 
-- Created Web app development containers to integrate seamlessly with cloud infrastructure
-  and a multitude of mobile clients (Android, BlackBerry, iOS) from 2009 to 2011
+- Created Web app development containers to integrate seamlessly with cloud infrastructure and a
+  multitude of mobile clients (Android, BlackBerry, iOS) from 2009 to 2011
 
 ### Android apps
 
@@ -140,27 +150,25 @@ Apps I've published to the Play Store:
 
 ### BlackBerry Apps
 
-- I was a finalist **twice** in the Global BlackBerry Developer Conference in 2009 and
-  2010 for best app in the world (Wicked blogging app, and RainOrShine weather app)
+- I was a finalist **twice** in the Global BlackBerry Developer Conference in 2009 and 2010 for best
+  app in the world (Wicked blogging app, and RainOrShine weather app)
 
-- I published 4 apps that were used by 100's of thousands of users globally from 2006 to
-  2011
+- I published 4 apps that were used by 100's of thousands of users globally from 2006 to 2011
 
   - Wicked blogging app for BlackBerry
   - MyListy list app for BlackBerry and Web
   - DulyNoted note taking app for BlackBerry and Web
-  - RainOrShine weather app for BlackBerry (was top 5 weather apps in BlackBerry App World
-    for a while) and was featured in the App World
+  - RainOrShine weather app for BlackBerry (was top 5 weather apps in BlackBerry App World for a
+    while) and was featured in the App World
 
 ### Middleware infrastructure for mobile
 
-- Created underlying technology to enable servers to integrate with multiple client
-  platforms using low level sockets communications, custom binary data transmission
-  protocols, complete custom app servers, and even custom mobile app UI markup languages
-  from 1999 to 2004
+- Created underlying technology to enable servers to integrate with multiple client platforms using
+  low level sockets communications, custom binary data transmission protocols, complete custom app
+  servers, and even custom mobile app UI markup languages from 1999 to 2004
 
-- Created high performance application data network infrastructure to deliver push updates
-  from server to client, and a whole host of other innovations (see patent)
+- Created high performance application data network infrastructure to deliver push updates from
+  server to client, and a whole host of other innovations (see patent)
 
 ## Product Design
 
@@ -170,34 +178,37 @@ Apps I've published to the Play Store:
 - Udacity class on UX Design for Mobile reaching over 200k people online
   [bit.ly/uxdclass](http://bit.ly/uxdclass)
 
-- G+ UX design community 8k designers & developers
-  [bit.ly/uxdcommunity](http://bit.ly/uxdcommunity)
+- G+ UX design community 8k designers & developers [bit.ly/uxdcommunity](http://bit.ly/uxdcommunity)
 
 - UX design with contextual information
   [podcast](https://www.stitcher.com/podcast/vinay-raghu/incrementalux-podcast/e/40822211)
 
 ## Communication
 
-I've led the creation of developer narratives and scaled them out at Google, eg: I created
-the first design workshops for developers at IO13 & IO14. I've founded and presented at
-the Design for Humans (in real life) meetup. I've created the UX Design for Mobile class
-on Udacity, and my own UX Design show on YouTube both for Google. I also run and create
-content for a very prominent developer tutorial site called
-[developerlife.com](http://developerlife.com) (which was established in 1998).
+I've led the creation of developer narratives and scaled them out at Google, eg: I created the first
+design workshops for developers at IO13 & IO14. I've founded and presented at the Design for Humans
+(in real life) meetup. I've created the UX Design for Mobile class on Udacity, and my own UX Design
+show on YouTube both for Google. I also run and create content for a very prominent developer
+tutorial site called [developerlife.com](http://developerlife.com) (which was established in 1998).
 
-- Created developerlife.com tutorials on Android, Kotlin, React, Redux, and React Native,
-  that has been around since ‘98 and has over 10M pageviews
+- Created developerlife.com tutorials on Android, Kotlin, React, Redux, and React Native, that has
+  been around since ‘98 and has over 10M pageviews
 
-- Created & ran UX Design experiential workshops for developers at Google IO13 and IO14
-  hosting over 2k attendees – [bit.ly/2o3oAni](http://bit.ly/2o3oAni)
+- Create developerlife.com YouTube channel with ~1K subscribers and many videos, covering Rust live
+  coding covers advanced topics on systems programming and Rust advanced concepts, like async,
+  tokio, design patterns (type state, newtype, etc), concurrent and parallel programming, parsing,
+  code generation, and more:
+  [youtube.com/@developerlifecom](https://www.youtube.com/@developerlifecom)
 
-- Founded and grew Design for Humans meetup group to 2k members for UX design. I’ve
-  presented at over 34 meetups, and over 4k developer & designer attendees –
+- Created & ran UX Design experiential workshops for developers at Google IO13 and IO14 hosting over
+  2k attendees – [bit.ly/2o3oAni](http://bit.ly/2o3oAni)
+
+- Founded and grew Design for Humans meetup group to 2k members for UX design. I’ve presented at
+  over 34 meetups, and over 4k developer & designer attendees –
   [bit.ly/uxdmeetup](http://bit.ly/uxdmeetup)
 
 ## Patents and books
 
-- Patent on mobile computing
-  [google.com/patents/US6891860](http://google.com/patents/US6891860)
+- Patent on mobile computing [google.com/patents/US6891860](http://google.com/patents/US6891860)
 
 - Book on Java and XML [a.co/friJT12](http://a.co/friJT12)

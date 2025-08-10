@@ -1,4 +1,1053 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2025-06-14T13:14:59-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Rust, Memory performance &amp;amp; latency - locality, access, allocate, cache lines</title><link href="http://developerlife.com/2025/05/19/rust-mem-latency/" rel="alternate" type="text/html" title="Build with Naz : Rust, Memory performance &amp;amp; latency - locality, access, allocate, cache lines" /><published>2025-05-19T00:00:00-05:00</published><updated>2025-05-19T00:00:00-05:00</updated><id>http://developerlife.com/2025/05/19/rust-mem-latency</id><content type="html" xml:base="http://developerlife.com/2025/05/19/rust-mem-latency/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust-mem-latency-perf.png" /></p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2025-08-11T08:18:05-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences</title><link href="http://developerlife.com/2025/08/10/pty-rust-osc-seq/" rel="alternate" type="text/html" title="Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences" /><published>2025-08-10T00:00:00-05:00</published><updated>2025-08-10T00:00:00-05:00</updated><id>http://developerlife.com/2025/08/10/pty-rust-osc-seq</id><content type="html" xml:base="http://developerlife.com/2025/08/10/pty-rust-osc-seq/"><![CDATA[<p><img class="post-hero-image" src="/assets/pty.png" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#quick-summary-for-developers">Quick Summary for Developers</a></li>
+  <li><a href="#osc-sequence-format">OSC Sequence Format</a>
+    <ul>
+      <li><a href="#state-values">State Values</a></li>
+      <li><a href="#example-sequences">Example Sequences</a></li>
+    </ul>
+  </li>
+  <li><a href="#implementation-details">Implementation Details</a>
+    <ul>
+      <li><a href="#key-files">Key Files</a></li>
+      <li><a href="#terminal-detection">Terminal Detection</a></li>
+      <li><a href="#progress-flow">Progress Flow</a></li>
+    </ul>
+  </li>
+  <li><a href="#configuration">Configuration</a></li>
+  <li><a href="#capturing-osc-sequences-from-cargo">Capturing OSC Sequences from Cargo</a>
+    <ul>
+      <li><a href="#quick-start-dependencies">Quick Start: Dependencies</a></li>
+      <li><a href="#the-tty-problem">The TTY Problem</a></li>
+      <li><a href="#why-stdioinherit-wont-work-for-capture">Why Stdio::inherit() Won’t Work for Capture</a></li>
+    </ul>
+  </li>
+  <li><a href="#the-solution-using-pty-with-portable-pty">The Solution: Using PTY with portable-pty</a>
+    <ul>
+      <li><a href="#understanding-pty-architecture">Understanding PTY Architecture</a>
+        <ul>
+          <li><a href="#how-pty-solves-the-osc-problem">How PTY Solves the OSC Problem</a></li>
+          <li><a href="#why-other-approaches-fail">Why Other Approaches Fail</a></li>
+          <li><a href="#the-virtual-terminal-effect">The Virtual Terminal Effect</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#minimal-code-snippet">Minimal Code Snippet</a></li>
+  <li><a href="#complete-working-example">Complete Working Example</a>
+    <ul>
+      <li><a href="#full-poc-implementation">Full POC Implementation</a></li>
+      <li><a href="#running-the-poc">Running the POC</a></li>
+      <li><a href="#expected-output">Expected Output</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+    </ul>
+  </li>
+  <li><a href="#environment-considerations">Environment Considerations</a></li>
+  <li><a href="#testing">Testing</a></li>
+  <li><a href="#references">References</a></li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+<h2 id="overview">Overview</h2>
+
+<p>Cargo emits OSC (Operating System Command) terminal control sequences during build operations to
+communicate progress status to compatible terminal emulators. These sequences allow terminals to
+display build progress in title bars, taskbars, or other UI elements.</p>
+
+<p>This document explains how to programmatically capture and parse these OSC sequences when spawning
+<code class="language-plaintext highlighter-rouge">cargo build</code> from a Rust program.</p>
+
+<p>Here are some useful links for context:</p>
+
+<ol>
+  <li><a href="https://github.com/rust-lang/cargo">Cargo source code</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/ANSI_escape_code#Operating_System_Command_sequences">ANSI escape codes</a></li>
+  <li><a href="https://blog.vucica.net/2017/07/what-are-osc-terminal-control-sequences-escape-codes.html">OSC terminal control sequences</a></li>
+</ol>
+
+<h2 id="quick-summary-for-developers">Quick Summary for Developers</h2>
+
+<ol>
+  <li><strong>Goal:</strong>
+    <ul>
+      <li>Capture and parse progress information from <code class="language-plaintext highlighter-rouge">cargo build</code> using OSC escape sequences.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Key Challenge:</strong></p>
+
+    <ul>
+      <li>Cargo only emits OSC sequences when connected to an interactive TTY, and a compatible terminal
+(like <code class="language-plaintext highlighter-rouge">wezterm</code>).</li>
+      <li>Spawning a child process using <code class="language-plaintext highlighter-rouge">std::process::Command</code> and standard process pipes don’t work,
+since the child process correctly detects the terminal is not-interactive (not connected to
+TTY).</li>
+      <li>
+        <p>Inheriting stdio from the current process doesn’t work either, for two reasons. While the child
+process does detect the terminal as interactive (connected to TTY), it also clobbers output
+from the parent CLI or TUI process by sending all the output including OSC sequences directly
+to the terminal, bypassing the parent process. And there is no way to capture or parse the
+output/OSC codes.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th><code class="language-plaintext highlighter-rouge">is_terminal()</code></th>
+              <th>OSC Emitted?</th>
+              <th>Can Capture?</th>
+              <th>Problem</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Standard pipes</strong></td>
+              <td>❌ false</td>
+              <td>❌ No</td>
+              <td>✅ Yes</td>
+              <td>No OSC sequences generated</td>
+            </tr>
+            <tr>
+              <td><strong>Stdio inherit</strong></td>
+              <td>✅ true</td>
+              <td>✅ Yes</td>
+              <td>❌ No</td>
+              <td>Output bypasses your program</td>
+            </tr>
+            <tr>
+              <td><strong>PTY</strong></td>
+              <td>✅ true</td>
+              <td>✅ Yes</td>
+              <td>✅ Yes</td>
+              <td>Perfect solution!</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Solution:</strong>
+    <ul>
+      <li>Use a pseudo-terminal (PTY) via the <code class="language-plaintext highlighter-rouge">portable-pty</code> crate to simulate a terminal environment.</li>
+      <li>And “fake” that <code class="language-plaintext highlighter-rouge">wezterm</code> is the terminal program by setting <code class="language-plaintext highlighter-rouge">TERM_PROGRAM=WezTerm</code>.</li>
+    </ul>
+  </li>
+  <li><strong>What You’ll Get:</strong>
+    <ul>
+      <li>Real-time build progress updates (0-100%) that you can process programmatically.</li>
+    </ul>
+  </li>
+  <li><strong>Jump to:</strong>
+    <ul>
+      <li><a href="#minimal-code-snippet">Minimal Code Snippet</a> for a quick start.</li>
+      <li><a href="#complete-working-example">Complete Working Example</a> for a ready-to-run POC.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="osc-sequence-format">OSC Sequence Format</h2>
+
+<p>Cargo uses the <strong>OSC 9;4</strong> format (ConEmu-style progress reporting):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ESC ] 9 ; 4 ; st ; pr ST
+</code></pre></div></div>
+
+<p>Where:y</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ESC</code> = <code class="language-plaintext highlighter-rouge">\x1b</code> (escape character)</li>
+  <li><code class="language-plaintext highlighter-rouge">]</code> = OSC introducer</li>
+  <li><code class="language-plaintext highlighter-rouge">9;4</code> = ConEmu-specific progress command</li>
+  <li><code class="language-plaintext highlighter-rouge">st</code> = state (0-4)</li>
+  <li><code class="language-plaintext highlighter-rouge">pr</code> = progress value (0-100)</li>
+  <li><code class="language-plaintext highlighter-rouge">ST</code> = <code class="language-plaintext highlighter-rouge">\x1b\\</code> (string terminator)</li>
+</ul>
+
+<h3 id="state-values">State Values</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">0</code>: Remove progress indicator</li>
+  <li><code class="language-plaintext highlighter-rouge">1</code>: Set progress value (0-100)</li>
+  <li><code class="language-plaintext highlighter-rouge">2</code>: Set error state in taskbar</li>
+  <li><code class="language-plaintext highlighter-rouge">3</code>: Set indeterminate state (animated, no specific progress)</li>
+  <li><code class="language-plaintext highlighter-rouge">4</code>: Set paused state (not used by Cargo)</li>
+</ul>
+
+<h3 id="example-sequences">Example Sequences</h3>
+
+<ul>
+  <li>Start progress: <code class="language-plaintext highlighter-rouge">\x1b]9;4;1;0\x1b\\</code></li>
+  <li>50% complete: <code class="language-plaintext highlighter-rouge">\x1b]9;4;1;50\x1b\\</code></li>
+  <li>Build error: <code class="language-plaintext highlighter-rouge">\x1b]9;4;2;100\x1b\\</code></li>
+  <li>Remove progress: <code class="language-plaintext highlighter-rouge">\x1b]9;4;0;0\x1b\\</code></li>
+</ul>
+
+<h2 id="implementation-details">Implementation Details</h2>
+
+<blockquote>
+  <ul>
+    <li>Repo with the source for this article:
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/pty_cargo_build_progress_osc_codes">nazmulidris/rust-scratch/pty_cargo_build_progress_osc_codes</a></li>
+    <li>Tracking issue: <a href="https://github.com/nazmulidris/rust-scratch/issues/117">rust-scratch 117</a></li>
+    <li>Related issue: <a href="https://github.com/r3bl-org/r3bl-open-core/issues/437">r3bl-cmdr 437</a></li>
+  </ul>
+</blockquote>
+
+<h3 id="key-files">Key Files</h3>
+
+<p>You can get the source code for Cargo from <a href="https://github.com/rust-lang/cargo">Cargo GitHub repo</a>.</p>
+
+<p>Let’s say you cloned the Cargo source code in <code class="language-plaintext highlighter-rouge">/home/your-username/github/cargo/</code> folder. Then you
+will find the following:</p>
+
+<ol>
+  <li>
+    <p><strong><code class="language-plaintext highlighter-rouge">src/cargo/util/progress.rs</code></strong></p>
+
+    <ul>
+      <li>Contains the main progress bar implementation</li>
+      <li><code class="language-plaintext highlighter-rouge">StatusValue</code> enum (lines 87-99) defines progress states</li>
+      <li><code class="language-plaintext highlighter-rouge">Display</code> implementation (lines 161-179) formats OSC sequences</li>
+      <li><code class="language-plaintext highlighter-rouge">TerminalIntegration</code> struct manages OSC emission</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong><code class="language-plaintext highlighter-rouge">src/cargo/core/shell.rs</code></strong></p>
+
+    <ul>
+      <li>Terminal capability detection (lines 594-600)</li>
+      <li>Checks environment variables for terminal support</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong><code class="language-plaintext highlighter-rouge">src/cargo/core/compiler/job_queue/mod.rs</code></strong></p>
+    <ul>
+      <li>Creates progress bar during build (line 481)</li>
+      <li>Updates progress as compilation proceeds</li>
+      <li>Marks progress as error on build failure (line 872)</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="terminal-detection">Terminal Detection</h3>
+
+<p>Cargo detects OSC support by checking environment variables in <code class="language-plaintext highlighter-rouge">supports_term_integration()</code>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">supports_term_integration</span><span class="p">(</span>
+    <span class="n">stream</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">dyn</span> <span class="n">IsTerminal</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">bool</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">windows_terminal</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">env</span><span class="p">::</span><span class="nf">var</span><span class="p">(</span><span class="s">"WT_SESSION"</span><span class="p">)</span>
+        <span class="nf">.is_ok</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">conemu</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">env</span><span class="p">::</span><span class="nf">var</span><span class="p">(</span><span class="s">"ConEmuANSI"</span><span class="p">)</span><span class="nf">.ok</span><span class="p">()</span> <span class="o">==</span>
+        <span class="nf">Some</span><span class="p">(</span><span class="s">"ON"</span><span class="nf">.into</span><span class="p">());</span>
+    <span class="k">let</span> <span class="n">wezterm</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">env</span><span class="p">::</span><span class="nf">var</span><span class="p">(</span><span class="s">"TERM_PROGRAM"</span><span class="p">)</span><span class="nf">.ok</span><span class="p">()</span> <span class="o">==</span>
+        <span class="nf">Some</span><span class="p">(</span><span class="s">"WezTerm"</span><span class="nf">.into</span><span class="p">());</span>
+
+    <span class="p">(</span><span class="n">windows_terminal</span> <span class="p">||</span> <span class="n">conemu</span> <span class="p">||</span> <span class="n">wezterm</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+        <span class="n">stream</span><span class="nf">.is_terminal</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Supported terminals:</p>
+
+<ul>
+  <li><strong>Windows Terminal</strong>: Detected via <code class="language-plaintext highlighter-rouge">WT_SESSION</code> environment variable</li>
+  <li><strong>ConEmu</strong>: Detected via <code class="language-plaintext highlighter-rouge">ConEmuANSI=ON</code></li>
+  <li><strong>WezTerm</strong>: Detected via <code class="language-plaintext highlighter-rouge">TERM_PROGRAM=WezTerm</code></li>
+</ul>
+
+<h3 id="progress-flow">Progress Flow</h3>
+
+<ol>
+  <li>Build starts → Progress bar created with <code class="language-plaintext highlighter-rouge">Progress::with_style()</code></li>
+  <li>Terminal integration initialized based on detection and config</li>
+  <li>During compilation:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">tick()</code> or <code class="language-plaintext highlighter-rouge">tick_now()</code> called with current/max units</li>
+      <li>Progress percentage calculated</li>
+      <li>OSC sequence emitted to stderr</li>
+    </ul>
+  </li>
+  <li>On completion or error:
+    <ul>
+      <li>Final state sent (100% or error)</li>
+      <li>Progress cleared with remove sequence</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="configuration">Configuration</h2>
+
+<p>Users can control OSC emission via <code class="language-plaintext highlighter-rouge">.cargo/config.toml</code>:</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[term]</span>
+<span class="py">progress.term-integration</span> <span class="p">=</span> <span class="kc">true</span>   <span class="c"># Enable OSC sequences</span>
+                                   <span class="c"># (auto-detected by default)</span>
+<span class="c"># or</span>
+<span class="py">progress.term-integration</span> <span class="p">=</span> <span class="kc">false</span>  <span class="c"># Disable OSC sequences</span>
+
+<span class="c"># Other progress options</span>
+<span class="py">progress.when</span> <span class="p">=</span> <span class="s">"auto"</span>     <span class="c"># "auto", "always", or "never"</span>
+<span class="py">progress.width</span> <span class="p">=</span> <span class="mi">80</span>        <span class="c"># Terminal width for progress bar</span>
+</code></pre></div></div>
+
+<h2 id="capturing-osc-sequences-from-cargo">Capturing OSC Sequences from Cargo</h2>
+
+<h3 id="quick-start-dependencies">Quick Start: Dependencies</h3>
+
+<p>Add this to your <code class="language-plaintext highlighter-rouge">Cargo.toml</code>:</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[dependencies]</span>
+<span class="py">portable-pty</span> <span class="p">=</span> <span class="s">"0.8"</span>
+<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
+<span class="py">miette</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"7.2"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span> <span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="the-tty-problem">The TTY Problem</h3>
+
+<p><strong>Important</strong>: When using pipes with <code class="language-plaintext highlighter-rouge">std::process::Command</code>, the spawned process detects it’s NOT
+connected to a TTY, causing <code class="language-plaintext highlighter-rouge">is_terminal()</code> to return false and <strong>no OSC sequences will be
+emitted</strong>. You need a pseudo-terminal (PTY) to capture OSC sequences.</p>
+
+<h3 id="why-stdioinherit-wont-work-for-capture">Why Stdio::inherit() Won’t Work for Capture</h3>
+
+<p>While you can use <code class="language-plaintext highlighter-rouge">Stdio::inherit()</code> to let the spawned process use your real terminal (and OSC
+codes will be displayed), this approach has a critical limitation:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">process</span><span class="p">::{</span><span class="n">Command</span><span class="p">,</span> <span class="n">Stdio</span><span class="p">};</span>
+
+<span class="k">let</span> <span class="k">mut</span> <span class="n">cmd</span> <span class="o">=</span> <span class="nn">Command</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"cargo"</span><span class="p">);</span>
+<span class="n">cmd</span><span class="nf">.arg</span><span class="p">(</span><span class="s">"build"</span><span class="p">)</span>
+   <span class="nf">.env</span><span class="p">(</span><span class="s">"TERM_PROGRAM"</span><span class="p">,</span> <span class="s">"WezTerm"</span><span class="p">)</span>
+   <span class="nf">.stdin</span><span class="p">(</span><span class="nn">Stdio</span><span class="p">::</span><span class="nf">inherit</span><span class="p">())</span>
+   <span class="nf">.stdout</span><span class="p">(</span><span class="nn">Stdio</span><span class="p">::</span><span class="nf">inherit</span><span class="p">())</span>
+   <span class="nf">.stderr</span><span class="p">(</span><span class="nn">Stdio</span><span class="p">::</span><span class="nf">inherit</span><span class="p">());</span>  <span class="c1">// Uses real TTY, OSC goes</span>
+                               <span class="c1">// directly to terminal</span>
+
+<span class="k">let</span> <span class="k">mut</span> <span class="n">child</span> <span class="o">=</span> <span class="n">cmd</span><span class="nf">.spawn</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+<span class="n">child</span><span class="nf">.wait</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+<span class="c1">// Problem: Cannot capture or parse the output/OSC codes!</span>
+</code></pre></div></div>
+
+<p><strong>Why this doesn’t work for capture:</strong></p>
+
+<ul>
+  <li>Output goes directly to your terminal, bypassing your program</li>
+  <li>You cannot intercept, parse, or process the OSC sequences</li>
+  <li>You have no programmatic access to the build progress data</li>
+  <li>This is only useful if you want to display progress without processing it</li>
+</ul>
+
+<h2 id="the-solution-using-pty-with-portable-pty">The Solution: Using PTY with portable-pty</h2>
+
+<p>The only way to both trigger OSC emission AND capture the sequences is to use a pseudo-terminal
+(PTY).</p>
+
+<h3 id="understanding-pty-architecture">Understanding PTY Architecture</h3>
+
+<p>A <strong>PTY (Pseudo-Terminal)</strong> is a software-based virtual terminal that creates two connected
+endpoints:</p>
+
+<ul>
+  <li><strong>Controller endpoint</strong>: Your program connects here to manage the virtual terminal</li>
+  <li><strong>Controlled endpoint</strong>: The spawned process connects here, believing it’s a real terminal</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─────────────┐   ┌───────────┐   ┌───────────────┐
+│ Your Program│◄─►│    PTY    │◄─►│Spawned Process│
+│(Controller) │   │Controller/│   │ (Controlled)  │
+│             │   │Controlled │   │               │
+└─────────────┘   └───────────┘   └───────────────┘
+</code></pre></div></div>
+
+<h4 id="how-pty-solves-the-osc-problem">How PTY Solves the OSC Problem</h4>
+
+<p>The genius of PTY is that it creates a <strong>bidirectional pipe that appears to be a real terminal</strong> to
+the spawned process:</p>
+
+<ol>
+  <li><strong>Your program</strong> creates a PTY pair and gets handles to both endpoints</li>
+  <li><strong>Cargo process</strong> is launched with the controlled endpoint as its terminal</li>
+  <li><strong>Cargo believes</strong> it’s connected to a real terminal → <code class="language-plaintext highlighter-rouge">is_terminal()</code> returns <code class="language-plaintext highlighter-rouge">true</code></li>
+  <li><strong>OSC sequences are emitted</strong> because terminal integration is enabled</li>
+  <li><strong>Your program</strong> can read all output (including OSC) through the controller endpoint</li>
+</ol>
+
+<h4 id="why-other-approaches-fail">Why Other Approaches Fail</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th><code class="language-plaintext highlighter-rouge">is_terminal()</code></th>
+      <th>OSC Emitted?</th>
+      <th>Can Capture?</th>
+      <th>Problem</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Standard pipes</strong></td>
+      <td>❌ false</td>
+      <td>❌ No</td>
+      <td>✅ Yes</td>
+      <td>No OSC sequences generated</td>
+    </tr>
+    <tr>
+      <td><strong>Stdio inherit</strong></td>
+      <td>✅ true</td>
+      <td>✅ Yes</td>
+      <td>❌ No</td>
+      <td>Output bypasses your program</td>
+    </tr>
+    <tr>
+      <td><strong>PTY</strong></td>
+      <td>✅ true</td>
+      <td>✅ Yes</td>
+      <td>✅ Yes</td>
+      <td>Perfect solution!</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="the-virtual-terminal-effect">The Virtual Terminal Effect</h4>
+
+<p>PTY essentially turns your program into a “virtual terminal emulator”:</p>
+
+<ul>
+  <li><strong>Satisfies Cargo’s terminal detection</strong> (makes <code class="language-plaintext highlighter-rouge">is_terminal()</code> return true)</li>
+  <li><strong>Enables OSC emission</strong> (because it looks like a compatible terminal)</li>
+  <li><strong>Allows programmatic capture</strong> (your program controls the virtual terminal)</li>
+  <li><strong>Provides full control</strong> (you can process, filter, or transform the data)</li>
+</ul>
+
+<p>This elegant solution is <strong>the only method</strong> that satisfies both requirements: triggering OSC
+emission AND capturing the sequences for programmatic processing.</p>
+
+<h2 id="minimal-code-snippet">Minimal Code Snippet</h2>
+
+<blockquote>
+  <p><strong>Note</strong>: The <code class="language-plaintext highlighter-rouge">portable-pty</code> crate uses the legacy API terms <code class="language-plaintext highlighter-rouge">master</code>/<code class="language-plaintext highlighter-rouge">slave</code> for historical
+compatibility, but conceptually these represent the controller/controlled relationship described
+above.</p>
+</blockquote>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Cargo.toml dependencies:</span>
+<span class="c1">// portable-pty = "0.9.0"</span>
+<span class="c1">// tokio = { version = "1.0", features = ["full"] }</span>
+<span class="c1">// miette = { version = "7.0", features = ["fancy"] }</span>
+<span class="k">use</span> <span class="nn">portable_pty</span><span class="p">::{</span>
+    <span class="n">CommandBuilder</span><span class="p">,</span> <span class="n">PtySize</span><span class="p">,</span> <span class="n">native_pty_system</span>
+<span class="p">};</span>
+<span class="k">use</span> <span class="nn">miette</span><span class="p">::</span><span class="n">IntoDiagnostic</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="n">Read</span><span class="p">;</span> <span class="c1">// For reading from the PTY controller</span>
+
+<span class="cd">/// ```text</span>
+<span class="cd">/// ┌────────────┐   ┌────────────┐   ┌─────────────────┐</span>
+<span class="cd">/// │Your Program│◄─►│Controller  │   │Cargo Process    │</span>
+<span class="cd">/// │            │   │     ↕      │   │                 │</span>
+<span class="cd">/// │Reads/writes│   │    PTY     │   │stdin/stdout/    │</span>
+<span class="cd">/// │through     │   │     ↕      │   │stderr redirected│</span>
+<span class="cd">/// │controller  │   │  Controlled│◄─►│to controlled    │</span>
+<span class="cd">/// └────────────┘   └────────────┘   └─────────────────┘</span>
+<span class="cd">/// ```</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">spawn_with_pty</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nn">miette</span><span class="p">::</span><span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c1">// Create a pseudo-terminal</span>
+    <span class="k">let</span> <span class="n">pty_system</span> <span class="o">=</span> <span class="nf">native_pty_system</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">pty_pair</span> <span class="o">=</span> <span class="n">pty_system</span><span class="nf">.openpty</span><span class="p">(</span><span class="n">PtySize</span> <span class="p">{</span>
+        <span class="n">rows</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>           <span class="c1">// Terminal height for cargo's</span>
+                            <span class="c1">// output formatting</span>
+        <span class="n">cols</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>           <span class="c1">// Terminal width for progress</span>
+                            <span class="c1">// bar display</span>
+        <span class="n">pixel_width</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1">// Not needed for text-based</span>
+                            <span class="c1">// output</span>
+        <span class="n">pixel_height</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>    <span class="c1">// Not needed for text-based</span>
+                            <span class="c1">// output</span>
+    <span class="p">})</span><span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span>
+        <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to open PTY: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Extract endpoints with descriptive names</span>
+    <span class="k">let</span> <span class="n">controller</span> <span class="o">=</span> <span class="n">pty_pair</span><span class="py">.master</span><span class="p">;</span>  <span class="c1">// Where your program</span>
+                                       <span class="c1">// reads/writes</span>
+    <span class="k">let</span> <span class="n">controlled</span> <span class="o">=</span> <span class="n">pty_pair</span><span class="py">.slave</span><span class="p">;</span>   <span class="c1">// Where the spawned</span>
+                                       <span class="c1">// process connects</span>
+
+    <span class="c1">// Configure the command</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">cmd</span> <span class="o">=</span> <span class="nn">CommandBuilder</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"cargo"</span><span class="p">);</span>
+    <span class="n">cmd</span><span class="nf">.arg</span><span class="p">(</span><span class="s">"build"</span><span class="p">);</span>
+    <span class="n">cmd</span><span class="nf">.env</span><span class="p">(</span><span class="s">"TERM_PROGRAM"</span><span class="p">,</span> <span class="s">"WezTerm"</span><span class="p">);</span> <span class="c1">// Without this Cargo</span>
+                                      <span class="c1">// won't emit OSC</span>
+                                      <span class="c1">// sequences</span>
+
+    <span class="c1">// CRITICAL: Set working directory - without this, PTY</span>
+    <span class="c1">// spawns in home folder!</span>
+    <span class="k">let</span> <span class="n">current_dir</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">env</span><span class="p">::</span><span class="nf">current_dir</span><span class="p">()</span>
+        <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span>
+            <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span>
+                <span class="s">"Failed to get current directory: {}"</span><span class="p">,</span> <span class="n">e</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">cmd</span><span class="nf">.cwd</span><span class="p">(</span><span class="n">current_dir</span><span class="p">);</span>
+
+    <span class="c1">// Spawn with PTY (this makes is_terminal() return true!)</span>
+    <span class="c1">// Note: The cargo child process uses 'controlled' as its</span>
+    <span class="c1">// stdin/stdout/stderr</span>
+    <span class="c1">// This makes cargo believe it's connected to a real</span>
+    <span class="c1">// terminal</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">controlled_child</span> <span class="o">=</span> <span class="n">controlled</span><span class="nf">.spawn_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span>
+            <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span>
+                <span class="s">"Failed to spawn cargo build: {}"</span><span class="p">,</span> <span class="n">e</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Read output with OSC sequences</span>
+    <span class="c1">// Note: controller is the "controller" endpoint where</span>
+    <span class="c1">// your program reads from</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">controller_reader</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="nf">.try_clone_reader</span><span class="p">()</span>
+        <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span>
+            <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to clone reader: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Spawn the reading operation on a separate async task</span>
+    <span class="c1">// NOTE: This approach reads ALL output into a string at</span>
+    <span class="c1">// once after the process completes.</span>
+    <span class="c1">// This is simple but NOT ideal for real-time progress</span>
+    <span class="c1">// monitoring since OSC sequences</span>
+    <span class="c1">// are only processed after the entire build finishes.</span>
+    <span class="c1">// For real-time progress updates,</span>
+    <span class="c1">// use the buffered reading approach shown in the full</span>
+    <span class="c1">// example.</span>
+    <span class="k">let</span> <span class="n">read_handle</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">output</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+        <span class="c1">// Read entire output stream into a single string</span>
+        <span class="c1">// (blocks until EOF)</span>
+        <span class="n">controller_reader</span><span class="nf">.read_to_string</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">output</span><span class="p">)</span>
+            <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span>
+                <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to read from PTY: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// Note: if you println!("{output}"); here,</span>
+        <span class="c1">// it will print the entire output including OSC</span>
+        <span class="c1">// sequences, which will clobber your terminal</span>
+        <span class="c1">// display. Instead, we will parse the output</span>
+        <span class="c1">// for OSC codes and build a report.</span>
+
+        <span class="c1">// Check for OSC codes</span>
+        <span class="k">let</span> <span class="n">has_osc_codes</span> <span class="o">=</span> <span class="n">output</span><span class="nf">.contains</span><span class="p">(</span><span class="s">"</span><span class="se">\x1b</span><span class="s">]"</span><span class="p">);</span>
+
+        <span class="c1">// Build report</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">report</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+        <span class="n">report</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="nd">format!</span><span class="p">(</span>
+            <span class="s">"Total bytes read: {}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">output</span><span class="nf">.len</span><span class="p">()</span>
+        <span class="p">));</span>
+        <span class="n">report</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="nd">format!</span><span class="p">(</span>
+            <span class="s">"OSC codes found: {}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+            <span class="k">if</span> <span class="n">has_osc_codes</span> <span class="p">{</span> <span class="s">"YES ✓"</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="s">"NO ✗"</span> <span class="p">}</span>
+        <span class="p">));</span>
+
+        <span class="nn">Ok</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span> <span class="nn">miette</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+    <span class="p">});</span>
+
+    <span class="c1">// Wait for the child process to complete</span>
+    <span class="c1">//</span>
+    <span class="c1">// IMPORTANT: Use spawn_blocking because child.wait() is</span>
+    <span class="c1">// a synchronous blocking operation.</span>
+    <span class="c1">// If we called controlled_child.wait() directly in this</span>
+    <span class="c1">// async context, it would block</span>
+    <span class="c1">// the entire tokio runtime thread, preventing other</span>
+    <span class="c1">// async tasks from running.</span>
+    <span class="c1">// spawn_blocking moves the blocking operation to a</span>
+    <span class="c1">// dedicated thread pool.</span>
+    <span class="c1">// The `.into_diagnostic()?.into_diagnostic()?` handles</span>
+    <span class="c1">// two layers of miette::Result unwrapping:</span>
+    <span class="c1">// - First `?` unwraps the JoinResult from spawn_blocking</span>
+    <span class="c1">//   (handles task panics/cancellation)</span>
+    <span class="c1">// - Second `?` unwraps the miette::Result from child.wait()</span>
+    <span class="c1">//   (handles process wait errors)</span>
+    <span class="c1">//</span>
+    <span class="c1">// NOTE: portable-pty doesn't have native async support,</span>
+    <span class="c1">// but provides async-compatible methods:</span>
+    <span class="c1">// - try_clone_reader() returns readers that work with</span>
+    <span class="c1">//   std::io::Read</span>
+    <span class="c1">// - child.wait() is blocking, so we use spawn_blocking</span>
+    <span class="c1">//   to avoid blocking the async runtime</span>
+    <span class="c1">// - For fully async PTY operations, consider</span>
+    <span class="c1">//   alternatives like tokio-ptyprocess (experimental)</span>
+    <span class="k">let</span> <span class="n">status</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="nf">spawn_blocking</span><span class="p">(</span>
+        <span class="k">move</span> <span class="p">||</span> <span class="n">controlled_child</span><span class="nf">.wait</span><span class="p">()</span>
+    <span class="p">)</span>
+        <span class="k">.await</span>
+        <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span>
+        <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Wait for the reading task to complete and get the</span>
+    <span class="c1">// report</span>
+    <span class="c1">// The `.into_diagnostic()??` handles two layers of</span>
+    <span class="c1">// miette::Result unwrapping:</span>
+    <span class="c1">// - First `?` unwraps the JoinResult from tokio::spawn</span>
+    <span class="c1">//   (handles task panics/cancellation)</span>
+    <span class="c1">// - Second `?` unwraps the miette::Result&lt;String, Error&gt; from</span>
+    <span class="c1">//   the task's return value</span>
+    <span class="k">let</span> <span class="n">report</span> <span class="o">=</span> <span class="n">read_handle</span><span class="k">.await</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">??</span><span class="p">;</span>
+
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"Build completed with status: {}"</span><span class="p">,</span> <span class="n">status</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">report</span><span class="p">);</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Why PTY works:</strong></p>
+
+<ul>
+  <li>Creates a virtual terminal that satisfies <code class="language-plaintext highlighter-rouge">is_terminal()</code> check</li>
+  <li>Allows your program to act as the “terminal” for the spawned process</li>
+  <li>Captures all output including OSC sequences</li>
+  <li>Provides full programmatic control over the data</li>
+</ul>
+
+<h2 id="complete-working-example">Complete Working Example</h2>
+
+<h3 id="full-poc-implementation">Full POC Implementation</h3>
+
+<p>Save this as <code class="language-plaintext highlighter-rouge">src/main.rs</code>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">miette</span><span class="p">::</span><span class="n">IntoDiagnostic</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">portable_pty</span><span class="p">::{</span><span class="n">CommandBuilder</span><span class="p">,</span> <span class="n">PtySize</span><span class="p">,</span> <span class="n">native_pty_system</span><span class="p">};</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="n">Read</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">mpsc</span><span class="p">::{</span><span class="n">unbounded_channel</span><span class="p">,</span> <span class="n">UnboundedSender</span><span class="p">};</span>
+
+<span class="c1">// ANSI color codes for better output</span>
+<span class="k">const</span> <span class="n">GREEN</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b</span><span class="s">[32m"</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">RED</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b</span><span class="s">[31m"</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">YELLOW</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b</span><span class="s">[33m"</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">RESET</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b</span><span class="s">[0m"</span><span class="p">;</span>
+
+<span class="cd">/// Represents the different types of OSC progress events</span>
+<span class="cd">/// that Cargo can emit</span>
+<span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">PartialEq)]</span>
+<span class="k">enum</span> <span class="n">OscEvent</span> <span class="p">{</span>
+    <span class="cd">/// Set specific progress value 0-100% (OSC state 1)</span>
+    <span class="nf">ProgressUpdate</span><span class="p">(</span><span class="nb">u8</span><span class="p">),</span>
+    <span class="cd">/// Clear/remove progress indicator (OSC state 0)</span>
+    <span class="n">ProgressCleared</span><span class="p">,</span>
+    <span class="cd">/// Build error occurred (OSC state 2)</span>
+    <span class="n">BuildError</span><span class="p">,</span>
+    <span class="cd">/// Indeterminate progress - build is running but no</span>
+    <span class="cd">/// specific progress (OSC state 3)</span>
+    <span class="n">IndeterminateProgress</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="cd">/// OSC 9;4 sequence constants</span>
+<span class="k">const</span> <span class="n">OSC_START</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b</span><span class="s">]9;4;"</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">OSC_END</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b\\</span><span class="s">"</span><span class="p">;</span>
+
+<span class="cd">/// Buffer for accumulating and parsing OSC sequences</span>
+<span class="k">struct</span> <span class="n">OscBuffer</span> <span class="p">{</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">OscBuffer</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">new</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="k">Self</span> <span class="p">{</span>
+        <span class="k">Self</span> <span class="p">{</span> <span class="n">data</span><span class="p">:</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">()</span> <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// Append new bytes and extract complete OSC sequences</span>
+    <span class="k">fn</span> <span class="nf">append_and_extract</span><span class="p">(</span>
+        <span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span>
+        <span class="n">buffer</span><span class="p">:</span> <span class="o">&amp;</span><span class="p">[</span><span class="nb">u8</span><span class="p">],</span>
+        <span class="n">n</span><span class="p">:</span> <span class="nb">usize</span>
+    <span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">OscEvent</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// Convert bytes to string and append to accumulated data</span>
+        <span class="k">let</span> <span class="n">text</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buffer</span><span class="p">[</span><span class="o">..</span><span class="n">n</span><span class="p">]);</span>
+        <span class="k">self</span><span class="py">.data</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="n">text</span><span class="p">);</span>
+
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">events</span> <span class="o">=</span> <span class="nn">Vec</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+
+        <span class="c1">// Find and process all complete OSC sequences</span>
+        <span class="k">while</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">event</span><span class="p">)</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.extract_next_sequence</span><span class="p">()</span> <span class="p">{</span>
+            <span class="n">events</span><span class="nf">.push</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">events</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// Extract the next complete OSC sequence from buffer</span>
+    <span class="k">fn</span> <span class="nf">extract_next_sequence</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">OscEvent</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// Find start of OSC sequence</span>
+        <span class="k">let</span> <span class="n">start_idx</span> <span class="o">=</span> <span class="k">self</span><span class="py">.data</span><span class="nf">.find</span><span class="p">(</span><span class="n">OSC_START</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">after_start_idx</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="n">OSC_START</span><span class="nf">.len</span><span class="p">();</span>
+
+        <span class="c1">// Find end of sequence</span>
+        <span class="k">let</span> <span class="n">end_idx</span> <span class="o">=</span> <span class="k">self</span><span class="py">.data</span><span class="p">[</span><span class="n">after_start_idx</span><span class="o">..</span><span class="p">]</span><span class="nf">.find</span><span class="p">(</span><span class="n">OSC_END</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">params_end_idx</span> <span class="o">=</span> <span class="n">after_start_idx</span> <span class="o">+</span> <span class="n">end_idx</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">sequence_end_idx</span> <span class="o">=</span> <span class="n">params_end_idx</span> <span class="o">+</span> <span class="n">OSC_END</span><span class="nf">.len</span><span class="p">();</span>
+
+        <span class="c1">// Extract and parse parameters</span>
+        <span class="k">let</span> <span class="n">params</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">self</span><span class="py">.data</span><span class="p">[</span><span class="n">after_start_idx</span><span class="o">..</span><span class="n">params_end_idx</span><span class="p">];</span>
+        <span class="k">let</span> <span class="n">event</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.parse_osc_params</span><span class="p">(</span><span class="n">params</span><span class="p">);</span>
+
+        <span class="c1">// Remove processed portion from buffer</span>
+        <span class="k">self</span><span class="py">.data</span><span class="nf">.drain</span><span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="n">sequence_end_idx</span><span class="p">);</span>
+
+        <span class="n">event</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// Parse OSC parameters into an OscEvent</span>
+    <span class="k">fn</span> <span class="nf">parse_osc_params</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">OscEvent</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">parts</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="nb">str</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">params</span><span class="nf">.split</span><span class="p">(</span><span class="sc">';'</span><span class="p">)</span><span class="nf">.collect</span><span class="p">();</span>
+        <span class="k">if</span> <span class="n">parts</span><span class="nf">.len</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">2</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">None</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">let</span> <span class="n">state</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">u8</span><span class="o">&gt;</span><span class="p">()</span><span class="nf">.ok</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">progress</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">f64</span><span class="o">&gt;</span><span class="p">()</span><span class="nf">.ok</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="k">match</span> <span class="n">state</span> <span class="p">{</span>
+            <span class="mi">0</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">OscEvent</span><span class="p">::</span><span class="n">ProgressCleared</span><span class="p">),</span>
+            <span class="mi">1</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">OscEvent</span><span class="p">::</span><span class="nf">ProgressUpdate</span><span class="p">(</span><span class="n">progress</span> <span class="k">as</span> <span class="nb">u8</span><span class="p">)),</span>
+            <span class="mi">2</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">OscEvent</span><span class="p">::</span><span class="n">BuildError</span><span class="p">),</span>
+            <span class="mi">3</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">OscEvent</span><span class="p">::</span><span class="n">IndeterminateProgress</span><span class="p">),</span>
+            <span class="n">_</span> <span class="k">=&gt;</span> <span class="nb">None</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nd">#[tokio::main]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c1">// Run cargo clean first to ensure we see progress</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}🧹 Running cargo clean...{}"</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">,</span> <span class="n">RESET</span><span class="p">);</span>
+    <span class="nn">std</span><span class="p">::</span><span class="nn">process</span><span class="p">::</span><span class="nn">Command</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"cargo"</span><span class="p">)</span>
+        <span class="nf">.arg</span><span class="p">(</span><span class="s">"clean"</span><span class="p">)</span>
+        <span class="nf">.arg</span><span class="p">(</span><span class="s">"-q"</span><span class="p">)</span>
+        <span class="nf">.status</span><span class="p">()</span>
+        <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"</span><span class="se">\n</span><span class="s">{}Starting Cargo build with OSC capture...{}"</span><span class="p">,</span>
+        <span class="n">YELLOW</span><span class="p">,</span> <span class="n">RESET</span>
+    <span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"{}========================================{}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+        <span class="n">YELLOW</span><span class="p">,</span> <span class="n">RESET</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Create channel for OSC events</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="k">mut</span> <span class="n">receiver</span><span class="p">)</span> <span class="o">=</span> <span class="nn">unbounded_channel</span><span class="p">::</span><span class="o">&lt;</span><span class="n">OscEvent</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="c1">// Spawn cargo build task</span>
+    <span class="k">let</span> <span class="n">build_handle</span> <span class="o">=</span> <span class="nf">spawn_cargo_with_osc_capture</span><span class="p">(</span><span class="n">sender</span><span class="p">);</span>
+
+    <span class="c1">// Process events until cargo completes</span>
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="c1">// Check if build completed</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">build_handle</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">let</span> <span class="n">status</span> <span class="o">=</span> <span class="n">result</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">??</span><span class="p">;</span>
+                <span class="nd">println!</span><span class="p">(</span>
+                    <span class="s">"</span><span class="se">\n</span><span class="s">{}✅ Build completed with status: {:?}{}"</span><span class="p">,</span>
+                    <span class="n">GREEN</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">RESET</span>
+                <span class="p">);</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="c1">// Handle OSC events</span>
+            <span class="nf">Some</span><span class="p">(</span><span class="n">event</span><span class="p">)</span> <span class="o">=</span> <span class="n">receiver</span><span class="nf">.recv</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">match</span> <span class="n">event</span> <span class="p">{</span>
+                    <span class="nn">OscEvent</span><span class="p">::</span><span class="nf">ProgressUpdate</span><span class="p">(</span><span class="n">percentage</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                        <span class="nd">println!</span><span class="p">(</span>
+                            <span class="s">"{}📊 cargo build progress: {}%{}"</span><span class="p">,</span>
+                            <span class="n">GREEN</span><span class="p">,</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">RESET</span>
+                        <span class="p">);</span>
+                    <span class="p">}</span>
+                    <span class="nn">OscEvent</span><span class="p">::</span><span class="n">ProgressCleared</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                        <span class="nd">println!</span><span class="p">(</span>
+                            <span class="s">"{}✓ Progress tracking cleared{}"</span><span class="p">,</span>
+                            <span class="n">GREEN</span><span class="p">,</span> <span class="n">RESET</span>
+                        <span class="p">);</span>
+                    <span class="p">}</span>
+                    <span class="nn">OscEvent</span><span class="p">::</span><span class="n">BuildError</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                        <span class="nd">println!</span><span class="p">(</span>
+                            <span class="s">"{}❌ Build error occurred{}"</span><span class="p">,</span>
+                            <span class="n">RED</span><span class="p">,</span> <span class="n">RESET</span>
+                        <span class="p">);</span>
+                    <span class="p">}</span>
+                    <span class="nn">OscEvent</span><span class="p">::</span><span class="n">IndeterminateProgress</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                        <span class="nd">println!</span><span class="p">(</span>
+                            <span class="s">"{}⏳ Build in progress (indeterminate){}"</span><span class="p">,</span>
+                            <span class="n">GREEN</span><span class="p">,</span> <span class="n">RESET</span>
+                        <span class="p">);</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+
+<span class="cd">/// Spawn cargo build in a PTY and capture OSC sequences</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">spawn_cargo_with_osc_capture</span><span class="p">(</span>
+    <span class="n">event_sender</span><span class="p">:</span> <span class="n">UnboundedSender</span><span class="o">&lt;</span><span class="n">OscEvent</span><span class="o">&gt;</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="nn">portable_pty</span><span class="p">::</span><span class="n">ExitStatus</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+        <span class="c1">// Create a pseudo-terminal</span>
+        <span class="k">let</span> <span class="n">pty_system</span> <span class="o">=</span> <span class="nf">native_pty_system</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">pair</span> <span class="o">=</span> <span class="n">pty_system</span><span class="nf">.openpty</span><span class="p">(</span><span class="n">PtySize</span> <span class="p">{</span>
+            <span class="n">rows</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="n">cols</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+            <span class="n">pixel_width</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">pixel_height</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">})</span><span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="p">{</span>
+            <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to open PTY: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="p">})</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="k">let</span> <span class="n">controller</span> <span class="o">=</span> <span class="n">pair</span><span class="py">.master</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">controlled</span> <span class="o">=</span> <span class="n">pair</span><span class="py">.slave</span><span class="p">;</span>
+
+        <span class="c1">// Configure cargo command</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">cmd</span> <span class="o">=</span> <span class="nn">CommandBuilder</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"cargo"</span><span class="p">);</span>
+        <span class="n">cmd</span><span class="nf">.arg</span><span class="p">(</span><span class="s">"build"</span><span class="p">);</span>
+        <span class="n">cmd</span><span class="nf">.env</span><span class="p">(</span><span class="s">"TERM_PROGRAM"</span><span class="p">,</span> <span class="s">"WezTerm"</span><span class="p">);</span> <span class="c1">// Critical for OSC</span>
+
+        <span class="c1">// Set working directory - PTY defaults to $HOME!</span>
+        <span class="k">let</span> <span class="n">cwd</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">env</span><span class="p">::</span><span class="nf">current_dir</span><span class="p">()</span>
+            <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="p">{</span>
+                <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to get current dir: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="p">})</span><span class="o">?</span><span class="p">;</span>
+        <span class="n">cmd</span><span class="nf">.cwd</span><span class="p">(</span><span class="n">cwd</span><span class="p">);</span>
+
+        <span class="c1">// Spawn cargo with PTY</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">child</span> <span class="o">=</span> <span class="n">controlled</span><span class="nf">.spawn_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+            <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="p">{</span>
+                <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to spawn cargo: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="p">})</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// Spawn reader task to process OSC sequences</span>
+        <span class="c1">//</span>
+        <span class="c1">// CRITICAL: PTY LIFECYCLE AND FILE DESCRIPTOR MANAGEMENT</span>
+        <span class="c1">// ======================================================</span>
+        <span class="c1">// A PTY consists of two sides: master (controller) and</span>
+        <span class="c1">// slave (controlled). The kernel's PTY implementation</span>
+        <span class="c1">// requires BOTH conditions for EOF:</span>
+        <span class="c1">//</span>
+        <span class="c1">// 1. The slave side must be closed (happens when the</span>
+        <span class="c1">//    child process exits)</span>
+        <span class="c1">// 2. The reader must be the ONLY remaining reference</span>
+        <span class="c1">//    to the master</span>
+        <span class="c1">//</span>
+        <span class="c1">// How File Descriptors Work Here:</span>
+        <span class="c1">// - controller: Holds the master side file descriptor</span>
+        <span class="c1">// - controlled: Holds the slave side file descriptor</span>
+        <span class="c1">// - When cargo exits, it closes its copy of the slave FD</span>
+        <span class="c1">// - BUT our `controlled` variable STILL holds the</span>
+        <span class="c1">//   original slave FD!</span>
+        <span class="c1">//</span>
+        <span class="c1">// The Solution:</span>
+        <span class="c1">// 1. Move controller into spawn_blocking - ensures it</span>
+        <span class="c1">//    drops after creating reader</span>
+        <span class="c1">// 2. Explicitly drop controlled after cargo exits -</span>
+        <span class="c1">//    closes our slave FD</span>
+        <span class="c1">// 3. This allows the reader to receive EOF and exit</span>
+        <span class="c1">//    cleanly</span>
+        <span class="c1">//</span>
+        <span class="k">let</span> <span class="n">reader_handle</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="nf">spawn_blocking</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+            <span class="c1">// Controller is MOVED into this closure, so it will</span>
+            <span class="c1">// be dropped when this task completes, allowing</span>
+            <span class="c1">// proper PTY cleanup.</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">reader</span> <span class="o">=</span> <span class="n">controller</span><span class="nf">.try_clone_reader</span><span class="p">()</span>
+                <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="p">{</span>
+                    <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to clone reader: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="p">})</span><span class="o">?</span><span class="p">;</span>
+
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">buffer</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0u8</span><span class="p">;</span> <span class="mi">4096</span><span class="p">];</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">osc_buffer</span> <span class="o">=</span> <span class="nn">OscBuffer</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+
+            <span class="k">loop</span> <span class="p">{</span>
+                <span class="c1">// This will receive EOF when:</span>
+                <span class="c1">// 1. The slave side (controlled) is closed/dropped</span>
+                <span class="c1">// 2. No other references to the master exist</span>
+                <span class="k">match</span> <span class="n">reader</span><span class="nf">.read</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">buffer</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nf">Ok</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="k">break</span><span class="p">,</span> <span class="c1">// EOF - PTY closed</span>
+                    <span class="nf">Ok</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                        <span class="k">for</span> <span class="n">event</span> <span class="k">in</span> <span class="n">osc_buffer</span><span class="nf">.append_and_extract</span><span class="p">(</span>
+                            <span class="o">&amp;</span><span class="n">buffer</span><span class="p">,</span> <span class="n">n</span>
+                        <span class="p">)</span> <span class="p">{</span>
+                            <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">event_sender</span><span class="nf">.send</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                    <span class="nf">Err</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="k">break</span><span class="p">,</span> <span class="c1">// Error reading - PTY closed</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="c1">// Controller drops here automatically when the</span>
+            <span class="c1">// closure ends, decrementing the master side's</span>
+            <span class="c1">// reference count.</span>
+            <span class="nn">Ok</span><span class="p">::</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nn">miette</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;</span><span class="p">(())</span>
+        <span class="p">});</span>
+
+        <span class="c1">// Wait for cargo to complete</span>
+        <span class="k">let</span> <span class="n">status</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="nf">spawn_blocking</span><span class="p">(</span>
+            <span class="k">move</span> <span class="p">||</span> <span class="n">child</span><span class="nf">.wait</span><span class="p">()</span>
+        <span class="p">)</span>
+            <span class="k">.await</span>
+            <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span>
+            <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// Explicitly drop the controlled (slave) side after</span>
+        <span class="c1">// cargo exits. This closes the slave end of the PTY,</span>
+        <span class="c1">// which is necessary for the reader to receive EOF.</span>
+        <span class="c1">// Without this, the slave FD would remain open until</span>
+        <span class="c1">// this function returns, preventing EOF delivery to</span>
+        <span class="c1">// the reader.</span>
+        <span class="nf">drop</span><span class="p">(</span><span class="n">controlled</span><span class="p">);</span>
+
+        <span class="c1">// Wait for the reader task to complete.</span>
+        <span class="c1">// Now that controlled is dropped, the reader will get</span>
+        <span class="c1">// EOF on its next read() call and exit cleanly.</span>
+        <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">reader_handle</span><span class="k">.await</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">??</span><span class="p">;</span>
+
+        <span class="nf">Ok</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+    <span class="p">})</span><span class="k">.await</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="running-the-poc">Running the POC</h3>
+
+<ol>
+  <li>
+    <p><strong>Create a new Rust project:</strong></p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo new pty_cargo_build_progress_osc_codes
+<span class="nb">cd </span>pty_cargo_build_progress_osc_codes
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>Update <code class="language-plaintext highlighter-rouge">Cargo.toml</code>:</strong></p>
+
+    <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"pty_cargo_build_progress_osc_codes"</span>
+<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
+<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+
+<span class="nn">[dependencies]</span>
+<span class="py">portable-pty</span> <span class="p">=</span> <span class="s">"0.8"</span>
+<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
+<span class="py">miette</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"7.2"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>Replace <code class="language-plaintext highlighter-rouge">src/main.rs</code> with the code above</strong></p>
+  </li>
+  <li>
+    <p><strong>Run the POC:</strong></p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h3 id="expected-output">Expected Output</h3>
+
+<p>When running in a project with dependencies, you should see output like:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Starting Cargo build with OSC capture...
+
+📊 Build progress: 0.0%
+📊 Build progress: 12.5%
+📊 Build progress: 25.0%
+📊 Build progress: 37.5%
+📊 Build progress: 50.0%
+📊 Build progress: 75.0%
+📊 Build progress: 100.0%
+
+✓ Progress tracking cleared
+✅ Build completed with status: exit status: 0
+</code></pre></div></div>
+
+<h3 id="troubleshooting">Troubleshooting</h3>
+
+<ol>
+  <li>
+    <p><strong>No OSC sequences detected:</strong></p>
+
+    <ul>
+      <li>Ensure the project being built has enough compilation units to trigger progress reporting</li>
+      <li>Try building a larger project or one with dependencies</li>
+      <li>Verify the TERM_PROGRAM environment variable is set correctly</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Build output mixed with progress:</strong></p>
+
+    <ul>
+      <li>Uncomment the <code class="language-plaintext highlighter-rouge">print!("{}", text);</code> line to see full cargo output</li>
+      <li>OSC sequences are embedded in the normal output stream</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Permission errors:</strong></p>
+    <ul>
+      <li>Some systems may require additional permissions for PTY creation</li>
+      <li>The portable-pty crate handles most platform differences automatically</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="environment-considerations">Environment Considerations</h2>
+
+<ul>
+  <li><strong>CI/CD</strong>: Progress bars (and OSC) disabled when <code class="language-plaintext highlighter-rouge">CI</code> env var is set</li>
+  <li><strong>Quiet mode</strong>: No progress or OSC when <code class="language-plaintext highlighter-rouge">--quiet</code> flag used</li>
+  <li><strong>TERM=dumb</strong>: Progress disabled for dumb terminals</li>
+  <li><strong>Non-TTY</strong>: OSC only emitted when stderr is a TTY</li>
+</ul>
+
+<h2 id="testing">Testing</h2>
+
+<p>To test OSC emission:</p>
+
+<ol>
+  <li>Set <code class="language-plaintext highlighter-rouge">TERM_PROGRAM=WezTerm</code> (or use actual WezTerm)</li>
+  <li>Run <code class="language-plaintext highlighter-rouge">cargo build</code> on a large project</li>
+  <li>Monitor terminal title bar for progress updates</li>
+  <li>Or capture stderr and look for <code class="language-plaintext highlighter-rouge">\x1b]9;4;</code> sequences</li>
+</ol>
+
+<h2 id="references">References</h2>
+
+<ul>
+  <li><a href="https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC">ConEmu OSC Documentation</a></li>
+  <li><a href="https://blog.vucica.net/2017/07/what-are-osc-terminal-control-sequences-escape-codes.html">OSC Escape Codes Overview</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/ANSI_escape_code">ANSI Escape Code Wikipedia</a></li>
+</ul>
+
+<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
+
+<p>You can watch Rust live coding videos with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/watch?v=bolScvh4x7I&amp;list=PLofhE49PEwmw3MKOU1Kn3xbP4FRQR4Mb3">Build with Naz, Linux TTY, process, signals, commands in async Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[When building Rust projects, Cargo emits hidden OSC (Operating System Command) terminal control sequences that communicate build progress to compatible terminals like WezTerm. However, capturing these sequences programmatically is surprisingly tricky - standard process pipes won't work because Cargo only emits them when connected to a real TTY, and inheriting stdio bypasses your program entirely. This article explores how to use pseudo-terminals (PTY) with the portable-pty crate to create a virtual terminal that tricks Cargo into emitting OSC sequences while still allowing you to capture and parse them in real-time. We'll dive into the PTY architecture, understand why blocking I/O with cloned file descriptors causes hangs, and implement a production-ready solution using a detached task pattern that processes build progress events (0-100%) as they happen, not after the build completes.]]></summary></entry><entry><title type="html">Build with Naz : Rust, Memory performance &amp;amp; latency - locality, access, allocate, cache lines</title><link href="http://developerlife.com/2025/05/19/rust-mem-latency/" rel="alternate" type="text/html" title="Build with Naz : Rust, Memory performance &amp;amp; latency - locality, access, allocate, cache lines" /><published>2025-05-19T00:00:00-05:00</published><updated>2025-05-19T00:00:00-05:00</updated><id>http://developerlife.com/2025/05/19/rust-mem-latency</id><content type="html" xml:base="http://developerlife.com/2025/05/19/rust-mem-latency/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust-mem-latency-perf.png" /></p>
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -7740,427 +8789,4 @@ how the <code class="language-plaintext highlighter-rouge">nom</code> library wo
       <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
     </ul>
   </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><category term="TUI" /><summary type="html"><![CDATA[This tutorial and video are a deep dive in a real Markdown parser written using nom in Rust. This MD Parser is part of the r3bl_tui crate, which is part of the r3bl-open-core repo. It goes over the architecture of thinking about building complex parsers and the nitty gritty details the runtime nature and behavior when combining nom parsers.]]></summary></entry><entry><title type="html">Build with Naz : Rust error handling with miette</title><link href="http://developerlife.com/2024/06/10/rust-miette-error-handling/" rel="alternate" type="text/html" title="Build with Naz : Rust error handling with miette" /><published>2024-06-10T10:00:00-05:00</published><updated>2024-06-10T10:00:00-05:00</updated><id>http://developerlife.com/2024/06/10/rust-miette-error-handling</id><content type="html" xml:base="http://developerlife.com/2024/06/10/rust-miette-error-handling/"><![CDATA[<p><img class="post-hero-image" src="/assets/rust-miette.svg" /></p>
-
-<!-- TOC -->
-
-<ul>
-  <li><a href="#introduction">Introduction</a></li>
-  <li><a href="#rust-error-handling-primer">Rust error handling primer</a></li>
-  <li><a href="#more-resources-on-rust-error-handling">More resources on Rust error handling</a></li>
-  <li><a href="#youtube-video-for-this-article">YouTube video for this article</a></li>
-  <li><a href="#examples-of-rust-error-handling-with-miette">Examples of Rust error handling with miette</a>
-    <ul>
-      <li><a href="#example-1-simple-miette-usage">Example 1: Simple miette usage</a></li>
-      <li><a href="#example-2-complex-miette-usage">Example 2: Complex miette usage</a></li>
-      <li><a href="#parting-thoughts">Parting thoughts</a></li>
-    </ul>
-  </li>
-  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
-</ul>
-
-<!-- /TOC -->
-
-<h2 id="introduction">Introduction</h2>
-<p><a id="markdown-introduction" name="introduction"></a></p>
-
-<p>miette is an excellent crate that can make error handling in Rust powerful, flexible,
-and easy to use. It provides a way to create custom error types, add context to errors,
-and display errors in a user-friendly way. In this article, video, and repo, we’ll
-explore how to use miette to improve error handling in your Rust applications.</p>
-
-<h2 id="rust-error-handling-primer">Rust error handling primer</h2>
-<p><a id="markdown-rust-error-handling-primer" name="rust-error-handling-primer"></a></p>
-
-<p>Rust has a powerful error handling system that is based on the
-<a href="https://doc.rust-lang.org/std/result/"><code class="language-plaintext highlighter-rouge">Result</code></a> and <code class="language-plaintext highlighter-rouge">Option</code> types. For this tutorial we
-will focus on the <code class="language-plaintext highlighter-rouge">Result</code> type, which is an enum that has two variants: <code class="language-plaintext highlighter-rouge">Ok</code> and <code class="language-plaintext highlighter-rouge">Err</code>.
-The <code class="language-plaintext highlighter-rouge">Ok</code> variant is used to represent a successful result, while the <code class="language-plaintext highlighter-rouge">Err</code> variant is used
-to represent an error.</p>
-
-<p>The <a href="https://doc.rust-lang.org/std/error/trait.Error.html"><code class="language-plaintext highlighter-rouge">Error</code></a> trait in Rust has to
-be implemented for types that can be used as errors. The <code class="language-plaintext highlighter-rouge">Error</code> trait has a method called
-<code class="language-plaintext highlighter-rouge">source</code> that returns a reference to the underlying cause of the error. This trait has two
-supertraits: <code class="language-plaintext highlighter-rouge">Debug</code> and <code class="language-plaintext highlighter-rouge">Display</code>. The <code class="language-plaintext highlighter-rouge">Debug</code> trait is used to format the error for
-debugging purposes (for the operator), while the <code class="language-plaintext highlighter-rouge">Display</code> trait is used to format the
-error for displaying to the user.</p>
-
-<p>The <code class="language-plaintext highlighter-rouge">?</code> operator can be used in order to propagate errors up the call stack. This operator
-is used to unwrap the <code class="language-plaintext highlighter-rouge">Result</code> type and provide the inner value of the <code class="language-plaintext highlighter-rouge">Ok</code> variant.
-Otherwise it returns from the function with the error, if it is the <code class="language-plaintext highlighter-rouge">Err</code> variant. This
-operator can only be used in functions that return a <code class="language-plaintext highlighter-rouge">Result</code> type. Here’s an example:</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Fails and produces output:</span>
-<span class="cd">/// ```text</span>
-<span class="cd">/// Error: ParseIntError { kind: InvalidDigit }</span>
-<span class="cd">/// ```</span>
-<span class="nd">#[test]</span>
-<span class="k">fn</span> <span class="nf">test</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
-    <span class="k">fn</span> <span class="nf">return_error_result</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">u32</span><span class="p">,</span> <span class="nn">std</span><span class="p">::</span><span class="nn">num</span><span class="p">::</span><span class="n">ParseIntError</span><span class="o">&gt;</span> <span class="p">{</span>
-        <span class="s">"1.2"</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">u32</span><span class="o">&gt;</span><span class="p">()</span>
-    <span class="p">}</span>
-
-    <span class="k">fn</span> <span class="nf">run</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
-        <span class="c1">// It is as if the `?` is turned into the following code.</span>
-        <span class="c1">// let result = match result {</span>
-        <span class="c1">//     Ok(value) =&gt; value,</span>
-        <span class="c1">//     Err(err) =&gt; return Err(Box::new(err)),</span>
-        <span class="c1">// }</span>
-        <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">return_error_result</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-
-        <span class="c1">// The following lines will never be executed, since the previous</span>
-        <span class="c1">// line will return from the function with an error.</span>
-        <span class="nd">println!</span><span class="p">(</span><span class="s">"Result: {}"</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
-        <span class="nf">Ok</span><span class="p">(())</span>
-    <span class="p">}</span>
-
-    <span class="nf">run</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
-
-    <span class="nf">Ok</span><span class="p">(())</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>In the rest of the tutorial (and accompanying video), we will build upon this knowledge
-and introduce <code class="language-plaintext highlighter-rouge">miette</code>, a crate that can make error handling in Rust powerful, flexible,
-and easy to use. We will also learn more about the <code class="language-plaintext highlighter-rouge">thiserror</code> crate, which can be used to
-easily create custom error types in Rust.</p>
-
-<h2 id="more-resources-on-rust-error-handling">More resources on Rust error handling</h2>
-<p><a id="markdown-more-resources-on-rust-error-handling" name="more-resources-on-rust-error-handling"></a></p>
-
-<ul>
-  <li><a href="https://docs.rs/thiserror/latest/thiserror/"><code class="language-plaintext highlighter-rouge">thiserror</code> crate</a>.</li>
-  <li><a href="https://docs.rs/miette/latest/miette/"><code class="language-plaintext highlighter-rouge">miette</code> crate</a>.</li>
-  <li><a href="https://doc.rust-lang.org/std/error/trait.Error.html"><code class="language-plaintext highlighter-rouge">Error</code> trait</a>.</li>
-  <li><a href="https://doc.rust-lang.org/std/result/"><code class="language-plaintext highlighter-rouge">Result</code> enum</a>.</li>
-</ul>
-
-<h2 id="youtube-video-for-this-article">YouTube video for this article</h2>
-<p><a id="markdown-youtube-video-for-this-article" name="youtube-video-for-this-article"></a></p>
-
-<p>This blog post has short examples on how to use <code class="language-plaintext highlighter-rouge">miette</code> to enhance Rust error handling. If
-you like to learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com
-YouTube channel</a>.</p>
-
-<!-- rust error handling with miette -->
-<iframe src="https://www.youtube.com/embed/TmLF7vI8lKk?si=Xh5belp5zD-w-J3P" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
-</iframe>
-
-<p><br /></p>
-
-<h2 id="examples-of-rust-error-handling-with-miette">Examples of Rust error handling with miette</h2>
-<p><a id="markdown-examples-of-rust-error-handling-with-miette" name="examples-of-rust-error-handling-with-miette"></a></p>
-
-<p>Let’s create some examples to illustrate how to use <code class="language-plaintext highlighter-rouge">miette</code> to enhance Rust error
-handling. You can run <code class="language-plaintext highlighter-rouge">cargo new --lib error-miette</code> to create a new library crate.</p>
-
-<blockquote>
-  <p>The code in the video and this tutorial are all in <a href="https://github.com/nazmulidris/rust-scratch/blob/main/error-miette/src/lib.rs">this GitHub
-repo</a>.</p>
-</blockquote>
-
-<p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
-dependencies that we need for these examples.</p>
-
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
-<span class="py">name</span> <span class="p">=</span> <span class="s">"error-miette"</span>
-<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
-<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
-
-<span class="nn">[dependencies]</span>
-
-<span class="c"># Pretty terminal output.</span>
-<span class="py">crossterm</span> <span class="p">=</span> <span class="s">"0.27.0"</span>
-
-<span class="c"># Error handling.</span>
-<span class="py">thiserror</span> <span class="p">=</span> <span class="s">"1.0.61"</span>
-<span class="py">miette</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"7.2.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span> <span class="p">}</span>
-<span class="py">pretty_assertions</span> <span class="p">=</span> <span class="s">"1.4.0"</span>
-</code></pre></div></div>
-
-<h3 id="example-1-simple-miette-usage">Example 1: Simple miette usage</h3>
-<p><a id="markdown-example-1%3A-simple-miette-usage" name="example-1%3A-simple-miette-usage"></a></p>
-
-<p>Then you can add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file. You can note the following things
-in the code:</p>
-<ul>
-  <li>We define a custom error type called <code class="language-plaintext highlighter-rouge">UnderlyingDatabaseError</code> using the <code class="language-plaintext highlighter-rouge">thiserror</code> crate.</li>
-  <li>We define a function called <code class="language-plaintext highlighter-rouge">return_error_result</code> that returns a <code class="language-plaintext highlighter-rouge">Result&lt;u32, std::num::ParseIntError&gt;</code>.</li>
-  <li>We write a test called <code class="language-plaintext highlighter-rouge">test_into_diagnostic</code> that demonstrates how to use <code class="language-plaintext highlighter-rouge">miette</code> to
-add context to errors and display them in a user-friendly way. The test also
-demonstrates how to use the <code class="language-plaintext highlighter-rouge">wrap_err</code> and <code class="language-plaintext highlighter-rouge">context</code> methods to add context to errors.
-And how they are displayed in the error report (in the inverse order in which they were
-added).</li>
-  <li>We also demonstrate how to use the <code class="language-plaintext highlighter-rouge">into_diagnostic</code> method to convert a <code class="language-plaintext highlighter-rouge">Result</code> into a
-<code class="language-plaintext highlighter-rouge">miette::Result</code>.</li>
-</ul>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
-<span class="k">pub</span> <span class="k">mod</span> <span class="n">simple_miette_usage</span> <span class="p">{</span>
-    <span class="k">use</span> <span class="nn">crossterm</span><span class="p">::</span><span class="nn">style</span><span class="p">::</span><span class="n">Stylize</span><span class="p">;</span>
-    <span class="k">use</span> <span class="nn">miette</span><span class="p">::{</span><span class="n">Context</span><span class="p">,</span> <span class="n">IntoDiagnostic</span><span class="p">};</span>
-
-    <span class="nd">#[derive(Debug,</span> <span class="nd">thiserror::Error)]</span>
-    <span class="k">pub</span> <span class="k">enum</span> <span class="n">UnderlyingDatabaseError</span> <span class="p">{</span>
-        <span class="nd">#[error(</span><span class="s">"database corrupted"</span><span class="nd">)]</span>
-        <span class="n">DatabaseCorrupted</span><span class="p">,</span>
-    <span class="p">}</span>
-
-    <span class="k">fn</span> <span class="nf">return_error_result</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">u32</span><span class="p">,</span> <span class="nn">std</span><span class="p">::</span><span class="nn">num</span><span class="p">::</span><span class="n">ParseIntError</span><span class="o">&gt;</span> <span class="p">{</span>
-        <span class="s">"1.2"</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">u32</span><span class="o">&gt;</span><span class="p">()</span>
-    <span class="p">}</span>
-
-    <span class="nd">#[test]</span>
-    <span class="k">fn</span> <span class="nf">test_into_diagnostic</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="n">error_result</span><span class="p">:</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="nb">u32</span><span class="p">,</span> <span class="nn">std</span><span class="p">::</span><span class="nn">num</span><span class="p">::</span><span class="n">ParseIntError</span><span class="o">&gt;</span> <span class="o">=</span>
-            <span class="nf">return_error_result</span><span class="p">();</span>
-        <span class="nd">assert!</span><span class="p">(</span><span class="n">error_result</span><span class="nf">.is_err</span><span class="p">());</span>
-
-        <span class="c1">// The following line will return from this test.</span>
-        <span class="c1">// let it: u32 = error_result.into_diagnostic()?;</span>
-
-        <span class="k">let</span> <span class="n">new_miette_result</span><span class="p">:</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="nb">u32</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">error_result</span>
-            <span class="nf">.into_diagnostic</span><span class="p">()</span>
-            <span class="nf">.context</span><span class="p">(</span><span class="s">"🍍 foo bar baz"</span><span class="p">)</span>
-            <span class="nf">.wrap_err</span><span class="p">(</span><span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"custom string error"</span><span class="p">))</span>
-            <span class="nf">.wrap_err</span><span class="p">(</span><span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="nn">ErrorKind</span><span class="p">::</span><span class="n">NotFound</span><span class="p">)</span>
-            <span class="nf">.wrap_err</span><span class="p">(</span><span class="nn">UnderlyingDatabaseError</span><span class="p">::</span><span class="n">DatabaseCorrupted</span><span class="p">)</span>
-            <span class="nf">.wrap_err</span><span class="p">(</span><span class="s">"🎃 this is additional context about the failure"</span><span class="p">);</span>
-
-        <span class="nd">assert!</span><span class="p">(</span><span class="n">new_miette_result</span><span class="nf">.is_err</span><span class="p">());</span>
-
-        <span class="nd">println!</span><span class="p">(</span>
-            <span class="s">"{}:</span><span class="se">\n</span><span class="s">{:?}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
-            <span class="s">"debug output"</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">(),</span>
-            <span class="n">new_miette_result</span>
-        <span class="p">);</span>
-
-        <span class="k">if</span> <span class="k">let</span> <span class="nf">Err</span><span class="p">(</span><span class="k">ref</span> <span class="n">miette_report</span><span class="p">)</span> <span class="o">=</span> <span class="n">new_miette_result</span> <span class="p">{</span>
-            <span class="nd">println!</span><span class="p">(</span>
-                <span class="s">"{}:</span><span class="se">\n</span><span class="s">{:?}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
-                <span class="s">"miette report"</span><span class="nf">.red</span><span class="p">()</span><span class="nf">.bold</span><span class="p">(),</span>
-                <span class="n">miette_report</span><span class="nf">.to_string</span><span class="p">()</span>
-            <span class="p">);</span>
-
-            <span class="k">let</span> <span class="k">mut</span> <span class="n">iter</span> <span class="o">=</span> <span class="n">miette_report</span><span class="nf">.chain</span><span class="p">();</span>
-
-            <span class="c1">// First.</span>
-            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
-                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
-                <span class="s">"🎃 this is additional context about the failure"</span>
-                    <span class="nf">.to_string</span><span class="p">()</span>
-            <span class="p">);</span>
-
-            <span class="c1">// Second.</span>
-            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
-                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
-                <span class="s">"database corrupted"</span><span class="nf">.to_string</span><span class="p">()</span>
-            <span class="p">);</span>
-
-            <span class="c1">// Third.</span>
-            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
-                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
-                <span class="s">"entity not found"</span><span class="nf">.to_string</span><span class="p">()</span>
-            <span class="p">);</span>
-
-            <span class="c1">// Fourth.</span>
-            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
-                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
-                <span class="s">"custom string error"</span><span class="nf">.to_string</span><span class="p">()</span>
-            <span class="p">);</span>
-
-            <span class="c1">// Fifth.</span>
-            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
-                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
-                <span class="s">"🍍 foo bar baz"</span><span class="nf">.to_string</span><span class="p">()</span>
-            <span class="p">);</span>
-
-            <span class="c1">// Final.</span>
-            <span class="nn">pretty_assertions</span><span class="p">::</span><span class="nd">assert_eq!</span><span class="p">(</span>
-                <span class="n">iter</span><span class="nf">.next</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.to_string</span><span class="p">(),</span>
-                <span class="s">"invalid digit found in string"</span><span class="nf">.to_string</span><span class="p">()</span>
-            <span class="p">);</span>
-        <span class="p">}</span>
-
-        <span class="nf">Ok</span><span class="p">(())</span>
-    <span class="p">}</span>
-
-    <span class="nd">#[test]</span>
-    <span class="k">fn</span> <span class="nf">test_convert_report_into_error</span><span class="p">()</span> <span class="k">-&gt;</span>
-        <span class="nn">std</span><span class="p">::</span><span class="nn">result</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="n">miette_result</span><span class="p">:</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="nb">u32</span><span class="o">&gt;</span> <span class="o">=</span>
-            <span class="nf">return_error_result</span><span class="p">()</span>
-                <span class="nf">.into_diagnostic</span><span class="p">()</span>
-                <span class="nf">.wrap_err</span><span class="p">(</span><span class="nn">miette</span><span class="p">::</span><span class="nn">Report</span><span class="p">::</span><span class="nf">msg</span><span class="p">(</span>
-                    <span class="s">"wrapper for the source parse int error"</span><span class="p">,</span>
-                <span class="p">));</span>
-
-        <span class="c1">// let converted_result: Result&lt;u32, Box&lt;dyn Error&gt;&gt; =</span>
-        <span class="c1">//     miette_result.map_err(|report| report.into());</span>
-
-        <span class="k">let</span> <span class="n">converted_result</span><span class="p">:</span>
-            <span class="nn">std</span><span class="p">::</span><span class="nn">result</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;&gt;</span> <span class="o">=</span>
-            <span class="k">match</span> <span class="n">miette_result</span> <span class="p">{</span>
-                <span class="nf">Ok</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nf">Ok</span><span class="p">(()),</span>
-                <span class="nf">Err</span><span class="p">(</span><span class="n">miette_report</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                    <span class="k">let</span> <span class="n">boxed_error</span><span class="p">:</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;</span> <span class="o">=</span>
-                        <span class="n">miette_report</span><span class="nf">.into</span><span class="p">();</span>
-                    <span class="nf">Err</span><span class="p">(</span><span class="n">boxed_error</span><span class="p">)</span>
-                <span class="p">}</span>
-            <span class="p">};</span>
-
-        <span class="nd">println!</span><span class="p">(</span>
-            <span class="s">"{}:</span><span class="se">\n</span><span class="s">{:?}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
-            <span class="s">"debug output"</span><span class="nf">.blue</span><span class="p">()</span><span class="nf">.bold</span><span class="p">(),</span>
-            <span class="n">converted_result</span>
-        <span class="p">);</span>
-
-        <span class="nd">assert!</span><span class="p">(</span><span class="n">converted_result</span><span class="nf">.is_err</span><span class="p">());</span>
-
-        <span class="nf">Ok</span><span class="p">(())</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h3 id="example-2-complex-miette-usage">Example 2: Complex miette usage</h3>
-<p><a id="markdown-example-2%3A-complex-miette-usage" name="example-2%3A-complex-miette-usage"></a></p>
-
-<p>Next, we will add the following code to the <code class="language-plaintext highlighter-rouge">src/lib.rs</code> file. You can note the following
-things in the code:</p>
-
-<ul>
-  <li>We define a custom error type called <code class="language-plaintext highlighter-rouge">KvStoreError</code> using the <code class="language-plaintext highlighter-rouge">thiserror</code> crate.</li>
-  <li>We define two variants for the <code class="language-plaintext highlighter-rouge">KvStoreError</code> enum: <code class="language-plaintext highlighter-rouge">CouldNotCreateDbFolder</code> and
-<code class="language-plaintext highlighter-rouge">CouldNotGetOrCreateEnvOrOpenStore</code>. The latter variant has a field called <code class="language-plaintext highlighter-rouge">source</code> that
-is of type <code class="language-plaintext highlighter-rouge">UnderlyingDatabaseError</code>, which is defined in the previous example.</li>
-  <li>We define two functions called <code class="language-plaintext highlighter-rouge">return_flat_err</code> and <code class="language-plaintext highlighter-rouge">return_nested_err</code> that return
-<code class="language-plaintext highlighter-rouge">miette::Result&lt;(), KvStoreError&gt;</code>.</li>
-  <li>We write two tests called <code class="language-plaintext highlighter-rouge">fails_with_flat_err</code> and <code class="language-plaintext highlighter-rouge">fails_with_nested_err</code> that
-demonstrate how to use <code class="language-plaintext highlighter-rouge">miette</code> to add context to errors and display them in a
-user-friendly way. The tests also demonstrate how to use the <code class="language-plaintext highlighter-rouge">from</code> attribute to convert
-an error of one type into an error of another type.</li>
-  <li>We also demonstrate how to use the <code class="language-plaintext highlighter-rouge">#[diagnostic]</code> attribute to add a code and help URL
-to the error type.</li>
-  <li>We also demonstrate how to use the <code class="language-plaintext highlighter-rouge">#[from]</code> attribute to convert an error of one type
-into an error of another type.</li>
-  <li>We also demonstrate how to use the <code class="language-plaintext highlighter-rouge">#[error]</code> attribute to add a custom error message to
-the error type.</li>
-</ul>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
-<span class="k">pub</span> <span class="k">mod</span> <span class="n">complex_miette_usage</span> <span class="p">{</span>
-    <span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">error</span><span class="p">::</span><span class="n">Error</span><span class="p">;</span>
-
-    <span class="k">use</span> <span class="k">crate</span><span class="p">::</span><span class="nn">simple_miette_usage</span><span class="p">::</span><span class="n">UnderlyingDatabaseError</span><span class="p">;</span>
-    <span class="k">use</span> <span class="nn">pretty_assertions</span><span class="p">::</span><span class="n">assert_eq</span><span class="p">;</span>
-
-    <span class="nd">#[derive(thiserror::Error,</span> <span class="nd">Debug,</span> <span class="nd">miette::Diagnostic)]</span>
-    <span class="k">pub</span> <span class="k">enum</span> <span class="n">KvStoreError</span> <span class="p">{</span>
-        <span class="nd">#[diagnostic(</span>
-            <span class="nd">code(MyErrorCode::FileSystemError),</span>
-            <span class="nd">help(</span><span class="s">"https://docs.rs/rkv/latest/rkv/enum.StoreError.html"</span><span class="nd">),</span>
-            <span class="c1">// url(docsrs) /* Works if this code was on crates.io / docs.rs */</span>
-        <span class="nd">)]</span>
-        <span class="nd">#[error(</span><span class="s">"📂 Could not create db folder: '{db_folder_path}' on disk"</span><span class="nd">)]</span>
-        <span class="n">CouldNotCreateDbFolder</span> <span class="p">{</span> <span class="n">db_folder_path</span><span class="p">:</span> <span class="nb">String</span> <span class="p">},</span>
-
-        <span class="nd">#[diagnostic(</span>
-            <span class="nd">code(MyErrorCode::StoreCreateOrAccessError),</span>
-            <span class="nd">help(</span><span class="s">"https://docs.rs/rkv/latest/rkv/enum.StoreError.html"</span><span class="nd">),</span>
-            <span class="c1">// url(docsrs) /* Works if this code was on crates.io / docs.rs */</span>
-        <span class="nd">)]</span>
-        <span class="nd">#[error(</span><span class="s">"💾 Could not get or create environment, or open store"</span><span class="nd">)]</span>
-        <span class="n">CouldNotGetOrCreateEnvOrOpenStore</span> <span class="p">{</span>
-            <span class="nd">#[from]</span>
-            <span class="n">source</span><span class="p">:</span> <span class="n">UnderlyingDatabaseError</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">}</span>
-
-    <span class="k">fn</span> <span class="nf">return_flat_err</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="n">KvStoreError</span><span class="o">&gt;</span> <span class="p">{</span>
-        <span class="nn">Result</span><span class="p">::</span><span class="nf">Err</span><span class="p">(</span><span class="nn">KvStoreError</span><span class="p">::</span><span class="n">CouldNotCreateDbFolder</span> <span class="p">{</span>
-            <span class="n">db_folder_path</span><span class="p">:</span> <span class="s">"some/path/to/db"</span><span class="nf">.to_string</span><span class="p">(),</span>
-        <span class="p">})</span>
-    <span class="p">}</span>
-
-    <span class="cd">/// This test will not run! It will fail and demonstrate the default</span>
-    <span class="cd">/// [report handler](miette::ReportHandler) of the `miette` crate.</span>
-    <span class="nd">#[test]</span>
-    <span class="k">fn</span> <span class="nf">fails_with_flat_err</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">return_flat_err</span><span class="p">();</span>
-
-        <span class="k">if</span> <span class="k">let</span> <span class="nf">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">result</span> <span class="p">{</span>
-            <span class="nd">assert_eq!</span><span class="p">(</span>
-                <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">),</span>
-                <span class="s">"CouldNotCreateDbFolder { db_folder_path: </span><span class="se">\"</span><span class="s">some/path/to/db</span><span class="se">\"</span><span class="s"> }"</span>
-            <span class="p">);</span>
-        <span class="p">}</span>
-
-        <span class="n">result</span><span class="o">?</span><span class="p">;</span>
-
-        <span class="nf">Ok</span><span class="p">(())</span>
-    <span class="p">}</span>
-
-    <span class="k">fn</span> <span class="nf">return_nested_err</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">(),</span> <span class="n">KvStoreError</span><span class="o">&gt;</span> <span class="p">{</span>
-        <span class="c1">// Variant 1 - Very verbose.</span>
-        <span class="k">let</span> <span class="n">store_error</span> <span class="o">=</span> <span class="nn">UnderlyingDatabaseError</span><span class="p">::</span><span class="n">DatabaseCorrupted</span><span class="p">;</span>
-        <span class="k">let</span> <span class="n">rkv_error</span> <span class="o">=</span> <span class="nn">KvStoreError</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="n">store_error</span><span class="p">);</span>
-        <span class="nn">Result</span><span class="p">::</span><span class="nf">Err</span><span class="p">(</span><span class="n">rkv_error</span><span class="p">)</span>
-
-        <span class="c1">// Variant 2.</span>
-        <span class="c1">// Result::Err(KvStoreError::CouldNotGetOrCreateEnvOrOpenStore {</span>
-        <span class="c1">//     source: UnderlyingDatabaseError::DatabaseCorrupted,</span>
-        <span class="c1">// })</span>
-    <span class="p">}</span>
-
-    <span class="cd">/// This test will not run! It will fail and demonstrate the default</span>
-    <span class="cd">/// [report handler](miette::ReportHandler) of the `miette` crate.</span>
-    <span class="nd">#[test]</span>
-    <span class="k">fn</span> <span class="nf">fails_with_nested_err</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="n">result</span> <span class="o">=</span> <span class="nf">return_nested_err</span><span class="p">();</span>
-
-        <span class="k">if</span> <span class="k">let</span> <span class="nf">Err</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">result</span> <span class="p">{</span>
-            <span class="nd">assert_eq!</span><span class="p">(</span>
-                <span class="nd">format!</span><span class="p">(</span><span class="s">"{:?}"</span><span class="p">,</span> <span class="n">error</span><span class="p">),</span>
-                <span class="s">"CouldNotGetOrCreateEnvOrOpenStore { source: DatabaseCorrupted }"</span>
-            <span class="p">);</span>
-        <span class="p">}</span>
-
-        <span class="n">result</span><span class="o">?</span><span class="p">;</span>
-
-        <span class="nf">Ok</span><span class="p">(())</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<h3 id="parting-thoughts">Parting thoughts</h3>
-<p><a id="markdown-parting-thoughts" name="parting-thoughts"></a></p>
-
-<p>For more sophisticated error handling examples, please check out the following links:</p>
-
-<ul>
-  <li><a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/src/public_api/terminal_async.rs#L57"><code class="language-plaintext highlighter-rouge">terminal_async.rs</code> in <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code>
-crate</a>.</li>
-  <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/tcp-api-server/src/standalone/kv.rs#L137"><code class="language-plaintext highlighter-rouge">kv.rs</code> in <code class="language-plaintext highlighter-rouge">tcp-api-server</code>
-crate</a>.</li>
-  <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/tcp-api-server/src/standalone/miette_setup_global_report_handler.rs">Custom global report handler for <code class="language-plaintext highlighter-rouge">miette</code> in <code class="language-plaintext highlighter-rouge">tcp-api-server</code>
-crate</a>.</li>
-</ul>
-
-<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
-<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
-
-<p>You can watch a video series on building this crate with Naz on the
-<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
-
-<ul>
-  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
-  <li>Playlists
-    <ul>
-      <li><a href="https://www.youtube.com/watch?v=bolScvh4x7I&amp;list=PLofhE49PEwmw3MKOU1Kn3xbP4FRQR4Mb3">Build with Naz, Linux TTY, process, signals, commands in async Rust</a></li>
-      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
-      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
-      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
-      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
-    </ul>
-  </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><summary type="html"><![CDATA[miette is an excellent crate that can make error handling in Rust powerful, flexible, and easy to use. It provides a way to create custom error types, add context to errors, and display errors in a user-friendly way. In this article, video, and repo, we'll explore how to use miette to improve error handling in your Rust applications.]]></summary></entry></feed>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><category term="TUI" /><summary type="html"><![CDATA[This tutorial and video are a deep dive in a real Markdown parser written using nom in Rust. This MD Parser is part of the r3bl_tui crate, which is part of the r3bl-open-core repo. It goes over the architecture of thinking about building complex parsers and the nitty gritty details the runtime nature and behavior when combining nom parsers.]]></summary></entry></feed>

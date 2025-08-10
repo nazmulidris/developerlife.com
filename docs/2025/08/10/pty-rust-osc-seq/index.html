@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="When building Rust projects, Cargo emits hidden OSC (Operating System Command) terminal control sequences that communicate build progress to compatible terminals like WezTerm. However, capturing these sequences programmatically is surprisingly tricky - standard process pipes won’t work because Cargo only emits them when connected to a real TTY, and inheriting stdio bypasses your program entirely. This article explores how to use pseudo-terminals (PTY) with the portable-pty crate to create a virtual terminal that tricks Cargo into emitting OSC sequences while still allowing you to capture and parse them in real-time. We’ll dive into the PTY architecture, understand why blocking I/O with cloned file descriptors causes hangs, and implement a production-ready solution using a detached task pattern that processes build progress events (0-100%) as they happen, not after the build completes." />
+<meta property="og:description" content="When building Rust projects, Cargo emits hidden OSC (Operating System Command) terminal control sequences that communicate build progress to compatible terminals like WezTerm. However, capturing these sequences programmatically is surprisingly tricky - standard process pipes won’t work because Cargo only emits them when connected to a real TTY, and inheriting stdio bypasses your program entirely. This article explores how to use pseudo-terminals (PTY) with the portable-pty crate to create a virtual terminal that tricks Cargo into emitting OSC sequences while still allowing you to capture and parse them in real-time. We’ll dive into the PTY architecture, understand why blocking I/O with cloned file descriptors causes hangs, and implement a production-ready solution using a detached task pattern that processes build progress events (0-100%) as they happen, not after the build completes." />
+<link rel="canonical" href="http://developerlife.com/2025/08/10/pty-rust-osc-seq/" />
+<meta property="og:url" content="http://developerlife.com/2025/08/10/pty-rust-osc-seq/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2025-08-10T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2025-08-10T00:00:00-05:00","datePublished":"2025-08-10T00:00:00-05:00","description":"When building Rust projects, Cargo emits hidden OSC (Operating System Command) terminal control sequences that communicate build progress to compatible terminals like WezTerm. However, capturing these sequences programmatically is surprisingly tricky - standard process pipes won’t work because Cargo only emits them when connected to a real TTY, and inheriting stdio bypasses your program entirely. This article explores how to use pseudo-terminals (PTY) with the portable-pty crate to create a virtual terminal that tricks Cargo into emitting OSC sequences while still allowing you to capture and parse them in real-time. We’ll dive into the PTY architecture, understand why blocking I/O with cloned file descriptors causes hangs, and implement a production-ready solution using a detached task pattern that processes build progress events (0-100%) as they happen, not after the build completes.","headline":"Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2025/08/10/pty-rust-osc-seq/"},"url":"http://developerlife.com/2025/08/10/pty-rust-osc-seq/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add fontawesome (only for bio.html page) -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /><!-- https://developers.google.com/analytics/devguides/collection/gtagjs -->
+<script async
+        src="https://www.googletagmanager.com/gtag/js?id=G-NQY9ECC58H"></script>
+<script>
+  window.dataLayer = window.dataLayer || []
+
+  function gtag() {
+    window.dataLayer.push(arguments)
+  }
+
+  gtag("js", new Date())
+  gtag("config", "G-NQY9ECC58H")
+</script>
+</head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Aug 10, 2025
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is fontawesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, play, hope,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <p class="social-media-item">
+    <a
+      href="mailto:hello@r3bl.com"
+      target="_blank"
+      title="Email us at hello@r3bl.com"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#email"></use>
+      </svg>
+    </a>
+  </p>
+
+  <p class="social-media-item">
+    <a href="https://r3bl.com/#services" target="_blank" title="Need help with code?">
+      <img class="svg-icon" src="https://r3bl.com/images/logo.svg" alt="R3BL Logo">
+    </a>
+  </p><p class="social-media-item">
+    <a
+      href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg"
+      target="_blank"
+      title="developerlife.com YouTube channel"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+      title="Nazmul Idris LinkedIn profile"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a
+      href="https://www.github.com/nazmulidris" target="_blank" title="Nazmul Idris github profile">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank" title="RSS feed">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <p><img class="post-hero-image" src="/assets/pty.png" /></p>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#quick-summary-for-developers">Quick Summary for Developers</a></li>
+  <li><a href="#osc-sequence-format">OSC Sequence Format</a>
+    <ul>
+      <li><a href="#state-values">State Values</a></li>
+      <li><a href="#example-sequences">Example Sequences</a></li>
+    </ul>
+  </li>
+  <li><a href="#implementation-details">Implementation Details</a>
+    <ul>
+      <li><a href="#key-files">Key Files</a></li>
+      <li><a href="#terminal-detection">Terminal Detection</a></li>
+      <li><a href="#progress-flow">Progress Flow</a></li>
+    </ul>
+  </li>
+  <li><a href="#configuration">Configuration</a></li>
+  <li><a href="#capturing-osc-sequences-from-cargo">Capturing OSC Sequences from Cargo</a>
+    <ul>
+      <li><a href="#quick-start-dependencies">Quick Start: Dependencies</a></li>
+      <li><a href="#the-tty-problem">The TTY Problem</a></li>
+      <li><a href="#why-stdioinherit-wont-work-for-capture">Why Stdio::inherit() Won’t Work for Capture</a></li>
+    </ul>
+  </li>
+  <li><a href="#the-solution-using-pty-with-portable-pty">The Solution: Using PTY with portable-pty</a>
+    <ul>
+      <li><a href="#understanding-pty-architecture">Understanding PTY Architecture</a>
+        <ul>
+          <li><a href="#how-pty-solves-the-osc-problem">How PTY Solves the OSC Problem</a></li>
+          <li><a href="#why-other-approaches-fail">Why Other Approaches Fail</a></li>
+          <li><a href="#the-virtual-terminal-effect">The Virtual Terminal Effect</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#minimal-code-snippet">Minimal Code Snippet</a></li>
+  <li><a href="#complete-working-example">Complete Working Example</a>
+    <ul>
+      <li><a href="#full-poc-implementation">Full POC Implementation</a></li>
+      <li><a href="#running-the-poc">Running the POC</a></li>
+      <li><a href="#expected-output">Expected Output</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+    </ul>
+  </li>
+  <li><a href="#environment-considerations">Environment Considerations</a></li>
+  <li><a href="#testing">Testing</a></li>
+  <li><a href="#references">References</a></li>
+  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
+</ul>
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+      <h2 id="overview">
+        
+        
+          Overview <a href="#overview">#</a>
+        
+        
+      </h2>
+    
+
+<p>Cargo emits OSC (Operating System Command) terminal control sequences during build operations to
+communicate progress status to compatible terminal emulators. These sequences allow terminals to
+display build progress in title bars, taskbars, or other UI elements.</p>
+
+<p>This document explains how to programmatically capture and parse these OSC sequences when spawning
+<code class="language-plaintext highlighter-rouge">cargo build</code> from a Rust program.</p>
+
+<p>Here are some useful links for context:</p>
+
+<ol>
+  <li><a href="https://github.com/rust-lang/cargo">Cargo source code</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/ANSI_escape_code#Operating_System_Command_sequences">ANSI escape codes</a></li>
+  <li><a href="https://blog.vucica.net/2017/07/what-are-osc-terminal-control-sequences-escape-codes.html">OSC terminal control sequences</a></li>
+</ol>
+      <h2 id="quick-summary-for-developers">
+        
+        
+          Quick Summary for Developers <a href="#quick-summary-for-developers">#</a>
+        
+        
+      </h2>
+    
+
+<ol>
+  <li><strong>Goal:</strong>
+    <ul>
+      <li>Capture and parse progress information from <code class="language-plaintext highlighter-rouge">cargo build</code> using OSC escape sequences.</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Key Challenge:</strong></p>
+
+    <ul>
+      <li>Cargo only emits OSC sequences when connected to an interactive TTY, and a compatible terminal
+(like <code class="language-plaintext highlighter-rouge">wezterm</code>).</li>
+      <li>Spawning a child process using <code class="language-plaintext highlighter-rouge">std::process::Command</code> and standard process pipes don’t work,
+since the child process correctly detects the terminal is not-interactive (not connected to
+TTY).</li>
+      <li>
+        <p>Inheriting stdio from the current process doesn’t work either, for two reasons. While the child
+process does detect the terminal as interactive (connected to TTY), it also clobbers output
+from the parent CLI or TUI process by sending all the output including OSC sequences directly
+to the terminal, bypassing the parent process. And there is no way to capture or parse the
+output/OSC codes.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th><code class="language-plaintext highlighter-rouge">is_terminal()</code></th>
+              <th>OSC Emitted?</th>
+              <th>Can Capture?</th>
+              <th>Problem</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Standard pipes</strong></td>
+              <td>❌ false</td>
+              <td>❌ No</td>
+              <td>✅ Yes</td>
+              <td>No OSC sequences generated</td>
+            </tr>
+            <tr>
+              <td><strong>Stdio inherit</strong></td>
+              <td>✅ true</td>
+              <td>✅ Yes</td>
+              <td>❌ No</td>
+              <td>Output bypasses your program</td>
+            </tr>
+            <tr>
+              <td><strong>PTY</strong></td>
+              <td>✅ true</td>
+              <td>✅ Yes</td>
+              <td>✅ Yes</td>
+              <td>Perfect solution!</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li><strong>Solution:</strong>
+    <ul>
+      <li>Use a pseudo-terminal (PTY) via the <code class="language-plaintext highlighter-rouge">portable-pty</code> crate to simulate a terminal environment.</li>
+      <li>And “fake” that <code class="language-plaintext highlighter-rouge">wezterm</code> is the terminal program by setting <code class="language-plaintext highlighter-rouge">TERM_PROGRAM=WezTerm</code>.</li>
+    </ul>
+  </li>
+  <li><strong>What You’ll Get:</strong>
+    <ul>
+      <li>Real-time build progress updates (0-100%) that you can process programmatically.</li>
+    </ul>
+  </li>
+  <li><strong>Jump to:</strong>
+    <ul>
+      <li><a href="#minimal-code-snippet">Minimal Code Snippet</a> for a quick start.</li>
+      <li><a href="#complete-working-example">Complete Working Example</a> for a ready-to-run POC.</li>
+    </ul>
+  </li>
+</ol>
+      <h2 id="osc-sequence-format">
+        
+        
+          OSC Sequence Format <a href="#osc-sequence-format">#</a>
+        
+        
+      </h2>
+    
+
+<p>Cargo uses the <strong>OSC 9;4</strong> format (ConEmu-style progress reporting):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ESC ] 9 ; 4 ; st ; pr ST
+</code></pre></div></div>
+
+<p>Where:y</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ESC</code> = <code class="language-plaintext highlighter-rouge">\x1b</code> (escape character)</li>
+  <li><code class="language-plaintext highlighter-rouge">]</code> = OSC introducer</li>
+  <li><code class="language-plaintext highlighter-rouge">9;4</code> = ConEmu-specific progress command</li>
+  <li><code class="language-plaintext highlighter-rouge">st</code> = state (0-4)</li>
+  <li><code class="language-plaintext highlighter-rouge">pr</code> = progress value (0-100)</li>
+  <li><code class="language-plaintext highlighter-rouge">ST</code> = <code class="language-plaintext highlighter-rouge">\x1b\\</code> (string terminator)</li>
+</ul>
+      <h3 id="state-values">
+        
+        
+          State Values <a href="#state-values">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">0</code>: Remove progress indicator</li>
+  <li><code class="language-plaintext highlighter-rouge">1</code>: Set progress value (0-100)</li>
+  <li><code class="language-plaintext highlighter-rouge">2</code>: Set error state in taskbar</li>
+  <li><code class="language-plaintext highlighter-rouge">3</code>: Set indeterminate state (animated, no specific progress)</li>
+  <li><code class="language-plaintext highlighter-rouge">4</code>: Set paused state (not used by Cargo)</li>
+</ul>
+      <h3 id="example-sequences">
+        
+        
+          Example Sequences <a href="#example-sequences">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li>Start progress: <code class="language-plaintext highlighter-rouge">\x1b]9;4;1;0\x1b\\</code></li>
+  <li>50% complete: <code class="language-plaintext highlighter-rouge">\x1b]9;4;1;50\x1b\\</code></li>
+  <li>Build error: <code class="language-plaintext highlighter-rouge">\x1b]9;4;2;100\x1b\\</code></li>
+  <li>Remove progress: <code class="language-plaintext highlighter-rouge">\x1b]9;4;0;0\x1b\\</code></li>
+</ul>
+      <h2 id="implementation-details">
+        
+        
+          Implementation Details <a href="#implementation-details">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <ul>
+    <li>Repo with the source for this article:
+<a href="https://github.com/nazmulidris/rust-scratch/blob/main/pty_cargo_build_progress_osc_codes">nazmulidris/rust-scratch/pty_cargo_build_progress_osc_codes</a></li>
+    <li>Tracking issue: <a href="https://github.com/nazmulidris/rust-scratch/issues/117">rust-scratch 117</a></li>
+    <li>Related issue: <a href="https://github.com/r3bl-org/r3bl-open-core/issues/437">r3bl-cmdr 437</a></li>
+  </ul>
+</blockquote>
+      <h3 id="key-files">
+        
+        
+          Key Files <a href="#key-files">#</a>
+        
+        
+      </h3>
+    
+
+<p>You can get the source code for Cargo from <a href="https://github.com/rust-lang/cargo">Cargo GitHub repo</a>.</p>
+
+<p>Let’s say you cloned the Cargo source code in <code class="language-plaintext highlighter-rouge">/home/your-username/github/cargo/</code> folder. Then you
+will find the following:</p>
+
+<ol>
+  <li>
+    <p><strong><code class="language-plaintext highlighter-rouge">src/cargo/util/progress.rs</code></strong></p>
+
+    <ul>
+      <li>Contains the main progress bar implementation</li>
+      <li><code class="language-plaintext highlighter-rouge">StatusValue</code> enum (lines 87-99) defines progress states</li>
+      <li><code class="language-plaintext highlighter-rouge">Display</code> implementation (lines 161-179) formats OSC sequences</li>
+      <li><code class="language-plaintext highlighter-rouge">TerminalIntegration</code> struct manages OSC emission</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong><code class="language-plaintext highlighter-rouge">src/cargo/core/shell.rs</code></strong></p>
+
+    <ul>
+      <li>Terminal capability detection (lines 594-600)</li>
+      <li>Checks environment variables for terminal support</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong><code class="language-plaintext highlighter-rouge">src/cargo/core/compiler/job_queue/mod.rs</code></strong></p>
+    <ul>
+      <li>Creates progress bar during build (line 481)</li>
+      <li>Updates progress as compilation proceeds</li>
+      <li>Marks progress as error on build failure (line 872)</li>
+    </ul>
+  </li>
+</ol>
+      <h3 id="terminal-detection">
+        
+        
+          Terminal Detection <a href="#terminal-detection">#</a>
+        
+        
+      </h3>
+    
+
+<p>Cargo detects OSC support by checking environment variables in <code class="language-plaintext highlighter-rouge">supports_term_integration()</code>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">supports_term_integration</span><span class="p">(</span>
+    <span class="n">stream</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">dyn</span> <span class="n">IsTerminal</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">bool</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="n">windows_terminal</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">env</span><span class="p">::</span><span class="nf">var</span><span class="p">(</span><span class="s">"WT_SESSION"</span><span class="p">)</span>
+        <span class="nf">.is_ok</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">conemu</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">env</span><span class="p">::</span><span class="nf">var</span><span class="p">(</span><span class="s">"ConEmuANSI"</span><span class="p">)</span><span class="nf">.ok</span><span class="p">()</span> <span class="o">==</span>
+        <span class="nf">Some</span><span class="p">(</span><span class="s">"ON"</span><span class="nf">.into</span><span class="p">());</span>
+    <span class="k">let</span> <span class="n">wezterm</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">env</span><span class="p">::</span><span class="nf">var</span><span class="p">(</span><span class="s">"TERM_PROGRAM"</span><span class="p">)</span><span class="nf">.ok</span><span class="p">()</span> <span class="o">==</span>
+        <span class="nf">Some</span><span class="p">(</span><span class="s">"WezTerm"</span><span class="nf">.into</span><span class="p">());</span>
+
+    <span class="p">(</span><span class="n">windows_terminal</span> <span class="p">||</span> <span class="n">conemu</span> <span class="p">||</span> <span class="n">wezterm</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
+        <span class="n">stream</span><span class="nf">.is_terminal</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Supported terminals:</p>
+
+<ul>
+  <li><strong>Windows Terminal</strong>: Detected via <code class="language-plaintext highlighter-rouge">WT_SESSION</code> environment variable</li>
+  <li><strong>ConEmu</strong>: Detected via <code class="language-plaintext highlighter-rouge">ConEmuANSI=ON</code></li>
+  <li><strong>WezTerm</strong>: Detected via <code class="language-plaintext highlighter-rouge">TERM_PROGRAM=WezTerm</code></li>
+</ul>
+      <h3 id="progress-flow">
+        
+        
+          Progress Flow <a href="#progress-flow">#</a>
+        
+        
+      </h3>
+    
+
+<ol>
+  <li>Build starts → Progress bar created with <code class="language-plaintext highlighter-rouge">Progress::with_style()</code></li>
+  <li>Terminal integration initialized based on detection and config</li>
+  <li>During compilation:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">tick()</code> or <code class="language-plaintext highlighter-rouge">tick_now()</code> called with current/max units</li>
+      <li>Progress percentage calculated</li>
+      <li>OSC sequence emitted to stderr</li>
+    </ul>
+  </li>
+  <li>On completion or error:
+    <ul>
+      <li>Final state sent (100% or error)</li>
+      <li>Progress cleared with remove sequence</li>
+    </ul>
+  </li>
+</ol>
+      <h2 id="configuration">
+        
+        
+          Configuration <a href="#configuration">#</a>
+        
+        
+      </h2>
+    
+
+<p>Users can control OSC emission via <code class="language-plaintext highlighter-rouge">.cargo/config.toml</code>:</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[term]</span>
+<span class="py">progress.term-integration</span> <span class="p">=</span> <span class="kc">true</span>   <span class="c"># Enable OSC sequences</span>
+                                   <span class="c"># (auto-detected by default)</span>
+<span class="c"># or</span>
+<span class="py">progress.term-integration</span> <span class="p">=</span> <span class="kc">false</span>  <span class="c"># Disable OSC sequences</span>
+
+<span class="c"># Other progress options</span>
+<span class="py">progress.when</span> <span class="p">=</span> <span class="s">"auto"</span>     <span class="c"># "auto", "always", or "never"</span>
+<span class="py">progress.width</span> <span class="p">=</span> <span class="mi">80</span>        <span class="c"># Terminal width for progress bar</span>
+</code></pre></div></div>
+      <h2 id="capturing-osc-sequences-from-cargo">
+        
+        
+          Capturing OSC Sequences from Cargo <a href="#capturing-osc-sequences-from-cargo">#</a>
+        
+        
+      </h2>
+    
+      <h3 id="quick-start-dependencies">
+        
+        
+          Quick Start: Dependencies <a href="#quick-start-dependencies">#</a>
+        
+        
+      </h3>
+    
+
+<p>Add this to your <code class="language-plaintext highlighter-rouge">Cargo.toml</code>:</p>
+
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[dependencies]</span>
+<span class="py">portable-pty</span> <span class="p">=</span> <span class="s">"0.8"</span>
+<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
+<span class="py">miette</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"7.2"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span> <span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="the-tty-problem">
+        
+        
+          The TTY Problem <a href="#the-tty-problem">#</a>
+        
+        
+      </h3>
+    
+
+<p><strong>Important</strong>: When using pipes with <code class="language-plaintext highlighter-rouge">std::process::Command</code>, the spawned process detects it’s NOT
+connected to a TTY, causing <code class="language-plaintext highlighter-rouge">is_terminal()</code> to return false and <strong>no OSC sequences will be
+emitted</strong>. You need a pseudo-terminal (PTY) to capture OSC sequences.</p>
+      <h3 id="why-stdioinherit-wont-work-for-capture">
+        
+        
+          Why Stdio::inherit() Won’t Work for Capture <a href="#why-stdioinherit-wont-work-for-capture">#</a>
+        
+        
+      </h3>
+    
+
+<p>While you can use <code class="language-plaintext highlighter-rouge">Stdio::inherit()</code> to let the spawned process use your real terminal (and OSC
+codes will be displayed), this approach has a critical limitation:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">process</span><span class="p">::{</span><span class="n">Command</span><span class="p">,</span> <span class="n">Stdio</span><span class="p">};</span>
+
+<span class="k">let</span> <span class="k">mut</span> <span class="n">cmd</span> <span class="o">=</span> <span class="nn">Command</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"cargo"</span><span class="p">);</span>
+<span class="n">cmd</span><span class="nf">.arg</span><span class="p">(</span><span class="s">"build"</span><span class="p">)</span>
+   <span class="nf">.env</span><span class="p">(</span><span class="s">"TERM_PROGRAM"</span><span class="p">,</span> <span class="s">"WezTerm"</span><span class="p">)</span>
+   <span class="nf">.stdin</span><span class="p">(</span><span class="nn">Stdio</span><span class="p">::</span><span class="nf">inherit</span><span class="p">())</span>
+   <span class="nf">.stdout</span><span class="p">(</span><span class="nn">Stdio</span><span class="p">::</span><span class="nf">inherit</span><span class="p">())</span>
+   <span class="nf">.stderr</span><span class="p">(</span><span class="nn">Stdio</span><span class="p">::</span><span class="nf">inherit</span><span class="p">());</span>  <span class="c1">// Uses real TTY, OSC goes</span>
+                               <span class="c1">// directly to terminal</span>
+
+<span class="k">let</span> <span class="k">mut</span> <span class="n">child</span> <span class="o">=</span> <span class="n">cmd</span><span class="nf">.spawn</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+<span class="n">child</span><span class="nf">.wait</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+<span class="c1">// Problem: Cannot capture or parse the output/OSC codes!</span>
+</code></pre></div></div>
+
+<p><strong>Why this doesn’t work for capture:</strong></p>
+
+<ul>
+  <li>Output goes directly to your terminal, bypassing your program</li>
+  <li>You cannot intercept, parse, or process the OSC sequences</li>
+  <li>You have no programmatic access to the build progress data</li>
+  <li>This is only useful if you want to display progress without processing it</li>
+</ul>
+      <h2 id="the-solution-using-pty-with-portable-pty">
+        
+        
+          The Solution: Using PTY with portable-pty <a href="#the-solution-using-pty-with-portable-pty">#</a>
+        
+        
+      </h2>
+    
+
+<p>The only way to both trigger OSC emission AND capture the sequences is to use a pseudo-terminal
+(PTY).</p>
+      <h3 id="understanding-pty-architecture">
+        
+        
+          Understanding PTY Architecture <a href="#understanding-pty-architecture">#</a>
+        
+        
+      </h3>
+    
+
+<p>A <strong>PTY (Pseudo-Terminal)</strong> is a software-based virtual terminal that creates two connected
+endpoints:</p>
+
+<ul>
+  <li><strong>Controller endpoint</strong>: Your program connects here to manage the virtual terminal</li>
+  <li><strong>Controlled endpoint</strong>: The spawned process connects here, believing it’s a real terminal</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌─────────────┐   ┌───────────┐   ┌───────────────┐
+│ Your Program│◄─►│    PTY    │◄─►│Spawned Process│
+│(Controller) │   │Controller/│   │ (Controlled)  │
+│             │   │Controlled │   │               │
+└─────────────┘   └───────────┘   └───────────────┘
+</code></pre></div></div>
+      <h4 id="how-pty-solves-the-osc-problem">
+        
+        
+          How PTY Solves the OSC Problem <a href="#how-pty-solves-the-osc-problem">#</a>
+        
+        
+      </h4>
+    
+
+<p>The genius of PTY is that it creates a <strong>bidirectional pipe that appears to be a real terminal</strong> to
+the spawned process:</p>
+
+<ol>
+  <li><strong>Your program</strong> creates a PTY pair and gets handles to both endpoints</li>
+  <li><strong>Cargo process</strong> is launched with the controlled endpoint as its terminal</li>
+  <li><strong>Cargo believes</strong> it’s connected to a real terminal → <code class="language-plaintext highlighter-rouge">is_terminal()</code> returns <code class="language-plaintext highlighter-rouge">true</code></li>
+  <li><strong>OSC sequences are emitted</strong> because terminal integration is enabled</li>
+  <li><strong>Your program</strong> can read all output (including OSC) through the controller endpoint</li>
+</ol>
+      <h4 id="why-other-approaches-fail">
+        
+        
+          Why Other Approaches Fail <a href="#why-other-approaches-fail">#</a>
+        
+        
+      </h4>
+    
+
+<table>
+  <thead>
+    <tr>
+      <th>Method</th>
+      <th><code class="language-plaintext highlighter-rouge">is_terminal()</code></th>
+      <th>OSC Emitted?</th>
+      <th>Can Capture?</th>
+      <th>Problem</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Standard pipes</strong></td>
+      <td>❌ false</td>
+      <td>❌ No</td>
+      <td>✅ Yes</td>
+      <td>No OSC sequences generated</td>
+    </tr>
+    <tr>
+      <td><strong>Stdio inherit</strong></td>
+      <td>✅ true</td>
+      <td>✅ Yes</td>
+      <td>❌ No</td>
+      <td>Output bypasses your program</td>
+    </tr>
+    <tr>
+      <td><strong>PTY</strong></td>
+      <td>✅ true</td>
+      <td>✅ Yes</td>
+      <td>✅ Yes</td>
+      <td>Perfect solution!</td>
+    </tr>
+  </tbody>
+</table>
+      <h4 id="the-virtual-terminal-effect">
+        
+        
+          The Virtual Terminal Effect <a href="#the-virtual-terminal-effect">#</a>
+        
+        
+      </h4>
+    
+
+<p>PTY essentially turns your program into a “virtual terminal emulator”:</p>
+
+<ul>
+  <li><strong>Satisfies Cargo’s terminal detection</strong> (makes <code class="language-plaintext highlighter-rouge">is_terminal()</code> return true)</li>
+  <li><strong>Enables OSC emission</strong> (because it looks like a compatible terminal)</li>
+  <li><strong>Allows programmatic capture</strong> (your program controls the virtual terminal)</li>
+  <li><strong>Provides full control</strong> (you can process, filter, or transform the data)</li>
+</ul>
+
+<p>This elegant solution is <strong>the only method</strong> that satisfies both requirements: triggering OSC
+emission AND capturing the sequences for programmatic processing.</p>
+      <h2 id="minimal-code-snippet">
+        
+        
+          Minimal Code Snippet <a href="#minimal-code-snippet">#</a>
+        
+        
+      </h2>
+    
+
+<blockquote>
+  <p><strong>Note</strong>: The <code class="language-plaintext highlighter-rouge">portable-pty</code> crate uses the legacy API terms <code class="language-plaintext highlighter-rouge">master</code>/<code class="language-plaintext highlighter-rouge">slave</code> for historical
+compatibility, but conceptually these represent the controller/controlled relationship described
+above.</p>
+</blockquote>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Cargo.toml dependencies:</span>
+<span class="c1">// portable-pty = "0.9.0"</span>
+<span class="c1">// tokio = { version = "1.0", features = ["full"] }</span>
+<span class="c1">// miette = { version = "7.0", features = ["fancy"] }</span>
+<span class="k">use</span> <span class="nn">portable_pty</span><span class="p">::{</span>
+    <span class="n">CommandBuilder</span><span class="p">,</span> <span class="n">PtySize</span><span class="p">,</span> <span class="n">native_pty_system</span>
+<span class="p">};</span>
+<span class="k">use</span> <span class="nn">miette</span><span class="p">::</span><span class="n">IntoDiagnostic</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="n">Read</span><span class="p">;</span> <span class="c1">// For reading from the PTY controller</span>
+
+<span class="cd">/// ```text</span>
+<span class="cd">/// ┌────────────┐   ┌────────────┐   ┌─────────────────┐</span>
+<span class="cd">/// │Your Program│◄─►│Controller  │   │Cargo Process    │</span>
+<span class="cd">/// │            │   │     ↕      │   │                 │</span>
+<span class="cd">/// │Reads/writes│   │    PTY     │   │stdin/stdout/    │</span>
+<span class="cd">/// │through     │   │     ↕      │   │stderr redirected│</span>
+<span class="cd">/// │controller  │   │  Controlled│◄─►│to controlled    │</span>
+<span class="cd">/// └────────────┘   └────────────┘   └─────────────────┘</span>
+<span class="cd">/// ```</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">spawn_with_pty</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nn">miette</span><span class="p">::</span><span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c1">// Create a pseudo-terminal</span>
+    <span class="k">let</span> <span class="n">pty_system</span> <span class="o">=</span> <span class="nf">native_pty_system</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">pty_pair</span> <span class="o">=</span> <span class="n">pty_system</span><span class="nf">.openpty</span><span class="p">(</span><span class="n">PtySize</span> <span class="p">{</span>
+        <span class="n">rows</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>           <span class="c1">// Terminal height for cargo's</span>
+                            <span class="c1">// output formatting</span>
+        <span class="n">cols</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>           <span class="c1">// Terminal width for progress</span>
+                            <span class="c1">// bar display</span>
+        <span class="n">pixel_width</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1">// Not needed for text-based</span>
+                            <span class="c1">// output</span>
+        <span class="n">pixel_height</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>    <span class="c1">// Not needed for text-based</span>
+                            <span class="c1">// output</span>
+    <span class="p">})</span><span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span>
+        <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to open PTY: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+    <span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Extract endpoints with descriptive names</span>
+    <span class="k">let</span> <span class="n">controller</span> <span class="o">=</span> <span class="n">pty_pair</span><span class="py">.master</span><span class="p">;</span>  <span class="c1">// Where your program</span>
+                                       <span class="c1">// reads/writes</span>
+    <span class="k">let</span> <span class="n">controlled</span> <span class="o">=</span> <span class="n">pty_pair</span><span class="py">.slave</span><span class="p">;</span>   <span class="c1">// Where the spawned</span>
+                                       <span class="c1">// process connects</span>
+
+    <span class="c1">// Configure the command</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">cmd</span> <span class="o">=</span> <span class="nn">CommandBuilder</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"cargo"</span><span class="p">);</span>
+    <span class="n">cmd</span><span class="nf">.arg</span><span class="p">(</span><span class="s">"build"</span><span class="p">);</span>
+    <span class="n">cmd</span><span class="nf">.env</span><span class="p">(</span><span class="s">"TERM_PROGRAM"</span><span class="p">,</span> <span class="s">"WezTerm"</span><span class="p">);</span> <span class="c1">// Without this Cargo</span>
+                                      <span class="c1">// won't emit OSC</span>
+                                      <span class="c1">// sequences</span>
+
+    <span class="c1">// CRITICAL: Set working directory - without this, PTY</span>
+    <span class="c1">// spawns in home folder!</span>
+    <span class="k">let</span> <span class="n">current_dir</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">env</span><span class="p">::</span><span class="nf">current_dir</span><span class="p">()</span>
+        <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span>
+            <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span>
+                <span class="s">"Failed to get current directory: {}"</span><span class="p">,</span> <span class="n">e</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">?</span><span class="p">;</span>
+    <span class="n">cmd</span><span class="nf">.cwd</span><span class="p">(</span><span class="n">current_dir</span><span class="p">);</span>
+
+    <span class="c1">// Spawn with PTY (this makes is_terminal() return true!)</span>
+    <span class="c1">// Note: The cargo child process uses 'controlled' as its</span>
+    <span class="c1">// stdin/stdout/stderr</span>
+    <span class="c1">// This makes cargo believe it's connected to a real</span>
+    <span class="c1">// terminal</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">controlled_child</span> <span class="o">=</span> <span class="n">controlled</span><span class="nf">.spawn_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+        <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span>
+            <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span>
+                <span class="s">"Failed to spawn cargo build: {}"</span><span class="p">,</span> <span class="n">e</span>
+            <span class="p">)</span>
+        <span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Read output with OSC sequences</span>
+    <span class="c1">// Note: controller is the "controller" endpoint where</span>
+    <span class="c1">// your program reads from</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">controller_reader</span> <span class="o">=</span> <span class="n">controller</span>
+        <span class="nf">.try_clone_reader</span><span class="p">()</span>
+        <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span>
+            <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to clone reader: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Spawn the reading operation on a separate async task</span>
+    <span class="c1">// NOTE: This approach reads ALL output into a string at</span>
+    <span class="c1">// once after the process completes.</span>
+    <span class="c1">// This is simple but NOT ideal for real-time progress</span>
+    <span class="c1">// monitoring since OSC sequences</span>
+    <span class="c1">// are only processed after the entire build finishes.</span>
+    <span class="c1">// For real-time progress updates,</span>
+    <span class="c1">// use the buffered reading approach shown in the full</span>
+    <span class="c1">// example.</span>
+    <span class="k">let</span> <span class="n">read_handle</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">output</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+        <span class="c1">// Read entire output stream into a single string</span>
+        <span class="c1">// (blocks until EOF)</span>
+        <span class="n">controller_reader</span><span class="nf">.read_to_string</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">output</span><span class="p">)</span>
+            <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span>
+                <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to read from PTY: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// Note: if you println!("{output}"); here,</span>
+        <span class="c1">// it will print the entire output including OSC</span>
+        <span class="c1">// sequences, which will clobber your terminal</span>
+        <span class="c1">// display. Instead, we will parse the output</span>
+        <span class="c1">// for OSC codes and build a report.</span>
+
+        <span class="c1">// Check for OSC codes</span>
+        <span class="k">let</span> <span class="n">has_osc_codes</span> <span class="o">=</span> <span class="n">output</span><span class="nf">.contains</span><span class="p">(</span><span class="s">"</span><span class="se">\x1b</span><span class="s">]"</span><span class="p">);</span>
+
+        <span class="c1">// Build report</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">report</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+        <span class="n">report</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="nd">format!</span><span class="p">(</span>
+            <span class="s">"Total bytes read: {}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">output</span><span class="nf">.len</span><span class="p">()</span>
+        <span class="p">));</span>
+        <span class="n">report</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="nd">format!</span><span class="p">(</span>
+            <span class="s">"OSC codes found: {}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+            <span class="k">if</span> <span class="n">has_osc_codes</span> <span class="p">{</span> <span class="s">"YES ✓"</span> <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="s">"NO ✗"</span> <span class="p">}</span>
+        <span class="p">));</span>
+
+        <span class="nn">Ok</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">String</span><span class="p">,</span> <span class="nn">miette</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
+    <span class="p">});</span>
+
+    <span class="c1">// Wait for the child process to complete</span>
+    <span class="c1">//</span>
+    <span class="c1">// IMPORTANT: Use spawn_blocking because child.wait() is</span>
+    <span class="c1">// a synchronous blocking operation.</span>
+    <span class="c1">// If we called controlled_child.wait() directly in this</span>
+    <span class="c1">// async context, it would block</span>
+    <span class="c1">// the entire tokio runtime thread, preventing other</span>
+    <span class="c1">// async tasks from running.</span>
+    <span class="c1">// spawn_blocking moves the blocking operation to a</span>
+    <span class="c1">// dedicated thread pool.</span>
+    <span class="c1">// The `.into_diagnostic()?.into_diagnostic()?` handles</span>
+    <span class="c1">// two layers of miette::Result unwrapping:</span>
+    <span class="c1">// - First `?` unwraps the JoinResult from spawn_blocking</span>
+    <span class="c1">//   (handles task panics/cancellation)</span>
+    <span class="c1">// - Second `?` unwraps the miette::Result from child.wait()</span>
+    <span class="c1">//   (handles process wait errors)</span>
+    <span class="c1">//</span>
+    <span class="c1">// NOTE: portable-pty doesn't have native async support,</span>
+    <span class="c1">// but provides async-compatible methods:</span>
+    <span class="c1">// - try_clone_reader() returns readers that work with</span>
+    <span class="c1">//   std::io::Read</span>
+    <span class="c1">// - child.wait() is blocking, so we use spawn_blocking</span>
+    <span class="c1">//   to avoid blocking the async runtime</span>
+    <span class="c1">// - For fully async PTY operations, consider</span>
+    <span class="c1">//   alternatives like tokio-ptyprocess (experimental)</span>
+    <span class="k">let</span> <span class="n">status</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="nf">spawn_blocking</span><span class="p">(</span>
+        <span class="k">move</span> <span class="p">||</span> <span class="n">controlled_child</span><span class="nf">.wait</span><span class="p">()</span>
+    <span class="p">)</span>
+        <span class="k">.await</span>
+        <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span>
+        <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Wait for the reading task to complete and get the</span>
+    <span class="c1">// report</span>
+    <span class="c1">// The `.into_diagnostic()??` handles two layers of</span>
+    <span class="c1">// miette::Result unwrapping:</span>
+    <span class="c1">// - First `?` unwraps the JoinResult from tokio::spawn</span>
+    <span class="c1">//   (handles task panics/cancellation)</span>
+    <span class="c1">// - Second `?` unwraps the miette::Result&lt;String, Error&gt; from</span>
+    <span class="c1">//   the task's return value</span>
+    <span class="k">let</span> <span class="n">report</span> <span class="o">=</span> <span class="n">read_handle</span><span class="k">.await</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">??</span><span class="p">;</span>
+
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"Build completed with status: {}"</span><span class="p">,</span> <span class="n">status</span><span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">report</span><span class="p">);</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p><strong>Why PTY works:</strong></p>
+
+<ul>
+  <li>Creates a virtual terminal that satisfies <code class="language-plaintext highlighter-rouge">is_terminal()</code> check</li>
+  <li>Allows your program to act as the “terminal” for the spawned process</li>
+  <li>Captures all output including OSC sequences</li>
+  <li>Provides full programmatic control over the data</li>
+</ul>
+      <h2 id="complete-working-example">
+        
+        
+          Complete Working Example <a href="#complete-working-example">#</a>
+        
+        
+      </h2>
+    
+      <h3 id="full-poc-implementation">
+        
+        
+          Full POC Implementation <a href="#full-poc-implementation">#</a>
+        
+        
+      </h3>
+    
+
+<p>Save this as <code class="language-plaintext highlighter-rouge">src/main.rs</code>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">use</span> <span class="nn">miette</span><span class="p">::</span><span class="n">IntoDiagnostic</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">portable_pty</span><span class="p">::{</span><span class="n">CommandBuilder</span><span class="p">,</span> <span class="n">PtySize</span><span class="p">,</span> <span class="n">native_pty_system</span><span class="p">};</span>
+<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">io</span><span class="p">::</span><span class="n">Read</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">mpsc</span><span class="p">::{</span><span class="n">unbounded_channel</span><span class="p">,</span> <span class="n">UnboundedSender</span><span class="p">};</span>
+
+<span class="c1">// ANSI color codes for better output</span>
+<span class="k">const</span> <span class="n">GREEN</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b</span><span class="s">[32m"</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">RED</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b</span><span class="s">[31m"</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">YELLOW</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b</span><span class="s">[33m"</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">RESET</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b</span><span class="s">[0m"</span><span class="p">;</span>
+
+<span class="cd">/// Represents the different types of OSC progress events</span>
+<span class="cd">/// that Cargo can emit</span>
+<span class="nd">#[derive(Debug,</span> <span class="nd">Clone,</span> <span class="nd">PartialEq)]</span>
+<span class="k">enum</span> <span class="n">OscEvent</span> <span class="p">{</span>
+    <span class="cd">/// Set specific progress value 0-100% (OSC state 1)</span>
+    <span class="nf">ProgressUpdate</span><span class="p">(</span><span class="nb">u8</span><span class="p">),</span>
+    <span class="cd">/// Clear/remove progress indicator (OSC state 0)</span>
+    <span class="n">ProgressCleared</span><span class="p">,</span>
+    <span class="cd">/// Build error occurred (OSC state 2)</span>
+    <span class="n">BuildError</span><span class="p">,</span>
+    <span class="cd">/// Indeterminate progress - build is running but no</span>
+    <span class="cd">/// specific progress (OSC state 3)</span>
+    <span class="n">IndeterminateProgress</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="cd">/// OSC 9;4 sequence constants</span>
+<span class="k">const</span> <span class="n">OSC_START</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b</span><span class="s">]9;4;"</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">OSC_END</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span> <span class="o">=</span> <span class="s">"</span><span class="se">\x1b\\</span><span class="s">"</span><span class="p">;</span>
+
+<span class="cd">/// Buffer for accumulating and parsing OSC sequences</span>
+<span class="k">struct</span> <span class="n">OscBuffer</span> <span class="p">{</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">String</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">OscBuffer</span> <span class="p">{</span>
+    <span class="k">fn</span> <span class="nf">new</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="k">Self</span> <span class="p">{</span>
+        <span class="k">Self</span> <span class="p">{</span> <span class="n">data</span><span class="p">:</span> <span class="nn">String</span><span class="p">::</span><span class="nf">new</span><span class="p">()</span> <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// Append new bytes and extract complete OSC sequences</span>
+    <span class="k">fn</span> <span class="nf">append_and_extract</span><span class="p">(</span>
+        <span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span>
+        <span class="n">buffer</span><span class="p">:</span> <span class="o">&amp;</span><span class="p">[</span><span class="nb">u8</span><span class="p">],</span>
+        <span class="n">n</span><span class="p">:</span> <span class="nb">usize</span>
+    <span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="n">OscEvent</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// Convert bytes to string and append to accumulated data</span>
+        <span class="k">let</span> <span class="n">text</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">from_utf8_lossy</span><span class="p">(</span><span class="o">&amp;</span><span class="n">buffer</span><span class="p">[</span><span class="o">..</span><span class="n">n</span><span class="p">]);</span>
+        <span class="k">self</span><span class="py">.data</span><span class="nf">.push_str</span><span class="p">(</span><span class="o">&amp;</span><span class="n">text</span><span class="p">);</span>
+
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">events</span> <span class="o">=</span> <span class="nn">Vec</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+
+        <span class="c1">// Find and process all complete OSC sequences</span>
+        <span class="k">while</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">event</span><span class="p">)</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.extract_next_sequence</span><span class="p">()</span> <span class="p">{</span>
+            <span class="n">events</span><span class="nf">.push</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+        <span class="p">}</span>
+
+        <span class="n">events</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// Extract the next complete OSC sequence from buffer</span>
+    <span class="k">fn</span> <span class="nf">extract_next_sequence</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">OscEvent</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="c1">// Find start of OSC sequence</span>
+        <span class="k">let</span> <span class="n">start_idx</span> <span class="o">=</span> <span class="k">self</span><span class="py">.data</span><span class="nf">.find</span><span class="p">(</span><span class="n">OSC_START</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">after_start_idx</span> <span class="o">=</span> <span class="n">start_idx</span> <span class="o">+</span> <span class="n">OSC_START</span><span class="nf">.len</span><span class="p">();</span>
+
+        <span class="c1">// Find end of sequence</span>
+        <span class="k">let</span> <span class="n">end_idx</span> <span class="o">=</span> <span class="k">self</span><span class="py">.data</span><span class="p">[</span><span class="n">after_start_idx</span><span class="o">..</span><span class="p">]</span><span class="nf">.find</span><span class="p">(</span><span class="n">OSC_END</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">params_end_idx</span> <span class="o">=</span> <span class="n">after_start_idx</span> <span class="o">+</span> <span class="n">end_idx</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">sequence_end_idx</span> <span class="o">=</span> <span class="n">params_end_idx</span> <span class="o">+</span> <span class="n">OSC_END</span><span class="nf">.len</span><span class="p">();</span>
+
+        <span class="c1">// Extract and parse parameters</span>
+        <span class="k">let</span> <span class="n">params</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">self</span><span class="py">.data</span><span class="p">[</span><span class="n">after_start_idx</span><span class="o">..</span><span class="n">params_end_idx</span><span class="p">];</span>
+        <span class="k">let</span> <span class="n">event</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.parse_osc_params</span><span class="p">(</span><span class="n">params</span><span class="p">);</span>
+
+        <span class="c1">// Remove processed portion from buffer</span>
+        <span class="k">self</span><span class="py">.data</span><span class="nf">.drain</span><span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="n">sequence_end_idx</span><span class="p">);</span>
+
+        <span class="n">event</span>
+    <span class="p">}</span>
+
+    <span class="cd">/// Parse OSC parameters into an OscEvent</span>
+    <span class="k">fn</span> <span class="nf">parse_osc_params</span><span class="p">(</span><span class="o">&amp;</span><span class="k">self</span><span class="p">,</span> <span class="n">params</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">OscEvent</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="n">parts</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;&amp;</span><span class="nb">str</span><span class="o">&gt;</span> <span class="o">=</span> <span class="n">params</span><span class="nf">.split</span><span class="p">(</span><span class="sc">';'</span><span class="p">)</span><span class="nf">.collect</span><span class="p">();</span>
+        <span class="k">if</span> <span class="n">parts</span><span class="nf">.len</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">2</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">None</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="k">let</span> <span class="n">state</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">u8</span><span class="o">&gt;</span><span class="p">()</span><span class="nf">.ok</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">progress</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="py">.parse</span><span class="p">::</span><span class="o">&lt;</span><span class="nb">f64</span><span class="o">&gt;</span><span class="p">()</span><span class="nf">.ok</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="k">match</span> <span class="n">state</span> <span class="p">{</span>
+            <span class="mi">0</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">OscEvent</span><span class="p">::</span><span class="n">ProgressCleared</span><span class="p">),</span>
+            <span class="mi">1</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">OscEvent</span><span class="p">::</span><span class="nf">ProgressUpdate</span><span class="p">(</span><span class="n">progress</span> <span class="k">as</span> <span class="nb">u8</span><span class="p">)),</span>
+            <span class="mi">2</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">OscEvent</span><span class="p">::</span><span class="n">BuildError</span><span class="p">),</span>
+            <span class="mi">3</span> <span class="k">=&gt;</span> <span class="nf">Some</span><span class="p">(</span><span class="nn">OscEvent</span><span class="p">::</span><span class="n">IndeterminateProgress</span><span class="p">),</span>
+            <span class="n">_</span> <span class="k">=&gt;</span> <span class="nb">None</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nd">#[tokio::main]</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="p">()</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c1">// Run cargo clean first to ensure we see progress</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}🧹 Running cargo clean...{}"</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">,</span> <span class="n">RESET</span><span class="p">);</span>
+    <span class="nn">std</span><span class="p">::</span><span class="nn">process</span><span class="p">::</span><span class="nn">Command</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"cargo"</span><span class="p">)</span>
+        <span class="nf">.arg</span><span class="p">(</span><span class="s">"clean"</span><span class="p">)</span>
+        <span class="nf">.arg</span><span class="p">(</span><span class="s">"-q"</span><span class="p">)</span>
+        <span class="nf">.status</span><span class="p">()</span>
+        <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"</span><span class="se">\n</span><span class="s">{}Starting Cargo build with OSC capture...{}"</span><span class="p">,</span>
+        <span class="n">YELLOW</span><span class="p">,</span> <span class="n">RESET</span>
+    <span class="p">);</span>
+    <span class="nd">println!</span><span class="p">(</span>
+        <span class="s">"{}========================================{}</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+        <span class="n">YELLOW</span><span class="p">,</span> <span class="n">RESET</span>
+    <span class="p">);</span>
+
+    <span class="c1">// Create channel for OSC events</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="k">mut</span> <span class="n">receiver</span><span class="p">)</span> <span class="o">=</span> <span class="nn">unbounded_channel</span><span class="p">::</span><span class="o">&lt;</span><span class="n">OscEvent</span><span class="o">&gt;</span><span class="p">();</span>
+
+    <span class="c1">// Spawn cargo build task</span>
+    <span class="k">let</span> <span class="n">build_handle</span> <span class="o">=</span> <span class="nf">spawn_cargo_with_osc_capture</span><span class="p">(</span><span class="n">sender</span><span class="p">);</span>
+
+    <span class="c1">// Process events until cargo completes</span>
+    <span class="k">loop</span> <span class="p">{</span>
+        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
+            <span class="c1">// Check if build completed</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">build_handle</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">let</span> <span class="n">status</span> <span class="o">=</span> <span class="n">result</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">??</span><span class="p">;</span>
+                <span class="nd">println!</span><span class="p">(</span>
+                    <span class="s">"</span><span class="se">\n</span><span class="s">{}✅ Build completed with status: {:?}{}"</span><span class="p">,</span>
+                    <span class="n">GREEN</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">RESET</span>
+                <span class="p">);</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="c1">// Handle OSC events</span>
+            <span class="nf">Some</span><span class="p">(</span><span class="n">event</span><span class="p">)</span> <span class="o">=</span> <span class="n">receiver</span><span class="nf">.recv</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                <span class="k">match</span> <span class="n">event</span> <span class="p">{</span>
+                    <span class="nn">OscEvent</span><span class="p">::</span><span class="nf">ProgressUpdate</span><span class="p">(</span><span class="n">percentage</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                        <span class="nd">println!</span><span class="p">(</span>
+                            <span class="s">"{}📊 cargo build progress: {}%{}"</span><span class="p">,</span>
+                            <span class="n">GREEN</span><span class="p">,</span> <span class="n">percentage</span><span class="p">,</span> <span class="n">RESET</span>
+                        <span class="p">);</span>
+                    <span class="p">}</span>
+                    <span class="nn">OscEvent</span><span class="p">::</span><span class="n">ProgressCleared</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                        <span class="nd">println!</span><span class="p">(</span>
+                            <span class="s">"{}✓ Progress tracking cleared{}"</span><span class="p">,</span>
+                            <span class="n">GREEN</span><span class="p">,</span> <span class="n">RESET</span>
+                        <span class="p">);</span>
+                    <span class="p">}</span>
+                    <span class="nn">OscEvent</span><span class="p">::</span><span class="n">BuildError</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                        <span class="nd">println!</span><span class="p">(</span>
+                            <span class="s">"{}❌ Build error occurred{}"</span><span class="p">,</span>
+                            <span class="n">RED</span><span class="p">,</span> <span class="n">RESET</span>
+                        <span class="p">);</span>
+                    <span class="p">}</span>
+                    <span class="nn">OscEvent</span><span class="p">::</span><span class="n">IndeterminateProgress</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                        <span class="nd">println!</span><span class="p">(</span>
+                            <span class="s">"{}⏳ Build in progress (indeterminate){}"</span><span class="p">,</span>
+                            <span class="n">GREEN</span><span class="p">,</span> <span class="n">RESET</span>
+                        <span class="p">);</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="nf">Ok</span><span class="p">(())</span>
+<span class="p">}</span>
+
+<span class="cd">/// Spawn cargo build in a PTY and capture OSC sequences</span>
+<span class="k">async</span> <span class="k">fn</span> <span class="nf">spawn_cargo_with_osc_capture</span><span class="p">(</span>
+    <span class="n">event_sender</span><span class="p">:</span> <span class="n">UnboundedSender</span><span class="o">&lt;</span><span class="n">OscEvent</span><span class="o">&gt;</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">miette</span><span class="p">::</span><span class="nb">Result</span><span class="o">&lt;</span><span class="nn">portable_pty</span><span class="p">::</span><span class="n">ExitStatus</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="nf">spawn</span><span class="p">(</span><span class="k">async</span> <span class="k">move</span> <span class="p">{</span>
+        <span class="c1">// Create a pseudo-terminal</span>
+        <span class="k">let</span> <span class="n">pty_system</span> <span class="o">=</span> <span class="nf">native_pty_system</span><span class="p">();</span>
+        <span class="k">let</span> <span class="n">pair</span> <span class="o">=</span> <span class="n">pty_system</span><span class="nf">.openpty</span><span class="p">(</span><span class="n">PtySize</span> <span class="p">{</span>
+            <span class="n">rows</span><span class="p">:</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="n">cols</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>
+            <span class="n">pixel_width</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="n">pixel_height</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">})</span><span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="p">{</span>
+            <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to open PTY: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="p">})</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="k">let</span> <span class="n">controller</span> <span class="o">=</span> <span class="n">pair</span><span class="py">.master</span><span class="p">;</span>
+        <span class="k">let</span> <span class="n">controlled</span> <span class="o">=</span> <span class="n">pair</span><span class="py">.slave</span><span class="p">;</span>
+
+        <span class="c1">// Configure cargo command</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">cmd</span> <span class="o">=</span> <span class="nn">CommandBuilder</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="s">"cargo"</span><span class="p">);</span>
+        <span class="n">cmd</span><span class="nf">.arg</span><span class="p">(</span><span class="s">"build"</span><span class="p">);</span>
+        <span class="n">cmd</span><span class="nf">.env</span><span class="p">(</span><span class="s">"TERM_PROGRAM"</span><span class="p">,</span> <span class="s">"WezTerm"</span><span class="p">);</span> <span class="c1">// Critical for OSC</span>
+
+        <span class="c1">// Set working directory - PTY defaults to $HOME!</span>
+        <span class="k">let</span> <span class="n">cwd</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">env</span><span class="p">::</span><span class="nf">current_dir</span><span class="p">()</span>
+            <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="p">{</span>
+                <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to get current dir: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="p">})</span><span class="o">?</span><span class="p">;</span>
+        <span class="n">cmd</span><span class="nf">.cwd</span><span class="p">(</span><span class="n">cwd</span><span class="p">);</span>
+
+        <span class="c1">// Spawn cargo with PTY</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">child</span> <span class="o">=</span> <span class="n">controlled</span><span class="nf">.spawn_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+            <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="p">{</span>
+                <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to spawn cargo: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+            <span class="p">})</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// Spawn reader task to process OSC sequences</span>
+        <span class="c1">//</span>
+        <span class="c1">// CRITICAL: PTY LIFECYCLE AND FILE DESCRIPTOR MANAGEMENT</span>
+        <span class="c1">// ======================================================</span>
+        <span class="c1">// A PTY consists of two sides: master (controller) and</span>
+        <span class="c1">// slave (controlled). The kernel's PTY implementation</span>
+        <span class="c1">// requires BOTH conditions for EOF:</span>
+        <span class="c1">//</span>
+        <span class="c1">// 1. The slave side must be closed (happens when the</span>
+        <span class="c1">//    child process exits)</span>
+        <span class="c1">// 2. The reader must be the ONLY remaining reference</span>
+        <span class="c1">//    to the master</span>
+        <span class="c1">//</span>
+        <span class="c1">// How File Descriptors Work Here:</span>
+        <span class="c1">// - controller: Holds the master side file descriptor</span>
+        <span class="c1">// - controlled: Holds the slave side file descriptor</span>
+        <span class="c1">// - When cargo exits, it closes its copy of the slave FD</span>
+        <span class="c1">// - BUT our `controlled` variable STILL holds the</span>
+        <span class="c1">//   original slave FD!</span>
+        <span class="c1">//</span>
+        <span class="c1">// The Solution:</span>
+        <span class="c1">// 1. Move controller into spawn_blocking - ensures it</span>
+        <span class="c1">//    drops after creating reader</span>
+        <span class="c1">// 2. Explicitly drop controlled after cargo exits -</span>
+        <span class="c1">//    closes our slave FD</span>
+        <span class="c1">// 3. This allows the reader to receive EOF and exit</span>
+        <span class="c1">//    cleanly</span>
+        <span class="c1">//</span>
+        <span class="k">let</span> <span class="n">reader_handle</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="nf">spawn_blocking</span><span class="p">(</span><span class="k">move</span> <span class="p">||</span> <span class="p">{</span>
+            <span class="c1">// Controller is MOVED into this closure, so it will</span>
+            <span class="c1">// be dropped when this task completes, allowing</span>
+            <span class="c1">// proper PTY cleanup.</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">reader</span> <span class="o">=</span> <span class="n">controller</span><span class="nf">.try_clone_reader</span><span class="p">()</span>
+                <span class="nf">.map_err</span><span class="p">(|</span><span class="n">e</span><span class="p">|</span> <span class="p">{</span>
+                    <span class="nn">miette</span><span class="p">::</span><span class="nd">miette!</span><span class="p">(</span><span class="s">"Failed to clone reader: {}"</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="p">})</span><span class="o">?</span><span class="p">;</span>
+
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">buffer</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0u8</span><span class="p">;</span> <span class="mi">4096</span><span class="p">];</span>
+            <span class="k">let</span> <span class="k">mut</span> <span class="n">osc_buffer</span> <span class="o">=</span> <span class="nn">OscBuffer</span><span class="p">::</span><span class="nf">new</span><span class="p">();</span>
+
+            <span class="k">loop</span> <span class="p">{</span>
+                <span class="c1">// This will receive EOF when:</span>
+                <span class="c1">// 1. The slave side (controlled) is closed/dropped</span>
+                <span class="c1">// 2. No other references to the master exist</span>
+                <span class="k">match</span> <span class="n">reader</span><span class="nf">.read</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">buffer</span><span class="p">)</span> <span class="p">{</span>
+                    <span class="nf">Ok</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="k">break</span><span class="p">,</span> <span class="c1">// EOF - PTY closed</span>
+                    <span class="nf">Ok</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+                        <span class="k">for</span> <span class="n">event</span> <span class="k">in</span> <span class="n">osc_buffer</span><span class="nf">.append_and_extract</span><span class="p">(</span>
+                            <span class="o">&amp;</span><span class="n">buffer</span><span class="p">,</span> <span class="n">n</span>
+                        <span class="p">)</span> <span class="p">{</span>
+                            <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">event_sender</span><span class="nf">.send</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+                        <span class="p">}</span>
+                    <span class="p">}</span>
+                    <span class="nf">Err</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="k">break</span><span class="p">,</span> <span class="c1">// Error reading - PTY closed</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+
+            <span class="c1">// Controller drops here automatically when the</span>
+            <span class="c1">// closure ends, decrementing the master side's</span>
+            <span class="c1">// reference count.</span>
+            <span class="nn">Ok</span><span class="p">::</span><span class="o">&lt;</span><span class="p">(),</span> <span class="nn">miette</span><span class="p">::</span><span class="n">Error</span><span class="o">&gt;</span><span class="p">(())</span>
+        <span class="p">});</span>
+
+        <span class="c1">// Wait for cargo to complete</span>
+        <span class="k">let</span> <span class="n">status</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">task</span><span class="p">::</span><span class="nf">spawn_blocking</span><span class="p">(</span>
+            <span class="k">move</span> <span class="p">||</span> <span class="n">child</span><span class="nf">.wait</span><span class="p">()</span>
+        <span class="p">)</span>
+            <span class="k">.await</span>
+            <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span>
+            <span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+
+        <span class="c1">// Explicitly drop the controlled (slave) side after</span>
+        <span class="c1">// cargo exits. This closes the slave end of the PTY,</span>
+        <span class="c1">// which is necessary for the reader to receive EOF.</span>
+        <span class="c1">// Without this, the slave FD would remain open until</span>
+        <span class="c1">// this function returns, preventing EOF delivery to</span>
+        <span class="c1">// the reader.</span>
+        <span class="nf">drop</span><span class="p">(</span><span class="n">controlled</span><span class="p">);</span>
+
+        <span class="c1">// Wait for the reader task to complete.</span>
+        <span class="c1">// Now that controlled is dropped, the reader will get</span>
+        <span class="c1">// EOF on its next read() call and exit cleanly.</span>
+        <span class="k">let</span> <span class="n">_</span> <span class="o">=</span> <span class="n">reader_handle</span><span class="k">.await</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">??</span><span class="p">;</span>
+
+        <span class="nf">Ok</span><span class="p">(</span><span class="n">status</span><span class="p">)</span>
+    <span class="p">})</span><span class="k">.await</span><span class="nf">.into_diagnostic</span><span class="p">()</span><span class="o">?</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h3 id="running-the-poc">
+        
+        
+          Running the POC <a href="#running-the-poc">#</a>
+        
+        
+      </h3>
+    
+
+<ol>
+  <li>
+    <p><strong>Create a new Rust project:</strong></p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo new pty_cargo_build_progress_osc_codes
+<span class="nb">cd </span>pty_cargo_build_progress_osc_codes
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>Update <code class="language-plaintext highlighter-rouge">Cargo.toml</code>:</strong></p>
+
+    <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
+<span class="py">name</span> <span class="p">=</span> <span class="s">"pty_cargo_build_progress_osc_codes"</span>
+<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
+<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+
+<span class="nn">[dependencies]</span>
+<span class="py">portable-pty</span> <span class="p">=</span> <span class="s">"0.8"</span>
+<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
+<span class="py">miette</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"7.2"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span> <span class="p">}</span>
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><strong>Replace <code class="language-plaintext highlighter-rouge">src/main.rs</code> with the code above</strong></p>
+  </li>
+  <li>
+    <p><strong>Run the POC:</strong></p>
+
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cargo run
+</code></pre></div>    </div>
+  </li>
+</ol>
+      <h3 id="expected-output">
+        
+        
+          Expected Output <a href="#expected-output">#</a>
+        
+        
+      </h3>
+    
+
+<p>When running in a project with dependencies, you should see output like:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Starting Cargo build with OSC capture...
+
+📊 Build progress: 0.0%
+📊 Build progress: 12.5%
+📊 Build progress: 25.0%
+📊 Build progress: 37.5%
+📊 Build progress: 50.0%
+📊 Build progress: 75.0%
+📊 Build progress: 100.0%
+
+✓ Progress tracking cleared
+✅ Build completed with status: exit status: 0
+</code></pre></div></div>
+      <h3 id="troubleshooting">
+        
+        
+          Troubleshooting <a href="#troubleshooting">#</a>
+        
+        
+      </h3>
+    
+
+<ol>
+  <li>
+    <p><strong>No OSC sequences detected:</strong></p>
+
+    <ul>
+      <li>Ensure the project being built has enough compilation units to trigger progress reporting</li>
+      <li>Try building a larger project or one with dependencies</li>
+      <li>Verify the TERM_PROGRAM environment variable is set correctly</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Build output mixed with progress:</strong></p>
+
+    <ul>
+      <li>Uncomment the <code class="language-plaintext highlighter-rouge">print!("{}", text);</code> line to see full cargo output</li>
+      <li>OSC sequences are embedded in the normal output stream</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Permission errors:</strong></p>
+    <ul>
+      <li>Some systems may require additional permissions for PTY creation</li>
+      <li>The portable-pty crate handles most platform differences automatically</li>
+    </ul>
+  </li>
+</ol>
+      <h2 id="environment-considerations">
+        
+        
+          Environment Considerations <a href="#environment-considerations">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li><strong>CI/CD</strong>: Progress bars (and OSC) disabled when <code class="language-plaintext highlighter-rouge">CI</code> env var is set</li>
+  <li><strong>Quiet mode</strong>: No progress or OSC when <code class="language-plaintext highlighter-rouge">--quiet</code> flag used</li>
+  <li><strong>TERM=dumb</strong>: Progress disabled for dumb terminals</li>
+  <li><strong>Non-TTY</strong>: OSC only emitted when stderr is a TTY</li>
+</ul>
+      <h2 id="testing">
+        
+        
+          Testing <a href="#testing">#</a>
+        
+        
+      </h2>
+    
+
+<p>To test OSC emission:</p>
+
+<ol>
+  <li>Set <code class="language-plaintext highlighter-rouge">TERM_PROGRAM=WezTerm</code> (or use actual WezTerm)</li>
+  <li>Run <code class="language-plaintext highlighter-rouge">cargo build</code> on a large project</li>
+  <li>Monitor terminal title bar for progress updates</li>
+  <li>Or capture stderr and look for <code class="language-plaintext highlighter-rouge">\x1b]9;4;</code> sequences</li>
+</ol>
+      <h2 id="references">
+        
+        
+          References <a href="#references">#</a>
+        
+        
+      </h2>
+    
+
+<ul>
+  <li><a href="https://conemu.github.io/en/AnsiEscapeCodes.html#ConEmu_specific_OSC">ConEmu OSC Documentation</a></li>
+  <li><a href="https://blog.vucica.net/2017/07/what-are-osc-terminal-control-sequences-escape-codes.html">OSC Escape Codes Overview</a></li>
+  <li><a href="https://en.wikipedia.org/wiki/ANSI_escape_code">ANSI Escape Code Wikipedia</a></li>
+</ul>
+      <h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">
+        
+        
+          Build with Naz video series on developerlife.com YouTube channel <a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">#</a>
+        
+        
+      </h2>
+    
+
+<p>You can watch Rust live coding videos with Naz on the
+<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
+
+<ul>
+  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
+  <li>Playlists
+    <ul>
+      <li><a href="https://www.youtube.com/watch?v=bolScvh4x7I&amp;list=PLofhE49PEwmw3MKOU1Kn3xbP4FRQR4Mb3">Build with Naz, Linux TTY, process, signals, commands in async Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
+      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
+      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
+      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
+    </ul>
+  </li>
+</ul>
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CLI">
+                #cli</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Server">
+                #server</a>
+        </span>
+    
+</div>
+
+        
+<blockquote>
+
+  👀 Watch Rust 🦀 live coding videos on our <a
+  href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
+
+  <br/>
+  <br/>
+
+  <!-- video on rust polymorphism (no playlist) -->
+  <iframe
+      src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      >
+  </iframe>
+
+  <br/>
+  <br/>
+
+  📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
+  (they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
+  project):
+  <ul>
+    <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+    <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+  </ul>
+
+  <p>
+  <kbd>giti in action</kbd>
+  <video width="100%" controls>
+    <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4"/>
+  </video>
+  </p>
+
+  <p>
+  <kbd>edi in action</kbd>
+  <video width="100%" controls>
+    <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4"/>
+  </video>
+  </p>
+
+  </blockquote>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/11/28/rust-tls-rustls/">
+                        Build with Naz : TLS (Transport Layer Security) in Rust with tokio, rustls, CFSSL
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/11/28/rust-sqlite-diesel/">
+                        Build with Naz : Diesel ORM, SQLite, and Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/09/02/rust-lifetimes/">
+                        Build with Naz : Rust lifetimes
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/08/20/tty-linux-async-rust/">
+                        Build with Naz : Explore Linux TTY, process, signals w/ Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/07/16/pin-box-dynamic-duo/">
+                        Build with Naz : Box and Pin exploration in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/07/10/rust-async-cancellation-safety-tokio/">
+                        Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/06/28/md-parser-rust-from-r3bl-tui/">
+                        Build with Naz : Markdown parser in Rust and nom from r3bl_tui
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/06/10/rust-miette-error-handling/">
+                        Build with Naz : Rust error handling with miette
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/28/typestate-pattern-rust/">
+                        Build with Naz : Rust typestate pattern
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/25/tokio-uring-exploration-rust/">
+                        Build with Naz : Linux io_uring and tokio-uring exploration with Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/19/effective-async-rust/">
+                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, graceful shutdown
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/15/tokio-tracing-otel-rust/">
+                        Build with Naz : tokio tracing &amp; OTel and how to use it in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">
+                        Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/21/build-async-interactive-cli-apps-in-rust/">
+                        Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/22/overcome-your-fear-of-merge-conflicts/">
+                        How to overcome your fear of git merge conflicts
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Build with Naz : Comprehensive guide to nom parsing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/25/ink-v3-advanced-ui-components/">
+                        Reference handbook for using Ink v3.2.0 components (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/05/ink-v3-advanced/">
+                        Advanced guide to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/11/04/introduction-to-ink-v3/">
+                        Introduction to Ink v3.2.0 (w/ React, Node.js and TypeScript)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2025/05/19/rust-mem-latency/">
+                        Build with Naz : Rust, Memory performance &amp; latency - locality, access, allocate, cache lines
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/07/08/ubuntu24/">
+                        Build with Naz : Ubuntu 24.04 setup and config for dev productivity
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2021/07/02/nodejs-typescript-handbook/">
+                        Node.js (v16.3.0) Handbook using TypeScript (v4.3.4)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/12/02/project-loom-experiment/">
+                        Experimenting w/ Fibers in Project Loom preview
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2011/04/13/creating-asynchronous-servlets-with-tomcat-7-servlet-3-0-api/">
+                        Creating asynchronous servlets with Tomcat 7 (Servlet 3.0 API)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2009/03/06/using-json-for-mobile-object-exchange/">
+                        Using JSON for mobile object exchange
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2008/04/21/geocoding-tutorial-accessing-google-static-maps-from-java/">
+                        Geocoding tutorial - Accessing Google Static Maps from Java
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2007/11/27/what-is-xml-an-introduction/">
+                        What is XML? An introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2000/09/20/advanced-threads/">
+                        Advanced Threads
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/1998/12/01/xml-and-java-tutorial-part-1/">
+                        XML and Java Tutorial, Part 1
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2025/08/10/pty-rust-osc-seq/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <!-- video on intro to testing (with playlist) -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- rust async readline and spinner & playlist -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=i37Ei9nCfvslOoaI&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- effective async rust & playlist -->
+    <h2 class="star-us-github-heading">
+      Subscribe to our
+      <a href="https://www.youtube.com/@developerlifecom">YT Channel</a
+      ><span class="heading-emoji"> 🦀</span>
+    </h2>
+
+    <iframe
+    src="https://www.youtube.com/embed/qvIt8MF-pCM?si=S40pbhnvVDAohj-6"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen>
+    </iframe>
+
+    <hr />
+
+    <h2 class="star-us-github-heading">
+      <a href="https://r3bl.com#services">Need help with code?</a>
+      <span class="heading-emoji"> 💼</span>
+    </h2>
+
+    <hr />
+
+    <h2 class="star-us-github-heading">
+      Use our crates & apps<span class="heading-emoji"> 📦</span>
+    </h2>
+
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-apps.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">INSTALL & USE OUR APPS (giti, edi)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://chromewebstore.google.com/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial?hl=en-US&gl=US" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-shortlink.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">SHORTLINK browser extension</p>
+            <h3 class="sidebar-h3"><code>shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <!-- <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a
+          href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async"
+          target="_blank"
+        >
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TERMINAL ASYNC LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_terminal_async</code></h3>
+          </div>
+        </a>
+      </li> -->
+    </ul>
+
+  </section>
+</div>
+</div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 1996-2025. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a
+    href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics
+    related to Java, XML, and web and desktop technologies. Today it covers Rust, TUI,
+    CLI, Kotlin, TypeScript, Node.js, React, Android, JDK, Web, Cloud technologies, User
+    Experience Engineering (UXE) and design topics. © Nazmul Idris 1996-2025. All rights
+    reserved.
+  </p>
+
+  <!--
+  <div class="footer-container">
+
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com#services" target="_blank">Need help with code?</a>
+    </kbd>
+
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Newsletter</a
+      >
+    </kbd>
+
+  </div>
+  -->
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

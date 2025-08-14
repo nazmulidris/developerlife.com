@@ -37,14 +37,56 @@ categories:
 - [How to write functions](#how-to-write-functions)
   - [Pass arguments to a function](#pass-arguments-to-a-function)
   - [Return values from a function](#return-values-from-a-function)
+  - [Advanced function features](#advanced-function-features)
+    - [Functions with default values](#functions-with-default-values)
+    - [Functions with variable arguments (variadic)](#functions-with-variable-arguments-variadic)
+    - [Functions with options/flags](#functions-with-optionsflags)
+    - [Functions that modify global state](#functions-that-modify-global-state)
+    - [Functions with comprehensive error handling](#functions-with-comprehensive-error-handling)
 - [How to handle file and folder paths for dependencies](#how-to-handle-file-and-folder-paths-for-dependencies)
 - [How to write multi line strings to files](#how-to-write-multi-line-strings-to-files)
 - [How to create colorized echo output](#how-to-create-colorized-echo-output)
 - [How to get user input](#how-to-get-user-input)
+- [How to use fzf for interactive selection](#how-to-use-fzf-for-interactive-selection)
+  - [Basic selection example](#basic-selection-example)
+  - [Interactive file menu example](#interactive-file-menu-example)
+  - [Multiple selection example](#multiple-selection-example)
+  - [Common fzf options](#common-fzf-options)
+  - [Installation and usage notes](#installation-and-usage-notes)
 - [How to use sed](#how-to-use-sed)
 - [How to use xargs](#how-to-use-xargs)
 - [How to use cut to split strings](#how-to-use-cut-to-split-strings)
 - [How to calculate how long the script took to run](#how-to-calculate-how-long-the-script-took-to-run)
+- [How to debug fish scripts](#how-to-debug-fish-scripts)
+  - [Enable command tracing](#enable-command-tracing)
+  - [Conditional debug output](#conditional-debug-output)
+  - [Check command success and status codes](#check-command-success-and-status-codes)
+  - [Validate function arguments](#validate-function-arguments)
+  - [Use verbose output for complex operations](#use-verbose-output-for-complex-operations)
+  - [Debug script timing and performance](#debug-script-timing-and-performance)
+  - [Environment variable debugging](#environment-variable-debugging)
+- [Fish scripting best practices](#fish-scripting-best-practices)
+  - [Always quote variables](#always-quote-variables)
+  - [Use meaningful variable names](#use-meaningful-variable-names)
+  - [Validate inputs and handle errors](#validate-inputs-and-handle-errors)
+  - [Use local variables in functions](#use-local-variables-in-functions)
+  - [Prefer fish builtins over external commands](#prefer-fish-builtins-over-external-commands)
+  - [Use command substitution appropriately](#use-command-substitution-appropriately)
+  - [Use functions for reusable code](#use-functions-for-reusable-code)
+  - [Handle signals gracefully](#handle-signals-gracefully)
+  - [Use consistent exit codes](#use-consistent-exit-codes)
+  - [Document your functions](#document-your-functions)
+- [Common fish scripting pitfalls](#common-fish-scripting-pitfalls)
+  - [Forgetting that all variables are lists](#forgetting-that-all-variables-are-lists)
+  - [Using bash syntax in fish](#using-bash-syntax-in-fish)
+  - [Mixing up `set -q` (exists) vs `test -z` (empty)](#mixing-up-set--q-exists-vs-test--z-empty)
+  - [Not quoting variables with spaces](#not-quoting-variables-with-spaces)
+  - [Incorrect variable expansion in loops](#incorrect-variable-expansion-in-loops)
+  - [Forgetting command substitution captures stdout only](#forgetting-command-substitution-captures-stdout-only)
+  - [Using `!` for negation instead of `not`](#using--for-negation-instead-of-not)
+  - [Assuming `$0` contains the script name](#assuming-0-contains-the-script-name)
+  - [Not checking command exit status](#not-checking-command-exit-status)
+  - [Global variable pollution](#global-variable-pollution)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -291,7 +333,7 @@ Here's an example.
 
 ```bash
 set GIT_STATUS (git status --porcelain)
-if set -q $GIT_STATUS ; echo "No changes in repo" ; end
+if set -q GIT_STATUS ; echo "No changes in repo" ; end
 if test -z "$GIT_STATUS" ; echo "No changes in repo" ; end
 ```
 
@@ -325,8 +367,8 @@ end
 
 Here are some notes on the code.
 
-1. What does the [`set -q $variable`](https://fishshell.com/docs/current/cmds/set.html) function do?
-   It returns true if `$variable` is empty.
+1. What does the [`set -q variable`](https://fishshell.com/docs/current/cmds/set.html) function do?
+   It returns true if `variable` exists (is defined), regardless of whether it contains a value.
 2. Instead of `set -q`, if you wanted to use
    [`test`](https://fishshell.com/docs/current/cmds/test.html) function in order to determine if a
    variable is empty, you can use:
@@ -383,7 +425,7 @@ portion and store it in `$CHECKSUM`. Here's more info on the
 
 ```bash
 set CHECKSUM_ARRAY_STRING (shasum $FILENAME)
-set CHECKSUM_ARRAY (string split "  " $SOURCE_CHECKSUM_ARRAY)
+set CHECKSUM_ARRAY (string split "  " $CHECKSUM_ARRAY_STRING)
 set CHECKSUM $CHECKSUM_ARRAY[1]
 ```
 
@@ -419,7 +461,7 @@ end
 Here's an example of testing whether a string is empty or not.
 
 ```bash
-if set -q $my_variable
+if set -q my_variable
   echo "my_variable is empty"
 end
 ```
@@ -599,6 +641,231 @@ end
 testTheFunction
 ```
 
+### Advanced function features
+
+#### Functions with default values
+
+You can provide default behavior when arguments are missing:
+
+```bash
+#!/usr/bin/env fish
+
+function greet -a name greeting
+    # Provide default values
+    if test -z "$name"
+        set name "World"
+    end
+    if test -z "$greeting"
+        set greeting "Hello"
+    end
+    
+    echo "$greeting, $name!"
+end
+
+greet                    # "Hello, World!"
+greet Alice              # "Hello, Alice!"
+greet Bob "Good morning" # "Good morning, Bob!"
+```
+
+#### Functions with variable arguments (variadic)
+
+Handle functions that accept any number of arguments:
+
+```bash
+#!/usr/bin/env fish
+
+function sum_numbers
+    set -l total 0
+    
+    if test (count $argv) -eq 0
+        echo "Usage: sum_numbers <number1> [number2] [number3] ..." >&2
+        return 1
+    end
+    
+    for num in $argv
+        if not string match -q -r '^\d+$' "$num"
+            echo "Error: '$num' is not a valid number" >&2
+            return 1
+        end
+        set total (math $total + $num)
+    end
+    
+    echo $total
+end
+
+sum_numbers 1 2 3 4 5    # Output: 15
+sum_numbers 10 20        # Output: 30
+```
+
+#### Functions with options/flags
+
+Parse command-line style options in functions:
+
+```bash
+#!/usr/bin/env fish
+
+function my_copy
+    set -l verbose false
+    set -l force false
+    set -l source ""
+    set -l dest ""
+    
+    # Parse options
+    while test (count $argv) -gt 0
+        switch $argv[1]
+            case -v --verbose
+                set verbose true
+                set argv $argv[2..-1]
+            case -f --force
+                set force true
+                set argv $argv[2..-1]
+            case -*
+                echo "Unknown option: $argv[1]" >&2
+                return 1
+            case '*'
+                if test -z "$source"
+                    set source $argv[1]
+                else if test -z "$dest"
+                    set dest $argv[1]
+                else
+                    echo "Too many arguments" >&2
+                    return 1
+                end
+                set argv $argv[2..-1]
+        end
+    end
+    
+    # Validate required arguments
+    if test -z "$source"; or test -z "$dest"
+        echo "Usage: my_copy [-v|--verbose] [-f|--force] <source> <dest>" >&2
+        return 1
+    end
+    
+    # Build command
+    set -l cp_args
+    if test "$force" = "true"
+        set cp_args $cp_args -f
+    end
+    if test "$verbose" = "true"
+        set cp_args $cp_args -v
+        echo "Copying '$source' to '$dest'..."
+    end
+    
+    cp $cp_args "$source" "$dest"
+end
+
+# Usage examples:
+# my_copy file.txt backup/
+# my_copy -v -f important.doc /backup/
+```
+
+#### Functions that modify global state
+
+Sometimes you need functions that modify variables in the calling scope:
+
+```bash
+#!/usr/bin/env fish
+
+function append_to_path -a new_path
+    if not contains "$new_path" $PATH
+        set -gx PATH $PATH "$new_path"
+        echo "Added '$new_path' to PATH"
+    else
+        echo "'$new_path' already in PATH"
+    end
+end
+
+function remove_from_path -a path_to_remove
+    if contains "$path_to_remove" $PATH
+        set -l new_path
+        for path_entry in $PATH
+            if test "$path_entry" != "$path_to_remove"
+                set new_path $new_path "$path_entry"
+            end
+        end
+        set -gx PATH $new_path
+        echo "Removed '$path_to_remove' from PATH"
+    else
+        echo "'$path_to_remove' not found in PATH"
+    end
+end
+```
+
+#### Functions with comprehensive error handling
+
+Build robust functions with proper error checking:
+
+```bash
+#!/usr/bin/env fish
+
+function safe_file_operation -a operation source dest
+    # Validate operation type
+    if not contains "$operation" copy move
+        echo "Error: operation must be 'copy' or 'move'" >&2
+        return 1
+    end
+    
+    # Validate source file
+    if test -z "$source"
+        echo "Error: source file not specified" >&2
+        return 1
+    end
+    
+    if not test -e "$source"
+        echo "Error: source file '$source' does not exist" >&2
+        return 1
+    end
+    
+    if not test -r "$source"
+        echo "Error: cannot read source file '$source'" >&2
+        return 1
+    end
+    
+    # Validate destination
+    if test -z "$dest"
+        echo "Error: destination not specified" >&2
+        return 1
+    end
+    
+    set -l dest_dir (dirname "$dest")
+    if not test -d "$dest_dir"
+        echo "Creating destination directory: $dest_dir"
+        if not mkdir -p "$dest_dir"
+            echo "Error: failed to create destination directory" >&2
+            return 1
+        end
+    end
+    
+    # Check if destination exists and prompt for confirmation
+    if test -e "$dest"
+        echo "Destination '$dest' already exists. Overwrite? [y/N]"
+        read -l confirm
+        if test "$confirm" != "y"
+            echo "Operation cancelled"
+            return 0
+        end
+    end
+    
+    # Perform operation
+    switch "$operation"
+        case copy
+            if cp "$source" "$dest"
+                echo "Successfully copied '$source' to '$dest'"
+            else
+                echo "Error: failed to copy file" >&2
+                return 1
+            end
+        case move
+            if mv "$source" "$dest"
+                echo "Successfully moved '$source' to '$dest'"
+            else
+                echo "Error: failed to move file" >&2
+                return 1
+            end
+    end
+end
+```
+
 ## How to handle file and folder paths for dependencies
 
 As your scripts become more complex, you might need to handle loading multiple scripts. In this case
@@ -736,6 +1003,136 @@ else
 end
 ```
 
+## How to use fzf for interactive selection
+
+The [`fzf`](https://github.com/junegunn/fzf) command-line fuzzy finder enables interactive selection from lists with powerful search capabilities. It's particularly useful for creating interactive menus and file selection interfaces in fish scripts.
+
+### Basic selection example
+
+Here's a simple example of using fzf to select from a list of options:
+
+```bash
+#!/usr/bin/env fish
+
+# Create a list of options to choose from
+set options 'Option 1' 'Option 2' 'Option 3' 'Exit'
+
+# Use fzf for fuzzy searching and selection
+set selection (
+    printf '%s\n' $options | fzf --prompt 'Select an option: '
+)
+
+# Handle the selection
+if test -n "$selection"
+    echo "You selected: $selection"
+else
+    echo "No selection made"
+end
+```
+
+### Interactive file menu example
+
+Here's a more practical example that creates an interactive file operations menu:
+
+```bash
+#!/usr/bin/env fish
+
+function interactive_file_menu
+    # Define menu options
+    set menu_options \
+        "📁 Browse files" \
+        "🔍 Search in files" \
+        "📝 Edit a file" \
+        "🗑️  Delete a file" \
+        "📊 Show file stats" \
+        "❌ Exit"
+    
+    while true
+        # Show menu with fzf (with colors and preview)
+        set selection (
+            printf '%s\n' $menu_options | \
+            fzf --prompt '➤ Choose action: ' \
+                --height 40% \
+                --layout reverse \
+                --border \
+                --ansi
+        )
+        
+        # Process selection
+        switch "$selection"
+            case "📁 Browse files"
+                set chosen_file (ls -la | fzf --prompt 'Select file: ')
+                echo "You browsed: $chosen_file"
+            case "🔍 Search in files"
+                echo "Enter search term: "
+                read search_term
+                grep -r "$search_term" . | fzf
+            case "📝 Edit a file"
+                set file_to_edit (find . -type f | fzf --preview 'head -20 {}')
+                if test -n "$file_to_edit"
+                    $EDITOR "$file_to_edit"
+                end
+            case "🗑️  Delete a file"
+                set file_to_delete (find . -type f | fzf --preview 'ls -la {}')
+                if test -n "$file_to_delete"
+                    echo "Delete $file_to_delete? [y/N]"
+                    read confirm
+                    if test "$confirm" = "y"
+                        rm "$file_to_delete"
+                        echo "Deleted: $file_to_delete"
+                    end
+                end
+            case "📊 Show file stats"
+                find . -type f | fzf --preview 'stat {}'
+            case "❌ Exit" ""
+                echo "Goodbye!"
+                break
+        end
+    end
+end
+```
+
+### Multiple selection example
+
+You can also select multiple items using the `--multi` flag:
+
+```bash
+# Select multiple files for batch operations
+set selected_files (
+    find . -type f -name "*.txt" | \
+    fzf --multi \
+        --prompt 'Select files (TAB to mark): ' \
+        --preview 'cat {}' \
+        --preview-window right:50%
+)
+
+if test (count $selected_files) -gt 0
+    echo "Selected files:"
+    for file in $selected_files
+        echo "  - $file"
+    end
+end
+```
+
+### Common fzf options
+
+- `--prompt`: Custom prompt text
+- `--height`: Display height (percentage or lines)
+- `--layout reverse`: Show prompt at top
+- `--border`: Add border around fzf
+- `--preview`: Show preview window with command
+- `--preview-window`: Configure preview window position and size
+- `--multi`: Allow multiple selections (use TAB to mark)
+- `--ansi`: Enable ANSI color codes
+
+### Installation and usage notes
+
+- fzf must be installed first (`brew install fzf` on macOS, `apt install fzf` on Ubuntu)
+- Use TAB for multiple selections when `--multi` is enabled
+- Use ESC or Ctrl-C to cancel without making a selection
+- Type to fuzzy search through the available options
+- Arrow keys or Ctrl-J/Ctrl-K to navigate up and down
+
 ## How to use sed
 
 This is useful for removing fragments of files that are not needed, especially when `xargs` is used
@@ -744,7 +1141,7 @@ to pipe the result of `find`.
 Here's an example that removes `./` from the start of each file that's found.
 
 ```bash
-echo "./.Android" | sed 's/.\///g'
+echo "./.Android" | sed 's/^\.\///'
 ```
 
 Here's a more complex example of using `sed`, `find`, and `xargs` together.
@@ -824,4 +1221,700 @@ function timed -d Pass the program or function that you want to execute as an ar
   set RUNTIME (math $RUNTIME / 60)
   echo "⏲ Total runtime: $RUNTIME min ⏲"
 end
+```
+
+## How to debug fish scripts
+
+Fish provides several debugging capabilities to help troubleshoot your scripts and understand what's happening during execution.
+
+### Enable command tracing
+
+Fish can show you every command that's being executed, which is useful for debugging complex scripts:
+
+```bash
+#!/usr/bin/env fish
+
+# Enable tracing for debugging
+set -g fish_trace 1
+
+# Your script code here
+echo "Starting script..."
+set MY_VAR "test value"
+echo "MY_VAR is: $MY_VAR"
+
+# Disable tracing when done
+set -e fish_trace
+```
+
+You can also enable tracing for just a portion of your script by setting and unsetting `fish_trace` around specific sections.
+
+### Conditional debug output
+
+Create debug output that only shows when debugging is enabled:
+
+```bash
+#!/usr/bin/env fish
+
+function debug_echo -a message
+    if set -q DEBUG
+        echo "DEBUG: $message" >&2
+    end
+end
+
+function my_function -a param1 param2
+    debug_echo "my_function called with: $param1, $param2"
+    
+    set result (math $param1 + $param2)
+    debug_echo "calculation result: $result"
+    
+    echo $result
+end
+
+# Usage: DEBUG=1 ./my_script.fish
+# Or: set -x DEBUG 1; ./my_script.fish
+```
+
+### Check command success and status codes
+
+Always check if commands succeeded, especially external commands:
+
+```bash
+#!/usr/bin/env fish
+
+function safe_git_pull
+    if git pull
+        echo "✅ Git pull successful"
+        return 0
+    else
+        echo "❌ Git pull failed with status: $status" >&2
+        return $status
+    end
+end
+
+# Check if a command exists before using it
+if command -v fzf >/dev/null
+    echo "fzf is available"
+else
+    echo "fzf is not installed" >&2
+    exit 1
+end
+```
+
+### Validate function arguments
+
+Add argument validation to catch errors early:
+
+```bash
+#!/usr/bin/env fish
+
+function process_file -a filename
+    # Validate arguments
+    if test (count $argv) -eq 0
+        echo "Error: filename required" >&2
+        echo "Usage: process_file <filename>" >&2
+        return 1
+    end
+    
+    if not test -f "$filename"
+        echo "Error: file '$filename' does not exist" >&2
+        return 1
+    end
+    
+    if not test -r "$filename"
+        echo "Error: file '$filename' is not readable" >&2
+        return 1
+    end
+    
+    # Process the file
+    echo "Processing $filename..."
+end
+```
+
+### Use verbose output for complex operations
+
+Show what your script is doing step by step:
+
+```bash
+#!/usr/bin/env fish
+
+function verbose_copy -a source dest
+    set -l verbose_flag ""
+    if set -q VERBOSE
+        set verbose_flag "-v"
+        echo "Copying $source to $dest..."
+    end
+    
+    if cp $verbose_flag "$source" "$dest"
+        if set -q VERBOSE
+            echo "✅ Copy successful"
+        end
+    else
+        echo "❌ Copy failed" >&2
+        return 1
+    end
+end
+
+# Usage: VERBOSE=1 ./my_script.fish
+```
+
+### Debug script timing and performance
+
+Profile sections of your script to identify bottlenecks:
+
+```bash
+#!/usr/bin/env fish
+
+function time_section -a section_name
+    if set -q DEBUG_TIMING
+        set start_time (date +%s.%3N)
+        # Execute the commands passed as arguments
+        $argv[2..-1]
+        set end_time (date +%s.%3N)
+        set duration (math $end_time - $start_time)
+        echo "TIMING: $section_name took $duration seconds" >&2
+    else
+        # Just execute the commands without timing
+        $argv[2..-1]
+    end
+end
+
+# Usage example
+time_section "file_processing" find . -name "*.txt" -exec wc -l {} \;
+time_section "git_operations" git add . && git commit -m "Update files"
+```
+
+### Environment variable debugging
+
+Show important environment variables for troubleshooting:
+
+```bash
+#!/usr/bin/env fish
+
+function show_debug_info
+    if set -q DEBUG
+        echo "=== DEBUG INFO ===" >&2
+        echo "Script: "(status --current-filename) >&2
+        echo "PWD: $PWD" >&2
+        echo "USER: $USER" >&2
+        echo "PATH: $PATH" >&2
+        echo "fish version: "(fish --version) >&2
+        echo "=================" >&2
+    end
+end
+
+# Call at start of script
+show_debug_info
+```
+
+## Fish scripting best practices
+
+Following these best practices will make your fish scripts more robust, readable, and maintainable.
+
+### Always quote variables
+
+Quote variables to handle spaces and special characters correctly:
+
+```bash
+#!/usr/bin/env fish
+
+# Good: quoted variables
+set filename "my file with spaces.txt"
+if test -f "$filename"
+    echo "File exists: $filename"
+end
+
+# Bad: unquoted variables (will break with spaces)
+if test -f $filename
+    echo "This will fail with spaces in filename"
+end
+```
+
+### Use meaningful variable names
+
+Choose descriptive names that make your code self-documenting:
+
+```bash
+#!/usr/bin/env fish
+
+# Good: descriptive names
+set config_file_path "$HOME/.config/myapp/config.json"
+set backup_directory "/backup/myapp"
+set max_retry_attempts 3
+
+# Bad: cryptic names
+set cfp "$HOME/.config/myapp/config.json"
+set bd "/backup/myapp"
+set mra 3
+```
+
+### Validate inputs and handle errors
+
+Always validate function parameters and handle potential errors:
+
+```bash
+#!/usr/bin/env fish
+
+function backup_file -a source_file backup_dir
+    # Validate required parameters
+    if test (count $argv) -lt 2
+        echo "Usage: backup_file <source_file> <backup_dir>" >&2
+        return 1
+    end
+    
+    # Validate source file exists and is readable
+    if not test -f "$source_file"
+        echo "Error: Source file '$source_file' does not exist" >&2
+        return 1
+    end
+    
+    if not test -r "$source_file"
+        echo "Error: Cannot read source file '$source_file'" >&2
+        return 1
+    end
+    
+    # Validate backup directory
+    if not test -d "$backup_dir"
+        echo "Creating backup directory: $backup_dir"
+        mkdir -p "$backup_dir"
+    end
+    
+    # Perform backup with error checking
+    if cp "$source_file" "$backup_dir/"
+        echo "Successfully backed up '$source_file' to '$backup_dir'"
+        return 0
+    else
+        echo "Failed to backup '$source_file'" >&2
+        return 1
+    end
+end
+```
+
+### Use local variables in functions
+
+Use `set -l` to keep variables local to function scope:
+
+```bash
+#!/usr/bin/env fish
+
+function calculate_average
+    set -l numbers $argv
+    set -l sum 0
+    set -l count (count $numbers)
+    
+    # Local variables don't pollute global scope
+    for num in $numbers
+        set sum (math $sum + $num)
+    end
+    
+    set -l average (math $sum / $count)
+    echo $average
+end
+```
+
+### Prefer fish builtins over external commands
+
+Use fish's built-in commands when possible for better performance and portability:
+
+```bash
+#!/usr/bin/env fish
+
+# Good: use fish string builtin
+set filename "document.pdf"
+if string match -q "*.pdf" "$filename"
+    echo "PDF file detected"
+end
+
+# Less optimal: external grep
+if echo "$filename" | grep -q "\.pdf$"
+    echo "PDF file detected"
+end
+
+# Good: use fish test builtin
+if test -f "$filename"
+    echo "File exists"
+end
+
+# Less optimal: external test command
+if /bin/test -f "$filename"
+    echo "File exists"
+end
+```
+
+### Use command substitution appropriately
+
+Store command output in variables for reuse and error checking:
+
+```bash
+#!/usr/bin/env fish
+
+function check_git_status
+    # Store command output for reuse
+    set git_status (git status --porcelain 2>/dev/null)
+    
+    # Check if git command succeeded
+    if test $status -ne 0
+        echo "Not a git repository" >&2
+        return 1
+    end
+    
+    # Now we can use the result multiple times
+    if test -z "$git_status"
+        echo "Repository is clean"
+    else
+        echo "Repository has changes:"
+        echo "$git_status"
+    end
+end
+```
+
+### Use functions for reusable code
+
+Break complex scripts into smaller, reusable functions:
+
+```bash
+#!/usr/bin/env fish
+
+function log_message -a level message
+    set timestamp (date '+%Y-%m-%d %H:%M:%S')
+    echo "[$timestamp] [$level] $message"
+end
+
+function create_backup -a source dest
+    log_message "INFO" "Starting backup from '$source' to '$dest'"
+    
+    if cp -r "$source" "$dest"
+        log_message "SUCCESS" "Backup completed successfully"
+        return 0
+    else
+        log_message "ERROR" "Backup failed"
+        return 1
+    end
+end
+
+# Main script logic
+create_backup "/important/data" "/backup/location"
+```
+
+### Handle signals gracefully
+
+Set up signal handlers for clean script termination:
+
+```bash
+#!/usr/bin/env fish
+
+# Clean up temporary files on exit
+function cleanup
+    if set -q temp_file
+        rm -f "$temp_file"
+    end
+    if set -q temp_dir
+        rm -rf "$temp_dir"
+    end
+end
+
+# Set up signal handlers
+trap cleanup EXIT
+trap 'echo "Script interrupted"; cleanup; exit 130' INT
+
+# Your script logic here
+set temp_file (mktemp)
+set temp_dir (mktemp -d)
+```
+
+### Use consistent exit codes
+
+Follow standard exit code conventions:
+
+```bash
+#!/usr/bin/env fish
+
+function my_script
+    # 0 = success
+    # 1 = general error
+    # 2 = usage error
+    # 130 = script terminated by Control-C
+    
+    if test (count $argv) -eq 0
+        echo "Usage: my_script <filename>" >&2
+        return 2  # Usage error
+    end
+    
+    if not test -f "$argv[1]"
+        echo "File not found: $argv[1]" >&2
+        return 1  # General error
+    end
+    
+    # Process file...
+    echo "Processing $argv[1]"
+    return 0  # Success
+end
+```
+
+### Document your functions
+
+Use the `--description` flag to document function purpose:
+
+```bash
+#!/usr/bin/env fish
+
+function process_log_files --description "Process and rotate log files older than specified days"
+    # Function implementation here
+    echo "Processing log files..."
+end
+
+function backup_database --description "Create timestamped backup of database to specified directory"
+    # Function implementation here
+    echo "Backing up database..."
+end
+
+# Users can see function descriptions with: functions --details function_name
+```
+
+## Common fish scripting pitfalls
+
+These are frequent mistakes that can cause confusing behavior in fish scripts. Learning to avoid them will save you debugging time.
+
+### Forgetting that all variables are lists
+
+In fish, every variable is a list, even if it contains only one element. This can lead to unexpected behavior:
+
+```bash
+#!/usr/bin/env fish
+
+# Pitfall: assuming single values
+set filename "my file.txt"
+set result (echo $filename)  # This works fine
+
+# But when you have multiple values:
+set filenames "file1.txt" "file2.txt" "file3.txt"
+set result (echo $filenames)  # This passes 3 arguments to echo
+
+# Correct: quote the variable to treat as single argument
+set result (echo "$filenames")  # This treats the whole list as one string
+```
+
+### Using bash syntax in fish
+
+Fish syntax is different from bash/sh. These bash patterns don't work in fish:
+
+```bash
+#!/usr/bin/env fish
+
+# Bash syntax that doesn't work in fish:
+# if [ "$var" = "value" ]     # Use 'test' instead
+# export VAR=value            # Use 'set -x VAR value'
+# VAR=value command           # Use 'env VAR=value command'
+# $((1 + 2))                  # Use 'math 1 + 2'
+# ${var:-default}             # Use separate if/else logic
+
+# Fish equivalents:
+if test "$var" = "value"
+    echo "correct fish syntax"
+end
+
+set -x VAR value              # export variable
+env VAR=value command         # set variable for single command
+set result (math 1 + 2)       # arithmetic
+```
+
+### Mixing up `set -q` (exists) vs `test -z` (empty)
+
+These test different things and can cause logic errors:
+
+```bash
+#!/usr/bin/env fish
+
+# set -q tests if variable EXISTS
+# test -z tests if variable is EMPTY
+
+set empty_var ""
+set undefined_var  # This variable doesn't exist
+
+# This will be TRUE (variable exists but is empty)
+if set -q empty_var
+    echo "empty_var exists"
+end
+
+# This will be FALSE (variable doesn't exist)
+if set -q undefined_var
+    echo "This won't print"
+end
+
+# This will be TRUE (variable is empty)
+if test -z "$empty_var"
+    echo "empty_var is empty"
+end
+
+# This will be TRUE (undefined variables are treated as empty strings)
+if test -z "$undefined_var"
+    echo "undefined_var is also considered empty"
+end
+```
+
+### Not quoting variables with spaces
+
+Unquoted variables with spaces will be split into multiple arguments:
+
+```bash
+#!/usr/bin/env fish
+
+set file_with_spaces "my document.pdf"
+
+# Wrong: this will fail because it becomes 'test -f my document.pdf'
+# which is 3 arguments instead of the filename
+if test -f $file_with_spaces
+    echo "This test will fail incorrectly"
+end
+
+# Correct: quote the variable
+if test -f "$file_with_spaces"
+    echo "This works correctly"
+end
+
+# Wrong: will try to copy 'my', 'document.pdf' separately
+cp $file_with_spaces /backup/
+
+# Correct: treats as single filename
+cp "$file_with_spaces" /backup/
+```
+
+### Incorrect variable expansion in loops
+
+Variable expansion behaves differently in different contexts:
+
+```bash
+#!/usr/bin/env fish
+
+set items "item1" "item2" "item3"
+
+# Pitfall: trying to modify the loop variable
+for item in $items
+    set item "modified_$item"  # This creates a new local variable!
+    echo $item                  # Prints modified version
+end
+
+echo $items  # Original list is unchanged!
+
+# Correct approach: use a different variable or array indexing
+for i in (seq (count $items))
+    set items[$i] "modified_$items[$i]"
+end
+```
+
+### Forgetting command substitution captures stdout only
+
+Command substitution with `()` only captures stdout, not stderr:
+
+```bash
+#!/usr/bin/env fish
+
+# This will capture the error count, but error messages go to terminal
+set error_output (find /root -name "*.txt" 2>&1)  # Capture both stdout and stderr
+
+# Better: separate handling of stdout and stderr
+find /root -name "*.txt" 2>/tmp/find_errors.log
+set found_files (find /root -name "*.txt" 2>/dev/null)
+
+if test -s /tmp/find_errors.log
+    echo "Errors occurred during find operation"
+end
+```
+
+### Using `!` for negation instead of `not`
+
+Fish uses `not` for logical negation, not `!`:
+
+```bash
+#!/usr/bin/env fish
+
+set filename "document.txt"
+
+# Wrong: bash/sh syntax
+# if ! test -f "$filename"
+
+# Correct: fish syntax
+if not test -f "$filename"
+    echo "File doesn't exist"
+end
+
+# Also works with commands
+if not git pull
+    echo "Git pull failed"
+end
+```
+
+### Assuming `$0` contains the script name
+
+In fish, `$argv[0]` or `(status current-filename)` should be used instead of `$0`:
+
+```bash
+#!/usr/bin/env fish
+
+# Wrong: $0 doesn't exist in fish
+# echo "Script name: $0"
+
+# Correct ways to get script name:
+echo "Script name: "(status current-filename)
+echo "Script basename: "(basename (status current-filename))
+
+# For command line arguments:
+echo "First argument: $argv[1]"
+echo "All arguments: $argv"
+echo "Number of arguments: "(count $argv)
+```
+
+### Not checking command exit status
+
+Always verify that commands succeeded, especially in automated scripts:
+
+```bash
+#!/usr/bin/env fish
+
+# Pitfall: assuming commands always succeed
+git clone https://github.com/user/repo.git
+cd repo
+make install
+
+# Better: check each step
+if not git clone https://github.com/user/repo.git
+    echo "Failed to clone repository" >&2
+    exit 1
+end
+
+if not cd repo
+    echo "Failed to enter repository directory" >&2
+    exit 1
+end
+
+if not make install
+    echo "Failed to install" >&2
+    exit 1
+end
+```
+
+### Global variable pollution
+
+Functions can accidentally modify global variables if you don't use local scope:
+
+```bash
+#!/usr/bin/env fish
+
+set counter 10
+
+function increment_counter
+    # Pitfall: modifying global variable unintentionally
+    set counter (math $counter + 1)
+    echo "Counter in function: $counter"
+end
+
+increment_counter
+echo "Global counter: $counter"  # This is now 11, which might be unexpected
+
+# Better: use local variables when appropriate
+function safe_increment -a input
+    set -l local_counter (math $input + 1)
+    echo $local_counter  # Return the result
+end
+
+set counter (safe_increment $counter)
 ```

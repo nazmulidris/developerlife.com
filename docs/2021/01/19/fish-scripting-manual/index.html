@@ -257,16 +257,73 @@
     <ul>
       <li><a href="#pass-arguments-to-a-function">Pass arguments to a function</a></li>
       <li><a href="#return-values-from-a-function">Return values from a function</a></li>
+      <li><a href="#advanced-function-features">Advanced function features</a>
+        <ul>
+          <li><a href="#functions-with-default-values">Functions with default values</a></li>
+          <li><a href="#functions-with-variable-arguments-variadic">Functions with variable arguments (variadic)</a></li>
+          <li><a href="#functions-with-optionsflags">Functions with options/flags</a></li>
+          <li><a href="#functions-that-modify-global-state">Functions that modify global state</a></li>
+          <li><a href="#functions-with-comprehensive-error-handling">Functions with comprehensive error handling</a></li>
+        </ul>
+      </li>
     </ul>
   </li>
   <li><a href="#how-to-handle-file-and-folder-paths-for-dependencies">How to handle file and folder paths for dependencies</a></li>
   <li><a href="#how-to-write-multi-line-strings-to-files">How to write multi line strings to files</a></li>
   <li><a href="#how-to-create-colorized-echo-output">How to create colorized echo output</a></li>
   <li><a href="#how-to-get-user-input">How to get user input</a></li>
+  <li><a href="#how-to-use-fzf-for-interactive-selection">How to use fzf for interactive selection</a>
+    <ul>
+      <li><a href="#basic-selection-example">Basic selection example</a></li>
+      <li><a href="#interactive-file-menu-example">Interactive file menu example</a></li>
+      <li><a href="#multiple-selection-example">Multiple selection example</a></li>
+      <li><a href="#common-fzf-options">Common fzf options</a></li>
+      <li><a href="#installation-and-usage-notes">Installation and usage notes</a></li>
+    </ul>
+  </li>
   <li><a href="#how-to-use-sed">How to use sed</a></li>
   <li><a href="#how-to-use-xargs">How to use xargs</a></li>
   <li><a href="#how-to-use-cut-to-split-strings">How to use cut to split strings</a></li>
   <li><a href="#how-to-calculate-how-long-the-script-took-to-run">How to calculate how long the script took to run</a></li>
+  <li><a href="#how-to-debug-fish-scripts">How to debug fish scripts</a>
+    <ul>
+      <li><a href="#enable-command-tracing">Enable command tracing</a></li>
+      <li><a href="#conditional-debug-output">Conditional debug output</a></li>
+      <li><a href="#check-command-success-and-status-codes">Check command success and status codes</a></li>
+      <li><a href="#validate-function-arguments">Validate function arguments</a></li>
+      <li><a href="#use-verbose-output-for-complex-operations">Use verbose output for complex operations</a></li>
+      <li><a href="#debug-script-timing-and-performance">Debug script timing and performance</a></li>
+      <li><a href="#environment-variable-debugging">Environment variable debugging</a></li>
+    </ul>
+  </li>
+  <li><a href="#fish-scripting-best-practices">Fish scripting best practices</a>
+    <ul>
+      <li><a href="#always-quote-variables">Always quote variables</a></li>
+      <li><a href="#use-meaningful-variable-names">Use meaningful variable names</a></li>
+      <li><a href="#validate-inputs-and-handle-errors">Validate inputs and handle errors</a></li>
+      <li><a href="#use-local-variables-in-functions">Use local variables in functions</a></li>
+      <li><a href="#prefer-fish-builtins-over-external-commands">Prefer fish builtins over external commands</a></li>
+      <li><a href="#use-command-substitution-appropriately">Use command substitution appropriately</a></li>
+      <li><a href="#use-functions-for-reusable-code">Use functions for reusable code</a></li>
+      <li><a href="#handle-signals-gracefully">Handle signals gracefully</a></li>
+      <li><a href="#use-consistent-exit-codes">Use consistent exit codes</a></li>
+      <li><a href="#document-your-functions">Document your functions</a></li>
+    </ul>
+  </li>
+  <li><a href="#common-fish-scripting-pitfalls">Common fish scripting pitfalls</a>
+    <ul>
+      <li><a href="#forgetting-that-all-variables-are-lists">Forgetting that all variables are lists</a></li>
+      <li><a href="#using-bash-syntax-in-fish">Using bash syntax in fish</a></li>
+      <li><a href="#mixing-up-set--q-exists-vs-test--z-empty">Mixing up <code class="language-plaintext highlighter-rouge">set -q</code> (exists) vs <code class="language-plaintext highlighter-rouge">test -z</code> (empty)</a></li>
+      <li><a href="#not-quoting-variables-with-spaces">Not quoting variables with spaces</a></li>
+      <li><a href="#incorrect-variable-expansion-in-loops">Incorrect variable expansion in loops</a></li>
+      <li><a href="#forgetting-command-substitution-captures-stdout-only">Forgetting command substitution captures stdout only</a></li>
+      <li><a href="#using--for-negation-instead-of-not">Using <code class="language-plaintext highlighter-rouge">!</code> for negation instead of <code class="language-plaintext highlighter-rouge">not</code></a></li>
+      <li><a href="#assuming-0-contains-the-script-name">Assuming <code class="language-plaintext highlighter-rouge">$0</code> contains the script name</a></li>
+      <li><a href="#not-checking-command-exit-status">Not checking command exit status</a></li>
+      <li><a href="#global-variable-pollution">Global variable pollution</a></li>
+    </ul>
+  </li>
 </ul>
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -571,7 +628,7 @@ some edge cases if it isn’t wrapped in quotes.</li>
 <p>Here’s an example.</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>GIT_STATUS <span class="o">(</span>git status <span class="nt">--porcelain</span><span class="o">)</span>
-<span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> <span class="nv">$GIT_STATUS</span> <span class="p">;</span> <span class="nb">echo</span> <span class="s2">"No changes in repo"</span> <span class="p">;</span> end
+<span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> GIT_STATUS <span class="p">;</span> <span class="nb">echo</span> <span class="s2">"No changes in repo"</span> <span class="p">;</span> end
 <span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$GIT_STATUS</span><span class="s2">"</span> <span class="p">;</span> <span class="nb">echo</span> <span class="s2">"No changes in repo"</span> <span class="p">;</span> end
 </code></pre></div></div>
       <h3 id="multiple-conditions-with-operators-and-or">
@@ -613,8 +670,8 @@ end
 <p>Here are some notes on the code.</p>
 
 <ol>
-  <li>What does the <a href="https://fishshell.com/docs/current/cmds/set.html"><code class="language-plaintext highlighter-rouge">set -q $variable</code></a> function do?
-It returns true if <code class="language-plaintext highlighter-rouge">$variable</code> is empty.</li>
+  <li>What does the <a href="https://fishshell.com/docs/current/cmds/set.html"><code class="language-plaintext highlighter-rouge">set -q variable</code></a> function do?
+It returns true if <code class="language-plaintext highlighter-rouge">variable</code> exists (is defined), regardless of whether it contains a value.</li>
   <li>Instead of <code class="language-plaintext highlighter-rouge">set -q</code>, if you wanted to use
 <a href="https://fishshell.com/docs/current/cmds/test.html"><code class="language-plaintext highlighter-rouge">test</code></a> function in order to determine if a
 variable is empty, you can use:
@@ -691,7 +748,7 @@ portion and store it in <code class="language-plaintext highlighter-rouge">$CHEC
 <a href="https://fishshell.com/docs/current/cmds/string-split.html"><code class="language-plaintext highlighter-rouge">string split</code> command</a>.</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">set </span>CHECKSUM_ARRAY_STRING <span class="o">(</span>shasum <span class="nv">$FILENAME</span><span class="o">)</span>
-<span class="nb">set </span>CHECKSUM_ARRAY <span class="o">(</span>string <span class="nb">split</span> <span class="s2">"  "</span> <span class="nv">$SOURCE_CHECKSUM_ARRAY</span><span class="o">)</span>
+<span class="nb">set </span>CHECKSUM_ARRAY <span class="o">(</span>string <span class="nb">split</span> <span class="s2">"  "</span> <span class="nv">$CHECKSUM_ARRAY_STRING</span><span class="o">)</span>
 <span class="nb">set </span>CHECKSUM <span class="nv">$CHECKSUM_ARRAY</span><span class="o">[</span>1]
 </code></pre></div></div>
       <h2 id="how-to-perform-string-comparisons">
@@ -732,7 +789,7 @@ end
 
 <p>Here’s an example of testing whether a string is empty or not.</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> <span class="nv">$my_variable</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> my_variable
   <span class="nb">echo</span> <span class="s2">"my_variable is empty"</span>
 end
 </code></pre></div></div>
@@ -937,6 +994,262 @@ end
 
 testTheFunction
 </code></pre></div></div>
+      <h3 id="advanced-function-features">
+        
+        
+          Advanced function features <a href="#advanced-function-features">#</a>
+        
+        
+      </h3>
+    
+      <h4 id="functions-with-default-values">
+        
+        
+          Functions with default values <a href="#functions-with-default-values">#</a>
+        
+        
+      </h4>
+    
+
+<p>You can provide default behavior when arguments are missing:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>greet <span class="nt">-a</span> name greeting
+    <span class="c"># Provide default values</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$name</span><span class="s2">"</span>
+        <span class="nb">set </span>name <span class="s2">"World"</span>
+    end
+    <span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$greeting</span><span class="s2">"</span>
+        <span class="nb">set </span>greeting <span class="s2">"Hello"</span>
+    end
+    
+    <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$greeting</span><span class="s2">, </span><span class="nv">$name</span><span class="s2">!"</span>
+end
+
+greet                    <span class="c"># "Hello, World!"</span>
+greet Alice              <span class="c"># "Hello, Alice!"</span>
+greet Bob <span class="s2">"Good morning"</span> <span class="c"># "Good morning, Bob!"</span>
+</code></pre></div></div>
+      <h4 id="functions-with-variable-arguments-variadic">
+        
+        
+          Functions with variable arguments (variadic) <a href="#functions-with-variable-arguments-variadic">#</a>
+        
+        
+      </h4>
+    
+
+<p>Handle functions that accept any number of arguments:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>sum_numbers
+    <span class="nb">set</span> <span class="nt">-l</span> total 0
+    
+    <span class="k">if </span><span class="nb">test</span> <span class="o">(</span>count <span class="nv">$argv</span><span class="o">)</span> <span class="nt">-eq</span> 0
+        <span class="nb">echo</span> <span class="s2">"Usage: sum_numbers &lt;number1&gt; [number2] [number3] ..."</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="k">for </span>num <span class="k">in</span> <span class="nv">$argv</span>
+        <span class="k">if </span>not string match <span class="nt">-q</span> <span class="nt">-r</span> <span class="s1">'^\d+$'</span> <span class="s2">"</span><span class="nv">$num</span><span class="s2">"</span>
+            <span class="nb">echo</span> <span class="s2">"Error: '</span><span class="nv">$num</span><span class="s2">' is not a valid number"</span> <span class="o">&gt;</span>&amp;2
+            <span class="k">return </span>1
+        end
+        <span class="nb">set </span>total <span class="o">(</span>math <span class="nv">$total</span> + <span class="nv">$num</span><span class="o">)</span>
+    end
+    
+    <span class="nb">echo</span> <span class="nv">$total</span>
+end
+
+sum_numbers 1 2 3 4 5    <span class="c"># Output: 15</span>
+sum_numbers 10 20        <span class="c"># Output: 30</span>
+</code></pre></div></div>
+      <h4 id="functions-with-optionsflags">
+        
+        
+          Functions with options/flags <a href="#functions-with-optionsflags">#</a>
+        
+        
+      </h4>
+    
+
+<p>Parse command-line style options in functions:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>my_copy
+    <span class="nb">set</span> <span class="nt">-l</span> verbose <span class="nb">false
+    set</span> <span class="nt">-l</span> force <span class="nb">false
+    set</span> <span class="nt">-l</span> <span class="nb">source</span> <span class="s2">""</span>
+    <span class="nb">set</span> <span class="nt">-l</span> dest <span class="s2">""</span>
+    
+    <span class="c"># Parse options</span>
+    <span class="k">while </span><span class="nb">test</span> <span class="o">(</span>count <span class="nv">$argv</span><span class="o">)</span> <span class="nt">-gt</span> 0
+        switch <span class="nv">$argv</span><span class="o">[</span>1]
+            <span class="k">case</span> <span class="nt">-v</span> <span class="nt">--verbose</span>
+                <span class="nb">set </span>verbose <span class="nb">true
+                set </span>argv <span class="nv">$argv</span><span class="o">[</span>2..-1]
+            <span class="k">case</span> <span class="nt">-f</span> <span class="nt">--force</span>
+                <span class="nb">set </span>force <span class="nb">true
+                set </span>argv <span class="nv">$argv</span><span class="o">[</span>2..-1]
+            <span class="k">case</span> -<span class="k">*</span>
+                <span class="nb">echo</span> <span class="s2">"Unknown option: </span><span class="nv">$argv</span><span class="s2">[1]"</span> <span class="o">&gt;</span>&amp;2
+                <span class="k">return </span>1
+            <span class="k">case</span> <span class="s1">'*'</span>
+                <span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$source</span><span class="s2">"</span>
+                    <span class="nb">set source</span> <span class="nv">$argv</span><span class="o">[</span>1]
+                <span class="k">else if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$dest</span><span class="s2">"</span>
+                    <span class="nb">set </span>dest <span class="nv">$argv</span><span class="o">[</span>1]
+                <span class="k">else
+                    </span><span class="nb">echo</span> <span class="s2">"Too many arguments"</span> <span class="o">&gt;</span>&amp;2
+                    <span class="k">return </span>1
+                end
+                <span class="nb">set </span>argv <span class="nv">$argv</span><span class="o">[</span>2..-1]
+        end
+    end
+    
+    <span class="c"># Validate required arguments</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$source</span><span class="s2">"</span><span class="p">;</span> or <span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$dest</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Usage: my_copy [-v|--verbose] [-f|--force] &lt;source&gt; &lt;dest&gt;"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="c"># Build command</span>
+    <span class="nb">set</span> <span class="nt">-l</span> cp_args
+    <span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$force</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"true"</span>
+        <span class="nb">set </span>cp_args <span class="nv">$cp_args</span> <span class="nt">-f</span>
+    end
+    <span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$verbose</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"true"</span>
+        <span class="nb">set </span>cp_args <span class="nv">$cp_args</span> <span class="nt">-v</span>
+        <span class="nb">echo</span> <span class="s2">"Copying '</span><span class="nv">$source</span><span class="s2">' to '</span><span class="nv">$dest</span><span class="s2">'..."</span>
+    end
+    
+    <span class="nb">cp</span> <span class="nv">$cp_args</span> <span class="s2">"</span><span class="nv">$source</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$dest</span><span class="s2">"</span>
+end
+
+<span class="c"># Usage examples:</span>
+<span class="c"># my_copy file.txt backup/</span>
+<span class="c"># my_copy -v -f important.doc /backup/</span>
+</code></pre></div></div>
+      <h4 id="functions-that-modify-global-state">
+        
+        
+          Functions that modify global state <a href="#functions-that-modify-global-state">#</a>
+        
+        
+      </h4>
+    
+
+<p>Sometimes you need functions that modify variables in the calling scope:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>append_to_path <span class="nt">-a</span> new_path
+    <span class="k">if </span>not contains <span class="s2">"</span><span class="nv">$new_path</span><span class="s2">"</span> <span class="nv">$PATH</span>
+        <span class="nb">set</span> <span class="nt">-gx</span> PATH <span class="nv">$PATH</span> <span class="s2">"</span><span class="nv">$new_path</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Added '</span><span class="nv">$new_path</span><span class="s2">' to PATH"</span>
+    <span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"'</span><span class="nv">$new_path</span><span class="s2">' already in PATH"</span>
+    end
+end
+
+<span class="k">function </span>remove_from_path <span class="nt">-a</span> path_to_remove
+    <span class="k">if </span>contains <span class="s2">"</span><span class="nv">$path_to_remove</span><span class="s2">"</span> <span class="nv">$PATH</span>
+        <span class="nb">set</span> <span class="nt">-l</span> new_path
+        <span class="k">for </span>path_entry <span class="k">in</span> <span class="nv">$PATH</span>
+            <span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$path_entry</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">"</span><span class="nv">$path_to_remove</span><span class="s2">"</span>
+                <span class="nb">set </span>new_path <span class="nv">$new_path</span> <span class="s2">"</span><span class="nv">$path_entry</span><span class="s2">"</span>
+            end
+        end
+        <span class="nb">set</span> <span class="nt">-gx</span> PATH <span class="nv">$new_path</span>
+        <span class="nb">echo</span> <span class="s2">"Removed '</span><span class="nv">$path_to_remove</span><span class="s2">' from PATH"</span>
+    <span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"'</span><span class="nv">$path_to_remove</span><span class="s2">' not found in PATH"</span>
+    end
+end
+</code></pre></div></div>
+      <h4 id="functions-with-comprehensive-error-handling">
+        
+        
+          Functions with comprehensive error handling <a href="#functions-with-comprehensive-error-handling">#</a>
+        
+        
+      </h4>
+    
+
+<p>Build robust functions with proper error checking:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>safe_file_operation <span class="nt">-a</span> operation <span class="nb">source </span>dest
+    <span class="c"># Validate operation type</span>
+    <span class="k">if </span>not contains <span class="s2">"</span><span class="nv">$operation</span><span class="s2">"</span> copy move
+        <span class="nb">echo</span> <span class="s2">"Error: operation must be 'copy' or 'move'"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="c"># Validate source file</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$source</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Error: source file not specified"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="k">if </span>not <span class="nb">test</span> <span class="nt">-e</span> <span class="s2">"</span><span class="nv">$source</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Error: source file '</span><span class="nv">$source</span><span class="s2">' does not exist"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="k">if </span>not <span class="nb">test</span> <span class="nt">-r</span> <span class="s2">"</span><span class="nv">$source</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Error: cannot read source file '</span><span class="nv">$source</span><span class="s2">'"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="c"># Validate destination</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$dest</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Error: destination not specified"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="nb">set</span> <span class="nt">-l</span> dest_dir <span class="o">(</span><span class="nb">dirname</span> <span class="s2">"</span><span class="nv">$dest</span><span class="s2">"</span><span class="o">)</span>
+    <span class="k">if </span>not <span class="nb">test</span> <span class="nt">-d</span> <span class="s2">"</span><span class="nv">$dest_dir</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Creating destination directory: </span><span class="nv">$dest_dir</span><span class="s2">"</span>
+        <span class="k">if </span>not <span class="nb">mkdir</span> <span class="nt">-p</span> <span class="s2">"</span><span class="nv">$dest_dir</span><span class="s2">"</span>
+            <span class="nb">echo</span> <span class="s2">"Error: failed to create destination directory"</span> <span class="o">&gt;</span>&amp;2
+            <span class="k">return </span>1
+        end
+    end
+    
+    <span class="c"># Check if destination exists and prompt for confirmation</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="nt">-e</span> <span class="s2">"</span><span class="nv">$dest</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Destination '</span><span class="nv">$dest</span><span class="s2">' already exists. Overwrite? [y/N]"</span>
+        <span class="nb">read</span> <span class="nt">-l</span> confirm
+        <span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$confirm</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">"y"</span>
+            <span class="nb">echo</span> <span class="s2">"Operation cancelled"</span>
+            <span class="k">return </span>0
+        end
+    end
+    
+    <span class="c"># Perform operation</span>
+    switch <span class="s2">"</span><span class="nv">$operation</span><span class="s2">"</span>
+        <span class="k">case</span> copy
+            <span class="k">if </span><span class="nb">cp</span> <span class="s2">"</span><span class="nv">$source</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$dest</span><span class="s2">"</span>
+                <span class="nb">echo</span> <span class="s2">"Successfully copied '</span><span class="nv">$source</span><span class="s2">' to '</span><span class="nv">$dest</span><span class="s2">'"</span>
+            <span class="k">else
+                </span><span class="nb">echo</span> <span class="s2">"Error: failed to copy file"</span> <span class="o">&gt;</span>&amp;2
+                <span class="k">return </span>1
+            end
+        <span class="k">case</span> move
+            <span class="k">if </span><span class="nb">mv</span> <span class="s2">"</span><span class="nv">$source</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$dest</span><span class="s2">"</span>
+                <span class="nb">echo</span> <span class="s2">"Successfully moved '</span><span class="nv">$source</span><span class="s2">' to '</span><span class="nv">$dest</span><span class="s2">'"</span>
+            <span class="k">else
+                </span><span class="nb">echo</span> <span class="s2">"Error: failed to move file"</span> <span class="o">&gt;</span>&amp;2
+                <span class="k">return </span>1
+            end
+    end
+end
+</code></pre></div></div>
       <h2 id="how-to-handle-file-and-folder-paths-for-dependencies">
         
         
@@ -1093,6 +1406,173 @@ end
   </span><span class="nb">echo</span> <span class="s2">"⛔ Did not delete </span><span class="nv">$featureBranchName</span><span class="s2">"</span>
 end
 </code></pre></div></div>
+      <h2 id="how-to-use-fzf-for-interactive-selection">
+        
+        
+          How to use fzf for interactive selection <a href="#how-to-use-fzf-for-interactive-selection">#</a>
+        
+        
+      </h2>
+    
+
+<p>The <a href="https://github.com/junegunn/fzf"><code class="language-plaintext highlighter-rouge">fzf</code></a> command-line fuzzy finder enables interactive selection from lists with powerful search capabilities. It’s particularly useful for creating interactive menus and file selection interfaces in fish scripts.</p>
+      <h3 id="basic-selection-example">
+        
+        
+          Basic selection example <a href="#basic-selection-example">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s a simple example of using fzf to select from a list of options:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># Create a list of options to choose from</span>
+<span class="nb">set </span>options <span class="s1">'Option 1'</span> <span class="s1">'Option 2'</span> <span class="s1">'Option 3'</span> <span class="s1">'Exit'</span>
+
+<span class="c"># Use fzf for fuzzy searching and selection</span>
+<span class="nb">set </span>selection <span class="o">(</span>
+    <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="nv">$options</span> | fzf <span class="nt">--prompt</span> <span class="s1">'Select an option: '</span>
+<span class="o">)</span>
+
+<span class="c"># Handle the selection</span>
+<span class="k">if </span><span class="nb">test</span> <span class="nt">-n</span> <span class="s2">"</span><span class="nv">$selection</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"You selected: </span><span class="nv">$selection</span><span class="s2">"</span>
+<span class="k">else
+    </span><span class="nb">echo</span> <span class="s2">"No selection made"</span>
+end
+</code></pre></div></div>
+      <h3 id="interactive-file-menu-example">
+        
+        
+          Interactive file menu example <a href="#interactive-file-menu-example">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here’s a more practical example that creates an interactive file operations menu:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>interactive_file_menu
+    <span class="c"># Define menu options</span>
+    <span class="nb">set </span>menu_options <span class="se">\</span>
+        <span class="s2">"📁 Browse files"</span> <span class="se">\</span>
+        <span class="s2">"🔍 Search in files"</span> <span class="se">\</span>
+        <span class="s2">"📝 Edit a file"</span> <span class="se">\</span>
+        <span class="s2">"🗑️  Delete a file"</span> <span class="se">\</span>
+        <span class="s2">"📊 Show file stats"</span> <span class="se">\</span>
+        <span class="s2">"❌ Exit"</span>
+    
+    <span class="k">while </span><span class="nb">true</span>
+        <span class="c"># Show menu with fzf (with colors and preview)</span>
+        <span class="nb">set </span>selection <span class="o">(</span>
+            <span class="nb">printf</span> <span class="s1">'%s\n'</span> <span class="nv">$menu_options</span> | <span class="se">\</span>
+            fzf <span class="nt">--prompt</span> <span class="s1">'➤ Choose action: '</span> <span class="se">\</span>
+                <span class="nt">--height</span> 40% <span class="se">\</span>
+                <span class="nt">--layout</span> reverse <span class="se">\</span>
+                <span class="nt">--border</span> <span class="se">\</span>
+                <span class="nt">--ansi</span>
+        <span class="o">)</span>
+        
+        <span class="c"># Process selection</span>
+        switch <span class="s2">"</span><span class="nv">$selection</span><span class="s2">"</span>
+            <span class="k">case</span> <span class="s2">"📁 Browse files"</span>
+                <span class="nb">set </span>chosen_file <span class="o">(</span><span class="nb">ls</span> <span class="nt">-la</span> <span class="p">|</span> fzf <span class="nt">--prompt</span> <span class="s1">'Select file: '</span><span class="p">)</span>
+                <span class="nb">echo</span> <span class="s2">"You browsed: </span><span class="nv">$chosen_file</span><span class="s2">"</span>
+            <span class="k">case</span> <span class="s2">"🔍 Search in files"</span>
+                <span class="nb">echo</span> <span class="s2">"Enter search term: "</span>
+                <span class="nb">read </span>search_term
+                <span class="nb">grep</span> <span class="nt">-r</span> <span class="s2">"</span><span class="nv">$search_term</span><span class="s2">"</span> <span class="nb">.</span> <span class="p">|</span> fzf
+            <span class="k">case</span> <span class="s2">"📝 Edit a file"</span>
+                <span class="nb">set </span>file_to_edit <span class="o">(</span>find <span class="nb">.</span> <span class="nt">-type</span> f <span class="p">|</span> fzf <span class="nt">--preview</span> <span class="s1">'head -20 {}'</span><span class="p">)</span>
+                <span class="k">if </span><span class="nb">test</span> <span class="nt">-n</span> <span class="s2">"</span><span class="nv">$file_to_edit</span><span class="s2">"</span>
+                    <span class="nv">$EDITOR</span> <span class="s2">"</span><span class="nv">$file_to_edit</span><span class="s2">"</span>
+                end
+            <span class="k">case</span> <span class="s2">"🗑️  Delete a file"</span>
+                <span class="nb">set </span>file_to_delete <span class="o">(</span>find <span class="nb">.</span> <span class="nt">-type</span> f <span class="p">|</span> fzf <span class="nt">--preview</span> <span class="s1">'ls -la {}'</span><span class="p">)</span>
+                <span class="k">if </span><span class="nb">test</span> <span class="nt">-n</span> <span class="s2">"</span><span class="nv">$file_to_delete</span><span class="s2">"</span>
+                    <span class="nb">echo</span> <span class="s2">"Delete </span><span class="nv">$file_to_delete</span><span class="s2">? [y/N]"</span>
+                    <span class="nb">read </span>confirm
+                    <span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$confirm</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"y"</span>
+                        <span class="nb">rm</span> <span class="s2">"</span><span class="nv">$file_to_delete</span><span class="s2">"</span>
+                        <span class="nb">echo</span> <span class="s2">"Deleted: </span><span class="nv">$file_to_delete</span><span class="s2">"</span>
+                    end
+                end
+            <span class="k">case</span> <span class="s2">"📊 Show file stats"</span>
+                find <span class="nb">.</span> <span class="nt">-type</span> f <span class="p">|</span> fzf <span class="nt">--preview</span> <span class="s1">'stat {}'</span>
+            <span class="k">case</span> <span class="s2">"❌ Exit"</span> <span class="s2">""</span>
+                <span class="nb">echo</span> <span class="s2">"Goodbye!"</span>
+                <span class="nb">break
+        </span>end
+    end
+end
+</code></pre></div></div>
+      <h3 id="multiple-selection-example">
+        
+        
+          Multiple selection example <a href="#multiple-selection-example">#</a>
+        
+        
+      </h3>
+    
+
+<p>You can also select multiple items using the <code class="language-plaintext highlighter-rouge">--multi</code> flag:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Select multiple files for batch operations</span>
+<span class="nb">set </span>selected_files <span class="o">(</span>
+    find <span class="nb">.</span> <span class="nt">-type</span> f <span class="nt">-name</span> <span class="s2">"*.txt"</span> | <span class="se">\</span>
+    fzf <span class="nt">--multi</span> <span class="se">\</span>
+        <span class="nt">--prompt</span> <span class="s1">'Select files (TAB to mark): '</span> <span class="se">\</span>
+        <span class="nt">--preview</span> <span class="s1">'cat {}'</span> <span class="se">\</span>
+        <span class="nt">--preview-window</span> right:50%
+<span class="o">)</span>
+
+<span class="k">if </span><span class="nb">test</span> <span class="o">(</span>count <span class="nv">$selected_files</span><span class="o">)</span> <span class="nt">-gt</span> 0
+    <span class="nb">echo</span> <span class="s2">"Selected files:"</span>
+    <span class="k">for </span>file <span class="k">in</span> <span class="nv">$selected_files</span>
+        <span class="nb">echo</span> <span class="s2">"  - </span><span class="nv">$file</span><span class="s2">"</span>
+    end
+end
+</code></pre></div></div>
+      <h3 id="common-fzf-options">
+        
+        
+          Common fzf options <a href="#common-fzf-options">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">--prompt</code>: Custom prompt text</li>
+  <li><code class="language-plaintext highlighter-rouge">--height</code>: Display height (percentage or lines)</li>
+  <li><code class="language-plaintext highlighter-rouge">--layout reverse</code>: Show prompt at top</li>
+  <li><code class="language-plaintext highlighter-rouge">--border</code>: Add border around fzf</li>
+  <li><code class="language-plaintext highlighter-rouge">--preview</code>: Show preview window with command</li>
+  <li><code class="language-plaintext highlighter-rouge">--preview-window</code>: Configure preview window position and size</li>
+  <li><code class="language-plaintext highlighter-rouge">--multi</code>: Allow multiple selections (use TAB to mark)</li>
+  <li><code class="language-plaintext highlighter-rouge">--ansi</code>: Enable ANSI color codes</li>
+</ul>
+      <h3 id="installation-and-usage-notes">
+        
+        
+          Installation and usage notes <a href="#installation-and-usage-notes">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li>fzf must be installed first (<code class="language-plaintext highlighter-rouge">brew install fzf</code> on macOS, <code class="language-plaintext highlighter-rouge">apt install fzf</code> on Ubuntu)</li>
+  <li>Use TAB for multiple selections when <code class="language-plaintext highlighter-rouge">--multi</code> is enabled</li>
+  <li>Use ESC or Ctrl-C to cancel without making a selection</li>
+  <li>Type to fuzzy search through the available options</li>
+  <li>Arrow keys or Ctrl-J/Ctrl-K to navigate up and down</li>
+</ul>
       <h2 id="how-to-use-sed">
         
         
@@ -1107,7 +1587,7 @@ to pipe the result of <code class="language-plaintext highlighter-rouge">find</c
 
 <p>Here’s an example that removes <code class="language-plaintext highlighter-rouge">./</code> from the start of each file that’s found.</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"./.Android"</span> | <span class="nb">sed</span> <span class="s1">'s/.\///g'</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"./.Android"</span> | <span class="nb">sed</span> <span class="s1">'s/^\.\///'</span>
 </code></pre></div></div>
 
 <p>Here’s a more complex example of using <code class="language-plaintext highlighter-rouge">sed</code>, <code class="language-plaintext highlighter-rouge">find</code>, and <code class="language-plaintext highlighter-rouge">xargs</code> together.</p>
@@ -1205,6 +1685,855 @@ first part of it. This can be done using the following cut command.</p>
   <span class="nb">set </span>RUNTIME <span class="o">(</span>math <span class="nv">$RUNTIME</span> / 60<span class="o">)</span>
   <span class="nb">echo</span> <span class="s2">"⏲ Total runtime: </span><span class="nv">$RUNTIME</span><span class="s2"> min ⏲"</span>
 end
+</code></pre></div></div>
+      <h2 id="how-to-debug-fish-scripts">
+        
+        
+          How to debug fish scripts <a href="#how-to-debug-fish-scripts">#</a>
+        
+        
+      </h2>
+    
+
+<p>Fish provides several debugging capabilities to help troubleshoot your scripts and understand what’s happening during execution.</p>
+      <h3 id="enable-command-tracing">
+        
+        
+          Enable command tracing <a href="#enable-command-tracing">#</a>
+        
+        
+      </h3>
+    
+
+<p>Fish can show you every command that’s being executed, which is useful for debugging complex scripts:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># Enable tracing for debugging</span>
+<span class="nb">set</span> <span class="nt">-g</span> fish_trace 1
+
+<span class="c"># Your script code here</span>
+<span class="nb">echo</span> <span class="s2">"Starting script..."</span>
+<span class="nb">set </span>MY_VAR <span class="s2">"test value"</span>
+<span class="nb">echo</span> <span class="s2">"MY_VAR is: </span><span class="nv">$MY_VAR</span><span class="s2">"</span>
+
+<span class="c"># Disable tracing when done</span>
+<span class="nb">set</span> <span class="nt">-e</span> fish_trace
+</code></pre></div></div>
+
+<p>You can also enable tracing for just a portion of your script by setting and unsetting <code class="language-plaintext highlighter-rouge">fish_trace</code> around specific sections.</p>
+      <h3 id="conditional-debug-output">
+        
+        
+          Conditional debug output <a href="#conditional-debug-output">#</a>
+        
+        
+      </h3>
+    
+
+<p>Create debug output that only shows when debugging is enabled:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>debug_echo <span class="nt">-a</span> message
+    <span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> DEBUG
+        <span class="nb">echo</span> <span class="s2">"DEBUG: </span><span class="nv">$message</span><span class="s2">"</span> <span class="o">&gt;</span>&amp;2
+    end
+end
+
+<span class="k">function </span>my_function <span class="nt">-a</span> param1 param2
+    debug_echo <span class="s2">"my_function called with: </span><span class="nv">$param1</span><span class="s2">, </span><span class="nv">$param2</span><span class="s2">"</span>
+    
+    <span class="nb">set </span>result <span class="o">(</span>math <span class="nv">$param1</span> + <span class="nv">$param2</span><span class="o">)</span>
+    debug_echo <span class="s2">"calculation result: </span><span class="nv">$result</span><span class="s2">"</span>
+    
+    <span class="nb">echo</span> <span class="nv">$result</span>
+end
+
+<span class="c"># Usage: DEBUG=1 ./my_script.fish</span>
+<span class="c"># Or: set -x DEBUG 1; ./my_script.fish</span>
+</code></pre></div></div>
+      <h3 id="check-command-success-and-status-codes">
+        
+        
+          Check command success and status codes <a href="#check-command-success-and-status-codes">#</a>
+        
+        
+      </h3>
+    
+
+<p>Always check if commands succeeded, especially external commands:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>safe_git_pull
+    <span class="k">if </span>git pull
+        <span class="nb">echo</span> <span class="s2">"✅ Git pull successful"</span>
+        <span class="k">return </span>0
+    <span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"❌ Git pull failed with status: </span><span class="nv">$status</span><span class="s2">"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return</span> <span class="nv">$status</span>
+    end
+end
+
+<span class="c"># Check if a command exists before using it</span>
+<span class="k">if </span><span class="nb">command</span> <span class="nt">-v</span> fzf <span class="o">&gt;</span>/dev/null
+    <span class="nb">echo</span> <span class="s2">"fzf is available"</span>
+<span class="k">else
+    </span><span class="nb">echo</span> <span class="s2">"fzf is not installed"</span> <span class="o">&gt;</span>&amp;2
+    <span class="nb">exit </span>1
+end
+</code></pre></div></div>
+      <h3 id="validate-function-arguments">
+        
+        
+          Validate function arguments <a href="#validate-function-arguments">#</a>
+        
+        
+      </h3>
+    
+
+<p>Add argument validation to catch errors early:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>process_file <span class="nt">-a</span> filename
+    <span class="c"># Validate arguments</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="o">(</span>count <span class="nv">$argv</span><span class="o">)</span> <span class="nt">-eq</span> 0
+        <span class="nb">echo</span> <span class="s2">"Error: filename required"</span> <span class="o">&gt;</span>&amp;2
+        <span class="nb">echo</span> <span class="s2">"Usage: process_file &lt;filename&gt;"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="k">if </span>not <span class="nb">test</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$filename</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Error: file '</span><span class="nv">$filename</span><span class="s2">' does not exist"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="k">if </span>not <span class="nb">test</span> <span class="nt">-r</span> <span class="s2">"</span><span class="nv">$filename</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Error: file '</span><span class="nv">$filename</span><span class="s2">' is not readable"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="c"># Process the file</span>
+    <span class="nb">echo</span> <span class="s2">"Processing </span><span class="nv">$filename</span><span class="s2">..."</span>
+end
+</code></pre></div></div>
+      <h3 id="use-verbose-output-for-complex-operations">
+        
+        
+          Use verbose output for complex operations <a href="#use-verbose-output-for-complex-operations">#</a>
+        
+        
+      </h3>
+    
+
+<p>Show what your script is doing step by step:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>verbose_copy <span class="nt">-a</span> <span class="nb">source </span>dest
+    <span class="nb">set</span> <span class="nt">-l</span> verbose_flag <span class="s2">""</span>
+    <span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> VERBOSE
+        <span class="nb">set </span>verbose_flag <span class="s2">"-v"</span>
+        <span class="nb">echo</span> <span class="s2">"Copying </span><span class="nv">$source</span><span class="s2"> to </span><span class="nv">$dest</span><span class="s2">..."</span>
+    end
+    
+    <span class="k">if </span><span class="nb">cp</span> <span class="nv">$verbose_flag</span> <span class="s2">"</span><span class="nv">$source</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$dest</span><span class="s2">"</span>
+        <span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> VERBOSE
+            <span class="nb">echo</span> <span class="s2">"✅ Copy successful"</span>
+        end
+    <span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"❌ Copy failed"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+end
+
+<span class="c"># Usage: VERBOSE=1 ./my_script.fish</span>
+</code></pre></div></div>
+      <h3 id="debug-script-timing-and-performance">
+        
+        
+          Debug script timing and performance <a href="#debug-script-timing-and-performance">#</a>
+        
+        
+      </h3>
+    
+
+<p>Profile sections of your script to identify bottlenecks:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>time_section <span class="nt">-a</span> section_name
+    <span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> DEBUG_TIMING
+        <span class="nb">set </span>start_time <span class="o">(</span><span class="nb">date</span> +%s.%3N<span class="o">)</span>
+        <span class="c"># Execute the commands passed as arguments</span>
+        <span class="nv">$argv</span><span class="o">[</span>2..-1]
+        <span class="nb">set </span>end_time <span class="o">(</span><span class="nb">date</span> +%s.%3N<span class="o">)</span>
+        <span class="nb">set </span>duration <span class="o">(</span>math <span class="nv">$end_time</span> - <span class="nv">$start_time</span><span class="o">)</span>
+        <span class="nb">echo</span> <span class="s2">"TIMING: </span><span class="nv">$section_name</span><span class="s2"> took </span><span class="nv">$duration</span><span class="s2"> seconds"</span> <span class="o">&gt;</span>&amp;2
+    <span class="k">else</span>
+        <span class="c"># Just execute the commands without timing</span>
+        <span class="nv">$argv</span><span class="o">[</span>2..-1]
+    end
+end
+
+<span class="c"># Usage example</span>
+time_section <span class="s2">"file_processing"</span> find <span class="nb">.</span> <span class="nt">-name</span> <span class="s2">"*.txt"</span> <span class="nt">-exec</span> <span class="nb">wc</span> <span class="nt">-l</span> <span class="o">{}</span> <span class="se">\;</span>
+time_section <span class="s2">"git_operations"</span> git add <span class="nb">.</span> <span class="o">&amp;&amp;</span> git commit <span class="nt">-m</span> <span class="s2">"Update files"</span>
+</code></pre></div></div>
+      <h3 id="environment-variable-debugging">
+        
+        
+          Environment variable debugging <a href="#environment-variable-debugging">#</a>
+        
+        
+      </h3>
+    
+
+<p>Show important environment variables for troubleshooting:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>show_debug_info
+    <span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> DEBUG
+        <span class="nb">echo</span> <span class="s2">"=== DEBUG INFO ==="</span> <span class="o">&gt;</span>&amp;2
+        <span class="nb">echo</span> <span class="s2">"Script: "</span><span class="o">(</span>status <span class="nt">--current-filename</span><span class="o">)</span> <span class="o">&gt;</span>&amp;2
+        <span class="nb">echo</span> <span class="s2">"PWD: </span><span class="nv">$PWD</span><span class="s2">"</span> <span class="o">&gt;</span>&amp;2
+        <span class="nb">echo</span> <span class="s2">"USER: </span><span class="nv">$USER</span><span class="s2">"</span> <span class="o">&gt;</span>&amp;2
+        <span class="nb">echo</span> <span class="s2">"PATH: </span><span class="nv">$PATH</span><span class="s2">"</span> <span class="o">&gt;</span>&amp;2
+        <span class="nb">echo</span> <span class="s2">"fish version: "</span><span class="o">(</span>fish <span class="nt">--version</span><span class="o">)</span> <span class="o">&gt;</span>&amp;2
+        <span class="nb">echo</span> <span class="s2">"================="</span> <span class="o">&gt;</span>&amp;2
+    end
+end
+
+<span class="c"># Call at start of script</span>
+show_debug_info
+</code></pre></div></div>
+      <h2 id="fish-scripting-best-practices">
+        
+        
+          Fish scripting best practices <a href="#fish-scripting-best-practices">#</a>
+        
+        
+      </h2>
+    
+
+<p>Following these best practices will make your fish scripts more robust, readable, and maintainable.</p>
+      <h3 id="always-quote-variables">
+        
+        
+          Always quote variables <a href="#always-quote-variables">#</a>
+        
+        
+      </h3>
+    
+
+<p>Quote variables to handle spaces and special characters correctly:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># Good: quoted variables</span>
+<span class="nb">set </span>filename <span class="s2">"my file with spaces.txt"</span>
+<span class="k">if </span><span class="nb">test</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$filename</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"File exists: </span><span class="nv">$filename</span><span class="s2">"</span>
+end
+
+<span class="c"># Bad: unquoted variables (will break with spaces)</span>
+<span class="k">if </span><span class="nb">test</span> <span class="nt">-f</span> <span class="nv">$filename</span>
+    <span class="nb">echo</span> <span class="s2">"This will fail with spaces in filename"</span>
+end
+</code></pre></div></div>
+      <h3 id="use-meaningful-variable-names">
+        
+        
+          Use meaningful variable names <a href="#use-meaningful-variable-names">#</a>
+        
+        
+      </h3>
+    
+
+<p>Choose descriptive names that make your code self-documenting:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># Good: descriptive names</span>
+<span class="nb">set </span>config_file_path <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.config/myapp/config.json"</span>
+<span class="nb">set </span>backup_directory <span class="s2">"/backup/myapp"</span>
+<span class="nb">set </span>max_retry_attempts 3
+
+<span class="c"># Bad: cryptic names</span>
+<span class="nb">set </span>cfp <span class="s2">"</span><span class="nv">$HOME</span><span class="s2">/.config/myapp/config.json"</span>
+<span class="nb">set </span>bd <span class="s2">"/backup/myapp"</span>
+<span class="nb">set </span>mra 3
+</code></pre></div></div>
+      <h3 id="validate-inputs-and-handle-errors">
+        
+        
+          Validate inputs and handle errors <a href="#validate-inputs-and-handle-errors">#</a>
+        
+        
+      </h3>
+    
+
+<p>Always validate function parameters and handle potential errors:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>backup_file <span class="nt">-a</span> source_file backup_dir
+    <span class="c"># Validate required parameters</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="o">(</span>count <span class="nv">$argv</span><span class="o">)</span> <span class="nt">-lt</span> 2
+        <span class="nb">echo</span> <span class="s2">"Usage: backup_file &lt;source_file&gt; &lt;backup_dir&gt;"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="c"># Validate source file exists and is readable</span>
+    <span class="k">if </span>not <span class="nb">test</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$source_file</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Error: Source file '</span><span class="nv">$source_file</span><span class="s2">' does not exist"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="k">if </span>not <span class="nb">test</span> <span class="nt">-r</span> <span class="s2">"</span><span class="nv">$source_file</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Error: Cannot read source file '</span><span class="nv">$source_file</span><span class="s2">'"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="c"># Validate backup directory</span>
+    <span class="k">if </span>not <span class="nb">test</span> <span class="nt">-d</span> <span class="s2">"</span><span class="nv">$backup_dir</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Creating backup directory: </span><span class="nv">$backup_dir</span><span class="s2">"</span>
+        <span class="nb">mkdir</span> <span class="nt">-p</span> <span class="s2">"</span><span class="nv">$backup_dir</span><span class="s2">"</span>
+    end
+    
+    <span class="c"># Perform backup with error checking</span>
+    <span class="k">if </span><span class="nb">cp</span> <span class="s2">"</span><span class="nv">$source_file</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$backup_dir</span><span class="s2">/"</span>
+        <span class="nb">echo</span> <span class="s2">"Successfully backed up '</span><span class="nv">$source_file</span><span class="s2">' to '</span><span class="nv">$backup_dir</span><span class="s2">'"</span>
+        <span class="k">return </span>0
+    <span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"Failed to backup '</span><span class="nv">$source_file</span><span class="s2">'"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+end
+</code></pre></div></div>
+      <h3 id="use-local-variables-in-functions">
+        
+        
+          Use local variables in functions <a href="#use-local-variables-in-functions">#</a>
+        
+        
+      </h3>
+    
+
+<p>Use <code class="language-plaintext highlighter-rouge">set -l</code> to keep variables local to function scope:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>calculate_average
+    <span class="nb">set</span> <span class="nt">-l</span> numbers <span class="nv">$argv</span>
+    <span class="nb">set</span> <span class="nt">-l</span> <span class="nb">sum </span>0
+    <span class="nb">set</span> <span class="nt">-l</span> count <span class="o">(</span>count <span class="nv">$numbers</span><span class="o">)</span>
+    
+    <span class="c"># Local variables don't pollute global scope</span>
+    <span class="k">for </span>num <span class="k">in</span> <span class="nv">$numbers</span>
+        <span class="nb">set sum</span> <span class="o">(</span>math <span class="nv">$sum</span> + <span class="nv">$num</span><span class="o">)</span>
+    end
+    
+    <span class="nb">set</span> <span class="nt">-l</span> average <span class="o">(</span>math <span class="nv">$sum</span> / <span class="nv">$count</span><span class="o">)</span>
+    <span class="nb">echo</span> <span class="nv">$average</span>
+end
+</code></pre></div></div>
+      <h3 id="prefer-fish-builtins-over-external-commands">
+        
+        
+          Prefer fish builtins over external commands <a href="#prefer-fish-builtins-over-external-commands">#</a>
+        
+        
+      </h3>
+    
+
+<p>Use fish’s built-in commands when possible for better performance and portability:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># Good: use fish string builtin</span>
+<span class="nb">set </span>filename <span class="s2">"document.pdf"</span>
+<span class="k">if </span>string match <span class="nt">-q</span> <span class="s2">"*.pdf"</span> <span class="s2">"</span><span class="nv">$filename</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"PDF file detected"</span>
+end
+
+<span class="c"># Less optimal: external grep</span>
+<span class="k">if </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$filename</span><span class="s2">"</span> | <span class="nb">grep</span> <span class="nt">-q</span> <span class="s2">"</span><span class="se">\.</span><span class="s2">pdf$"</span>
+    <span class="nb">echo</span> <span class="s2">"PDF file detected"</span>
+end
+
+<span class="c"># Good: use fish test builtin</span>
+<span class="k">if </span><span class="nb">test</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$filename</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"File exists"</span>
+end
+
+<span class="c"># Less optimal: external test command</span>
+<span class="k">if</span> /bin/test <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$filename</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"File exists"</span>
+end
+</code></pre></div></div>
+      <h3 id="use-command-substitution-appropriately">
+        
+        
+          Use command substitution appropriately <a href="#use-command-substitution-appropriately">#</a>
+        
+        
+      </h3>
+    
+
+<p>Store command output in variables for reuse and error checking:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>check_git_status
+    <span class="c"># Store command output for reuse</span>
+    <span class="nb">set </span>git_status <span class="o">(</span>git status <span class="nt">--porcelain</span> 2&gt;/dev/null<span class="o">)</span>
+    
+    <span class="c"># Check if git command succeeded</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="nv">$status</span> <span class="nt">-ne</span> 0
+        <span class="nb">echo</span> <span class="s2">"Not a git repository"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1
+    end
+    
+    <span class="c"># Now we can use the result multiple times</span>
+    <span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$git_status</span><span class="s2">"</span>
+        <span class="nb">echo</span> <span class="s2">"Repository is clean"</span>
+    <span class="k">else
+        </span><span class="nb">echo</span> <span class="s2">"Repository has changes:"</span>
+        <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$git_status</span><span class="s2">"</span>
+    end
+end
+</code></pre></div></div>
+      <h3 id="use-functions-for-reusable-code">
+        
+        
+          Use functions for reusable code <a href="#use-functions-for-reusable-code">#</a>
+        
+        
+      </h3>
+    
+
+<p>Break complex scripts into smaller, reusable functions:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>log_message <span class="nt">-a</span> level message
+    <span class="nb">set </span>timestamp <span class="o">(</span><span class="nb">date</span> <span class="s1">'+%Y-%m-%d %H:%M:%S'</span><span class="o">)</span>
+    <span class="nb">echo</span> <span class="s2">"[</span><span class="nv">$timestamp</span><span class="s2">] [</span><span class="nv">$level</span><span class="s2">] </span><span class="nv">$message</span><span class="s2">"</span>
+end
+
+<span class="k">function </span>create_backup <span class="nt">-a</span> <span class="nb">source </span>dest
+    log_message <span class="s2">"INFO"</span> <span class="s2">"Starting backup from '</span><span class="nv">$source</span><span class="s2">' to '</span><span class="nv">$dest</span><span class="s2">'"</span>
+    
+    <span class="k">if </span><span class="nb">cp</span> <span class="nt">-r</span> <span class="s2">"</span><span class="nv">$source</span><span class="s2">"</span> <span class="s2">"</span><span class="nv">$dest</span><span class="s2">"</span>
+        log_message <span class="s2">"SUCCESS"</span> <span class="s2">"Backup completed successfully"</span>
+        <span class="k">return </span>0
+    <span class="k">else
+        </span>log_message <span class="s2">"ERROR"</span> <span class="s2">"Backup failed"</span>
+        <span class="k">return </span>1
+    end
+end
+
+<span class="c"># Main script logic</span>
+create_backup <span class="s2">"/important/data"</span> <span class="s2">"/backup/location"</span>
+</code></pre></div></div>
+      <h3 id="handle-signals-gracefully">
+        
+        
+          Handle signals gracefully <a href="#handle-signals-gracefully">#</a>
+        
+        
+      </h3>
+    
+
+<p>Set up signal handlers for clean script termination:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># Clean up temporary files on exit</span>
+<span class="k">function </span>cleanup
+    <span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> temp_file
+        <span class="nb">rm</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$temp_file</span><span class="s2">"</span>
+    end
+    <span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> temp_dir
+        <span class="nb">rm</span> <span class="nt">-rf</span> <span class="s2">"</span><span class="nv">$temp_dir</span><span class="s2">"</span>
+    end
+end
+
+<span class="c"># Set up signal handlers</span>
+<span class="nb">trap </span>cleanup EXIT
+<span class="nb">trap</span> <span class="s1">'echo "Script interrupted"; cleanup; exit 130'</span> INT
+
+<span class="c"># Your script logic here</span>
+<span class="nb">set </span>temp_file <span class="o">(</span><span class="nb">mktemp</span><span class="o">)</span>
+<span class="nb">set </span>temp_dir <span class="o">(</span><span class="nb">mktemp</span> <span class="nt">-d</span><span class="o">)</span>
+</code></pre></div></div>
+      <h3 id="use-consistent-exit-codes">
+        
+        
+          Use consistent exit codes <a href="#use-consistent-exit-codes">#</a>
+        
+        
+      </h3>
+    
+
+<p>Follow standard exit code conventions:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>my_script
+    <span class="c"># 0 = success</span>
+    <span class="c"># 1 = general error</span>
+    <span class="c"># 2 = usage error</span>
+    <span class="c"># 130 = script terminated by Control-C</span>
+    
+    <span class="k">if </span><span class="nb">test</span> <span class="o">(</span>count <span class="nv">$argv</span><span class="o">)</span> <span class="nt">-eq</span> 0
+        <span class="nb">echo</span> <span class="s2">"Usage: my_script &lt;filename&gt;"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>2  <span class="c"># Usage error</span>
+    end
+    
+    <span class="k">if </span>not <span class="nb">test</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$argv</span><span class="s2">[1]"</span>
+        <span class="nb">echo</span> <span class="s2">"File not found: </span><span class="nv">$argv</span><span class="s2">[1]"</span> <span class="o">&gt;</span>&amp;2
+        <span class="k">return </span>1  <span class="c"># General error</span>
+    end
+    
+    <span class="c"># Process file...</span>
+    <span class="nb">echo</span> <span class="s2">"Processing </span><span class="nv">$argv</span><span class="s2">[1]"</span>
+    <span class="k">return </span>0  <span class="c"># Success</span>
+end
+</code></pre></div></div>
+      <h3 id="document-your-functions">
+        
+        
+          Document your functions <a href="#document-your-functions">#</a>
+        
+        
+      </h3>
+    
+
+<p>Use the <code class="language-plaintext highlighter-rouge">--description</code> flag to document function purpose:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="k">function </span>process_log_files <span class="nt">--description</span> <span class="s2">"Process and rotate log files older than specified days"</span>
+    <span class="c"># Function implementation here</span>
+    <span class="nb">echo</span> <span class="s2">"Processing log files..."</span>
+end
+
+<span class="k">function </span>backup_database <span class="nt">--description</span> <span class="s2">"Create timestamped backup of database to specified directory"</span>
+    <span class="c"># Function implementation here</span>
+    <span class="nb">echo</span> <span class="s2">"Backing up database..."</span>
+end
+
+<span class="c"># Users can see function descriptions with: functions --details function_name</span>
+</code></pre></div></div>
+      <h2 id="common-fish-scripting-pitfalls">
+        
+        
+          Common fish scripting pitfalls <a href="#common-fish-scripting-pitfalls">#</a>
+        
+        
+      </h2>
+    
+
+<p>These are frequent mistakes that can cause confusing behavior in fish scripts. Learning to avoid them will save you debugging time.</p>
+      <h3 id="forgetting-that-all-variables-are-lists">
+        
+        
+          Forgetting that all variables are lists <a href="#forgetting-that-all-variables-are-lists">#</a>
+        
+        
+      </h3>
+    
+
+<p>In fish, every variable is a list, even if it contains only one element. This can lead to unexpected behavior:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># Pitfall: assuming single values</span>
+<span class="nb">set </span>filename <span class="s2">"my file.txt"</span>
+<span class="nb">set </span>result <span class="o">(</span><span class="nb">echo</span> <span class="nv">$filename</span><span class="o">)</span>  <span class="c"># This works fine</span>
+
+<span class="c"># But when you have multiple values:</span>
+<span class="nb">set </span>filenames <span class="s2">"file1.txt"</span> <span class="s2">"file2.txt"</span> <span class="s2">"file3.txt"</span>
+<span class="nb">set </span>result <span class="o">(</span><span class="nb">echo</span> <span class="nv">$filenames</span><span class="o">)</span>  <span class="c"># This passes 3 arguments to echo</span>
+
+<span class="c"># Correct: quote the variable to treat as single argument</span>
+<span class="nb">set </span>result <span class="o">(</span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$filenames</span><span class="s2">"</span><span class="o">)</span>  <span class="c"># This treats the whole list as one string</span>
+</code></pre></div></div>
+      <h3 id="using-bash-syntax-in-fish">
+        
+        
+          Using bash syntax in fish <a href="#using-bash-syntax-in-fish">#</a>
+        
+        
+      </h3>
+    
+
+<p>Fish syntax is different from bash/sh. These bash patterns don’t work in fish:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># Bash syntax that doesn't work in fish:</span>
+<span class="c"># if [ "$var" = "value" ]     # Use 'test' instead</span>
+<span class="c"># export VAR=value            # Use 'set -x VAR value'</span>
+<span class="c"># VAR=value command           # Use 'env VAR=value command'</span>
+<span class="c"># $((1 + 2))                  # Use 'math 1 + 2'</span>
+<span class="c"># ${var:-default}             # Use separate if/else logic</span>
+
+<span class="c"># Fish equivalents:</span>
+<span class="k">if </span><span class="nb">test</span> <span class="s2">"</span><span class="nv">$var</span><span class="s2">"</span> <span class="o">=</span> <span class="s2">"value"</span>
+    <span class="nb">echo</span> <span class="s2">"correct fish syntax"</span>
+end
+
+<span class="nb">set</span> <span class="nt">-x</span> VAR value              <span class="c"># export variable</span>
+<span class="nb">env </span><span class="nv">VAR</span><span class="o">=</span>value <span class="nb">command</span>         <span class="c"># set variable for single command</span>
+<span class="nb">set </span>result <span class="o">(</span>math 1 + 2<span class="o">)</span>       <span class="c"># arithmetic</span>
+</code></pre></div></div>
+      <h3 id="mixing-up-set--q-exists-vs-test--z-empty">
+        
+        
+          Mixing up <code class="language-plaintext highlighter-rouge">set -q</code> (exists) vs <code class="language-plaintext highlighter-rouge">test -z</code> (empty) <a href="#mixing-up-set--q-exists-vs-test--z-empty">#</a>
+        
+        
+      </h3>
+    
+
+<p>These test different things and can cause logic errors:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># set -q tests if variable EXISTS</span>
+<span class="c"># test -z tests if variable is EMPTY</span>
+
+<span class="nb">set </span>empty_var <span class="s2">""</span>
+<span class="nb">set </span>undefined_var  <span class="c"># This variable doesn't exist</span>
+
+<span class="c"># This will be TRUE (variable exists but is empty)</span>
+<span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> empty_var
+    <span class="nb">echo</span> <span class="s2">"empty_var exists"</span>
+end
+
+<span class="c"># This will be FALSE (variable doesn't exist)</span>
+<span class="k">if </span><span class="nb">set</span> <span class="nt">-q</span> undefined_var
+    <span class="nb">echo</span> <span class="s2">"This won't print"</span>
+end
+
+<span class="c"># This will be TRUE (variable is empty)</span>
+<span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$empty_var</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"empty_var is empty"</span>
+end
+
+<span class="c"># This will be TRUE (undefined variables are treated as empty strings)</span>
+<span class="k">if </span><span class="nb">test</span> <span class="nt">-z</span> <span class="s2">"</span><span class="nv">$undefined_var</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"undefined_var is also considered empty"</span>
+end
+</code></pre></div></div>
+      <h3 id="not-quoting-variables-with-spaces">
+        
+        
+          Not quoting variables with spaces <a href="#not-quoting-variables-with-spaces">#</a>
+        
+        
+      </h3>
+    
+
+<p>Unquoted variables with spaces will be split into multiple arguments:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="nb">set </span>file_with_spaces <span class="s2">"my document.pdf"</span>
+
+<span class="c"># Wrong: this will fail because it becomes 'test -f my document.pdf'</span>
+<span class="c"># which is 3 arguments instead of the filename</span>
+<span class="k">if </span><span class="nb">test</span> <span class="nt">-f</span> <span class="nv">$file_with_spaces</span>
+    <span class="nb">echo</span> <span class="s2">"This test will fail incorrectly"</span>
+end
+
+<span class="c"># Correct: quote the variable</span>
+<span class="k">if </span><span class="nb">test</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$file_with_spaces</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"This works correctly"</span>
+end
+
+<span class="c"># Wrong: will try to copy 'my', 'document.pdf' separately</span>
+<span class="nb">cp</span> <span class="nv">$file_with_spaces</span> /backup/
+
+<span class="c"># Correct: treats as single filename</span>
+<span class="nb">cp</span> <span class="s2">"</span><span class="nv">$file_with_spaces</span><span class="s2">"</span> /backup/
+</code></pre></div></div>
+      <h3 id="incorrect-variable-expansion-in-loops">
+        
+        
+          Incorrect variable expansion in loops <a href="#incorrect-variable-expansion-in-loops">#</a>
+        
+        
+      </h3>
+    
+
+<p>Variable expansion behaves differently in different contexts:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="nb">set </span>items <span class="s2">"item1"</span> <span class="s2">"item2"</span> <span class="s2">"item3"</span>
+
+<span class="c"># Pitfall: trying to modify the loop variable</span>
+<span class="k">for </span>item <span class="k">in</span> <span class="nv">$items</span>
+    <span class="nb">set </span>item <span class="s2">"modified_</span><span class="nv">$item</span><span class="s2">"</span>  <span class="c"># This creates a new local variable!</span>
+    <span class="nb">echo</span> <span class="nv">$item</span>                  <span class="c"># Prints modified version</span>
+end
+
+<span class="nb">echo</span> <span class="nv">$items</span>  <span class="c"># Original list is unchanged!</span>
+
+<span class="c"># Correct approach: use a different variable or array indexing</span>
+<span class="k">for </span>i <span class="k">in</span> <span class="o">(</span><span class="nb">seq</span> <span class="o">(</span>count <span class="nv">$items</span><span class="o">))</span>
+    <span class="nb">set </span>items[<span class="nv">$i</span><span class="o">]</span> <span class="s2">"modified_</span><span class="nv">$items</span><span class="s2">[</span><span class="nv">$i</span><span class="s2">]"</span>
+end
+</code></pre></div></div>
+      <h3 id="forgetting-command-substitution-captures-stdout-only">
+        
+        
+          Forgetting command substitution captures stdout only <a href="#forgetting-command-substitution-captures-stdout-only">#</a>
+        
+        
+      </h3>
+    
+
+<p>Command substitution with <code class="language-plaintext highlighter-rouge">()</code> only captures stdout, not stderr:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># This will capture the error count, but error messages go to terminal</span>
+<span class="nb">set </span>error_output <span class="o">(</span>find /root <span class="nt">-name</span> <span class="s2">"*.txt"</span> 2&gt;&amp;1<span class="o">)</span>  <span class="c"># Capture both stdout and stderr</span>
+
+<span class="c"># Better: separate handling of stdout and stderr</span>
+find /root <span class="nt">-name</span> <span class="s2">"*.txt"</span> 2&gt;/tmp/find_errors.log
+<span class="nb">set </span>found_files <span class="o">(</span>find /root <span class="nt">-name</span> <span class="s2">"*.txt"</span> 2&gt;/dev/null<span class="o">)</span>
+
+<span class="k">if </span><span class="nb">test</span> <span class="nt">-s</span> /tmp/find_errors.log
+    <span class="nb">echo</span> <span class="s2">"Errors occurred during find operation"</span>
+end
+</code></pre></div></div>
+      <h3 id="using--for-negation-instead-of-not">
+        
+        
+          Using <code class="language-plaintext highlighter-rouge">!</code> for negation instead of <code class="language-plaintext highlighter-rouge">not</code> <a href="#using--for-negation-instead-of-not">#</a>
+        
+        
+      </h3>
+    
+
+<p>Fish uses <code class="language-plaintext highlighter-rouge">not</code> for logical negation, not <code class="language-plaintext highlighter-rouge">!</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="nb">set </span>filename <span class="s2">"document.txt"</span>
+
+<span class="c"># Wrong: bash/sh syntax</span>
+<span class="c"># if ! test -f "$filename"</span>
+
+<span class="c"># Correct: fish syntax</span>
+<span class="k">if </span>not <span class="nb">test</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$filename</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"File doesn't exist"</span>
+end
+
+<span class="c"># Also works with commands</span>
+<span class="k">if </span>not git pull
+    <span class="nb">echo</span> <span class="s2">"Git pull failed"</span>
+end
+</code></pre></div></div>
+      <h3 id="assuming-0-contains-the-script-name">
+        
+        
+          Assuming <code class="language-plaintext highlighter-rouge">$0</code> contains the script name <a href="#assuming-0-contains-the-script-name">#</a>
+        
+        
+      </h3>
+    
+
+<p>In fish, <code class="language-plaintext highlighter-rouge">$argv[0]</code> or <code class="language-plaintext highlighter-rouge">(status current-filename)</code> should be used instead of <code class="language-plaintext highlighter-rouge">$0</code>:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># Wrong: $0 doesn't exist in fish</span>
+<span class="c"># echo "Script name: $0"</span>
+
+<span class="c"># Correct ways to get script name:</span>
+<span class="nb">echo</span> <span class="s2">"Script name: "</span><span class="o">(</span>status current-filename<span class="o">)</span>
+<span class="nb">echo</span> <span class="s2">"Script basename: "</span><span class="o">(</span><span class="nb">basename</span> <span class="o">(</span>status current-filename<span class="o">))</span>
+
+<span class="c"># For command line arguments:</span>
+<span class="nb">echo</span> <span class="s2">"First argument: </span><span class="nv">$argv</span><span class="s2">[1]"</span>
+<span class="nb">echo</span> <span class="s2">"All arguments: </span><span class="nv">$argv</span><span class="s2">"</span>
+<span class="nb">echo</span> <span class="s2">"Number of arguments: "</span><span class="o">(</span>count <span class="nv">$argv</span><span class="o">)</span>
+</code></pre></div></div>
+      <h3 id="not-checking-command-exit-status">
+        
+        
+          Not checking command exit status <a href="#not-checking-command-exit-status">#</a>
+        
+        
+      </h3>
+    
+
+<p>Always verify that commands succeeded, especially in automated scripts:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="c"># Pitfall: assuming commands always succeed</span>
+git clone https://github.com/user/repo.git
+<span class="nb">cd </span>repo
+make <span class="nb">install</span>
+
+<span class="c"># Better: check each step</span>
+<span class="k">if </span>not git clone https://github.com/user/repo.git
+    <span class="nb">echo</span> <span class="s2">"Failed to clone repository"</span> <span class="o">&gt;</span>&amp;2
+    <span class="nb">exit </span>1
+end
+
+<span class="k">if </span>not <span class="nb">cd </span>repo
+    <span class="nb">echo</span> <span class="s2">"Failed to enter repository directory"</span> <span class="o">&gt;</span>&amp;2
+    <span class="nb">exit </span>1
+end
+
+<span class="k">if </span>not make <span class="nb">install
+    echo</span> <span class="s2">"Failed to install"</span> <span class="o">&gt;</span>&amp;2
+    <span class="nb">exit </span>1
+end
+</code></pre></div></div>
+      <h3 id="global-variable-pollution">
+        
+        
+          Global variable pollution <a href="#global-variable-pollution">#</a>
+        
+        
+      </h3>
+    
+
+<p>Functions can accidentally modify global variables if you don’t use local scope:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/usr/bin/env fish</span>
+
+<span class="nb">set </span>counter 10
+
+<span class="k">function </span>increment_counter
+    <span class="c"># Pitfall: modifying global variable unintentionally</span>
+    <span class="nb">set </span>counter <span class="o">(</span>math <span class="nv">$counter</span> + 1<span class="o">)</span>
+    <span class="nb">echo</span> <span class="s2">"Counter in function: </span><span class="nv">$counter</span><span class="s2">"</span>
+end
+
+increment_counter
+<span class="nb">echo</span> <span class="s2">"Global counter: </span><span class="nv">$counter</span><span class="s2">"</span>  <span class="c"># This is now 11, which might be unexpected</span>
+
+<span class="c"># Better: use local variables when appropriate</span>
+<span class="k">function </span>safe_increment <span class="nt">-a</span> input
+    <span class="nb">set</span> <span class="nt">-l</span> local_counter <span class="o">(</span>math <span class="nv">$input</span> + 1<span class="o">)</span>
+    <span class="nb">echo</span> <span class="nv">$local_counter</span>  <span class="c"># Return the result</span>
+end
+
+<span class="nb">set </span>counter <span class="o">(</span>safe_increment <span class="nv">$counter</span><span class="o">)</span>
 </code></pre></div></div>
 
         <!--

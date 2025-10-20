@@ -28,6 +28,12 @@ exclude: false
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [My story](#my-story)
+- [What I'm Building Now](#what-im-building-now)
+  - [r3bl — Production TUI/CLI Infrastructure](#r3bl--production-tuicli-infrastructure)
+- [What I Bring](#what-i-bring)
+  - [Engineering (22 years)](#engineering-22-years)
+  - [Leadership (8 years)](#leadership-8-years)
+- [Teaching & Community](#teaching--community)
 - [Leadership and Resourcefulness](#leadership-and-resourcefulness)
 - [Software Engineering](#software-engineering)
   - [Technologies](#technologies)
@@ -57,38 +63,61 @@ I have over 30 years of work experience in the tech sector:
 - 22 years in software engineering.
 - 8 years in executive leadership, design, product management experience.
 
-As a multifaceted entrepreneur, leader, engineer, designer, and communicator, I’ve focused on
+As a multifaceted entrepreneur, leader, engineer, designer, and communicator, I've focused on
 creating, designing, building, and collaborating with people to bring amazing user experiences to
 life across multiple platforms.
 
+## What I'm Building Now
+
+I'm a **Rustacean Systems Engineering Leader** building high-performance infrastructure and leading
+teams that ship production systems.
+
+### r3bl — Production TUI/CLI Infrastructure
+
+I'm the founder and principal engineer of
+[r3bl-org/r3bl-open-core](https://github.com/r3bl-org/r3bl-open-core), a Rust framework
+for building terminal user interfaces and command-line developer tools.
+
+- **2M+ downloads** on crates.io over 2 years
+- Focus on performance, memory efficiency, and developer ergonomics
+- Used in production for developer tools, infrastructure, and monitoring
+- **Technologies:** Rust (async/tokio, type-state patterns, concurrent programming), systems
+  programming, performance optimization
+
+**Why it matters:** I'm solving real problems for developers building complex terminal and CLI
+applications. The r3bl framework represents years of experience in systems programming, performance
+optimization, and production-grade infrastructure design.
+
+## What I Bring
+
+### Engineering (22 years)
+
+- **Currently:** 4 years daily Rust systems programming, building r3bl-org
+- **Google:** Android Studio IDE platform team — Performance, stability, and response time
+  optimization for IntelliJ-based IDE serving millions of developers
+- **Founder & CEO, TRNQL (2015):** Raised $1.5M, built and shipped production Android/iOS SDKs, led
+  distributed engineering teams
+- **Full-stack systems:** Desktop, web, mobile, cloud infrastructure — TypeScript, React, Node.js,
+  Kotlin, Java, extensive backend and infrastructure experience
+
+### Leadership (8 years)
+
+- Executive leadership combining technical depth with business strategy
+- Team building, product vision, and go-to-market execution
+- Comfortable moving between architecture, code, and organizational leadership
+
+## Teaching & Community
+
+I share production engineering lessons through:
+
+- **YouTube:** [Advanced Rust systems programming](https://www.youtube.com/@developerlifecom) —
+  async, tokio, design patterns, parsing, concurrency
+- **Articles:** [developerlife.com/category/rust](https://developerlife.com/category/Rust/) —
+  Architecture patterns, real-world case studies
+- **Since 1998:** Writing about software engineering at developerlife.com (10M+ pageviews)
+
 > ✨ You can read all my articles on [developerlife.com](https://developerlife.com) and watch my
 > videos on [YouTube](https://www.youtube.com/@developerlifecom).
-
-Highlights:
-
-- Currently a Rustacean 🦀 coding in Rust every day for 4 years, working on systems
-  programming, performance, memory latency, and response times on complex system, related
-  to all things TUI (text user interface) & CLI (command line interface)! Along w/
-  conceiving, architecting, and building fast and efficient desktop and web apps, and
-  local and cloud server infrastructure. Extensive experience coding in TypeScript,
-  React, Node.js, browser extensions, IDE plugins and extensions, Kotlin, Java.
-  - My crates on crates.io have accumulated over 2M downloads in the last 2 years
-  - My YouTube channel on Rust live coding covers advanced topics on systems programming and Rust
-    advanced concepts, like async, tokio, design patterns (typestate, newtype, etc), concurrent and
-    parallel programming, parsing, code generation, and more:
-    [youtube.com/@developerlifecom](https://www.youtube.com/@developerlifecom).
-  - My website developerlife.com has a section on Rust with articles and tutorials covering the same
-    topics as the videos above:
-    [developerlife.com/category/rust](https://developerlife.com/category/Rust/)
-- Worked on Android Studio IDE (JetBrains based) in Kotlin & Java. Worked on the platform team,
-  focusing on system performance, relativity, response times, and stability. While rapidly
-  integrating and adapting to the latest JetBrains IDE platform changes.
-- Was principal SWE, founder, and CEO of a startup (TRNQL) in 2015.
-  - Raised 1.5M in venture funding.
-  - Successfully built and launched developer-facing SDKs for Android & iOS.
-  - Created & led teams that served many users & developers on Android & iOS.
-- Currently create content for prominent developer tutorial site developerlife.com (est 1998) and
-  its YouTube Channel.
 
 ## Leadership and Resourcefulness
 

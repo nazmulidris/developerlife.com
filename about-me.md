@@ -74,9 +74,9 @@ teams that ship production systems.
 
 ### r3bl — Production TUI/CLI Infrastructure
 
-I'm the founder and principal engineer of
-[r3bl-org/r3bl-open-core](https://github.com/r3bl-org/r3bl-open-core), a Rust framework
-for building terminal user interfaces and command-line developer tools.
+I'm the founder and principal engineer of [R3BL TUI](https://github.com/r3bl-org/r3bl-open-core), a
+Rust framework for building next generation async terminal user interfaces (TUI) and command-line
+(CLI) developer tools.
 
 - **2M+ downloads** on crates.io over 2 years
 - Focus on performance, memory efficiency, and developer ergonomics
@@ -85,8 +85,8 @@ for building terminal user interfaces and command-line developer tools.
   programming, performance optimization
 
 **Why it matters:** I'm solving real problems for developers building complex terminal and CLI
-applications. The r3bl framework represents years of experience in systems programming, performance
-optimization, and production-grade infrastructure design.
+applications. The `r3bl_tui` framework represents years of experience in systems programming,
+performance optimization, and production-grade infrastructure design.
 
 ## What I Bring
 
@@ -137,8 +137,8 @@ I share production engineering lessons through:
 - Experienced in building mobile apps and SDKs, web apps and APIs, IDEs, and web services
 
 - Well versed in Rust, Kotlin, Java, Android, Test driven development, TypeScript, Node.js,
-  JavaScript, Jest, React, Redux, Python, React Native, Firebase, databases (SQL & NoSQL), CLI
-  apps, GUI desktop apps
+  JavaScript, Jest, React, Redux, Python, React Native, Firebase, databases (SQL & NoSQL), CLI apps,
+  GUI desktop apps
 
 ### Mobile app development toolkits & infrastructure
 
@@ -184,7 +184,6 @@ Apps I've published to the Play Store:
   app in the world (Wicked blogging app, and RainOrShine weather app)
 
 - I published 4 apps that were used by 100's of thousands of users globally from 2006 to 2011
-
   - Wicked blogging app for BlackBerry
   - MyListy list app for BlackBerry and Web
   - DulyNoted note taking app for BlackBerry and Web

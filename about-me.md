@@ -29,7 +29,7 @@ exclude: false
 
 - [My story](#my-story)
 - [What I'm Building Now](#what-im-building-now)
-  - [r3bl — Production TUI/CLI Infrastructure](#r3bl--production-tuicli-infrastructure)
+  - [Next gen async TUI/CLI infra in Rust](#next-gen-async-tuicli-infra-in-rust)
 - [What I Bring](#what-i-bring)
   - [Engineering (22 years)](#engineering-22-years)
   - [Leadership (8 years)](#leadership-8-years)
@@ -72,7 +72,16 @@ life across multiple platforms.
 I'm a **Rustacean Systems Engineering Leader** building high-performance infrastructure and leading
 teams that ship production systems.
 
-### r3bl — Production TUI/CLI Infrastructure
+### Next gen async TUI/CLI infra in Rust
+
+```
+██████╗ ██████╗ ██████╗ ██╗         ████████╗██╗   ██╗██╗
+██╔══██╗╚════██╗██╔══██╗██║         ╚══██╔══╝██║   ██║██║
+██████╔╝ █████╔╝██████╔╝██║            ██║   ██║   ██║██║
+██╔══██╗ ╚═══██╗██╔══██╗██║            ██║   ██║   ██║██║
+██║  ██║██████╔╝██████╔╝███████╗       ██║   ╚██████╔╝██║
+╚═╝  ╚═╝╚═════╝ ╚═════╝ ╚══════╝       ╚═╝    ╚═════╝ ╚═╝
+```
 
 I'm the founder and principal engineer of [R3BL TUI](https://github.com/r3bl-org/r3bl-open-core), a
 Rust framework for building next generation async terminal user interfaces (TUI) and command-line
@@ -85,8 +94,10 @@ Rust framework for building next generation async terminal user interfaces (TUI)
   programming, performance optimization
 
 **Why it matters:** I'm solving real problems for developers building complex terminal and CLI
-applications. The `r3bl_tui` framework represents years of experience in systems programming,
-performance optimization, and production-grade infrastructure design.
+applications. This space hasn't really seen much innovation since the 90s. Currently with the
+popularization of tools like Claude Code, the Terminal is a primary point of interaction with more
+developers than ever before. The `r3bl_tui` framework represents years of experience in systems
+programming, performance optimization, and production-grade infrastructure design.
 
 ## What I Bring
 

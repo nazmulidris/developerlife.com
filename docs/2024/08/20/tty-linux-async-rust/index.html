@@ -2,21 +2,22 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.9.0 -->
 <title>Build with Naz : Explore Linux TTY, process, signals w/ Rust | developerlife.com</title>
 <meta name="generator" content="Jekyll v4.4.1" />
 <meta property="og:title" content="Build with Naz : Explore Linux TTY, process, signals w/ Rust" />
 <meta name="author" content="Nazmul Idris" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="This article, along with related videos and the repository, explores Linux TTY, shells, processes, sessions, jobs, PTYs, signals, and more using Rust. It explains /dev/tty and describes how terminal libraries like crossterm and termion build on top of stdio and /dev/tty. The article provides examples of using Rust to send and receive POSIX signals, communicate with processes via IPC, and spawn processes. Additionally, it includes examples of using PTY in Linux and controlling external commands (such as binaries like bash) using asynchronous Rust." />
-<meta property="og:description" content="This article, along with related videos and the repository, explores Linux TTY, shells, processes, sessions, jobs, PTYs, signals, and more using Rust. It explains /dev/tty and describes how terminal libraries like crossterm and termion build on top of stdio and /dev/tty. The article provides examples of using Rust to send and receive POSIX signals, communicate with processes via IPC, and spawn processes. Additionally, it includes examples of using PTY in Linux and controlling external commands (such as binaries like bash) using asynchronous Rust." />
+<meta name="twitter:description" property="og:description" content="This article, along with related videos and the repository, explores Linux TTY, shells, processes, sessions, jobs, PTYs, signals, and more using Rust. It explains /dev/tty and describes how terminal libraries like crossterm and termion build on top of stdio and /dev/tty. The article provides examples of using Rust to send and receive POSIX signals, communicate with processes via IPC, and spawn processes. Additionally, it includes examples of using PTY in Linux and controlling external commands (such as binaries like bash) using asynchronous Rust." />
 <link rel="canonical" href="http://developerlife.com/2024/08/20/tty-linux-async-rust/" />
 <meta property="og:url" content="http://developerlife.com/2024/08/20/tty-linux-async-rust/" />
 <meta property="og:site_name" content="developerlife.com" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2024-08-20T10:00:00-05:00" />
+<meta property="article:modified_time" content="2024-08-20T10:00:00-05:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Build with Naz : Explore Linux TTY, process, signals w/ Rust" />
+<meta name="twitter:title" content="Build with Naz : Explore Linux TTY, process, signals w/ Rust" />
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-08-20T10:00:00-05:00","datePublished":"2024-08-20T10:00:00-05:00","description":"This article, along with related videos and the repository, explores Linux TTY, shells, processes, sessions, jobs, PTYs, signals, and more using Rust. It explains /dev/tty and describes how terminal libraries like crossterm and termion build on top of stdio and /dev/tty. The article provides examples of using Rust to send and receive POSIX signals, communicate with processes via IPC, and spawn processes. Additionally, it includes examples of using PTY in Linux and controlling external commands (such as binaries like bash) using asynchronous Rust.","headline":"Build with Naz : Explore Linux TTY, process, signals w/ Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/08/20/tty-linux-async-rust/"},"url":"http://developerlife.com/2024/08/20/tty-linux-async-rust/"}</script>
 <!-- End Jekyll SEO tag -->
@@ -1592,10 +1593,10 @@ signals that will <code class="language-plaintext highlighter-rouge">panic</code
     </ul>
   </li>
   <li>The following dependencies need to be added to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file for this to work:
-    <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">signal-hook</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.3.17"</span> <span class="p">}</span>
-<span class="py">signal-hook-tokio</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="py">version</span> <span class="p">=</span> <span class="s">"0.3.1"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"futures-v0_3"</span><span class="p">]</span> <span class="p">}</span>
-<span class="py">futures</span> <span class="p">=</span> <span class="s">"0.3.30"</span>
+    <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">signal-hook</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"0.3.17"</span><span class="w"> </span><span class="p">}</span>
+<span class="n">signal-hook-tokio</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="err">
+</span><span class="w">    </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"0.3.1"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"futures-v0_3"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="n">futures</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.3.30"</span>
 </code></pre></div>    </div>
   </li>
 </ul>
@@ -2775,6 +2776,15 @@ hello nadia!
     
 
     <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/">
+                        Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)
+                    </a>
+                </li>
+            
         
             
                 

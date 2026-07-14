@@ -16,6 +16,10 @@ end
 echo "Build the site."
 # Generate the site (in the _site/ folder)
 bundle exec jekyll build
+if test $status -ne 0
+    echo "Jekyll build failed! Aborting."
+    exit 1
+end
 
 # Move _site folder to docs/ folder
 mv _site/ docs/

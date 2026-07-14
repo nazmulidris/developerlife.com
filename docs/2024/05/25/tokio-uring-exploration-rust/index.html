@@ -2,21 +2,22 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.9.0 -->
 <title>Build with Naz : Linux io_uring and tokio-uring exploration with Rust | developerlife.com</title>
 <meta name="generator" content="Jekyll v4.4.1" />
 <meta property="og:title" content="Build with Naz : Linux io_uring and tokio-uring exploration with Rust" />
 <meta name="author" content="Nazmul Idris" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article, video, and repo will show you how to use the tokio-uring do async file IO at the OS level, and how to use it to build a simple echo TCP server, for use with netcat." />
-<meta property="og:description" content="Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article, video, and repo will show you how to use the tokio-uring do async file IO at the OS level, and how to use it to build a simple echo TCP server, for use with netcat." />
+<meta name="twitter:description" property="og:description" content="Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article, video, and repo will show you how to use the tokio-uring do async file IO at the OS level, and how to use it to build a simple echo TCP server, for use with netcat." />
 <link rel="canonical" href="http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/" />
 <meta property="og:url" content="http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/" />
 <meta property="og:site_name" content="developerlife.com" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2024-05-25T10:00:00-05:00" />
+<meta property="article:modified_time" content="2024-05-25T10:00:00-05:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Build with Naz : Linux io_uring and tokio-uring exploration with Rust" />
+<meta name="twitter:title" content="Build with Naz : Linux io_uring and tokio-uring exploration with Rust" />
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-05-25T10:00:00-05:00","datePublished":"2024-05-25T10:00:00-05:00","description":"Explore the Linux io_uring syscall with the tokio-uring crate in Rust. This article, video, and repo will show you how to use the tokio-uring do async file IO at the OS level, and how to use it to build a simple echo TCP server, for use with netcat.","headline":"Build with Naz : Linux io_uring and tokio-uring exploration with Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/"},"url":"http://developerlife.com/2024/05/25/tokio-uring-exploration-rust/"}</script>
 <!-- End Jekyll SEO tag -->
@@ -317,32 +318,32 @@ repo</a>.</p>
 <p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
 dependencies that we need for these examples.</p>
 
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
-<span class="py">name</span> <span class="p">=</span> <span class="s">"tokio-uring"</span>
-<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
-<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">[</span><span class="n">package</span><span class="k">]</span>
+<span class="n">name</span> <span class="o">=</span><span class="w"> </span><span class="s">"tokio-uring"</span>
+<span class="n">version</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.1.0"</span>
+<span class="n">edition</span> <span class="o">=</span><span class="w"> </span><span class="s">"2021"</span>
 
-<span class="nn">[[bin]]</span>
-<span class="py">name</span> <span class="p">=</span> <span class="s">"readfile"</span>
-<span class="py">path</span> <span class="p">=</span> <span class="s">"src/readfile.rs"</span>
+<span class="k">[[</span><span class="n">bin</span><span class="k">]]</span>
+<span class="n">name</span> <span class="o">=</span><span class="w"> </span><span class="s">"readfile"</span>
+<span class="n">path</span> <span class="o">=</span><span class="w"> </span><span class="s">"src/readfile.rs"</span>
 
-<span class="nn">[[bin]]</span>
-<span class="py">name</span> <span class="p">=</span> <span class="s">"socketserver"</span>
-<span class="py">path</span> <span class="p">=</span> <span class="s">"src/socketserver.rs"</span>
+<span class="k">[[</span><span class="n">bin</span><span class="k">]]</span>
+<span class="n">name</span> <span class="o">=</span><span class="w"> </span><span class="s">"socketserver"</span>
+<span class="n">path</span> <span class="o">=</span><span class="w"> </span><span class="s">"src/socketserver.rs"</span>
 
-<span class="nn">[dependencies]</span>
-<span class="py">tokio-uring</span> <span class="p">=</span> <span class="s">"0.4.0"</span>
-<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.37.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">,</span> <span class="s">"tracing"</span><span class="p">]</span> <span class="p">}</span>
-<span class="py">tokio-util</span> <span class="p">=</span> <span class="s">"0.7.11"</span>
-<span class="py">tracing</span> <span class="p">=</span> <span class="s">"0.1.40"</span>
-<span class="py">tracing-subscriber</span> <span class="p">=</span> <span class="s">"0.3.18"</span>
+<span class="k">[</span><span class="n">dependencies</span><span class="k">]</span>
+<span class="n">tokio-uring</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.4.0"</span>
+<span class="n">tokio</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"1.37.0"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"full"</span><span class="p">,</span> <span class="s">"tracing"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="n">tokio-util</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.7.11"</span>
+<span class="n">tracing</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.1.40"</span>
+<span class="n">tracing-subscriber</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.3.18"</span>
 
-<span class="py">ctrlc</span> <span class="p">=</span> <span class="s">"3.4.4"</span>
-<span class="py">miette</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"7.2.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span> <span class="p">}</span>
+<span class="n">ctrlc</span> <span class="o">=</span><span class="w"> </span><span class="s">"3.4.4"</span>
+<span class="n">miette</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"7.2.0"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 
-<span class="py">crossterm</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.27.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"event-stream"</span><span class="p">]</span> <span class="p">}</span>
+<span class="n">crossterm</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"0.27.0"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"event-stream"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 
-<span class="py">r3bl_terminal_async</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.5.3"</span> <span class="p">}</span>
+<span class="n">r3bl_terminal_async</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"0.5.3"</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div></div>
       <h3 id="example-1-read-a-file-using-tokio-uring-and-async-non-blocking-io">
         
@@ -926,6 +927,15 @@ these problems!</p>
     
 
     <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/">
+                        Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)
+                    </a>
+                </li>
+            
         
             
                 

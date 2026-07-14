@@ -2,21 +2,22 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.9.0 -->
 <title>Guide to Rust procedural macros | developerlife.com</title>
 <meta name="generator" content="Jekyll v4.4.1" />
 <meta property="og:title" content="Guide to Rust procedural macros" />
 <meta name="author" content="Nazmul Idris" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="Procedural macros are a way for you to extend the Rust compiler and provide plugins that you can use to extend the language. They allow you to reduce the need to write manual boilerplate code, and even allow you to create your own DSL (domain specific language). This article goes into the details of creating the 3 kinds of procedural macros in Rust." />
-<meta property="og:description" content="Procedural macros are a way for you to extend the Rust compiler and provide plugins that you can use to extend the language. They allow you to reduce the need to write manual boilerplate code, and even allow you to create your own DSL (domain specific language). This article goes into the details of creating the 3 kinds of procedural macros in Rust." />
+<meta name="twitter:description" property="og:description" content="Procedural macros are a way for you to extend the Rust compiler and provide plugins that you can use to extend the language. They allow you to reduce the need to write manual boilerplate code, and even allow you to create your own DSL (domain specific language). This article goes into the details of creating the 3 kinds of procedural macros in Rust." />
 <link rel="canonical" href="http://developerlife.com/2022/03/30/rust-proc-macro/" />
 <meta property="og:url" content="http://developerlife.com/2022/03/30/rust-proc-macro/" />
 <meta property="og:site_name" content="developerlife.com" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2022-03-30T10:00:00-05:00" />
+<meta property="article:modified_time" content="2022-03-30T10:00:00-05:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Guide to Rust procedural macros" />
+<meta name="twitter:title" content="Guide to Rust procedural macros" />
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2022-03-30T10:00:00-05:00","datePublished":"2022-03-30T10:00:00-05:00","description":"Procedural macros are a way for you to extend the Rust compiler and provide plugins that you can use to extend the language. They allow you to reduce the need to write manual boilerplate code, and even allow you to create your own DSL (domain specific language). This article goes into the details of creating the 3 kinds of procedural macros in Rust.","headline":"Guide to Rust procedural macros","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2022/03/30/rust-proc-macro/"},"url":"http://developerlife.com/2022/03/30/rust-proc-macro/"}</script>
 <!-- End Jekyll SEO tag -->
@@ -446,8 +447,8 @@ macros in this lib crate that the Rust compiler can discover and use easily.</li
 
     <ul>
       <li>Add the following to your main project’s <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file:
-        <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[dependencies]</span>
-<span class="py">my_proc_macros_lib</span> <span class="o">=</span> <span class="p">{</span> <span class="py">path</span> <span class="p">=</span> <span class="s">"my_proc_macros_lib"</span> <span class="p">}</span>
+        <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">[</span><span class="n">dependencies</span><span class="k">]</span>
+<span class="n">my_proc_macros_lib</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">path</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"my_proc_macros_lib"</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>        </div>
       </li>
     </ul>
@@ -460,22 +461,22 @@ main like so: <code class="language-plaintext highlighter-rouge">use my_proc_mac
 
 <p>Here’s an example of a <code class="language-plaintext highlighter-rouge">Cargo.toml</code> for the proc macro lib crate:</p>
 
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
-<span class="py">name</span> <span class="p">=</span> <span class="s">"my_proc_macros_lib"</span>
-<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
-<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">[</span><span class="n">package</span><span class="k">]</span>
+<span class="n">name</span> <span class="o">=</span><span class="w"> </span><span class="s">"my_proc_macros_lib"</span>
+<span class="n">version</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.1.0"</span>
+<span class="n">edition</span> <span class="o">=</span><span class="w"> </span><span class="s">"2021"</span>
 
-<span class="nn">[lib]</span>
-<span class="py">name</span> <span class="p">=</span> <span class="s">"my_proc_macros_lib"</span>
-<span class="py">path</span> <span class="p">=</span> <span class="s">"src/lib.rs"</span>
-<span class="py">proc-macro</span> <span class="p">=</span> <span class="kc">true</span>
+<span class="k">[</span><span class="n">lib</span><span class="k">]</span>
+<span class="n">name</span> <span class="o">=</span><span class="w"> </span><span class="s">"my_proc_macros_lib"</span>
+<span class="n">path</span> <span class="o">=</span><span class="w"> </span><span class="s">"src/lib.rs"</span>
+<span class="n">proc-macro</span> <span class="o">=</span><span class="w"> </span><span class="kc">true</span>
 
-<span class="nn">[dependencies]</span>
+<span class="k">[</span><span class="n">dependencies</span><span class="k">]</span>
 <span class="c"># https://github.com/dtolnay/proc-macro-workshop#debugging-tips</span>
-<span class="py">syn</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"*"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"extra-traits"</span><span class="p">]</span> <span class="p">}</span>
-<span class="py">quote</span> <span class="p">=</span> <span class="s">"*"</span>
-<span class="py">proc-macro2</span> <span class="p">=</span> <span class="s">"*"</span>
-<span class="py">r3bl_rs_utils</span> <span class="p">=</span> <span class="s">"*"</span>
+<span class="n">syn</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"*"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"extra-traits"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="n">quote</span> <span class="o">=</span><span class="w"> </span><span class="s">"*"</span>
+<span class="n">proc-macro2</span> <span class="o">=</span><span class="w"> </span><span class="s">"*"</span>
+<span class="n">r3bl_rs_utils</span> <span class="o">=</span><span class="w"> </span><span class="s">"*"</span>
 </code></pre></div></div>
 
 <blockquote>
@@ -2463,6 +2464,15 @@ stable):</p>
                 <li>
                     <a class="post-list" href="/2020/04/05/kotlin-dsl-intro/">
                         Kotlin DSL Introduction
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/">
+                        Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)
                     </a>
                 </li>
             

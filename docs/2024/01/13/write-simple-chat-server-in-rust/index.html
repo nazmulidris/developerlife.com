@@ -2,21 +2,22 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.9.0 -->
 <title>Write a simple TCP chat server in Rust | developerlife.com</title>
 <meta name="generator" content="Jekyll v4.4.1" />
 <meta property="og:title" content="Write a simple TCP chat server in Rust" />
 <meta name="author" content="Nazmul Idris" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="A guide on how to create write a simple TCP chat server in Rust using Tokio" />
-<meta property="og:description" content="A guide on how to create write a simple TCP chat server in Rust using Tokio" />
+<meta name="twitter:description" property="og:description" content="A guide on how to create write a simple TCP chat server in Rust using Tokio" />
 <link rel="canonical" href="http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/" />
 <meta property="og:url" content="http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/" />
 <meta property="og:site_name" content="developerlife.com" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2024-01-13T09:00:00-06:00" />
+<meta property="article:modified_time" content="2024-01-13T09:00:00-06:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Write a simple TCP chat server in Rust" />
+<meta name="twitter:title" content="Write a simple TCP chat server in Rust" />
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-01-13T09:00:00-06:00","datePublished":"2024-01-13T09:00:00-06:00","description":"A guide on how to create write a simple TCP chat server in Rust using Tokio","headline":"Write a simple TCP chat server in Rust","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/"},"url":"http://developerlife.com/2024/01/13/write-simple-chat-server-in-rust/"}</script>
 <!-- End Jekyll SEO tag -->
@@ -353,15 +354,15 @@ task executes. Then the code returns to the infinite loop, if it hasn’t return
 we will add the following dependencies to our <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file.</p>
 
 <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># tokio.</span>
-<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.35.1"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
+<span class="n">tokio</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"1.35.1"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"full"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 
 <span class="c"># stdout logging.</span>
-<span class="py">femme</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"2.2.1"</span> <span class="p">}</span>
-<span class="py">log</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.4.20"</span> <span class="p">}</span>
+<span class="n">femme</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"2.2.1"</span><span class="w"> </span><span class="p">}</span>
+<span class="n">log</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"0.4.20"</span><span class="w"> </span><span class="p">}</span>
 
 <span class="c"># r3bl_rs_utils_core - friendly name generator.</span>
-<span class="py">r3bl_rs_utils_core</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.9.12"</span> <span class="p">}</span>
-<span class="py">r3bl_tui</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.5.1"</span> <span class="p">}</span>
+<span class="n">r3bl_rs_utils_core</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"0.9.12"</span><span class="w"> </span><span class="p">}</span>
+<span class="n">r3bl_tui</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"0.5.1"</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div></div>
       <h2 id="main-function">
         
@@ -812,6 +813,15 @@ and drop the other task.</p>
     
 
     <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/">
+                        Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)
+                    </a>
+                </li>
+            
         
             
                 

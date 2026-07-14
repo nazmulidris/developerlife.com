@@ -2,23 +2,24 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.9.0 -->
 <title>Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences | developerlife.com</title>
 <meta name="generator" content="Jekyll v4.4.1" />
 <meta property="og:title" content="Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences" />
 <meta name="author" content="Nazmul Idris" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="When building Rust projects, Cargo emits hidden OSC (Operating System Command) terminal control sequences that communicate build progress to compatible terminals like WezTerm. However, capturing these sequences programmatically is surprisingly tricky - standard process pipes won’t work because Cargo only emits them when connected to a real TTY, and inheriting stdio bypasses your program entirely. This article explores how to use pseudo-terminals (PTY) with the portable-pty crate to create a virtual terminal that tricks Cargo into emitting OSC sequences while still allowing you to capture and parse them in real-time. We’ll dive into the PTY architecture, understand why blocking I/O with cloned file descriptors causes hangs, and implement a production-ready solution using a detached task pattern that processes build progress events (0-100%) as they happen, not after the build completes." />
-<meta property="og:description" content="When building Rust projects, Cargo emits hidden OSC (Operating System Command) terminal control sequences that communicate build progress to compatible terminals like WezTerm. However, capturing these sequences programmatically is surprisingly tricky - standard process pipes won’t work because Cargo only emits them when connected to a real TTY, and inheriting stdio bypasses your program entirely. This article explores how to use pseudo-terminals (PTY) with the portable-pty crate to create a virtual terminal that tricks Cargo into emitting OSC sequences while still allowing you to capture and parse them in real-time. We’ll dive into the PTY architecture, understand why blocking I/O with cloned file descriptors causes hangs, and implement a production-ready solution using a detached task pattern that processes build progress events (0-100%) as they happen, not after the build completes." />
+<meta name="description" content="When building Rust projects, Cargo emits hidden OSC (Operating System Command) terminal control sequences that communicate build progress to compatible terminals like WezTerm. However, capturing these sequences programmatically is surprisingly tricky - standard process pipes won’t work because Cargo only emits them when connected to a real TTY, and inheriting stdio bypasses your program entirely. This article explores how to use pseudo-terminals (PTY) with the portable-pty crate to create a virtual terminal that tricks Cargo into emitting OSC sequences while still allowing you to capture and parse them in real-time. We’ll dive into the PTY architecture, understand why blocking I/O…" />
+<meta name="twitter:description" property="og:description" content="When building Rust projects, Cargo emits hidden OSC (Operating System Command) terminal control sequences that communicate build progress to compatible terminals like WezTerm. However, capturing these sequences programmatically is surprisingly tricky - standard process pipes won’t work because Cargo only emits them when connected to a real TTY, and inheriting stdio bypasses your program entirely. This article explores how to use pseudo-terminals (PTY) with the portable-pty crate to create a virtual terminal that tricks Cargo into emitting OSC sequences while still allowing you to capture and parse them in real-time. We’ll dive into the PTY architecture, understand why blocking I/O…" />
 <link rel="canonical" href="http://developerlife.com/2025/08/10/pty-rust-osc-seq/" />
 <meta property="og:url" content="http://developerlife.com/2025/08/10/pty-rust-osc-seq/" />
 <meta property="og:site_name" content="developerlife.com" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2025-08-10T00:00:00-05:00" />
+<meta property="article:modified_time" content="2025-08-10T00:00:00-05:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences" />
+<meta name="twitter:title" content="Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2025-08-10T00:00:00-05:00","datePublished":"2025-08-10T00:00:00-05:00","description":"When building Rust projects, Cargo emits hidden OSC (Operating System Command) terminal control sequences that communicate build progress to compatible terminals like WezTerm. However, capturing these sequences programmatically is surprisingly tricky - standard process pipes won’t work because Cargo only emits them when connected to a real TTY, and inheriting stdio bypasses your program entirely. This article explores how to use pseudo-terminals (PTY) with the portable-pty crate to create a virtual terminal that tricks Cargo into emitting OSC sequences while still allowing you to capture and parse them in real-time. We’ll dive into the PTY architecture, understand why blocking I/O with cloned file descriptors causes hangs, and implement a production-ready solution using a detached task pattern that processes build progress events (0-100%) as they happen, not after the build completes.","headline":"Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2025/08/10/pty-rust-osc-seq/"},"url":"http://developerlife.com/2025/08/10/pty-rust-osc-seq/"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2025-08-10T00:00:00-05:00","datePublished":"2025-08-10T00:00:00-05:00","description":"When building Rust projects, Cargo emits hidden OSC (Operating System Command) terminal control sequences that communicate build progress to compatible terminals like WezTerm. However, capturing these sequences programmatically is surprisingly tricky - standard process pipes won’t work because Cargo only emits them when connected to a real TTY, and inheriting stdio bypasses your program entirely. This article explores how to use pseudo-terminals (PTY) with the portable-pty crate to create a virtual terminal that tricks Cargo into emitting OSC sequences while still allowing you to capture and parse them in real-time. We’ll dive into the PTY architecture, understand why blocking I/O…","headline":"Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2025/08/10/pty-rust-osc-seq/"},"url":"http://developerlife.com/2025/08/10/pty-rust-osc-seq/"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/assets/main.css" />
 
@@ -572,15 +573,15 @@ will find the following:</p>
 
 <p>Users can control OSC emission via <code class="language-plaintext highlighter-rouge">.cargo/config.toml</code>:</p>
 
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[term]</span>
-<span class="py">progress.term-integration</span> <span class="p">=</span> <span class="kc">true</span>   <span class="c"># Enable OSC sequences</span>
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">[</span><span class="n">term</span><span class="k">]</span>
+<span class="n">progress</span><span class="p">.</span><span class="n">term-integration</span> <span class="o">=</span><span class="w"> </span><span class="kc">true</span>   <span class="c"># Enable OSC sequences</span>
                                    <span class="c"># (auto-detected by default)</span>
 <span class="c"># or</span>
-<span class="py">progress.term-integration</span> <span class="p">=</span> <span class="kc">false</span>  <span class="c"># Disable OSC sequences</span>
+<span class="n">progress</span><span class="p">.</span><span class="n">term-integration</span> <span class="o">=</span><span class="w"> </span><span class="kc">false</span>  <span class="c"># Disable OSC sequences</span>
 
 <span class="c"># Other progress options</span>
-<span class="py">progress.when</span> <span class="p">=</span> <span class="s">"auto"</span>     <span class="c"># "auto", "always", or "never"</span>
-<span class="py">progress.width</span> <span class="p">=</span> <span class="mi">80</span>        <span class="c"># Terminal width for progress bar</span>
+<span class="n">progress</span><span class="p">.</span><span class="n">when</span> <span class="o">=</span><span class="w"> </span><span class="s">"auto"</span>     <span class="c"># "auto", "always", or "never"</span>
+<span class="n">progress</span><span class="p">.</span><span class="n">width</span> <span class="o">=</span><span class="w"> </span><span class="mi">80</span>        <span class="c"># Terminal width for progress bar</span>
 </code></pre></div></div>
       <h2 id="capturing-osc-sequences-from-cargo">
         
@@ -601,10 +602,10 @@ will find the following:</p>
 
 <p>Add this to your <code class="language-plaintext highlighter-rouge">Cargo.toml</code>:</p>
 
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[dependencies]</span>
-<span class="py">portable-pty</span> <span class="p">=</span> <span class="s">"0.8"</span>
-<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
-<span class="py">miette</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"7.2"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span> <span class="p">}</span>
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">[</span><span class="n">dependencies</span><span class="k">]</span>
+<span class="n">portable-pty</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.8"</span>
+<span class="n">tokio</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"1.0"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"full"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="n">miette</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"7.2"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div></div>
       <h3 id="the-tty-problem">
         
@@ -1297,15 +1298,15 @@ above.</p>
   <li>
     <p><strong>Update <code class="language-plaintext highlighter-rouge">Cargo.toml</code>:</strong></p>
 
-    <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
-<span class="py">name</span> <span class="p">=</span> <span class="s">"pty_cargo_build_progress_osc_codes"</span>
-<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
-<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+    <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">[</span><span class="n">package</span><span class="k">]</span>
+<span class="n">name</span> <span class="o">=</span><span class="w"> </span><span class="s">"pty_cargo_build_progress_osc_codes"</span>
+<span class="n">version</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.1.0"</span>
+<span class="n">edition</span> <span class="o">=</span><span class="w"> </span><span class="s">"2021"</span>
 
-<span class="nn">[dependencies]</span>
-<span class="py">portable-pty</span> <span class="p">=</span> <span class="s">"0.8"</span>
-<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
-<span class="py">miette</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"7.2"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span> <span class="p">}</span>
+<span class="k">[</span><span class="n">dependencies</span><span class="k">]</span>
+<span class="n">portable-pty</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.8"</span>
+<span class="n">tokio</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"1.0"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"full"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
+<span class="n">miette</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"7.2"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"fancy"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 </code></pre></div>    </div>
   </li>
   <li>
@@ -1544,6 +1545,15 @@ above.</p>
     
 
     <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/">
+                        Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)
+                    </a>
+                </li>
+            
         
             
         

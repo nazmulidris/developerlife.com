@@ -2,21 +2,22 @@
 <html lang="en"><head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.9.0 -->
 <title>Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety | developerlife.com</title>
 <meta name="generator" content="Jekyll v4.4.1" />
 <meta property="og:title" content="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety" />
 <meta name="author" content="Nazmul Idris" />
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing Futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them." />
-<meta property="og:description" content="This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing Futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them." />
+<meta name="twitter:description" property="og:description" content="This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing Futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them." />
 <link rel="canonical" href="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" />
 <meta property="og:url" content="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" />
 <meta property="og:site_name" content="developerlife.com" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2024-07-10T10:00:00-05:00" />
+<meta property="article:modified_time" content="2024-07-10T10:00:00-05:00" />
 <meta name="twitter:card" content="summary" />
-<meta property="twitter:title" content="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety" />
+<meta name="twitter:title" content="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety" />
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2024-07-10T10:00:00-05:00","datePublished":"2024-07-10T10:00:00-05:00","description":"This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the tokio::select! macro, and what happens to the racing Futures that don’t win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them.","headline":"Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"},"url":"http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"}</script>
 <!-- End Jekyll SEO tag -->
@@ -392,17 +393,17 @@ channel</a>.</p>
 <p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
 dependencies that we need for these examples.</p>
 
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">[package]</span>
-<span class="py">name</span> <span class="p">=</span> <span class="s">"async_cancel_safe"</span>
-<span class="py">version</span> <span class="p">=</span> <span class="s">"0.1.0"</span>
-<span class="py">edition</span> <span class="p">=</span> <span class="s">"2021"</span>
+<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">[</span><span class="n">package</span><span class="k">]</span>
+<span class="n">name</span> <span class="o">=</span><span class="w"> </span><span class="s">"async_cancel_safe"</span>
+<span class="n">version</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.1.0"</span>
+<span class="n">edition</span> <span class="o">=</span><span class="w"> </span><span class="s">"2021"</span>
 
-<span class="nn">[dependencies]</span>
-<span class="py">tokio</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"1.38.0"</span><span class="p">,</span> <span class="py">features</span> <span class="p">=</span> <span class="p">[</span><span class="s">"full"</span><span class="p">]</span> <span class="p">}</span>
+<span class="k">[</span><span class="n">dependencies</span><span class="k">]</span>
+<span class="n">tokio</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"1.38.0"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"full"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
 
 <span class="c"># Async stream testing.</span>
-<span class="py">r3bl_test_fixtures</span> <span class="o">=</span> <span class="p">{</span> <span class="py">version</span> <span class="p">=</span> <span class="s">"0.0.2"</span> <span class="p">}</span>
-<span class="py">futures-util</span> <span class="p">=</span> <span class="s">"0.3.30"</span>
+<span class="n">r3bl_test_fixtures</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"0.0.2"</span><span class="w"> </span><span class="p">}</span>
+<span class="n">futures-util</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.3.30"</span>
 </code></pre></div></div>
 
 <p>We are going to add all the examples below as tests to the <code class="language-plaintext highlighter-rouge">lib.rs</code> file in this crate.</p>
@@ -946,6 +947,15 @@ in some buffer is dropped, then this is not a problem.</p>
     
 
     <ul>
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/">
+                        Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)
+                    </a>
+                </li>
+            
         
             
                 

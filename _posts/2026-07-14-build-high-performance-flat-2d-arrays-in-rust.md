@@ -20,6 +20,7 @@ categories:
 <!-- BEGIN mktoc -->
 
 - [Overview](#overview)
+- [YouTube video for this article](#youtube-video-for-this-article)
 - [Quick Summary for Developers](#quick-summary-for-developers)
 - [Project Setup](#project-setup)
 - [The Simple Approach](#the-simple-approach)
@@ -53,6 +54,26 @@ Here are some useful links for context:
 1. [Rust standard library: Vec](https://doc.rust-lang.org/std/vec/struct.Vec.html)
 2. [Data-Oriented Design](https://en.wikipedia.org/wiki/Data-oriented_design)
 3. [SIMD in Rust](https://doc.rust-lang.org/core/simd/index.html)
+
+## YouTube video for this article
+
+If you like to learn via video, please watch the companion video on the [developerlife.com
+YouTube channel](https://www.youtube.com/@developerlifecom) where I live code all the
+examples from scratch. You can follow along there, step by step if you like, in addition
+to this article and [repo](https://github.com/nazmulidris/rust-scratch/tree/main/flat2darray).
+
+<!-- rust flat 2d array -->
+<iframe
+    src="https://www.youtube.com/embed/tIrSvJFRxAg"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen>
+</iframe>
+
+> The simplified code built in the video and this tutorial is available in the [rust-scratch GitHub repo](https://github.com/nazmulidris/rust-scratch/tree/main/flat2darray).
+> The full production-ready implementation lives in the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array).
 
 ## Quick Summary for Developers
 

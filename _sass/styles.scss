@@ -26,18 +26,47 @@ $modifiedBackgroundColorForSearch: color.adjust(colors.$textColor, $lightness: -
 $borderOutline: 1.125pt;
 $searchPostBorder: 4pt;
 
+::selection {
+  background-color: rgba(125, 38, 100, 0.75);
+  color: inherit;
+}
+
 body {
-  // More info on background image on viewport.
+  // Ambient animated gradient layered over wallpaper.
   // https://www.freecodecamp.org/news/css-full-page-background-image-tutorial/
-  $bodyBackgroundSemiTransparentColor: rgba(globals.$backgroundColor, 0.85);
-  background-image: linear-gradient($bodyBackgroundSemiTransparentColor,
-      $bodyBackgroundSemiTransparentColor ),
+  $bodyBg1: rgba(globals.$backgroundColor, 0.90);
+  $bodyBgPurple: rgba(45, 12, 58, 0.85);
+  $bodyBgTeal: rgba(12, 38, 52, 0.85);
+  $bodyBgWine: rgba(52, 14, 28, 0.85);
+
+  background-image:
+    linear-gradient(
+      135deg,
+      $bodyBg1,
+      $bodyBgPurple,
+      $bodyBgTeal,
+      $bodyBgWine,
+      $bodyBg1
+    ),
     url("/assets/background-image-1.jpg");
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-attachment: fixed;
-  background-size: cover;
+  background-repeat: no-repeat, no-repeat;
+  background-position: 0% 50%, center center;
+  background-attachment: fixed, fixed;
+  background-size: 400% 400%, cover;
+  animation: animatedBodyBgGradient 90s ease infinite alternate;
   word-wrap: break-word;
+}
+
+@keyframes animatedBodyBgGradient {
+  0% {
+    background-position: 0% 50%, center center;
+  }
+  50% {
+    background-position: 100% 50%, center center;
+  }
+  100% {
+    background-position: 0% 50%, center center;
+  }
 }
 
 // .page-content {
@@ -154,7 +183,38 @@ iframe {
 
 // In the header, when a category is selected, this is applied
 .category-selected {
-  border-bottom: 3px solid colors.$brandColor;
+  position: relative;
+  display: inline-block;
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    border-radius: 2px;
+    background-image: linear-gradient(
+      135deg,
+      colors.$brandColor,
+      color.adjust(colors.$brandColor, $lightness: 25%),
+      colors.$brandColor
+    );
+    background-size: 300% 300%;
+    animation: animatedSelectedCategoryUnderline 30s ease infinite alternate;
+  }
+}
+
+@keyframes animatedSelectedCategoryUnderline {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 .search-block {

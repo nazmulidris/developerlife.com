@@ -87,29 +87,39 @@ I'm the founder and principal engineer of [R3BL TUI](https://github.com/r3bl-org
 Rust framework for building next generation async terminal user interfaces (TUI) and command-line
 (CLI) developer tools.
 
-- **2M+ downloads** on crates.io over 2 years
-- Focus on performance, memory efficiency, and developer ergonomics
-- Used in production for developer tools, infrastructure, and monitoring
-- **Technologies:** Rust (async/tokio, type-state patterns, concurrent programming), systems
-  programming, performance optimization
+- **2.7M+ downloads** on crates.io
+- **Interactive Cloud & Terminal Workflows:** Collaborative editing and real-time code execution of
+  Markdown documents directly in the terminal environment.
+- **Virtual Terminal Emulation:** Headless virtual terminal emulators with virtual tabs running
+  interactive cloud infrastructure configurations over SSH.
+- **Developer Productivity Infrastructure:** High-efficiency tooling to enhance knowledge capture,
+  tailored for the rise of AI coding agent harnesses and remote cloud VM workflows.
+- **Systems Engineering:** High-performance terminal, TTY, PTY, memory latency, and concurrency
+  optimizations.
+- **Technologies:** Rust & Tokio (async runtime, Elm-style unidirectional state management, Flexbox
+  layout engine, CSS-like styling, React/JSX macros), systems programming, performance optimization.
 
 **Why it matters:** I'm solving real problems for developers building complex terminal and CLI
-applications. This space hasn't really seen much innovation since the 90s. Currently with the
-popularization of tools like Claude Code, the Terminal is a primary point of interaction with more
-developers than ever before. The `r3bl_tui` framework represents years of experience in systems
-programming, performance optimization, and production-grade infrastructure design.
+applications. Despite the massive rise of LLM coding agents (harnesses) and remote cloud VM
+administration over SSH, terminal UI innovation has largely stagnated since the 1990s. The `r3bl_tui`
+framework bridges this gap, representing years of systems programming, performance optimization, and
+production-grade infrastructure design in Rust.
 
 ## What I Bring
 
 ### Engineering (22 years)
 
-- **Currently:** 4 years daily Rust systems programming, building r3bl-org
-- **Google:** Android Studio IDE platform team — Performance, stability, and response time
-  optimization for IntelliJ-based IDE serving millions of developers
+- **Currently:** 4+ years daily Rust systems programming, building r3bl-org (2.7M+ crates.io downloads)
+- **Google (3 yrs 10 mos):**
+  - **Android Studio IDE platform team:** Performance, memory latency, and stability optimization
+    for IntelliJ-based IDE (10M+ LOC codebase) serving millions of developers.
+  - **Google Maps APIs:** Places API for Android SDK (Java) and Maps JavaScript/TypeScript API for Web.
+  - **Android Media Framework:** Core Android Media OS framework and ExoPlayer (YouTube).
+  - **Android UX Design:** Design architectures and frameworks for Android developers.
 - **Founder & CEO, TRNQL (2015):** Raised $1.5M, built and shipped production Android/iOS SDKs, led
-  distributed engineering teams
-- **Full-stack systems:** Desktop, web, mobile, cloud infrastructure — TypeScript, React, Node.js,
-  Kotlin, Java, extensive backend and infrastructure experience
+  engineering teams.
+- **Full-stack systems:** Desktop, web, mobile, cloud infrastructure — Rust, TypeScript, React, Node.js,
+  Kotlin, Java, extensive backend and infrastructure experience.
 
 ### Leadership (8 years)
 
@@ -249,6 +259,6 @@ tutorial site called [developerlife.com](http://developerlife.com) (which was es
 
 ## Patents and books
 
-- Patent on mobile computing [google.com/patents/US6891860](http://google.com/patents/US6891860)
+- US Patent [US6891860B1](https://patents.google.com/patent/US6891860): *Method and apparatus for establishing multiple bandwidth-limited connections for a communication device*
 
-- Book on Java and XML [a.co/friJT12](http://a.co/friJT12)
+- [Book on Java and XML](https://a.co/friJT12)

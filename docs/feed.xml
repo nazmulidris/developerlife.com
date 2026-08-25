@@ -1,4 +1,815 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2026-08-04T22:56:21-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)</title><link href="http://developerlife.com/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/" rel="alternate" type="text/html" title="Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)" /><published>2026-07-14T00:00:00-05:00</published><updated>2026-07-14T00:00:00-05:00</updated><id>http://developerlife.com/2026/07/14/build-high-performance-flat-2d-arrays-in-rust</id><content type="html" xml:base="http://developerlife.com/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/"><![CDATA[<!-- cspell:words Vecs mktoc flatline Amdahl's bitshift bitshifts memmoves memset -->
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2026-08-25T08:36:09-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">To Async or Not to Async: Building a Rust MCP Server for rust-analyzer</title><link href="http://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server/" rel="alternate" type="text/html" title="To Async or Not to Async: Building a Rust MCP Server for rust-analyzer" /><published>2026-08-22T05:00:00-05:00</published><updated>2026-08-22T05:00:00-05:00</updated><id>http://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server</id><content type="html" xml:base="http://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server/"><![CDATA[<!-- cspell:words rmcp ciresnave zeenix dexwritescode mpsc epoll kqueue proc mktoc -->
+<!-- cspell:words deadlocks JSONRPC backtraces -->
+
+<!-- BEGIN mktoc -->
+
+<ul>
+  <li><a href="#pragmatism-over-dogma">Pragmatism Over Dogma</a></li>
+  <li><a href="#how-we-got-to-async-by-default">How We Got to “Async-by-Default”</a></li>
+  <li><a href="#11-process-pipes-vs-1n-network-servers">1:1 Process Pipes vs. 1:N Network Servers</a>
+    <ul>
+      <li><a href="#1-the-end-to-end-flow">1. The End-to-End Flow</a></li>
+      <li><a href="#2-how-mcp-layers-over-lsp">2. How MCP Layers Over LSP</a></li>
+      <li><a href="#3-no-need-to-multiplex-over-stdio">3. No Need To Multiplex Over <code class="language-plaintext highlighter-rouge">stdio</code></a></li>
+      <li><a href="#4-the-illusion-of-async-stdio">4. The Illusion of Async <code class="language-plaintext highlighter-rouge">stdio</code></a></li>
+    </ul>
+  </li>
+  <li><a href="#the-3-thread-architecture">The 3-Thread Architecture</a>
+    <ul>
+      <li><a href="#thread-1-main-mcp-loop">Thread 1: Main MCP Loop</a></li>
+      <li><a href="#thread-2-stdout-reader">Thread 2: <code class="language-plaintext highlighter-rouge">stdout</code> Reader</a></li>
+      <li><a href="#thread-3-stderr-drainer">Thread 3: <code class="language-plaintext highlighter-rouge">stderr</code> Drainer</a></li>
+      <li><a href="#request-response-via-sync_channel1">Request-Response Via <code class="language-plaintext highlighter-rouge">sync_channel(1)</code></a></li>
+    </ul>
+  </li>
+  <li><a href="#advantages">Advantages</a>
+    <ul>
+      <li><a href="#sub-millisecond-cold-starts">Sub-Millisecond Cold Starts</a></li>
+      <li><a href="#transparent-stack-traces">Transparent Stack Traces</a></li>
+      <li><a href="#deterministic-teardown">Deterministic Teardown</a></li>
+    </ul>
+  </li>
+  <li><a href="#choosing-the-right-tool">Choosing the Right Tool</a></li>
+</ul>
+
+<!-- END mktoc -->
+
+<h2 id="pragmatism-over-dogma">Pragmatism Over Dogma</h2>
+
+<p>When we build tools in Rust where I/O is involved, we might feel a strong pull toward
+“async all the things”. It is understandable that we may instinctively run
+<code class="language-plaintext highlighter-rouge">cargo add tokio</code>, decorate the <code class="language-plaintext highlighter-rouge">main</code> function with <code class="language-plaintext highlighter-rouge">#[tokio::main]</code>, make all the
+functions <code class="language-plaintext highlighter-rouge">async</code>, and add <code class="language-plaintext highlighter-rouge">.await</code> to the call sites.</p>
+
+<p>I love both synchronous and asynchronous Rust. This article is not an ideological critique
+of asynchronous Rust. This article is in support of using the right tool for the job, and
+not the wrong one (even when that tool is our beloved Tokio).</p>
+
+<p>As the author of <a href="https://crates.io/crates/r3bl_tui"><code class="language-plaintext highlighter-rouge">r3bl_tui</code></a>, I have spent years building asynchronous foundations for
+terminal applications. In <code class="language-plaintext highlighter-rouge">r3bl_tui</code>, everything from custom <code class="language-plaintext highlighter-rouge">readline</code> primitives and
+asynchronous signal listeners to multi-producer event-driven render loops is built with
+async Rust from the ground up to uphold the core invariant: <strong>never block the main
+thread</strong>.</p>
+
+<p>To achieve this, the <code class="language-plaintext highlighter-rouge">r3bl_tui</code> crate cleanly separates these responsibilities:</p>
+
+<ol>
+  <li><strong>Async Event Multiplexing (with Tokio Primitives)</strong> - It relies on Tokio constructs
+(such as <code class="language-plaintext highlighter-rouge">tokio::select!</code>, asynchronous tasks, <code class="language-plaintext highlighter-rouge">mpsc</code> and <code class="language-plaintext highlighter-rouge">broadcast</code> channels) to
+multiplex high-frequency user inputs (e.g., keypresses, mouse drags, window resize
+events) and background worker streams concurrently without task starvation.</li>
+  <li><strong>Blocking I/O Isolation</strong> via <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/resilient_reactor_thread">Resilient Reactor Thread</a> (RRT) - Invoking
+blocking system calls (like reading raw <code class="language-plaintext highlighter-rouge">stdin</code>) directly on async executor threads
+would starve Tokio and freeze the terminal UI. So, I designed the <strong>RRT pattern</strong>. RRT
+wraps blocking I/O sources (and allows me to eliminate external dependencies like
+<code class="language-plaintext highlighter-rouge">crossterm</code>) and isolates them inside dedicated, self-healing OS threads that feed
+non-blocking broadcast channels into the async loop. This pattern is easily extensible
+to other blocking sources, modern completion engines like <code class="language-plaintext highlighter-rouge">io_uring</code>, and is even a
+good fit for in-process server use cases.</li>
+</ol>
+
+<p>With that out of the way, here’s the <strong>“but”</strong>. Great engineering is about <strong>fit for
+purpose</strong>, not dogmatic conformity. Applying a high-concurrency async runtime designed for
+web servers handling hundreds of thousands of concurrent TCP sockets to a 1:1 local
+standard I/O pipe introduces <a href="https://www.youtube.com/watch?v=Cum5uN2634o">accidental complexity</a> without
+providing performance, readability, or maintainability benefits.</p>
+
+<p>The motivation to write this article happened recently, after I built
+<a href="https://crates.io/crates/r3bl-rust-analyzer-mcp-server"><code class="language-plaintext highlighter-rouge">r3bl-rust-analyzer-mcp-server</code></a>, a Model Context Protocol (MCP) server designed to
+bridge AI / LLM coding agents (such as Google Antigravity, Claude Code, and Cursor) with
+the <a href="https://rust-analyzer.github.io/"><code class="language-plaintext highlighter-rouge">rust-analyzer</code></a> Language Server Protocol (LSP) subprocess. Why build yet another
+crate to do this? Because a few existing Rust MCP server crates that I tried didn’t work
+with Antigravity, and some of them were consuming a lot of CPU and crashing.</p>
+
+<blockquote>
+  <p>📦 The <code class="language-plaintext highlighter-rouge">r3bl-rust-analyzer-mcp-server</code> crate is available on
+<a href="https://crates.io/crates/r3bl-rust-analyzer-mcp-server">crates.io</a> .</p>
+</blockquote>
+
+<p>I made a deliberate (dare I say, counter-cultural) architectural choice and completely
+omitted Tokio in favor of standard library OS threads and channels over <code class="language-plaintext highlighter-rouge">stdio</code>.</p>
+
+<p>This article explores the engineering rationale behind that choice. We will examine the
+mechanics of standard I/O pipes on Linux, macOS and Windows, contrast the 1:1 workload of
+local AI / LLM coding agents against 1:N networked servers, and break down the simple
+3-thread architecture that delivers the following benefits:</p>
+
+<ul>
+  <li>Sub-millisecond cold starts (&lt;2ms). Spawns instantly without the overhead of Tokio
+runtime initialization, thread-pool spin-up, or timer wheel setup.</li>
+  <li>Eliminates <a href="https://docs.rs/tokio/latest/tokio/macro.select.html#cancellation-safety">stream corruption</a> caused by futures dropping mid-write at
+<code class="language-plaintext highlighter-rouge">.await</code> points and prevents orphaned zombie <code class="language-plaintext highlighter-rouge">rust-analyzer</code> processes.</li>
+  <li>Easy to understand architecture and code. Control flow is linear, and the type system
+makes invalid states unrepresentable.</li>
+</ul>
+
+<h2 id="how-we-got-to-async-by-default">How We Got to “Async-by-Default”</h2>
+
+<p>Anthropic released the <a href="https://modelcontextprotocol.io/">Model Context Protocol specification</a> in November 2024,
+soon after which they released the official Rust SDK <a href="https://github.com/modelcontextprotocol/rust-sdk"><code class="language-plaintext highlighter-rouge">rmcp</code></a>.</p>
+
+<p>By architecting <code class="language-plaintext highlighter-rouge">rmcp</code> around Tokio (<code class="language-plaintext highlighter-rouge">#[tokio::main]</code>, <code class="language-plaintext highlighter-rouge">tokio::io::{stdin, stdout}</code>, and
+<a href="https://crates.io/crates/async-trait">async traits</a>), Anthropic established a default pattern that future Rust MCP
+crates would mimic.</p>
+
+<p>All the open source <em>Rust MCP server for <code class="language-plaintext highlighter-rouge">rust-analyzer</code> (or generic LSP gateway)</em> crates
+that I was able to find have been built with Tokio, including:</p>
+
+<ul>
+  <li><a href="https://crates.io/crates/lsp-mcp"><code class="language-plaintext highlighter-rouge">lsp-mcp</code></a>: A generic LSP-to-MCP gateway built with Tokio.</li>
+  <li><a href="https://github.com/dexwritescode/rust-mcp"><code class="language-plaintext highlighter-rouge">dexwritescode/rust-mcp</code></a>: A <code class="language-plaintext highlighter-rouge">rust-analyzer</code> MCP server built on Tokio.</li>
+  <li><a href="https://github.com/ciresnave/rust-analyzer-mcp-server"><code class="language-plaintext highlighter-rouge">ciresnave/rust-analyzer-mcp-server</code></a>: A <code class="language-plaintext highlighter-rouge">rust-analyzer</code> bridge on Tokio.</li>
+  <li><a href="https://github.com/zeenix/rust-analyzer-mcp"><code class="language-plaintext highlighter-rouge">zeenix/rust-analyzer-mcp</code></a>: A <code class="language-plaintext highlighter-rouge">rust-analyzer</code> bridge built on Tokio.</li>
+</ul>
+
+<p>All of these binary crates are designed to run as local child processes communicating
+strictly over <code class="language-plaintext highlighter-rouge">stdio</code>.</p>
+
+<p><strong>So, why do they all use Tokio?</strong></p>
+
+<p>Perhaps the authors of these crates implicitly accepted Anthropic’s design choices as
+correct, without critically examining them. Or perhaps the AI / LLM coding agents (used by
+the authors to create these crates) blindly accepted Anthropic’s choice. The power of
+defaults? I have no way of knowing.</p>
+
+<p>When the official reference SDK uses Tokio, it is easy for an entire ecosystem to assume
+that an async runtime is a prerequisite for writing an MCP server.</p>
+
+<p><strong>TL;DR:</strong> An asynchronous runtime is the wrong tool for local standard I/O streams /
+pipes. For 1:1 process pipes, synchronous threads are faster, simpler, and far more
+reliable.</p>
+
+<h2 id="11-process-pipes-vs-1n-network-servers">1:1 Process Pipes vs. 1:N Network Servers</h2>
+
+<p>To understand why synchronous threads are optimal for a local MCP server, we must look at
+how an AI / LLM coding agent actually interacts with its tools (like the
+<code class="language-plaintext highlighter-rouge">rust-analyzer-mcp-server</code> binary in the <code class="language-plaintext highlighter-rouge">r3bl-rust-analyzer-mcp-server</code> crate).</p>
+
+<h3 id="1-the-end-to-end-flow">1. The End-to-End Flow</h3>
+
+<p>The complete interaction workflow (User -&gt; AI / LLM Coding Agent -&gt; MCP Server -&gt;
+<code class="language-plaintext highlighter-rouge">rust-analyzer</code>) consists of these steps:</p>
+
+<ol>
+  <li><strong>User Launches Agent</strong>
+    <ul>
+      <li>The user starts their AI / LLM coding agent (such as Google Antigravity <code class="language-plaintext highlighter-rouge">agy</code>,
+Claude Code, Cursor, or VS Code) in a local folder containing a Rust project.</li>
+    </ul>
+  </li>
+  <li><strong>Agent Configuration</strong>
+    <ul>
+      <li>The user configures the agent to register <code class="language-plaintext highlighter-rouge">rust-analyzer-mcp-server</code> binary as a
+local tool provider (via its MCP configuration mechanism) and gives it a name like
+<code class="language-plaintext highlighter-rouge">rust-refactor</code>.</li>
+    </ul>
+  </li>
+  <li><strong>User Prompts the Agent</strong>
+    <ul>
+      <li>The user issues a prompt requiring Rust semantic analysis (e.g., <em>“Use rust-refactor
+to find all references to <code class="language-plaintext highlighter-rouge">MyStruct</code> and refactor its constructor”</em>).</li>
+    </ul>
+  </li>
+  <li><strong>Agent Spawns Bridge Process</strong>
+    <ul>
+      <li>To execute the requested tools, the AI / LLM coding agent spawns
+<code class="language-plaintext highlighter-rouge">rust-analyzer-mcp-server</code> as a dedicated 1:1 child process communicating over
+standard I/O (<code class="language-plaintext highlighter-rouge">stdin</code> and <code class="language-plaintext highlighter-rouge">stdout</code>).</li>
+    </ul>
+  </li>
+  <li><strong>Bridge Translates MCP to LSP</strong>
+    <ul>
+      <li>The MCP server receives JSON-RPC tool calls over <code class="language-plaintext highlighter-rouge">stdin</code>, converts them into LSP
+queries for <code class="language-plaintext highlighter-rouge">rust-analyzer</code>, and writes formatted responses to <code class="language-plaintext highlighter-rouge">stdout</code>:</li>
+    </ul>
+  </li>
+</ol>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌────────────────────────────────────────────────────────┐
+│          HOST PROCESS: AI / LLM CODING AGENT           │
+│            (Antigravity / VSCode / Claude)             │
+└───────────────────────────┬────────────────────────────┘
+                            │
+        [Launches rust-analyzer-mcp-server binary]
+              (1:1 dedicated child process)
+                            │
+     stdin / stdout (MCP: Newline-delimited JSON-RPC)
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                rust-analyzer-mcp-server                │
+│   (3 OS threads: Main, stdout-reader, stderr-reader)   │
+│                                                        │
+│  1. Reads MCP JSON-RPC tool calls from stdin           │
+│  2. Converts tool calls into LSP JSON-RPC queries      │
+│  3. Writes LSP requests to rust-analyzer stdin         │
+│  4. Receives LSP responses from background thread      │
+│  5. Formats and writes MCP responses to stdout         │
+└───────────────────────────┬────────────────────────────┘
+                            │
+            [Spawns rust-analyzer subprocess]
+              (1:1 dedicated child process)
+                            │
+      stdin / stdout (LSP: Header-delimited JSON-RPC)
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│       LANGUAGE SERVER: rust-analyzer subprocess        │
+│               (The Rust Language Server)               │
+└────────────────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<ol>
+  <li><strong>Process Lifecycle:</strong> The AI / LLM coding agent (e.g., Antigravity, Claude Code,
+Cursor) spawns <code class="language-plaintext highlighter-rouge">rust-analyzer-mcp-server</code> as a direct, dedicated child process for the
+duration of the editing session.</li>
+  <li><strong>Channel:</strong> Communication occurs exclusively over standard OS anonymous pipes (<code class="language-plaintext highlighter-rouge">stdin</code>
+and <code class="language-plaintext highlighter-rouge">stdout</code>).</li>
+</ol>
+
+<h3 id="2-how-mcp-layers-over-lsp">2. How MCP Layers Over LSP</h3>
+
+<p>The Model Context Protocol (MCP) does not define language-server-specific endpoints.
+Instead, MCP provides generic JSON-RPC primitives:</p>
+
+<ol>
+  <li><strong><code class="language-plaintext highlighter-rouge">initialize</code>:</strong> Handshake and capability negotiation.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">tools/list</code>:</strong> Dynamic tool discovery via JSON Schemas.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">tools/call</code>:</strong> Generic tool execution request and response.</li>
+</ol>
+
+<p><code class="language-plaintext highlighter-rouge">rust-analyzer-mcp-server</code> serves as an <strong>adapter</strong>: it implements those standard MCP
+endpoints on the outside and internally translates them into <code class="language-plaintext highlighter-rouge">rust-analyzer</code>’s Language
+Server Protocol (LSP 3.17) queries.</p>
+
+<h4 id="protocol-layering-flow">Protocol Layering Flow</h4>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌────────────────────────────────────────────────────────┐
+│               AI / LLM CODING AGENT (agy)              │
+└───────────────────────────┬────────────────────────────┘
+                            │
+              1. "tools/list" (Standard MCP)
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                rust-analyzer-mcp-server                │
+│                                                        │
+│  Returns list of 10 tool schemas:                      │
+│   • rust_analyzer_hover                                │
+│   • rust_analyzer_definition                           │
+│   • rust_analyzer_references                           │
+│   • rust_analyzer_diagnostics                          │
+│   • ...                                                │
+└───────────────────────────┬────────────────────────────┘
+                            │
+              2. Agent injects tool schemas into LLM
+                            │
+              3. LLM decides: call "rust_analyzer_hover"
+                            │
+              4. "tools/call" (Standard MCP)
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                rust-analyzer-mcp-server                │
+│                                                        │
+│  Translates tools/call -&gt; textDocument/hover (LSP)     │
+└───────────────────────────┬────────────────────────────┘
+                            │
+              5. LSP JSON-RPC over stdio
+                            │
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│                 rust-analyzer subprocess               │
+└────────────────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<p>The sections below trace this execution flow chronologically:</p>
+
+<ol>
+  <li>Discovery (<code class="language-plaintext highlighter-rouge">tools/list</code>): The AI / LLM coding agent queries capabilities; our MCP
+server immediately replies with tool schemas that we define, without invoking
+<code class="language-plaintext highlighter-rouge">rust-analyzer</code>.</li>
+  <li>Tool Request (<code class="language-plaintext highlighter-rouge">tools/call</code>): The AI / LLM coding agent dispatches a tool execution
+request, e.g., <code class="language-plaintext highlighter-rouge">rust_analyzer_hover</code> with a file path and coordinates
+(<code class="language-plaintext highlighter-rouge">line: 42, character: 10</code>).</li>
+  <li>Bridge Translation (MCP -&gt; LSP): Our MCP server translates the MCP tool call into an
+LSP query (<code class="language-plaintext highlighter-rouge">textDocument/hover</code>), writes it to <code class="language-plaintext highlighter-rouge">rust-analyzer</code>, and awaits the AST
+response.</li>
+  <li>Tool Response (<code class="language-plaintext highlighter-rouge">CallToolResult</code>): <code class="language-plaintext highlighter-rouge">rust-analyzer</code> produces the symbol information (with
+hover documentation and type signatures natively formatted in Markdown). Our MCP server
+packages this into a standard MCP <code class="language-plaintext highlighter-rouge">CallToolResult</code> and returns the JSON-RPC response to
+the AI / LLM coding agent with the matching request ID.</li>
+</ol>
+
+<h4 id="1-dynamic-tool-discovery-toolslist">1. Dynamic Tool Discovery (<code class="language-plaintext highlighter-rouge">tools/list</code>)</h4>
+
+<p>When the AI / LLM coding agent (e.g. <code class="language-plaintext highlighter-rouge">agy</code>) spawns our MCP server, it queries available
+tools by sending an MCP <code class="language-plaintext highlighter-rouge">tools/list</code> request over <code class="language-plaintext highlighter-rouge">stdin</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w"> </span><span class="nl">"jsonrpc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.0"</span><span class="p">,</span><span class="w"> </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tools/list"</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">rust-analyzer</code> is not used at all to produce this response. Because <code class="language-plaintext highlighter-rouge">rust-analyzer</code> is
+a pure LSP language server with zero awareness of MCP, our bridge binary
+(<code class="language-plaintext highlighter-rouge">rust-analyzer-mcp-server</code>) statically defines and serves all 10 tool descriptors,
+documentation, and JSON Schemas directly from its internal catalog.</p>
+</blockquote>
+
+<p>Our MCP server writes this JSON-RPC response back to the AI / LLM coding agent over
+<code class="language-plaintext highlighter-rouge">stdout</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"jsonrpc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"tools"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rust_analyzer_hover"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hover documentation, types, and signatures for a symbol."</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"inputSchema"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"object"</span><span class="p">,</span><span class="w">
+                    </span><span class="nl">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nl">"file_path"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span><span class="w">
+                            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Absolute file path"</span><span class="w">
+                        </span><span class="p">},</span><span class="w">
+                        </span><span class="nl">"line"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"integer"</span><span class="p">,</span><span class="w">
+                            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0-based line number"</span><span class="w">
+                        </span><span class="p">},</span><span class="w">
+                        </span><span class="nl">"character"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                            </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"integer"</span><span class="p">,</span><span class="w">
+                            </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0-based character offset"</span><span class="w">
+                        </span><span class="p">}</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="nl">"required"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"file_path"</span><span class="p">,</span><span class="w"> </span><span class="s2">"line"</span><span class="p">,</span><span class="w"> </span><span class="s2">"character"</span><span class="p">]</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rust_analyzer_definition"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Find symbol definition location."</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"inputSchema"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The coding agent registers these schemas with the LLM, enabling the model to invoke any of
+the 10 tools when inspecting code.</p>
+
+<h4 id="2-tool-execution-toolscall">2. Tool Execution (<code class="language-plaintext highlighter-rouge">tools/call</code>)</h4>
+
+<p>When the LLM decides to inspect a symbol at line 42, character 10, the coding agent sends
+a standard MCP <code class="language-plaintext highlighter-rouge">tools/call</code> request to our MCP server’s <code class="language-plaintext highlighter-rouge">stdin</code>:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"jsonrpc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tools/call"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"params"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rust_analyzer_hover"</span><span class="p">,</span><span class="w">
+        </span><span class="nl">"arguments"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nl">"file_path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/path/to/main.rs"</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"line"</span><span class="p">:</span><span class="w"> </span><span class="mi">42</span><span class="p">,</span><span class="w">
+            </span><span class="nl">"character"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="3-the-bridge-translation-mcp-to-lsp">3. The Bridge Translation: MCP to LSP</h4>
+
+<p>Our MCP server translates the tool name and arguments into an LSP 3.17 request:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Standard MCP Method / Tool Name</th>
+      <th style="text-align: left">Translates To LSP 3.17 Method</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tools/call</code> (<code class="language-plaintext highlighter-rouge">rust_analyzer_hover</code>)</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">textDocument/hover</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tools/call</code> (<code class="language-plaintext highlighter-rouge">rust_analyzer_definition</code>)</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">textDocument/definition</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tools/call</code> (<code class="language-plaintext highlighter-rouge">rust_analyzer_references</code>)</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">textDocument/references</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tools/call</code> (<code class="language-plaintext highlighter-rouge">rust_analyzer_symbols</code>)</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">textDocument/documentSymbol</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tools/call</code> (<code class="language-plaintext highlighter-rouge">rust_analyzer_completion</code>)</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">textDocument/completion</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tools/call</code> (<code class="language-plaintext highlighter-rouge">rust_analyzer_format</code>)</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">textDocument/formatting</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tools/call</code> (<code class="language-plaintext highlighter-rouge">rust_analyzer_code_actions</code>)</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">textDocument/codeAction</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tools/call</code> (<code class="language-plaintext highlighter-rouge">rust_analyzer_diagnostics</code>)</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">textDocument/diagnostic</code> (or push fallback)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tools/call</code> (<code class="language-plaintext highlighter-rouge">rust_analyzer_workspace_diagnostics</code>)</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">workspace/diagnostic</code></td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">tools/call</code> (<code class="language-plaintext highlighter-rouge">rust_analyzer_set_workspace</code>)</td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">workspace/didChangeConfiguration</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="4-returning-the-response-to-the-ai--llm-coding-agent">4. Returning the Response to the AI / LLM Coding Agent</h4>
+
+<p><code class="language-plaintext highlighter-rouge">rust-analyzer</code> answers the LSP query with symbol data (for <code class="language-plaintext highlighter-rouge">textDocument/hover</code>, it
+natively formats the Rust signature and doc comments as Markdown in its <code class="language-plaintext highlighter-rouge">MarkupContent</code>
+response). Our MCP server packages this into a standard MCP <code class="language-plaintext highlighter-rouge">CallToolResult</code> text payload
+and returns it:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+    </span><span class="nl">"jsonrpc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2.0"</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w">
+    </span><span class="nl">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nl">"content"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nl">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w">
+                </span><span class="nl">"text"</span><span class="p">:</span><span class="w"> </span><span class="s2">"```rust</span><span class="se">\n</span><span class="s2">fn foo()-&gt;bool</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">Does stuff..."</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The coding agent passes this text directly back into the LLM context so it can continue
+reasoning.</p>
+
+<h3 id="3-no-need-to-multiplex-over-stdio">3. No Need To Multiplex Over <code class="language-plaintext highlighter-rouge">stdio</code></h3>
+
+<p>Neither JSON-RPC 2.0 nor the MCP specification dictates the transport layer. You can run
+JSON-RPC over WebSockets, TCP, Unix domain sockets, or <code class="language-plaintext highlighter-rouge">stdio</code>. Over network sockets (such
+as TCP or WebSockets), async request multiplexing makes sense, since thousands of remote
+clients can connect to a single daemon, each over its own independent socket connection.</p>
+
+<p>However, when an AI / LLM coding agent launches our MCP server locally, communication
+relies on <strong>OS anonymous pipes</strong> (<code class="language-plaintext highlighter-rouge">stdin</code> and <code class="language-plaintext highlighter-rouge">stdout</code>). An OS pipe is a unidirectional,
+in-memory FIFO buffer in the kernel (typically 64 KB on Linux). Because these are single
+serialized byte streams, communication between the coding agent and our server is
+inherently sequential by design:</p>
+
+<ol>
+  <li><strong><code class="language-plaintext highlighter-rouge">stdin</code> (Accepting Requests from the Coding Agent):</strong> The coding agent writes MCP
+JSON-RPC requests into our MCP server’s <code class="language-plaintext highlighter-rouge">stdin</code> pipe, delimited by newlines (<code class="language-plaintext highlighter-rouge">\n</code>).
+Reading from <code class="language-plaintext highlighter-rouge">stdin</code> must be serialized: multiple concurrent reader threads would race
+to consume chunks from the byte stream, splitting JSON lines in half and breaking JSON
+parsing. A single synchronous reader loop in our main thread naturally consumes
+incoming requests line-by-line with zero synchronization overhead.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">stdout</code> (Returning Responses to the Coding Agent):</strong> Our MCP server writes JSON-RPC
+tool responses back to the coding agent over <code class="language-plaintext highlighter-rouge">stdout</code>. Multiple concurrent threads or
+tasks cannot write to <code class="language-plaintext highlighter-rouge">stdout</code> simultaneously without garbling the response stream.
+Even if a multi-threaded async runtime executes tool queries concurrently, all tasks
+must ultimately synchronize on a mutex to write their responses line-by-line. An async
+runtime cannot provide parallel I/O throughput over a single pipe; it simply adds mutex
+contention and task scheduling overhead.</li>
+  <li><strong>Turn-Based Agent Structure:</strong> LLM workflows operate in discrete conversational turns.
+When the LLM generates a tool call, the coding agent writes the JSON-RPC request data
+to our MCP server’s <code class="language-plaintext highlighter-rouge">stdin</code> and waits for the tool output before prompting the model
+for the next reasoning step. Because AST tool execution (done by <code class="language-plaintext highlighter-rouge">rust-analyzer</code>) is so
+fast (1 to 10 ms) compared to LLM inference (500 to 3,000 ms), sequential execution
+latency is completely imperceptible to the user.</li>
+  <li>
+    <p><strong>The Synchronous Event Loop:</strong> In <code class="language-plaintext highlighter-rouge">src/mcp/server.rs</code>, the main thread runs a
+single-threaded line reader with no lock contention:</p>
+
+    <div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="c1">// Block and read incoming JSON-RPC lines sequentially.</span>
+ <span class="k">for</span> <span class="n">line</span> <span class="k">in</span> <span class="n">stdin</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.lines</span><span class="p">()</span> <span class="p">{</span>
+     <span class="k">let</span> <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">?</span><span class="p">;</span>
+     <span class="k">let</span> <span class="n">trimmed_line</span> <span class="o">=</span> <span class="n">line</span><span class="nf">.trim</span><span class="p">();</span>
+     <span class="k">if</span> <span class="n">trimmed_line</span><span class="nf">.is_empty</span><span class="p">()</span> <span class="p">{</span>
+         <span class="k">continue</span><span class="p">;</span>
+     <span class="p">}</span>
+
+     <span class="c1">// Parse the MCP request payload.</span>
+     <span class="k">let</span> <span class="n">request_payload</span> <span class="o">=</span> <span class="nn">serde_json</span><span class="p">::</span><span class="nn">from_str</span><span class="p">::</span><span class="o">&lt;</span><span class="n">McpRequest</span><span class="o">&gt;</span><span class="p">(</span><span class="n">trimmed_line</span><span class="p">);</span>
+     <span class="k">let</span> <span class="nf">Ok</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="o">=</span> <span class="n">request_payload</span> <span class="k">else</span> <span class="p">{</span>
+         <span class="k">continue</span><span class="p">;</span>
+     <span class="p">};</span>
+
+     <span class="c1">// Synchronously execute the tool query against rust-analyzer.</span>
+     <span class="k">let</span> <span class="n">response_payload</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.handle_request</span><span class="p">(</span><span class="n">request</span><span class="p">);</span>
+     <span class="k">if</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="o">=</span> <span class="n">response_payload</span> <span class="p">{</span>
+         <span class="c1">// Write the response back to stdout.</span>
+         <span class="nn">serde_json</span><span class="p">::</span><span class="nf">to_writer</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">stdout</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">response</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+         <span class="n">stdout</span><span class="nf">.write_all</span><span class="p">(</span><span class="s">b"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+         <span class="n">stdout</span><span class="nf">.flush</span><span class="p">()</span><span class="o">?</span><span class="p">;</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</code></pre></div>    </div>
+
+    <p>Each MCP request is consumed, translated into an LSP request, synchronously resolved
+ against <code class="language-plaintext highlighter-rouge">rust-analyzer</code>, and the response is written back to <code class="language-plaintext highlighter-rouge">stdout</code> before the next
+ line is read.</p>
+  </li>
+</ol>
+
+<h3 id="4-the-illusion-of-async-stdio">4. The Illusion of Async <code class="language-plaintext highlighter-rouge">stdio</code></h3>
+
+<p>A common misconception in the Rust ecosystem is that calling
+<code class="language-plaintext highlighter-rouge">tokio::io::stdin().read_line(&amp;mut buf).await</code> transforms standard input into
+non-blocking, asynchronous I/O. It does not.</p>
+
+<h4 id="how-tokio-reads-stdin-under-the-hood">How Tokio Reads <code class="language-plaintext highlighter-rouge">stdin</code> Under the Hood</h4>
+
+<p>On Unix-like operating systems (Linux, macOS, BSD), OS kernel event notification
+mechanisms (<code class="language-plaintext highlighter-rouge">epoll</code> and <code class="language-plaintext highlighter-rouge">kqueue</code>) are designed for network sockets, event fds, and
+specific character devices. <code class="language-plaintext highlighter-rouge">stdin</code> cannot be reliably polled via <code class="language-plaintext highlighter-rouge">epoll</code> edge-triggered
+event loops without edge-case stalls.</p>
+
+<p>To provide an <code class="language-plaintext highlighter-rouge">AsyncRead</code> interface over <code class="language-plaintext highlighter-rouge">stdin</code>, Tokio’s <code class="language-plaintext highlighter-rouge">tokio::io::stdin()</code> literally:</p>
+
+<ol>
+  <li>Spawns a dedicated OS worker thread via <code class="language-plaintext highlighter-rouge">spawn_blocking</code>.</li>
+  <li>Runs a standard blocking <code class="language-plaintext highlighter-rouge">libc::read(0, ...)</code> call on that background thread.</li>
+  <li>Copies incoming bytes across an internal async channel to wake up your Tokio task.</li>
+</ol>
+
+<blockquote>
+  <p>Tokio ends up doing the exact same thing we do by spawning a dedicated thread with a
+blocking read. However, Tokio also adds all the async runtime machinery (channel
+handoffs, and task scheduler overhead) on top just to maintain the illusion of being
+<code class="language-plaintext highlighter-rouge">async</code>!</p>
+</blockquote>
+
+<h4 id="the-workload-reality-there-is-nothing-to-multiplex">The Workload Reality: There is Nothing to Multiplex</h4>
+
+<p>In a web server or network gateway, async runtimes shine because a single daemon must
+multiplex potentially thousands of idle TCP connections waiting for bytes.</p>
+
+<p>For a local MCP server, however, the coding agent operates in discrete conversational
+turns.</p>
+
+<ul>
+  <li>It writes a tool request into our MCP server’s <code class="language-plaintext highlighter-rouge">stdin</code> pipe and pauses to await the
+response.</li>
+  <li>While the LLM is reasoning, generating tokens, or waiting for user input, our MCP
+server’s <code class="language-plaintext highlighter-rouge">stdin</code> pipe is idle 99% of the time. Our main thread simply sits blocked
+waiting for the next line, with zero concurrent traffic to multiplex.</li>
+</ul>
+
+<p>When an async runtime delegates <code class="language-plaintext highlighter-rouge">stdio</code> to blocking worker threads anyway, wrapping that
+pipeline inside a multi-threaded async state machine does not make it faster or better. It
+simply adds runtime initialization overhead, future state machine transformations, and
+task scheduling latency. It is simply not fit for this purpose, adding complexity without
+providing any of the benefits of asynchronous I/O.</p>
+
+<h2 id="the-3-thread-architecture">The 3-Thread Architecture</h2>
+
+<p>While communication from the AI / LLM coding agent to the MCP server over <code class="language-plaintext highlighter-rouge">stdio</code> is
+synchronous and sequential, communication between the MCP server and <code class="language-plaintext highlighter-rouge">rust-analyzer</code> is
+inherently asynchronous. <code class="language-plaintext highlighter-rouge">rust-analyzer</code> can emit unprompted notifications (such as
+compiler diagnostics via <code class="language-plaintext highlighter-rouge">textDocument/publishDiagnostics</code> or indexing progress via
+<code class="language-plaintext highlighter-rouge">experimental/serverStatus</code>) at any time, interleaved with query responses.</p>
+
+<p>To handle this cleanly without an async runtime, <code class="language-plaintext highlighter-rouge">r3bl-rust-analyzer-mcp-server</code> uses
+<strong>exactly 3 dedicated OS threads</strong>:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>┌──────────────────────────────────────────────────────────────┐
+│                r3bl-rust-analyzer-mcp-server                 │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ 1. MAIN THREAD (main)                                  │  │
+│  │    • Reads MCP JSON-RPC from coding agent stdin.       │  │
+│  │    • Translates tool calls to LSP JSON-RPC.            │  │
+│  │    • Writes query to rust-analyzer stdin writer.       │  │
+│  │    • Blocks on single-use sync_channel(1) receiver.    │  │
+│  │    • Formats ToolResult &amp; writes response to stdout.   │  │
+│  └──────────────┬────────────────────────▲────────────────┘  │
+│                 │                        │                   │
+│                 │ Writes LSP             │ Delivers payload  │
+│                 │ Request                │ via SyncSender    │
+│                 ▼                        │                   │
+│    ┌──────────────────────────┐   ┌──────┴────────────────┐  │
+│    │ rust-analyzer stdin pipe │   │ pending_requests:     │  │
+│    └──────────────────────────┘   │ Arc&lt;Mutex&lt;HashMap&gt;&gt;   │  │
+│                                   └──────▲────────────────┘  │
+│                                          │                   │
+│  ┌───────────────────────────────────────┴────────────────┐  │
+│  │ 2. LSP STDOUT READER THREAD (lsp-stdout-reader)        │  │
+│  │    • Reads Content-Length framed JSON-RPC from RA.     │  │
+│  │    • Matches ID to pending_requests &amp; unblocks Main.   │  │
+│  │    • Ingests compiler diagnostics &amp; server status.     │  │
+│  └────────────────────────────────────────────────────────┘  │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │ 3. LSP STDERR READER THREAD (lsp-stderr-reader)        │  │
+│  │    • Continuously drains rust-analyzer stderr pipe.    │  │
+│  │    • Forwards stderr lines to structured tracing.      │  │
+│  │    • CRITICAL: Prevents 64 KB kernel pipe deadlocks.   │  │
+│  └────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
+</code></pre></div></div>
+
+<h3 id="thread-1-main-mcp-loop">Thread 1: Main MCP Loop</h3>
+
+<p>The Main Thread is the orchestrator. It executes the synchronous MCP loop:</p>
+
+<ol>
+  <li>Reads a line from <code class="language-plaintext highlighter-rouge">std::io::stdin()</code>.</li>
+  <li>Parses the MCP JSON-RPC payload.</li>
+  <li>If it is a tool invocation (e.g. <code class="language-plaintext highlighter-rouge">rust_analyzer_hover</code> or <code class="language-plaintext highlighter-rouge">rust_analyzer_definition</code>),
+it converts the request into an LSP message and dispatches it via <code class="language-plaintext highlighter-rouge">send_request()</code>.</li>
+  <li>Writes the MCP response back to <code class="language-plaintext highlighter-rouge">std::io::stdout()</code>.</li>
+</ol>
+
+<h3 id="thread-2-stdout-reader">Thread 2: <code class="language-plaintext highlighter-rouge">stdout</code> Reader</h3>
+
+<p>Spawned immediately after the <code class="language-plaintext highlighter-rouge">rust-analyzer</code> subprocess is launched, this background
+thread takes ownership of the child’s <code class="language-plaintext highlighter-rouge">stdout</code> pipe and runs a dedicated loop parsing
+<code class="language-plaintext highlighter-rouge">Content-Length: ...\r\n\r\n</code> framed messages:</p>
+
+<ul>
+  <li><strong>Response Payloads:</strong> Extracts the <code class="language-plaintext highlighter-rouge">id</code>, looks up the transmitter in
+<code class="language-plaintext highlighter-rouge">pending_requests</code>, and unblocks the Main Thread via <code class="language-plaintext highlighter-rouge">sender.send(payload)</code>.</li>
+  <li><strong>Compiler Diagnostics:</strong> Ingests <code class="language-plaintext highlighter-rouge">textDocument/publishDiagnostics</code> notifications into a
+thread-safe cache (<code class="language-plaintext highlighter-rouge">Arc&lt;Mutex&lt;HashMap&lt;String, Vec&lt;Value&gt;&gt;&gt;&gt;</code>).</li>
+  <li><strong>Indexing Progress:</strong> Parses <code class="language-plaintext highlighter-rouge">experimental/serverStatus</code> notifications and updates the
+thread-safe <code class="language-plaintext highlighter-rouge">ServerReadinessMonitor</code>.</li>
+</ul>
+
+<h3 id="thread-3-stderr-drainer">Thread 3: <code class="language-plaintext highlighter-rouge">stderr</code> Drainer</h3>
+
+<p>Many language server bridges suffer from subtle, intermittent freezes. On Linux and macOS,
+anonymous pipes have a default kernel buffer capacity of <strong>64 KB</strong>.</p>
+
+<p>If <code class="language-plaintext highlighter-rouge">rust-analyzer</code> prints heavy debug tracing, cargo warnings, or proc-macro diagnostic
+messages to <code class="language-plaintext highlighter-rouge">stderr</code>, and the parent process does not read <code class="language-plaintext highlighter-rouge">stderr</code>, the 64 KB kernel
+buffer fills up. Once full, any subsequent write by <code class="language-plaintext highlighter-rouge">rust-analyzer</code> to <code class="language-plaintext highlighter-rouge">stderr</code> blocks the
+entire compiler process at the OS kernel level, deadlocking the server indefinitely.</p>
+
+<p>Thread 3 continuously drains <code class="language-plaintext highlighter-rouge">stderr</code> in a tight loop and routes the lines to structured
+tracing logs, guaranteeing that <code class="language-plaintext highlighter-rouge">rust-analyzer</code>’s <code class="language-plaintext highlighter-rouge">stderr</code> pipe never fills up or
+deadlocks.</p>
+
+<h3 id="request-response-via-sync_channel1">Request-Response Via <code class="language-plaintext highlighter-rouge">sync_channel(1)</code></h3>
+
+<p>Instead of complex async runtime state machines, request-response synchronization between
+Thread 1 and Thread 2 uses a standard library synchronous channel with a buffer capacity
+of 1 (<code class="language-plaintext highlighter-rouge">std::sync::mpsc::sync_channel(1)</code>).</p>
+
+<p>Thread 1 creates a fresh channel pair for each outbound LSP request, registers the
+transmitter in the <code class="language-plaintext highlighter-rouge">pending_requests</code> thread-safe lookup table keyed by request ID, and
+blocks on the receiver until Thread 2 delivers the response:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">pub</span> <span class="k">fn</span> <span class="nf">send_request</span><span class="p">(</span>
+    <span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span>
+    <span class="n">method</span><span class="p">:</span> <span class="o">&amp;</span><span class="nb">str</span><span class="p">,</span>
+    <span class="n">params</span><span class="p">:</span> <span class="nb">Option</span><span class="o">&lt;</span><span class="n">Value</span><span class="o">&gt;</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Result</span><span class="o">&lt;</span><span class="n">Value</span><span class="p">,</span> <span class="n">McpServerError</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="c1">// Generate unique request ID.</span>
+    <span class="k">let</span> <span class="n">request_id</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.next_request_id</span><span class="p">();</span>
+
+    <span class="c1">// Allocate single-use channel with buffer capacity 1.</span>
+    <span class="k">let</span> <span class="p">(</span><span class="n">tx</span><span class="p">,</span> <span class="n">rx</span><span class="p">)</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">mpsc</span><span class="p">::</span><span class="nf">sync_channel</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+
+    <span class="c1">// Register transmitter in pending_requests table.</span>
+    <span class="p">{</span>
+        <span class="k">let</span> <span class="k">mut</span> <span class="n">guard</span> <span class="o">=</span> <span class="k">self</span><span class="py">.pending_requests</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">();</span>
+        <span class="n">guard</span><span class="nf">.insert</span><span class="p">(</span><span class="n">request_id</span><span class="p">,</span> <span class="n">tx</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Write framed LSP request to rust-analyzer stdin.</span>
+    <span class="k">self</span><span class="nf">.write_lsp_message</span><span class="p">(</span><span class="n">request_id</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span><span class="o">?</span><span class="p">;</span>
+
+    <span class="c1">// Block waiting for response with timeout.</span>
+    <span class="k">let</span> <span class="n">timeout</span> <span class="o">=</span> <span class="nn">Duration</span><span class="p">::</span><span class="nf">from_secs</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+    <span class="k">match</span> <span class="n">rx</span><span class="nf">.recv_timeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nf">Ok</span><span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="nf">Ok</span><span class="p">(</span><span class="n">response</span><span class="p">),</span>
+        <span class="nf">Err</span><span class="p">(</span><span class="n">_</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
+            <span class="c1">// Clean up pending request on timeout.</span>
+            <span class="k">self</span><span class="py">.pending_requests</span><span class="nf">.lock</span><span class="p">()</span><span class="nf">.unwrap</span><span class="p">()</span><span class="nf">.remove</span><span class="p">(</span><span class="o">&amp;</span><span class="n">request_id</span><span class="p">);</span>
+            <span class="nf">Err</span><span class="p">(</span><span class="nn">McpServerError</span><span class="p">::</span><span class="n">RequestCancelled</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This pattern has the following advantages:</p>
+
+<ol>
+  <li>Zero Contention: The channel has an exact capacity of 1 (<code class="language-plaintext highlighter-rouge">sync_channel(1)</code>).</li>
+  <li>Deterministic Timeout: If <code class="language-plaintext highlighter-rouge">rust-analyzer</code> hangs or crashes, <code class="language-plaintext highlighter-rouge">rx.recv_timeout()</code> cleanly
+unblocks the main thread without leaving dangling futures.</li>
+  <li>Automatic Cleanup: When <code class="language-plaintext highlighter-rouge">rx</code> drops, the channel is deallocated immediately.</li>
+</ol>
+
+<h2 id="advantages">Advantages</h2>
+
+<p>By replacing Tokio with standard library threads, <code class="language-plaintext highlighter-rouge">r3bl-rust-analyzer-mcp-server</code> achieves
+tangible advantages:</p>
+
+<h3 id="sub-millisecond-cold-starts">Sub-Millisecond Cold Starts</h3>
+
+<p>AI / LLM coding agents frequently spin up MCP servers dynamically per repository or
+worktree. Without Tokio’s runtime initialization sequence, thread-pool allocation, and
+timer wheel setup, <code class="language-plaintext highlighter-rouge">rust-analyzer-mcp-server</code> enters its main loop and begins spawning the
+<code class="language-plaintext highlighter-rouge">rust-analyzer</code> subprocess in less than 2 milliseconds on average (tested on an Intel Core
+i7-14700 on Linux).</p>
+
+<h3 id="transparent-stack-traces">Transparent Stack Traces</h3>
+
+<p>When debugging an issue in a multi-threaded async codebase, backtraces often look like an
+maze of <code class="language-plaintext highlighter-rouge">poll</code>, <code class="language-plaintext highlighter-rouge">wake</code>, <code class="language-plaintext highlighter-rouge">Task::run</code>, and internal runtime state-machine steps.</p>
+
+<p>In this synchronous architecture, every stack trace is transparent:</p>
+
+<ul>
+  <li>Thread 1 is in <code class="language-plaintext highlighter-rouge">enter_main_event_loop</code> -&gt; <code class="language-plaintext highlighter-rouge">send_request</code> -&gt; <code class="language-plaintext highlighter-rouge">recv_timeout</code>.</li>
+  <li>Thread 2 is in <code class="language-plaintext highlighter-rouge">read_exact</code> parsing <code class="language-plaintext highlighter-rouge">Content-Length</code> headers.</li>
+  <li>Thread 3 is in <code class="language-plaintext highlighter-rouge">read_line</code> draining stderr.</li>
+</ul>
+
+<p>Inspecting the tracing log output gives an exact, unambiguous view of the entire
+application state.</p>
+
+<h3 id="deterministic-teardown">Deterministic Teardown</h3>
+
+<p>In async runtimes, graceful teardown often requires coordinating <code class="language-plaintext highlighter-rouge">CancellationToken</code>
+hierarchies across worker thread pools. If an async task forgets to check the token, child
+processes become orphaned zombies eating 100% CPU. Furthermore, dropping a future
+mid-execution cancels it at whichever <code class="language-plaintext highlighter-rouge">.await</code> point it was suspended at, potentially
+leaving partially written LSP messages in a shared pipe and corrupting the transport
+stream.</p>
+
+<p>In a synchronous thread architecture, teardown is naturally governed by standard OS pipe
+mechanics:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AI / LLM Coding Agent Closes Stdin (Process exits or session terminates)
+   │
+   ▼
+stdin.lock().lines() returns Ok(None) / EOF on Main Thread
+   │
+   ▼
+enter_main_event_loop exits cleanly
+   │
+   ▼
+RustAnalyzerClient::shutdown() executes (or runs in Drop):
+   1. Sends LSP "shutdown" request and "exit" notification.
+   2. Closes child stdin writer handle (signaling EOF to rust-analyzer).
+   3. Calls child_proc.kill() and child_proc.wait() to reap zombie PID.
+   4. Background reader threads reach EOF on stdout/stderr and terminate.
+   │
+   ▼
+Process exits cleanly with exit code 0 in &lt;1ms.
+</code></pre></div></div>
+
+<p>This makes shutdown straightforward. When <code class="language-plaintext highlighter-rouge">stdin</code> reaches EOF, the main loop exits,
+terminates <code class="language-plaintext highlighter-rouge">rust-analyzer</code>, and the reader threads finish naturally as soon as their pipes
+close. There are no background tasks or child processes left behind.</p>
+
+<h2 id="choosing-the-right-tool">Choosing the Right Tool</h2>
+
+<p>The goal of this architectural comparison is not to discourage the use of Tokio or async
+Rust. Async Rust is one of the most powerful paradigms in modern systems programming when
+applied to the problem domain it was created for: high-concurrency 1:N I/O multiplexing
+across thousands of network sockets or complex, multi-source event-driven user interfaces.</p>
+
+<p>However, for a 1:1 local standard I/O translation bridge, standard library threads and
+channels offer a superior design:</p>
+
+<ul>
+  <li><strong>Lower Cognitive Load:</strong> Simple, linear control flow without async function coloring.</li>
+  <li><strong>Superior Reliability:</strong> Deadlock-free 3-thread pipe isolation with deterministic EOF
+teardown.</li>
+  <li><strong>Lean Footprint:</strong> Zero runtime overhead, minimal dependencies, and instant cold
+starts.</li>
+</ul>
+
+<h3 id="resources--links">Resources &amp; Links</h3>
+
+<ul>
+  <li>Crate: [<code class="language-plaintext highlighter-rouge">r3bl-rust-analyzer-mcp-server</code>][r3bl-rust-analyzer-mcp-server]</li>
+  <li>Model Context Protocol Specification: <a href="https://modelcontextprotocol.io/">modelcontextprotocol.io</a></li>
+  <li>Language Server Protocol 3.17 Specification: <a href="https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/">language-server-protocol</a></li>
+  <li>R3BL Open Core Project: <a href="https://github.com/r3bl-org/r3bl-open-core">github.com/r3bl-org/r3bl-open-core</a></li>
+</ul>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end -->]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="CC" /><category term="CS" /><category term="Server" /><category term="AI-LLM" /><summary type="html"><![CDATA[When I/O is involved, Rustaceans often instinctively reach for Tokio. While Tokio is a fantastic tool for the right use cases, it should not be used indiscriminately for every I/O based use case. This article explores why Tokio was deliberately omitted in r3bl-rust-analyzer-mcp-server in favor of a simple, synchronous 3-thread pipeline over stdio. It is a deep dive into architectural trade-offs, async-by-default dogma, and fit-for-purpose architecture.]]></summary></entry><entry><title type="html">Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)</title><link href="http://developerlife.com/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/" rel="alternate" type="text/html" title="Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)" /><published>2026-07-14T00:00:00-05:00</published><updated>2026-07-14T00:00:00-05:00</updated><id>http://developerlife.com/2026/07/14/build-high-performance-flat-2d-arrays-in-rust</id><content type="html" xml:base="http://developerlife.com/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/"><![CDATA[<!-- cspell:words Vecs mktoc flatline Amdahl's bitshift bitshifts memmoves memset -->
 <!-- cspell:words memmove getconf DCACHE LINESIZE memcmp mispredictions mktemp darray -->
 <!-- cspell:words prefetcher Superscalar ilog VPCMPEQB -->
 
@@ -9308,337 +10119,4 @@ in some buffer is dropped, then this is not a problem.</p>
       <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
     </ul>
   </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><category term="TUI" /><summary type="html"><![CDATA[This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the `tokio::select!` macro, and what happens to the racing `Future`s that don't win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them.]]></summary></entry><entry><title type="html">Build with Naz : Ubuntu 24.04 setup and config for dev productivity</title><link href="http://developerlife.com/2024/07/08/ubuntu24/" rel="alternate" type="text/html" title="Build with Naz : Ubuntu 24.04 setup and config for dev productivity" /><published>2024-07-08T10:00:00-05:00</published><updated>2024-07-08T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/08/ubuntu24</id><content type="html" xml:base="http://developerlife.com/2024/07/08/ubuntu24/"><![CDATA[<p><img class="post-hero-image" src="/assets/ubuntu24.svg" /></p>
-
-<!-- TOC -->
-
-<ul>
-  <li><a href="#introduction">Introduction</a></li>
-  <li><a href="#related-videos">Related videos</a></li>
-  <li><a href="#what-comes-with-the-scripts">What comes with the scripts</a></li>
-  <li><a href="#running-the-scripts">Running the scripts</a></li>
-  <li><a href="#gnome-extensions">Gnome Extensions</a></li>
-  <li><a href="#keyboard-remapping">Keyboard remapping</a>
-    <ul>
-      <li><a href="#tilix-and-quake-mode">Tilix and quake mode</a></li>
-      <li><a href="#remap-superq">Remap Super+Q</a></li>
-      <li><a href="#remap-caps-lock-to-ctrl">Remap Caps Lock to Ctrl</a></li>
-    </ul>
-  </li>
-  <li><a href="#chrome-issues-w-wayland">Chrome issues w/ Wayland</a></li>
-  <li><a href="#libfuse2-and-appimage-issues">libfuse2 and AppImage issues</a>
-    <ul>
-      <li><a href="#approach-1---simple">Approach 1 - simple</a></li>
-      <li><a href="#approach-2---complex">Approach 2 - complex</a></li>
-    </ul>
-  </li>
-  <li><a href="#settings---key-mappings">Settings -&gt; Key mappings</a></li>
-  <li><a href="#obs-studio-issues">OBS Studio issues</a></li>
-  <li><a href="#fontconfig">Fontconfig</a></li>
-  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
-</ul>
-
-<!-- /TOC -->
-
-<h2 id="introduction">Introduction</h2>
-<p><a id="markdown-introduction" name="introduction"></a></p>
-
-<p>I’ve provided scripts for setting up a new Ubuntu 24.04 desktop machine. They have been
-tested on a fresh install of Ubuntu 24.04 LTS. They contain all the software that is
-needed for Rust development, OBS Studio use, and general developer productivity. They are
-highly opinionated for my use case, but you can modify them to suit your needs. I’ve also
-recently migrated from Pop_OS! 22.04.</p>
-
-<h2 id="related-videos">Related videos</h2>
-<p><a id="markdown-related-videos" name="related-videos"></a></p>
-
-<p>This video shows what the scripts do after you run them, and how they make your Ubuntu
-24.04 desktop environment look and feel. This article is really a companion to the video.</p>
-
-<!-- linux keyboard productivity guide -->
-<iframe src="https://www.youtube.com/embed/iNSnvfguChU?si=kxcIa6lI9ZX2WfHz" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
-</iframe>
-
-<p><br />
-This video is all about keyboard customization and productivity on Linux. It’s a great
-companion to the scripts that I’ve provided in this article. It is highly reliant on the
-use of the <a href="https://ultimatehackingkeyboard.com/">UHK v2 keyboard</a>.</p>
-
-<!-- video on ubuntu24 -->
-<iframe src="https://www.youtube.com/embed/zGljNewTc0I?si=D5-5P0afPVBw-3IB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
-</iframe>
-
-<p><br /></p>
-
-<h2 id="what-comes-with-the-scripts">What comes with the scripts</h2>
-<p><a id="markdown-what-comes-with-the-scripts" name="what-comes-with-the-scripts"></a></p>
-
-<blockquote>
-  <p>💡 You can get the scripts from the
-<a href="https://github.com/nazmulidris/rust-scratch/tree/main/ubuntu24"><code class="language-plaintext highlighter-rouge">rust-scratch</code></a> repo.</p>
-</blockquote>
-
-<p>Here is a non exhaustive list of software that will be installed:</p>
-
-<ol>
-  <li><code class="language-plaintext highlighter-rouge">fish</code> as the default login shell. All the configuration scripts are written in <code class="language-plaintext highlighter-rouge">fish</code>.
- <code class="language-plaintext highlighter-rouge">bass</code> is also installed to allow for running <code class="language-plaintext highlighter-rouge">bash</code> scripts in <code class="language-plaintext highlighter-rouge">fish</code>.</li>
-  <li><code class="language-plaintext highlighter-rouge">rustup</code>, <code class="language-plaintext highlighter-rouge">brew</code>, and <code class="language-plaintext highlighter-rouge">flatpak</code> with <code class="language-plaintext highlighter-rouge">flathub</code> as package managers.</li>
-  <li><code class="language-plaintext highlighter-rouge">docker</code> and <code class="language-plaintext highlighter-rouge">docker-compose</code> for containerization.</li>
-  <li><code class="language-plaintext highlighter-rouge">obs-studio</code> for screen recording and streaming.</li>
-  <li><code class="language-plaintext highlighter-rouge">vlc</code>, <code class="language-plaintext highlighter-rouge">mpv</code> for media playback.</li>
-  <li><code class="language-plaintext highlighter-rouge">chrome</code> for web browsing.</li>
-  <li><code class="language-plaintext highlighter-rouge">vscode</code> for code editing.</li>
-  <li>Lots of Gnome extensions for desktop customization.</li>
-  <li><code class="language-plaintext highlighter-rouge">nerd-fonts</code> for terminal font customization. Along with <code class="language-plaintext highlighter-rouge">guake</code> and <code class="language-plaintext highlighter-rouge">tilix</code> for
- terminal emulators. Along with <code class="language-plaintext highlighter-rouge">tmux</code> for terminal multiplexing.</li>
-</ol>
-
-<blockquote>
-  <p>To download Ubuntu 24.04, visit the <a href="https://ubuntu.com/download/desktop">Ubuntu
-website</a> and prepare a USB drive with the ISO file
-for installation. You can use <a href="https://flathub.org/apps/com.system76.Popsicle">Popsicle</a>
-to create a bootable USB drive.</p>
-</blockquote>
-
-<h2 id="running-the-scripts">Running the scripts</h2>
-<p><a id="markdown-running-the-scripts" name="running-the-scripts"></a></p>
-
-<p>Lots of customized font configurations are included in the scripts. You can clone the repo
-and run the scripts, or just copy the links below and run them in your terminal.</p>
-
-<p>You can run the following commands to get this on your machine. The first script
-<code class="language-plaintext highlighter-rouge">0-bootstrap.bash</code> has to be installed first. It installs <code class="language-plaintext highlighter-rouge">fish</code> shell and makes it the
-default and installs <code class="language-plaintext highlighter-rouge">flatpak</code> and <code class="language-plaintext highlighter-rouge">flatpak flathub</code>. It also installs <code class="language-plaintext highlighter-rouge">bass</code> to allow
-running bash scripts in fish. The remainder of the scripts can be run in any order.</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt <span class="nb">install</span> <span class="nt">-y</span> curl git
-<span class="nb">cd</span> ~/Downloads/
-git clone https://github.com/nazmulidris/rust-scratch/
-<span class="nb">cd </span>rust-scratch/ubuntu24/
-./0-bootstrap.bash
-<span class="c"># You will need to reboot after running the 0-bootstrap.bash script</span>
-</code></pre></div></div>
-
-<p>Once you reboot, you can run the following scripts.</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ~/Downloads/rust-scratch/ubuntu24/
-./1-install.fish
-./2-install-docker.bash
-./3-install-fonts.fish
-</code></pre></div></div>
-
-<p>You can see the contents of the scripts by clicking on the links below:</p>
-
-<ol>
-  <li><a href="https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/0-bootstrap.bash">https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/0-bootstrap.bash</a></li>
-  <li><a href="https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/1-install.fish">https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/1-install.fish</a></li>
-  <li><a href="https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/2-install-docker.bash">https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/2-install-docker.bash</a></li>
-  <li><a href="https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/3-install-fonts.fish">https://raw.githubusercontent.com/nazmulidris/rust-scratch/main/ubuntu24/3-install-fonts.fish</a></li>
-</ol>
-
-<p>Optional scripts:</p>
-<ol>
-  <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/install-agent-into-bin.fish">https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/install-agent-into-bin.fish</a></li>
-  <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/fix-gnome-session-path-env-var-linuxbrew.fish">https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/fix-gnome-session-path-env-var-linuxbrew.fish</a></li>
-  <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/fix-usr-local-bin-symlinks.fish">https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/fix-usr-local-bin-symlinks.fish</a></li>
-</ol>
-
-<h2 id="gnome-extensions">Gnome Extensions</h2>
-<p><a id="markdown-gnome-extensions" name="gnome-extensions"></a></p>
-
-<ul>
-  <li><a href="https://extensions.gnome.org/extension/4548/tactile/">Tactile tiling support</a></li>
-  <li><a href="https://extensions.gnome.org/extension/7065/tiling-shell/">Tiling shell tiling support</a></li>
-  <li><a href="https://extensions.gnome.org/extension/5660/weather-or-not/">Weather in top bar</a></li>
-  <li><a href="https://extensions.gnome.org/extension/1460/vitals/">Vitals in top bar</a></li>
-  <li><a href="https://extensions.gnome.org/extension/6242/emoji-copy/">Emoji chooser in top bar</a></li>
-  <li><a href="https://extensions.gnome.org/extension/4839/clipboard-history/">Clipboard history</a></li>
-  <li><a href="https://extensions.gnome.org/extension/4679/burn-my-windows/">Burn my windows animation for window open and close</a></li>
-  <li><a href="https://extensions.gnome.org/extension/3843/just-perfection/">Just Perfection ultra GNOME customization</a></li>
-</ul>
-
-<h2 id="keyboard-remapping">Keyboard remapping</h2>
-<p><a id="markdown-keyboard-remapping" name="keyboard-remapping"></a></p>
-
-<h3 id="tilix-and-quake-mode">Tilix and quake mode</h3>
-<p><a id="markdown-tilix-and-quake-mode" name="tilix-and-quake-mode"></a></p>
-
-<p><code class="language-plaintext highlighter-rouge">tilix</code> and its <code class="language-plaintext highlighter-rouge">quake mode</code> is disabled in Wayland. I recommend the following
-instead <a href="https://garrettmills.dev/blog/2023/04/28/down-the-rabbit-hole-of-linux-terminal-emulators/"><code class="language-plaintext highlighter-rouge">ddterm</code></a>
-which you can install as a GNOME Extension <a href="https://extensions.gnome.org/extension/3780/ddterm/">here</a>. It
-works really well.</p>
-
-<p>Also, instead of <code class="language-plaintext highlighter-rouge">tilix</code>, I recommend using <code class="language-plaintext highlighter-rouge">terminator</code>. <code class="language-plaintext highlighter-rouge">tilix</code> is great but as of end
-of year 2024 it doesn’t have a maintainer. <code class="language-plaintext highlighter-rouge">terminator</code> is maintained by GNOME
-organization itself. You can get it
-<a href="https://github.com/gnome-terminator/terminator">here</a>.</p>
-
-<p>You can also use
-<a href="https://lukaszwrobel.pl/blog/tmux-tutorial-split-terminal-windows-easily/"><code class="language-plaintext highlighter-rouge">tmux</code></a> to
-manage panes in terminals that don’t support tiling. Howvever, <code class="language-plaintext highlighter-rouge">tmux</code> is not fast. If you
-run TUI apps, their colors will be off, and frame rates down, so consider this when
-choosing <code class="language-plaintext highlighter-rouge">tmux</code>.</p>
-
-<h3 id="remap-superq">Remap Super+Q</h3>
-<p><a id="markdown-remap-super%2Bq" name="remap-super%2Bq"></a></p>
-
-<p>The following links show you how to remove the default binding for the <kbd>Super+Q</kbd>
-key to close the current window. This is useful if you want to use that binding to launch
-<code class="language-plaintext highlighter-rouge">ddterm</code>.</p>
-
-<ul>
-  <li><a href="https://askubuntu.com/questions/977876/changing-command-super-q">https://askubuntu.com/questions/977876/changing-command-super-q</a></li>
-  <li><a href="https://flameshot.org/docs/guide/wayland-help/">https://flameshot.org/docs/guide/wayland-help/</a></li>
-  <li><a href="https://github.com/Ulauncher/Ulauncher/wiki/Hotkey-In-Wayland">https://github.com/Ulauncher/Ulauncher/wiki/Hotkey-In-Wayland</a></li>
-  <li><a href="https://askubuntu.com/questions/26056/where-are-gnome-keyboard-shortcuts-stored">https://askubuntu.com/questions/26056/where-are-gnome-keyboard-shortcuts-stored</a></li>
-</ul>
-
-<h3 id="remap-caps-lock-to-ctrl">Remap Caps Lock to Ctrl</h3>
-<p><a id="markdown-remap-caps-lock-to-ctrl" name="remap-caps-lock-to-ctrl"></a></p>
-
-<p>Here’s a snippet to allow you map your <kbd>Caps Lock</kbd> key to the <kbd>Ctrl</kbd>
-key:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">function </span>remapCapsLockKey
-    <span class="nb">echo</span> <span class="s2">"Remapping caps lock key"</span>
-    <span class="c"># https://opensource.com/article/21/5/remap-caps-lock-key-linux</span>
-    dconf write /org/gnome/desktop/input-sources/xkb-options <span class="s2">"['caps:ctrl_modifier']"</span>
-    <span class="c"># dconf write /org/gnome/desktop/input-sources/xkb-options "['caps:ctrl']"</span>
-end
-</code></pre></div></div>
-
-<h2 id="chrome-issues-w-wayland">Chrome issues w/ Wayland</h2>
-<p><a id="markdown-chrome-issues-w%2F-wayland" name="chrome-issues-w%2F-wayland"></a></p>
-
-<p>If you find Chrome to be blurry (or AppImages or Electron apps), then you may need to
-do the following to fix this in Wayland:</p>
-
-<ul>
-  <li>Navigate to <code class="language-plaintext highlighter-rouge">chrome://flags</code></li>
-  <li>Change <code class="language-plaintext highlighter-rouge">Preferred Ozone Platform</code> from <code class="language-plaintext highlighter-rouge">default</code> to <code class="language-plaintext highlighter-rouge">wayland</code></li>
-  <li><a href="https://askubuntu.com/a/1502896/872482">More info</a></li>
-</ul>
-
-<h2 id="libfuse2-and-appimage-issues">libfuse2 and AppImage issues</h2>
-<p><a id="markdown-libfuse2-and-appimage-issues" name="libfuse2-and-appimage-issues"></a></p>
-
-<p>On Ubuntu 24.04 I ran into some issues w/ <code class="language-plaintext highlighter-rouge">libfuse2</code> and running <code class="language-plaintext highlighter-rouge">AppImage</code>s.</p>
-
-<ul>
-  <li>Ubuntu 24 does not come w/ <code class="language-plaintext highlighter-rouge">libfuse2</code> out of the box (for good reasons), and instead it
-has <code class="language-plaintext highlighter-rouge">libfuse3</code>.</li>
-  <li>And <code class="language-plaintext highlighter-rouge">AppImage</code> currently only supports <code class="language-plaintext highlighter-rouge">libfuse2</code>.</li>
-</ul>
-
-<h3 id="approach-1---simple">Approach 1 - simple</h3>
-<p><a id="markdown-approach-1---simple" name="approach-1---simple"></a></p>
-
-<p>Instead of installing <code class="language-plaintext highlighter-rouge">libfuse2</code>, however, if you don’t want to do that you can simply run
-the your <code class="language-plaintext highlighter-rouge">XYZ.AppImage</code> using the following command (once it’s been marked as executable):</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>chmod +x XYZ.AppImage
-./XYZ.AppImage \
-  --no-sandbox --enable-features=UseOzonePlatform,WaylandWindowDecorations \
-  --ozone-platform-hint=auto
-</code></pre></div></div>
-
-<p>Explanation of the flags:</p>
-
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">--no-sandbox</code> - removes the need for libfuse2</li>
-  <li><code class="language-plaintext highlighter-rouge">--enable-features=UseOzonePlatform,WaylandWindowDecorations</code> - tells chromium in
-electron to do things for Wayland.</li>
-  <li><code class="language-plaintext highlighter-rouge">--ozone-platform-hint=auto</code> - tells chromium to use Wayland if it is available. This
-setting is set to <code class="language-plaintext highlighter-rouge">X11</code> by default. If you see blurry windows in Chrome, you may need to set
-this in your Chrome too (using <code class="language-plaintext highlighter-rouge">chrome://flags/</code>).</li>
-</ul>
-
-<p>Here’s an example of my <code class="language-plaintext highlighter-rouge">~/.local/share/applications/uhk-agent.desktop</code> file, which I use
-to run the <a href="https://forum.ultimatehackingkeyboard.com/t/run-agent-appimage-in-wayland-eg-on-ubuntu-24/1364"><code class="language-plaintext highlighter-rouge">uhk-agent</code>
-AppImage</a>
-w/ the above flags:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[Desktop Entry]
-Type=Application
-Name=UHK Agent
-Comment=Launch UHK Agent
-Categories=Utilities;
-Icon=/home/nazmul/bin/uhk-agent.png
-Exec=/home/nazmul/bin/UHK.Agent.AppImage --no-sandbox --enable-features=UseOzonePlatform,WaylandWindowDecorations --ozone-platform-hint=auto
-Terminal=false
-</code></pre></div></div>
-
-<h3 id="approach-2---complex">Approach 2 - complex</h3>
-<p><a id="markdown-approach-2---complex" name="approach-2---complex"></a></p>
-
-<p>Here’s another approach to run <code class="language-plaintext highlighter-rouge">AppImage</code>s, which is more complex:</p>
-
-<ul>
-  <li><a href="https://github.com/AppImage/AppImageKit/wiki/FUSE"><code class="language-plaintext highlighter-rouge">libfuse2</code></a> is not included with
-Ubuntu 24.04. <code class="language-plaintext highlighter-rouge">AppImage</code>s are difficult to run (since they need <code class="language-plaintext highlighter-rouge">libfuse2</code> installed).</li>
-  <li>To run them, have to pass an extra flag in the terminal or <code class="language-plaintext highlighter-rouge">.desktop</code> file(eg for
-<code class="language-plaintext highlighter-rouge">uhk-agent</code>). here’s a workaround (to keep from installing <code class="language-plaintext highlighter-rouge">libfuse2</code>).</li>
-</ul>
-
-<p>Here’s an example of the command to run the <a href="https://ultimatehackingkeyboard.com/agent"><code class="language-plaintext highlighter-rouge">uhk-agent</code>
-AppImage</a>:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/UHK.Agent-4.2.0-linux-x86_64.AppImage <span class="nt">--appimage-extract</span>
-<span class="nb">cd </span>squashfs-root
-./uhk-agent <span class="nt">--no-sandox</span>
-</code></pre></div></div>
-
-<p>Here’s a
-<a href="https://github.com/nazmulidris/rust-scratch/blob/main/ubuntu24/install-agent-into-bin.fish">script</a>
-that uses this complex approach to unpack an <code class="language-plaintext highlighter-rouge">AppImage</code> into the <code class="language-plaintext highlighter-rouge">~/bin</code> folder so you can
-run it.</p>
-
-<h2 id="settings---key-mappings">Settings -&gt; Key mappings</h2>
-<p><a id="markdown-settings--%3E-key-mappings" name="settings--%3E-key-mappings"></a></p>
-
-<ul>
-  <li>To create keyboard shortcuts that launch a shell command, wrap it in <code class="language-plaintext highlighter-rouge">sh -c $CMD</code>. This
-is what must be done for <code class="language-plaintext highlighter-rouge">flameshot</code>, and <code class="language-plaintext highlighter-rouge">ulauncher</code>.</li>
-  <li>Bind <code class="language-plaintext highlighter-rouge">ulauncher-toggle</code> to the settings -&gt; keyboard shortcuts in gnome.</li>
-</ul>
-
-<h2 id="obs-studio-issues">OBS Studio issues</h2>
-<p><a id="markdown-obs-studio-issues" name="obs-studio-issues"></a></p>
-
-<p><code class="language-plaintext highlighter-rouge">obs-studio</code> has some UI issues, and dialog boxes are quite glitchy and don’t display
-properly. keyboard shortcuts can’t be reliably used when the <code class="language-plaintext highlighter-rouge">obs-studio</code> window is not in
-focus. can’t really bind to settings -&gt; keyboard shortcuts either, since there’s no
-command to stop recording; start recording will spawn a new process.</p>
-
-<h2 id="fontconfig">Fontconfig</h2>
-<p><a id="markdown-fontconfig" name="fontconfig"></a></p>
-
-<p>Custom font install using script. optional - <code class="language-plaintext highlighter-rouge">~/.config/fontconfig/fonts.conf</code> change
-for system fonts that affect all apps. also <code class="language-plaintext highlighter-rouge">gnome-tweaks</code> to change fonts, and other
-settings.</p>
-
-<ul>
-  <li><a href="https://jichu4n.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux/">https://jichu4n.com/posts/how-to-set-default-fonts-and-font-aliases-on-linux/</a></li>
-  <li><a href="https://www.freedesktop.org/software/fontconfig/fontconfig-user.html">https://www.freedesktop.org/software/fontconfig/fontconfig-user.html</a></li>
-  <li><a href="https://en.wikipedia.org/wiki/Fontconfig">https://en.wikipedia.org/wiki/Fontconfig</a></li>
-</ul>
-
-<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
-<p><a id="markdown-build-with-naz-video-series-on-developerlife.com-youtube-channel" name="build-with-naz-video-series-on-developerlife.com-youtube-channel"></a></p>
-
-<p>You can watch a video series on building this crate with Naz on the
-<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
-
-<ul>
-  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
-  <li>Playlists
-    <ul>
-      <li><a href="https://www.youtube.com/watch?v=bolScvh4x7I&amp;list=PLofhE49PEwmw3MKOU1Kn3xbP4FRQR4Mb3">Build with Naz, Linux TTY, process, signals, commands in async Rust</a></li>
-      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
-      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
-      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
-      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
-    </ul>
-  </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="Linux" /><category term="Misc" /><category term="Productivity" /><summary type="html"><![CDATA[I've provided scripts for setting up a new Ubuntu 24.04 desktop machine. They have been tested on a fresh install of Ubuntu 24.04 LTS. They contain all the software that is needed for Rust development, OBS Studio use, and general developer productivity. They are highly opinionated for my use case, but you can modify them to suit your needs.]]></summary></entry></feed>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><category term="TUI" /><summary type="html"><![CDATA[This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the `tokio::select!` macro, and what happens to the racing `Future`s that don't win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them.]]></summary></entry></feed>

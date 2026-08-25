@@ -38,10 +38,39 @@
   $paddingHorizontal: 1ch;
   $paddingVertical: 0;
 
+  $chipGradient: linear-gradient(
+    135deg,
+    rgba(30, 80, 50, 0.65),
+    rgba(20, 75, 75, 0.65),
+    rgba(40, 95, 60, 0.65),
+    rgba(30, 80, 50, 0.65)
+  );
+
   padding: $paddingVertical 2 * $paddingHorizontal $paddingVertical 2 * $paddingHorizontal;
-  background: colors.$globalLinearGradient2;
+  background-image: $chipGradient;
+  background-size: 300% 300%;
+  animation: animatedCategoryChipBg 60s ease infinite alternate;
   border-radius: globals.$globalBorderRadius;
   margin-right: $marginRight;
   margin-top: $marginVertical;
   margin-bottom: $marginVertical;
+  transition: filter 0.2s ease;
+
+  &:hover {
+    filter: brightness(1.15);
+  }
+}
+
+@keyframes animatedCategoryChipBg {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }

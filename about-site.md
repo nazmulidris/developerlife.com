@@ -54,9 +54,10 @@ students, universities, research institutions,
 [standards bodies](http://xml.coverpages.org/xmlFAQ15.html#JAVA-GEN), online magazines, and even
 enterprise software vendors.
 
-Since 1998 technologies have come and gone, I've moved from Blacksburg, VA to Mountain View, CA, and
-I have created tutorials on many varied topics. What hasn't changed is the goal of the content,
-which is in service of the creation of technology that adapts to the needs of all living things.
+Since 1998 technologies have come and gone, I've moved from Blacksburg, VA to Mountain View, CA, to
+many other locations in the US, and I have created tutorials and videos on many varied topics. What
+hasn't changed is the goal of the content, which is in service of the creation of technology that
+adapts to the needs of all living things.
 
 You can see how this site has evolved since the beginning in the
 [Internet Archive Wayback Machine](https://web.archive.org/web/*/developerlife.com).

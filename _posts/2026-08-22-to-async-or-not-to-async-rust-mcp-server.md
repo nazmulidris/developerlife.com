@@ -729,7 +729,7 @@ channels offer a superior design:
 
 ### Resources & Links
 
-- Crate: [`r3bl-rust-analyzer-mcp-server`][r3bl-rust-analyzer-mcp-server]
+- Crate: [`r3bl-rust-analyzer-mcp-server`][`r3bl-rust-analyzer-mcp-server`]
 - Model Context Protocol Specification: [modelcontextprotocol.io][mcp-spec]
 - Language Server Protocol 3.17 Specification: [language-server-protocol][lsp-spec]
 - R3BL Open Core Project: [github.com/r3bl-org/r3bl-open-core][r3bl-open-core-repo]

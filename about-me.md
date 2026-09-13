@@ -13,9 +13,9 @@ exclude: false
     </div>
     <div class="avatar-text">
         Hi, I'm <a href="https://duckduckgo.com/?q=nazmul+idris&ia=web">
-        Nazmul</a> 😃. I am a <strong>Rustacean Systems Engineering Leader &amp; Founder</strong>
+        Nazmul</a> 😃. I am a <strong>Rustacean 🦀 Systems Engineering Leader &amp; Founder</strong>
         building next-generation terminal platforms and developer tooling for the AI &amp; cloud era.
-        Also an ex-Googler (Android Studio),
+        Also an ex-Googler (Android Studio IDE Platform),
         <a href="https://github.com/r3bl-org/r3bl-open-core/" target="_blank">founder, engineer, maintainer</a>,
         designer, leader, HsingI-er, racer, storyteller.
         I 💓 leadership, authenticity, play, and hope.
@@ -71,7 +71,7 @@ life across multiple platforms.
 
 ## What I'm Building Now
 
-I'm a **Rustacean Systems Engineering Leader** building high-performance infrastructure and leading
+I'm a **Rustacean 🦀 Systems Engineering Leader** building high-performance infrastructure and leading
 teams that ship production systems.
 
 ### Building Terminal Platforms & Developer Tools for the AI & Cloud Era (ROC)

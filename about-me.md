@@ -13,7 +13,9 @@ exclude: false
     </div>
     <div class="avatar-text">
         Hi, I'm <a href="https://duckduckgo.com/?q=nazmul+idris&ia=web">
-        Nazmul</a> 😃. I am an ex-Googler,
+        Nazmul</a> 😃. I am a <strong>Rustacean Systems Engineering Leader &amp; Founder</strong>
+        building next-generation terminal platforms and developer tooling for the AI &amp; cloud era.
+        Also an ex-Googler (Android Studio),
         <a href="https://github.com/r3bl-org/r3bl-open-core/" target="_blank">founder, engineer, maintainer</a>,
         designer, leader, HsingI-er, racer, storyteller.
         I 💓 leadership, authenticity, play, and hope.
@@ -29,7 +31,7 @@ exclude: false
 
 - [My story](#my-story)
 - [What I'm Building Now](#what-im-building-now)
-  - [Next gen async TUI/CLI infra in Rust](#next-gen-async-tuicli-infra-in-rust)
+  - [Building Terminal Platforms & Developer Tools for the AI & Cloud Era (ROC)](#building-terminal-platforms--developer-tools-for-the-ai--cloud-era-roc)
 - [What I Bring](#what-i-bring)
   - [Engineering (22 years)](#engineering-22-years)
   - [Leadership (8 years)](#leadership-8-years)
@@ -72,44 +74,45 @@ life across multiple platforms.
 I'm a **Rustacean Systems Engineering Leader** building high-performance infrastructure and leading
 teams that ship production systems.
 
-### Next gen async TUI/CLI infra in Rust
+### Building Terminal Platforms & Developer Tools for the AI & Cloud Era (ROC)
 
 ```
-██████╗ ██████╗ ██████╗ ██╗         ████████╗██╗   ██╗██╗
-██╔══██╗╚════██╗██╔══██╗██║         ╚══██╔══╝██║   ██║██║
-██████╔╝ █████╔╝██████╔╝██║            ██║   ██║   ██║██║
-██╔══██╗ ╚═══██╗██╔══██╗██║            ██║   ██║   ██║██║
-██║  ██║██████╔╝██████╔╝███████╗       ██║   ╚██████╔╝██║
-╚═╝  ╚═╝╚═════╝ ╚═════╝ ╚══════╝       ╚═╝    ╚═════╝ ╚═╝
+██████╗  ██████╗  ██████╗
+██╔══██╗██╔═══██╗██╔════╝
+██████╔╝██║   ██║██║
+██╔══██╗██║   ██║██║
+██║  ██║╚██████╔╝╚██████╗
+╚═╝  ╚═╝ ╚═════╝  ╚═════╝
 ```
 
-I'm the founder and principal engineer of [R3BL TUI](https://github.com/r3bl-org/r3bl-open-core), a
-Rust framework for building next generation async terminal user interfaces (TUI) and command-line
-(CLI) developer tools.
+I'm the founder, principal systems engineer, and maintainer of **[ROC (r3bl-open-core)](https://github.com/r3bl-org/r3bl-open-core)**, an open-source platform and suite of developer productivity tools designed for the era of AI coding agents and cloud-first workflows.
 
-- **2.7M+ downloads** on crates.io
-- **Interactive Cloud & Terminal Workflows:** Collaborative editing and real-time code execution of
-  Markdown documents directly in the terminal environment.
-- **Virtual Terminal Emulation:** Headless virtual terminal emulators with virtual tabs running
-  interactive cloud infrastructure configurations over SSH.
-- **Developer Productivity Infrastructure:** High-efficiency tooling to enhance knowledge capture,
-  tailored for the rise of AI coding agent harnesses and remote cloud VM workflows.
-- **Systems Engineering:** High-performance terminal, TTY, PTY, memory latency, and concurrency
-  optimizations.
-- **Technologies:** Rust & Tokio (async runtime, Elm-style unidirectional state management, Flexbox
-  layout engine, CSS-like styling, React/JSX macros), systems programming, performance optimization.
+#### Re-imagining the Terminal for AI & Cloud Workflows
 
-**Why it matters:** I'm solving real problems for developers building complex terminal and CLI
-applications. Despite the massive rise of LLM coding agents (harnesses) and remote cloud VM
-administration over SSH, terminal UI innovation has largely stagnated since the 1990s. The `r3bl_tui`
-framework bridges this gap, representing years of systems programming, performance optimization, and
-production-grade infrastructure design in Rust.
+With the rapid rise of autonomous AI coding agents (Claude Code, Gemini CLI, LLM harnesses) and remote cloud VM administration over SSH, the **terminal has become the primary command center** for modern developers. Yet terminal UX and foundational primitives have largely stagnated since the 1990s. ROC bridges this 30-year gap by reimagining terminal interaction through modern reactive architectures, headless virtualization, and local-first developer tooling.
+
+#### What ROC Delivers: Platform & Developer Tools
+
+Built from the ground up as a Rust monorepo, ROC brings web- and desktop-inspired ergonomics into the terminal:
+
+- **Virtual Terminal Emulation & `cmdr`:** Headless virtual terminal emulators with virtual tabs for interactive cloud infrastructure configurations and multiplexed agent workflows over SSH.
+- **Interactive Markdown & Code Execution (`edi`):** Modal terminal Markdown editor with syntax highlighting, visual formatting, and real-time inline code execution.
+- **Interactive Git Workflows (`giti`):** Streamlined branch switching, interactive staging, and high-velocity commit workflows directly in the terminal.
+- **AI & MCP Servers:** High-performance Model Context Protocol (MCP) integrations (such as `rust-analyzer-mcp-server`) that bridge autonomous AI agents directly with local language servers and toolchains.
+
+#### Core Engine: `r3bl_tui`
+
+Powering ROC is `r3bl_tui`, a production-grade async terminal UI framework in Rust & Tokio:
+
+- **2.7M+ downloads** on [crates.io](https://crates.io/search?q=r3bl)
+- **Modern UI Architecture:** Elm-style unidirectional state management, Flexbox layout engine, CSS-like styling, and React/JSX-style declarative macros.
+- **Low-Latency Systems Engineering:** Fully asynchronous, thread-safe runtime with PTY/TTY concurrency, high-efficiency memory management, and rendering pipeline optimizations.
 
 ## What I Bring
 
 ### Engineering (22 years)
 
-- **Currently:** 4+ years daily Rust systems programming, building r3bl-org (2.7M+ crates.io downloads)
+- **Currently:** 4+ years daily Rust systems programming, building ROC (r3bl-open-core) and terminal platforms (2.7M+ crates.io downloads)
 - **Google (3 yrs 10 mos):**
   - **Android Studio IDE platform team:** Performance, memory latency, and stability optimization
     for IntelliJ-based IDE (10M+ LOC codebase) serving millions of developers.

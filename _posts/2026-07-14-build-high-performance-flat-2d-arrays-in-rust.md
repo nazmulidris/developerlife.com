@@ -1,5 +1,5 @@
 ---
-title: "Build High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)"
+title: "Build with Naz : High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)"
 author: Nazmul Idris
 date: 2026-07-14
 excerpt: |

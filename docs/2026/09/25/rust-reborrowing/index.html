@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" /><!-- Begin Jekyll SEO tag v2.9.0 -->
+<title>Rust Reborrowing, Aliasing, and Mutable References | developerlife.com</title>
+<meta name="generator" content="Jekyll v4.4.1" />
+<meta property="og:title" content="Rust Reborrowing, Aliasing, and Mutable References" />
+<meta name="author" content="Nazmul Idris" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Why can a method that takes &amp;mut self call another method that takes &amp;mut self? If mutable references can’t be copied, how is this possible? This article explores Rust’s core invariant Aliasing XOR Mutability, and dives into reborrowing, Non-Lexical Lifetimes (NLL), what “pausing a borrow” actually means in the compiler, and illegal concurrent aliasing." />
+<meta name="twitter:description" property="og:description" content="Why can a method that takes &amp;mut self call another method that takes &amp;mut self? If mutable references can’t be copied, how is this possible? This article explores Rust’s core invariant Aliasing XOR Mutability, and dives into reborrowing, Non-Lexical Lifetimes (NLL), what “pausing a borrow” actually means in the compiler, and illegal concurrent aliasing." />
+<link rel="canonical" href="http://developerlife.com/2026/09/25/rust-reborrowing/" />
+<meta property="og:url" content="http://developerlife.com/2026/09/25/rust-reborrowing/" />
+<meta property="og:site_name" content="developerlife.com" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2026-09-25T04:00:00-05:00" />
+<meta property="article:modified_time" content="2026-09-25T04:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="Rust Reborrowing, Aliasing, and Mutable References" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Nazmul Idris"},"dateModified":"2026-09-25T04:00:00-05:00","datePublished":"2026-09-25T04:00:00-05:00","description":"Why can a method that takes &amp;mut self call another method that takes &amp;mut self? If mutable references can’t be copied, how is this possible? This article explores Rust’s core invariant Aliasing XOR Mutability, and dives into reborrowing, Non-Lexical Lifetimes (NLL), what “pausing a borrow” actually means in the compiler, and illegal concurrent aliasing.","headline":"Rust Reborrowing, Aliasing, and Mutable References","mainEntityOfPage":{"@type":"WebPage","@id":"http://developerlife.com/2026/09/25/rust-reborrowing/"},"url":"http://developerlife.com/2026/09/25/rust-reborrowing/"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/main.css" />
+
+  <!-- Add favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Add fontawesome (only for bio.html page) -->
+  <link
+    rel="stylesheet"
+    href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+    integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+    crossorigin="anonymous"
+  /><link type="application/atom+xml" rel="alternate" href="http://developerlife.com/feed.xml" title="developerlife.com" /><!-- https://developers.google.com/analytics/devguides/collection/gtagjs -->
+<script async
+        src="https://www.googletagmanager.com/gtag/js?id=G-NQY9ECC58H"></script>
+<script>
+  window.dataLayer = window.dataLayer || []
+
+  function gtag() {
+    window.dataLayer.push(arguments)
+  }
+
+  gtag("js", new Date())
+  gtag("config", "G-NQY9ECC58H")
+</script>
+</head>
+<body><!-- https://github.com/mermaid-js/mermaid/blob/develop/docs/n00b-gettingStarted.md -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<script>
+  // https://mermaid-js.github.io/mermaid/#/theming
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: "dark",
+    themeVariables: {
+      fontFamily: "Fira Code",
+      fontSize: "0.95rem",
+      darkMode: true,
+      primaryColor: "#2f9ece",
+      mainBkg: "#303439",
+    },
+  })
+</script>
+<header class="site-header" role="banner">
+
+    <div class="wrapper header-wrapper"><div class="logo-container">
+        <div class="logo-image">
+          <a class="site-title"
+             rel="author"
+             href="/">
+              <!-- This is the logo image placeholder. -->
+                <picture>
+                  <source srcset="/assets/dl-logo-icon-dark.svg" media="(max-width: 600px)"/>
+                  <img  src="/assets/dl-logo-icon-and-text-dark.svg" />
+                </picture>
+          </a>
+        </div>
+      </div><nav class="site-nav">
+            <input type="checkbox" id="nav-trigger" class="nav-trigger"/>
+            <label for="nav-trigger">
+          <span class="menu-icon">
+              <svg class="svg-icon">
+              <use xlink:href="/assets/minima-social-icons.svg#menu">
+              </use>
+            </svg>
+          </span>
+            </label>
+
+            <div class="trigger"><!--
+    Iterate over all the pages in the site, where page_cursor holds the current
+    page for each pass of the for loop.
+    Note that page is the currently loaded page itself.
+--><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/AI-LLM/"> AI &amp; LLM </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Android/"> Android </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CC/"> Concurrency </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CLI/"> CLI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/CS/"> CS </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DB/"> Database </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/DI/"> DI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/FE/"> Frontend </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Hardware/"> Hardware </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/IJ/"> IntelliJ </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/KT/"> Kotlin </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Linux/"> Linux </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/MP/"> MP </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Misc/"> Misc </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Node/"> Node </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Productivity/"> Productivity </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/RN/"> React-Native </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/React/"> React </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Rust/"> Rust </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Server/"> Server </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/State/"> State-Management </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Stories/"> Stories </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TDD/"> Testing </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TS/"> TypeScript </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/TUI/"> TUI </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/category/Web/"> Web </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-me/"> Nazmul Idris </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/about-site/"> About Us </a><!-- This item is not selected -->
+        <!-- Don't list excluded pages --><a class="page-link" href="/authors/"> Authors </a></div>
+        </nav></div>
+</header>
+
+<!-- Debug to show the value of page.title and page.category variables -->
+<!--<pre>page_cursor.exclude = nil</pre>-->
+<!--<pre>page.exclude = nil</pre>-->
+<!--<pre>page.title = &quot;Rust Reborrowing, Aliasing, and Mutable References&quot;</pre>-->
+<!--<pre>page.category = nil</pre>-->
+<!--<pre>page.title (json) = Rust Reborrowing, Aliasing, and Mutable References</pre>-->
+<!--<pre>page.category (json) = </pre>-->
+<div class="page-and-sidebar-wrapper">
+      <main class="page-content" aria-label="Content">
+        <div class="wrapper"><article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting"><header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Rust Reborrowing, Aliasing, and Mutable References</h1>
+
+    <!-- Create all the variables needed for this page (and all the includes) -->
+    
+
+    <div class="post-meta">
+        <p>
+            <!-- Date -->Sep 25, 2026
+
+            <!--Author-->
+            ∙ <a href="/about-me">Nazmul Idris</a>
+
+            <!-- One line social blurb --><ul class="contact-list">
+    <li class="p-name">Hi, I'm
+            <a href="/about-me">Nazmul</a>,
+            an ex-Googler, <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui" target="_blank">r3bl_tui maintainer</a>, SWE, entrepreneur, designer, leader,
+            TaiChi-er, racer, storyteller.
+            <!-- This is fontawesome icon -->
+            I <i class="fas fa-heart"></i>
+            leadership, authenticity, play, hope,
+            <i class="fas fa-code"></i>,
+            <i class="fas fa-terminal"></i>, &
+            <i class="fas fa-coffee"></i>,
+            😃.</li>
+</ul>
+</p>
+    </div><div class="social-media-container">
+  <!-- <iframe
+    src="https://github.com/sponsors/nazmulidris/button"
+    title="Sponsor nazmulidris"
+    height="35"
+    width="116"
+    style="border: 0; padding-right: 6px"
+  ></iframe> -->
+
+  <p class="social-media-item">
+    <a
+      href="mailto:hello@r3bl.com"
+      target="_blank"
+      title="Email us at hello@r3bl.com"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#email"></use>
+      </svg>
+    </a>
+  </p>
+
+  <p class="social-media-item">
+    <a href="https://r3bl.com/#services" target="_blank" title="Need help with code?">
+      <img class="svg-icon" src="https://r3bl.com/images/logo.svg" alt="R3BL Logo">
+    </a>
+  </p><p class="social-media-item">
+    <a
+      href="https://www.youtube.com/channel/UCMcsxfCwzwDevc3NRqFgfEg"
+      target="_blank"
+      title="developerlife.com YouTube channel"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#youtube"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a
+      href="https://www.linkedin.com/in/nazmulidris"
+      target="_blank"
+      title="Nazmul Idris LinkedIn profile"
+    >
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#linkedin"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a
+      href="https://www.github.com/nazmulidris" target="_blank" title="Nazmul Idris github profile">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#github"></use>
+      </svg>
+    </a>
+  </p><p class="social-media-item">
+    <a href="/feed.xml" target="_blank" title="RSS feed">
+      <svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg>
+    </a>
+  </p></div>
+</header>
+<div class="post-content e-content" itemprop="articleBody">
+        <!-- If a page has a hero-image defined in it, then show it here -->
+
+
+        <!-- BEGIN mktoc -->
+
+<ul>
+  <li><a href="#this-example-works-but-why">This example works, but why?</a>
+    <ul>
+      <li><a href="#mental-model-variable-shadowing-analogy">Mental Model: “Variable Shadowing” Analogy</a></li>
+    </ul>
+  </li>
+  <li><a href="#1-how-reborrowing-works-under-the-hood">1. How Reborrowing Works Under the Hood</a>
+    <ul>
+      <li><a href="#core-rules-shared-vs-mutable-references">Core Rules: Shared vs. Mutable References</a></li>
+      <li><a href="#what-if-mutable-references-were-strictly-move-only">What If Mutable References Were Strictly Move-Only?</a></li>
+      <li><a href="#what-is-reborrowing">What Is Reborrowing?</a></li>
+      <li><a href="#how-the-compiler-desugars-a-reborrow-mut-ref">How the Compiler Desugars a Reborrow (<code class="language-plaintext highlighter-rouge">&amp;mut *ref</code>)</a></li>
+      <li><a href="#putting-it-all-together">Putting It All Together</a></li>
+    </ul>
+  </li>
+  <li><a href="#2-how-non-lexical-lifetimes-nll-revolutionized-borrow-checking">2. How Non-Lexical Lifetimes (NLL) Revolutionized Borrow Checking</a></li>
+  <li><a href="#3-what-pausing-a-borrow-actually-means-inside-the-compiler">3. What “Pausing a Borrow” Actually Means Inside the Compiler</a>
+    <ul>
+      <li><a href="#the-interpreter-trap">The “Interpreter Trap”</a></li>
+      <li><a href="#compile-time-loan-capabilities--polonius">Compile-Time Loan Capabilities &amp; Polonius</a></li>
+      <li><a href="#visualizing-loan-lifecycle-vs-runtime-stack">Visualizing Loan Lifecycle vs. Runtime Stack</a></li>
+    </ul>
+  </li>
+  <li><a href="#4-the-call-stack-does-not-enforce-safety">4. The Call Stack Does Not Enforce Safety</a></li>
+  <li><a href="#5-valid-sequential-delegation-vs-illegal-concurrent-aliasing">5. Valid Sequential Delegation vs. Illegal Concurrent Aliasing</a>
+    <ul>
+      <li><a href="#example-1-valid-sequential-delegation">Example 1: Valid Sequential Delegation</a></li>
+      <li><a href="#example-2-illegal-concurrent-aliasing">Example 2: Illegal Concurrent Aliasing</a>
+        <ul>
+          <li><a href="#attempt-1-creating-overlapping-mutable-references">Attempt 1: Creating overlapping mutable references</a></li>
+          <li><a href="#attempt-2-overlapping-borrows-in-the-same-scope">Attempt 2: Overlapping Borrows in the Same Scope</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#conclusion--further-reading">Conclusion &amp; Further Reading</a>
+    <ul>
+      <li><a href="#resources--links">Resources &amp; Links</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END mktoc -->
+      <h2 id="this-example-works-but-why">
+        
+        
+          This example works, but why? <a href="#this-example-works-but-why">#</a>
+        
+        
+      </h2>
+    
+
+<p>This is a pretty common pattern that you may have encountered in your Rust journey.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Debug,</span> <span class="nd">Default)]</span>
+<span class="k">struct</span> <span class="n">Player</span> <span class="p">{</span>
+    <span class="n">score</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Player</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">add_score</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="nb">u8</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="n">points</span><span class="p">;</span>
+
+        <span class="c1">// 🤔 Calling another &amp;mut self helper method!</span>
+        <span class="c1">// Doesn't this overlap?</span>
+        <span class="k">self</span><span class="nf">.print_score</span><span class="p">();</span>
+
+        <span class="c1">// 🤔 Continuing to use self afterward!</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">print_score</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"Score is now: {:#?}"</span><span class="p">,</span> <span class="k">self</span><span class="py">.score</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">player</span> <span class="o">=</span> <span class="nn">Player</span><span class="p">::</span><span class="nf">default</span><span class="p">();</span>
+    <span class="n">player</span><span class="nf">.add_score</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+    <span class="c1">// ☑️ The &amp;mut borrow ends here when the call to add_score() returns.</span>
+
+    <span class="c1">// ☑️ This doesn't overlap with the previous call, so it is valid.</span>
+    <span class="n">player</span><span class="nf">.print_score</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This compiles cleanly and runs. But if you stop and think about Rust’s foundational
+ownership rules, it seems that this should not compile:</p>
+
+<ol>
+  <li><strong>Shared references (<code class="language-plaintext highlighter-rouge">&amp;T</code>) implement <code class="language-plaintext highlighter-rouge">Copy</code>.</strong> You can duplicate them as many times as
+you want.</li>
+  <li><strong>Mutable references (<code class="language-plaintext highlighter-rouge">&amp;mut T</code>) do NOT implement <code class="language-plaintext highlighter-rouge">Copy</code>.</strong> They represent strictly
+exclusive, unique access.</li>
+  <li>Under normal move semantics, passing any non-<code class="language-plaintext highlighter-rouge">Copy</code> type into a function <strong>moves and
+consumes</strong> that value permanently.</li>
+</ol>
+
+<p>Look inside <code class="language-plaintext highlighter-rouge">Player::add_score()</code>: if <code class="language-plaintext highlighter-rouge">&amp;mut self</code> were moved into <code class="language-plaintext highlighter-rouge">self.print_score()</code>,
+then <code class="language-plaintext highlighter-rouge">self</code> would have been consumed and destroyed:</p>
+
+<ul>
+  <li>The subsequent line <code class="language-plaintext highlighter-rouge">self.score += 1</code> would trigger
+<code class="language-plaintext highlighter-rouge">error[E0382]: use of moved value: self</code>.</li>
+  <li>You would expect to have to return <code class="language-plaintext highlighter-rouge">&amp;mut self</code> out of every single helper method just to
+thread ownership back to the caller.</li>
+</ul>
+
+<p>Then why does this code compile without compiler errors?</p>
+
+<p>The answer is <strong>reborrowing</strong>. Reborrowing is the compiler mechanism that makes mutable
+references practical in Rust. Instead of moving <code class="language-plaintext highlighter-rouge">self</code>, the compiler automatically inserts
+a temporary sub-borrow: <code class="language-plaintext highlighter-rouge">&amp;mut *self</code>, whose lifetime is shorter than <code class="language-plaintext highlighter-rouge">self</code>’s borrow. This
+isn’t aliasing - we are not copying the mutable borrows. Instead we are making a new
+mutable borrow that replaces the original one, but with a shorter lifetime. And they can’t
+both be used at the same time.</p>
+      <h3 id="mental-model-variable-shadowing-analogy">
+        
+        
+          Mental Model: “Variable Shadowing” Analogy <a href="#mental-model-variable-shadowing-analogy">#</a>
+        
+        
+      </h3>
+    
+
+<p>A great way to think about reborrowing is to compare it to block-scoped <strong>variable
+shadowing</strong> in Rust. This example demonstrates how we create two variable bindings <code class="language-plaintext highlighter-rouge">x</code> and
+they are <strong>not</strong> aliases.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Variable Shadowing:</span>
+<span class="k">let</span> <span class="n">x</span><span class="p">:</span> <span class="nb">u8</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="c1">// Shadows outer `x`</span>
+    <span class="k">let</span> <span class="n">x</span><span class="p">:</span> <span class="nb">String</span> <span class="o">=</span> <span class="s">"hello"</span><span class="nf">.to_string</span><span class="p">();</span>
+    <span class="c1">// Prints "hello"</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{x}"</span><span class="p">);</span>
+<span class="p">}</span> <span class="c1">// Inner `x` (the String) is dropped here</span>
+<span class="c1">// Outer `x` (the u8) is restored</span>
+<span class="nd">println!</span><span class="p">(</span><span class="s">"{x}"</span><span class="p">);</span> <span class="c1">// Prints 10</span>
+</code></pre></div></div>
+
+<ul>
+  <li>The second <code class="language-plaintext highlighter-rouge">x</code> (<code class="language-plaintext highlighter-rouge">String</code>) completely shadows the first <code class="language-plaintext highlighter-rouge">x</code>. When the inner scope ends,
+the outer <code class="language-plaintext highlighter-rouge">x</code> (<code class="language-plaintext highlighter-rouge">u8</code>) is restored.</li>
+  <li>And while the inner <code class="language-plaintext highlighter-rouge">x</code> (<code class="language-plaintext highlighter-rouge">String</code>) is in scope, the outer <code class="language-plaintext highlighter-rouge">x</code> (<code class="language-plaintext highlighter-rouge">u8</code>) cannot be used.</li>
+</ul>
+
+<p>The same logic applies to reborrowing. Notice how similar the mechanics are:</p>
+
+<ol>
+  <li><strong>Lifespan:</strong>
+    <ul>
+      <li><strong>Variable Shadowing:</strong> The inner binding exists only within the inner scope.</li>
+      <li><strong>Reborrowing:</strong> The child reference lives only for the sub-lifetime (callee or
+<a href="https://rust-lang.github.io/rfcs/2094-nll.html"><code class="language-plaintext highlighter-rouge">NLL</code></a> span).</li>
+    </ul>
+  </li>
+  <li><strong>Accessibility:</strong>
+    <ul>
+      <li><strong>Variable Shadowing:</strong> The outer binding cannot be named or accessed while
+shadowed.</li>
+      <li><strong>Reborrowing:</strong> The parent reference is dormant/suspended while the child borrow is
+live.</li>
+    </ul>
+  </li>
+  <li><strong>Restoration:</strong>
+    <ul>
+      <li><strong>Variable Shadowing:</strong> When the inner scope ends, the outer binding is usable
+again.</li>
+      <li><strong>Reborrowing:</strong> When the child borrow ends, the parent reference is restored with
+full permissions.</li>
+    </ul>
+  </li>
+  <li>‼️ <strong>Memory Target (The Crucial Difference):</strong>
+    <ul>
+      <li><strong>Variable Shadowing (Different memory):</strong> The inner binding occupies a completely
+separate slot. Modifying it has zero effect on the outer variable.</li>
+      <li><strong>Reborrowing (Same memory):</strong> The child reference points to the <em>exact same
+address</em>. Any mutation made through the child persists and is seen by the parent!</li>
+    </ul>
+  </li>
+</ol>
+
+<p>The difference in <strong>memory target</strong> is what makes reborrowing unique: you temporarily
+delegate access to the <em>exact same data</em>, mutate it through the child, and then resume
+control with the parent.</p>
+
+<p>In this article, we will unpack the following:</p>
+
+<ol>
+  <li>How reborrowing works under the hood
+[<a href="#1-how-reborrowing-works-under-the-hood">jump to the section</a>].</li>
+  <li>How <strong>Non-Lexical Lifetimes (<a href="https://rust-lang.github.io/rfcs/2094-nll.html"><code class="language-plaintext highlighter-rouge">NLL</code></a>)</strong> revolutionized borrow checking (in Rust 2018
+Edition)
+[<a href="#2-how-non-lexical-lifetimes-nll-revolutionized-borrow-checking">jump to the section</a>].</li>
+  <li>What “pausing a borrow” actually means inside the compiler (and how
+<a href="https://rust-lang.github.io/polonius/"><strong>Polonius</strong></a> models it)
+[<a href="#3-what-pausing-a-borrow-actually-means-inside-the-compiler">jump to the section</a>].</li>
+  <li>Why the call stack is <strong>not</strong> what enforces safety
+[<a href="#4-the-call-stack-does-not-enforce-safety">jump to the section</a>].</li>
+  <li>The exact boundary where valid sequential delegation ends and illegal concurrent
+aliasing begins
+[<a href="#5-valid-sequential-delegation-vs-illegal-concurrent-aliasing">jump to the section</a>].</li>
+</ol>
+
+<blockquote>
+  <p>💡 All code examples featured in this article are available in the companion repository:
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/reborrow"><strong><code class="language-plaintext highlighter-rouge">rust-scratch/reborrow</code></strong></a>.</p>
+</blockquote>
+      <h2 id="1-how-reborrowing-works-under-the-hood">
+        
+        
+          1. How Reborrowing Works Under the Hood <a href="#1-how-reborrowing-works-under-the-hood">#</a>
+        
+        
+      </h2>
+    
+      <h3 id="core-rules-shared-vs-mutable-references">
+        
+        
+          Core Rules: Shared vs. Mutable References <a href="#core-rules-shared-vs-mutable-references">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">&amp;T</code> implements <code class="language-plaintext highlighter-rouge">Copy</code>:</strong> Duplication is trivial and safe because multiple readers
+cannot mutate data or cause data races.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">&amp;mut T</code> does NOT implement <code class="language-plaintext highlighter-rouge">Copy</code>:</strong> It guarantees exclusive access. If duplicated,
+multiple writers could alias the same memory concurrently, causing data races and
+undefined behavior (UB).</li>
+</ul>
+
+<p>Because <code class="language-plaintext highlighter-rouge">&amp;mut T</code> is not <code class="language-plaintext highlighter-rouge">Copy</code>, assigning it performs a <strong>move</strong>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="k">mut</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>
+<span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">x</span><span class="p">;</span>
+<span class="k">let</span> <span class="n">r2</span> <span class="o">=</span> <span class="n">r1</span><span class="p">;</span> <span class="c1">// MOVES r1 into r2!</span>
+<span class="c1">// println!("{}", r1); // ERROR: borrow of moved value: `r1`</span>
+</code></pre></div></div>
+      <h3 id="what-if-mutable-references-were-strictly-move-only">
+        
+        
+          What If Mutable References Were Strictly Move-Only? <a href="#what-if-mutable-references-were-strictly-move-only">#</a>
+        
+        
+      </h3>
+    
+
+<p>If Rust treated <code class="language-plaintext highlighter-rouge">&amp;mut T</code> strictly like other non-<code class="language-plaintext highlighter-rouge">Copy</code> types, passing <code class="language-plaintext highlighter-rouge">&amp;mut self</code> into
+any helper function would permanently consume it. You would have to manually thread
+ownership back through return types:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Tedious ownership threading without reborrowing:</span>
+<span class="k">impl</span> <span class="n">Player</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">add_score</span><span class="p">(</span><span class="k">mut</span> <span class="k">self</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="k">Self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="nb">u8</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="k">Self</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="n">points</span><span class="p">;</span>
+        <span class="k">self</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.print_score</span><span class="p">();</span> <span class="c1">// Manually threading ownership back!</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">self</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This would make Rust tedious to write &amp; difficult to read. Fortunately, Rust solves this
+problem with <strong>reborrowing</strong>.</p>
+      <h3 id="what-is-reborrowing">
+        
+        
+          What Is Reborrowing? <a href="#what-is-reborrowing">#</a>
+        
+        
+      </h3>
+    
+
+<p>In plain English, <strong>reborrowing means borrowing from an existing borrow</strong>. Think of it
+like borrowing a physical tool, and then lending it to your friend.</p>
+
+<ul>
+  <li>You borrow (rent) a drill from Home Depot.</li>
+  <li>You use it yourself to drill a hole.</li>
+  <li>You need a friend to drill another hole for you before you continue.</li>
+  <li>Rather than giving away the drill permanently to your friend (and the rental agreement
+from Home Depot), you hand it over to them just for that one hole.</li>
+  <li>While they drill the hole, you can’t use the drill.</li>
+  <li>Once they finish, they hand the drill back, and you resume your work.</li>
+  <li>When you are done with the drill, you have to return it to Home Depot.</li>
+</ul>
+
+<blockquote>
+  <p>🛑 <strong>Important: This has nothing to do with threads, locks, or atomics!</strong></p>
+
+  <p>When we say the parent reference is “paused” or “waiting”, it is easy to think of
+concurrency:</p>
+
+  <ul>
+    <li><em>No multiple threads (<code class="language-plaintext highlighter-rouge">Send</code> / <code class="language-plaintext highlighter-rouge">Sync</code>)</em>: Reborrowing happens entirely within
+single-threaded, sequential execution.</li>
+    <li><em>No runtime locks or atomics</em>: There is no <code class="language-plaintext highlighter-rouge">Mutex</code>, semaphore, or atomic operation
+involved. At runtime, references are just naked machine pointers.</li>
+    <li><em>Purely compile-time</em>: The CPU thread never blocks or sleeps. The “pause” simply means
+the compiler statically forbids you from writing code that uses the original reference
+until the sub-borrow’s lifetime expires.</li>
+  </ul>
+</blockquote>
+
+<p>In Rust, a <strong>reborrow</strong> creates a new, temporary reference pointing to the same memory as
+an existing reference, without moving or consuming the original reference.</p>
+
+<p>Every reborrow follows a 3-phase lifecycle:</p>
+
+<ol>
+  <li><strong>Child Reference Created:</strong> Spawns a child reference with a shorter sub-lifetime
+bounded by the helper function call (or inner scope).</li>
+  <li><strong>Parent Reference Paused:</strong> While the child borrow is live, the parent reference is
+temporarily suspended. It cannot be read from or written to.</li>
+  <li><strong>Parent Reference Restored:</strong> Once the child borrow ends, the parent reference awakens
+with its full exclusive permissions restored.</li>
+</ol>
+      <h3 id="how-the-compiler-desugars-a-reborrow-mut-ref">
+        
+        
+          How the Compiler Desugars a Reborrow (<code class="language-plaintext highlighter-rouge">&amp;mut *ref</code>) <a href="#how-the-compiler-desugars-a-reborrow-mut-ref">#</a>
+        
+        
+      </h3>
+    
+
+<p>When you write a helper call like <code class="language-plaintext highlighter-rouge">self.print_score()</code>, the compiler automatically inserts
+an explicit reborrow under the hood instead of moving <code class="language-plaintext highlighter-rouge">self</code>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">Player</span><span class="p">::</span><span class="nf">print_score</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="o">*</span><span class="k">self</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>Let’s break down those two operators:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">*self</code>: <strong>Dereferences</strong> the pointer to access the target value in place.</li>
+  <li><code class="language-plaintext highlighter-rouge">&amp;mut (...)</code>: Takes a fresh, temporary mutable <strong>borrow</strong> of that target value.</li>
+</ul>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>       Original Pointer (&amp;mut Player)
+                   │
+                   ▼ (Dereference: *self)
+         [ Target Memory Value ]
+                   ▲
+                   │ (Borrow again: &amp;mut)
+         New Child Reference (&amp;'child mut Player)
+</code></pre></div></div>
+
+<blockquote>
+  <p>💡 <strong>Connecting the Dots: Why did <code class="language-plaintext highlighter-rouge">let r2 = r1;</code> move earlier, while method calls
+reborrow?</strong></p>
+
+  <p>Reborrowing is an implicit <strong><a href="https://doc.rust-lang.org/reference/type-coercions.html">coercion</a></strong> (compiler
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/adjustment/enum.AutoBorrow.html"><strong><code class="language-plaintext highlighter-rouge">autoreborrow</code></strong></a>). The compiler automatically inserts this
+<code class="language-plaintext highlighter-rouge">&amp;mut *r1</code> desugaring only at <strong>coercion sites</strong> where the expected target type is
+known:</p>
+
+  <ol>
+    <li>Passing <code class="language-plaintext highlighter-rouge">r1</code> into a function expecting <code class="language-plaintext highlighter-rouge">&amp;mut T</code>,</li>
+    <li>Calling an <code class="language-plaintext highlighter-rouge">&amp;mut self</code> method like <code class="language-plaintext highlighter-rouge">self.print_score()</code>, or</li>
+    <li>Assigning with an explicit type annotation (<code class="language-plaintext highlighter-rouge">let r2: &amp;mut _ = r1;</code>).</li>
+  </ol>
+
+  <p>In a bare <code class="language-plaintext highlighter-rouge">let r2 = r1;</code> (as shown in the earlier example), there is no expected target
+type to trigger coercion, so type inference assigns <code class="language-plaintext highlighter-rouge">r2</code> the exact type of <code class="language-plaintext highlighter-rouge">r1</code> and
+moves the non-<code class="language-plaintext highlighter-rouge">Copy</code> value!</p>
+
+  <p>Reborrowing also enables <strong>cross-type downgrading</strong>: you can reborrow an <code class="language-plaintext highlighter-rouge">&amp;mut T</code> as a
+temporary shared reference <code class="language-plaintext highlighter-rouge">&amp;T</code> (e.g., <code class="language-plaintext highlighter-rouge">let r2: &amp;_ = &amp;*r1;</code> or calling an <code class="language-plaintext highlighter-rouge">&amp;self</code> method
+from <code class="language-plaintext highlighter-rouge">&amp;mut self</code>). This freezes the mutable reference into read-only mode until all
+shared readers finish.</p>
+</blockquote>
+      <h3 id="putting-it-all-together">
+        
+        
+          Putting It All Together <a href="#putting-it-all-together">#</a>
+        
+        
+      </h3>
+    
+
+<p>Here is how the Home Depot drill rental analogy maps 1:1 to the introductory <code class="language-plaintext highlighter-rouge">Player</code>
+code, starting with the <code class="language-plaintext highlighter-rouge">main()</code> function:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Real-World Step (Home Depot)</th>
+      <th style="text-align: left">Rust Code (<code class="language-plaintext highlighter-rouge">Player</code> Example)</th>
+      <th style="text-align: left">Compiler Borrow State</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><strong>Rent drill from Home Depot</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">player.add_score(10)</code> <em>(borrows <code class="language-plaintext highlighter-rouge">&amp;mut player</code> as <code class="language-plaintext highlighter-rouge">self</code>)</em></td>
+      <td style="text-align: left">Outer mutable borrow begins.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>You use the drill</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">self.score += points;</code></td>
+      <td style="text-align: left">Parent reference performs mutation.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Lend drill to friend for one hole</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">self.print_score()</code> <em>(desugars to <code class="language-plaintext highlighter-rouge">&amp;mut *self</code>)</em></td>
+      <td style="text-align: left">Child reborrow created with shorter lifetime (<code class="language-plaintext highlighter-rouge">'call</code>).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>You wait while friend drills</strong></td>
+      <td style="text-align: left"><em>(Inside <code class="language-plaintext highlighter-rouge">print_score</code>)</em></td>
+      <td style="text-align: left">Parent reference <code class="language-plaintext highlighter-rouge">self</code> is dormant / suspended.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Friend hands drill back</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">print_score()</code> returns</td>
+      <td style="text-align: left">Child borrow ends; parent <code class="language-plaintext highlighter-rouge">self</code> is restored.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>You resume drilling</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">self.score += 1;</code></td>
+      <td style="text-align: left">Parent reference has exclusive access again.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Return drill to Home Depot</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">add_score()</code> returns to <code class="language-plaintext highlighter-rouge">main()</code></td>
+      <td style="text-align: left">Outer borrow ends; original owner <code class="language-plaintext highlighter-rouge">player</code> is accessible.</td>
+    </tr>
+  </tbody>
+</table>
+      <h2 id="2-how-non-lexical-lifetimes-nll-revolutionized-borrow-checking">
+        
+        
+          2. How Non-Lexical Lifetimes (NLL) Revolutionized Borrow Checking <a href="#2-how-non-lexical-lifetimes-nll-revolutionized-borrow-checking">#</a>
+        
+        
+      </h2>
+    
+
+<p>Prior to Rust 2018, borrow scopes were strictly <strong>lexical</strong>—tied directly to AST curly
+braces (<code class="language-plaintext highlighter-rouge">{ ... }</code>). A borrow lasted until the closing <code class="language-plaintext highlighter-rouge">}</code>, even if it was never used
+again. Reborrowing across local variable bindings in the same function required artificial
+inner scopes:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Rust 2015 (Pre-NLL): Artificial blocks were mandatory!</span>
+<span class="k">let</span> <span class="k">mut</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">x</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">let</span> <span class="n">r2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="o">*</span><span class="n">r1</span><span class="p">;</span> <span class="c1">// Reborrow r1</span>
+    <span class="o">*</span><span class="n">r2</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span> <span class="c1">// r2 dies at '}'. Only now is r1 restored!</span>
+<span class="o">*</span><span class="n">r1</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>In the <strong>Rust 2018 Edition</strong> (<a href="https://rust-lang.github.io/rfcs/2094-nll.html">RFC 2094</a>), the compiler introduced <strong>Non-Lexical
+Lifetimes (<a href="https://rust-lang.github.io/rfcs/2094-nll.html"><code class="language-plaintext highlighter-rouge">NLL</code></a>)</strong>. Lifetimes are now computed from the compiler’s <a href="https://en.wikipedia.org/wiki/Control-flow_graph"><strong>Control Flow
+Graph (CFG)</strong></a> and end at the <strong>point of last actual use</strong>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Rust 2018+ (NLL): Clean, flat reborrowing!</span>
+<span class="k">let</span> <span class="k">mut</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">x</span><span class="p">;</span>
+
+<span class="k">let</span> <span class="n">r2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="o">*</span><span class="n">r1</span><span class="p">;</span> <span class="c1">// r1 is suspended here</span>
+<span class="o">*</span><span class="n">r2</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>          <span class="c1">// &lt;-- LAST USE OF r2! r2 dies right here.</span>
+
+<span class="o">*</span><span class="n">r1</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>          <span class="c1">// r1 is AUTOMATICALLY restored! No curly braces needed.</span>
+</code></pre></div></div>
+      <h2 id="3-what-pausing-a-borrow-actually-means-inside-the-compiler">
+        
+        
+          3. What “Pausing a Borrow” Actually Means Inside the Compiler <a href="#3-what-pausing-a-borrow-actually-means-inside-the-compiler">#</a>
+        
+        
+      </h2>
+    
+
+<p>Borrow checking is a <strong>100% static compile-time pass</strong>. At runtime, references are just
+raw machine pointers; there are no locks or runtime state flags.</p>
+      <h3 id="the-interpreter-trap">
+        
+        
+          The “Interpreter Trap” <a href="#the-interpreter-trap">#</a>
+        
+        
+      </h3>
+    
+
+<p>If you read Rust code with the mental model of an interpreter, imagining a runtime engine
+tracking active references and overlapping lifespans, that model won’t match what the
+compiler does. Or if you mentally step into functions to see what they do with their
+references, this approach won’t match what the compiler does either.</p>
+
+<ol>
+  <li><strong>Static Compile Time Checks:</strong> All borrow checks are resolved statically at compile
+time. There is no runtime involvement in the borrow checking process. Once the compiler
+is done, it strips out everything and for the binary, at runtime, references are just
+pointers with zero runtime overhead.</li>
+  <li><strong>Function Signature Only Analysis:</strong> The compiler never peeks inside a function’s body
+when analyzing the call. It treats function calls as opaque black boxes, relying
+strictly on the function signature to determine borrow validity.</li>
+</ol>
+      <h3 id="compile-time-loan-capabilities--polonius">
+        
+        
+          Compile-Time Loan Capabilities &amp; Polonius <a href="#compile-time-loan-capabilities--polonius">#</a>
+        
+        
+      </h3>
+    
+
+<p>Inside <code class="language-plaintext highlighter-rouge">rustc</code>’s MIR <code class="language-plaintext highlighter-rouge">borrowck</code> (and formalized in the next-gen
+<a href="https://rust-lang.github.io/polonius/"><strong>Polonius</strong></a> borrow checker), references are tracked as abstract
+<strong>loans</strong> and <strong>capabilities</strong>:</p>
+
+<ol>
+  <li><strong>Origin Tracking:</strong> Declaring <code class="language-plaintext highlighter-rouge">let r1 = &amp;mut c</code> creates an origin loan <code class="language-plaintext highlighter-rouge">LOAN1</code>
+granting exclusive capability to access <code class="language-plaintext highlighter-rouge">c</code>.</li>
+  <li><strong>Sub-Loan Derivation:</strong> Reborrowing <code class="language-plaintext highlighter-rouge">let r2 = &amp;mut *r1</code> spawns child loan <code class="language-plaintext highlighter-rouge">LOAN2</code>
+derived from <code class="language-plaintext highlighter-rouge">LOAN1</code>.</li>
+  <li><strong>Capability Suspension:</strong> While <code class="language-plaintext highlighter-rouge">LOAN2</code> is in the CFG live set, <code class="language-plaintext highlighter-rouge">LOAN1</code>’s capability
+is marked <strong>suspended (invalidated)</strong>. Any attempt to directly access or use <code class="language-plaintext highlighter-rouge">r1</code> or
+<code class="language-plaintext highlighter-rouge">c</code> triggers a compile error (<code class="language-plaintext highlighter-rouge">E0503</code>), while attempting conflicting reborrows triggers
+<code class="language-plaintext highlighter-rouge">E0499</code> (mutable) or <code class="language-plaintext highlighter-rouge">E0502</code> (shared).</li>
+  <li><strong>Capability Restoration:</strong> As soon as <code class="language-plaintext highlighter-rouge">LOAN2</code> is no longer live, it expires,
+reactivating <code class="language-plaintext highlighter-rouge">LOAN1</code>.</li>
+</ol>
+      <h3 id="visualizing-loan-lifecycle-vs-runtime-stack">
+        
+        
+          Visualizing Loan Lifecycle vs. Runtime Stack <a href="#visualizing-loan-lifecycle-vs-runtime-stack">#</a>
+        
+        
+      </h3>
+    
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Compile-Time (MIR Borrowck)                Runtime (CPU &amp; Stack)
+───────────────────────────                ─────────────────────
+
+[ add_score: &amp;mut self active (LOAN1) ]
+         │
+         ├─ Reborrow: &amp;mut *self (LOAN2) ──►  Pushes stack frame: print_score()
+         │  (LOAN1 SUSPENDED)                 Executes with raw pointer
+         │                                    Pops stack frame (ret)
+         ├─ LOAN2 expires (NLL) ───────────►  Caller resumes
+         │  (LOAN1 RESTORED)
+         ▼
+[ add_score: self.score += 1 (LOAN1) ]
+</code></pre></div></div>
+      <h2 id="4-the-call-stack-does-not-enforce-safety">
+        
+        
+          4. The Call Stack Does Not Enforce Safety <a href="#4-the-call-stack-does-not-enforce-safety">#</a>
+        
+        
+      </h2>
+    
+
+<p>Reborrowing is most commonly encountered when calling methods like <code class="language-plaintext highlighter-rouge">self.print_score()</code>,
+so it might seem that reborrowing is tied in some way to function calls and the call
+stack. But “reborrowing is safe because the caller’s stack frame is suspended while the
+callee runs” is the wrong understanding.</p>
+
+<p>The call stack plays no role in enforcing borrow safety. As documented in the
+<a href="https://rustc-dev-guide.rust-lang.org/borrow_check.html">rustc-dev-guide</a>, borrow checking is verified entirely at compile time on
+the <a href="https://en.wikipedia.org/wiki/Control-flow_graph">Control Flow Graph (CFG)</a>. At runtime, lifetimes do not exist—references
+are compiled directly down to raw machine pointers.</p>
+
+<p>Reborrowing works inside a single function with <strong>no function calls and no new stack
+frames</strong>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">flat_reborrow_single_frame</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">c</span> <span class="o">=</span> <span class="nn">Counter</span><span class="p">::</span><span class="nf">default</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="c1">// --- SAME STACK FRAME</span>
+    <span class="k">let</span> <span class="n">r2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="o">*</span><span class="n">r1</span><span class="p">;</span> <span class="c1">// r1 is PAUSED right here!</span>
+    <span class="n">r2</span><span class="nf">.inc</span><span class="p">();</span>          <span class="c1">// r2 is active; r1 cannot be used.</span>
+    <span class="c1">// ---------------------</span>
+    <span class="n">r1</span><span class="nf">.inc</span><span class="p">();</span>          <span class="c1">// r1 is RESTORED right here!</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The stack is merely the runtime execution mechanism for synchronous code. In fact, in
+optimized builds (<code class="language-plaintext highlighter-rouge">--release</code>), the compiler routinely <strong>inlines</strong> small helper methods
+like <code class="language-plaintext highlighter-rouge">self.print_score()</code>. When inlined, <strong>no stack frame is pushed or popped at runtime
+whatsoever</strong>—yet the code remains completely memory-safe. The compiler uses the function
+call boundary as a natural lifetime limit (<code class="language-plaintext highlighter-rouge">'call</code>), but the safety proof is verified
+entirely via static graph analysis before LLVM and code generation ever run.</p>
+      <h2 id="5-valid-sequential-delegation-vs-illegal-concurrent-aliasing">
+        
+        
+          5. Valid Sequential Delegation vs. Illegal Concurrent Aliasing <a href="#5-valid-sequential-delegation-vs-illegal-concurrent-aliasing">#</a>
+        
+        
+      </h2>
+    
+
+<p>Rust’s memory safety guarantees rest on one fundamental invariant: <strong>Aliasing XOR
+Mutability</strong>. You can have any number of shared references (<code class="language-plaintext highlighter-rouge">&amp;T</code>), OR you can have a
+single mutable reference (<code class="language-plaintext highlighter-rouge">&amp;mut T</code>), but you can never have both simultaneously.</p>
+
+<p>Reborrowing does not violate this rule because access is delegated <strong>sequentially</strong> over
+time. The parent loan is paused while the child loan is active, ensuring that only one
+reference can access the target memory at any given point:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Sequential Reborrowing (Legal):
+[ Parent LOAN1 ] ──► [ Child LOAN2 (Parent Paused) ] ──► [ Parent LOAN1 Restored ]
+
+Concurrent Aliasing (Illegal):
+┌── [ Active LOAN1: &amp;mut c ] ──┐
+└── [ Active LOAN2: &amp;mut c ] ──┴──► 💥 Overlapping mutable access to same memory!
+</code></pre></div></div>
+
+<p>To see the exact line where the compiler draws the boundary between legal delegation and
+illegal aliasing, let’s contrast two concrete examples:</p>
+      <h3 id="example-1-valid-sequential-delegation">
+        
+        
+          Example 1: Valid Sequential Delegation <a href="#example-1-valid-sequential-delegation">#</a>
+        
+        
+      </h3>
+    
+
+<blockquote>
+  <p>🔗 <em>Companion file: <a href="https://github.com/nazmulidris/rust-scratch/blob/main/reborrow/src/valid.rs"><code class="language-plaintext highlighter-rouge">valid.rs</code> in <code class="language-plaintext highlighter-rouge">rust-scratch/reborrow</code></a></em></p>
+</blockquote>
+
+<p>Calling helper methods sequentially delegates access temporally without ever having two
+active mutable references at the same time:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Debug,</span> <span class="nd">Default)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Player</span> <span class="p">{</span>
+    <span class="n">score</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Player</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">add_score</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="nb">u8</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="n">points</span><span class="p">;</span>
+
+        <span class="cm">/* 1. Child reborrow creation */</span>
+        <span class="k">self</span><span class="nf">.print_score</span><span class="p">();</span>
+
+        <span class="cm">/* 2. Parent loan restoration */</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">print_score</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"Score is now: {:#?}"</span><span class="p">,</span> <span class="k">self</span><span class="py">.score</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">player</span> <span class="o">=</span> <span class="nn">Player</span><span class="p">::</span><span class="nf">default</span><span class="p">();</span>
+    <span class="n">player</span><span class="nf">.add_score</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+    <span class="n">player</span><span class="nf">.print_score</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here is what happens in the 2 steps:</p>
+
+<ol>
+  <li><strong>Child reborrow creation:</strong> The compiler desugars <code class="language-plaintext highlighter-rouge">self.print_score()</code> into
+<code class="language-plaintext highlighter-rouge">Player::print_score(&amp;mut *self);</code>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">*self</code>: Dereferences the pointer to access the target <code class="language-plaintext highlighter-rouge">Player</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">&amp;mut (...)</code>: Creates a temporary child reborrow with a shorter lifetime for
+<code class="language-plaintext highlighter-rouge">print_score()</code>.</li>
+      <li>The parent <code class="language-plaintext highlighter-rouge">self</code> loan is paused for the duration of the <code class="language-plaintext highlighter-rouge">print_score()</code> call.</li>
+    </ul>
+  </li>
+  <li><strong>Parent loan restoration:</strong> When <code class="language-plaintext highlighter-rouge">print_score()</code> returns, its child loan ends. The
+compiler restores the parent <code class="language-plaintext highlighter-rouge">self</code> loan, granting it back exclusive mutable access so
+mutating <code class="language-plaintext highlighter-rouge">self.score += 1</code> succeeds.</li>
+</ol>
+      <h3 id="example-2-illegal-concurrent-aliasing">
+        
+        
+          Example 2: Illegal Concurrent Aliasing <a href="#example-2-illegal-concurrent-aliasing">#</a>
+        
+        
+      </h3>
+    
+
+<blockquote>
+  <p>🔗 <em>Companion file: <a href="https://github.com/nazmulidris/rust-scratch/blob/main/reborrow/src/invalid.rs"><code class="language-plaintext highlighter-rouge">invalid.rs</code> in <code class="language-plaintext highlighter-rouge">rust-scratch/reborrow</code></a></em></p>
+</blockquote>
+
+<p>Here are some examples of invalid accesses to the same memory to contrast with the valid
+sequential delegation above.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Default,</span> <span class="nd">Debug)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Counter</span> <span class="p">{</span>
+    <span class="n">count</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Counter</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">inc</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">u8</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">self</span><span class="py">.count</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">bar</span><span class="p">(</span><span class="n">c_mut_1</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">c_mut_2</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">Counter</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">c_mut_1</span><span class="nf">.inc</span><span class="p">();</span>
+    <span class="n">c_mut_2</span><span class="nf">.inc</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+      <h4 id="attempt-1-creating-overlapping-mutable-references">
+        
+        
+          Attempt 1: Creating overlapping mutable references <a href="#attempt-1-creating-overlapping-mutable-references">#</a>
+        
+        
+      </h4>
+    
+
+<p>Passing two mutable references to the same object into a single function call fails at
+compile time:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="k">mut</span> <span class="n">c</span> <span class="o">=</span> <span class="nn">Counter</span><span class="p">::</span><span class="nf">default</span><span class="p">();</span>
+
+<span class="nf">bar</span><span class="p">(</span>
+    <span class="o">&amp;</span><span class="k">mut</span> <span class="n">c</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="k">mut</span> <span class="n">c</span> <span class="c1">// 💥 ERROR[E0499]: cannot borrow `c` as mutable</span>
+           <span class="c1">//                  more than once at a time</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<p>Both references would be active simultaneously inside <code class="language-plaintext highlighter-rouge">bar(c_mut_1, c_mut_2)</code>. Unlike
+sequential reborrowing where the first loan is paused while the second is active, here
+both arguments would have concurrent mutable access to the same memory—directly violating
+<strong>Aliasing XOR Mutability</strong>.</p>
+      <h4 id="attempt-2-overlapping-borrows-in-the-same-scope">
+        
+        
+          Attempt 2: Overlapping Borrows in the Same Scope <a href="#attempt-2-overlapping-borrows-in-the-same-scope">#</a>
+        
+        
+      </h4>
+    
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">c</span><span class="p">;</span> <span class="c1">// 1st mutable borrow starts</span>
+<span class="k">let</span> <span class="n">r2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">c</span><span class="p">;</span> <span class="c1">// 💥 ERROR[E0499]: cannot borrow `c` as mutable</span>
+                 <span class="c1">//                  more than once at a time</span>
+<span class="n">r2</span><span class="nf">.inc</span><span class="p">();</span>
+<span class="n">r1</span><span class="nf">.inc</span><span class="p">();</span>        <span class="c1">// r1 is used HERE, keeping it alive across r2's creation!</span>
+</code></pre></div></div>
+
+<p>Because <code class="language-plaintext highlighter-rouge">r1</code> is used after <code class="language-plaintext highlighter-rouge">r2</code>, both mutable borrows to <code class="language-plaintext highlighter-rouge">c</code> are live at the same time in
+the [<code class="language-plaintext highlighter-rouge">CFG</code>]. Since these are two independent borrows of <code class="language-plaintext highlighter-rouge">c</code> (rather than a reborrow
+<code class="language-plaintext highlighter-rouge">let r2 = &amp;mut *r1</code> that pauses <code class="language-plaintext highlighter-rouge">r1</code>), their overlapping live ranges violate <strong>Aliasing
+XOR Mutability</strong>.</p>
+
+<p>Note that even if <code class="language-plaintext highlighter-rouge">r2</code> were a reborrow (<code class="language-plaintext highlighter-rouge">let r2 = &amp;mut *r1</code>), attempting to interleave
+their usage (e.g. calling <code class="language-plaintext highlighter-rouge">r1.inc()</code> while <code class="language-plaintext highlighter-rouge">r2</code> is still used later) is equally forbidden
+with <code class="language-plaintext highlighter-rouge">E0499</code>. Reborrowing is strictly hierarchical and sequential: the parent cannot wake
+up until the child has completely finished.</p>
+      <h2 id="conclusion--further-reading">
+        
+        
+          Conclusion &amp; Further Reading <a href="#conclusion--further-reading">#</a>
+        
+        
+      </h2>
+    
+
+<p>Reborrowing bridges the gap between Rust’s strict ownership rules (where mutable
+references cannot be copied, and are consumed when moved, aka, <a href="https://en.wikipedia.org/wiki/Substructural_type_system#Affine_type_systems">affine
+types</a>) and everyday ergonomics. Whenever you delegate a mutable reference:</p>
+
+<ul>
+  <li>The compiler creates a short-lived child loan: <code class="language-plaintext highlighter-rouge">&amp;mut *reference</code>.</li>
+  <li>The parent loan is safely suspended in the compiler’s abstract state machine.</li>
+  <li>NLL computes the exact point where the child loan expires.</li>
+  <li>The parent reference awakens with exclusive access restored.</li>
+</ul>
+      <h3 id="resources--links">
+        
+        
+          Resources &amp; Links <a href="#resources--links">#</a>
+        
+        
+      </h3>
+    
+
+<ul>
+  <li>Companion Repository: <a href="https://github.com/nazmulidris/rust-scratch/tree/main/reborrow"><strong><code class="language-plaintext highlighter-rouge">rust-scratch/reborrow</code></strong></a>
+    <ul>
+      <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/reborrow/src/valid.rs">Valid sequential delegation (<code class="language-plaintext highlighter-rouge">valid.rs</code>)</a></li>
+      <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/reborrow/src/invalid.rs">Illegal concurrent aliasing (<code class="language-plaintext highlighter-rouge">invalid.rs</code>)</a></li>
+    </ul>
+  </li>
+  <li>RFC 2094: <a href="https://rust-lang.github.io/rfcs/2094-nll.html">Non-Lexical Lifetimes (NLL)</a></li>
+  <li>Polonius Project:
+    <ul>
+      <li><a href="https://rust-lang.github.io/polonius/">The Polonius Book</a></li>
+      <li><a href="https://rust-lang.github.io/polonius/rules.html">Polonius Rules &amp; Architecture</a></li>
+      <li><a href="https://github.com/rust-lang/polonius">Polonius WG Repository</a></li>
+      <li><a href="https://github.com/rust-lang/rust/issues/55078">Polonius Tracking Issue #55078</a></li>
+    </ul>
+  </li>
+  <li>rustc-dev-guide:
+    <ul>
+      <li><a href="https://rustc-dev-guide.rust-lang.org/borrow_check.html">Borrow Checking Overview</a></li>
+    </ul>
+  </li>
+  <li>Related developerlife.com deep dives:
+    <ul>
+      <li><a href="https://developerlife.com/2024/09/02/rust-lifetimes/">Build with Naz : Rust lifetimes (Subtyping and Variance)</a></li>
+      <li><a href="https://developerlife.com/2024/05/28/typestate-pattern-rust/">Build with Naz : Rust Typestate Pattern</a></li>
+      <li><a href="https://developerlife.com/2025/05/19/rust-mem-latency/">Build with Naz : Memory Latency &amp; Cache Locality in Rust</a></li>
+      <li><a href="https://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server/">To Async or Not to Async: Building a Rust MCP Server</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end -->
+
+<!-- cspell:words reborrow reborrowing reborrows autoreborrow subtyping subloans deref noalias -->
+<!-- cspell:words dereferencing callee mktoc Polonius borrowck liveness autoreborrow inlines -->
+
+        <!--
+    Display all the categories for this page
+    More info:
+    - Tutorial - http://tinyurl.com/yc6fq6zx
+    - Liquid language reference - http://tinyurl.com/y8s4qpwo
+-->
+<div class="categories-block">
+    
+    
+    <span class="category">
+            <a href="/category/CS">
+                #cs</a>
+        </span>
+    
+    <span class="category">
+            <a href="/category/Rust">
+                #rust</a>
+        </span>
+    
+</div>
+
+        
+<blockquote>
+
+  👀 Watch Rust 🦀 live coding videos on our <a
+  href="https://www.youtube.com/@developerlifecom">YouTube Channel</a>.
+
+  <br/>
+  <br/>
+
+  <!-- video on rust polymorphism (no playlist) -->
+  <iframe
+      src="https://www.youtube.com/embed/kYTgGtJjSro?si=XmW-_CAvCfB5e269"
+      title="YouTube video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+      >
+  </iframe>
+
+  <br/>
+  <br/>
+
+  📦 Install our useful Rust command line apps using <code>cargo install r3bl-cmdr</code>
+  (they are from the <a href="https://github.com/r3bl-org/r3bl-open-core">r3bl-open-core</a>
+  project):
+  <ul>
+    <li>🐱<code>giti</code>: run interactive git commands with confidence in your terminal</li>
+    <li>🦜<code>edi</code>: edit Markdown with style in your terminal</li>
+  </ul>
+
+  <p>
+  <kbd>giti in action</kbd>
+  <video width="100%" controls>
+    <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/262f59d1-a95c-4af3-accf-c3d6cac6e586" type="video/mp4"/>
+  </video>
+  </p>
+
+  <p>
+  <kbd>edi in action</kbd>
+  <video width="100%" controls>
+    <source src="https://github.com/nazmulidris/developerlife.com/assets/2966499/f2c4b07d-b5a2-4f41-af7a-06d1b6660c41" type="video/mp4"/>
+  </video>
+  </p>
+
+  </blockquote>
+
+        <!--
+    Display related posts (by category)
+    More info:
+    - Tutorial - http://tinyurl.com/j5tevq7
+    - Liquid language reference - http://tinyurl.com/y9ru5msq
+-->
+<div class="related-post-block">
+
+    <h3>Related Posts</h3>
+
+    <!-- Get all the related posts into the string `postsString`-->
+    
+    
+    
+
+    <!--
+        At this point `postsString` string might look like:
+        Post 3|Post 1|Post 3|Post 2|Post 1|Post 3|Post 2|
+    -->
+
+    <!-- Remove all the dupes from the `postsString` string, and split it into an array -->
+    
+
+    <ul>
+        
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2026/08/22/to-async-or-not-to-async-rust-mcp-server/">
+                        To Async or Not to Async: Building a Rust MCP Server for rust-analyzer
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/">
+                        Build with Naz : High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2025/05/19/rust-mem-latency/">
+                        Build with Naz : Rust, Memory performance &amp; latency - locality, access, allocate, cache lines
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/12/11/algo-ts-2/">
+                        Algorithms and data structures in TypeScript: non binary tree traversal
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/11/21/algo-ts-1/">
+                        Algorithms and data structures in TypeScript: string tokenizer, rate limiter
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/02/24/rust-non-binary-tree/">
+                        Build a non-binary tree that is thread safe using Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2019/03/30/algorithms-in-kotlin-8/">
+                        Algorithms in Kotlin, Schedule ordered tasks
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-7/">
+                        Algorithms in Kotlin, Caches, Part 7/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-6/">
+                        Algorithms in Kotlin, Binary Trees, Part 6/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-5/">
+                        Algorithms in Kotlin, Graphs, Part 5/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-4/">
+                        Algorithms in Kotlin, Recursion, Part 4/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-3/">
+                        Algorithms in Kotlin, Stacks and Queues, Part 3/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-2/">
+                        Algorithms in Kotlin, Strings, Part 2/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2018/08/16/algorithms-in-kotlin-1/">
+                        Algorithms in Kotlin, Big-O-Notation, Part 1/7
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2025/08/10/pty-rust-osc-seq/">
+                        Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/11/28/rust-tls-rustls/">
+                        Build with Naz : TLS (Transport Layer Security) in Rust with tokio, rustls, CFSSL
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/11/28/rust-sqlite-diesel/">
+                        Build with Naz : Diesel ORM, SQLite, and Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/09/02/rust-lifetimes/">
+                        Build with Naz : Rust lifetimes
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/08/20/tty-linux-async-rust/">
+                        Build with Naz : Explore Linux TTY, process, signals w/ Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/07/16/pin-box-dynamic-duo/">
+                        Build with Naz : Box and Pin exploration in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/07/10/rust-async-cancellation-safety-tokio/">
+                        Build with Naz : Rust async in practice tokio::select!, actor pattern &amp; cancel safety
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/07/08/ubuntu24/">
+                        Build with Naz : Ubuntu 24.04 setup and config for dev productivity
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/06/28/md-parser-rust-from-r3bl-tui/">
+                        Build with Naz : Markdown parser in Rust and nom from r3bl_tui
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/06/10/rust-miette-error-handling/">
+                        Build with Naz : Rust error handling with miette
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/28/typestate-pattern-rust/">
+                        Build with Naz : Rust typestate pattern
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/25/tokio-uring-exploration-rust/">
+                        Build with Naz : Linux io_uring and tokio-uring exploration with Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/19/effective-async-rust/">
+                        Build with Naz : Rust async, non-blocking, concurrent, parallel, event loops, graceful shutdown
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/05/15/tokio-tracing-otel-rust/">
+                        Build with Naz : tokio tracing &amp; OTel and how to use it in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">
+                        Build with Naz : Rust Polymorphism, dyn, impl, using existing traits, trait objects for testing and extensibility
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/04/21/build-async-interactive-cli-apps-in-rust/">
+                        Build with Naz : Build interactive and non blocking CLI apps with ease in Rust using r3bl_terminal_async
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-netcat-in-rust/">
+                        Write a simple netcat client and server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2024/01/13/write-simple-chat-server-in-rust/">
+                        Write a simple TCP chat server in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/09/17/tuify-clap/">
+                        tuify your clap CLI apps and make them more interactive
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/08/28/justfile/">
+                        Use just to manage project specific commands
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2023/02/20/guide-to-nom-parsing/">
+                        Build with Naz : Comprehensive guide to nom parsing
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/08/04/rust-dsl-part-1/">
+                        Create a simple DSL for CSS like syntax for TUIs
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/30/rust-proc-macro/">
+                        Guide to Rust procedural macros
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-redux/">
+                        Write a Redux library in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/12/rust-tokio/">
+                        Write code using async/await in Rust
+                    </a>
+                </li>
+            
+        
+            
+                
+                <li>
+                    <a class="post-list" href="/2022/03/02/rust-grep-cli-app/">
+                        Build a grep CLI app in Rust
+                    </a>
+                </li>
+            
+        
+    </ul>
+
+</div>
+
+        <a class="u-url" href="/2026/09/25/rust-reborrowing/" hidden></a>
+    </div></article>
+</div>
+      </main><div>
+  <section class="sidebar">
+    <!-- video on intro to testing (with playlist) -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=7gmhXY5DVYJG7OdU&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- rust async readline and spinner & playlist -->
+    <!-- <iframe
+      src="https://www.youtube.com/embed/videoseries?si=i37Ei9nCfvslOoaI&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen
+    >
+    </iframe> -->
+
+    <!-- effective async rust & playlist -->
+    <h2 class="star-us-github-heading">
+      Subscribe to our
+      <a href="https://www.youtube.com/@developerlifecom">YT Channel</a
+      ><span class="heading-emoji"> 🦀</span>
+    </h2>
+
+    <iframe
+    src="https://www.youtube.com/embed/qvIt8MF-pCM?si=S40pbhnvVDAohj-6"
+      title="YouTube video player"
+      frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen>
+    </iframe>
+
+    <h2 class="star-us-github-heading">
+      Our apps, crates, extensions<span class="heading-emoji"> 📦</span>
+    </h2>
+
+    <ul class="sidebar-ul">
+      <li class="app-container">
+        <a href="https://crates.io/crates/r3bl-cmdr" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-apps.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI APPS (GITI, EDI)</p>
+            <h3 class="sidebar-h3"><code>r3bl-cmdr</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://crates.io/crates/r3bl_tui" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUI LIBRARY</p>
+            <h3 class="sidebar-h3"><code>r3bl_tui</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-shortlink#r3bl-shortlink---a-browser-extension-written-in-typescript-and-react" target="_blank">
+          <img class="star-icon-img" src="/assets/r3bl-shortlink.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL BROWSER EXT</p>
+            <h3 class="sidebar-h3"><code>R3BL Shortlink</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://crates.io/crates/r3bl-rust-analyzer-mcp-server" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL MCP SERVER</p>
+            <h3 class="sidebar-h3"><code>Rust Analyzer</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-vscode-extensions#r3bl-vscode-extensions" target="_blank">
+          <img class="star-icon-img" src="/assets/vscode-extensions.svg" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL VSCODE EXT</p>
+            <h3 class="sidebar-h3"><code>R3BL Development Pack</code></h3>
+          </div>
+        </a>
+      </li>
+      <!-- <li class="app-container">
+        <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tuify" target="_blank">
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TUIFY LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_tuify</code></h3>
+          </div>
+        </a>
+      </li>
+      <li class="app-container">
+        <a
+          href="https://github.com/r3bl-org/r3bl-open-core/tree/main/terminal_async"
+          target="_blank"
+        >
+          <img class="star-icon-img" src="/assets/crate.png" />
+          <div class="sidebar-list-item">
+            <p class="p-tag">R3BL TERMINAL ASYNC LIB</p>
+            <h3 class="sidebar-h3"><code>r3bl_terminal_async</code></h3>
+          </div>
+        </a>
+      </li> -->
+    </ul>
+
+    <h2 class="star-us-github-heading">
+      <a href="https://r3bl.com#services">Need help with code?</a>
+      <span class="heading-emoji"> 💼</span>
+    </h2>
+
+  </section>
+</div>
+</div><footer class="site-footer h-card">
+
+    <div class="wrapper">
+
+        <div class="footer-col-wrapper">
+
+            <div class="footer-col"><!-- <p>
+    developerlife.com site was started in Nov 1998 with coverage for
+    topics related to Java, XML, and web and desktop technologies.
+    Today it covers Kotlin, TypeScript, Node.js, React, Android, JDK,
+    Web, Cloud technologies, User Experience Engineering (UXE)
+    and design topics. © Nazmul Idris 1996-2025. All rights reserved.
+</p> -->
+<div>
+  <p class="footer-p">
+    developerlife.com site was started in Nov 1998 by <a
+    href="https://developerlife.com/about-me/">Nazmul Idris</a>, with coverage for topics
+    related to Java, XML, and web and desktop technologies. Today it covers Rust, TUI,
+    CLI, Kotlin, TypeScript, Node.js, React, Android, JDK, Web, Cloud technologies, User
+    Experience Engineering (UXE) and design topics. © Nazmul Idris 1996-2025. All rights
+    reserved.
+  </p>
+
+  <!--
+  <div class="footer-container">
+
+    <kbd>
+      <a class="footer-elem-2" href="https://r3bl.com#services" target="_blank">Need help with code?</a>
+    </kbd>
+
+    <kbd>
+      <a class="footer-elem-1" href="/subscribe.html" target="_blank"
+        >Newsletter</a
+      >
+    </kbd>
+
+  </div>
+  -->
+</div>
+</div>
+
+        </div>
+
+    </div>
+
+</footer>
+<script>
+//open external links in a new window
+function external_new_window() {
+    for(var c = document.getElementsByTagName("a"), a = 0;a < c.length;a++) {
+    var b = c[a];
+    b.getAttribute("href") && b.hostname !== location.hostname && (b.target = "_blank")
+    }
+}
+//open PDF links in a new window
+function pdf_new_window ()
+{
+    if (!document.getElementsByTagName) return false;
+    var links = document.getElementsByTagName("a");
+    for (var eleLink=0; eleLink < links.length; eleLink ++) {
+    if ((links[eleLink].href.indexOf('.pdf') !== -1)||(links[eleLink].href.indexOf('.doc') !== -1)||(links[eleLink].href.indexOf('.docx') !== -1)) {
+        links[eleLink].onclick =
+        function() {
+            window.open(this.href);
+            return false;
+        }
+    }
+    }
+} 
+pdf_new_window()
+external_new_window();
+</script></body>
+</html>

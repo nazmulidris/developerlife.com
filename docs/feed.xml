@@ -1,4 +1,705 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2026-09-16T10:19:41-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">To Async or Not to Async: Building a Rust MCP Server for rust-analyzer</title><link href="http://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server/" rel="alternate" type="text/html" title="To Async or Not to Async: Building a Rust MCP Server for rust-analyzer" /><published>2026-08-22T05:00:00-05:00</published><updated>2026-08-22T05:00:00-05:00</updated><id>http://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server</id><content type="html" xml:base="http://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server/"><![CDATA[<!-- cspell:words rmcp ciresnave zeenix dexwritescode mpsc epoll kqueue proc mktoc -->
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2026-09-25T15:20:35-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Rust Reborrowing, Aliasing, and Mutable References</title><link href="http://developerlife.com/2026/09/25/rust-reborrowing/" rel="alternate" type="text/html" title="Rust Reborrowing, Aliasing, and Mutable References" /><published>2026-09-25T04:00:00-05:00</published><updated>2026-09-25T04:00:00-05:00</updated><id>http://developerlife.com/2026/09/25/rust-reborrowing</id><content type="html" xml:base="http://developerlife.com/2026/09/25/rust-reborrowing/"><![CDATA[<!-- BEGIN mktoc -->
+
+<ul>
+  <li><a href="#this-example-works-but-why">This example works, but why?</a>
+    <ul>
+      <li><a href="#mental-model-variable-shadowing-analogy">Mental Model: “Variable Shadowing” Analogy</a></li>
+    </ul>
+  </li>
+  <li><a href="#1-how-reborrowing-works-under-the-hood">1. How Reborrowing Works Under the Hood</a>
+    <ul>
+      <li><a href="#core-rules-shared-vs-mutable-references">Core Rules: Shared vs. Mutable References</a></li>
+      <li><a href="#what-if-mutable-references-were-strictly-move-only">What If Mutable References Were Strictly Move-Only?</a></li>
+      <li><a href="#what-is-reborrowing">What Is Reborrowing?</a></li>
+      <li><a href="#how-the-compiler-desugars-a-reborrow-mut-ref">How the Compiler Desugars a Reborrow (<code class="language-plaintext highlighter-rouge">&amp;mut *ref</code>)</a></li>
+      <li><a href="#putting-it-all-together">Putting It All Together</a></li>
+    </ul>
+  </li>
+  <li><a href="#2-how-non-lexical-lifetimes-nll-revolutionized-borrow-checking">2. How Non-Lexical Lifetimes (NLL) Revolutionized Borrow Checking</a></li>
+  <li><a href="#3-what-pausing-a-borrow-actually-means-inside-the-compiler">3. What “Pausing a Borrow” Actually Means Inside the Compiler</a>
+    <ul>
+      <li><a href="#the-interpreter-trap">The “Interpreter Trap”</a></li>
+      <li><a href="#compile-time-loan-capabilities--polonius">Compile-Time Loan Capabilities &amp; Polonius</a></li>
+      <li><a href="#visualizing-loan-lifecycle-vs-runtime-stack">Visualizing Loan Lifecycle vs. Runtime Stack</a></li>
+    </ul>
+  </li>
+  <li><a href="#4-the-call-stack-does-not-enforce-safety">4. The Call Stack Does Not Enforce Safety</a></li>
+  <li><a href="#5-valid-sequential-delegation-vs-illegal-concurrent-aliasing">5. Valid Sequential Delegation vs. Illegal Concurrent Aliasing</a>
+    <ul>
+      <li><a href="#example-1-valid-sequential-delegation">Example 1: Valid Sequential Delegation</a></li>
+      <li><a href="#example-2-illegal-concurrent-aliasing">Example 2: Illegal Concurrent Aliasing</a>
+        <ul>
+          <li><a href="#attempt-1-creating-overlapping-mutable-references">Attempt 1: Creating overlapping mutable references</a></li>
+          <li><a href="#attempt-2-overlapping-borrows-in-the-same-scope">Attempt 2: Overlapping Borrows in the Same Scope</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#conclusion--further-reading">Conclusion &amp; Further Reading</a>
+    <ul>
+      <li><a href="#resources--links">Resources &amp; Links</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- END mktoc -->
+
+<h2 id="this-example-works-but-why">This example works, but why?</h2>
+
+<p>This is a pretty common pattern that you may have encountered in your Rust journey.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Debug,</span> <span class="nd">Default)]</span>
+<span class="k">struct</span> <span class="n">Player</span> <span class="p">{</span>
+    <span class="n">score</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Player</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">add_score</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="nb">u8</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="n">points</span><span class="p">;</span>
+
+        <span class="c1">// 🤔 Calling another &amp;mut self helper method!</span>
+        <span class="c1">// Doesn't this overlap?</span>
+        <span class="k">self</span><span class="nf">.print_score</span><span class="p">();</span>
+
+        <span class="c1">// 🤔 Continuing to use self afterward!</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">print_score</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"Score is now: {:#?}"</span><span class="p">,</span> <span class="k">self</span><span class="py">.score</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">player</span> <span class="o">=</span> <span class="nn">Player</span><span class="p">::</span><span class="nf">default</span><span class="p">();</span>
+    <span class="n">player</span><span class="nf">.add_score</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+    <span class="c1">// ☑️ The &amp;mut borrow ends here when the call to add_score() returns.</span>
+
+    <span class="c1">// ☑️ This doesn't overlap with the previous call, so it is valid.</span>
+    <span class="n">player</span><span class="nf">.print_score</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This compiles cleanly and runs. But if you stop and think about Rust’s foundational
+ownership rules, it seems that this should not compile:</p>
+
+<ol>
+  <li><strong>Shared references (<code class="language-plaintext highlighter-rouge">&amp;T</code>) implement <code class="language-plaintext highlighter-rouge">Copy</code>.</strong> You can duplicate them as many times as
+you want.</li>
+  <li><strong>Mutable references (<code class="language-plaintext highlighter-rouge">&amp;mut T</code>) do NOT implement <code class="language-plaintext highlighter-rouge">Copy</code>.</strong> They represent strictly
+exclusive, unique access.</li>
+  <li>Under normal move semantics, passing any non-<code class="language-plaintext highlighter-rouge">Copy</code> type into a function <strong>moves and
+consumes</strong> that value permanently.</li>
+</ol>
+
+<p>Look inside <code class="language-plaintext highlighter-rouge">Player::add_score()</code>: if <code class="language-plaintext highlighter-rouge">&amp;mut self</code> were moved into <code class="language-plaintext highlighter-rouge">self.print_score()</code>,
+then <code class="language-plaintext highlighter-rouge">self</code> would have been consumed and destroyed:</p>
+
+<ul>
+  <li>The subsequent line <code class="language-plaintext highlighter-rouge">self.score += 1</code> would trigger
+<code class="language-plaintext highlighter-rouge">error[E0382]: use of moved value: self</code>.</li>
+  <li>You would expect to have to return <code class="language-plaintext highlighter-rouge">&amp;mut self</code> out of every single helper method just to
+thread ownership back to the caller.</li>
+</ul>
+
+<p>Then why does this code compile without compiler errors?</p>
+
+<p>The answer is <strong>reborrowing</strong>. Reborrowing is the compiler mechanism that makes mutable
+references practical in Rust. Instead of moving <code class="language-plaintext highlighter-rouge">self</code>, the compiler automatically inserts
+a temporary sub-borrow: <code class="language-plaintext highlighter-rouge">&amp;mut *self</code>, whose lifetime is shorter than <code class="language-plaintext highlighter-rouge">self</code>’s borrow. This
+isn’t aliasing - we are not copying the mutable borrows. Instead we are making a new
+mutable borrow that replaces the original one, but with a shorter lifetime. And they can’t
+both be used at the same time.</p>
+
+<h3 id="mental-model-variable-shadowing-analogy">Mental Model: “Variable Shadowing” Analogy</h3>
+
+<p>A great way to think about reborrowing is to compare it to block-scoped <strong>variable
+shadowing</strong> in Rust. This example demonstrates how we create two variable bindings <code class="language-plaintext highlighter-rouge">x</code> and
+they are <strong>not</strong> aliases.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Variable Shadowing:</span>
+<span class="k">let</span> <span class="n">x</span><span class="p">:</span> <span class="nb">u8</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="c1">// Shadows outer `x`</span>
+    <span class="k">let</span> <span class="n">x</span><span class="p">:</span> <span class="nb">String</span> <span class="o">=</span> <span class="s">"hello"</span><span class="nf">.to_string</span><span class="p">();</span>
+    <span class="c1">// Prints "hello"</span>
+    <span class="nd">println!</span><span class="p">(</span><span class="s">"{x}"</span><span class="p">);</span>
+<span class="p">}</span> <span class="c1">// Inner `x` (the String) is dropped here</span>
+<span class="c1">// Outer `x` (the u8) is restored</span>
+<span class="nd">println!</span><span class="p">(</span><span class="s">"{x}"</span><span class="p">);</span> <span class="c1">// Prints 10</span>
+</code></pre></div></div>
+
+<ul>
+  <li>The second <code class="language-plaintext highlighter-rouge">x</code> (<code class="language-plaintext highlighter-rouge">String</code>) completely shadows the first <code class="language-plaintext highlighter-rouge">x</code>. When the inner scope ends,
+the outer <code class="language-plaintext highlighter-rouge">x</code> (<code class="language-plaintext highlighter-rouge">u8</code>) is restored.</li>
+  <li>And while the inner <code class="language-plaintext highlighter-rouge">x</code> (<code class="language-plaintext highlighter-rouge">String</code>) is in scope, the outer <code class="language-plaintext highlighter-rouge">x</code> (<code class="language-plaintext highlighter-rouge">u8</code>) cannot be used.</li>
+</ul>
+
+<p>The same logic applies to reborrowing. Notice how similar the mechanics are:</p>
+
+<ol>
+  <li><strong>Lifespan:</strong>
+    <ul>
+      <li><strong>Variable Shadowing:</strong> The inner binding exists only within the inner scope.</li>
+      <li><strong>Reborrowing:</strong> The child reference lives only for the sub-lifetime (callee or
+<a href="https://rust-lang.github.io/rfcs/2094-nll.html"><code class="language-plaintext highlighter-rouge">NLL</code></a> span).</li>
+    </ul>
+  </li>
+  <li><strong>Accessibility:</strong>
+    <ul>
+      <li><strong>Variable Shadowing:</strong> The outer binding cannot be named or accessed while
+shadowed.</li>
+      <li><strong>Reborrowing:</strong> The parent reference is dormant/suspended while the child borrow is
+live.</li>
+    </ul>
+  </li>
+  <li><strong>Restoration:</strong>
+    <ul>
+      <li><strong>Variable Shadowing:</strong> When the inner scope ends, the outer binding is usable
+again.</li>
+      <li><strong>Reborrowing:</strong> When the child borrow ends, the parent reference is restored with
+full permissions.</li>
+    </ul>
+  </li>
+  <li>‼️ <strong>Memory Target (The Crucial Difference):</strong>
+    <ul>
+      <li><strong>Variable Shadowing (Different memory):</strong> The inner binding occupies a completely
+separate slot. Modifying it has zero effect on the outer variable.</li>
+      <li><strong>Reborrowing (Same memory):</strong> The child reference points to the <em>exact same
+address</em>. Any mutation made through the child persists and is seen by the parent!</li>
+    </ul>
+  </li>
+</ol>
+
+<p>The difference in <strong>memory target</strong> is what makes reborrowing unique: you temporarily
+delegate access to the <em>exact same data</em>, mutate it through the child, and then resume
+control with the parent.</p>
+
+<p>In this article, we will unpack the following:</p>
+
+<ol>
+  <li>How reborrowing works under the hood
+[<a href="#1-how-reborrowing-works-under-the-hood">jump to the section</a>].</li>
+  <li>How <strong>Non-Lexical Lifetimes (<a href="https://rust-lang.github.io/rfcs/2094-nll.html"><code class="language-plaintext highlighter-rouge">NLL</code></a>)</strong> revolutionized borrow checking (in Rust 2018
+Edition)
+[<a href="#2-how-non-lexical-lifetimes-nll-revolutionized-borrow-checking">jump to the section</a>].</li>
+  <li>What “pausing a borrow” actually means inside the compiler (and how
+<a href="https://rust-lang.github.io/polonius/"><strong>Polonius</strong></a> models it)
+[<a href="#3-what-pausing-a-borrow-actually-means-inside-the-compiler">jump to the section</a>].</li>
+  <li>Why the call stack is <strong>not</strong> what enforces safety
+[<a href="#4-the-call-stack-does-not-enforce-safety">jump to the section</a>].</li>
+  <li>The exact boundary where valid sequential delegation ends and illegal concurrent
+aliasing begins
+[<a href="#5-valid-sequential-delegation-vs-illegal-concurrent-aliasing">jump to the section</a>].</li>
+</ol>
+
+<blockquote>
+  <p>💡 All code examples featured in this article are available in the companion repository:
+<a href="https://github.com/nazmulidris/rust-scratch/tree/main/reborrow"><strong><code class="language-plaintext highlighter-rouge">rust-scratch/reborrow</code></strong></a>.</p>
+</blockquote>
+
+<h2 id="1-how-reborrowing-works-under-the-hood">1. How Reborrowing Works Under the Hood</h2>
+
+<h3 id="core-rules-shared-vs-mutable-references">Core Rules: Shared vs. Mutable References</h3>
+
+<ul>
+  <li><strong><code class="language-plaintext highlighter-rouge">&amp;T</code> implements <code class="language-plaintext highlighter-rouge">Copy</code>:</strong> Duplication is trivial and safe because multiple readers
+cannot mutate data or cause data races.</li>
+  <li><strong><code class="language-plaintext highlighter-rouge">&amp;mut T</code> does NOT implement <code class="language-plaintext highlighter-rouge">Copy</code>:</strong> It guarantees exclusive access. If duplicated,
+multiple writers could alias the same memory concurrently, causing data races and
+undefined behavior (UB).</li>
+</ul>
+
+<p>Because <code class="language-plaintext highlighter-rouge">&amp;mut T</code> is not <code class="language-plaintext highlighter-rouge">Copy</code>, assigning it performs a <strong>move</strong>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="k">mut</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>
+<span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">x</span><span class="p">;</span>
+<span class="k">let</span> <span class="n">r2</span> <span class="o">=</span> <span class="n">r1</span><span class="p">;</span> <span class="c1">// MOVES r1 into r2!</span>
+<span class="c1">// println!("{}", r1); // ERROR: borrow of moved value: `r1`</span>
+</code></pre></div></div>
+
+<h3 id="what-if-mutable-references-were-strictly-move-only">What If Mutable References Were Strictly Move-Only?</h3>
+
+<p>If Rust treated <code class="language-plaintext highlighter-rouge">&amp;mut T</code> strictly like other non-<code class="language-plaintext highlighter-rouge">Copy</code> types, passing <code class="language-plaintext highlighter-rouge">&amp;mut self</code> into
+any helper function would permanently consume it. You would have to manually thread
+ownership back through return types:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Tedious ownership threading without reborrowing:</span>
+<span class="k">impl</span> <span class="n">Player</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">add_score</span><span class="p">(</span><span class="k">mut</span> <span class="k">self</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="k">Self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="nb">u8</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="k">Self</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="n">points</span><span class="p">;</span>
+        <span class="k">self</span> <span class="o">=</span> <span class="k">self</span><span class="nf">.print_score</span><span class="p">();</span> <span class="c1">// Manually threading ownership back!</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">self</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>This would make Rust tedious to write &amp; difficult to read. Fortunately, Rust solves this
+problem with <strong>reborrowing</strong>.</p>
+
+<h3 id="what-is-reborrowing">What Is Reborrowing?</h3>
+
+<p>In plain English, <strong>reborrowing means borrowing from an existing borrow</strong>. Think of it
+like borrowing a physical tool, and then lending it to your friend.</p>
+
+<ul>
+  <li>You borrow (rent) a drill from Home Depot.</li>
+  <li>You use it yourself to drill a hole.</li>
+  <li>You need a friend to drill another hole for you before you continue.</li>
+  <li>Rather than giving away the drill permanently to your friend (and the rental agreement
+from Home Depot), you hand it over to them just for that one hole.</li>
+  <li>While they drill the hole, you can’t use the drill.</li>
+  <li>Once they finish, they hand the drill back, and you resume your work.</li>
+  <li>When you are done with the drill, you have to return it to Home Depot.</li>
+</ul>
+
+<blockquote>
+  <p>🛑 <strong>Important: This has nothing to do with threads, locks, or atomics!</strong></p>
+
+  <p>When we say the parent reference is “paused” or “waiting”, it is easy to think of
+concurrency:</p>
+
+  <ul>
+    <li><em>No multiple threads (<code class="language-plaintext highlighter-rouge">Send</code> / <code class="language-plaintext highlighter-rouge">Sync</code>)</em>: Reborrowing happens entirely within
+single-threaded, sequential execution.</li>
+    <li><em>No runtime locks or atomics</em>: There is no <code class="language-plaintext highlighter-rouge">Mutex</code>, semaphore, or atomic operation
+involved. At runtime, references are just naked machine pointers.</li>
+    <li><em>Purely compile-time</em>: The CPU thread never blocks or sleeps. The “pause” simply means
+the compiler statically forbids you from writing code that uses the original reference
+until the sub-borrow’s lifetime expires.</li>
+  </ul>
+</blockquote>
+
+<p>In Rust, a <strong>reborrow</strong> creates a new, temporary reference pointing to the same memory as
+an existing reference, without moving or consuming the original reference.</p>
+
+<p>Every reborrow follows a 3-phase lifecycle:</p>
+
+<ol>
+  <li><strong>Child Reference Created:</strong> Spawns a child reference with a shorter sub-lifetime
+bounded by the helper function call (or inner scope).</li>
+  <li><strong>Parent Reference Paused:</strong> While the child borrow is live, the parent reference is
+temporarily suspended. It cannot be read from or written to.</li>
+  <li><strong>Parent Reference Restored:</strong> Once the child borrow ends, the parent reference awakens
+with its full exclusive permissions restored.</li>
+</ol>
+
+<h3 id="how-the-compiler-desugars-a-reborrow-mut-ref">How the Compiler Desugars a Reborrow (<code class="language-plaintext highlighter-rouge">&amp;mut *ref</code>)</h3>
+
+<p>When you write a helper call like <code class="language-plaintext highlighter-rouge">self.print_score()</code>, the compiler automatically inserts
+an explicit reborrow under the hood instead of moving <code class="language-plaintext highlighter-rouge">self</code>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nn">Player</span><span class="p">::</span><span class="nf">print_score</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="o">*</span><span class="k">self</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>Let’s break down those two operators:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">*self</code>: <strong>Dereferences</strong> the pointer to access the target value in place.</li>
+  <li><code class="language-plaintext highlighter-rouge">&amp;mut (...)</code>: Takes a fresh, temporary mutable <strong>borrow</strong> of that target value.</li>
+</ul>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>       Original Pointer (&amp;mut Player)
+                   │
+                   ▼ (Dereference: *self)
+         [ Target Memory Value ]
+                   ▲
+                   │ (Borrow again: &amp;mut)
+         New Child Reference (&amp;'child mut Player)
+</code></pre></div></div>
+
+<blockquote>
+  <p>💡 <strong>Connecting the Dots: Why did <code class="language-plaintext highlighter-rouge">let r2 = r1;</code> move earlier, while method calls
+reborrow?</strong></p>
+
+  <p>Reborrowing is an implicit <strong><a href="https://doc.rust-lang.org/reference/type-coercions.html">coercion</a></strong> (compiler
+<a href="https://doc.rust-lang.org/nightly/nightly-rustc/rustc_middle/ty/adjustment/enum.AutoBorrow.html"><strong><code class="language-plaintext highlighter-rouge">autoreborrow</code></strong></a>). The compiler automatically inserts this
+<code class="language-plaintext highlighter-rouge">&amp;mut *r1</code> desugaring only at <strong>coercion sites</strong> where the expected target type is
+known:</p>
+
+  <ol>
+    <li>Passing <code class="language-plaintext highlighter-rouge">r1</code> into a function expecting <code class="language-plaintext highlighter-rouge">&amp;mut T</code>,</li>
+    <li>Calling an <code class="language-plaintext highlighter-rouge">&amp;mut self</code> method like <code class="language-plaintext highlighter-rouge">self.print_score()</code>, or</li>
+    <li>Assigning with an explicit type annotation (<code class="language-plaintext highlighter-rouge">let r2: &amp;mut _ = r1;</code>).</li>
+  </ol>
+
+  <p>In a bare <code class="language-plaintext highlighter-rouge">let r2 = r1;</code> (as shown in the earlier example), there is no expected target
+type to trigger coercion, so type inference assigns <code class="language-plaintext highlighter-rouge">r2</code> the exact type of <code class="language-plaintext highlighter-rouge">r1</code> and
+moves the non-<code class="language-plaintext highlighter-rouge">Copy</code> value!</p>
+
+  <p>Reborrowing also enables <strong>cross-type downgrading</strong>: you can reborrow an <code class="language-plaintext highlighter-rouge">&amp;mut T</code> as a
+temporary shared reference <code class="language-plaintext highlighter-rouge">&amp;T</code> (e.g., <code class="language-plaintext highlighter-rouge">let r2: &amp;_ = &amp;*r1;</code> or calling an <code class="language-plaintext highlighter-rouge">&amp;self</code> method
+from <code class="language-plaintext highlighter-rouge">&amp;mut self</code>). This freezes the mutable reference into read-only mode until all
+shared readers finish.</p>
+</blockquote>
+
+<h3 id="putting-it-all-together">Putting It All Together</h3>
+
+<p>Here is how the Home Depot drill rental analogy maps 1:1 to the introductory <code class="language-plaintext highlighter-rouge">Player</code>
+code, starting with the <code class="language-plaintext highlighter-rouge">main()</code> function:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Real-World Step (Home Depot)</th>
+      <th style="text-align: left">Rust Code (<code class="language-plaintext highlighter-rouge">Player</code> Example)</th>
+      <th style="text-align: left">Compiler Borrow State</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left"><strong>Rent drill from Home Depot</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">player.add_score(10)</code> <em>(borrows <code class="language-plaintext highlighter-rouge">&amp;mut player</code> as <code class="language-plaintext highlighter-rouge">self</code>)</em></td>
+      <td style="text-align: left">Outer mutable borrow begins.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>You use the drill</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">self.score += points;</code></td>
+      <td style="text-align: left">Parent reference performs mutation.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Lend drill to friend for one hole</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">self.print_score()</code> <em>(desugars to <code class="language-plaintext highlighter-rouge">&amp;mut *self</code>)</em></td>
+      <td style="text-align: left">Child reborrow created with shorter lifetime (<code class="language-plaintext highlighter-rouge">'call</code>).</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>You wait while friend drills</strong></td>
+      <td style="text-align: left"><em>(Inside <code class="language-plaintext highlighter-rouge">print_score</code>)</em></td>
+      <td style="text-align: left">Parent reference <code class="language-plaintext highlighter-rouge">self</code> is dormant / suspended.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Friend hands drill back</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">print_score()</code> returns</td>
+      <td style="text-align: left">Child borrow ends; parent <code class="language-plaintext highlighter-rouge">self</code> is restored.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>You resume drilling</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">self.score += 1;</code></td>
+      <td style="text-align: left">Parent reference has exclusive access again.</td>
+    </tr>
+    <tr>
+      <td style="text-align: left"><strong>Return drill to Home Depot</strong></td>
+      <td style="text-align: left"><code class="language-plaintext highlighter-rouge">add_score()</code> returns to <code class="language-plaintext highlighter-rouge">main()</code></td>
+      <td style="text-align: left">Outer borrow ends; original owner <code class="language-plaintext highlighter-rouge">player</code> is accessible.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="2-how-non-lexical-lifetimes-nll-revolutionized-borrow-checking">2. How Non-Lexical Lifetimes (NLL) Revolutionized Borrow Checking</h2>
+
+<p>Prior to Rust 2018, borrow scopes were strictly <strong>lexical</strong>—tied directly to AST curly
+braces (<code class="language-plaintext highlighter-rouge">{ ... }</code>). A borrow lasted until the closing <code class="language-plaintext highlighter-rouge">}</code>, even if it was never used
+again. Reborrowing across local variable bindings in the same function required artificial
+inner scopes:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Rust 2015 (Pre-NLL): Artificial blocks were mandatory!</span>
+<span class="k">let</span> <span class="k">mut</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">x</span><span class="p">;</span>
+<span class="p">{</span>
+    <span class="k">let</span> <span class="n">r2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="o">*</span><span class="n">r1</span><span class="p">;</span> <span class="c1">// Reborrow r1</span>
+    <span class="o">*</span><span class="n">r2</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span> <span class="c1">// r2 dies at '}'. Only now is r1 restored!</span>
+<span class="o">*</span><span class="n">r1</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>In the <strong>Rust 2018 Edition</strong> (<a href="https://rust-lang.github.io/rfcs/2094-nll.html">RFC 2094</a>), the compiler introduced <strong>Non-Lexical
+Lifetimes (<a href="https://rust-lang.github.io/rfcs/2094-nll.html"><code class="language-plaintext highlighter-rouge">NLL</code></a>)</strong>. Lifetimes are now computed from the compiler’s <a href="https://en.wikipedia.org/wiki/Control-flow_graph"><strong>Control Flow
+Graph (CFG)</strong></a> and end at the <strong>point of last actual use</strong>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Rust 2018+ (NLL): Clean, flat reborrowing!</span>
+<span class="k">let</span> <span class="k">mut</span> <span class="n">x</span> <span class="o">=</span> <span class="mi">10</span><span class="p">;</span>
+<span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">x</span><span class="p">;</span>
+
+<span class="k">let</span> <span class="n">r2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="o">*</span><span class="n">r1</span><span class="p">;</span> <span class="c1">// r1 is suspended here</span>
+<span class="o">*</span><span class="n">r2</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>          <span class="c1">// &lt;-- LAST USE OF r2! r2 dies right here.</span>
+
+<span class="o">*</span><span class="n">r1</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>          <span class="c1">// r1 is AUTOMATICALLY restored! No curly braces needed.</span>
+</code></pre></div></div>
+
+<h2 id="3-what-pausing-a-borrow-actually-means-inside-the-compiler">3. What “Pausing a Borrow” Actually Means Inside the Compiler</h2>
+
+<p>Borrow checking is a <strong>100% static compile-time pass</strong>. At runtime, references are just
+raw machine pointers; there are no locks or runtime state flags.</p>
+
+<h3 id="the-interpreter-trap">The “Interpreter Trap”</h3>
+
+<p>If you read Rust code with the mental model of an interpreter, imagining a runtime engine
+tracking active references and overlapping lifespans, that model won’t match what the
+compiler does. Or if you mentally step into functions to see what they do with their
+references, this approach won’t match what the compiler does either.</p>
+
+<ol>
+  <li><strong>Static Compile Time Checks:</strong> All borrow checks are resolved statically at compile
+time. There is no runtime involvement in the borrow checking process. Once the compiler
+is done, it strips out everything and for the binary, at runtime, references are just
+pointers with zero runtime overhead.</li>
+  <li><strong>Function Signature Only Analysis:</strong> The compiler never peeks inside a function’s body
+when analyzing the call. It treats function calls as opaque black boxes, relying
+strictly on the function signature to determine borrow validity.</li>
+</ol>
+
+<h3 id="compile-time-loan-capabilities--polonius">Compile-Time Loan Capabilities &amp; Polonius</h3>
+
+<p>Inside <code class="language-plaintext highlighter-rouge">rustc</code>’s MIR <code class="language-plaintext highlighter-rouge">borrowck</code> (and formalized in the next-gen
+<a href="https://rust-lang.github.io/polonius/"><strong>Polonius</strong></a> borrow checker), references are tracked as abstract
+<strong>loans</strong> and <strong>capabilities</strong>:</p>
+
+<ol>
+  <li><strong>Origin Tracking:</strong> Declaring <code class="language-plaintext highlighter-rouge">let r1 = &amp;mut c</code> creates an origin loan <code class="language-plaintext highlighter-rouge">LOAN1</code>
+granting exclusive capability to access <code class="language-plaintext highlighter-rouge">c</code>.</li>
+  <li><strong>Sub-Loan Derivation:</strong> Reborrowing <code class="language-plaintext highlighter-rouge">let r2 = &amp;mut *r1</code> spawns child loan <code class="language-plaintext highlighter-rouge">LOAN2</code>
+derived from <code class="language-plaintext highlighter-rouge">LOAN1</code>.</li>
+  <li><strong>Capability Suspension:</strong> While <code class="language-plaintext highlighter-rouge">LOAN2</code> is in the CFG live set, <code class="language-plaintext highlighter-rouge">LOAN1</code>’s capability
+is marked <strong>suspended (invalidated)</strong>. Any attempt to directly access or use <code class="language-plaintext highlighter-rouge">r1</code> or
+<code class="language-plaintext highlighter-rouge">c</code> triggers a compile error (<code class="language-plaintext highlighter-rouge">E0503</code>), while attempting conflicting reborrows triggers
+<code class="language-plaintext highlighter-rouge">E0499</code> (mutable) or <code class="language-plaintext highlighter-rouge">E0502</code> (shared).</li>
+  <li><strong>Capability Restoration:</strong> As soon as <code class="language-plaintext highlighter-rouge">LOAN2</code> is no longer live, it expires,
+reactivating <code class="language-plaintext highlighter-rouge">LOAN1</code>.</li>
+</ol>
+
+<h3 id="visualizing-loan-lifecycle-vs-runtime-stack">Visualizing Loan Lifecycle vs. Runtime Stack</h3>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Compile-Time (MIR Borrowck)                Runtime (CPU &amp; Stack)
+───────────────────────────                ─────────────────────
+
+[ add_score: &amp;mut self active (LOAN1) ]
+         │
+         ├─ Reborrow: &amp;mut *self (LOAN2) ──►  Pushes stack frame: print_score()
+         │  (LOAN1 SUSPENDED)                 Executes with raw pointer
+         │                                    Pops stack frame (ret)
+         ├─ LOAN2 expires (NLL) ───────────►  Caller resumes
+         │  (LOAN1 RESTORED)
+         ▼
+[ add_score: self.score += 1 (LOAN1) ]
+</code></pre></div></div>
+
+<h2 id="4-the-call-stack-does-not-enforce-safety">4. The Call Stack Does Not Enforce Safety</h2>
+
+<p>Reborrowing is most commonly encountered when calling methods like <code class="language-plaintext highlighter-rouge">self.print_score()</code>,
+so it might seem that reborrowing is tied in some way to function calls and the call
+stack. But “reborrowing is safe because the caller’s stack frame is suspended while the
+callee runs” is the wrong understanding.</p>
+
+<p>The call stack plays no role in enforcing borrow safety. As documented in the
+<a href="https://rustc-dev-guide.rust-lang.org/borrow_check.html">rustc-dev-guide</a>, borrow checking is verified entirely at compile time on
+the <a href="https://en.wikipedia.org/wiki/Control-flow_graph">Control Flow Graph (CFG)</a>. At runtime, lifetimes do not exist—references
+are compiled directly down to raw machine pointers.</p>
+
+<p>Reborrowing works inside a single function with <strong>no function calls and no new stack
+frames</strong>:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">fn</span> <span class="nf">flat_reborrow_single_frame</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">c</span> <span class="o">=</span> <span class="nn">Counter</span><span class="p">::</span><span class="nf">default</span><span class="p">();</span>
+    <span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="c1">// --- SAME STACK FRAME</span>
+    <span class="k">let</span> <span class="n">r2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="o">*</span><span class="n">r1</span><span class="p">;</span> <span class="c1">// r1 is PAUSED right here!</span>
+    <span class="n">r2</span><span class="nf">.inc</span><span class="p">();</span>          <span class="c1">// r2 is active; r1 cannot be used.</span>
+    <span class="c1">// ---------------------</span>
+    <span class="n">r1</span><span class="nf">.inc</span><span class="p">();</span>          <span class="c1">// r1 is RESTORED right here!</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>The stack is merely the runtime execution mechanism for synchronous code. In fact, in
+optimized builds (<code class="language-plaintext highlighter-rouge">--release</code>), the compiler routinely <strong>inlines</strong> small helper methods
+like <code class="language-plaintext highlighter-rouge">self.print_score()</code>. When inlined, <strong>no stack frame is pushed or popped at runtime
+whatsoever</strong>—yet the code remains completely memory-safe. The compiler uses the function
+call boundary as a natural lifetime limit (<code class="language-plaintext highlighter-rouge">'call</code>), but the safety proof is verified
+entirely via static graph analysis before LLVM and code generation ever run.</p>
+
+<h2 id="5-valid-sequential-delegation-vs-illegal-concurrent-aliasing">5. Valid Sequential Delegation vs. Illegal Concurrent Aliasing</h2>
+
+<p>Rust’s memory safety guarantees rest on one fundamental invariant: <strong>Aliasing XOR
+Mutability</strong>. You can have any number of shared references (<code class="language-plaintext highlighter-rouge">&amp;T</code>), OR you can have a
+single mutable reference (<code class="language-plaintext highlighter-rouge">&amp;mut T</code>), but you can never have both simultaneously.</p>
+
+<p>Reborrowing does not violate this rule because access is delegated <strong>sequentially</strong> over
+time. The parent loan is paused while the child loan is active, ensuring that only one
+reference can access the target memory at any given point:</p>
+
+<div class="language-text highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Sequential Reborrowing (Legal):
+[ Parent LOAN1 ] ──► [ Child LOAN2 (Parent Paused) ] ──► [ Parent LOAN1 Restored ]
+
+Concurrent Aliasing (Illegal):
+┌── [ Active LOAN1: &amp;mut c ] ──┐
+└── [ Active LOAN2: &amp;mut c ] ──┴──► 💥 Overlapping mutable access to same memory!
+</code></pre></div></div>
+
+<p>To see the exact line where the compiler draws the boundary between legal delegation and
+illegal aliasing, let’s contrast two concrete examples:</p>
+
+<h3 id="example-1-valid-sequential-delegation">Example 1: Valid Sequential Delegation</h3>
+
+<blockquote>
+  <p>🔗 <em>Companion file: <a href="https://github.com/nazmulidris/rust-scratch/blob/main/reborrow/src/valid.rs"><code class="language-plaintext highlighter-rouge">valid.rs</code> in <code class="language-plaintext highlighter-rouge">rust-scratch/reborrow</code></a></em></p>
+</blockquote>
+
+<p>Calling helper methods sequentially delegates access temporally without ever having two
+active mutable references at the same time:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Debug,</span> <span class="nd">Default)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Player</span> <span class="p">{</span>
+    <span class="n">score</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Player</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">add_score</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="nb">u8</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="n">points</span><span class="p">;</span>
+
+        <span class="cm">/* 1. Child reborrow creation */</span>
+        <span class="k">self</span><span class="nf">.print_score</span><span class="p">();</span>
+
+        <span class="cm">/* 2. Parent loan restoration */</span>
+        <span class="k">self</span><span class="py">.score</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">print_score</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nd">println!</span><span class="p">(</span><span class="s">"Score is now: {:#?}"</span><span class="p">,</span> <span class="k">self</span><span class="py">.score</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="k">mut</span> <span class="n">player</span> <span class="o">=</span> <span class="nn">Player</span><span class="p">::</span><span class="nf">default</span><span class="p">();</span>
+    <span class="n">player</span><span class="nf">.add_score</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+    <span class="n">player</span><span class="nf">.print_score</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>Here is what happens in the 2 steps:</p>
+
+<ol>
+  <li><strong>Child reborrow creation:</strong> The compiler desugars <code class="language-plaintext highlighter-rouge">self.print_score()</code> into
+<code class="language-plaintext highlighter-rouge">Player::print_score(&amp;mut *self);</code>:
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">*self</code>: Dereferences the pointer to access the target <code class="language-plaintext highlighter-rouge">Player</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">&amp;mut (...)</code>: Creates a temporary child reborrow with a shorter lifetime for
+<code class="language-plaintext highlighter-rouge">print_score()</code>.</li>
+      <li>The parent <code class="language-plaintext highlighter-rouge">self</code> loan is paused for the duration of the <code class="language-plaintext highlighter-rouge">print_score()</code> call.</li>
+    </ul>
+  </li>
+  <li><strong>Parent loan restoration:</strong> When <code class="language-plaintext highlighter-rouge">print_score()</code> returns, its child loan ends. The
+compiler restores the parent <code class="language-plaintext highlighter-rouge">self</code> loan, granting it back exclusive mutable access so
+mutating <code class="language-plaintext highlighter-rouge">self.score += 1</code> succeeds.</li>
+</ol>
+
+<h3 id="example-2-illegal-concurrent-aliasing">Example 2: Illegal Concurrent Aliasing</h3>
+
+<blockquote>
+  <p>🔗 <em>Companion file: <a href="https://github.com/nazmulidris/rust-scratch/blob/main/reborrow/src/invalid.rs"><code class="language-plaintext highlighter-rouge">invalid.rs</code> in <code class="language-plaintext highlighter-rouge">rust-scratch/reborrow</code></a></em></p>
+</blockquote>
+
+<p>Here are some examples of invalid accesses to the same memory to contrast with the valid
+sequential delegation above.</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[derive(Default,</span> <span class="nd">Debug)]</span>
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">Counter</span> <span class="p">{</span>
+    <span class="n">count</span><span class="p">:</span> <span class="nb">u8</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">impl</span> <span class="n">Counter</span> <span class="p">{</span>
+    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">inc</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="k">self</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">u8</span> <span class="p">{</span>
+        <span class="k">self</span><span class="py">.count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="k">self</span><span class="py">.count</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">fn</span> <span class="nf">bar</span><span class="p">(</span><span class="n">c_mut_1</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">c_mut_2</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">Counter</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">c_mut_1</span><span class="nf">.inc</span><span class="p">();</span>
+    <span class="n">c_mut_2</span><span class="nf">.inc</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="attempt-1-creating-overlapping-mutable-references">Attempt 1: Creating overlapping mutable references</h4>
+
+<p>Passing two mutable references to the same object into a single function call fails at
+compile time:</p>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="k">mut</span> <span class="n">c</span> <span class="o">=</span> <span class="nn">Counter</span><span class="p">::</span><span class="nf">default</span><span class="p">();</span>
+
+<span class="nf">bar</span><span class="p">(</span>
+    <span class="o">&amp;</span><span class="k">mut</span> <span class="n">c</span><span class="p">,</span>
+    <span class="o">&amp;</span><span class="k">mut</span> <span class="n">c</span> <span class="c1">// 💥 ERROR[E0499]: cannot borrow `c` as mutable</span>
+           <span class="c1">//                  more than once at a time</span>
+<span class="p">);</span>
+</code></pre></div></div>
+
+<p>Both references would be active simultaneously inside <code class="language-plaintext highlighter-rouge">bar(c_mut_1, c_mut_2)</code>. Unlike
+sequential reborrowing where the first loan is paused while the second is active, here
+both arguments would have concurrent mutable access to the same memory—directly violating
+<strong>Aliasing XOR Mutability</strong>.</p>
+
+<h4 id="attempt-2-overlapping-borrows-in-the-same-scope">Attempt 2: Overlapping Borrows in the Same Scope</h4>
+
+<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">let</span> <span class="n">r1</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">c</span><span class="p">;</span> <span class="c1">// 1st mutable borrow starts</span>
+<span class="k">let</span> <span class="n">r2</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">c</span><span class="p">;</span> <span class="c1">// 💥 ERROR[E0499]: cannot borrow `c` as mutable</span>
+                 <span class="c1">//                  more than once at a time</span>
+<span class="n">r2</span><span class="nf">.inc</span><span class="p">();</span>
+<span class="n">r1</span><span class="nf">.inc</span><span class="p">();</span>        <span class="c1">// r1 is used HERE, keeping it alive across r2's creation!</span>
+</code></pre></div></div>
+
+<p>Because <code class="language-plaintext highlighter-rouge">r1</code> is used after <code class="language-plaintext highlighter-rouge">r2</code>, both mutable borrows to <code class="language-plaintext highlighter-rouge">c</code> are live at the same time in
+the [<code class="language-plaintext highlighter-rouge">CFG</code>]. Since these are two independent borrows of <code class="language-plaintext highlighter-rouge">c</code> (rather than a reborrow
+<code class="language-plaintext highlighter-rouge">let r2 = &amp;mut *r1</code> that pauses <code class="language-plaintext highlighter-rouge">r1</code>), their overlapping live ranges violate <strong>Aliasing
+XOR Mutability</strong>.</p>
+
+<p>Note that even if <code class="language-plaintext highlighter-rouge">r2</code> were a reborrow (<code class="language-plaintext highlighter-rouge">let r2 = &amp;mut *r1</code>), attempting to interleave
+their usage (e.g. calling <code class="language-plaintext highlighter-rouge">r1.inc()</code> while <code class="language-plaintext highlighter-rouge">r2</code> is still used later) is equally forbidden
+with <code class="language-plaintext highlighter-rouge">E0499</code>. Reborrowing is strictly hierarchical and sequential: the parent cannot wake
+up until the child has completely finished.</p>
+
+<h2 id="conclusion--further-reading">Conclusion &amp; Further Reading</h2>
+
+<p>Reborrowing bridges the gap between Rust’s strict ownership rules (where mutable
+references cannot be copied, and are consumed when moved, aka, <a href="https://en.wikipedia.org/wiki/Substructural_type_system#Affine_type_systems">affine
+types</a>) and everyday ergonomics. Whenever you delegate a mutable reference:</p>
+
+<ul>
+  <li>The compiler creates a short-lived child loan: <code class="language-plaintext highlighter-rouge">&amp;mut *reference</code>.</li>
+  <li>The parent loan is safely suspended in the compiler’s abstract state machine.</li>
+  <li>NLL computes the exact point where the child loan expires.</li>
+  <li>The parent reference awakens with exclusive access restored.</li>
+</ul>
+
+<h3 id="resources--links">Resources &amp; Links</h3>
+
+<ul>
+  <li>Companion Repository: <a href="https://github.com/nazmulidris/rust-scratch/tree/main/reborrow"><strong><code class="language-plaintext highlighter-rouge">rust-scratch/reborrow</code></strong></a>
+    <ul>
+      <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/reborrow/src/valid.rs">Valid sequential delegation (<code class="language-plaintext highlighter-rouge">valid.rs</code>)</a></li>
+      <li><a href="https://github.com/nazmulidris/rust-scratch/blob/main/reborrow/src/invalid.rs">Illegal concurrent aliasing (<code class="language-plaintext highlighter-rouge">invalid.rs</code>)</a></li>
+    </ul>
+  </li>
+  <li>RFC 2094: <a href="https://rust-lang.github.io/rfcs/2094-nll.html">Non-Lexical Lifetimes (NLL)</a></li>
+  <li>Polonius Project:
+    <ul>
+      <li><a href="https://rust-lang.github.io/polonius/">The Polonius Book</a></li>
+      <li><a href="https://rust-lang.github.io/polonius/rules.html">Polonius Rules &amp; Architecture</a></li>
+      <li><a href="https://github.com/rust-lang/polonius">Polonius WG Repository</a></li>
+      <li><a href="https://github.com/rust-lang/rust/issues/55078">Polonius Tracking Issue #55078</a></li>
+    </ul>
+  </li>
+  <li>rustc-dev-guide:
+    <ul>
+      <li><a href="https://rustc-dev-guide.rust-lang.org/borrow_check.html">Borrow Checking Overview</a></li>
+    </ul>
+  </li>
+  <li>Related developerlife.com deep dives:
+    <ul>
+      <li><a href="https://developerlife.com/2024/09/02/rust-lifetimes/">Build with Naz : Rust lifetimes (Subtyping and Variance)</a></li>
+      <li><a href="https://developerlife.com/2024/05/28/typestate-pattern-rust/">Build with Naz : Rust Typestate Pattern</a></li>
+      <li><a href="https://developerlife.com/2025/05/19/rust-mem-latency/">Build with Naz : Memory Latency &amp; Cache Locality in Rust</a></li>
+      <li><a href="https://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server/">To Async or Not to Async: Building a Rust MCP Server</a></li>
+    </ul>
+  </li>
+</ul>
+
+<!-- prettier-ignore-start -->
+
+<!-- prettier-ignore-end -->
+
+<!-- cspell:words reborrow reborrowing reborrows autoreborrow subtyping subloans deref noalias -->
+<!-- cspell:words dereferencing callee mktoc Polonius borrowck liveness autoreborrow inlines -->]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CS" /><summary type="html"><![CDATA[Why can a method that takes `&mut self` call another method that takes `&mut self`? If mutable references can't be copied, how is this possible? This article explores Rust's core invariant Aliasing XOR Mutability, and dives into reborrowing, Non-Lexical Lifetimes (NLL), what "pausing a borrow" actually means in the compiler, and illegal concurrent aliasing.]]></summary></entry><entry><title type="html">To Async or Not to Async: Building a Rust MCP Server for rust-analyzer</title><link href="http://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server/" rel="alternate" type="text/html" title="To Async or Not to Async: Building a Rust MCP Server for rust-analyzer" /><published>2026-08-22T05:00:00-05:00</published><updated>2026-08-22T05:00:00-05:00</updated><id>http://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server</id><content type="html" xml:base="http://developerlife.com/2026/08/22/to-async-or-not-to-async-rust-mcp-server/"><![CDATA[<!-- cspell:words rmcp ciresnave zeenix dexwritescode mpsc epoll kqueue proc mktoc -->
 <!-- cspell:words deadlocks JSONRPC backtraces -->
 
 <!-- BEGIN mktoc -->
@@ -9553,570 +10254,4 @@ pointer has <strong>not</strong> moved.</li>
       <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
     </ul>
   </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><category term="TUI" /><summary type="html"><![CDATA[This tutorial, video, and repo are a deep dive into Rust `Pin` and `Box` types, along with concepts of ownership and borrowing. We will also cover a lot of background information on the concepts of operating system process, memory allocation and access, stack, and heap. The examples we create are designed to demonstrate the different semantics around the use of boxes and pinned boxes in Rust.]]></summary></entry><entry><title type="html">Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety</title><link href="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/" rel="alternate" type="text/html" title="Build with Naz : Rust async in practice tokio::select!, actor pattern &amp;amp; cancel safety" /><published>2024-07-10T10:00:00-05:00</published><updated>2024-07-10T10:00:00-05:00</updated><id>http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio</id><content type="html" xml:base="http://developerlife.com/2024/07/10/rust-async-cancellation-safety-tokio/"><![CDATA[<p><img class="post-hero-image" src="/assets/tokio-async-cancel-safety.svg" /></p>
-
-<!-- TOC -->
-
-<ul>
-  <li><a href="#introduction">Introduction</a></li>
-  <li><a href="#what-can-go-wrong-when-racing-futures">What can go wrong when racing futures?</a></li>
-  <li><a href="#youtube-video-for-this-article">YouTube video for this article</a></li>
-  <li><a href="#examples-of-cancellation-safety-in-async-rust-using-tokioselect">Examples of cancellation safety in async Rust using tokio::select!</a>
-    <ul>
-      <li><a href="#example-1-right-and-wrong-way-to-sleep-and-interval">Example 1: Right and wrong way to sleep, and interval</a>
-        <ul>
-          <li><a href="#difference-between-interval-and-sleep">Difference between interval and sleep</a></li>
-        </ul>
-      </li>
-      <li><a href="#example-2-safe-cancel-of-a-future-using-interval-and-mpsc-channel">Example 2: Safe cancel of a future using interval and mpsc channel</a></li>
-      <li><a href="#example-3-inducing-cancellation-safety-issues">Example 3: Inducing cancellation safety issues</a></li>
-    </ul>
-  </li>
-  <li><a href="#build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</a></li>
-</ul>
-
-<!-- /TOC -->
-
-<h2 id="introduction">Introduction</h2>
-
-<p>This tutorial, video, and repo are a deep dive into the concept of cancellation safety in
-async code using Tokio and Rust. It affects the <code class="language-plaintext highlighter-rouge">tokio::select!</code> macro, and what happens
-to the racing <code class="language-plaintext highlighter-rouge">Future</code>s that don’t win. The examples provided here, along with the video,
-will go over both code that is is cancellation safe and code that is not. These examples
-reflect real-world patterns, and are a generalized form of them.</p>
-
-<p><code class="language-plaintext highlighter-rouge">tokio::select!</code> might as well have been called <code class="language-plaintext highlighter-rouge">tokio::race!</code> (there’s a <a href="https://en.wikipedia.org/wiki/The_Fast_and_the_Furious:_Tokyo_Drift">The Fast and
-Furious : Tokyo
-Drift</a> joke in there
-somewhere).</p>
-
-<p>It races the given futures in the branches of the macro, and the first one to resolve wins
-(it is <code class="language-plaintext highlighter-rouge">Ready</code> when <code class="language-plaintext highlighter-rouge">poll()</code>ed). The other futures are dropped. These futures are run
-concurrently, not in parallel, on the same worker thread, since we are not using
-<code class="language-plaintext highlighter-rouge">tokio::spawn!</code> or its variants.</p>
-
-<p>Here’s the basic setup:</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">loop</span> <span class="p">{</span>
-    <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span><span class="p">{</span>
-        <span class="n">branch_1_result</span> <span class="o">=</span> <span class="n">future_1</span> <span class="k">=&gt;</span> <span class="p">{</span>
-            <span class="c1">// handle branch_1_result</span>
-        <span class="p">},</span>
-        <span class="n">branch_2_result</span> <span class="o">=</span> <span class="n">future_2</span> <span class="k">=&gt;</span> <span class="p">{</span>
-            <span class="c1">// handle branch_2_result</span>
-        <span class="p">},</span>
-        <span class="c1">// and so on</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>A classic example is that you’re reading something from an <em>async</em> network or file stream.
-And you want to have a timeout that breaks out of the <code class="language-plaintext highlighter-rouge">loop</code> if it takes too long. In this
-case you might have two branches:</p>
-<ol>
-  <li>A <code class="language-plaintext highlighter-rouge">tokio::time::sleep()</code> <code class="language-plaintext highlighter-rouge">Future</code> in the timeout branch.</li>
-  <li>Some code to get the data asynchronously from the stream in the other branch.</li>
-</ol>
-
-<blockquote>
-  <p>Another example is that you might be waiting for the user to type something from the
-keyboard or mouse (such as a TUI app) and also listen for signals to shut down the app,
-or other signals to perform re-rendering of the TUI. You can see this <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/tui/terminal_window/main_event_loop.rs#L94">in <code class="language-plaintext highlighter-rouge">r3bl_tui</code>
-here</a>
-and <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/terminal_async/src/readline_impl/readline.rs#L468">in <code class="language-plaintext highlighter-rouge">r3bl_terminal_async</code>
-here</a>.</p>
-</blockquote>
-
-<p>Note that all branches must have a <code class="language-plaintext highlighter-rouge">Future</code> to call <code class="language-plaintext highlighter-rouge">.await</code> on. The macro does not
-require you to call <code class="language-plaintext highlighter-rouge">.await</code>. The code it generates take care of this.</p>
-
-<blockquote>
-  <p>It might be worth your time (if you haven’t already) to read the <a href="https://docs.rs/tokio/latest/tokio/macro.select.html#cancellation-safety">official Tokio
-docs</a> on
-<code class="language-plaintext highlighter-rouge">tokio::select!</code> macro and the concept of cancellation safety before diving into the
-examples below.</p>
-</blockquote>
-
-<h2 id="what-can-go-wrong-when-racing-futures">What can go wrong when racing futures?</h2>
-
-<p>If you recall, in Rust, a <code class="language-plaintext highlighter-rouge">Future</code> is just a data structure that doesn’t really do
-anything until you <code class="language-plaintext highlighter-rouge">.await</code> it.</p>
-<ul>
-  <li>The Tokio runtime actually does work on the <code class="language-plaintext highlighter-rouge">Future</code>s by polling them to see whether
-they are <code class="language-plaintext highlighter-rouge">Ready</code> or <code class="language-plaintext highlighter-rouge">Pending</code>.</li>
-  <li>If they’re not <code class="language-plaintext highlighter-rouge">Ready</code> they go back to waiting until their <code class="language-plaintext highlighter-rouge">Waker</code> is called, and then
-Tokio will <code class="language-plaintext highlighter-rouge">poll()</code> them again.</li>
-  <li>They are cheap to create, they are stateful, and they can be nested (easily composed).</li>
-</ul>
-
-<blockquote>
-  <p>Please read our article on <a href="https://developerlife.com/2024/05/19/effective-async-rust/">effective async
-Rust</a> to get a better
-understanding of how async Rust, and <code class="language-plaintext highlighter-rouge">Future</code>s works and how runtimes are implemented.</p>
-</blockquote>
-
-<p>These are some of the great things about Rust <code class="language-plaintext highlighter-rouge">Future</code>s. However, the nature of a Rust
-<code class="language-plaintext highlighter-rouge">Future</code> is what may cause a problem with “cancellation safety” in the <code class="language-plaintext highlighter-rouge">tokio::select!</code>
-macro.</p>
-
-<p>So what happens to <code class="language-plaintext highlighter-rouge">future_2</code> (the branch reading or writing from an async stream) if the
-timeout branch (for <code class="language-plaintext highlighter-rouge">future_1</code>) wins the race?</p>
-<ul>
-  <li>Is the <code class="language-plaintext highlighter-rouge">future_2</code> in the middle of doing something when this happens?</li>
-  <li>And if so, what happens to the work it was doing when it hits the <code class="language-plaintext highlighter-rouge">.await</code> point in its
-code, and then stops?</li>
-</ul>
-
-<p>This is the crux of the issue with cancellation safety in async Rust code. Lots of <code class="language-plaintext highlighter-rouge">tokio</code>
-code is built to be cancellation safe, so if you’re using <code class="language-plaintext highlighter-rouge">mpsc</code> or <code class="language-plaintext highlighter-rouge">broadcast</code> channels,
-async streams, etc. you will be fine. However if you’re maintaining state inside the
-<code class="language-plaintext highlighter-rouge">future_2</code> and then it is dropped, then this article will help you understand what
-happens.</p>
-
-<h2 id="youtube-video-for-this-article">YouTube video for this article</h2>
-
-<p>This blog post has examples from this live coding video. If you like
-to learn via video, please watch the companion video on the <a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube
-channel</a>.</p>
-
-<!-- video on tokio-async-cancel-safety -->
-<iframe src="https://www.youtube.com/embed/cQq5i8J1ELg?si=UDgJdFFQn0-yNXsS" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen="">
-</iframe>
-
-<p><br /></p>
-
-<h2 id="examples-of-cancellation-safety-in-async-rust-using-tokioselect">Examples of cancellation safety in async Rust using tokio::select!</h2>
-
-<p>Let’s create some examples to illustrate how to use the typestate pattern in Rust. You can run
-<code class="language-plaintext highlighter-rouge">cargo new --lib async_cancel_safe</code> to create a new library crate.</p>
-
-<blockquote>
-  <p>💡 You can get the code from the
-<a href="https://github.com/nazmulidris/rust-scratch/tree/main/async_cancel_safe"><code class="language-plaintext highlighter-rouge">rust-scratch</code></a> repo.</p>
-</blockquote>
-
-<p>Then add the following to the <code class="language-plaintext highlighter-rouge">Cargo.toml</code> file that’s generated. These pull in all the
-dependencies that we need for these examples.</p>
-
-<div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">[</span><span class="n">package</span><span class="k">]</span>
-<span class="n">name</span> <span class="o">=</span><span class="w"> </span><span class="s">"async_cancel_safe"</span>
-<span class="n">version</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.1.0"</span>
-<span class="n">edition</span> <span class="o">=</span><span class="w"> </span><span class="s">"2021"</span>
-
-<span class="k">[</span><span class="n">dependencies</span><span class="k">]</span>
-<span class="n">tokio</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"1.38.0"</span><span class="p">,</span><span class="w"> </span><span class="n">features</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">"full"</span><span class="p">]</span><span class="w"> </span><span class="p">}</span>
-
-<span class="c"># Async stream testing.</span>
-<span class="n">r3bl_test_fixtures</span> <span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">"0.0.2"</span><span class="w"> </span><span class="p">}</span>
-<span class="n">futures-util</span> <span class="o">=</span><span class="w"> </span><span class="s">"0.3.30"</span>
-</code></pre></div></div>
-
-<p>We are going to add all the examples below as tests to the <code class="language-plaintext highlighter-rouge">lib.rs</code> file in this crate.</p>
-
-<h3 id="example-1-right-and-wrong-way-to-sleep-and-interval">Example 1: Right and wrong way to sleep, and interval</h3>
-
-<p>Add the following code to your <code class="language-plaintext highlighter-rouge">lib.rs</code> file. Both these examples show similar ways of using
-<code class="language-plaintext highlighter-rouge">tokio::time::sleep(..)</code> incorrectly in a <code class="language-plaintext highlighter-rouge">tokio::select!</code> block.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Equivalent to [test_sleep_right_and_wrong_ways_v2]. This test uses</span>
-<span class="cd">/// [`tokio::pin`] and [`tokio::time::sleep`].</span>
-<span class="cd">/// Run the test using:</span>
-<span class="cd">/// `cargo test -- --nocapture test_sleep_right_and_wrong_ways_v1`</span>
-<span class="nd">#[tokio::test]</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_sleep_right_and_wrong_ways_v1</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-
-    <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
-
-    <span class="k">let</span> <span class="n">sleep</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
-    <span class="nn">tokio</span><span class="p">::</span><span class="nd">pin!</span><span class="p">(</span><span class="n">sleep</span><span class="p">);</span>
-
-    <span class="k">loop</span> <span class="p">{</span>
-        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
-            <span class="c1">// Branch 1 (right way)</span>
-            <span class="c1">// This branch executes a deterministic number of times. The same</span>
-            <span class="c1">// sleep future is re-used on each iteration. Once the sleep "expires"</span>
-            <span class="c1">// it stays "expired"! This is the desired behavior:</span>
-            <span class="c1">// https://docs.rs/tokio/latest/tokio/time/struct.Sleep.html</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">sleep</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - tick : {count}"</span><span class="p">);</span>
-                <span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
-                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-                    <span class="k">break</span><span class="p">;</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-
-            <span class="c1">// Branch 2 (wrong way)</span>
-            <span class="c1">// This branch is executed a non deterministic number of times.</span>
-            <span class="c1">// This is because the sleep future is not pinned. It is dropped</span>
-            <span class="c1">// when the other branch is executed. Then on the next iteration,</span>
-            <span class="c1">// a new sleep future is created.</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 - sleep"</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-
-<span class="cd">/// Equivalent to [test_sleep_right_and_wrong_ways_v1]. This test uses</span>
-<span class="cd">/// [`tokio::time::interval()`]</span>
-<span class="cd">/// Run the test using:</span>
-<span class="cd">/// `cargo test -- --nocapture test_sleep_right_and_wrong_ways_v2`</span>
-<span class="nd">#[tokio::test]</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_sleep_right_and_wrong_ways_v2</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-
-    <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
-
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">interval</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
-
-    <span class="k">loop</span> <span class="p">{</span>
-        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
-            <span class="c1">// Branch 1 (right way)</span>
-            <span class="c1">// This branch executes a deterministic number of times. The same</span>
-            <span class="c1">// sleep future is re-used on each iteration.</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">interval</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - tick : {count}"</span><span class="p">);</span>
-                <span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span><span class="p">;</span>
-                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-                    <span class="k">break</span><span class="p">;</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-
-            <span class="c1">// Branch 2 (wrong way)</span>
-            <span class="c1">// This branch is executed a non deterministic number of times.</span>
-            <span class="c1">// This is because the sleep future is not pinned. It is dropped</span>
-            <span class="c1">// when the other branch is executed. Then on the next iteration,</span>
-            <span class="c1">// a new sleep future is created.</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">)</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 - sleep"</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>You can run these tests to see what they do by running the following in your terminal:</p>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_sleep_right_and_wrong_ways_v1</code></li>
-  <li><code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_sleep_right_and_wrong_ways_v2</code></li>
-</ul>
-
-<p>They are flaky and its not possible to really make accurate assertions at the end of
-each of these tests.</p>
-
-<p>Let’s break down <code class="language-plaintext highlighter-rouge">v1</code> first to see what is happening. Here’s the output:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>---- test_sleep_right_and_wrong_ways_v1 stdout ----
-branch 2 - sleep : 5, elapsed: 101 ms
-branch 1 - tick : 5, elapsed: 101 ms
-branch 1 - tick : 4, elapsed: 101 ms
-branch 1 - tick : 3, elapsed: 101 ms
-branch 1 - tick : 2, elapsed: 101 ms
-branch 1 - tick : 1, elapsed: 101 msk
-</code></pre></div></div>
-
-<ul>
-  <li>Branch 1 (right way): This branch executes a deterministic number of times. The same
-sleep future is re-used on each iteration. This is achieved using the <code class="language-plaintext highlighter-rouge">tokio::pin!</code>
-macro. Here are the <a href="https://docs.rs/tokio/latest/tokio/time/struct.Sleep.html">docs</a> on
-how to use <code class="language-plaintext highlighter-rouge">Sleep</code> in <code class="language-plaintext highlighter-rouge">tokio::select!</code> blocks. Since futures are stateful, ensuring that
-the same one is re-used between iterations of the <code class="language-plaintext highlighter-rouge">loop</code> ensures that state isn’t lost
-when the other branch is executed, or when this branch finishes and its future is
-dropped. Notice that the first time in <code class="language-plaintext highlighter-rouge">branch 1</code> the code waits for 100ms, and then the
-subsequent 4 iterations of the loop do not wait at all! This is because the <code class="language-plaintext highlighter-rouge">sleep</code>
-future is in a <code class="language-plaintext highlighter-rouge">Ready</code> state after the first iteration, and effectively, we only wait
-100ms in this loop. For those familiar with Javascript, this is akin to <code class="language-plaintext highlighter-rouge">setTimeout</code> and
-not <code class="language-plaintext highlighter-rouge">setInterval</code> semantics.</li>
-  <li>Branch 2 (wrong way): This branch is executed a non deterministic number of times. This
-is because the sleep future is not pinned. It is dropped when the other branch is
-executed. Then on the next iteration, a <strong>new</strong> sleep future is created. This means that
-the state of the future is lost, and its behavior with providing a reliable delay is
-non deterministic.</li>
-</ul>
-
-<p>Let’s break down <code class="language-plaintext highlighter-rouge">v2</code> next.</p>
-
-<ul>
-  <li>Branch 1 (right way): This branch executes a deterministic number of times. However, we
-are using <code class="language-plaintext highlighter-rouge">tokio::time::interval()</code> this time around. It is re-used between many
-iterations of the <code class="language-plaintext highlighter-rouge">loop</code>. This function returns a <code class="language-plaintext highlighter-rouge">Interval</code> struct that has a <code class="language-plaintext highlighter-rouge">tick()</code>
-method that returns a <code class="language-plaintext highlighter-rouge">Future</code> that resolves when the interval has elapsed.</li>
-  <li>Branch 2 (wrong way): Same as before.</li>
-</ul>
-
-<h4 id="difference-between-interval-and-sleep">Difference between interval and sleep</h4>
-
-<p>This is the mental model that I’ve developed for using these.</p>
-
-<ol>
-  <li>If your intention is to have a single timeout then, <code class="language-plaintext highlighter-rouge">sleep</code> might be the way to go. You
-create and <code class="language-plaintext highlighter-rouge">tokio::pin!</code> the <code class="language-plaintext highlighter-rouge">sleep</code> future, and then re-use it in the <code class="language-plaintext highlighter-rouge">loop</code>. Once
-this timeout expires, then you can handle your timeout condition in that branch.</li>
-  <li>If your intention is to have a re-usable timer that ticks on a regular interval, then
-<code class="language-plaintext highlighter-rouge">interval</code> is the way to go. You create the <code class="language-plaintext highlighter-rouge">interval</code> outside the <code class="language-plaintext highlighter-rouge">loop</code>, and then
-call <code class="language-plaintext highlighter-rouge">tick()</code> on it in the <code class="language-plaintext highlighter-rouge">loop</code>. This will give you a <code class="language-plaintext highlighter-rouge">Future</code> that resolves when the
-interval has elapsed. And you can safely use this same <code class="language-plaintext highlighter-rouge">Interval</code> repeatedly in the
-loop. And even accumulate how many times it runs to decide when to break.</li>
-</ol>
-
-<h3 id="example-2-safe-cancel-of-a-future-using-interval-and-mpsc-channel">Example 2: Safe cancel of a future using interval and mpsc channel</h3>
-
-<p>Add the following snippet to your <code class="language-plaintext highlighter-rouge">lib.rs</code> file.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// Run the test using:</span>
-<span class="cd">/// `cargo test -- --nocapture test_safe_cancel_example`</span>
-<span class="nd">#[tokio::test]</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_safe_cancel_example</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
-
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">interval</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">interval</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
-
-    <span class="c1">// Shutdown channel.</span>
-    <span class="k">let</span> <span class="p">(</span><span class="n">tx</span><span class="p">,</span> <span class="k">mut</span> <span class="n">rx</span><span class="p">)</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">sync</span><span class="p">::</span><span class="nn">mpsc</span><span class="p">::</span><span class="nf">channel</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">vec</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
-
-    <span class="k">loop</span> <span class="p">{</span>
-        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
-            <span class="c1">// Branch 1.</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">interval</span><span class="nf">.tick</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - tick : count {}"</span><span class="p">,</span> <span class="n">count</span><span class="p">);</span>
-
-                <span class="n">vec</span><span class="nf">.push</span><span class="p">(</span><span class="n">count</span><span class="p">);</span>
-                <span class="n">count</span> <span class="o">=</span> <span class="n">count</span><span class="nf">.saturating_sub</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-
-                <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-                    <span class="n">_</span> <span class="o">=</span> <span class="n">tx</span><span class="nf">.try_send</span><span class="p">(());</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-            <span class="c1">// Branch 2.</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="n">rx</span><span class="nf">.recv</span><span class="p">()</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; shut down"</span><span class="p">);</span>
-                <span class="k">break</span><span class="p">;</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">vec</span><span class="p">,</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]);</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>When you run this test using <code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_safe_cancel_example</code>, you should
-get this output in your terminal:</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>running 1 test
-branch 1 - tick : count 5
-branch 1 - tick : count 4
-branch 1 - tick : count 3
-branch 1 - tick : count 2
-branch 1 - tick : count 1
-branch 2 =&gt; shut down
-</code></pre></div></div>
-
-<p>Let’s break down what’s happening in this test.</p>
-
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">Branch 1</code> - The <code class="language-plaintext highlighter-rouge">interval</code> is created outside the <code class="language-plaintext highlighter-rouge">loop</code> and is used to create a
-<code class="language-plaintext highlighter-rouge">Future</code> that resolves when the interval has elapsed. This happens in <code class="language-plaintext highlighter-rouge">Branch 1</code> and we
-let this branch run <code class="language-plaintext highlighter-rouge">5</code> times before sending a message on the <code class="language-plaintext highlighter-rouge">tx</code> channel.</li>
-  <li><code class="language-plaintext highlighter-rouge">Branch 2</code> - The <code class="language-plaintext highlighter-rouge">tx</code> channel is used to send a message to the <code class="language-plaintext highlighter-rouge">rx</code> channel. This is
-done in <code class="language-plaintext highlighter-rouge">Branch 1</code> when <code class="language-plaintext highlighter-rouge">count</code> reaches <code class="language-plaintext highlighter-rouge">0</code>. The <code class="language-plaintext highlighter-rouge">rx</code> channel is used to receive a
-message. This is done in <code class="language-plaintext highlighter-rouge">Branch 2</code> and when a message is received, we break out of the
-<code class="language-plaintext highlighter-rouge">loop</code>.</li>
-</ul>
-
-<p><code class="language-plaintext highlighter-rouge">Branch 1</code> runs 5 times, and <code class="language-plaintext highlighter-rouge">Branch 1</code> runs 1 time and breaks out of the loop. If you
-look at the <code class="language-plaintext highlighter-rouge">vec</code> that we accumulate outside of the <code class="language-plaintext highlighter-rouge">loop</code> this contains what we expect.</p>
-
-<h3 id="example-3-inducing-cancellation-safety-issues">Example 3: Inducing cancellation safety issues</h3>
-
-<p>This is the example we have all been waiting for. Let’s start with copying the
-following snippet in your <code class="language-plaintext highlighter-rouge">lib.rs</code> file. We will create a new module here.</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">#[cfg(test)]</span>
-<span class="k">pub</span> <span class="k">mod</span> <span class="n">test_unsafe_cancel_example</span> <span class="p">{</span>
-    <span class="k">use</span> <span class="nn">r3bl_test_fixtures</span><span class="p">::{</span><span class="n">gen_input_stream_with_delay</span><span class="p">,</span> <span class="n">PinnedInputStream</span><span class="p">};</span>
-
-    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_input_vec</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span> <span class="p">{</span>
-        <span class="nd">vec!</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
-    <span class="p">}</span>
-
-    <span class="k">pub</span> <span class="k">fn</span> <span class="nf">get_stream_delay</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="n">Duration</span> <span class="p">{</span>
-        <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
-    <span class="p">}</span>
-
-    <span class="k">fn</span> <span class="nf">get_input_stream</span><span class="p">()</span> <span class="k">-&gt;</span> <span class="n">PinnedInputStream</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span> <span class="p">{</span>
-        <span class="nf">gen_input_stream_with_delay</span><span class="p">(</span><span class="nf">get_input_vec</span><span class="p">(),</span> <span class="nf">get_stream_delay</span><span class="p">())</span>
-    <span class="p">}</span>
-
-    <span class="cd">/// This is just to see how to use the async stream [gen_input_stream()].</span>
-    <span class="nd">#[tokio::test]</span>
-    <span class="k">async</span> <span class="k">fn</span> <span class="nf">test_generate_event_stream_pinned</span><span class="p">()</span> <span class="p">{</span>
-        <span class="k">use</span> <span class="nn">futures_util</span><span class="p">::</span><span class="n">StreamExt</span><span class="p">;</span>
-
-        <span class="k">let</span> <span class="k">mut</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-        <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nf">get_stream</span><span class="p">();</span>
-
-        <span class="k">while</span> <span class="k">let</span> <span class="nf">Some</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span> <span class="p">{</span>
-            <span class="k">let</span> <span class="n">lhs</span> <span class="o">=</span> <span class="n">item</span><span class="p">;</span>
-            <span class="k">let</span> <span class="n">rhs</span> <span class="o">=</span> <span class="nf">get_input_vec</span><span class="p">()[</span><span class="n">count</span><span class="p">];</span>
-            <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">lhs</span><span class="p">,</span> <span class="n">rhs</span><span class="p">);</span>
-            <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-    <span class="c1">// &lt;more stuff to add later&gt;</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>Let’s break down what’s happening here.</p>
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">get_input_vec()</code> - This function returns a <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code> that we will use to generate
-events in the <code class="language-plaintext highlighter-rouge">gen_input_stream()</code> function. This is meant to simulate the stream of
-<code class="language-plaintext highlighter-rouge">usize</code> values that may be generated from reading a file or a network source. Or even
-write to a file or network source. We could have just made these <code class="language-plaintext highlighter-rouge">u8</code>, but this is a
-made up test, so we are using <code class="language-plaintext highlighter-rouge">usize</code>.</li>
-  <li><code class="language-plaintext highlighter-rouge">gen_input_stream()</code> - This is where things get interesting. This function creates an
-async stream that yields the values from the <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code> returned by <code class="language-plaintext highlighter-rouge">get_input_vec()</code>.
-It waits for <code class="language-plaintext highlighter-rouge">100ms</code> between each value that it yields. This is to simulate the delay
-that might be present when reading from a file or network source. Note the trait magic
-and imports that are used to make this work; to get the details on this, check our
-article on <a href="https://developerlife.com/2024/04/28/rust-polymorphism-dyn-impl-trait-objects-for-testing-and-extensibiity/">trait pointers and
-testing</a>.</li>
-  <li>These two functions are our test fixture to simulate a slow async stream. Now, let’s
-test the test fixtures in <code class="language-plaintext highlighter-rouge">test_generate_event_stream_pinned()</code>. This test simply reads
-from the async stream and compares the values that it reads with the values that are
-expected from the <code class="language-plaintext highlighter-rouge">Vec&lt;usize&gt;</code> returned by <code class="language-plaintext highlighter-rouge">get_input_vec()</code>.</li>
-</ul>
-
-<blockquote>
-  <p>You can get the <code class="language-plaintext highlighter-rouge">r3bl_test_fixtures</code> <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/test_fixtures">source
-here</a>. You can get
-the crate from <a href="https://crates.io/crates/r3bl_test_fixtures">crates.io</a>.</p>
-</blockquote>
-
-<p>In <code class="language-plaintext highlighter-rouge">lib.rs</code> replace the <code class="language-plaintext highlighter-rouge">// &lt;more stuff to add later&gt;</code> with the following code:</p>
-
-<div class="language-rust highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cd">/// There is no need to [futures_util::FutureExt::fuse()] the items in each</span>
-<span class="cd">/// [tokio::select!] branch. This is because Tokio's event loop is designed to handle</span>
-<span class="cd">/// this efficiently by remembering the state of each future across iterations.</span>
-<span class="cd">///</span>
-<span class="cd">/// More info: &lt;https://gemini.google.com/app/e55fd62339b674fb&gt;</span>
-<span class="nd">#[rustfmt::skip]</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">read_3_items_not_cancel_safe</span><span class="p">(</span><span class="n">stream</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">PinnedInputStream</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span><span class="p">)</span>
-    <span class="k">-&gt;</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">usize</span><span class="o">&gt;</span>
-<span class="p">{</span>
-    <span class="k">use</span> <span class="nn">futures_util</span><span class="p">::</span><span class="n">StreamExt</span><span class="p">;</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">vec</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[];</span>
-
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; entering read_3_items_not_cancel_safe"</span><span class="p">);</span>
-
-    <span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..</span><span class="mi">3</span> <span class="p">{</span>
-        <span class="k">let</span> <span class="n">item</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span> <span class="cm">/* .fuse() */</span> <span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
-        <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; read_3_items_not_cancel_safe got item: {item}"</span><span class="p">);</span>
-        <span class="n">vec</span><span class="nf">.push</span><span class="p">(</span><span class="n">item</span><span class="p">);</span>
-        <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 =&gt; vec so far contains: {vec:?}"</span><span class="p">);</span>
-    <span class="p">}</span>
-
-    <span class="n">vec</span>
-<span class="p">}</span>
-
-<span class="cd">/// There is no need to [futures_util::FutureExt::fuse()] the items in each</span>
-<span class="cd">/// [tokio::select!] branch. This is because Tokio's event loop is designed to handle</span>
-<span class="cd">/// this efficiently by remembering the state of each future across iterations.</span>
-<span class="cd">///</span>
-<span class="cd">/// More info: &lt;https://gemini.google.com/app/e55fd62339b674fb&gt;</span>
-<span class="nd">#[tokio::test]</span>
-<span class="k">async</span> <span class="k">fn</span> <span class="nf">test_unsafe_cancel_stream</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">use</span> <span class="nn">futures_util</span><span class="p">::</span><span class="n">StreamExt</span><span class="p">;</span>
-
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">stream</span> <span class="o">=</span> <span class="nf">get_input_stream</span><span class="p">();</span>
-    <span class="k">let</span> <span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">300</span><span class="p">;</span>
-    <span class="k">let</span> <span class="n">duration</span> <span class="o">=</span> <span class="nn">std</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nn">Duration</span><span class="p">::</span><span class="nf">from_millis</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">);</span>
-    <span class="k">let</span> <span class="n">sleep</span> <span class="o">=</span> <span class="nn">tokio</span><span class="p">::</span><span class="nn">time</span><span class="p">::</span><span class="nf">sleep</span><span class="p">(</span><span class="n">duration</span><span class="p">);</span>
-    <span class="nn">tokio</span><span class="p">::</span><span class="nd">pin!</span><span class="p">(</span><span class="n">sleep</span><span class="p">);</span>
-
-    <span class="k">loop</span> <span class="p">{</span>
-        <span class="nn">tokio</span><span class="p">::</span><span class="nd">select!</span> <span class="p">{</span>
-            <span class="c1">// Branch 1 - Timeout.</span>
-            <span class="n">_</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">sleep</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 1 - time is up - end"</span><span class="p">);</span>
-                <span class="k">break</span><span class="p">;</span>
-            <span class="p">}</span>
-            <span class="c1">// Branch 2 - Read from stream.</span>
-            <span class="n">it</span> <span class="o">=</span> <span class="nf">read_3_items_not_cancel_safe</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">stream</span><span class="p">)</span> <span class="cm">/* .fuse() */</span> <span class="k">=&gt;</span> <span class="p">{</span>
-                <span class="nd">println!</span><span class="p">(</span><span class="s">"branch 2 - got 3 items: {it:?}"</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"loop exited"</span><span class="p">);</span>
-
-    <span class="c1">// Only [1, 2] is consumed by Branch 2 before the timeout happens</span>
-    <span class="c1">// in Branch 1.</span>
-    <span class="k">let</span> <span class="n">it</span> <span class="o">=</span> <span class="n">stream</span><span class="nf">.next</span><span class="p">()</span><span class="k">.await</span><span class="nf">.unwrap</span><span class="p">();</span>
-    <span class="nd">assert_eq!</span><span class="p">(</span><span class="n">it</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
-<span class="p">}</span>
-</code></pre></div></div>
-
-<p>When you run this test using <code class="language-plaintext highlighter-rouge">cargo test -- --nocapture test_unsafe_cancel_stream</code>, you
-can expect the following output in your terminal.</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>branch 2 =&gt; entering read_3_items_not_cancel_safe
-yielding item: 1
-branch 2 =&gt; read_3_items_not_cancel_safe got item: 1
-branch 2 =&gt; vec so far contains: [1]
-yielding item: 2
-branch 2 =&gt; read_3_items_not_cancel_safe got item: 2
-branch 2 =&gt; vec so far contains: [1, 2]
-branch 1 - time is up - end
-loop exited
-yielding item: 3
-</code></pre></div></div>
-
-<p>So let’s break down what’s happening in this test.</p>
-
-<ul>
-  <li><code class="language-plaintext highlighter-rouge">Branch 1</code> - This branch is a timeout branch. It waits for <code class="language-plaintext highlighter-rouge">300ms</code> before breaking out
-of the loop. This is to simulate a timeout that might happen when reading from a file or
-network source. With this delay, we ensure that <code class="language-plaintext highlighter-rouge">Branch 2</code> doesn’t get to read all the
-values from the async stream. And thus we induce a cancellation safety issue, due the
-way <code class="language-plaintext highlighter-rouge">read_3_items_not_cancel_safe()</code> is implemented.</li>
-  <li><code class="language-plaintext highlighter-rouge">Branch 2</code> - This branch needs to reads <code class="language-plaintext highlighter-rouge">3</code> items from the async stream before
-resolving. This is done in a loop that reads <code class="language-plaintext highlighter-rouge">3</code> items in
-<code class="language-plaintext highlighter-rouge">read_3_items_not_cancel_safe()</code>. This is not safe because if the timeout branch wins
-the race, then the stream is dropped and the <code class="language-plaintext highlighter-rouge">read_3_items_not_cancel_safe()</code> future is
-dropped, along with the contained <code class="language-plaintext highlighter-rouge">vec</code>! This means that the stream is dropped before
-all the items are read from it. This is the cancellation safety issue that we are
-inducing in this test.</li>
-</ul>
-
-<p>There are many ways to resolve this. The key is not to hold state inside of a <code class="language-plaintext highlighter-rouge">Future</code>
-that you don’t want to lose if the <code class="language-plaintext highlighter-rouge">Future</code> is dropped. You can use <code class="language-plaintext highlighter-rouge">mpsc</code> channels or a
-pinned <code class="language-plaintext highlighter-rouge">Vec</code> to get around this issue.</p>
-
-<blockquote>
-  <p>Note that in the case of a graceful shutdown, where you might not care about what data
-in some buffer is dropped, then this is not a problem.</p>
-</blockquote>
-
-<h2 id="build-with-naz-video-series-on-developerlifecom-youtube-channel">Build with Naz video series on developerlife.com YouTube channel</h2>
-
-<p>You can watch a video series on building this crate with Naz on the
-<a href="https://www.youtube.com/@developerlifecom">developerlife.com YouTube channel</a>.</p>
-
-<ul>
-  <li><a href="https://www.youtube.com/@developerlifecom">YT channel</a></li>
-  <li>Playlists
-    <ul>
-      <li><a href="https://www.youtube.com/watch?v=bolScvh4x7I&amp;list=PLofhE49PEwmw3MKOU1Kn3xbP4FRQR4Mb3">Build with Naz, Linux TTY, process, signals, commands in async Rust</a></li>
-      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmza94sS7UmJnN9gSCHTVTfz">Build with Naz, fundamental effective Rust</a></li>
-      <li><a href="https://www.youtube.com/playlist?list=PLofhE49PEwmwO69E7eiQ-ewnMME8ydgQ5">Build with Naz, effective async Rust and tokio</a></li>
-      <li><a href="https://www.youtube.com/watch?v=3vQJguti02I&amp;list=PLofhE49PEwmwelPkhfiqdFQ9IXnmGdnSE">Build with Naz, async readline and spinner for CLI in Rust</a></li>
-      <li><a href="https://www.youtube.com/watch?v=Xt495QLrFFk&amp;list=PLofhE49PEwmwLR_4Noa0dFOSPmSpIg_l8">Build with Naz, testing in Rust</a></li>
-    </ul>
-  </li>
-</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><category term="TUI" /><summary type="html"><![CDATA[This tutorial, video, and repo are a deep dive into the concept of cancellation safety in async code using Tokio and Rust. It affects the `tokio::select!` macro, and what happens to the racing `Future`s that don't win. The examples provided here, along with the video, will go over both code that is is cancellation safe and code that is not. These examples reflect real-world patterns, and are a generalized form of them.]]></summary></entry></feed>
+</ul>]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="Server" /><category term="TUI" /><summary type="html"><![CDATA[This tutorial, video, and repo are a deep dive into Rust `Pin` and `Box` types, along with concepts of ownership and borrowing. We will also cover a lot of background information on the concepts of operating system process, memory allocation and access, stack, and heap. The examples we create are designed to demonstrate the different semantics around the use of boxes and pinned boxes in Rust.]]></summary></entry></feed>

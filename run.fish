@@ -52,16 +52,14 @@ function main
     end
 
     if _promptUserForConfirmation "Do you want to run the local dev server"
-        npm list -g --depth=0 | rg -q 'serve@'
-        # if $status is 0 then serve is installed, else install serve
-        if test $status -ne 0
-            echo (set_color green)"Installing serve..."(set_color normal)
-            npm install -g serve
+        if not command -v miniserve >/dev/null
+            echo (set_color green)"Installing miniserve..."(set_color normal)
+            cargo install miniserve
         else
-            echo (set_color blue)"serve is already installed."(set_color normal)
+            echo (set_color blue)"miniserve is already installed."(set_color normal)
         end
-        killall -9 node 2>/dev/null # Kill all the node processes (serve runs on node)
-        serve docs/ & # Run serve in the background, allows `./watch-build.fish` to run in a loop
+        killall -9 miniserve 2>/dev/null # Kill any existing miniserve processes
+        miniserve --index index.html docs/ & # Run miniserve in the background, allows `./watch-build.fish` to run in a loop
     else
         echo "Ok, bye!"
         return

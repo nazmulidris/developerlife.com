@@ -30,12 +30,12 @@ Here are the instructions.
 
 1) Run `run.fish` to build the site. The `docs` folder holds the entire site output.
 2) Commit the changes to the `docs` folder. And push to `main`.
-3) If you want to run the changes locally, you can run `npm install -g serve && serve
-   docs` and open `http://localhost:3000` in your browser. There is no need to use
+3) If you want to run the changes locally, you can run `miniserve --index index.html docs/`
+   and open `http://localhost:8080` in your browser. There is no need to use
    `webrick` and `bundle exec jekyll serve` anymore. You can also do the following
    in 2 terminals (eg in VSCode):
    1. Run `watch-build.fish` to rebuild the site every 30 sec
-   2. Run `serve docs/` to serve the site on `http://localhost:3000`
+   2. Run `miniserve --index index.html docs/` to serve the site on `http://localhost:8080`
 
 # I don't have Jekyll and Ruby installed
 

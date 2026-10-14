@@ -15,7 +15,7 @@ categories:
 
 <!-- cspell:words Vecs mktoc flatline Amdahl's bitshift bitshifts memmoves memset -->
 <!-- cspell:words memmove getconf DCACHE LINESIZE memcmp mispredictions mktemp darray -->
-<!-- cspell:words prefetcher Superscalar ilog VPCMPEQB -->
+<!-- cspell:words prefetcher Superscalar ilog VPCMPEQB cmpeq aarch64 -->
 
 <!-- BEGIN mktoc -->
 
@@ -32,8 +32,9 @@ categories:
     - [1. Clear Screen](#1-clear-screen)
     - [2. Scroll Screen](#2-scroll-screen)
     - [3. Read Screen / Compositing](#3-read-screen--compositing)
-    - [4. Memory Overhead](#4-memory-overhead)
-    - [5. The 3-Step Performance Staircase](#5-the-3-step-performance-staircase)
+    - [4. Diff Benchmarks](#4-diff-benchmarks)
+    - [5. Memory Overhead](#5-memory-overhead)
+    - [6. The 3-Step Performance Staircase](#6-the-3-step-performance-staircase)
     - [Note on primitive types](#note-on-primitive-types)
 - [The CPU Cache & Hardware Prefetching](#the-cpu-cache--hardware-prefetching)
     - [How [SIMD] Vectorization Works](#how-simd-vectorization-works)
@@ -43,11 +44,22 @@ categories:
 
 ## Overview
 
+While building the terminal compositor ([`OfsBuf`]) and [`VT-100` output parser] for
+[`r3bl_tui`](https://crates.io/crates/r3bl_tui) in the
+[`ROC`](https://github.com/r3bl-org/r3bl-open-core) monorepo, I needed a 2D
+grid data structure that could render, diff, and clear terminal frames with zero
+micro-stutters.
+
 If you are building a Terminal UI, an image processor in Rust, or some other program where
 you are going to need a 2D data structure to represent the screen or grid, this tutorial
-will walk you through using a 2D array vs a 1D flat version of the same structure using
-SIMD and leveraging the CPU's L1 cache. We will explore the performance implications of
-how you structure this 2D data in memory by comparing these approaches.
+will walk you through the engineering journey behind [`Flat2DArray`]: comparing a 2D array
+(`Vec<Vec<T>>`) against a 1D flat version of the same structure using [SIMD] and
+leveraging the CPU's [L1 cache].
+
+> 📦 **Production Code in `ROC`:**
+> - **[`ROC`] Monorepo:** home of [`r3bl_tui`](https://crates.io/crates/r3bl_tui), [`r3bl-cmdr`](https://crates.io/crates/r3bl-cmdr), and [`r3bl-rust-analyzer-mcp-server`](https://crates.io/crates/r3bl-rust-analyzer-mcp-server)
+> - **Production `Flat2DArray` Implementation:** [`tui/src/core/common/flat_2d_array`](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array)
+> - **Step-by-Step Tutorial Repo:** [`nazmulidris/rust-scratch/flat2darray`](https://github.com/nazmulidris/rust-scratch/tree/main/flat2darray)
 
 Here are some useful links for context:
 
@@ -72,14 +84,15 @@ to this article and [repo](https://github.com/nazmulidris/rust-scratch/tree/main
     allowfullscreen>
 </iframe>
 
-> The simplified code built in the video and this tutorial is available in the [rust-scratch GitHub repo](https://github.com/nazmulidris/rust-scratch/tree/main/flat2darray).
-> The full production-ready implementation lives in the [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array).
+> The full production-ready implementation lives in the [`ROC` repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array).
+> The simplified code built in the video and this tutorial is available in the [rust-scratch repo](https://github.com/nazmulidris/rust-scratch/tree/main/flat2darray).
 
 ## Quick Summary for Developers
 
 1. **Goal:**
-    - Build a high-performance 2D array data structure in Rust suitable for tasks like UI
-      compositing.
+    - Build a high-performance 2D array data structure in Rust ([`Flat2DArray`] from
+      [`r3bl_tui`](https://crates.io/crates/r3bl_tui) in [`ROC`](https://github.com/r3bl-org/r3bl-open-core))
+      suitable for tasks like terminal UI compositing and frame diffing.
 2. **Key Challenge:**
     - The immediate approach of using `Vec<Vec<T>>` introduces multiple heap allocations
       scattered randomly in memory. This leads to terrible CPU cache locality and massive
@@ -290,7 +303,7 @@ can use `rotate_left(1)` to scroll the screen by just shifting pointers, which i
 lightning fast compared to moving contiguous bytes.
 
 > For more info, read the production code on which this tutorial is based in the
-> [`r3bl-open-core` repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs).
+> [`ROC` repo](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs).
 
 ## The 1D Solution
 
@@ -722,10 +735,20 @@ mod corner_cases {
 }
 ```
 
-## 5. Unlocking SIMD & Raw Memory Operations
+## Unlocking SIMD & Raw Memory Operations
 
 So how do we fix it? We follow two simple rules of thumb for 1D memory access to replace
 those slow scalar loops.
+
+> **Auto-Vectorization vs. Manual Intrinsics:** Notice that our `simd_*` methods below do
+> not use `unsafe` CPU intrinsics (like `_mm256_cmpeq_epi8`) or nightly [`std::simd`]. At
+> the CPU level, there are two ways to execute [SIMD] instructions in Rust: writing
+> platform-specific intrinsics by hand, or structuring memory contiguously (`Box<[T]>`) so
+> **[LLVM] Auto-vectorization** emits the exact same [AVX/NEON] [SIMD] machine
+> instructions automatically from safe [`slice`] operations ([`.chunks_exact(width)`],
+> [`Iterator::zip`], [`.fill()`], [`slice::copy_within`]). This second approach is
+> idiomatic Rust: it is 100% safe, portable across `x86_64` and `aarch64`, and requires
+> zero `unsafe` blocks.
 
 **Rule 1: If you DO care about 2D coordinates.** Let's say you're rendering or diffing
 rows. The silver bullet here is `.chunks_exact(cols)`.
@@ -1406,6 +1429,15 @@ automatically generates a highly optimized loop. It chunks the array into 32-byt
 "scalar tail" to clean up any leftover bytes at the end that don't divide perfectly into
 the register size.
 
+> **Note on Cache Exhaustion:** A single 32-byte or 64-byte [SIMD] store executes in ~1
+> clock cycle per loop iteration as long as the data fits in [L1]/[L2] cache (which is
+> true for terminal UI grids, where even a `200x100` grid is only a few hundred
+> kilobytes). If a [`Flat2DArray`] grows to tens of megabytes and exhausts [L3] cache,
+> [`.fill()`] and traversal become bounded by Main [RAM] bus bandwidth (~10 to 15 cycles
+> per 64-byte [Cache Line]). Even then, a flat 1D array still vastly outperforms
+> `Vec<Vec<T>>` because sequential [DRAM] streaming avoids [TLB] page table misses and keeps
+> the [Hardware Prefetcher] saturated.
+
 Here are the exact triggers we use to unlock [SIMD]:
 
 1. **[`slice::fill`] ([SIMD] [`memset`])**: Used when clearing the screen (e.g.,
@@ -1451,40 +1483,51 @@ Here are the exact triggers we use to unlock [SIMD]:
       comparisons into [SIMD] instructions—all while completely bypassing the slow CPU
       pipeline stalls.
 
+> **Explore [`Flat2DArray`] in Production ([`ROC`]):** To see how [`Flat2DArray`] powers
+> full-screen terminal frame diffing ([`OfsBuf::diff`]), ANSI [`VT-100` output parser]
+> canvas rendering ([`OfsBufVT100`]), and PTY multiplexing ([virtual terminal tab]), check
+> out [`r3bl_tui`](https://crates.io/crates/r3bl_tui) in the
+> [`ROC` repo](https://github.com/r3bl-org/r3bl-open-core) (and
+> dive straight into
+> [`tui/src/core/common/flat_2d_array`](https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array)).
+
 <!-- prettier-ignore-start -->
 [`Flat1DSimdMut::copy_within_rows`]: https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/array_1d_simd_access.rs
 [`Flat2DArray::new_empty`]: https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs
 [`Flat2DArray`]: https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs
-[virtual terminal tab]: https://docs.rs/r3bl_tui/latest/r3bl_tui/pty_mux/index.html#virtual-terminal-architecture-the-virtual-tab-mental-model
+[virtual terminal tab]: https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/core/pty/pty_mux/mod.rs
 [`.as_raw_mut_slice().fill()`]: https://doc.rust-lang.org/std/primitive.slice.html#method.fill
 [`.chunks_exact(width).zip(other.chunks_exact(width))`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.zip
 [`.chunks_exact(width)`]: https://doc.rust-lang.org/std/primitive.slice.html#method.chunks_exact
 [`.fill()`]: https://doc.rust-lang.org/std/primitive.slice.html#method.fill
 [`.iter()`]: https://doc.rust-lang.org/std/primitive.slice.html#method.iter
-[`Canvas::clear_canvas`]: https://docs.rs/r3bl_tui/latest/r3bl_tui/core/ansi/vt_100_pty_output_parser/struct.Canvas.html#method.clear_canvas
-[`Canvas`]: https://docs.rs/r3bl_tui/latest/r3bl_tui/core/ansi/vt_100_pty_output_parser/struct.Canvas.html
 [`Iterator::zip`]: https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.zip
 [`memcmp`]: https://doc.rust-lang.org/std/primitive.slice.html
 [`memmove`]: https://doc.rust-lang.org/std/ptr/fn.copy.html
 [`memset`]: https://doc.rust-lang.org/std/primitive.slice.html#method.fill
-[`OfsBuf::diff`]: https://docs.rs/r3bl_tui/latest/r3bl_tui/struct.OfsBuf.html#method.diff
-[`OfsBuf`]: https://docs.rs/r3bl_tui/latest/r3bl_tui/struct.OfsBuf.html
+[`OfsBuf::diff`]: https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/tui/terminal_lib_backends/ofs_buf
+[`OfsBuf`]: https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/tui/terminal_lib_backends/ofs_buf
+[`OfsBufVT100`]: https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/ansi/vt_100_pty_output_parser
+[`ROC`]: https://github.com/r3bl-org/r3bl-open-core
 [`slice::copy_within`]: https://doc.rust-lang.org/std/primitive.slice.html#method.copy_within
 [`slice::fill`]: https://doc.rust-lang.org/std/primitive.slice.html#method.fill
 [`slice`]: https://doc.rust-lang.org/std/primitive.slice.html
 [`std::simd`]: https://doc.rust-lang.org/std/simd/index.html
-[`VT-100` output parser]: https://docs.rs/r3bl_tui/latest/r3bl_tui/core/ansi/vt_100_pty_output_parser/index.html
+[`VT-100` output parser]: https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/ansi/vt_100_pty_output_parser
 [`VT-100`]: https://vt100.net/docs/vt100-ug/chapter3.html
 [Assembly]: https://en.wikipedia.org/wiki/Assembly_language
 [AVX/NEON]: https://en.wikipedia.org/wiki/Advanced_Vector_Extensions
-[Cache Line]: https://en.wikipedia.org/wiki/CPU_cache#Cache_lines
-[Cache Lines]: https://en.wikipedia.org/wiki/CPU_cache#Cache_lines
-[Hardware Prefetcher]: https://en.wikipedia.org/wiki/CPU_cache#Hardware_prefetching
+[Cache Line]: https://en.wikipedia.org/wiki/CPU_cache#Cache_entries
+[Cache Lines]: https://en.wikipedia.org/wiki/CPU_cache#Cache_entries
+[DRAM]: https://en.wikipedia.org/wiki/Dynamic_random-access_memory
+[Hardware Prefetcher]: https://en.wikipedia.org/wiki/Cache_prefetching
 [heap]: https://en.wikipedia.org/wiki/Heap_(data_structure)
-[L1 cache]: https://en.wikipedia.org/wiki/CPU_cache#Levels_of_hierarchy
-[L1]: https://en.wikipedia.org/wiki/CPU_cache#Levels_of_hierarchy
-[L2]: https://en.wikipedia.org/wiki/CPU_cache#Levels_of_hierarchy
+[L1 cache]: https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches
+[L1]: https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches
+[L2]: https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches
+[L3]: https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches
 [LLVM]: https://llvm.org/
 [RAM]: https://en.wikipedia.org/wiki/Random-access_memory
 [SIMD]: https://en.wikipedia.org/wiki/SIMD
+[TLB]: https://en.wikipedia.org/wiki/Translation_lookaside_buffer
 <!-- prettier-ignore-end -->

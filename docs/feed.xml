@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2026-09-25T15:20:35-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Rust Reborrowing, Aliasing, and Mutable References</title><link href="http://developerlife.com/2026/09/25/rust-reborrowing/" rel="alternate" type="text/html" title="Rust Reborrowing, Aliasing, and Mutable References" /><published>2026-09-25T04:00:00-05:00</published><updated>2026-09-25T04:00:00-05:00</updated><id>http://developerlife.com/2026/09/25/rust-reborrowing</id><content type="html" xml:base="http://developerlife.com/2026/09/25/rust-reborrowing/"><![CDATA[<!-- BEGIN mktoc -->
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://developerlife.com/feed.xml" rel="self" type="application/atom+xml" /><link href="http://developerlife.com/" rel="alternate" type="text/html" /><updated>2026-10-13T23:41:04-05:00</updated><id>http://developerlife.com/feed.xml</id><title type="html">developerlife.com</title><subtitle>Rust, TUI, Android, Web, Desktop, Cloud technologies, and UX engineering and design tutorials.</subtitle><author><name>Nazmul Idris</name></author><entry><title type="html">Rust Reborrowing, Aliasing, and Mutable References</title><link href="http://developerlife.com/2026/09/25/rust-reborrowing/" rel="alternate" type="text/html" title="Rust Reborrowing, Aliasing, and Mutable References" /><published>2026-09-25T04:00:00-05:00</published><updated>2026-09-25T04:00:00-05:00</updated><id>http://developerlife.com/2026/09/25/rust-reborrowing</id><content type="html" xml:base="http://developerlife.com/2026/09/25/rust-reborrowing/"><![CDATA[<!-- BEGIN mktoc -->
 
 <ul>
   <li><a href="#this-example-works-but-why">This example works, but why?</a>
@@ -1512,7 +1512,7 @@ starts.</li>
 
 <!-- prettier-ignore-end -->]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CLI" /><category term="CC" /><category term="CS" /><category term="Server" /><category term="AI-LLM" /><summary type="html"><![CDATA[When I/O is involved, Rustaceans often instinctively reach for Tokio. While Tokio is a fantastic tool for the right use cases, it should not be used indiscriminately for every I/O based use case. This article explores why Tokio was deliberately omitted in r3bl-rust-analyzer-mcp-server in favor of a simple, synchronous 3-thread pipeline over stdio. It is a deep dive into architectural trade-offs, async-by-default dogma, and fit-for-purpose architecture.]]></summary></entry><entry><title type="html">Build with Naz : High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)</title><link href="http://developerlife.com/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/" rel="alternate" type="text/html" title="Build with Naz : High-Performance Flat 2D Arrays in Rust (SIMD, L1 Cache)" /><published>2026-07-14T00:00:00-05:00</published><updated>2026-07-14T00:00:00-05:00</updated><id>http://developerlife.com/2026/07/14/build-high-performance-flat-2d-arrays-in-rust</id><content type="html" xml:base="http://developerlife.com/2026/07/14/build-high-performance-flat-2d-arrays-in-rust/"><![CDATA[<!-- cspell:words Vecs mktoc flatline Amdahl's bitshift bitshifts memmoves memset -->
 <!-- cspell:words memmove getconf DCACHE LINESIZE memcmp mispredictions mktemp darray -->
-<!-- cspell:words prefetcher Superscalar ilog VPCMPEQB -->
+<!-- cspell:words prefetcher Superscalar ilog VPCMPEQB cmpeq aarch64 -->
 
 <!-- BEGIN mktoc -->
 
@@ -1534,8 +1534,9 @@ starts.</li>
       <li><a href="#1-clear-screen">1. Clear Screen</a></li>
       <li><a href="#2-scroll-screen">2. Scroll Screen</a></li>
       <li><a href="#3-read-screen--compositing">3. Read Screen / Compositing</a></li>
-      <li><a href="#4-memory-overhead">4. Memory Overhead</a></li>
-      <li><a href="#5-the-3-step-performance-staircase">5. The 3-Step Performance Staircase</a></li>
+      <li><a href="#4-diff-benchmarks">4. Diff Benchmarks</a></li>
+      <li><a href="#5-memory-overhead">5. Memory Overhead</a></li>
+      <li><a href="#6-the-3-step-performance-staircase">6. The 3-Step Performance Staircase</a></li>
       <li><a href="#note-on-primitive-types">Note on primitive types</a></li>
     </ul>
   </li>
@@ -1551,11 +1552,26 @@ starts.</li>
 
 <h2 id="overview">Overview</h2>
 
+<p>While building the terminal compositor (<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/tui/terminal_lib_backends/ofs_buf"><code class="language-plaintext highlighter-rouge">OfsBuf</code></a>) and <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/ansi/vt_100_pty_output_parser"><code class="language-plaintext highlighter-rouge">VT-100</code> output parser</a> for
+<a href="https://crates.io/crates/r3bl_tui"><code class="language-plaintext highlighter-rouge">r3bl_tui</code></a> in the
+<a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">ROC</code></a> monorepo, I needed a 2D
+grid data structure that could render, diff, and clear terminal frames with zero
+micro-stutters.</p>
+
 <p>If you are building a Terminal UI, an image processor in Rust, or some other program where
 you are going to need a 2D data structure to represent the screen or grid, this tutorial
-will walk you through using a 2D array vs a 1D flat version of the same structure using
-SIMD and leveraging the CPU’s L1 cache. We will explore the performance implications of
-how you structure this 2D data in memory by comparing these approaches.</p>
+will walk you through the engineering journey behind <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">Flat2DArray</code></a>: comparing a 2D array
+(<code class="language-plaintext highlighter-rouge">Vec&lt;Vec&lt;T&gt;&gt;</code>) against a 1D flat version of the same structure using <a href="https://en.wikipedia.org/wiki/SIMD">SIMD</a> and
+leveraging the CPU’s <a href="https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches">L1 cache</a>.</p>
+
+<blockquote>
+  <p>📦 <strong>Production Code in <code class="language-plaintext highlighter-rouge">ROC</code>:</strong></p>
+  <ul>
+    <li><strong><a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">ROC</code></a> Monorepo:</strong> home of <a href="https://crates.io/crates/r3bl_tui"><code class="language-plaintext highlighter-rouge">r3bl_tui</code></a>, <a href="https://crates.io/crates/r3bl-cmdr"><code class="language-plaintext highlighter-rouge">r3bl-cmdr</code></a>, and <a href="https://crates.io/crates/r3bl-rust-analyzer-mcp-server"><code class="language-plaintext highlighter-rouge">r3bl-rust-analyzer-mcp-server</code></a></li>
+    <li><strong>Production <code class="language-plaintext highlighter-rouge">Flat2DArray</code> Implementation:</strong> <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array"><code class="language-plaintext highlighter-rouge">tui/src/core/common/flat_2d_array</code></a></li>
+    <li><strong>Step-by-Step Tutorial Repo:</strong> <a href="https://github.com/nazmulidris/rust-scratch/tree/main/flat2darray"><code class="language-plaintext highlighter-rouge">nazmulidris/rust-scratch/flat2darray</code></a></li>
+  </ul>
+</blockquote>
 
 <p>Here are some useful links for context:</p>
 
@@ -1577,8 +1593,8 @@ to this article and <a href="https://github.com/nazmulidris/rust-scratch/tree/ma
 </iframe>
 
 <blockquote>
-  <p>The simplified code built in the video and this tutorial is available in the <a href="https://github.com/nazmulidris/rust-scratch/tree/main/flat2darray">rust-scratch GitHub repo</a>.
-The full production-ready implementation lives in the <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array"><code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo</a>.</p>
+  <p>The full production-ready implementation lives in the <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array"><code class="language-plaintext highlighter-rouge">ROC</code> repo</a>.
+The simplified code built in the video and this tutorial is available in the <a href="https://github.com/nazmulidris/rust-scratch/tree/main/flat2darray">rust-scratch repo</a>.</p>
 </blockquote>
 
 <h2 id="quick-summary-for-developers">Quick Summary for Developers</h2>
@@ -1586,8 +1602,9 @@ The full production-ready implementation lives in the <a href="https://github.co
 <ol>
   <li><strong>Goal:</strong>
     <ul>
-      <li>Build a high-performance 2D array data structure in Rust suitable for tasks like UI
-compositing.</li>
+      <li>Build a high-performance 2D array data structure in Rust (<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">Flat2DArray</code></a> from
+<a href="https://crates.io/crates/r3bl_tui"><code class="language-plaintext highlighter-rouge">r3bl_tui</code></a> in <a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">ROC</code></a>)
+suitable for tasks like terminal UI compositing and frame diffing.</li>
     </ul>
   </li>
   <li><strong>Key Challenge:</strong>
@@ -1809,7 +1826,7 @@ lightning fast compared to moving contiguous bytes.</p>
 
 <blockquote>
   <p>For more info, read the production code on which this tutorial is based in the
-<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">r3bl-open-core</code> repo</a>.</p>
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">ROC</code> repo</a>.</p>
 </blockquote>
 
 <h2 id="the-1d-solution">The 1D Solution</h2>
@@ -2234,10 +2251,22 @@ to the CPU for every single pixel, causing significant pipeline stalls.</p>
 <span class="p">}</span>
 </code></pre></div></div>
 
-<h2 id="5-unlocking-simd--raw-memory-operations">5. Unlocking SIMD &amp; Raw Memory Operations</h2>
+<h2 id="unlocking-simd--raw-memory-operations">Unlocking SIMD &amp; Raw Memory Operations</h2>
 
 <p>So how do we fix it? We follow two simple rules of thumb for 1D memory access to replace
 those slow scalar loops.</p>
+
+<blockquote>
+  <p><strong>Auto-Vectorization vs. Manual Intrinsics:</strong> Notice that our <code class="language-plaintext highlighter-rouge">simd_*</code> methods below do
+not use <code class="language-plaintext highlighter-rouge">unsafe</code> CPU intrinsics (like <code class="language-plaintext highlighter-rouge">_mm256_cmpeq_epi8</code>) or nightly <a href="https://doc.rust-lang.org/std/simd/index.html"><code class="language-plaintext highlighter-rouge">std::simd</code></a>. At
+the CPU level, there are two ways to execute <a href="https://en.wikipedia.org/wiki/SIMD">SIMD</a> instructions in Rust: writing
+platform-specific intrinsics by hand, or structuring memory contiguously (<code class="language-plaintext highlighter-rouge">Box&lt;[T]&gt;</code>) so
+<strong><a href="https://llvm.org/">LLVM</a> Auto-vectorization</strong> emits the exact same <a href="https://en.wikipedia.org/wiki/SIMD">AVX/NEON</a> machine
+instructions automatically from safe <a href="https://doc.rust-lang.org/std/primitive.slice.html"><code class="language-plaintext highlighter-rouge">slice</code></a> operations (<a href="https://doc.rust-lang.org/std/primitive.slice.html#method.chunks_exact"><code class="language-plaintext highlighter-rouge">.chunks_exact(width)</code></a>,
+<a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.zip"><code class="language-plaintext highlighter-rouge">Iterator::zip</code></a>, <a href="https://doc.rust-lang.org/std/primitive.slice.html#method.fill"><code class="language-plaintext highlighter-rouge">.fill()</code></a>, <a href="https://doc.rust-lang.org/std/primitive.slice.html#method.copy_within"><code class="language-plaintext highlighter-rouge">slice::copy_within</code></a>). This second approach is
+idiomatic Rust: it is 100% safe, portable across <code class="language-plaintext highlighter-rouge">x86_64</code> and <code class="language-plaintext highlighter-rouge">aarch64</code>, and requires
+zero <code class="language-plaintext highlighter-rouge">unsafe</code> blocks.</p>
+</blockquote>
 
 <p><strong>Rule 1: If you DO care about 2D coordinates.</strong> Let’s say you’re rendering or diffing
 rows. The silver bullet here is <code class="language-plaintext highlighter-rouge">.chunks_exact(cols)</code>.</p>
@@ -2856,24 +2885,24 @@ can significantly reduce CPU pipeline stalls and improve overall traversal perfo
 
 <p>To understand why <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">Flat2DArray</code></a> is so fast, you must understand how data travels from
 your RAM to the CPU. Data does not travel 1 byte at a time; it is transferred in exact
-64-byte blocks (on modern x86 CPUs) called <strong><a href="https://en.wikipedia.org/wiki/CPU_cache#Cache_lines">Cache Line</a>s</strong> (you can verify this on x86
+64-byte blocks (on modern x86 CPUs) called <strong><a href="https://en.wikipedia.org/wiki/CPU_cache#Cache_entries">Cache Line</a>s</strong> (you can verify this on x86
 CPUs by running <code class="language-plaintext highlighter-rouge">getconf LEVEL1_DCACHE_LINESIZE</code> on Linux).</p>
 
-<p>When your code asks for a memory address, the memory controller fetches a 64-byte <a href="https://en.wikipedia.org/wiki/CPU_cache#Cache_lines">Cache
-Line</a> from <a href="https://en.wikipedia.org/wiki/Random-access_memory">RAM</a> and places it into the CPU’s <strong><a href="https://en.wikipedia.org/wiki/CPU_cache#Levels_of_hierarchy">L1 Cache</a></strong>. The CPU Registers (where the
-actual math happens) are fed exclusively from this <a href="https://en.wikipedia.org/wiki/CPU_cache#Levels_of_hierarchy">L1 Cache</a>.</p>
+<p>When your code asks for a memory address, the memory controller fetches a 64-byte <a href="https://en.wikipedia.org/wiki/CPU_cache#Cache_entries">Cache
+Line</a> from <a href="https://en.wikipedia.org/wiki/Random-access_memory">RAM</a> and places it into the CPU’s <strong><a href="https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches">L1 Cache</a></strong>. The CPU Registers (where the
+actual math happens) are fed exclusively from this <a href="https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches">L1 Cache</a>.</p>
 
-<p><strong>The <a href="https://en.wikipedia.org/wiki/CPU_cache#Hardware_prefetching">Hardware Prefetcher</a> (The Conveyor Belt):</strong> Modern CPUs have a dedicated circuit
-called the <a href="https://en.wikipedia.org/wiki/CPU_cache#Hardware_prefetching">Hardware Prefetcher</a>. When you iterate over a contiguous slice of memory (like
-<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">Flat2DArray</code></a>), the <a href="https://en.wikipedia.org/wiki/CPU_cache#Hardware_prefetching">Hardware Prefetcher</a> detects that you are moving forward in a
-straight line. Before your code even asks for the next block of memory, the <a href="https://en.wikipedia.org/wiki/CPU_cache#Hardware_prefetching">Hardware
-Prefetcher</a> secretly reaches out to <a href="https://en.wikipedia.org/wiki/Random-access_memory">RAM</a>, grabs the <em>next</em> 64-byte <a href="https://en.wikipedia.org/wiki/CPU_cache#Cache_lines">Cache Line</a>, and
-places it into the <a href="https://en.wikipedia.org/wiki/CPU_cache#Levels_of_hierarchy">L1 Cache</a>. This turns the <a href="https://en.wikipedia.org/wiki/CPU_cache#Levels_of_hierarchy">L1 Cache</a> into a high-speed conveyor belt,
+<p><strong>The <a href="https://en.wikipedia.org/wiki/Cache_prefetching">Hardware Prefetcher</a> (The Conveyor Belt):</strong> Modern CPUs have a dedicated circuit
+called the <a href="https://en.wikipedia.org/wiki/Cache_prefetching">Hardware Prefetcher</a>. When you iterate over a contiguous slice of memory (like
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">Flat2DArray</code></a>), the <a href="https://en.wikipedia.org/wiki/Cache_prefetching">Hardware Prefetcher</a> detects that you are moving forward in a
+straight line. Before your code even asks for the next block of memory, the <a href="https://en.wikipedia.org/wiki/Cache_prefetching">Hardware
+Prefetcher</a> secretly reaches out to <a href="https://en.wikipedia.org/wiki/Random-access_memory">RAM</a>, grabs the <em>next</em> 64-byte <a href="https://en.wikipedia.org/wiki/CPU_cache#Cache_entries">Cache Line</a>, and
+places it into the <a href="https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches">L1 Cache</a>. This turns the <a href="https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches">L1 Cache</a> into a high-speed conveyor belt,
 ensuring the CPU never has to wait for data (zero Cache Misses).</p>
 
 <p><strong>The Fragmentation Penalty:</strong> If we had used nested vectors (<code class="language-plaintext highlighter-rouge">Vec&lt;Vec&lt;T&gt;&gt;</code>) we would
 incur a hardware penalty. Because vectors are allocated randomly on the <a href="https://en.wikipedia.org/wiki/Heap_(data_structure)">heap</a>, Row 0 and
-Row 1 were not physically next to each other in <a href="https://en.wikipedia.org/wiki/Random-access_memory">RAM</a>. The <a href="https://en.wikipedia.org/wiki/CPU_cache#Hardware_prefetching">Hardware Prefetcher</a> could not
+Row 1 were not physically next to each other in <a href="https://en.wikipedia.org/wiki/Random-access_memory">RAM</a>. The <a href="https://en.wikipedia.org/wiki/Cache_prefetching">Hardware Prefetcher</a> could not
 predict where the next row would be, causing it to guess wrong. The CPU would suffer a
 massive Cache Miss for every single row.</p>
 
@@ -2893,7 +2922,7 @@ for the memory controller to fetch data from slow <a href="https://en.wikipedia.
 
 <p><a href="https://en.wikipedia.org/wiki/SIMD">SIMD</a> (Single Instruction, Multiple Data) is a CPU feature that allows the processor to
 perform the same mathematical operation on multiple data points simultaneously. <a href="https://en.wikipedia.org/wiki/SIMD">SIMD</a>
-acts as the engine that consumes the <a href="https://en.wikipedia.org/wiki/CPU_cache#Levels_of_hierarchy">L1 Cache</a> conveyor belt.</p>
+acts as the engine that consumes the <a href="https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches">L1 Cache</a> conveyor belt.</p>
 
 <p>We do not have to write raw <a href="https://en.wikipedia.org/wiki/Assembly_language">Assembly</a> or use <a href="https://doc.rust-lang.org/std/simd/index.html"><code class="language-plaintext highlighter-rouge">std::simd</code></a> to trigger this. Instead, we
 rely on <strong><a href="https://llvm.org/">LLVM</a> Auto-vectorization</strong>. Because our 2D vector is now a flat, contiguous 1D
@@ -2901,7 +2930,7 @@ array, we can use built-in Rust <a href="https://doc.rust-lang.org/std/primitive
 and automatically injects <a href="https://en.wikipedia.org/wiki/SIMD">AVX/NEON</a> instructions. These SIMD instructions operate
 on specialized, ultra-wide CPU registers that are 256-bit (32 bytes) or 512-bit (64 bytes)
 wide. Because these registers are perfectly aligned with the 64-byte Cache Lines sitting
-in the <a href="https://en.wikipedia.org/wiki/CPU_cache#Levels_of_hierarchy">L1 Cache</a>, they can consume and process massive blocks of data in a single clock
+in the <a href="https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches">L1 Cache</a>, they can consume and process massive blocks of data in a single clock
 cycle.</p>
 
 <p>If the array is larger than the <a href="https://en.wikipedia.org/wiki/SIMD">SIMD</a> register (which it almost always is), <a href="https://llvm.org/">LLVM</a>
@@ -2910,12 +2939,23 @@ automatically generates a highly optimized loop. It chunks the array into 32-byt
 “scalar tail” to clean up any leftover bytes at the end that don’t divide perfectly into
 the register size.</p>
 
+<blockquote>
+  <p><strong>Note on Cache Exhaustion:</strong> A single 32-byte or 64-byte <a href="https://en.wikipedia.org/wiki/SIMD">SIMD</a> store executes in ~1
+clock cycle per loop iteration as long as the data fits in <a href="https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches">L1</a>/<a href="https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches">L2</a> cache (which is
+true for terminal UI grids, where even a <code class="language-plaintext highlighter-rouge">200x100</code> grid is only a few hundred
+kilobytes). If a <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">Flat2DArray</code></a> grows to tens of megabytes and exhausts <a href="https://en.wikipedia.org/wiki/CPU_cache#Multi-level_caches">L3</a> cache,
+<a href="https://doc.rust-lang.org/std/primitive.slice.html#method.fill"><code class="language-plaintext highlighter-rouge">.fill()</code></a> and traversal become bounded by Main <a href="https://en.wikipedia.org/wiki/Random-access_memory">RAM</a> bus bandwidth (~10 to 15 cycles
+per 64-byte <a href="https://en.wikipedia.org/wiki/CPU_cache#Cache_entries">Cache Line</a>). Even then, a flat 1D array still vastly outperforms
+<code class="language-plaintext highlighter-rouge">Vec&lt;Vec&lt;T&gt;&gt;</code> because sequential <a href="https://en.wikipedia.org/wiki/Dynamic_random-access_memory">DRAM</a> streaming avoids <a href="https://en.wikipedia.org/wiki/Translation_lookaside_buffer">TLB</a> page table misses and keeps
+the <a href="https://en.wikipedia.org/wiki/Cache_prefetching">Hardware Prefetcher</a> saturated.</p>
+</blockquote>
+
 <p>Here are the exact triggers we use to unlock <a href="https://en.wikipedia.org/wiki/SIMD">SIMD</a>:</p>
 
 <ol>
   <li><strong><a href="https://doc.rust-lang.org/std/primitive.slice.html#method.fill"><code class="language-plaintext highlighter-rouge">slice::fill</code></a> (<a href="https://doc.rust-lang.org/std/primitive.slice.html#method.fill">SIMD</a>)</strong>: Used when clearing the screen (e.g.,
 <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">Flat2DArray::new_empty</code></a>) to instantly blast empty spacer characters across memory.</li>
-  <li><strong><a href="https://doc.rust-lang.org/std/primitive.slice.html#method.copy_within"><code class="language-plaintext highlighter-rouge">slice::copy_within</code></a> (<a href="https://doc.rust-lang.org/std/ptr/fn.copy.html">SIMD</a>)</strong>: Used when scrolling by the <a href="https://docs.rs/r3bl_tui/latest/r3bl_tui/pty_mux/index.html#virtual-terminal-architecture-the-virtual-tab-mental-model">virtual
+  <li><strong><a href="https://doc.rust-lang.org/std/primitive.slice.html#method.copy_within"><code class="language-plaintext highlighter-rouge">slice::copy_within</code></a> (<a href="https://doc.rust-lang.org/std/ptr/fn.copy.html">SIMD</a>)</strong>: Used when scrolling by the <a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/core/pty/pty_mux/mod.rs">virtual
 terminal tab</a>, e.g., <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/array_1d_simd_access.rs"><code class="language-plaintext highlighter-rouge">Flat1DSimdMut::copy_within_rows</code></a>, or when shifting characters
 left/right during text insertion.</li>
   <li><strong><a href="https://doc.rust-lang.org/std/iter/trait.Iterator.html#method.zip"><code class="language-plaintext highlighter-rouge">Iterator::zip</code></a> (<a href="https://doc.rust-lang.org/std/primitive.slice.html">SIMD</a>)</strong>: During the diffing phase, <a href="https://llvm.org/">LLVM</a> vectorizes
@@ -2966,6 +3006,16 @@ pipeline stalls.</p>
     </ul>
   </li>
 </ol>
+
+<blockquote>
+  <p><strong>Explore <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">Flat2DArray</code></a> in Production (<a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">ROC</code></a>):</strong> To see how <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array/core.rs"><code class="language-plaintext highlighter-rouge">Flat2DArray</code></a> powers
+full-screen terminal frame diffing (<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/tui/terminal_lib_backends/ofs_buf"><code class="language-plaintext highlighter-rouge">OfsBuf::diff</code></a>), ANSI <a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/ansi/vt_100_pty_output_parser"><code class="language-plaintext highlighter-rouge">VT-100</code> output parser</a>
+canvas rendering (<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/ansi/vt_100_pty_output_parser"><code class="language-plaintext highlighter-rouge">OfsBufVT100</code></a>), and PTY multiplexing (<a href="https://github.com/r3bl-org/r3bl-open-core/blob/main/tui/src/core/pty/pty_mux/mod.rs">virtual terminal tab</a>), check
+out <a href="https://crates.io/crates/r3bl_tui"><code class="language-plaintext highlighter-rouge">r3bl_tui</code></a> in the
+<a href="https://github.com/r3bl-org/r3bl-open-core"><code class="language-plaintext highlighter-rouge">ROC</code> repo</a> (and
+dive straight into
+<a href="https://github.com/r3bl-org/r3bl-open-core/tree/main/tui/src/core/common/flat_2d_array"><code class="language-plaintext highlighter-rouge">tui/src/core/common/flat_2d_array</code></a>).</p>
+</blockquote>
 
 <!-- prettier-ignore-start -->
 <!-- prettier-ignore-end -->]]></content><author><name>Nazmul Idris</name></author><category term="Rust" /><category term="CS" /><category term="CLI" /><summary type="html"><![CDATA[Explore how to build high-performance 2D data structures in Rust. Learn about the differences between a simple Vec of Vecs approach and a flat 1D array leveraging contiguous memory, CPU L1 Cache, and SIMD optimization to prevent CPU pipeline stalls.]]></summary></entry><entry><title type="html">Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences</title><link href="http://developerlife.com/2025/08/10/pty-rust-osc-seq/" rel="alternate" type="text/html" title="Build with Naz : Capturing Real-Time Build Progress from Cargo Using PTY and OSC Sequences" /><published>2025-08-10T00:00:00-05:00</published><updated>2025-08-10T00:00:00-05:00</updated><id>http://developerlife.com/2025/08/10/pty-rust-osc-seq</id><content type="html" xml:base="http://developerlife.com/2025/08/10/pty-rust-osc-seq/"><![CDATA[<p><img class="post-hero-image" src="/assets/pty.png" /></p>

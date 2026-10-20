@@ -73,6 +73,9 @@
     position: absolute;
     top: 9px;
     right: math.div(globals.$spacingUnit, 2);
+    max-width: calc(100vw - #{globals.$spacingUnit});
+    box-sizing: border-box;
+    z-index: 1000;
     background-color: color.adjust(globals.$backgroundColor, $alpha: -0.2);
     border: 1px solid colors.$colorGreyLight;
     border-radius: 5px;
@@ -126,7 +129,7 @@
         margin-right: 0;
       }
 
-      margin-left: 20px;
+      margin-left: 10px;
     }
   }
 }
@@ -246,10 +249,15 @@
 .post-title {
   @include globals.relative-font-size(2.625);
   letter-spacing: -1px;
-  line-height: 1;
+  line-height: 1.1;
+  word-break: break-word;
 
   @include globals.media-query(globals.$onLaptop) {
     @include globals.relative-font-size(2.25);
+  }
+
+  @include globals.media-query(globals.$onPalm) {
+    @include globals.relative-font-size(1.75);
   }
 }
 
@@ -262,6 +270,10 @@
     @include globals.media-query(globals.$onLaptop) {
       @include globals.relative-font-size(1.75);
     }
+
+    @include globals.media-query(globals.$onPalm) {
+      @include globals.relative-font-size(1.4);
+    }
   }
 
   h3 {
@@ -270,6 +282,10 @@
     @include globals.media-query(globals.$onLaptop) {
       @include globals.relative-font-size(1.375);
     }
+
+    @include globals.media-query(globals.$onPalm) {
+      @include globals.relative-font-size(1.2);
+    }
   }
 
   h4 {
@@ -277,6 +293,10 @@
 
     @include globals.media-query(globals.$onLaptop) {
       @include globals.relative-font-size(1.125);
+    }
+
+    @include globals.media-query(globals.$onPalm) {
+      @include globals.relative-font-size(1.05);
     }
   }
 }

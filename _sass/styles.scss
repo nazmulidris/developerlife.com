@@ -146,9 +146,15 @@ iframe {
   border-radius: globals.$globalBorderRadius;
   padding: globals.$globalPadding;
   margin-top: 10pt;
+  box-sizing: border-box;
+  max-width: 100%;
 
   .contact-list {
     margin-bottom: 0;
+  }
+
+  @include globals.media-query(globals.$onPalm) {
+    padding: globals.$globalPadding * 0.75;
   }
 }
 
@@ -162,26 +168,48 @@ iframe {
   margin-bottom: 8pt;
   padding-bottom: 6pt;
   border-bottom: 1.5pt solid color.adjust(colors.$brandColor, $alpha: -0.7);
+
+  @include globals.media-query(globals.$onPalm) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6pt;
+  }
+}
+
+.post-meta-date-author {
+  display: inline-block;
+  line-height: globals.$baseLineHeight;
+  word-break: break-word;
 }
 
 .social-media-container {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   margin-top: 8pt;
-  height: 25pt;
+  min-height: 25pt;
   justify-content: center; // Centers horizontally
   align-items: center; // Centers vertically
+  row-gap: 4pt;
+  max-width: 100%;
+  box-sizing: border-box;
 
   .post-meta-top-row & {
     margin-top: 0;
     height: auto;
     justify-content: flex-end;
+
+    @include globals.media-query(globals.$onPalm) {
+      justify-content: flex-start;
+      width: 100%;
+    }
   }
 
   .avatar-bottom-row & {
     margin-top: 0;
     height: auto;
     justify-content: center;
+    width: 100%;
 
     a {
       color: colors.$brandColor;
@@ -200,7 +228,8 @@ iframe {
   padding: 4pt;
   margin-right: 2pt;
   margin-left: 2pt;
-  margin-bottom: 0;
+  margin-top: 2pt;
+  margin-bottom: 2pt;
   line-height: 1;
 
   a {
@@ -318,6 +347,8 @@ iframe {
   margin: 4pt;
   padding-top: 8pt;
   padding-bottom: 6pt;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .avatar-top-row {
@@ -325,6 +356,12 @@ iframe {
   flex-direction: row;
   align-items: center;
   width: 100%;
+  box-sizing: border-box;
+
+  @include globals.media-query(globals.$onPalm) {
+    flex-direction: column;
+    text-align: center;
+  }
 }
 
 .avatar-bottom-row {
@@ -332,17 +369,32 @@ iframe {
   margin-top: 6pt;
   padding-top: 6pt;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-sizing: border-box;
 }
 
 .avatar-icon {
   flex-basis: 128px;
   margin: 1ch;
   flex-shrink: 0;
+
+  @include globals.media-query(globals.$onPalm) {
+    flex-basis: auto;
+    margin-bottom: 8pt;
+  }
+
+  img {
+    max-width: 128px;
+    height: auto;
+  }
 }
 
 .avatar-text {
   flex-grow: 1;
   margin: 4pt;
+
+  @include globals.media-query(globals.$onPalm) {
+    margin: 4pt 0 8pt 0;
+  }
 }
 
 .caption {

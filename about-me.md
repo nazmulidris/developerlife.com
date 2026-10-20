@@ -14,7 +14,7 @@ exclude: false
         </div>
         <div class="avatar-text">
             Hi, I'm <a href="https://duckduckgo.com/?q=nazmul+idris&ia=web">
-            Naz</a> 😃. I am a <strong>Rustacean 🦀 Systems Engineering Leader &amp; Founder</strong>
+            Naz</a> 😃, a <strong>Rustacean 🦀, Systems Engineering Leader &amp; Founder</strong>
             building next-generation terminal platforms and developer tooling for the AI &amp; cloud era.
             Also an ex-Googler (Android Studio IDE Platform),
             <a href="https://github.com/r3bl-org/r3bl-open-core/" target="_blank">founder, engineer, maintainer</a>,
@@ -34,32 +34,24 @@ exclude: false
 
 ## My story
 
-I move fluidly between technical depth and strategic leadership. I am equally comfortable
-architecting low-latency systems, writing production code, defining vision, and building
-cultures of engineering excellence.
+I am equally comfortable architecting low-latency systems and writing production code,
+defining product vision and go-to-market execution, and building cultures of
+engineering excellence.
 
-I am equal parts: engineer, management, and product person; both hands-on and in
-leadership. I move fluidly between the realms of desktop, web, mobile, cloud,
-infrastructure, server, client.
+Across my 30-year tech career (hands-on software engineering throughout, alongside 10+
+concurrent years in founder and executive leadership), I've operated across desktop, web,
+mobile, and cloud infrastructure. From founding and leading venture-backed startups like
+TRNQL ($1.5M raised) to optimizing performance, latency, and thread safety at scale on
+Google's Android Studio IDE platform team, I've consistently built products from first
+commit to production scale, to product sunset.
 
-I've brought products to life from a glimmer of a vision to a team building it, to having
-customers, and eventually seeing the product come to an end. I've worked as part of large
-and small teams and led them to make impossible things possible.
-
-I have over 30 years of work experience in the tech sector, spanning hands-on software
-engineering across the entire 30 years alongside 10+ years in founder, executive, design,
-and product leadership roles.
-
-As a multifaceted entrepreneur, leader, engineer, designer, and communicator, I've focused
-on creating, designing, building, and collaborating with people to bring amazing user
-experiences to life across multiple platforms.
+For me technical depth and leadership don't belong in separate silos. The best architectural
+decisions are grounded in product requirements stemming from user needs, and the best
+product visions are grounded in deep systems understanding. I build high-performance
+infrastructure and lead teams that turn ambitious ideas into reliable, production-grade
+reality that delivers genuine value.
 
 ## What I'm Building at R3BL
-
-I'm a **Rustacean 🦀 Systems Engineering Leader** building high-performance infrastructure
-and leading teams that ship production systems.
-
-### Building Terminal Platforms & Developer Tools for the AI & Cloud Era ([R3BL](https://r3bl.com) & [ROC](https://github.com/r3bl-org/r3bl-open-core))
 
 ```
 ██████╗  ██████╗  ██████╗
@@ -70,82 +62,71 @@ and leading teams that ship production systems.
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝
 ```
 
-I'm the founder, principal systems engineer, and maintainer of
-**[R3BL](https://r3bl.com)** and
-**[R3BL Open Core / ROC (`r3bl-open-core`)](https://github.com/r3bl-org/r3bl-open-core)**.
+Despite the massive rise of autonomous coding agents and remote cloud VM administration,
+terminal UI and foundational primitives have largely stagnated since the 1990s.
 
-#### Reimagining the Terminal for AI & Cloud Workflows
+I am reimagining the terminal for this era, to address the needs of LLM harnesses and
+ergonomic remote cloud VM admin.
 
-With the rapid rise of autonomous AI coding agents (Claude Code, Gemini CLI, LLM
-harnesses) and remote cloud VM administration over SSH, the **terminal has become the
-primary command center** for modern developers. Yet terminal UX and foundational
-primitives have largely stagnated since the 1990s.
+The first thing I am doing is creating better primitives
+([`r3bl-open-core` aka `ROC`](https://github.com/r3bl-org/r3bl-open-core)) from the ground
+up in Rust (**2.7M+ downloads** on
+[crates.io](https://crates.io/users/nazmulidris)) to bridge the gap in terminal
+capabilities since the 90's.
 
-Over the past **5+ years**, we've been building, and still are,
-**[`ROC` (`r3bl-open-core`)](https://github.com/r3bl-org/r3bl-open-core)** from the ground
-up in Rust (**2.7M+ downloads** on [crates.io](https://crates.io/users/nazmulidris)) to
-bridge this gap. Available today, `ROC` provides a strictly type-safe,
-correctness-focused async TUI engine (with a custom CSS/Flexbox layout engine, custom
-rendering engine, and a full-featured Markdown editor component with custom Markdown
-parsing and syntax highlighting), headless virtual terminal emulation (VTE), low-latency
-PTY/TTY runtime, interactive CLI/TUI apps (`edi`, `giti`), AI MCP servers, and
-IDE/browser extensions required to modernize terminal interaction.
+Available today, `ROC` provides a strictly type-safe, correctness-focused async TUI
+engine, headless virtual terminal emulation (VTE), low-latency PTY/TTY runtime, CLI/TUI
+apps (`edi`, `giti`), MCP servers, and IDE/browser extensions.
 
-Built on top of this battle-tested open-source foundation, we're building an upcoming
-**closed-source suite of terminal-native apps** at **[r3bl.com](https://r3bl.com)** (that
-all work seamlessly over SSH). Products like **local-first** collaborative *"Google Docs
-meets Jupyter notebooks"* for Markdown and virtual terminal multiplexers. All focused on
-**data sovereignty, privacy, and local-first computing**, while enhancing developer
-productivity, knowledge capture & sharing, and workflow management.
+Built on top of this open-source foundation, I'm building an upcoming closed-source
+suite of terminal apps at [r3bl.com](https://r3bl.com) (which all work seamlessly over
+SSH). This includes a local-first collaborative _"Google Docs meets Jupyter notebooks"_
+for Markdown and virtual terminal multiplexers.
 
-#### Architecture, Platform & Ecosystem
+My focus is on preserving data sovereignty, privacy, and enabling local-first computing,
+while enhancing developer productivity, knowledge capture & sharing, and workflow
+management.
 
-Built from the ground up in Rust (**2.7M+ downloads** on
-[crates.io](https://crates.io/users/nazmulidris)), our ecosystem spans open-source
-foundational infrastructure and upcoming closed-source products:
+### Architecture, Platform & Ecosystem
 
-- **R3BL Open Core / ROC — Async TUI Engine & VTE Primitives
-  ([`r3bl_tui`](https://crates.io/crates/r3bl_tui) — Open Source):** Consolidates our
-  strictly type-safe, correctness-focused TUI engine (custom CSS/Flexbox layout engine,
-  custom rendering engine, Elm-style unidirectional state management, React/JSX-style
-  declarative macros, and a full-featured Markdown editor component with custom Markdown
-  parser and syntax highlighting), async readline, and headless virtual terminal emulation
-  (VTE) / PTY virtualization backed by a low-latency, thread-safe runtime in Rust.
-- **Interactive CLI & TUI Apps ([`r3bl-cmdr`](https://crates.io/crates/r3bl-cmdr) — Open
-  Source):** Terminal Markdown editor (`edi`) powered by `r3bl_tui`'s Markdown editor
-  component, and interactive Git workflows (`giti`) for branch management and staging.
-- **AI & MCP Servers
-  ([`r3bl-rust-analyzer-mcp-server`](https://crates.io/crates/r3bl-rust-analyzer-mcp-server)
-  — Open Source):** High-performance Model Context Protocol (MCP) servers and tools for
-  LLMs to orchestrate in their agentic harnesses, bridging AI coding agents directly with
-  local language servers and toolchains.
-- **IDE & Browser Extensions (Open Source):** Suite of
-  [VS Code](https://marketplace.visualstudio.com/publishers/R3BL) and
+- **Async TUI Engine & VTE Primitives <span class="pill pill-open-source">Open Source</span>:**
+  [`r3bl_tui`](https://crates.io/crates/r3bl_tui) provides a strictly type-safe,
+  correctness-focused async TUI engine (custom CSS/Flexbox layout engine, custom
+  rendering engine, Elm-style unidirectional state management, React/JSX-style declarative
+  macros, and a full-featured Markdown editor component with custom Markdown parser and
+  syntax highlighting), async readline, headless virtual terminal emulation (VTE), and
+  low-latency PTY/TTY runtime in Rust.
+- **Interactive CLI & TUI Apps <span class="pill pill-open-source">Open Source</span>:**
+  [`r3bl-cmdr`](https://crates.io/crates/r3bl-cmdr) provides a terminal Markdown editor
+  (`edi`) powered by `r3bl_tui`'s Markdown editor component, alongside interactive Git
+  workflows (`giti`) for branch management and staging.
+- **AI & MCP Servers <span class="pill pill-open-source">Open Source</span>:**
+  [`r3bl-rust-analyzer-mcp-server`](https://crates.io/crates/r3bl-rust-analyzer-mcp-server)
+  delivers high-performance Model Context Protocol (MCP) servers and tools for LLMs to
+  orchestrate in their agentic harnesses, bridging AI coding agents directly with local
+  language servers and toolchains.
+- **IDE & Browser Extensions <span class="pill pill-open-source">Open Source</span>:** Suite
+  of [VS Code](https://marketplace.visualstudio.com/publishers/R3BL) and
   [Open VSX](https://open-vsx.org/namespace/R3BL) extensions for Rust development,
   semantic highlighting, and task spaces, alongside the R3BL Shortlink browser extension
   ([Chrome](https://chrome.google.com/webstore/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial)
   and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/r3bl-shortlink/)).
-- **Upcoming Local-First Product Suite ([`r3bl.com`](https://r3bl.com) — Closed Source):**
-  Built on top of the `ROC` open-source foundation, we are building an upcoming suite of
-  terminal-native apps (that all work seamlessly over SSH). Products like **local-first
-  collaborative *"Google Docs meets Jupyter notebooks"* for Markdown** (real-time
-  collaborative editing and Markdown code execution) and **headless virtual terminal
-  multiplexers** with virtual tabs for interactive cloud infrastructure setup and
-  multiplexed AI coding agent workflows — all focused on **data sovereignty, privacy, and
-  local-first computing**.
+- **Upcoming Local-First Product Suite <span class="pill pill-closed-source">Closed Source</span>:**
+  Built on top of the `ROC` open-source foundation, I am building an upcoming suite of
+  terminal apps at [r3bl.com](https://r3bl.com) (which all work seamlessly over SSH).
+  Products like **local-first collaborative _"Google Docs meets Jupyter notebooks"_ for
+  Markdown** (real-time collaborative editing and Markdown code execution) and **headless
+  virtual terminal multiplexers** with virtual tabs for interactive cloud infrastructure
+  setup and multiplexed AI coding agent workflows, all focused on **data sovereignty,
+  privacy, and local-first computing**.
 
 ## What I Bring (30-Year Career)
 
-Over a 30-year tech career, I've remained a hands-on software engineer throughout while
-spending 10+ of those years concurrently leading companies, teams, and product strategy:
+A track record spanning deep systems engineering, foundational infrastructure, and executive leadership:
 
-### Hands-On Software Engineering
-
-- **Founder, Principal Systems Engineer & Maintainer, R3BL (5+ years):** Rust systems
-  programming at scale — strictly type-safe, correctness-focused async architectures,
-  custom CSS/Flexbox layout & rendering engines, full-featured Markdown editor component
-  with custom Markdown parser & syntax highlighting, low-latency PTY/TTY I/O, headless
-  terminal virtualization, and local-first collaborative developer tools.
+- **Founder, Principal Systems Engineer & Maintainer, R3BL (5+ years):** Architecting and
+  building high-performance, strictly type-safe async systems, terminal platforms, and
+  local-first developer tools in Rust.
 - **Senior Software Engineer, Google (7 yrs 6 mos):**
     - **Android Studio IDE platform team:** Performance, memory latency, and stability
       optimization for IntelliJ-based IDE (10M+ LOC codebase) serving millions of
@@ -182,23 +163,11 @@ spending 10+ of those years concurrently leading companies, teams, and product s
   and systems architecture across Defywire (invented US Patent
   [US6891860B1](https://patents.google.com/patent/US6891860) for mobile push/socket
   multiplexing, custom binary wire protocols, and mobile UI markup languages), HP, BEA
-  Systems, SeeBeyond, Infravio, Noblestar, Nanocom, and BeanFactory. Authored a 400-page
-  book on [Java and XML](https://www.amazon.com/dp/188477783X) (Manning Publications,
-  2001; ISBN-10: `188477783X`, ISBN-13: `978-1884777837`).
-- **Full-Stack Systems Breadth:** Desktop, web, mobile, IDEs, and cloud infrastructure —
-  Rust, Kotlin, Java, Android, TypeScript, React, Redux, React Native, Node.js, Python,
+  Systems, SeeBeyond, Infravio, Noblestar, Nanocom, and BeanFactory (authoring the book
+  [Java and XML](https://www.amazon.com/dp/188477783X)).
+- **Full-Stack Systems Breadth:** Desktop, web, mobile, IDEs, and cloud infrastructure:
+  Rust, Kotlin, Java, Android, TypeScript, React, React Native, Node.js, Python,
   Firebase, SQL/NoSQL, TDD, CLI & GUI toolkits.
-
-### Executive & Technical Leadership
-
-- **Founder & CEO Experience (10+ years):** Built and led startups and engineering
-  organizations: R3BL, TRNQL (raised $1.5M VC seed), ScreamingToaster, and BeanFactory.
-  Combining deep systems architecture with business and product strategy, and go-to-market
-  execution.
-- **Team Building & Execution:** Recruiting, mentoring, product vision, and go-to-market
-  execution across distributed and in-person engineering teams.
-- **Player-Coach Leadership:** Comfortable moving fluidly between low-latency systems
-  architecture, production code, and organizational leadership.
 
 ## Teaching, Speaking & Community
 
@@ -207,11 +176,18 @@ scale across the industry and at Google:
 
 - **developerlife.com (Since 1998, 10M+ pageviews):** Founded and authored in-depth
   engineering tutorials and architecture case studies across
-  [Rust](https://developerlife.com/category/Rust/), Tokio, TUI/CLI systems, Kotlin,
-  Android, TypeScript, React, and Redux.
+  [Rust](https://developerlife.com/category/Rust/),
+  [AI & LLMs](https://developerlife.com/category/AI-LLM/) (coding agents and MCP servers),
+  async systems, Tokio, [TUI](https://developerlife.com/category/TUI/) and
+  [CLI](https://developerlife.com/category/CLI/) platforms,
+  [Kotlin](https://developerlife.com/category/KT/),
+  [Android](https://developerlife.com/category/Android/),
+  [TypeScript](https://developerlife.com/category/TS/),
+  [Node.js](https://developerlife.com/category/Node/), and
+  [React](https://developerlife.com/category/React/).
 - **YouTube Live Coding
   ([youtube.com/@developerlifecom](https://www.youtube.com/@developerlifecom)):** Advanced
-  Rust systems programming — async, Tokio, design patterns (typestate, newtype),
+  Rust systems programming: async, Tokio, design patterns (typestate, newtype),
   concurrent and parallel programming, zero-copy parsing, and procedural macros.
 - **Google Android UX Design Show & Udacity Course (400k+ combined reach):** Created and
   hosted the
@@ -225,13 +201,10 @@ scale across the industry and at Google:
   meetup community, presenting at 34+ monthly meetups with 4,000+ developer and designer
   attendees.
 
-> ✨ You can read all my articles on [developerlife.com](https://developerlife.com) and
-> watch my videos on [YouTube](https://www.youtube.com/@developerlifecom).
-
 ## Patents and Books
 
 - **US Patent [US6891860B1](https://patents.google.com/patent/US6891860):** _Method and
   apparatus for establishing multiple bandwidth-limited connections for a communication
   device_
-- **Book:** [Java and XML](https://www.amazon.com/dp/188477783X) — Manning Publications
-  (May 2001, First Edition, 400 pages; ISBN-10: `188477783X`, ISBN-13: `978-1884777837`)
+- **Book:** [Java and XML](https://www.amazon.com/dp/188477783X) (Manning Publications,
+  May 2001, First Edition, 400 pages; ISBN-10: `188477783X`, ISBN-13: `978-1884777837`)

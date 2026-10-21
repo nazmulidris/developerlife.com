@@ -106,6 +106,8 @@ management.
   alongside the R3BL Shortlink browser extension
   ([Chrome](https://chrome.google.com/webstore/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial)
   and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/r3bl-shortlink/)).
+- **Upcoming Local-First Product Suite ([`r3bl.com`](https://r3bl.com)) <span class="pill pill-closed-source">Closed Source</span>:**
+  Terminal apps over SSH — collaborative Markdown editing and virtual terminal multiplexers.
 
 ## What I Bring (30-Year Career)
 

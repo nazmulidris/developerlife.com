@@ -174,8 +174,8 @@ A track record spanning deep systems engineering, foundational infrastructure, a
 I've led the creation of developer narratives, tutorials, and educational programs at
 scale across the industry and at Google:
 
-- **developerlife.com (Since 1998, 10M+ pageviews):** Founded and authored in-depth
-  engineering tutorials and architecture case studies across
+- **developerlife.com (est. 1998):** 28 years of authoring in-depth
+  engineering tutorials and systems architecture patterns across
   [Rust](https://developerlife.com/category/Rust/),
   [AI & LLMs](https://developerlife.com/category/AI-LLM/) (coding agents and MCP servers),
   async systems, Tokio, [TUI](https://developerlife.com/category/TUI/) and

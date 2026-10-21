@@ -62,6 +62,7 @@ reality that delivers genuine value.
 ╚═╝  ╚═╝ ╚═════╝  ╚═════╝
 ```
 
+<!-- BEGIN: SNIPPET narrative_arc -->
 Despite the massive rise of autonomous coding agents and remote cloud VM administration,
 terminal UI and foundational primitives have largely stagnated since the 1990s.
 
@@ -70,44 +71,46 @@ ergonomic remote cloud VM admin.
 
 The first thing I am doing is creating better primitives
 ([`r3bl-open-core` aka `ROC`](https://github.com/r3bl-org/r3bl-open-core)) from the ground
-up in Rust (**2.7M+ downloads** on
-[crates.io](https://crates.io/users/nazmulidris)) to bridge the gap in terminal
-capabilities since the 90's.
+up in Rust (**2.7M+ downloads** on [crates.io](https://crates.io/users/nazmulidris)) to
+bridge the gap in terminal capabilities since the 90's.
 
 Available today, `ROC` provides a strictly type-safe, correctness-focused async TUI
 engine, headless virtual terminal emulation (VTE), low-latency PTY/TTY runtime, CLI/TUI
 apps (`edi`, `giti`), MCP servers, and IDE/browser extensions.
 
-Built on top of this open-source foundation, I'm building an upcoming closed-source
-suite of terminal apps at [r3bl.com](https://r3bl.com) (which all work seamlessly over
-SSH). This includes a local-first collaborative _"Google Docs meets Jupyter notebooks"_
-for Markdown and virtual terminal multiplexers.
+Built on top of this open-source foundation, I'm building an upcoming closed-source suite
+of terminal apps at [r3bl.com](https://r3bl.com) (which all work seamlessly over SSH).
+This includes a local-first collaborative _"Google Docs meets Jupyter notebooks"_ for
+Markdown and virtual terminal multiplexers.
 
 My focus is on preserving data sovereignty, privacy, and enabling local-first computing,
 while enhancing developer productivity, knowledge capture & sharing, and workflow
 management.
+<!-- END: SNIPPET narrative_arc -->
 
 ### Architecture, Platform & Ecosystem
 
+<!-- BEGIN: SNIPPET ecosystem_bullets -->
 - **[`r3bl_tui`](https://crates.io/crates/r3bl_tui) (Async TUI Engine & VTE Primitives) <span class="pill pill-open-source">Open Source</span>:**
   Strictly type-safe async TUI engine with custom CSS/Flexbox layout & rendering engines,
-  Elm-style state, React/JSX-style declarative macros, headless virtual terminal
-  emulation (VTE), low-latency PTY/TTY runtime, and full-featured Markdown editor
-  component.
+  Elm-style state, React/JSX-style declarative macros, headless virtual terminal emulation
+  (VTE), low-latency PTY/TTY runtime, and full-featured Markdown editor component.
 - **[`r3bl-cmdr`](https://crates.io/crates/r3bl-cmdr) (Interactive CLI & TUI Apps) <span class="pill pill-open-source">Open Source</span>:**
   Modal terminal Markdown editor (`edi`) and interactive Git branch & staging workflows
   (`giti`).
 - **[`r3bl-rust-analyzer-mcp-server`](https://crates.io/crates/r3bl-rust-analyzer-mcp-server) (AI & MCP Servers) <span class="pill pill-open-source">Open Source</span>:**
   High-performance Model Context Protocol (MCP) servers bridging AI coding agents
   directly with local language servers and toolchains.
-- **IDE & Browser Extensions <span class="pill pill-open-source">Open Source</span>:** Suite
-  of [VS Code](https://marketplace.visualstudio.com/publishers/R3BL) and
+- **IDE & Browser Extensions <span class="pill pill-open-source">Open Source</span>:**
+  Suite of [VS Code](https://marketplace.visualstudio.com/publishers/R3BL) and
   [Open VSX](https://open-vsx.org/namespace/R3BL) extensions for Rust development,
   alongside the R3BL Shortlink browser extension
   ([Chrome](https://chrome.google.com/webstore/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial)
   and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/r3bl-shortlink/)).
 - **Upcoming Local-First Product Suite ([`r3bl.com`](https://r3bl.com)) <span class="pill pill-closed-source">Closed Source</span>:**
-  Terminal apps over SSH — collaborative Markdown editing and virtual terminal multiplexers.
+  Terminal apps over SSH — collaborative Markdown editing and virtual terminal
+  multiplexers.
+<!-- END: SNIPPET ecosystem_bullets -->
 
 ## What I Bring (30-Year Career)
 

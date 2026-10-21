@@ -17,7 +17,7 @@ exclude: false
             Naz</a> 😃, a <strong>Rustacean 🦀, Systems Engineering Leader &amp; Founder</strong>
             building next-generation terminal platforms and developer tooling for the AI &amp; cloud era.
             Also an ex-Googler (Android Studio IDE Platform),
-            <a href="https://github.com/r3bl-org/r3bl-open-core/" target="_blank">founder, engineer, maintainer</a>,
+            <a href="https://github.com/r3bl-org/r3bl-open-core/" target="_blank">maintainer</a>,
             designer, leader, HsingI-er, racer, storyteller.
             I 💓 leadership, authenticity, play, and hope. I build high-performance systems
             infrastructure and lead teams that ship production systems.

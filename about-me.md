@@ -16,7 +16,7 @@ exclude: false
             Hi, I'm <a href="https://duckduckgo.com/?q=nazmul+idris&ia=web">
             Naz</a> 😃, a <strong>Rustacean 🦀, Systems Engineering Leader &amp; Founder</strong>
             building next-generation terminal platforms and developer tooling for the AI &amp; cloud era.
-            Also an ex-Googler (Android Studio IDE Platform),
+            Also an ex-Googler,
             <a href="https://github.com/r3bl-org/r3bl-open-core/" target="_blank">maintainer</a>,
             designer, leader, HsingI-er, racer, storyteller.
             I 💓 leadership, authenticity, play, and hope. I build high-performance systems

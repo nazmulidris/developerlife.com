@@ -89,36 +89,23 @@ management.
 
 ### Architecture, Platform & Ecosystem
 
-- **Async TUI Engine & VTE Primitives <span class="pill pill-open-source">Open Source</span>:**
-  [`r3bl_tui`](https://crates.io/crates/r3bl_tui) provides a strictly type-safe,
-  correctness-focused async TUI engine (custom CSS/Flexbox layout engine, custom
-  rendering engine, Elm-style unidirectional state management, React/JSX-style declarative
-  macros, and a full-featured Markdown editor component with custom Markdown parser and
-  syntax highlighting), async readline, headless virtual terminal emulation (VTE), and
-  low-latency PTY/TTY runtime in Rust.
-- **Interactive CLI & TUI Apps <span class="pill pill-open-source">Open Source</span>:**
-  [`r3bl-cmdr`](https://crates.io/crates/r3bl-cmdr) provides a terminal Markdown editor
-  (`edi`) powered by `r3bl_tui`'s Markdown editor component, alongside interactive Git
-  workflows (`giti`) for branch management and staging.
-- **AI & MCP Servers <span class="pill pill-open-source">Open Source</span>:**
-  [`r3bl-rust-analyzer-mcp-server`](https://crates.io/crates/r3bl-rust-analyzer-mcp-server)
-  delivers high-performance Model Context Protocol (MCP) servers and tools for LLMs to
-  orchestrate in their agentic harnesses, bridging AI coding agents directly with local
-  language servers and toolchains.
+- **[`r3bl_tui`](https://crates.io/crates/r3bl_tui) (Async TUI Engine & VTE Primitives) <span class="pill pill-open-source">Open Source</span>:**
+  Strictly type-safe async TUI engine with custom CSS/Flexbox layout & rendering engines,
+  Elm-style state, React/JSX-style declarative macros, headless virtual terminal
+  emulation (VTE), low-latency PTY/TTY runtime, and full-featured Markdown editor
+  component.
+- **[`r3bl-cmdr`](https://crates.io/crates/r3bl-cmdr) (Interactive CLI & TUI Apps) <span class="pill pill-open-source">Open Source</span>:**
+  Modal terminal Markdown editor (`edi`) and interactive Git branch & staging workflows
+  (`giti`).
+- **[`r3bl-rust-analyzer-mcp-server`](https://crates.io/crates/r3bl-rust-analyzer-mcp-server) (AI & MCP Servers) <span class="pill pill-open-source">Open Source</span>:**
+  High-performance Model Context Protocol (MCP) servers bridging AI coding agents
+  directly with local language servers and toolchains.
 - **IDE & Browser Extensions <span class="pill pill-open-source">Open Source</span>:** Suite
   of [VS Code](https://marketplace.visualstudio.com/publishers/R3BL) and
   [Open VSX](https://open-vsx.org/namespace/R3BL) extensions for Rust development,
-  semantic highlighting, and task spaces, alongside the R3BL Shortlink browser extension
+  alongside the R3BL Shortlink browser extension
   ([Chrome](https://chrome.google.com/webstore/detail/r3bl-shortlink/ffhfkgcfbjoadmhdmdcmigopbfkddial)
   and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/r3bl-shortlink/)).
-- **Upcoming Local-First Product Suite <span class="pill pill-closed-source">Closed Source</span>:**
-  Built on top of the `ROC` open-source foundation, I am building an upcoming suite of
-  terminal apps at [r3bl.com](https://r3bl.com) (which all work seamlessly over SSH).
-  Products like **local-first collaborative _"Google Docs meets Jupyter notebooks"_ for
-  Markdown** (real-time collaborative editing and Markdown code execution) and **headless
-  virtual terminal multiplexers** with virtual tabs for interactive cloud infrastructure
-  setup and multiplexed AI coding agent workflows, all focused on **data sovereignty,
-  privacy, and local-first computing**.
 
 ## What I Bring (30-Year Career)
 
